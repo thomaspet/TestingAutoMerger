@@ -7,6 +7,7 @@ export class JournalEntryData {
     SameOrNewDetails: any // TODO: find out what type this actually is;
 
     NumberSeriesTaskID: number;
+    NumberSeriesID: number;
 
     JournalEntryID: number;
     JournalEntryLineID: number;

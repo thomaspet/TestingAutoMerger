@@ -3863,6 +3863,7 @@ export class NumberSeries extends UniEntity {
     public static EntityType = 'NumberSeries';
 
     public _createguid: string;
+    public DisplayName: string;
     public AccountYear: number;
     public Comment: string;
     public CreatedAt: Date;
@@ -4256,6 +4257,7 @@ export class JournalEntry extends UniEntity {
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
     public NumberSeriesTaskID: number;
+    public NumberSeriesID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;

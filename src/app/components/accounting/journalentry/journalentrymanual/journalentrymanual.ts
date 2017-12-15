@@ -7,7 +7,8 @@ import {
     VatDeduction,
     CompanySettings,
     JournalEntryLine,
-    NumberSeriesTask
+    NumberSeriesTask,
+    NumberSeries
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
@@ -63,13 +64,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
     @Input() public editmode: boolean = false;
-    @Input() public selectedNumberSeriesTaskID: number;
+    @Input() public selectedNumberSeries: NumberSeries;
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniTable) private openPostsTable: UniTable;
-    @ViewChild(JournalEntryProfessional) private journalEntryProfessional: JournalEntryProfessional;
+    @ViewChild(JournalEntryProfessional)
+
+    private journalEntryProfessional: JournalEntryProfessional;
 
     private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
@@ -96,6 +99,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public journalEntrySettings: JournalEntrySettings;
 
     public numberSeriesTasks: Array<NumberSeriesTask>;
+    public numberSeries: Array<NumberSeries>;
 
     public saveactions: IUniSaveAction[];
     public isDirty: boolean = false;
@@ -143,21 +147,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
 
-                this.numberSeriesTaskService.getActiveNumberSeriesTasks(
+                this.numberSeriesService.getActiveNumberSeries(
                     'JournalEntry', this.currentFinancialYear.Year
-                ).subscribe((tasks) => {
-                    tasks.forEach(x => {
-                        const task = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
-                        const serie = this.numberSeriesService.translateSerie(x.DefaultNumberSeries);
-                        const name = serie !== null ? task._DisplayName + ' | ' + serie._DisplayName  : task._DisplayName;
-                        task._DisplayName =  name;
-                    });
-                    this.numberSeriesTasks = tasks.map(x => x.NumberSeriesTask);
-
+                ).subscribe((series) => {
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(series);
                     if (!this.hasLoadedData) {
                         this.loadData();
                     }
-
                     this.setSums();
                     this.setupSubscriptions();
 

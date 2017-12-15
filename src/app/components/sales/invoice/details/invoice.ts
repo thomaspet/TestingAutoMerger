@@ -269,7 +269,7 @@ export class InvoiceDetails {
                         invoice.DefaultDimensions.ProjectID = res[7].ID;
                         invoice.DefaultDimensions.Project = res[7];
                     }
-                    this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
                     this.projects = res[9];
                     this.sellers = res[10];
 

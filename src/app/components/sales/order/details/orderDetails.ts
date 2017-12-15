@@ -300,7 +300,7 @@ export class OrderDetails {
                             order.DefaultDimensions.ProjectID = res[7].ID;
                             order.DefaultDimensions.Project = res[7];
                         }
-                        this.numberSeries = res[8].map(x => this.numberSeriesService.translateSerie(x));
+                        this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
                         this.selectConfig = this.numberSeriesService.getSelectConfig(
                             this.orderID, this.numberSeries, 'Customer Order number series'
                         );

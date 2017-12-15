@@ -413,7 +413,7 @@ export class CustomerDetails implements OnInit {
                 this.currencyCodes = response[7];
                 this.paymentTerms = response[8];
                 this.deliveryTerms = response[9];
-                this.numberSeries = response[10].map(x => this.numberSeriesService.translateSerie(x));
+                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[10]);
                 this.sellers = response[11];
 
                 const customer: Customer = response[2];

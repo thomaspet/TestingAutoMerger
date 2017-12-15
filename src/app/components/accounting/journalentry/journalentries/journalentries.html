@@ -1,13 +1,13 @@
 <uni-toolbar [config]="toolbarConfig"
              [selectConfig]="selectConfig"
              [saveactions]="journalEntryManual.saveactions"
-             (selectValueChanged)="numberSeriesTaskChanged($event)">
+             (selectValueChanged)="numberSeriesChanged($event)">
 </uni-toolbar>
 
 <journal-entry-manual
     [mode]="0"
     [journalEntryID]="currentJournalEntryID"
-    [selectedNumberSeriesTaskID]="selectedNumberSeriesTaskID"
+    [selectedNumberSeries]="selectedNumberSeries"
     [editmode]="editmode"
     (dataCleared)="onDataCleared()"
     (componentInitialized)="journalEntryManualInitialized()">

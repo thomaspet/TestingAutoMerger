@@ -307,7 +307,7 @@ export class NumberSeries {
 
         if (index >= 0) {
             if (!row.ID && !row.Name) {
-                row.Name = row._DisplayName;
+                row.Name = row.DisplayName;
             }
 
             if (!row.ID && row.FromNumber && (!row.NextNumber || row.NextNumber < row.FromNumber)) {
@@ -399,31 +399,45 @@ export class NumberSeries {
             .setAutoAddNewRow(true)
             .setMultiRowSelect(true)
             .setColumns([
-                new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
-                    .setEditable(row => !row.ID && row._rowSelected)
+                new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    })
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
-                    .setEditable(row => row._rowSelected)
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    })
                     .setWidth('16rem'),
                 new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
-                    .setEditable(row => row._rowSelected),
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    }),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
-                    .setEditable(row => row._rowSelected)
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    })
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
-                    .setEditable(row => row._rowSelected),
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    }),
                 new UniTableColumn('_Yearly', 'Årlig?', UniTableColumnType.Select)
                     .setTemplate(row => row.NumberSeriesType
                         ? row.NumberSeriesType.Yearly ? 'Årlig' : 'Fortløpende'
                         : '')
-                    .setEditable(row => !row.ID && row._rowSelected)
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    })
                     .setOptions({
                         hideNotChosenOption: false,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.yearly
                     }),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
-                    .setEditable(x => !x.row)
+                    .setEditable(row => {
+                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
+                    })
                     .setTemplate(row => {
                         if (!row.NumberSeriesTask) {
                             return 'Bokføring'; // Missing NumberSeriesTask
@@ -452,6 +466,14 @@ export class NumberSeries {
                         field: 'ID',
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.asinvoicenumber
+                    }),
+                    new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
+                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setVisible(true)
+                    .setWidth('4rem')
+                    .setOptions({
+                        resource: [true, false],
+                        itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
@@ -489,8 +511,9 @@ export class NumberSeries {
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setColumns([
-                new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
-                    .setEditable(row => !row.ID)
+
+                new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
+                    .setEditable(row => !row.ID || row.Disabled)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
                     .setEditable(true)
@@ -504,26 +527,54 @@ export class NumberSeries {
                     .setEditable(true),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
                     .setVisible(false) // Hidden because we haven't defined any tasks for sales numberseries yet
-                    .setEditable(row => !row.ID)
-                    .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask._DisplayName : '')
+                    .setEditable(row => !row.ID || row.Disabled)
+                    .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask.DisplayName : '')
                     .setOptions({
                         hideNotChosenOption: false,
                         field: 'ID',
-                        displayField: '_DisplayName',
+                        displayField: 'DisplayName',
                         resource: this.tasks.filter(x => x.EntityType !== 'JournalEntry')
                     }),
-                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
+                new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
                     .setOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers.filter(x => x.Sale)
+                    }),
+                    new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
+                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setVisible(true)
+                    .setWidth('4rem')
+                    .setOptions({
+                        resource: [true, false],
+                        itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
+            ])
+            .setContextMenu([
+                {
+                    label: 'Sett som standard for angitt oppgave',
+                    disabled: (serie) => serie.IsDefaultForTask || !serie.ID,
+                    action: (serie) => {
+                        this.current.filter(
+                            x => x.IsDefaultForTask && x.AccountYear === serie.AccountYear
+                            && x.NumberSeriesTaskID === serie.NumberSeriesTaskID
+                        ).map(x => {
+                            x.IsDefaultForTask = false;
+                        });
+
+                        serie.IsDefaultForTask = true;
+                        serie._isDirty = true;
+                        this.current[serie._originalIndex] = serie;
+                        this.hasUnsavedChanges = true;
+                        this.current = _.cloneDeep(this.current);
+                    }
+                }
             ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
-                _DisplayName: '',
+                DisplayName: '',
                 _Register: null,
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
@@ -535,7 +586,7 @@ export class NumberSeries {
             .setSearchable(false)
             .setAutoAddNewRow(true)
             .setColumns([
-                new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
+                new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(row => !row.ID)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
@@ -548,7 +599,7 @@ export class NumberSeries {
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
-                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
+                new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
                     .setOptions({
@@ -586,6 +637,14 @@ export class NumberSeries {
                             return this.accountSearch(searchValue);
                         }
                     }),
+                    new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
+                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setVisible(true)
+                    .setWidth('4rem')
+                    .setOptions({
+                        hideNotChosenOption: false,
+                        resource: ['Ja', 'Nei']
+                    })
                 ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
@@ -600,7 +659,7 @@ export class NumberSeries {
             .setSearchable(false)
             .setAutoAddNewRow(false)
             .setColumns([
-                new UniTableColumn('_DisplayName', 'Navn', UniTableColumnType.Text)
+                new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(false)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
@@ -608,13 +667,21 @@ export class NumberSeries {
                     .setWidth('16rem'),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
-                new UniTableColumn('_Register', 'Register', UniTableColumnType.Select)
+                new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(false)
                     .setTemplate(row => row._Register && row._Register.DisplayName)
                     .setOptions({
                         hideNotChosenOption: true,
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers
+                    }),
+                    new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
+                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setVisible(true)
+                    .setWidth('4rem')
+                    .setOptions({
+                        hideNotChosenOption: false,
+                        resource: ['Ja', 'Nei']
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
@@ -744,7 +811,6 @@ export class NumberSeries {
 
     private addCustomFields(result) {
         return result.map(x => {
-            x = this.numberSeriesService.translateSerie(x);
             x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'JournalEntry');
             x._Yearly = this.numberSeriesService.yearly.find(y => y.ID === x.NumberSeriesType.Yearly);
 
@@ -806,7 +872,7 @@ export class NumberSeries {
 
             x._rowSelected = true;
             if (!x.Name) {
-                x.Name = x._DisplayName;
+                x.Name = x.DisplayName;
             }
 
             return x;

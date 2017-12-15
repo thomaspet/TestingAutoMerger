@@ -35,6 +35,7 @@ import {
     BankAccount,
     VatDeduction,
     InvoicePaymentData,
+    NumberSeries
 } from '../../../../../unientities';
 import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
 import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
@@ -87,7 +88,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
-    @Input() public selectedNumberSeriesTaskID: number;
+    @Input() public selectedNumberSeries: NumberSeries;
 
     @ViewChild(UniTable) private table: UniTable;
 
@@ -95,6 +96,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
     private journalEntryTableConfig: UniTableConfig;
     public createdNewAccount: any;
+    private selectedNumberSeriesTaskID: number;
 
     @Output() public dataChanged: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
     @Output() public dataLoaded: EventEmitter<JournalEntryData[]> = new EventEmitter<JournalEntryData[]>();
@@ -212,9 +214,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        if (changes['selectedNumberSeriesTaskID']) {
+        if (changes['selectedNumberSeries'] && this.selectedNumberSeries) {
+
+            this.selectedNumberSeriesTaskID =  this.selectedNumberSeries.NumberSeriesTaskID;
             this.setupJournalEntryNumbers(true);
         }
+
+
     }
 
     public setJournalEntryData(data) {
@@ -2033,6 +2039,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             const journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
             journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+            journalentrytoday.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
 
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)
                 .subscribe(numberdata => {
@@ -2048,7 +2055,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             const editableRows = tableData.filter(row => !row.StatusCode);
 
                             // Check if readonly rows contains one or more lines with the wrong numberseries
-                            const shouldUpdateData = editableRows.some(row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID);
+                            const shouldUpdateData = editableRows.some(
+                                row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
+                                row.NumberseriessID !== this.selectedNumberSeries.ID
+                            );
                             if (shouldUpdateData) {
                                 const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
                                 uniQueNumbers.forEach(uniQueNumber => {
@@ -2059,6 +2069,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         line.SameOrNew = line.JournalEntryNo;
                                         line.SameOrNewDetails = {ID: line.JournalEntryNo, Name: line.JournalEntryNo};
                                         line.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+                                        line.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
                                     });
 
                                     // Update next available number
@@ -2144,7 +2155,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public postJournalEntryData(completeCallback) {
         const tableData = this.table.getTableData();
-
+        tableData.forEach(data => {
+            data.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
+        });
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {
                 const firstJournalEntry = data[0];

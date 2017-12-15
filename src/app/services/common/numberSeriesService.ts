@@ -25,6 +25,16 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .send().map(response => response.json());
     }
 
+    public getActiveNumberSeries(entityType: string, year: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=get-active-numberseries&entityType=${entityType}&year=${year}`)
+            .send()
+            .map(response => response.json());
+    }
+
+
     public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {
         return numberSeries && numberSeries.length > 1 && ID === 0 ?
             {
@@ -43,11 +53,11 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     }
 
     public suggestions: any[] = [
-        {Name: 'JournalEntry supplierinvoice number series type', _DisplayName: 'Faktura bilag (innkjøp)', _Task: 'SupplierInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 60000, _ToNumber: 69999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry salary number series type', _DisplayName: 'Lønnsbilag', _Task: 'Salary', _Register: 'Bilag', NextNumber: null, _FromNumber: 70000, _ToNumber: 79999, _NextNumber: 70000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry bank number series type', _DisplayName: 'Bank', _Task: 'Bank', _Register: 'Bilag', NextNumber: null, _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry vatreport number series type', _DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry invoice number series type', _DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry supplierinvoice number series type', DisplayName: 'Faktura bilag (innkjøp)', _Task: 'SupplierInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 60000, _ToNumber: 69999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry salary number series type', DisplayName: 'Lønnsbilag', _Task: 'Salary', _Register: 'Bilag', NextNumber: null, _FromNumber: 70000, _ToNumber: 79999, _NextNumber: 70000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry bank number series type', DisplayName: 'Bank', _Task: 'Bank', _Register: 'Bilag', NextNumber: null, _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry vatreport number series type', DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
+        {Name: 'JournalEntry invoice number series type', DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null},
     ];
 
     public yearly: any[] = [
@@ -84,61 +94,16 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         {EntityType: 'Employee', DisplayName: 'Ansatt', Sale: false},
     ];
 
-    public translateSerie(serie) {
-        switch(serie.Name) {
-            case 'JournalEntry number series Yearly':
-            case 'JournalEntry number series yearly':
-                serie._DisplayName = `Generelle bilag ${serie.AccountYear}`;
-                break;
-            case 'JournalEntry number series type NOT yearly':
-                serie._DisplayName = 'Generelle bilag';
-                break;
-            case 'JournalEntry invoice number series type':
-                serie._DisplayName = 'Faktura bilag (salg)';
-                break;
-            case 'JournalEntry supplierinvoice number series type':
-                serie._DisplayName = 'Faktura bilag (innkjøp)';
-                break;
-            case 'JournalEntry salary number series type':
-                serie._DisplayName = 'Lønnsbilag';
-                break;
-            case 'JournalEntry bank number series type':
-                serie._DisplayName = 'Bank';
-                break;
-            case 'JournalEntry vatreport number series type':
-                serie._DisplayName = 'MVA';
-                break;
-            case 'Customer Invoice number series':
-                serie._DisplayName = 'Fakturanummer';
-                break;
-            case 'Customer Order number series':
-                serie._DisplayName = 'Ordrenummer'
-                break;
-            case 'Customer Quote number series':
-                serie._DisplayName = 'Tilbudsnummer';
-                break;
-            case 'Customer Invoice Reminder number series':
-                serie._DisplayName = 'Purrenummer';
-                break;
-            case 'Customer number series':
-                serie._DisplayName = 'Debitor';
-                break;
-            case 'Supplier number series':
-                serie._DisplayName = 'Kreditor';
-                break;
-            case 'Department number series':
-                serie._DisplayName = 'Avdeling';
-                break;
-            case 'Employee number series':
-                serie._DisplayName = 'Ansatt';
-                break;
-            case 'Project number series':
-                serie._DisplayName = 'Prosjekt';
-                break;
-            default:
-                serie._DisplayName = serie.Name;
-        }
 
+    public CreateAndSet_DisplayNameAttributeOnSerie(serie: NumberSeries) {
+        serie['_DisplayName'] = serie.DisplayName;
         return serie;
+    }
+
+    public CreateAndSet_DisplayNameAttributeOnSeries(series: Array<NumberSeries>) {
+        series.forEach(serie => {
+            serie = this.CreateAndSet_DisplayNameAttributeOnSerie(serie);
+        });
+        return series;
     }
 }

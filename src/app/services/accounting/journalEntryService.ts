@@ -216,6 +216,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 // for each new number in line.JournalEntryNo, create a new journalentry
                 je = new JournalEntryExtended();
                 je.NumberSeriesTaskID = line.NumberSeriesTaskID;
+                je.NumberSeriesID = line.NumberSeriesID;
                 je.DraftLines = [];
                 je.FileIDs = line.FileIDs;
                 je.Payments = [];

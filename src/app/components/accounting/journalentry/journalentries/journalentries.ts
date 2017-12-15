@@ -2,11 +2,11 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, ErrorService, JournalEntryLineService} from '../../../../services/services';
+import {JournalEntryService, ErrorService, JournalEntryLineService, NumberSeriesService} from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {NumberSeriesTask} from '../../../../unientities';
+import {NumberSeriesTask, NumberSeries} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -19,8 +19,8 @@ import {Observable} from 'rxjs/Observable';
     templateUrl: './journalentries.html'
 })
 export class JournalEntries {
-    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
-
+    @ViewChild(JournalEntryManual)
+    private journalEntryManual: JournalEntryManual;
     private contextMenuItems: IContextMenuItem[] = [];
 
     private toolbarConfig: IToolbarConfig = {
@@ -36,7 +36,8 @@ export class JournalEntries {
     private currentJournalEntryNumber: string;
     private currentJournalEntryID: number;
     public editmode: boolean = false;
-    private selectedNumberSeriesTask: NumberSeriesTask;
+    private selectedNumberSeries: NumberSeries;
+    private selectedNumberSeriesID: number;
     private selectedNumberSeriesTaskID: number;
     private selectConfig: any;
 
@@ -48,7 +49,8 @@ export class JournalEntries {
         private errorService: ErrorService,
         private journalEntryService: JournalEntryService,
         private journalEntryLineService: JournalEntryLineService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private numberSeriesService: NumberSeriesService
     ) {
         this.tabService.addTab({
             name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
@@ -129,10 +131,9 @@ export class JournalEntries {
     }
 
     public journalEntryManualInitialized() {
-        // set selected numberseriestask to 1 by default (Journal)
-        this.selectedNumberSeriesTaskID = 1;
-        this.selectedNumberSeriesTask =
-            this.journalEntryManual.numberSeriesTasks.find(x => x.ID === 1);
+        this.selectedNumberSeries = this.journalEntryManual.numberSeries[0];
+        this.selectedNumberSeriesID =  this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+        this.selectedNumberSeriesTaskID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.NumberSeriesTaskID : 0;
 
         this.setupToolBarconfig();
     }
@@ -174,11 +175,11 @@ export class JournalEntries {
 
         let selectConfig = this.journalEntryManual
             && !this.currentJournalEntryID
-            && this.journalEntryManual.numberSeriesTasks.length > 1 ?
+            && this.journalEntryManual.numberSeries.length > 1 ?
                 {
-                    items: this.journalEntryManual.numberSeriesTasks,
-                    selectedItem: this.selectedNumberSeriesTask,
-                    label: 'Nummerserie:'
+                    items: this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(this.journalEntryManual.numberSeries),
+                    label: 'Nummerserie:',
+                    selectedItem: this.selectedNumberSeries
                 }
                 : null;
 
@@ -186,9 +187,9 @@ export class JournalEntries {
         this.toolbarConfig = toolbarConfig;
     }
 
-    public numberSeriesTaskChanged(selectedTask) {
+    public numberSeriesChanged(selectedNumberSerie) {
         if (this.journalEntryManual) {
-            if (selectedTask && selectedTask.ID !== this.selectedNumberSeriesTaskID) {
+            if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeriesID) {
                 let currentData = this.journalEntryManual.getJournalEntryData();
 
                 if (currentData.length > 0) {
@@ -202,24 +203,26 @@ export class JournalEntries {
                         }
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            // set the selectedNumberSeriesTaskID based on the selected numberseriestask,
+                            // set the selectedNumberSeriesID based on the selected numberseries,
                             // this will be databound to the journalentrymanual and journalentryprofessional
-                            this.selectedNumberSeriesTaskID = selectedTask.ID;
+                            this.selectedNumberSeriesID = selectedNumberSerie.ID;
+                            currentData.forEach(data => { data.NumberSeriesID = this.selectedNumberSeriesID; });
                         } else {
                             // reset the selected task object to the previous task because
                             // the user doesnt want to change it anyway
-                            this.selectedNumberSeriesTask = this.journalEntryManual.numberSeriesTasks
-                                .find(task => task.ID === this.selectedNumberSeriesTaskID);
+                            this.selectedNumberSeries = this.journalEntryManual.numberSeries
+                                .find(ns => ns.ID === this.selectedNumberSeriesID);
 
                             this.setupToolBarconfig();
                         }
                     });
                 } else {
-                    this.selectedNumberSeriesTaskID = selectedTask.ID;
+                    this.selectedNumberSeriesID = selectedNumberSerie.ID;
                 }
             }
 
-            this.selectedNumberSeriesTask = selectedTask;
+            this.selectedNumberSeries = selectedNumberSerie;
+            this.selectedNumberSeriesTaskID = selectedNumberSerie.NumberSeriesTaskID;
         }
     }
     private openPredefinedDescriptions() {

@@ -102,7 +102,7 @@ export class UnitableSelect {
     }
 
     private getDisplayValue(item: any): string {
-        if (!item) {
+        if (item === null || item === undefined) {
             return 'Ikke valgt';
         }
 

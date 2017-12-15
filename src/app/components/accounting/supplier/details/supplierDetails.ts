@@ -339,7 +339,7 @@ export class SupplierDetails implements OnInit {
                 this.dropdownData = [response[1], response[2]];
                 this.emptyBankAccount = response[3];
                 this.currencyCodes = response[4];
-                this.numberSeries = response[5].map(x => this.numberSeriesService.translateSerie(x));
+                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[5]);
 
                 // to pass value to newSupplierModal - Supplier.Info.Name field from unisearch
                 if (this.supplierNameFromUniSearch) {
