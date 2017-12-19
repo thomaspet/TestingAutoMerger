@@ -84,6 +84,46 @@ export class UniFilesService {
                     }
                 });
     }
+
+    public splitFile(fileStorageReference, fromPage, reauthOnFailure: boolean): Promise<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return new Promise((resolve, reject) => {
+            this.http
+                .post(
+                    this.uniFilesBaseUrl + `/api/file/split?id=${fileStorageReference}&frompage=${fromPage}`,
+                    null,
+                    options)
+                .map(response => response.json())
+                .subscribe(res => {
+                        resolve(res);
+                    },
+                    err => {
+                        // if error occurred, try to reauth and retry once
+                        if (reauthOnFailure) {
+                            this.authService.authenticateUniFiles()
+                                .then(() => {
+                                    this.splitFile(fileStorageReference, fromPage, false)
+                                        .then(retryRes => {
+                                            resolve(retryRes);
+                                        })
+                                        .catch(errRetry => reject(errRetry));
+                                })
+                                .catch(errReAuth => {
+                                    reject(errReAuth);
+                                });
+                        } else {
+                            reject(err);
+                        }
+                    });
+        });
+    }
 }
 
 

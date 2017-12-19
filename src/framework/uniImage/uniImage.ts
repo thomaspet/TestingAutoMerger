@@ -39,7 +39,11 @@ export interface IUploadConfig {
                 <label>{{fileInfo}}</label>
 
                 <a *ngIf="this.printOut" class="print" (click)="print()"></a>
-
+                <a class="split"
+                    (click)="splitFile()"
+                    *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 0">
+                    <i class="material-icons">call_split</i>
+                </a>
                 <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
                 <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="next" (click)="next()"></a>
             </section>
@@ -124,6 +128,9 @@ export class UniImage {
 
     @Input()
     public readonly: boolean;
+
+    @Input()
+    public splitAllowed: boolean;
 
     @Input()
     public singleImage: boolean;
@@ -441,6 +448,38 @@ export class UniImage {
         pwa.document.open();
         pwa.document.write(this.imageToPrint(source));
         pwa.document.close();
+    }
+
+    private splitFile() {
+        this.modalService.confirm({
+            header: 'Bekreft oppdeling av fil',
+            message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. Siste del av filen vil legges tilbake i innboksen',
+            buttonLabels: {
+                accept: 'Bekreft',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.uniFilesService.splitFile(this.files[this.currentFileIndex].StorageReference, this.currentPage, true)
+                    .then(splitFileResult => {
+                        this.fileService.splitFile(
+                            this.files[this.currentFileIndex].ID,
+                            splitFileResult.FirstPart.ExternalId,
+                            splitFileResult.SecondPart.ExternalId
+                        ).subscribe(splitResultUE => {
+                            // replace the current file, and make uniimage reload the split file
+                            this.files[this.currentFileIndex] = splitResultUE.FirstPart;
+
+                            // because the file was split, go back one page, or the request will
+                            // fail because the page does not exist
+                            this.currentPage--;
+                            this.loadImage();
+
+                            this.fileListReady.emit(this.files);
+                        }, err => this.errorService.handle(err));
+                    }).catch(err => this.errorService.handle(err));
+                }
+        });
     }
 
     private deleteImage() {

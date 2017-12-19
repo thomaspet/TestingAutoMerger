@@ -81,6 +81,7 @@ uni-image
     .uni-thumbnail-list
         display: block
         list-style: none
+        margin-right: 0.5rem
 
         li
             height: pxToRem(50)
@@ -199,6 +200,21 @@ uni-image
 
             &:hover:before
                 background-size: .9rem
+
+        .split
+            position: absolute
+            cursor: pointer
+            right: calc(1% + 4.5rem)
+            height: 3rem
+            width: 2rem
+            margin-top: 0.9rem
+
+            i
+                font-size: 20px
+                color: $uni-color-scale9
+
+                &:hover
+                    font-size: 22px
 
     .uni-thumbnail-list.-has-thumbnails
         @media (min-width: pxToRem(1600px))
