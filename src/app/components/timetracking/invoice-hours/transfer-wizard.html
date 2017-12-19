@@ -4,13 +4,13 @@
     </header>
 
     <article [attr.aria-busy]="busy">
-        <div class="stepheader">{{steps[step].label}}</div>
+        <div class="stepheader">{{steps[step].label}}:</div>
         
         <section class="wizard-step-container" [hidden]="step !== 0">
             <form>
                 <div class="container">
                     <label>Medarbeidere:</label>
-                    <select >
+                    <select name="workertype" [(ngModel)]="workerTypeCombo" >
                         <option value="0">Mine timer</option>
                         <option value="1">Alle medarbeidere</option>
                     </select>
@@ -24,16 +24,20 @@
         </section>
 
         <section class="wizard-step-container" [hidden]="step !== 1">
-            <workitem-transfer-wizard-filter [options]="filterOptions" ></workitem-transfer-wizard-filter>
+            <workitem-transfer-wizard-filter [options]="wizardOptions"></workitem-transfer-wizard-filter>
         </section>
 
         <section class="wizard-step-container" [hidden]="step !== 2">
-            {{filterOptions.selectedCustomers?.length}} selected customers
+            <workitem-transfer-wizard-products [options]="wizardOptions"></workitem-transfer-wizard-products>
         </section>
         
         <section class="wizard-step-container" [hidden]="step !== 3">
-
+            <workitem-transfer-wizard-preview [options]="wizardOptions"></workitem-transfer-wizard-preview>
         </section>        
+
+        <section class="wizard-step-container" [hidden]="step !== 4">
+            Trykk "Fullfør" for å starte generering av ordrer.
+        </section>   
 
     </article>
 

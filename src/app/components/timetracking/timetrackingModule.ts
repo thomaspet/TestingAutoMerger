@@ -40,6 +40,8 @@ import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {WorkitemTransferWizard} from './invoice-hours/transfer-wizard';
 import {WorkitemTransferWizardFilter} from './invoice-hours/transfer-wizard-filter';
+import {WorkitemTransferWizardProducts} from './invoice-hours/transfer-wizard-products';
+import {WorkitemTransferWizardPreview} from './invoice-hours/transfer-wizard-preview';
 import {InvoiceHours} from './invoice-hours/invoice-hours';
 
 @NgModule({
@@ -89,6 +91,8 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
         TimetrackingDashboard,
         WorkitemTransferWizard,
         WorkitemTransferWizardFilter,
+        WorkitemTransferWizardProducts,
+        WorkitemTransferWizardPreview,
         InvoiceHours
     ],
     providers: [

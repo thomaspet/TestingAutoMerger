@@ -4,22 +4,23 @@ import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
+import { IWizardOptions } from './wizardoptions';
 
 @Component({
     selector: 'workitem-transfer-wizard-filter',
-    template: `<uni-table [attr.aria-busy]="busy" *ngIf="initialized" [resource]="dataSource" [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)"
-        (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
+    template: `<uni-table [attr.aria-busy]="busy" *ngIf="initialized" [resource]="dataLookup" [config]="tableConfig">
     </uni-table>`
 })
 export class WorkitemTransferWizardFilter implements OnInit {
-    @Input() public options: { userId: number, sourceType: string };
     @ViewChild(UniTable) private uniTable: UniTable;
-
-    public selectedItems: Array<{CustomerID: number}>;
+    @Input() public options: IWizardOptions;
+    public get selectedItems() {
+        return this.uniTable.getSelectedRows();
+    }
     public tableConfig: IUniTableConfig;
     public busy = true;
     public initialized = false;
+    public dataLookup: (params) => {};
 
     constructor(
         private statisticsService: StatisticsService,
@@ -31,20 +32,13 @@ export class WorkitemTransferWizardFilter implements OnInit {
     public ngOnInit() {
     }
 
-    public onRowSelected(event) {
-
-    }
-
-    public onRowSelectionChanged() {
-        this.selectedItems = this.uniTable.getSelectedRows();
-    }
-
     public refresh() {
         this.initialized = true;
         this.busy = true;
         if (this.tableConfig) {
             this.uniTable.refreshTableData();
         } else {
+            this.dataLookup = (params) => this.dataSource(params);
             this.tableConfig = this.createTableConfig();
         }
     }
@@ -59,8 +53,12 @@ export class WorkitemTransferWizardFilter implements OnInit {
             + ',Info.Name as CustomerName'
             + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
         query.set('expand', 'workrelation.worker,customer.info&orderby=customerid');
+        query.set('orderby', 'info.name');
         query.set('filter', 'transferedtoorder eq 0 and CustomerID gt 0');
-        query.set('orderby', 'customerid');
+
+        if (this.options && this.options.filterByUserID) {
+            query.set('filter', `${query.get('filter')} and worker.userid eq ${this.options.filterByUserID}`);
+        }
 
         return this.statisticsService.GetAllByUrlSearchParams(query, true)
         .finally( () => this.busy = false)
@@ -85,6 +83,9 @@ export class WorkitemTransferWizardFilter implements OnInit {
                 const rows = (data && data.Success && data.Data) ? data.Data : [];
                 rows.forEach(row => {
                     row.SumMinutes = row.SumMinutes ? row.SumMinutes / 60 : 0;
+                    if (this.options.filterByUserID) {
+                        row._rowSelected = true;
+                    }
                 });
                 return rows;
             });

@@ -1,0 +1,17 @@
+<div [attr.aria-busy]="busy" class="workorder" *ngFor="let order of orderList">
+    <h3>{{order.CustomerName}}
+        <span style="float: right">Totalsum: {{order.TaxExclusiveAmount | unicurrency}}</span></h3>
+    <table>
+    <tr>
+        <th>Tekst</th>
+        <th class="right">Antall</th>
+        <th class="right">Pris</th>
+        <th class="right">Linjesum</th>
+    <tr *ngFor="let item of order.Items">
+        <td>{{item.ItemText}}</td>
+        <td class="right">{{item.NumberOfItems}}</td>
+        <td class="right">{{item.PriceExVat | unicurrency}}</td>
+        <td class="right">{{item.SumTotalExVat | unicurrency}}</td>
+    </tr>
+    </table>
+</div>

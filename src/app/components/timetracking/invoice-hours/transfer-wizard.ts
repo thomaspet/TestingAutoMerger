@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {
     IUniModal,
     IModalOptions,
@@ -7,10 +7,12 @@ import {
 } from '@uni-framework/uniModal/modalService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ErrorService } from '@app/services/common/errorService';
-import { OnInit, AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { UserService } from '@app/services/services';
-import { WorkitemTransferWizardFilter } from '@app/components/timetracking/invoice-hours/transfer-wizard-filter';
+import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { IWizardOptions } from './wizardoptions';
+import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
+import { WorkitemTransferWizardPreview } from '@app/components/timetracking/invoice-hours/transfer-wizard-preview';
 
 @Component({
     selector: 'workitem-transfer-wizard',
@@ -18,7 +20,7 @@ import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
     styles: [
         `.container { padding: 1em 1em 0 1em; }
          .wizard-step-container { height: 15em; overflow-y: auto; }
-         .stepheader { padding-bottom: 0.5em; font-weight: bold; }
+         .stepheader { padding-bottom: 0.5em; font-weight: bold; font-size: 12pt; }
         `
     ]
 })
@@ -26,14 +28,17 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     @Input() public options: IModalOptions = {};
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     @ViewChild(WorkitemTransferWizardFilter) private wizardFilter: WorkitemTransferWizardFilter;
+    @ViewChild(WorkitemTransferWizardProducts) private wizardProducts: WorkitemTransferWizardProducts;
+    @ViewChild(WorkitemTransferWizardPreview) private wizardPreview: WorkitemTransferWizardPreview;
 
-    public workerTypeCombo = 0;
+    public workerTypeCombo = '0';
 
     public step = 0;
     public steps: Array<{label: string}> = [
         { label: 'Utvalg' },
         { label: 'Utvalg' },
         { label: 'Produkt/pris' },
+        { label: 'Forhåndsvisning' },
         { label: 'Fullfør' }
     ];
 
@@ -44,11 +49,12 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         { name: 'ProjectHours', label: 'Prosjekt-timer'}
     ];
 
-    public filterOptions = {
-        UserID: 0,
-        selectedUserID: 0,
+    public wizardOptions: IWizardOptions = {
+        currentUserID: 0,
+        filterByUserID: 0,
         sourceType: 'CustomerHours',
-        selectedCustomers: []
+        selectedCustomers: [],
+        selectedProducts: []
     };
 
     constructor(
@@ -59,7 +65,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         private toastService: ToastService
     ) {
         userService.getCurrentUser().subscribe( user => {
-            this.filterOptions.UserID = user.ID;
+            this.wizardOptions.currentUserID = user.ID;
         });
     }
 
@@ -86,21 +92,36 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
        switch (this.step) {
             case 0:
-                this.filterOptions.selectedUserID = this.workerTypeCombo === 0 ? this.filterOptions.UserID : 0;
+                this.wizardOptions.filterByUserID = this.workerTypeCombo === '0' ? this.wizardOptions.currentUserID : 0;
+                this.wizardOptions.selectedCustomers.length = 0;
                 this.wizardFilter.refresh();
                 break;
             case 1:
                 if (this.wizardFilter.selectedItems && this.wizardFilter.selectedItems.length > 0) {
-                    this.filterOptions.selectedCustomers = this.wizardFilter.selectedItems;
+                    this.wizardOptions.selectedCustomers = this.wizardFilter.selectedItems;
+                    this.wizardProducts.refresh();
                 } else {
                     this.toastService.addToast('Ingenting er valgt ut', ToastType.warn, 3, 'Du må velge hva som skal overføres.');
                     return;
                 }
             break;
+        case 2:
+            if (this.wizardProducts.selectedItems && this.wizardProducts.selectedItems.length > 0) {
+                setTimeout(() => {
+                    this.wizardOptions.selectedProducts = this.wizardProducts.selectedItems;
+                    this.wizardPreview.refresh();
+                    this.step++;
+                }, 20);
+            } else {
+                this.toastService.addToast('Ingenting er valgt ut', ToastType.warn, 3, 'Du må velge hva som skal overføres.');
+            }
+            return;
+        case 3:
+            break;
         }
 
         this.step++;
-        
+
     }
 
     public reject() {
