@@ -1,4 +1,4 @@
-import { LocalDate } from '@uni-entities';
+import { LocalDate, Customer } from '@uni-entities';
 import { roundTo } from '@app/components/common/utils/utils';
 
 export class WorkOrder {
@@ -16,11 +16,33 @@ export class WorkOrder {
     public InvoicePostalCode: string;
     public InvoiceCountry: string;
     public InvoiceCountryCode: string;
+    public _expand: boolean;
+
+    constructor() {
+        this.OrderDate = new LocalDate();
+    }
 
     public addItem(item: WorkOrderItem) {
         item.SumTotalExVat = roundTo((item.NumberOfItems || 0) * (item.PriceExVat || 0), 2);
         this.Items.push(item);
         this.TaxExclusiveAmount = (this.TaxExclusiveAmount || 0) + item.SumTotalExVat;
+    }
+
+    public setCustomer(customer: Customer) {
+        if (customer && customer.Info) {
+            const info = customer.Info;
+            this.CustomerID = customer.ID;
+            this.CustomerName = info.Name;
+            if (info.InvoiceAddress) {
+                this.InvoiceAddressLine1 = info.InvoiceAddress.AddressLine1;
+                this.InvoiceAddressLine2 = info.InvoiceAddress.AddressLine2;
+                this.InvoiceAddressLine3 = info.InvoiceAddress.AddressLine3;
+                this.InvoiceCity = info.InvoiceAddress.City;
+                this.InvoicePostalCode = info.InvoiceAddress.PostalCode;
+                this.InvoiceCountry = info.InvoiceAddress.Country;
+                this.InvoiceCountryCode = info.InvoiceAddress.CountryCode;
+            }
+        }
     }
 }
 

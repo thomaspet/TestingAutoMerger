@@ -11,7 +11,7 @@ import { ToastService } from '@uni-framework/uniToast/toastService';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
-import { UniModalService } from '@uni-framework/uniModal/barrel';
+import { UniModalService, ConfirmActions } from '@uni-framework/uniModal/barrel';
 import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
 export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
@@ -104,11 +104,9 @@ export class InvoiceHours implements OnInit {
                 message: 'Overføring av timer'
             }).onClose.subscribe(modalResult => {
                 done();
-                // if (modalResult === ConfirmActions.ACCEPT) {
-                //     this.uniModalService.open(UniPreviewModal, {
-                //         data: report
-                //     });
-                // }
+                if (modalResult === ConfirmActions.ACCEPT) {
+                    this.uniTable.refreshTableData();
+                }
             });
     }
 

@@ -7,9 +7,9 @@ import {
 } from '@uni-framework/uniModal/modalService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ErrorService } from '@app/services/common/errorService';
-import { UserService } from '@app/services/services';
+import { UserService, CustomerOrderService, CustomerService } from '@app/services/services';
 import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
-import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { IWizardOptions } from './wizardoptions';
 import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
 import { WorkitemTransferWizardPreview } from '@app/components/timetracking/invoice-hours/transfer-wizard-preview';
@@ -39,10 +39,14 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         { label: 'Utvalg' },
         { label: 'Produkt/pris' },
         { label: 'Forhåndsvisning' },
-        { label: 'Fullfør' }
+        { label: 'Overføring' }
     ];
+    public workInProgress = false;
+    public workIndex = -1;
+    public finalOrderList = [];
 
     public busy: boolean = false;
+    public transferBusy = false;
     public choices: Array<{ name: string, label: string, checked?: boolean }> = [
         { name: 'CustomerHours', label: 'Kunde-timer', checked: true},
         { name: 'OrderHours', label: 'Ordre-timer'},
@@ -51,10 +55,12 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
     public wizardOptions: IWizardOptions = {
         currentUserID: 0,
+        currentUser: undefined,
         filterByUserID: 0,
         sourceType: 'CustomerHours',
         selectedCustomers: [],
-        selectedProducts: []
+        selectedProducts: [],
+        orders: []
     };
 
     constructor(
@@ -62,10 +68,13 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         private errorService: ErrorService,
         private modalService: UniModalService,
         private userService: UserService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private orderService: CustomerOrderService,
+        private customerService: CustomerService
     ) {
         userService.getCurrentUser().subscribe( user => {
             this.wizardOptions.currentUserID = user.ID;
+            this.wizardOptions.currentUser = user;
         });
     }
 
@@ -86,7 +95,8 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
     public accept() {
         if (this.step === this.steps.length - 1) {
-            this.onClose.emit(ConfirmActions.ACCEPT);
+            this.startTransfer();
+            // this.onClose.emit(ConfirmActions.ACCEPT);
             return;
         }
 
@@ -117,6 +127,12 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
             }
             return;
         case 3:
+            if (this.wizardPreview.orderList && this.wizardPreview.orderList.length > 0) {
+                this.wizardOptions.orders = this.wizardPreview.orderList;
+            } else {
+                this.toastService.addToast('Ingenting er valgt ut', ToastType.warn, 3, 'Ingenting å overføre');
+                return;
+            }
             break;
         }
 
@@ -132,5 +148,43 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         this.onClose.emit(ConfirmActions.CANCEL);
     }
 
+    private startTransfer() {
+        this.workInProgress = true;
+        this.transferNext(0, this.wizardOptions);
+    }
+
+    private transferNext(index: number, options: IWizardOptions) {
+
+        // Done?
+        if (index >= options.orders.length) {
+            this.toastService.addToast(`Fullført`, ToastType.good, 5, `${this.finalOrderList.length} ordrer ble opprettet.`);
+            this.onClose.emit(ConfirmActions.ACCEPT);
+            return;
+        }
+
+        this.transferBusy = true;
+
+        const order = options.orders[index];
+        this.workIndex = index;
+
+        this.customerService.Get(order.CustomerID, ['info.InvoiceAddress'])
+            .subscribe( customer => {
+            if (order && order.CustomerID > 0) {
+                order.setCustomer(customer);
+                this.orderService.Post(order)
+                    .finally( () => this.transferBusy = false)
+                    .subscribe( result => {
+                        this.finalOrderList.push(result);
+                        setTimeout(() => {
+                            this.transferNext(index + 1, options);
+                        }, 10);
+                    }, err => {
+                        this.errorService.handle(err);
+                        this.workInProgress = false;
+                    }
+                );
+            }
+        });
+    }
 
 }

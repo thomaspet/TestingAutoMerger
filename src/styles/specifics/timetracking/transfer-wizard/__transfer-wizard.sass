@@ -1,7 +1,20 @@
 .workorder
 
     h3
-        border-bottom: 1px solid $uni-color-scale9
+        padding: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
+        cursor: pointer
+        font-weight: normal
+        font-size: 12pt
+        margin: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
+
+    h3:hover
+        background-color: lighten($uni-color-scale9,2%)
+
+    .error
+        color: $uni-color-bad
+
+    .workorder-details
+        margin: 0 0.5em 0.5em 1em
 
     table
         width: 100%
@@ -9,6 +22,10 @@
         padding-right: 0.3em;
         border-collapse: collapse
         border-spacing: 0
+        table-layout: fixed
+        border: 1px solid $uni-color-scale8
+        box-shadow:  0px 1px 1px 1px rgba(128,128,128,1)
+        border-radius: 5px
 
         th, td
             padding: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
@@ -17,10 +34,16 @@
         th
             text-align: left
             border-bottom: 1px solid $uni-color-scale9
-            background-color: $uni-color-scale9            
 
         th.right, td.right
             text-align: right
 
+        th.w2
+            width: 2rem
 
+        th.w4
+            width: 4rem
+
+        th.w6
+            width: 6rem
         

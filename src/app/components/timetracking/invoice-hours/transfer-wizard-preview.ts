@@ -96,6 +96,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
                 order = new WorkOrder();
                 order.CustomerID = row.CustomerID;
                 order.CustomerName = customer.CustomerName;
+                order.OurReference = options.currentUser.DisplayName;
                 orders.push(order);
             }
             const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
@@ -112,6 +113,10 @@ export class WorkitemTransferWizardPreview implements OnInit {
             item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
 
             order.addItem(item);
+        }
+
+        if (orders.length === 1) {
+            orders[0]._expand = true;
         }
 
         return orders;

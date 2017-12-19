@@ -35,16 +35,21 @@
             <workitem-transfer-wizard-preview [options]="wizardOptions"></workitem-transfer-wizard-preview>
         </section>        
 
-        <section class="wizard-step-container" [hidden]="step !== 4">
-            Trykk "Fullfør" for å starte generering av ordrer.
-        </section>   
+        <section class="wizard-step-container" [hidden]="step !== 4 || workInProgress">
+            Trykk "Fullfør" for å starte generering av {{wizardOptions?.orders.length}} ordre(r).
+        </section>
+
+        <section class="wizard-step-container" *ngIf="workInProgress">
+            {{workIndex}} / {{wizardOptions?.orders?.length}}
+            <div [attr.aria-busy]="transferBusy">...</div>
+        </section>        
 
     </article>
 
     <footer>
         <p style="float: left">Steg {{step+1}} av {{steps.length}}</p>
-        <button *ngIf="step>0" class="bad" (click)="goBack()">Tilbake</button>
-        <button class="good" id="good_button_ok" (click)="accept()" [innerHtml]="step<steps.length-1 ? 'Videre': 'Fullfør'"></button>
-        <button class="cancel" (click)="cancel()">Avbryt</button>
+        <button [disabled]="workInProgress" *ngIf="step>0" class="bad" (click)="goBack()">Tilbake</button>
+        <button [disabled]="workInProgress" class="good" id="good_button_ok" (click)="accept()" [innerHtml]="step<steps.length-1 ? 'Videre': 'Fullfør'"></button>
+        <button [disabled]="workInProgress" class="cancel" (click)="cancel()">Avbryt</button>
     </footer>
 </section>
