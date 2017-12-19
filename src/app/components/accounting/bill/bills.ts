@@ -1,4 +1,4 @@
-import {ViewChild, Component} from '@angular/core';
+import {ViewChild, Component, OnInit} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
@@ -68,7 +68,7 @@ interface ISearchParams {
     selector: 'uni-bills',
     templateUrl: './bills.html'
 })
-export class BillsView {
+export class BillsView implements OnInit {
     @ViewChild(UniTable) private unitable: UniTable;
     @ViewChild(UniImage) public uniImage: UniImage;
 
@@ -228,7 +228,7 @@ export class BillsView {
             this.searchControl.valueChanges
                 .debounceTime(300)
                 .subscribe((value: string) => {
-                    var v = this.filterInput(value);
+                    const v = this.filterInput(value);
                     this.startupWithSearchText = v;
                     this.refreshWihtSearchText(v);
                 });
@@ -252,7 +252,7 @@ export class BillsView {
     public onRowSelectionChanged() {
         this.selectedItems = this.unitable.getSelectedRows();
         if (this.selectedItems && this.selectedItems.length > 0) {
-            let status = this.selectedItems[0].StatusCode;
+            const status = this.selectedItems[0].StatusCode;
             let warn = false;
             this.selectedItems.forEach(inv => {
                 if (inv.StatusCode !== status) {
@@ -344,7 +344,7 @@ export class BillsView {
     }
 
     public onImageClicked(file: any) {
-        let data = {
+        const data = {
             entity: 'SupplierInvoice',
             entityID: this.currentFiles[0].ID || 0,
             fileIDs: null,
@@ -376,7 +376,7 @@ export class BillsView {
         Observable.forkJoin(assignRequests).subscribe(
             res => {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                let numberOfFailed = res.filter(r => !r.success).length;
+                const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
                         this.selectedItems.length
@@ -429,14 +429,14 @@ export class BillsView {
                         Observable.forkJoin(approvalsRequests).subscribe(
                             approvalResponses => {
                                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                let numberOfFailed = approvalResponses
+                                const numberOfFailed = approvalResponses
                                     .filter((response: any) => !response.success).length;
                                 if (numberOfFailed > 0) {
                                     this.toast.addToast(
                                         this.selectedItems.length
                                             - numberOfFailed + ' fakturaer ble godkjent. '
                                             +  numberOfFailed + ' fakturaer feilet ved godkjenning. '
-                                            + 'Merk også at fakturaer du ikke var tildelt ble ignorert.',
+                                            + 'Merk også at fakturaer du ikke const tildelt ble ignorert.',
                                         ToastType.bad,
                                         3
                                     );
@@ -495,14 +495,14 @@ export class BillsView {
                                 Observable.forkJoin(approvalRequests).subscribe(
                                     approvalResponses => {
                                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                                        let numberOfFailed = approvalResponses
+                                        const numberOfFailed = approvalResponses
                                            .filter((response: any) => !response.success).length;
                                         if (numberOfFailed > 0) {
                                             this.toast.addToast(
                                                 this.selectedItems.length
                                                     - numberOfFailed + ' fakturaer ble avvist. '
                                                     +  numberOfFailed + ' fakturaer feilet ved avvising. '
-                                                    + 'Merk også at fakturaer du ikke var tildelt ble ignorert.',
+                                                    + 'Merk også at fakturaer du ikke const tildelt ble ignorert.',
                                                 ToastType.bad,
                                                 3
                                             );
@@ -548,7 +548,7 @@ export class BillsView {
                 Observable.forkJoin(creditRequests).subscribe(
                     res => {
                         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                        let numberOfFailed = res.filter(r => !r.success).length;
+                        const numberOfFailed = res.filter(r => !r.success).length;
                         if (numberOfFailed > 0) {
                             this.toast.addToast(
                                 this.selectedItems.length
@@ -591,7 +591,7 @@ export class BillsView {
         Observable.forkJoin(payRequests).subscribe(
             res => {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                let numberOfFailed = res.filter(r => !r.success).length;
+                const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
                         this.selectedItems.length
@@ -629,7 +629,7 @@ export class BillsView {
         Observable.forkJoin(journalRequests).subscribe(
             res => {
                 this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
-                let numberOfFailed = res.filter(r => !r.success).length;
+                const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
                         this.selectedItems.length
@@ -657,9 +657,9 @@ export class BillsView {
     }
 
     private refreshWihtSearchText(value: string) {
-        var allFilter = this.filters.find(x => x.name === 'All');
+        const allFilter = this.filters.find(x => x.name === 'All');
         if (value || value === '') {
-            var sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
+            const sFilter = this.createFilters(value, 'Info.Name', 'TaxInclusiveAmount', 'InvoiceNumber', 'ID');
             if (this.currentFilter.name !== allFilter.name) { this.preSearchFilter = this.currentFilter; }
             this.onFilterClick(allFilter, sFilter);
         } else {
@@ -670,7 +670,7 @@ export class BillsView {
     }
 
     private createFilters(value: string, ...args: any[]): string {
-        var result = '';
+        let result = '';
         args.forEach((x, i) => {
             result += (i > 0 ? ' or ' : '') + `startswith(${x},'${value}')`;
         });
@@ -688,7 +688,7 @@ export class BillsView {
         filterOnUserID?: string
     ) {
         this.busy = true;
-        var params = new URLSearchParams();
+        const params = new URLSearchParams();
         if (filter && filter.filter) {
             params.set('filter', filter.filter + ((searchFilter ? ' and ' : '') + (searchFilter || '')));
         } else if (searchFilter) {
@@ -698,7 +698,7 @@ export class BillsView {
         if (filter.route) {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
-        let obs = filter.route
+        const obs = filter.route
             ?  this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
         obs.subscribe((result) => {
@@ -728,7 +728,7 @@ export class BillsView {
     }
 
     private makeSearchTotals() {
-        var sum = 0;
+        let sum = 0;
         if (this.listOfInvoices && this.listOfInvoices.length > 0) {
             this.listOfInvoices.forEach(x => {
                 sum += x.TaxInclusiveAmount || 0;
@@ -746,12 +746,12 @@ export class BillsView {
             return false;
         }
         this.hasQueriedInboxCount = true;
-        var route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
+        const route = '?model=filetag&select=count(id)&filter=(tagname eq \'IncomingMail\' '
             + 'or tagname eq \'IncomingEHF\' or tagname eq \'IncomingTravel\' '
             + 'or tagname eq \'IncomingExpense\') and status eq 0 '
             + 'and deleted eq 0 and file.deleted eq 0&join=filetag.fileid eq file.id';
         this.supplierInvoiceService.getStatQuery(route).subscribe(data => {
-            var filter = this.getInboxFilter();
+            const filter = this.getInboxFilter();
             if (filter && data && data.length > 0) {
                 filter.count = data[0].countid;
             }
@@ -763,9 +763,9 @@ export class BillsView {
     }
 
     private removeNullItems(data: Array<any>) {
-        var n = data ? data.length : 0;
+        const n = data ? data.length : 0;
         if (n > 0) {
-            for (var i = n - 1; i--; i >= 0) {
+            for (let i = n - 1; i--; i >= 0) {
                 if (data[i] === null) {
                     data.splice(i, 1);
                 }
@@ -776,13 +776,13 @@ export class BillsView {
     private onInboxDataReady(data: Array<any>) {
         this.removeNullItems(data);
         this.listOfInvoices = data;
-        var filter = this.getInboxFilter();
+        const filter = this.getInboxFilter();
         if (filter) {
             filter.count = data ? data.length : 0;
             filter.total = 0;
         }
         if (this.totals) { this.totals.grandTotal = 0; }
-        var cols = [
+        const cols = [
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
                 .setWidth('4rem')
                 .setFilterOperator('startswith'),
@@ -810,7 +810,7 @@ export class BillsView {
                     return '';
             }),
         ];
-        var cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
+        const cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
             .setSearchable(false)
             .setMultiRowSelect(false)
             .setColumns(cols)
@@ -825,21 +825,21 @@ export class BillsView {
             .subscribe((result: Array<IStatTotal>) => {
                 this.hasQueriedTotals = true;
                 this.filters.forEach(x => { if (x.name !== 'Inbox') { x.count = 0; x.total = 0; } });
-                var count = 0;
-                var total = 0;
+                let count = 0;
+                let total = 0;
                 if (result) {
                     result.forEach(x => {
                         count += x.countid;
                         total += x.sumTaxInclusiveAmount;
-                        var statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
-                        var ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
+                        const statusCode = x.SupplierInvoiceStatusCode ? x.SupplierInvoiceStatusCode.toString() : '0';
+                        const ix = this.filters.findIndex(y => y.filter ? y.filter.indexOf(statusCode) > 0 : false);
                         if (ix >= 0) {
                             this.filters[ix].count += x.countid;
                             this.filters[ix].total += x.sumTaxInclusiveAmount;
                         }
                     });
                 }
-                let ixAll = this.filters.findIndex(x => x.name === 'All');
+                const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;
                 this.filters[ixAll].total = total;
                 this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
@@ -871,7 +871,7 @@ export class BillsView {
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
                 .setTemplate(item => {
-                    var key = item.JournalEntryJournalEntryNumber;
+                    const key = item.JournalEntryJournalEntryNumber;
                     if (key) {
                         return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`;
                     }
@@ -908,7 +908,7 @@ export class BillsView {
     }
 
     public onRowSelected(event) {
-        let item = event.rowModel;
+        const item = event.rowModel;
         this.currentFiles = item.FileTags ? item.FileTags : null;
         if (item) {
             if (this.currentFilter.name === 'Inbox') {
@@ -926,7 +926,7 @@ export class BillsView {
     public onRowDeleted(row) {
         if (this.currentFilter.name === 'Inbox') {
             this.currentFilter.count--;
-            var fileId = row.ID;
+            const fileId = row.ID;
             if (fileId) {
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: 'Bekreft sletting',
@@ -983,7 +983,7 @@ export class BillsView {
 
 
     private checkPath() {
-        var params = this.pageStateService.getPageState();
+        const params = this.pageStateService.getPageState();
         if (params.filter) {
             this.currentFilter = this.filters.find(x => x.name === params.filter);
             if (this.currentFilter) {
@@ -1016,7 +1016,7 @@ export class BillsView {
 
         // Default-filter?
         if (this.currentFilter === undefined) {
-            var name = this.viewSettings.getProp('defaultFilter', 'Inbox');
+            const name = this.viewSettings.getProp('defaultFilter', 'Inbox');
             this.filters.forEach(x => {
                 if (x.name === name) {
                     this.currentFilter = x;
@@ -1050,13 +1050,13 @@ export class BillsView {
             this.router.navigateByUrl('/accounting/bills/0?fileid=' + this.fileID);
         } else {
             // add a journalentry with the selected file as the first item and redirect
-            var journalentries = this.journalEntryService.getSessionData(0);
+            let journalentries = this.journalEntryService.getSessionData(0);
             if (!journalentries) {
                 journalentries = [];
             }
-            var newEntry = new JournalEntryData();
+            const newEntry = new JournalEntryData();
             newEntry.FileIDs = this.fileID;
-            journalentries.unshift(newEntry);
+            journalentries.push(newEntry);
             this.journalEntryService.setSessionData(0, journalentries);
 
             this.router.navigateByUrl('/accounting/journalentry/manual');
@@ -1076,7 +1076,7 @@ export class BillsView {
     }
 
     private getLayout() {
-        var params = this.pageStateService.getPageState();
+        const params = this.pageStateService.getPageState();
         return {
             Name: 'Assignees',
             BaseEntity: 'User',
