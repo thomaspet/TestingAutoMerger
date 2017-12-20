@@ -769,19 +769,28 @@ export class NumberSeries {
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint('companysettings?hateoas=false&expand=SupplierAccount,CustomerAccount')
-                .send().map(response => response.json())
+                .send().map(response => response.json()),
+            this.numberSeriesService.getNumberSeriesAsInvoice()
         ]).subscribe(data => {
-            let types = data[0];
-            let numberseries = data[1];
-            let tasks = data[2];
-            let settings = data[3][0];
+            const types = data[0];
+            const numberseries = data[1];
+            const tasks = data[2];
+            const settings = data[3][0];
 
             this.types = types;
             this.tasks = tasks.map(x => this.numberSeriesTaskService.translateTask(x));
             this.customerAccount = settings.CustomerAccount;
             this.supplierAccount = settings.SupplierAccount;
 
-            this.asinvoicenumberserie = numberseries.find(x => x.Name === 'Customer Invoice number series').ID;
+            if (data[4] !== null ) {
+                this.asinvoicenumberserie = data[4].ID;
+            } else {
+                this.asinvoicenumberserie = null;
+                this.toastService
+                    .addToast('Finner ikke faktura nummerserie å bruke til duplisering for bilagsnummer.'
+                    , ToastType.bad, 7, 'Nummerserie for faktura mangler.');
+            }
+
             this.numberseries = this.addCustomFields(numberseries).map(x => {
                 if (x.NumberSeriesTask && x.NumberSeriesTask.Name) {
                     x.NumberSeriesTask = this.numberSeriesTaskService.translateTask(x.NumberSeriesTask);
@@ -799,7 +808,6 @@ export class NumberSeries {
 
                 return x;
             });
-
             // Remove system series from UI
             this.numberseries = this.numberseries.filter(x =>
                 ['JournalEntry batch number series', 'Integration test order number series'].indexOf(x.Name) === -1

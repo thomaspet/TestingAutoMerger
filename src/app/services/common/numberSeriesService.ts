@@ -34,6 +34,14 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .map(response => response.json());
     }
 
+    public getNumberSeriesAsInvoice(): Observable<NumberSeries> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=get-numberseries-asinvoice`)
+            .send()
+            .map(response => response.json());
+    }
 
     public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {
         return numberSeries && numberSeries.length > 1 && ID === 0 ?

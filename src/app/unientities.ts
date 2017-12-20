@@ -6041,6 +6041,7 @@ export class JournalEntryData extends UniEntity {
     public InvoiceNumber: string;
     public JournalEntryDataAccrualID: number;
     public JournalEntryID: number;
+    public NumberSeriesID: number;
     public JournalEntryNo: string;
     public NumberSeriesTaskID: number;
     public StatusCode: number;
