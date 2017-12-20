@@ -88,12 +88,9 @@ export class WorkitemTransferWizardProducts implements OnInit {
     private createTableConfig(): UniTableConfig {
         const cols = [
             new UniTableColumn('WorktypeID', 'Art.nr.', UniTableColumnType.Number).setVisible(false),
-            new UniTableColumn('SumMinutes', 'Antall', UniTableColumnType.Number)
-                .setWidth('15%').setAlignment('right').setEditable(false)
-                .setNumberFormat({ decimalLength: 1, decimalSeparator: '.'}),
-            new UniTableColumn('WorktypeName', 'Timeart').setWidth('20%').setEditable(false),
+            new UniTableColumn('WorktypeName', 'Timeart').setWidth('30%').setEditable(false),
                 new UniTableColumn('PartName', 'ProduktNr.').setWidth('15%'),
-            new UniTableColumn('ProductName', 'Produktnavn').setWidth('20%').setEditable(false),
+            new UniTableColumn('ProductName', 'Produktnavn').setWidth('30%').setEditable(false),
             new UniTableColumn('PriceExVat', 'Pris', UniTableColumnType.Money)
                 .setWidth('20%').setAlignment('right')
         ];

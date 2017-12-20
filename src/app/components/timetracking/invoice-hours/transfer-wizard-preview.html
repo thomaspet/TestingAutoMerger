@@ -4,7 +4,7 @@
 
     <div class="workorder" *ngFor="let order of orderList">
         <h3 (click)="order._expand = !order._expand" >{{order.CustomerName}}
-            <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">Totalsum: {{order.TaxExclusiveAmount | unicurrency}}</span>
+            <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">{{order.TaxExclusiveAmount | unicurrency}}</span>
         </h3>
         <div class="workorder-details" *ngIf="order._expand">
             <table>

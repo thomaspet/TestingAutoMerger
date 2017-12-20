@@ -37,7 +37,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     public steps: Array<{label: string}> = [
         { label: 'Utvalg' },
         { label: 'Utvalg' },
-        { label: 'Produkt/pris' },
+        { label: 'Pris/produkt på timeart' },
         { label: 'Forhåndsvisning' },
         { label: 'Overføring' }
     ];
@@ -167,15 +167,19 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         const order = options.orders[index];
         this.workIndex = index;
 
+        // Fetch updated customer-details and set to each order:
         this.customerService.Get(order.CustomerID, ['info.InvoiceAddress'])
             .subscribe( customer => {
             if (order && order.CustomerID > 0) {
+                // set customer on order (with address etc.)
                 order.setCustomer(customer);
                 this.orderService.Post(order)
                     .finally( () => this.transferBusy = false)
                     .subscribe( result => {
+                        // add to list of produced orders
                         this.finalOrderList.push(result);
                         setTimeout(() => {
+                            // take next
                             this.transferNext(index + 1, options);
                         }, 10);
                     }, err => {

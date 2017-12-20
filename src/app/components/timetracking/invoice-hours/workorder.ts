@@ -22,10 +22,21 @@ export class WorkOrder {
         this.OrderDate = new LocalDate();
     }
 
-    public addItem(item: WorkOrderItem) {
-        item.SumTotalExVat = roundTo((item.NumberOfItems || 0) * (item.PriceExVat || 0), 2);
-        this.Items.push(item);
+    public addItem(item: WorkOrderItem, compress = true) {
+
+        item.calcSum();
         this.TaxExclusiveAmount = (this.TaxExclusiveAmount || 0) + item.SumTotalExVat;
+
+        if (compress) {
+            const existing = this.Items.find( x => x.ProductID === item.ProductID && x.ItemText === item.ItemText);
+            if (existing) {
+                existing.merge(item);
+                return;
+            }
+        }
+
+        this.Items.push(item);
+
     }
 
     public setCustomer(customer: Customer) {
@@ -60,6 +71,16 @@ export class WorkOrderItem {
         this.NumberOfItems = numberOfItems;
         this.PriceExVat = priceExVat;
     }
+
+    public merge(item: WorkOrderItem) {
+        this.NumberOfItems = (this.NumberOfItems || 0) + item.NumberOfItems;
+        this.calcSum();
+    }
+
+    public calcSum() {
+        this.SumTotalExVat = roundTo((this.NumberOfItems || 0) * (this.PriceExVat || 0), 2);
+    }
+
 }
 
 export class WorkItemSource {

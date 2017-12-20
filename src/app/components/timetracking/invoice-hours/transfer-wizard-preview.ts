@@ -102,7 +102,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
             const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
             const item = new WorkOrderItem();
             if (workType) {
-                item.ItemText = `${row.WorktypeName} : ${row.Description}`;
+                item.ItemText = `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
                 item.ProductID = workType.ProductID;
                 item.PriceExVat = workType.PriceExVat;
             } else {
