@@ -1112,6 +1112,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     deductionpercent = 100;
                 }
 
+                this.setCorrectVatPercent(vattype, journalEntryData);
+
+                let vatPercent = vattype.VatPercent;
+
                 if (grossAmountCurrency) {
                     res.amountGrossCurrency = grossAmountCurrency;
 
@@ -1122,13 +1126,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                             vattype.ReversedTaxDutyVat ?
                                 vattype.IncomingAccountID && vattype.OutgoingAccountID ?
                                     (res.amountGrossCurrency * deductionpercent / 100)
-                                    : (res.amountGrossCurrency * (1 + vattype.VatPercent / 100)) * deductionpercent / 100
-                                : res.amountGrossCurrency * deductionpercent / 100 / (1 + vattype.VatPercent / 100);
+                                    : (res.amountGrossCurrency * (1 + vatPercent / 100)) * deductionpercent / 100
+                                : res.amountGrossCurrency * deductionpercent / 100 / (1 + vatPercent / 100);
 
                         if (deductionpercent !== 100) {
                             res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
-                                res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vattype.VatPercent / 100) * ((100 - deductionpercent) / 100)
-                                            : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vattype.VatPercent / 100;
+                                res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vatPercent / 100) * ((100 - deductionpercent) / 100)
+                                            : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vatPercent / 100;
                         }
                     }
                 } else if (netAmountCurrency) {
@@ -1144,29 +1148,29 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         res.amountGrossCurrency = vattype.ReversedTaxDutyVat ?
                             vattype.IncomingAccountID && vattype.OutgoingAccountID ?
                                 res.amountNetCurrency
-                                : res.amountNetCurrency / (1 + (vattype.VatPercent / 100))
-                            : res.amountNetCurrency * (1 + (vattype.VatPercent / 100));
+                                : res.amountNetCurrency / (1 + (vatPercent / 100))
+                            : res.amountNetCurrency * (1 + (vatPercent / 100));
                     }
                 }
 
                 let taxBasisAmount =
                     vattype.ReversedTaxDutyVat ?
                             res.amountGrossCurrency
-                            : res.amountGrossCurrency / (1 + vattype.VatPercent / 100);
+                            : res.amountGrossCurrency / (1 + vatPercent / 100);
 
                 if (vattype.ReversedTaxDutyVat) {
                     if (vattype.OutgoingAccountID) {
-                        outgoingVatAmountCurrency += -1 * (taxBasisAmount * vattype.VatPercent / 100);
+                        outgoingVatAmountCurrency += -1 * (taxBasisAmount * vatPercent / 100);
                     } else if (vattype.IncomingAccountID) {
-                        incomingVatAmountCurrency += (-1 * (taxBasisAmount * vattype.VatPercent / 100)) * (deductionpercent / 100);
+                        incomingVatAmountCurrency += (-1 * (taxBasisAmount * vatPercent / 100)) * (deductionpercent / 100);
                     }
                 }
 
                 if (!(vattype.ReversedTaxDutyVat && !vattype.IncomingAccountID)) {
                     if (vattype.IncomingAccountID) {
-                        incomingVatAmountCurrency += ((taxBasisAmount * vattype.VatPercent) / 100) * (deductionpercent / 100);
+                        incomingVatAmountCurrency += ((taxBasisAmount * vatPercent) / 100) * (deductionpercent / 100);
                     } else if (vattype.OutgoingAccountID) {
-                        outgoingVatAmountCurrency += (taxBasisAmount * vattype.VatPercent) / 100;
+                        outgoingVatAmountCurrency += (taxBasisAmount * vatPercent) / 100;
                     }
                 }
             } else {
@@ -1199,6 +1203,30 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return res;
     }
 
+    public setCorrectVatPercent(vattype: VatType, journalEntryData: JournalEntryData) {
+        // find the correct vatpercentage based on the either vatdate, financialdate or current date,
+        // in that order. VatPercent may change between years, so this needs to be checked each time,
+        // because changing dates, account, or vattypes may change what vatpercent to use
+        let vatDate =
+            journalEntryData.VatDate ?
+                moment(journalEntryData.VatDate) :
+                journalEntryData.FinancialDate ?
+                    moment(journalEntryData.FinancialDate) :
+                    moment(Date());
+
+        if (vattype && vattype.VatTypePercentages) {
+            let validPercentageForVatType =
+                vattype.VatTypePercentages.find(y =>
+                        (moment(y.ValidFrom) <= vatDate && y.ValidTo && moment(y.ValidTo) >= vatDate)
+                        || (moment(y.ValidFrom) <= vatDate && !y.ValidTo));
+
+            let vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
+
+            // set the correct percentage on the VatType also, this is done to reflect it properly in
+            // the UI if changing a date leads to using a different vatpercent
+            vattype.VatPercent = vatPercent;
+        }
+    }
 
     public calculateJournalEntrySummary(journalDataEntries: Array<JournalEntryData>): Observable<any> {
         return this.http

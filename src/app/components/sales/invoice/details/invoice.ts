@@ -17,7 +17,8 @@ import {
     SellerLink,
     StatusCodeCustomerInvoice,
     Terms,
-    NumberSeries
+    NumberSeries,
+    VatType
 } from '../../../../unientities';
 
 import {
@@ -42,7 +43,8 @@ import {
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService
+    SellerLinkService,
+    VatTypeService
 } from '../../../../services/services';
 
 import {
@@ -119,6 +121,7 @@ export class InvoiceDetails {
     private shareActions: IShareAction[];
     private toolbarconfig: IToolbarConfig;
 
+    private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
@@ -201,7 +204,8 @@ export class InvoiceDetails {
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private vatTypeService: VatTypeService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -253,7 +257,8 @@ export class InvoiceDetails {
                         ['NumberSeriesType']
                     ),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -272,6 +277,7 @@ export class InvoiceDetails {
                     this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
                     this.projects = res[9];
                     this.sellers = res[10];
+                    this.vatTypes = res[11];
 
                     invoice.InvoiceDate = new LocalDate(Date());
 
@@ -313,7 +319,8 @@ export class InvoiceDetails {
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
                     let invoice = res[0];
                     this.companySettings = res[1];
@@ -322,6 +329,7 @@ export class InvoiceDetails {
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
                     this.sellers = res[6];
+                    this.vatTypes = res[7];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

@@ -7,10 +7,18 @@
     </uni-form>
 
     <fieldset>
+        <legend>Satser</legend>
+        <uni-table
+            [resource]="(vatType$ | async).VatTypePercentages"
+            [config]="uniTableConfigVatTypePercentage">
+        </uni-table>
+    </fieldset>
+
+    <fieldset>
         <legend>Regnskap</legend>
         <uni-table
             [resource]="(vatType$ | async).VatReportReferences"
-            [config]="uniTableConfig"
+            [config]="uniTableConfigVatPostReference"
             (rowDeleted)="onVatPostReferenceDelete($event.rowModel)">
         </uni-table>
     </fieldset>

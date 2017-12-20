@@ -16,7 +16,8 @@ import {
     SellerLink,
     StatusCodeCustomerQuote,
     Terms,
-    NumberSeries
+    NumberSeries,
+    VatType
 } from '../../../../unientities';
 
 import {
@@ -37,7 +38,8 @@ import {
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService
+    SellerLinkService,
+    VatTypeService
 } from '../../../../services/services';
 
 import {
@@ -104,7 +106,7 @@ export class QuoteDetails {
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
     private currentQuoteDate: LocalDate;
-
+    private vatTypes: VatType[];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
     public summary: ISummaryConfig[] = [];
@@ -177,7 +179,8 @@ export class QuoteDetails {
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private vatTypeService: VatTypeService
     ) { }
 
     public ngOnInit() {
@@ -223,7 +226,8 @@ export class QuoteDetails {
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
                     let quote = res[0];
                     this.companySettings = res[1];
@@ -232,6 +236,7 @@ export class QuoteDetails {
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
                     this.sellers = res[6];
+                    this.vatTypes = res[7];
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -268,7 +273,8 @@ export class QuoteDetails {
                     + `series' and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
@@ -297,6 +303,7 @@ export class QuoteDetails {
                         );
                         this.projects = res[9];
                         this.sellers = res[10];
+                        this.vatTypes = res[11];
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());

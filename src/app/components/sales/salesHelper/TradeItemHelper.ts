@@ -6,7 +6,8 @@ import {
     ProjectTask,
     Department,
     CompanySettings,
-    VatType
+    VatType,
+    LocalDate
 } from '../../../unientities';
 
 @Injectable()
@@ -82,7 +83,7 @@ export class TradeItemHelper  {
 
     public tradeItemChangeCallback(
         event, currencyCodeID: number, currencyExchangeRate: number,
-        companySettings: CompanySettings, foreignVatType: VatType
+        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate
     ) {
         var newRow = event.rowModel;
 
@@ -108,7 +109,7 @@ export class TradeItemHelper  {
         if (event.field === 'Product') {
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate);
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes);
                 if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;
                     newRow.VatTypeID = foreignVatType.ID;
@@ -243,7 +244,7 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number) {
+    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>) {
         let product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -252,7 +253,8 @@ export class TradeItemHelper  {
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
         rowModel.VatTypeID = product.VatTypeID;
-        rowModel.VatType = product.VatType;
+        rowModel.VatType = rowModel.VatTypeID ? vatTypes.find(x => x.ID === rowModel.VatTypeID) : null;
+
         rowModel.PriceExVat = product.PriceExVat;
         rowModel.PriceIncVat = product.PriceIncVat;
 

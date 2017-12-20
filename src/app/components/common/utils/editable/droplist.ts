@@ -163,6 +163,7 @@ export class DropList {
     public show(details: ITypeSearch, data: Array<any> = null) {
         this.parentColIndex = details.position.col;
         this.details = details;
+
         if (details.promise && data === null) {
             details.promise.then((result: any) => {
                 if (details.position.col === this.parentColIndex) {

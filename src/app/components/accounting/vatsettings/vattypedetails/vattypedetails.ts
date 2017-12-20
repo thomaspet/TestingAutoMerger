@@ -34,7 +34,8 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
-    private uniTableConfig: UniTableConfig;
+    private uniTableConfigVatPostReference: UniTableConfig;
+    private uniTableConfigVatTypePercentage: UniTableConfig;
     private deletedVatReportReferences: VatReportReference[] = [];
 
     constructor(
@@ -44,7 +45,8 @@ export class VatTypeDetails implements OnChanges, OnInit {
         private vatPostService: VatPostService,
         private errorService: ErrorService
     ) {
-        this.uniTableConfig = this.generateUniTableConfig();
+        this.uniTableConfigVatPostReference = this.generateUniTableConfigVatPostReference();
+        this.uniTableConfigVatTypePercentage = this.generateUniTableConfigVatTypePercentage();
     }
 
     public ngOnInit() {
@@ -152,8 +154,8 @@ export class VatTypeDetails implements OnChanges, OnInit {
         this.fields$.next(fields);
     }
 
-    private generateUniTableConfig(): UniTableConfig {
-        return new UniTableConfig('accounting.vatsettings.vattypeDetails', false, false)
+    private generateUniTableConfigVatPostReference(): UniTableConfig {
+        return new UniTableConfig('accounting.vatsettings.vattypeDetails.vatpostreference', false, false)
             .setColumnMenuVisible(false)
             .setDeleteButton(false)
             .setColumns([
@@ -210,6 +212,30 @@ export class VatTypeDetails implements OnChanges, OnInit {
         this.deletedVatReportReferences.push(vatPostReference);
     }
 
+    private generateUniTableConfigVatTypePercentage(): UniTableConfig {
+        return new UniTableConfig('accounting.vatsettings.vattypeDetails.vattypepercentage', false, false)
+            .setColumnMenuVisible(false)
+            .setDeleteButton(false)
+            .setColumns([
+                new UniTableColumn('ValidFrom', 'Fra', UniTableColumnType.LocalDate),
+                new UniTableColumn('ValidTo', 'Til', UniTableColumnType.LocalDate),
+                new UniTableColumn('VatPercent', 'Sats (%)', UniTableColumnType.Percent)
+            ])
+            .setChangeCallback((event) => {
+                var newRow = event.rowModel;
+
+                if (!newRow.ID) {
+                    newRow._createguid = this.vatTypeService.getNewGuid();
+                }
+
+                newRow.VatTypeID = this.vatType.ID;
+
+                // TODO: Probably needs to "close" any existing open rows
+
+                return newRow;
+            });
+    }
+
     private getComponentLayout(): any {
         return {
             Name: 'VatTypeDetails',
@@ -231,14 +257,6 @@ export class VatTypeDetails implements OnChanges, OnInit {
                     Property: 'Name',
                     FieldType: FieldType.TEXT,
                     Label: 'Navn',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Mva',
-                    EntityType: 'VatType',
-                    Property: 'VatPercent',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Sats (prosent)',
                 },
                 {
                     FieldSet: 1,
@@ -292,22 +310,6 @@ export class VatTypeDetails implements OnChanges, OnInit {
                 },
 
                 // Fieldset 3 (Valid)
-                {
-                    FieldSet: 3,
-                    Legend: 'Gyldig',
-                    EntityType: 'VatType',
-                    Property: 'ValidFrom',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Gyldig fra',
-                },
-                {
-                    FieldSet: 3,
-                    Legend: 'Gyldig',
-                    EntityType: 'VatType',
-                    Property: 'ValidTo',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Gyldig til',
-                },
                 {
                     FieldSet: 3,
                     Legend: 'Gyldig',

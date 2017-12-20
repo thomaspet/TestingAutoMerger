@@ -10,12 +10,14 @@ import {Lookupservice} from '../../../../../services/services';
 import {
     FinancialYearService,
     ErrorService,
+    VatTypeService,
     checkGuid
 } from '../../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniMath} from '../../../../../../framework/core/uniMath';
-
+import {Observable} from 'rxjs/Observable';
 declare const _; // lodash
+import * as moment from 'moment';
 
 @Component({
     selector: 'bill-simple-journalentry',
@@ -32,6 +34,8 @@ export class BillSimpleJournalEntryView {
     public tableConfig: ITableConfig;
     public journalEntryNumber: string;
 
+    private vatTypes: Array<VatType> = [];
+
     public sumVat: number = 0;
     public sumRemainder: number = 0;
 
@@ -46,7 +50,8 @@ export class BillSimpleJournalEntryView {
         private toast: ToastService,
         private lookup: Lookupservice,
         private financialYearService: FinancialYearService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private vatTypeService: VatTypeService
     ) {
         this.clear();
         this.initTableConfig();
@@ -54,7 +59,15 @@ export class BillSimpleJournalEntryView {
     }
 
     public ngOnInit() {
+        this.vatTypeService.GetVatTypesWithDefaultVatPercent(null)
+            .subscribe(vattypes => {
+                this.vatTypes = vattypes;
+            }, err => this.errorService.handle(err)
+        );
+
         this.supplierinvoice.subscribe((value: SupplierInvoice) => {
+            let dateChanged = this.current && value && this.current.InvoiceDate !== value.InvoiceDate;
+
             if (!_.isEqual(this.current, value)) {
                 this.current = _.cloneDeep(value); // we need to refresh current to view actual data
                 this.initFromInvoice(this.current);
@@ -62,6 +75,14 @@ export class BillSimpleJournalEntryView {
             } else {
                 this.calcRemainder();
             }
+
+            // for now, check vatpercentage changes every time, because the _isEqual above
+            // does not seem to work as it should always - this.current is already updated
+            // when this function runs if a journalentry draftline exists..
+            //if (dateChanged) {
+                this.updateVatPercentBasedOnDate();
+                this.calcRemainder();
+            //}
         });
     }
 
@@ -69,6 +90,7 @@ export class BillSimpleJournalEntryView {
         if (invoice.SupplierID !== this.currentSupplierID) {
             this.currentSupplierID = invoice.SupplierID;
         }
+
         this.hasMultipleEntries = false;
         this.analyzeEntries(invoice);
         this.journalEntryNumber = invoice && invoice.JournalEntry ?
@@ -166,6 +188,40 @@ export class BillSimpleJournalEntryView {
         return 0;
     }
 
+    public updateVatPercentBasedOnDate() {
+        let invoicedate = moment(this.current.InvoiceDate);
+
+        let newVatTypes = [];
+        let didAnythingChange = false;
+
+        this.vatTypes.forEach((vatType) => {
+            let currentPercentage =
+                vatType.VatTypePercentages.find(y =>
+                    (moment(y.ValidFrom) <= invoicedate && y.ValidTo && moment(y.ValidTo) >= invoicedate)
+                    || (moment(y.ValidFrom) <= invoicedate && !y.ValidTo));
+
+            if (currentPercentage) {
+                if (vatType.VatPercent != currentPercentage.VatPercent) {
+                    didAnythingChange = true;
+                }
+                vatType.VatPercent = currentPercentage.VatPercent;
+            }
+
+            newVatTypes.push(vatType);
+        });
+
+        if (didAnythingChange) {
+            this.vatTypes = newVatTypes;
+            this.costItems.forEach(ci => {
+                if (ci.VatType) {
+                    ci.VatType = this.vatTypes.find(x => x.ID === ci.VatType.ID);
+                }
+            });
+
+            this.costItems = _.cloneDeep(this.costItems);
+        }
+    }
+
     private analyzeEntries(invoice: SupplierInvoice) {
 
         if (!invoice) { return; }
@@ -226,14 +282,18 @@ export class BillSimpleJournalEntryView {
                         select: 'AccountNumber,AccountName,ID,VatTypeID', visualKey: 'AccountNumber',
                         blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
-                        expand: 'VatType', filter: 'setornull(visible)'
+                        filter: 'setornull(visible)'
                     }),
                 new Column('VatTypeID', '', ColumnType.Integer,
-                    {
-                        route: 'vattypes',
-                        select: 'VatCode,Name,VatPercent,ID', visualKey: 'VatCode', visualKeyType: ColumnType.Text,
-                        model: 'vattype',
-                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name, 12)}`)
+                    <any>{
+                        // the routes/selects/models is not used here because vattypes are retrieved in ngOnInit
+                        // and resolved using a promise
+                        route: '',
+                        visualKey: 'VatCode',
+                        visualKeyType: ColumnType.Text,
+                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name, 12)}`),
+                        getValue: x => this.vatTypes.find(y => y.ID === x),
+                        searchValue: x => this.vatTypes.filter(vt => vt.VatCode.indexOf(x.toString()) !== -1 || vt.Name.indexOf(x.toString()) !== -1)
                     }
                 ),
                 new Column('Description'),
@@ -274,6 +334,12 @@ export class BillSimpleJournalEntryView {
                 onTypeSearch: details => {
                     if (details.columnDefinition.name === 'AmountCurrency') {
                         this.createGrossValueData(details);
+                    } else if ((<any>details).columnDefinition.lookup.searchValue) {
+                        details.promise = new Promise(resolve => {
+                            resolve((<any>details).columnDefinition.lookup.searchValue(details.value));
+                        });
+
+                        this.lookup.onTypeSearch(details);
                     } else {
                         this.lookup.onTypeSearch(details);
                     }
@@ -408,21 +474,21 @@ export class BillSimpleJournalEntryView {
             line = this.costItems[change.row];
         }
 
+
         switch (change.columnDefinition.name) {
             case 'Account.AccountNumber':
                 if (change.lookupValue) {
                     line.Account = change.lookupValue;
                     line.AccountID = change.lookupValue.ID;
                     line.VatTypeID = change.lookupValue.VatTypeID;
-                    line.VatType = change.lookupValue.VatType;
-                    if ((!line.VatType) && line.VatTypeID) {
-                        this.lookup.getSingle<VatType>('vattypes', line.VatTypeID).subscribe(x => {
-                            line.VatType = x;
-                            line.VatPercent = x.VatPercent;
-                            this.checkRowSum(line, change.row);
-                            this.calcRemainder();
-                            this.editable.reloadCellValue();
-                        });
+                    line.VatType = null;
+
+                    if (line.VatTypeID) {
+                        line.VatType = this.vatTypes.find(x => x.ID === line.VatTypeID);
+                        line.VatPercent = line.VatType.VatPercent;
+                        this.checkRowSum(line, change.row);
+                        this.calcRemainder();
+                        this.editable.reloadCellValue();
                     } else {
                         this.checkRowSum(line, change.row);
                     }
@@ -491,7 +557,9 @@ export class BillSimpleJournalEntryView {
         }
         // No match: take first item in dropdown-list ?
         var droplistItems = this.editable.getDropListItems({ col: event.col, row: event.row });
+
         if (droplistItems && droplistItems.length > 0 && event.columnDefinition) {
+
             var lk: ILookupDetails = event.columnDefinition.lookup;
             let item = droplistItems[0];
             event.value = item[lk.colToSave || 'ID'];

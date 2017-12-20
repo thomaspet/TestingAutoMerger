@@ -16,8 +16,7 @@ export class AccountService extends BizHttp<Account> {
     }
 
     public searchAccounts(filter: string, top: number = 500, orderby = 'AccountNumber') {
-        filter = (filter ? filter + ' and ' : '') + `Account.Deleted eq 'false' and isnull(VatType.Deleted,'false') eq 'false'`;
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=VatType,TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,Account.LockManualPosts as AccountLockManualPosts,VatType.ID as VatTypeID,VatType.VatCode as VatTypeVatCode,VatType.Name as VatTypeName,TopLevelAccountGroup.GroupNumber,VatType.VatPercent as VatTypeVatPercent,VatType.ReversedTaxDutyVat as VatTypeReversedTaxDutyVat,VatType.IncomingAccountID as VatTypeIncomingAccountID,VatType.OutgoingAccountID as VatTypeOutgoingAccountID,VatType.DirectJournalEntryOnly as VatTypeDirectJournalEntryOnly,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
+        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,Account.LockManualPosts as AccountLockManualPosts,VatTypeID as VatTypeID,TopLevelAccountGroup.GroupNumber,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }
@@ -42,18 +41,6 @@ export class AccountService extends BizHttp<Account> {
             if (data.TopLevelAccountGroupGroupNumber) {
                 account.TopLevelAccountGroup = new AccountGroup();
                 account.TopLevelAccountGroup.GroupNumber = data.TopLevelAccountGroupGroupNumber;
-            }
-
-            if (data.VatTypeID) {
-                account.VatType = new VatType();
-                account.VatType.ID = data.VatTypeID;
-                account.VatType.VatCode = data.VatTypeVatCode;
-                account.VatType.Name = data.VatTypeName;
-                account.VatType.VatPercent = data.VatTypeVatPercent;
-                account.VatType.ReversedTaxDutyVat = data.VatTypeReversedTaxDutyVat;
-                account.VatType.IncomingAccountID = data.VatTypeIncomingAccountID;
-                account.VatType.OutgoingAccountID = data.VatTypeOutgoingAccountID;
-                account.VatType.DirectJournalEntryOnly = data.VatTypeDirectJournalEntryOnly;
             }
 
             accounts.push(account);

@@ -159,7 +159,6 @@ export class UniTableRow implements OnChanges {
         } else {
             console.log('Missing link resolver in column config');
         }
-
     }
 
     public onCellFocus(event, column) {

@@ -537,8 +537,7 @@
         },
         {
             "Header": "Mva-kode",
-            "Field": "VatType.VatPercent",
-            "Type": "percent",
+            "Field": "VatType.VatCode",
             "SubFields": [
                 {
                     "Field": "VatType.Name"
@@ -1108,8 +1107,7 @@
         },
         {
             "Header": "Mva-kode",
-            "Field": "VatType.VatPercent",
-            "Type": "percent",
+            "Field": "VatType.VatCode",
             "SubFields": [
                 {
                     "Field": "VatType.Name"
@@ -1617,8 +1615,7 @@
         },
         {
             "Header": "Mva-kode",
-            "Field": "VatType.VatPercent",
-            "Type": "percent",
+            "Field": "VatType.VatCode",
             "SubFields": [
                 {
                     "Field": "VatType.Name"

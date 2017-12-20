@@ -121,7 +121,7 @@ export class ProductDetails {
             this.fields$.next(this.getComponentLayout().Fields);
 
             Observable.forkJoin(
-                    this.vatTypeService.GetAll('filter=OutputVat eq 1'),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
                     this.projectService.GetAll(null),
                     this.departmentService.GetAll(null),
                     this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType'])

@@ -20,7 +20,8 @@ import {
     SellerLink,
     StatusCodeCustomerOrder,
     Terms,
-    NumberSeries
+    NumberSeries,
+    VatType
 } from '../../../../unientities';
 import {
     AddressService,
@@ -42,7 +43,8 @@ import {
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService
+    SellerLinkService,
+    VatTypeService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -94,7 +96,7 @@ export class OrderDetails {
     private saveActions: IUniSaveAction[] = [];
     public summary: ISummaryConfig[] = [];
     private toolbarconfig: IToolbarConfig;
-
+    private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
@@ -187,7 +189,8 @@ export class OrderDetails {
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService
+        private sellerLinkService: SellerLinkService,
+        private vatTypeService: VatTypeService
    ) {}
 
     public ngOnInit() {
@@ -228,7 +231,8 @@ export class OrderDetails {
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe(res => {
                     let order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -237,6 +241,7 @@ export class OrderDetails {
                     this.deliveryTerms = res[4];
                     this.projects = res[5];
                     this.sellers = res[6];
+                    this.vatTypes = res[7];
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -278,7 +283,8 @@ export class OrderDetails {
                         ['NumberSeriesType']
                     ),
                     this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null)
+                    this.sellerService.GetAll(null),
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
@@ -306,6 +312,7 @@ export class OrderDetails {
                         );
                         this.projects = res[9];
                         this.sellers = res[10];
+                        this.vatTypes = res[11];
 
                         order.OrderDate = new LocalDate(Date());
 

@@ -44,7 +44,6 @@ import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
 import {
-    VatTypeService,
     AccountService,
     JournalEntryService,
     JournalEntryLineService,
@@ -87,7 +86,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultVisibleColumns: Array<string> = [];
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
-    @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public vatDeductions: Array<VatDeduction>;    
+    @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
 
     @ViewChild(UniTable) private table: UniTable;
@@ -107,7 +107,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private predefinedDescriptions: Array<any>;
     private projects: Project[];
     private departments: Department[];
-    private vattypes: VatType[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -164,7 +163,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     constructor(
         private changeDetector: ChangeDetectorRef,
         private uniHttpService: UniHttp,
-        private vatTypeService: VatTypeService,
         private accountService: AccountService,
         private journalEntryService: JournalEntryService,
         private departmentService: DepartmentService,
@@ -224,11 +222,21 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public setJournalEntryData(data) {
-        // if data is retrieved from the server, the netamount needs to be recalculated
+
+        // if data is retrieved from the server, some properties needs to be updated to
+        // simplify frontend logic
         if (data) {
             data.forEach(row => {
                 if (!row.SameOrNewDetails && row.JournalEntryNo) {
                     row.SameOrNewDetails = { ID: row.JournalEntryNo, Name: row.JournalEntryNo };
+                }
+
+                if (row.DebitVatType && !row.DebitVatType.VatTypePercentages && this.vattypes) {
+                    row.DebitVatType = this.vattypes.find(x => x.ID === row.DebitVatType.ID);
+                }
+
+                if (row.CreditVatType && !row.CreditVatType.VatTypePercentages && this.vattypes) {
+                    row.CreditVatType = this.vattypes.find(x => x.ID === row.CreditVatType.ID);
                 }
 
                 if (!row.NetAmountCurrency) {
@@ -255,6 +263,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             // i.e. the items that it is possible to select in the journalentrynumber dropdown
             this.setupSameNewAlternatives();
         });
+
     }
 
     private setupJournalEntryTable() {
@@ -262,7 +271,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         Observable.forkJoin(
             this.departmentService.GetAll(null),
             this.projectService.GetAll(null),
-            this.vatTypeService.GetAll('orderby=VatCode'),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1')
@@ -270,22 +278,21 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             (data) => {
                 this.departments = data[0];
                 this.projects = data[1];
-                this.vattypes = data[2];
 
                 if (this.companySettings
                     && this.companySettings.CompanyBankAccount
                     && this.companySettings.CompanyBankAccount.Account) {
                     this.defaultAccountPayments = this.companySettings.CompanyBankAccount.Account;
                 } else {
-                    if (data[3] && data[3].length && data[3].length > 0) {
-                        this.defaultAccountPayments = data[3][0];
+                    if (data[2] && data[2].length && data[2].length > 0) {
+                        this.defaultAccountPayments = data[2][0];
                     }
                 }
 
-                this.companySettings = data[4];
+                this.companySettings = data[3];
 
-                if (data[5]) {
-                        this.predefinedDescriptions = data[5];
+                if (data[4]) {
+                        this.predefinedDescriptions = data[4];
                 }
 
                 this.setupUniTable();
@@ -468,9 +475,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const account = rowModel.DebitAccount;
         if (account) {
             rowModel.DebitAccountID = account.ID;
-            rowModel.DebitVatType = account.VatType;
-            rowModel.DebitVatTypeID = account.VatTypeID;
 
+            if (account.VatTypeID) {
+                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                rowModel.DebitVatType = vatType;
+            } else {
+                rowModel.CreditVatType = null;
+            }
+
+            this.setDebitVatTypeProperties(rowModel);
             this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.DebitAccountID = null;
@@ -482,9 +495,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const account = rowModel.CreditAccount;
         if (account) {
             rowModel.CreditAccountID = account.ID;
-            rowModel.CreditVatType = account.VatType;
-            rowModel.CreditVatTypeID = account.VatTypeID;
 
+            if (account.VatTypeID) {
+                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                rowModel.CreditVatType = vatType;
+            } else {
+                rowModel.CreditVatType = null;
+            }
+
+            this.setCreditVatTypeProperties(rowModel);
+            this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.CreditAccountID = null;
         }
@@ -516,6 +536,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setDebitVatTypeProperties(rowModel: JournalEntryData): JournalEntryData {
         let vattype: VatType = rowModel.DebitVatType;
 
+        if (vattype) {
+            this.journalEntryService.setCorrectVatPercent(vattype, rowModel);
+        }
+
         if (vattype && vattype.DirectJournalEntryOnly) {
             if (rowModel.DebitAccountID && rowModel.DebitAccountID !== vattype.IncomingAccountID) {
                 rowModel.DebitVatType = null;
@@ -535,6 +559,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private setCreditVatTypeProperties(rowModel: JournalEntryData): JournalEntryData {
         let vattype = rowModel.CreditVatType;
+
+        if (vattype) {
+            this.journalEntryService.setCorrectVatPercent(vattype, rowModel);
+        }
 
         if (vattype && vattype.DirectJournalEntryOnly) {
             if (rowModel.CreditAccountID && rowModel.CreditAccountID !== vattype.IncomingAccountID) {
@@ -1287,6 +1315,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             && row.FinancialDate.toString() === originalFieldValue.toString())
                     ) {
                         row.FinancialDate = row.VatDate;
+                    }
+
+                    if (row.DebitVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.DebitVatType, row);
+                    }
+                    if (row.CreditVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.CreditVatType, row);
                     }
 
                     if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {

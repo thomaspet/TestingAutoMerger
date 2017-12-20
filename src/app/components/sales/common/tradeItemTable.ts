@@ -12,7 +12,8 @@ import {
     VatType,
     CompanySettings,
     Project,
-    Dimensions
+    Dimensions,
+    LocalDate
 } from '../../../unientities';
 import {
     ProductService,
@@ -24,7 +25,7 @@ import {
     ErrorService,
     CompanySettingsService
 } from '../../../services/services';
-
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-tradeitem-table',
@@ -47,9 +48,10 @@ export class TradeItemTable {
     @Input() public projects: Project[];
     @Input() public configStoreKey: string;
     @Input() public items: any;
+    @Input() public vatDate: LocalDate;
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
-    private vatTypes: VatType[] = [];
+    @Input() public vatTypes: VatType[];
     private foreignVatType: VatType;
     private tableConfig: UniTableConfig;
     private tableData: any[];
@@ -58,7 +60,6 @@ export class TradeItemTable {
 
     constructor(
         private productService: ProductService,
-        private vatTypeService: VatTypeService,
         private accountService: AccountService,
         private tradeItemHelper: TradeItemHelper,
         private departmentService: DepartmentService,
@@ -70,13 +71,10 @@ export class TradeItemTable {
 
     public ngOnInit() {
         Observable.forkJoin(
-            this.companySettingsService.Get(1),
-            this.vatTypeService.GetAll('filter=OutputVat eq true')
+            this.companySettingsService.Get(1)
         ).subscribe(
             res => {
                 this.settings = res[0];
-                this.vatTypes = res[1];
-                this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
                 this.initTableConfig();
             },
             err => this.errorService.handle(err)
@@ -86,15 +84,24 @@ export class TradeItemTable {
     public ngOnChanges(changes) {
         if (changes['items'] && this.items) {
             this.tableData = this.items.filter(item => !item.Deleted);
+            this.updateVatPercentsAndItems();
         }
 
         if (changes['readonly'] && this.table) {
             this.initTableConfig();
         }
+
+        if (changes['vatDate']) {
+            this.updateVatPercentsAndItems();
+        }
+
+        if (changes['vatTypes']) {
+            this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
+            this.updateVatPercentsAndItems();
+        }
     }
 
     public ngOnDestroy() {
-        console.log('destroy');
     }
 
     public blurTable() {
@@ -103,6 +110,70 @@ export class TradeItemTable {
 
     public focusFirstRow() {
         this.table.focusRow(0);
+    }
+
+    public updateVatPercentsAndItems() {
+        if (this.vatTypes && this.items) {
+            let vatTypes = this.vatTypes;
+
+            // find the correct vatpercentage based on the either vatdate or current date,
+            // in that order. VatPercent may change between years, so this needs to be checked each time
+            // the date changes
+            let vatDate =
+                this.vatDate ?
+                    moment(this.vatDate) :
+                    moment(Date());
+
+            let changedVatTypeIDs: Array<number> = [];
+
+            vatTypes.forEach(vatType => {
+
+                let validPercentageForVatType =
+                    vatType.VatTypePercentages.find(y =>
+                            (moment(y.ValidFrom) <= vatDate && y.ValidTo && moment(y.ValidTo) >= vatDate)
+                            || (moment(y.ValidFrom) <= vatDate && !y.ValidTo));
+
+                let vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
+
+                // set the correct percentage on the VatType also, this is done to reflect it properly in
+                // the UI if changing a date leads to using a different vatpercent
+                if (vatType.VatPercent !== vatPercent) {
+                    vatType.VatPercent = vatPercent;
+                    changedVatTypeIDs.push(vatType.ID);
+                }
+            });
+
+            if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
+                this.vatTypes = vatTypes;
+
+                // just because some vattypes might have changed by changing the dates, it doesnt mean
+                // any of the items actually use this vattype - so keep track of any real changes
+                let didAnythingReallyChange = false;
+
+                let itemsWithoutVatPercent = this.items.filter(x => x.VatType && !x.VatType.VatPercent);
+                let items = itemsWithoutVatPercent.length > 0 ?
+                    itemsWithoutVatPercent :
+                    this.items.filter(x => x.VatType && changedVatTypeIDs.indexOf(x.VatType.ID) !== -1);
+
+                items.forEach(item => {
+                    if (item.VatType) {
+                        let newVatType = this.vatTypes.find(x => x.ID === item.VatType.ID);
+                        item.VatType = newVatType;
+
+                        this.tradeItemHelper.calculatePriceIncVat(item);
+                        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
+                        this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
+
+                        didAnythingReallyChange = true;
+                    }
+                });
+
+                if (didAnythingReallyChange) {
+                    this.tableData = this.items.filter(item => !item.Deleted);
+                    this.itemsChange.emit(this.items);
+                }
+            }
+        }
     }
 
     public updateAllItemVatCodes(currencyCodeID) {
@@ -144,7 +215,7 @@ export class TradeItemTable {
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
-                        ['VatType', 'Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+                        ['Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
                     )
 
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -181,9 +252,9 @@ export class TradeItemTable {
             .setVisible(false)
             .setOptions({
                 itemTemplate: item => `${item.AccountNumber} : ${item.AccountName}`,
-               lookupFunction: (searchValue) => {
+                lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
-               }
+                }
             });
 
         const vatTypeCol = new UniTableColumn('VatType', 'Momskode', UniTableColumnType.Lookup)
@@ -330,7 +401,9 @@ export class TradeItemTable {
                     this.currencyCodeID,
                     this.currencyExchangeRate,
                     this.settings,
-                    this.foreignVatType
+                    this.vatTypes,
+                    this.foreignVatType,
+                    this.vatDate
                 );
 
                 updatedRow['_isDirty'] = true;

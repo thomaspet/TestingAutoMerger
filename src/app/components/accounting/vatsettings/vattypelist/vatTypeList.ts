@@ -1,10 +1,11 @@
 import {Component, ViewChild, Output, EventEmitter, ElementRef} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {VatType} from '../../../../unientities';
+import {VatType, LocalDate} from '../../../../unientities';
 import {VatTypeService, ErrorService} from '../../../../services/services';
 import {
     UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
 } from '../../../../../framework/ui/unitable/index';
+import * as moment from 'moment';
 
 @Component({
     selector: 'vattype-list',
@@ -56,13 +57,13 @@ export class VatTypeList {
             params.set(
                 'expand',
                 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,'
-                    + 'VatReportReferences.VatPost,VatReportReferences.Account'
+                    + 'VatReportReferences.VatPost,VatReportReferences.Account,'
+                    + 'VatTypePercentages'
             );
 
             return this.vatTypeService.GetAllByUrlSearchParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
-
 
         let groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('20%');
         let codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
@@ -74,14 +75,35 @@ export class VatTypeList {
         let outgoingAccountCol = new UniTableColumn(
             'OutgoingAccount.AccountNumber', 'Utg. konto', UniTableColumnType.Text
         ).setWidth('10%');
-        let percentCol = new UniTableColumn('VatPercent', 'Prosent', UniTableColumnType.Number)
+        let percentCol = new UniTableColumn('VatTypePercentages.VatPercent', 'Prosent', UniTableColumnType.Number)
             .setWidth('10%')
+            .setDisplayField('VatPercent')
+            .setFilterable(false)
             .setTemplate((data) => data.VatPercent + '%')
             .setFilterOperator('eq');
 
         // Setup table
-        this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, true, 25)
+        this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, false)
             .setSearchable(true)
-            .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol]);
+            .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol])
+            .setDataMapper((data: Array<VatType>) => {
+                let dataWithPercentage = [];
+
+                let today = moment(new Date());
+
+                data.forEach((vatType) => {
+                    let currentPercentage =
+                        vatType.VatTypePercentages.find(y =>
+                            (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
+                            || (moment(y.ValidFrom) <= today && !y.ValidTo));
+
+                    if (currentPercentage) {
+                        vatType.VatPercent = currentPercentage.VatPercent;
+                    }
+                    dataWithPercentage.push(vatType);
+                });
+
+                return dataWithPercentage;
+            });
     }
 }

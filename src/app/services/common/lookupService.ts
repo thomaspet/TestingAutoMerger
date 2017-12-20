@@ -17,7 +17,7 @@ export class Lookupservice {
         return this.GET(route + '/' + id + (expand ? pfx + 'expand=' + expand : ''));
     }
 
-    public query<T>(route: string, searchString: string, matchCols: string, expand?: string, 
+    public query<T>(route: string, searchString: string, matchCols: string, expand?: string,
                     select?: string, filter?: string, useModel?: string): Observable<T> {
         var cols = matchCols.split(',');
         var params = '', prefix = '?';
@@ -40,7 +40,7 @@ export class Lookupservice {
     }
 
     public statQuery<T>(model: string, params: string): Observable<T> {
-        return this.GET(`?model=${model}&${params}`, undefined, true );        
+        return this.GET(`?model=${model}&${params}`, undefined, true );
     }
 
     private mapStatSelect(cols: string, useStatistics = false): string {
@@ -83,7 +83,6 @@ export class Lookupservice {
         // Handle lookups if user types, or user selects from a combo.
         // This is because there sometimes are visual referencekeys (ordernumber etc.), and sometimes there are actual foreignkeys
         // returns a Promise if validation is delayed.
-
         if (event.columnDefinition && event.columnDefinition.lookup) {
 
             var lookupDef = event.columnDefinition.lookup;
@@ -109,45 +108,68 @@ export class Lookupservice {
             // Did user just type a "visual" key value himself (customernumber, ordernumber etc.) !?
             if (event.userTypedValue && lookupDef.visualKey) {
                 p = new Promise((resolve, reject) => {
-                    var filter = `?filter=${lookupDef.visualKey} eq `;
-                    if (lookupDef.visualKeyType === ColumnType.Text) {
-                        filter += `'${key}'`;
+
+                    if ((<any>lookupDef).searchValue) {
+                        let rows = (<any>lookupDef).searchValue(key);
+                        let item = (rows && rows.length > 0) ? rows[0] : {};
+                        event.value = item[lookupDef.colToSave || 'ID'];
+                        event.lookupValue = item;
+                        success(event);
+                        resolve(item);
                     } else {
-                        filter += key;
-                    }
-                    this.getSingle<any>(lookupDef.route, filter, lookupDef.expand).subscribe((rows: any) => {
-                        if (rows === undefined || rows === null || rows.length === 0) {
-                            if (failure) { failure(event); } else { reject('not found'); }
+                        let filter = `?filter=${lookupDef.visualKey} eq `;
+                        if (lookupDef.visualKeyType === ColumnType.Text) {
+                            filter += `'${key}'`;
                         } else {
-                            var item = (rows && rows.length > 0) ? rows[0] : {};
-                            event.value = item[lookupDef.colToSave || 'ID'];
-                            event.lookupValue = item;
-                            success(event);
-                            resolve(item);
+                            filter += key;
                         }
-                    }, (err) => {
-                        if (failure) { failure(event); } else { reject(err.statusText); }
-                    });
+                        this.getSingle<any>(lookupDef.route, filter, lookupDef.expand).subscribe((rows: any) => {
+                            if (rows === undefined || rows === null || rows.length === 0) {
+                                if (failure) { failure(event); } else { reject('not found'); }
+                            } else {
+                                var item = (rows && rows.length > 0) ? rows[0] : {};
+                                event.value = item[lookupDef.colToSave || 'ID'];
+                                event.lookupValue = item;
+                                success(event);
+                                resolve(item);
+                            }
+                        }, (err) => {
+                            if (failure) { failure(event); } else { reject(err.statusText); }
+                        });
+                    }
                 });
                 event.updateCell = false;
                 return p;
             }
 
-            // Normal lookup value (by foreignKey) ?
-            p = new Promise((resolve, reject) => {
-                this.getSingle<any>(lookupDef.route, key, lookupDef.expand).subscribe( (item: any) => {
-                    event.lookupValue = item;
+            let lookupFunction = (<any>lookupDef).getValue;
+
+            if (lookupFunction) {
+                p = new Promise((resolve, reject) => {
+                    let res = lookupFunction(key);
+                    event.lookupValue = res;
                     event.value = key;
                     success(event);
-                    resolve(item);
-                }, (err) => {
-                    if (failure) { failure(event); } else { reject(err.statusText); }
+                    resolve(res);
                 });
-            });
+            } else {
+                // Normal lookup value (by foreignKey) ?
+                p = new Promise((resolve, reject) => {
+                    if (lookupDef.route) {
+                        this.getSingle<any>(lookupDef.route, key, lookupDef.expand).subscribe( (item: any) => {
+                            event.lookupValue = item;
+                            event.value = key;
+                            success(event);
+                            resolve(item);
+                        }, (err) => {
+                            if (failure) { failure(event); } else { reject(err.statusText); }
+                        });
+                    }
+                });
+            }
             event.updateCell = false;
             return p;
         }
-
     }
 
     public onTypeSearch(details: ITypeSearch) {
@@ -169,7 +191,10 @@ export class Lookupservice {
                 }
                 return ret;
             });
-            details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, filter, details.columnDefinition.lookup.model).toPromise();
+
+            if (!details.promise) {
+                details.promise = this.query(lookup.route, details.value, searchCols, undefined, searchCols, filter, details.columnDefinition.lookup.model).toPromise();
+            }
         }
     }
 
@@ -186,6 +211,4 @@ export class Lookupservice {
         .withEndPoint(route).send(params)
         .map(response => response.json());
     }
-
-
 }

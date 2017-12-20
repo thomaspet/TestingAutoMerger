@@ -115,7 +115,6 @@ export class View {
             result.subscribe(results => {
                 resolve({success: true});
             }, err => {
-                // debugger;
                 reject({success: false, msg: err._body});
             });
         });

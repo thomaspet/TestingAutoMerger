@@ -8,6 +8,7 @@ import {
     CompanySettings,
     JournalEntryLine,
     NumberSeriesTask,
+    VatType,
     NumberSeries
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
@@ -40,7 +41,8 @@ import {
     CompanySettingsService,
     JournalEntryLineService,
     NumberSeriesTaskService,
-    NumberSeriesService
+    NumberSeriesService,
+    VatTypeService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -83,6 +85,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private financialYears: Array<FinancialYear>;
     public currentFinancialYear: FinancialYear;
     private vatDeductions: Array<VatDeduction>;
+    private vatTypes: Array<VatType>;
 
     private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
@@ -126,6 +129,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private errorService: ErrorService,
         private toastService: ToastService,
         private vatDeductionService: VatDeductionService,
+        private vatTypeService: VatTypeService,
         private companySettingsService: CompanySettingsService,
         private journalEntryLineService: JournalEntryLineService,
         private numberSeriesService: NumberSeriesService,
@@ -140,12 +144,14 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.financialYearService.GetAll(null),
             this.financialYearService.getActiveFinancialYear(),
             this.vatDeductionService.GetAll(null),
-            this.companySettingsService.Get(1)
+            this.companySettingsService.Get(1),
+            this.vatTypeService.GetAll('orderby=VatCode')
         ).subscribe(data => {
                 this.financialYears = data[0];
                 this.currentFinancialYear = data[1];
                 this.vatDeductions = data[2];
                 this.companySettings = data[3];
+                this.vatTypes = data[4];
 
                 this.numberSeriesService.getActiveNumberSeries(
                     'JournalEntry', this.currentFinancialYear.Year
@@ -360,37 +366,49 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
-    public setJournalEntryData(lines: Array<JournalEntryData>) {
-        if (this.journalEntryProfessional) {
-            this.journalEntryProfessional.setJournalEntryData(lines);
+    public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
+        if (!this.vatTypes) {
+            // we need to load vattypes/other data to do some calculations to display data
+            // correctly, so wait for this to load before showing data
+            if (retryCount < 10) {
+                setTimeout(() => {
+                    this.setJournalEntryData(lines, retryCount++);
+                }, 500);
+            } else {
+                console.log('Vattype data not loaded correctly, could not set data')
+            }
         } else {
+            if (this.journalEntryProfessional) {
+                this.journalEntryProfessional.setJournalEntryData(lines);
+            } else {
+                setTimeout(() => {
+                    if (this.journalEntryProfessional) {
+                        this.journalEntryProfessional.setJournalEntryData(lines);
+                    } else {
+                        console.error('Could not set data, journalentryprofessional not initialised');
+                    }
+                });
+            }
+
+            // run this after the rest of the databinding is complete - if not it can cause multiple
+            // changes in the same change detection cycle, and this makes angular really cranky
             setTimeout(() => {
-                if (this.journalEntryProfessional) {
-                    this.journalEntryProfessional.setJournalEntryData(lines);
-                } else {
-                    console.error('Could not set data, journalentryprofessional not initialised');
-                }
+                this.setupSaveConfig();
             });
-        }
 
-        // run this after the rest of the databinding is complete - if not it can cause multiple
-        // changes in the same change detection cycle, and this makes angular really cranky
-        setTimeout(() => {
-            this.setupSaveConfig();
-        });
+            this.calculateItemSums(lines);
 
-        this.calculateItemSums(lines);
-
-        if (!this.currentFinancialYear) {
-            // wait a moment before trying to validate the data
-            // because the currentyears have not been retrieved yet
-            setTimeout(() => {
-                if (this.currentFinancialYear) {
-                    this.validateJournalEntryData(lines);
-                }
-            }, 1000);
-        } else {
-            this.validateJournalEntryData(lines);
+            if (!this.currentFinancialYear) {
+                // wait a moment before trying to validate the data
+                // because the currentyears have not been retrieved yet
+                setTimeout(() => {
+                    if (this.currentFinancialYear) {
+                        this.validateJournalEntryData(lines);
+                    }
+                }, 1000);
+            } else {
+                this.validateJournalEntryData(lines);
+            }
         }
     }
 
