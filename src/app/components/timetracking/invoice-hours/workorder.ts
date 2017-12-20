@@ -28,7 +28,8 @@ export class WorkOrder {
         this.TaxExclusiveAmount = (this.TaxExclusiveAmount || 0) + item.SumTotalExVat;
 
         if (compress) {
-            const existing = this.Items.find( x => x.ProductID === item.ProductID && x.ItemText === item.ItemText);
+            const existing = this.Items.find( x => x.ProductID === item.ProductID
+                && x.ItemText === item.ItemText && x.PriceExVat === item.PriceExVat);
             if (existing) {
                 existing.merge(item);
                 return;

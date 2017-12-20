@@ -59,10 +59,10 @@ export class WorkitemTransferWizardProducts implements OnInit {
         query.set('select', 'sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
             + ',Worktype.ID as WorktypeID'
             + ',WorkType.Name as WorktypeName'
+            + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
             + ',Product.PartName as PartName'
             + ',Product.ID as ProductID'
-            + ',Product.Name as ProductName'
-            + ',Product.PriceExVat as PriceExVat');
+            + ',Product.Name as ProductName');
         query.set('expand', 'workrelation.worker,worktype.product');
         query.set('orderby', 'worktype.name');
         query.set('filter', 'transferedtoorder eq 0 and CustomerID gt 0');
