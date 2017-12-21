@@ -9,9 +9,6 @@ import {EmployeeList} from './employee/employeeList';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
-import {
-    AnnualStatementSenderContainerComponent
-} from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
 import {routes as EmployeeRoutes} from './employee/employeeRoutes';
 import {routes as WageTypeRoutes} from './wagetype/wagetypeRoutes';
 import {AMeldingView} from './amelding/ameldingview';
@@ -86,9 +83,5 @@ export const salaryRoutes: Routes = [
         path: 'supplements',
         component: SalaryTransactionSupplementList,
         canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'annualstatements',
-        component: AnnualStatementSenderContainerComponent
     }
 ];

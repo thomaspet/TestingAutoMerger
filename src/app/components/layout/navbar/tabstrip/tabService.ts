@@ -65,7 +65,6 @@ export enum UniModules {
     Categories      = 505,
     Salarybalances  = 506,
     Supplements     = 507,
-    AnnualStatements  = 508,
 
     WorkProfiles    = 600,
     Workers         = 601,

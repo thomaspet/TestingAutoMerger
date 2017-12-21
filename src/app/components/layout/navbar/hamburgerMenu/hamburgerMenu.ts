@@ -302,8 +302,6 @@ export class HamburgerMenu {
                         moduleID: UniModules.Salarybalances},
                     {componentName: 'Tilleggsopplysninger', componentUrl: '/salary/supplements',
                         moduleID: UniModules.Supplements},
-                    {componentName: 'Årsoppgave til inntektsmottaker', componentUrl: '/salary/annualstatements',
-                        moduleID: UniModules.AnnualStatements},
                     {componentName: 'Ansatte', componentUrl: '/salary/employees',
                         moduleID: UniModules.Employees, groupHeader: 'Register'},
                     {componentName: 'Lønnsarter', componentUrl: '/salary/wagetypes',

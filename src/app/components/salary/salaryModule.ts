@@ -82,11 +82,6 @@ import {SalaryBalanceLineModal} from './salarybalance/modals/salBalLineModal';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import { AnnualStatementSenderComponent } from './annualStatement/annual-statement-sender/annual-statement-sender.component';
-import { EmployeeReportPickerListComponent } from './common/employee-report-picker-list/employee-report-picker-list.component';
-import {
-    AnnualStatementSenderContainerComponent
-} from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
 
 @NgModule({
     imports: [
@@ -171,10 +166,7 @@ import {
         SalarybalanceDetail,
         SalaryBalanceSummary,
         SalarybalanceLine,
-        SalaryBalanceLineModal,
-        AnnualStatementSenderComponent,
-        EmployeeReportPickerListComponent,
-        AnnualStatementSenderContainerComponent
+        SalaryBalanceLineModal
     ],
     entryComponents: [
         TaxCardModal,
@@ -266,9 +258,7 @@ import {
         SalarybalanceDetail,
         SalaryBalanceSummary,
         SalarybalanceLine,
-        SalaryBalanceLineModal,
-        AnnualStatementSenderComponent,
-        EmployeeReportPickerListComponent
+        SalaryBalanceLineModal
     ]
 })
 export class SalaryModule {}
