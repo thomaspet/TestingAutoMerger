@@ -50,6 +50,16 @@ export class InvoiceHours implements OnInit {
         // { label: 'Siste faktura', name: 'invoices', isActive: false }
     ];
 
+    private orderStatusCodes = {
+        status_0: '0',
+        status_undefined: '?',
+        status_41001: 'Kladd',
+        status_41002: 'Registrert',
+        status_41003: 'Delfakturert',
+        status_41004: 'Fakturert',
+        status_41005: 'Avsluttet'
+    };
+
     constructor(
         private statisticsService: StatisticsService,
         private toastService: ToastService,
@@ -82,10 +92,11 @@ export class InvoiceHours implements OnInit {
         const cols = [
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number).setVisible(false),
             new UniTableColumn('OrderNumber', 'Ordrenr.').setWidth('10%'),
-            new UniTableColumn('CustomerName', 'Kunde').setWidth('35%').setFilterOperator('startswith'),
+            new UniTableColumn('CustomerName', 'Kunde').setWidth('30%').setFilterOperator('startswith'),
             new UniTableColumn('OrderDate', 'Dato', UniTableColumnType.DateTime).setWidth('15%'),
-            new UniTableColumn('OurReference', 'Vår referanse').setWidth('20%'),
-            new UniTableColumn('TaxExclusiveAmount', 'Nettosum', UniTableColumnType.Money).setWidth('20%').setAlignment('right'),
+            new UniTableColumn('OurReference', 'Vår referanse').setWidth('15%'),
+            new UniTableColumn('StatusCode', 'Status').setWidth('15%'),
+            new UniTableColumn('TaxExclusiveAmount', 'Nettosum', UniTableColumnType.Money).setWidth('15%').setAlignment('right'),
         ];
         return new UniTableConfig('timetracking.invoice-hours', false, false)
             .setColumns(cols)
@@ -93,6 +104,9 @@ export class InvoiceHours implements OnInit {
                 this.busy = false;
                 const rows = (data && data.Success && data.Data) ? data.Data : [];
                 this.rowCount = rows.length;
+                rows.forEach(order => {
+                    order.StatusCode = this.orderStatusCodes['status_' + order.StatusCode];
+                });
                 return rows;
             });
     }
@@ -132,8 +146,12 @@ export class InvoiceHours implements OnInit {
 
         query.set('model', 'customerorder');
 
-        query.set('select', 'id as ID,ordernumber as OrderNumber,orderdate as OrderDate'
-            + ',customername as CustomerName,taxexclusiveamount as TaxExclusiveAmount'
+        query.set('select', 'id as ID'
+            + ',ordernumber as OrderNumber'
+            + ',orderdate as OrderDate'
+            + ',customername as CustomerName'
+            + ',taxexclusiveamount as TaxExclusiveAmount'
+            + ',statuscode as StatusCode'
             + ',ourreference as OurReference');
 
         query.set('join', 'customerorder.id eq customerorderitem.customerorderid'

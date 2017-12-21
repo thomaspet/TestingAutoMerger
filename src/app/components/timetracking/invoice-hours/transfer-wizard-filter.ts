@@ -4,7 +4,7 @@ import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
-import { IWizardOptions } from './wizardoptions';
+import { IWizardOptions, WizardSource } from './wizardoptions';
 
 @Component({
     selector: 'workitem-transfer-wizard-filter',
@@ -36,6 +36,7 @@ export class WorkitemTransferWizardFilter implements OnInit {
         this.initialized = true;
         this.busy = true;
         if (this.tableConfig) {
+            this.tableConfig = this.createTableConfig();
             this.uniTable.refreshTableData();
         } else {
             this.dataLookup = (params) => this.dataSource(params);
@@ -46,15 +47,43 @@ export class WorkitemTransferWizardFilter implements OnInit {
     public dataSource(query: URLSearchParams) {
 
         this.busy = true;
-
         query.set('model', 'workitem');
-        query.set('select', 'CustomerID as CustomerID'
-            + ',Customer.CustomerNumber as CustomerNumber'
-            + ',Info.Name as CustomerName'
-            + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-        query.set('expand', 'workrelation.worker,customer.info&orderby=customerid');
-        query.set('orderby', 'info.name');
-        query.set('filter', 'transferedtoorder eq 0 and CustomerID gt 0');
+        query.delete('join');
+
+        switch (this.options.source) {
+            default:
+            case WizardSource.CustomerHours:
+                query.set('select', 'CustomerID as CustomerID'
+                    + ',Customer.CustomerNumber as CustomerNumber'
+                    + ',Info.Name as CustomerName'
+                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
+                query.set('expand', 'workrelation.worker,customer.info');
+                query.set('orderby', 'info.name');
+                query.set('filter', 'transferedtoorder eq 0 and CustomerID gt 0');
+                break;
+
+            case WizardSource.OrderHours:
+                query.set('select', 'CustomerOrderID as OrderID'
+                    + ',CustomerOrder.OrderNumber as OrderNumber'
+                    + ',CustomerOrder.CustomerName as CustomerName'
+                    + ',CustomerOrder.CustomerID as CustomerID'
+                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
+                query.set('expand', 'workrelation.worker,customerorder');
+                query.set('orderby', 'CustomerOrderID desc');
+                query.set('filter', 'transferedtoorder eq 0 and CustomerOrderID gt 0');
+                break;
+
+            case WizardSource.ProjectHours:
+                query.set('select', 'Dimensions.ProjectID as ProjectID'
+                    + ',Project.ProjectNumber as ProjectNumber'
+                    + ',Project.Name as ProjectName'
+                    + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
+                query.set('expand', 'workrelation.worker,dimensions.project');
+                query.set('join', 'dimensions.projectid eq project.id');
+                query.set('orderby', 'dimensions.projectid desc');
+                query.set('filter', 'transferedtoorder eq 0 and dimensions.projectid gt 0');
+                break;
+        }
 
         if (this.options && this.options.filterByUserID) {
             query.set('filter', `${query.get('filter')} and worker.userid eq ${this.options.filterByUserID}`);
@@ -66,14 +95,40 @@ export class WorkitemTransferWizardFilter implements OnInit {
     }
 
     private createTableConfig(): UniTableConfig {
-        const cols = [
-            new UniTableColumn('CustomerID', 'Nr.', UniTableColumnType.Number).setVisible(false),
-            new UniTableColumn('CustomerNumber', 'Kundenr.').setWidth('14%'),
-            new UniTableColumn('CustomerName', 'Navn').setWidth('40%'),
+        let cols = [];
+
+        switch (this.options.source) {
+            default:
+            case WizardSource.CustomerHours:
+                cols = [
+                    new UniTableColumn('CustomerID', 'Nr.', UniTableColumnType.Number).setVisible(false),
+                    new UniTableColumn('CustomerNumber', 'Kundenr.').setWidth('14%'),
+                    new UniTableColumn('CustomerName', 'Navn').setWidth('40%')
+                ];
+                break;
+
+            case WizardSource.OrderHours:
+                cols = [
+                    new UniTableColumn('OrderID', 'Nr.', UniTableColumnType.Number).setVisible(false),
+                    new UniTableColumn('OrderNumber', 'Ordrenr.').setWidth('14%'),
+                    new UniTableColumn('CustomerName', 'Navn').setWidth('40%')
+                ];
+                break;
+
+            case WizardSource.ProjectHours:
+                cols = [
+                    new UniTableColumn('ProjectID', 'Nr.', UniTableColumnType.Number).setVisible(false),
+                    new UniTableColumn('ProjectNumber', 'Prosjektnr.').setWidth('14%'),
+                    new UniTableColumn('ProjectName', 'Navn').setWidth('40%')
+                ];
+                break;
+        }
+
+        cols.push(
             new UniTableColumn('SumMinutes', 'Timer', UniTableColumnType.Number)
-                .setWidth('20%').setAlignment('right')
-                .setNumberFormat({ decimalLength: 1, decimalSeparator: '.'}),
-        ];
+            .setWidth('20%').setAlignment('right')
+            .setNumberFormat({ decimalLength: 1, decimalSeparator: '.'})
+        );
 
         return new UniTableConfig('timetracking.transfer-wizard-filter', false, false)
             .setColumns(cols)

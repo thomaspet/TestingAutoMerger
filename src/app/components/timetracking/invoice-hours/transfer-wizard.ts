@@ -10,7 +10,7 @@ import { ErrorService } from '@app/services/common/errorService';
 import { UserService, CustomerOrderService, CustomerService } from '@app/services/services';
 import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { IWizardOptions } from './wizardoptions';
+import { IWizardOptions, WizardSource } from './wizardoptions';
 import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
 import { WorkitemTransferWizardPreview } from '@app/components/timetracking/invoice-hours/transfer-wizard-preview';
 
@@ -47,17 +47,17 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
     public busy: boolean = false;
     public transferBusy = false;
-    public choices: Array<{ name: string, label: string, checked?: boolean }> = [
-        { name: 'CustomerHours', label: 'Kunde-timer', checked: true},
-        { name: 'OrderHours', label: 'Ordre-timer'},
-        { name: 'ProjectHours', label: 'Prosjekt-timer'}
+    public choices: Array<{ type: WizardSource, label: string, checked?: boolean }> = [
+        { type: WizardSource.CustomerHours, label: 'Kunde-timer', checked: true},
+        { type: WizardSource.OrderHours, label: 'Ordre-timer'},
+        { type: WizardSource.ProjectHours, label: 'Prosjekt-timer'}
     ];
 
     public wizardOptions: IWizardOptions = {
         currentUserID: 0,
         currentUser: undefined,
         filterByUserID: 0,
-        sourceType: 'CustomerHours',
+        source: WizardSource.CustomerHours,
         selectedCustomers: [],
         selectedProducts: [],
         orders: []
@@ -78,6 +78,11 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         });
     }
 
+    public checkOption(choice: { name: string, label: string, checked: boolean }) {
+        this.choices.forEach( x => x.checked = false );
+        choice.checked = true;
+    }
+
     public ngOnInit() {
     }
 
@@ -96,13 +101,13 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     public accept() {
         if (this.step === this.steps.length - 1) {
             this.startTransfer();
-            // this.onClose.emit(ConfirmActions.ACCEPT);
             return;
         }
 
        switch (this.step) {
             case 0:
                 this.wizardOptions.filterByUserID = this.workerTypeCombo === '0' ? this.wizardOptions.currentUserID : 0;
+                this.wizardOptions.source = this.choices.find( x => x.checked).type;
                 this.wizardOptions.selectedCustomers.length = 0;
                 this.wizardFilter.refresh();
                 break;
@@ -172,9 +177,11 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
             .subscribe( customer => {
             if (order && order.CustomerID > 0) {
                 // set customer on order (with address etc.)
-                order.setCustomer(customer);
-                this.orderService.Post(order)
-                    .finally( () => this.transferBusy = false)
+                if (!order.ID) {
+                    order.setCustomer(customer);
+                }
+                const obs = order.ID ? this.orderService.Put(order.ID, order) : this.orderService.Post(order);
+                obs.finally( () => this.transferBusy = false)
                     .subscribe( result => {
                         // add to list of produced orders
                         this.finalOrderList.push(result);

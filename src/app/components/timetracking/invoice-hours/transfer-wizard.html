@@ -16,8 +16,8 @@
                     </select>
                 </div>
                 <div class="container">
-                    <div *ngFor="let choice of choices">
-                        <input type="radio" [checked]="choice.checked"><label>{{choice.label}}</label>
+                    <div *ngFor="let choice of choices">                        
+                        <input type="radio" [checked]="choice.checked"><label (click)="checkOption(choice)">{{choice.label}}</label>
                     </div>
                 </div>
             </form>
