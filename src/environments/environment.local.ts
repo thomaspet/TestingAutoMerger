@@ -1,7 +1,7 @@
 export const environment = {
     production: false,
 
-    BASE_URL_INIT: 'https://devapi-unieconomy.azurewebsites.net',
+    BASE_URL_INIT: 'http://localhost:29077',
     BASE_URL: 'http://localhost:29077/',
     BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
     BASE_URL_FILES: 'https://unifiles.azurewebsites.net/',
@@ -27,6 +27,9 @@ export const environment = {
     },
 
     RAYGUN_API_KEY: '',
+
+    SITE_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
+    
     STIMULSOFT_LICENSE: '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlQ9nKHW5xxs/tCjGsgWb6rWj7uUX3wCSckA495fAQHHkM8hO'
         + '+uFiXxRz+4NUYE2gKuBss/plBZutOtsinTBHyJQeXyv4BUK1Zn6BNv/nahgb+IyNQTTIuPeptIs83z6auntAOO0Y2+'
         + '0Fqi3RR8tP9UxKLcxqIvqgaBZc0zSHe1oho22a0Jw5J7c39OasrRo34cWAnnwAzV9PVCJdn3ZOuq2g9/8vUPXMJ4d5'

@@ -45,6 +45,8 @@
             av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
         </small>
 
+        <re-captcha formControlName="RecaptchaResponse"></re-captcha>
+
         <button class="auth-button bad"
             *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"

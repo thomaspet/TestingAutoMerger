@@ -12,6 +12,7 @@ import {Company} from '../../../unientities';
 })
 export class Signup {
     private confirmationCode: string;
+    private recaptchaResponse: string;
     private busy: boolean;
 
     private successMessage: string;
@@ -31,7 +32,8 @@ export class Signup {
             CompanyName: new FormControl('', Validators.required),
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
-            PhoneNumber: new FormControl('', Validators.required)
+            PhoneNumber: new FormControl('', Validators.required),
+            RecaptchaResponse: new FormControl('', Validators.required)
         });
 
         this.step2Form = formBuilder.group({
@@ -53,7 +55,7 @@ export class Signup {
             }
         });
     }
-
+    
     public submitStep1Form() {
         this.step1Form.disable();
         this.busy = true;
@@ -73,7 +75,8 @@ export class Signup {
                 err => {
                     this.busy = false;
                     this.step1Form.enable();
-
+                    grecaptcha.reset();
+                    this.step1Form.value.RecaptchaResponse = null;
                     try {
                         const errorBody = err.json();
                         if (errorBody.Message.indexOf('Email') >= 0) {

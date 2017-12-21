@@ -13,6 +13,9 @@ import {Login} from './login/login';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
+import {RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaLoaderService, RecaptchaModule, } from 'ng-recaptcha';
+import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
+import {environment} from 'src/environments/environment';
 
 @NgModule({
     imports: [
@@ -25,6 +28,9 @@ import {UniPasswordGuide} from './password-guide';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
+        RecaptchaModule.forRoot(),
+        RecaptchaFormsModule
+        
     ],
     declarations: [
         UniPasswordGuide,
@@ -44,6 +50,12 @@ import {UniPasswordGuide} from './password-guide';
         ResetPassword,
         Login,
         ConfirmInvite
-    ]
+    ],
+    providers: [
+        {
+            provide: RECAPTCHA_SETTINGS,
+            useValue: { siteKey: environment.SITE_KEY },
+        }
+    ],
 })
 export class InitModule {}
