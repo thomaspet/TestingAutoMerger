@@ -151,7 +151,7 @@ export class WorkitemTransferWizardFilter implements OnInit {
         cols.push(
             new UniTableColumn('SumMinutes', 'Timer', UniTableColumnType.Number)
             .setWidth('20%').setAlignment('right')
-            .setNumberFormat({ decimalLength: 1, decimalSeparator: '.'})
+            .setNumberFormat({ decimalLength: 1, decimalSeparator: '.', thousandSeparator: ' '})
         );
 
         return new UniTableConfig('timetracking.transfer-wizard-filter', false, false)
