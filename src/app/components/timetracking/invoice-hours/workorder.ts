@@ -1,5 +1,6 @@
 import { LocalDate, Customer } from '@uni-entities';
 import { roundTo } from '@app/components/common/utils/utils';
+import { createGuid } from '@app/services/services';
 
 export class WorkOrder {
     public ID: number;
@@ -22,12 +23,12 @@ export class WorkOrder {
         this.OrderDate = new LocalDate();
     }
 
-    public addItem(item: WorkOrderItem, compress = true) {
+    public addItem(item: WorkOrderItem, merge = true) {
 
         item.calcSum();
         this.TaxExclusiveAmount = (this.TaxExclusiveAmount || 0) + item.SumTotalExVat;
 
-        if (compress) {
+        if (merge) {
             const existing = this.Items.find( x => x.ProductID === item.ProductID
                 && x.ItemText === item.ItemText && x.PriceExVat === item.PriceExVat);
             if (existing) {
@@ -66,11 +67,14 @@ export class WorkOrderItem {
     public NumberOfItems: number;
     public PriceExVat: number;
     public SumTotalExVat: number;
+    public VatTypeID: number;
+    public _createguid: string;
     public constructor(productId?: number, itemText?: string, numberOfItems?: number, priceExVat?: number ) {
         this.ProductID = productId;
         this.ItemText = itemText;
         this.NumberOfItems = numberOfItems;
         this.PriceExVat = priceExVat;
+        this._createguid = createGuid();
     }
 
     public merge(item: WorkOrderItem) {
@@ -86,6 +90,10 @@ export class WorkOrderItem {
 
 export class WorkItemSource {
     public Details: Array<WorkItemSourceDetail> = [];
+    public _createguid: string;
+    constructor() {
+        this._createguid = createGuid();
+    }
 }
 
 export class WorkItemSourceDetail {
@@ -94,8 +102,10 @@ export class WorkItemSourceDetail {
     public Tag: string;
     public Description: string;
     public Amount: number;
+    public _createguid: string;
     public constructor(workItemID?: number, amount?: number) {
         this.SourceFK = workItemID || this.SourceFK;
         this.Amount = amount || this.Amount;
+        this._createguid = createGuid();
     }
 }

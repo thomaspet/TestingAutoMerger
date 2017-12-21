@@ -4,7 +4,7 @@ import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
-import { IWizardOptions } from './wizardoptions';
+import { IWizardOptions, WizardSource } from './wizardoptions';
 
 @Component({
     selector: 'workitem-transfer-wizard-products',
@@ -62,16 +62,28 @@ export class WorkitemTransferWizardProducts implements OnInit {
             + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
             + ',Product.PartName as PartName'
             + ',Product.ID as ProductID'
+            + ',Product.VatTypeID as VatTypeID'
             + ',Product.Name as ProductName');
         query.set('expand', 'workrelation.worker,worktype.product');
         query.set('orderby', 'worktype.name');
-        query.set('filter', 'transferedtoorder eq 0 and CustomerID gt 0');
+        query.set('filter', 'transferedtoorder eq 0');
 
         if (this.options) {
             if (this.options.selectedCustomers && this.options.selectedCustomers.length > 0) {
                 const list = [];
                 for (let i = 0; i < this.options.selectedCustomers.length; i++) {
-                    list.push(`customerid eq ${this.options.selectedCustomers[i].CustomerID}`);
+                    switch (this.options.source) {
+                        case WizardSource.CustomerHours:
+                            list.push(`customerid eq ${this.options.selectedCustomers[i].CustomerID}`);
+                            break;
+                        case WizardSource.OrderHours:
+                            list.push(`customerorderid eq ${this.options.selectedCustomers[i].OrderID}`);
+                            break;
+                        case WizardSource.ProjectHours:
+                            list.push(`dimensions.projectid eq ${this.options.selectedCustomers[i].ProjectID}`);
+                            query.set('expand', 'workrelation.worker,worktype.product,dimensions');
+                            break;
+                        }
                 }
                 query.set('filter', `${query.get('filter')} and (${list.join(' or ')})`);
             }

@@ -1,9 +1,10 @@
 <article [attr.aria-busy]="busy" class="workorder">
 
-    <strong>{{orderList?.length}} ordrer:</strong>
+    <strong *ngIf="options.source != 1">Opprette {{orderList?.length}} ordre(r):</strong>
+    <strong *ngIf="options.source == 1">Oppdatere {{orderList?.length}} ordre(r):</strong>
 
     <div class="workorder" *ngFor="let order of orderList">
-        <h3 (click)="order._expand = !order._expand" >{{order.CustomerName}}
+        <h3 (click)="order._expand = !order._expand" >{{order.ID ? 'Ordre ' + order.ID + ' - ' : ''}}{{order.CustomerName}}
             <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">{{order.TaxExclusiveAmount | unicurrency}}</span>
         </h3>
         <div class="workorder-details" *ngIf="order._expand">
@@ -15,7 +16,7 @@
                 <th class="right w4">Linjesum</th>
             </tr>
             <tr *ngFor="let item of order.Items">
-                <td>{{item.ItemText}}</td>
+                <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis" >{{item.ItemText}}</td>
                 <td class="right">{{item.NumberOfItems | numpipe:'1'}}</td>
                 <td class="right">{{item.PriceExVat | unicurrency}}</td>
                 <td class="right">{{item.SumTotalExVat | unicurrency}}</td>
