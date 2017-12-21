@@ -13,7 +13,6 @@ import {AccountReportFilterModal} from './modals/account/AccountReportFilterModa
 import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
-import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
@@ -118,11 +117,6 @@ export class UniReports implements OnInit {
     }
 
     public showReportParams(report: ReportDefinition) {
-        switch (report.Name) {
-            case 'Årsoppgave':
-                this.annualStatementReport(report);
-                return;
-        }
         switch (report.ID) {
             case 7:
             case 8:
@@ -177,21 +171,6 @@ export class UniReports implements OnInit {
                     });
                 }
             });
-    }
-
-    private annualStatementReport(report: ReportDefinition) {
-        this.uniModalService
-            .open(AnnualSatementReportFilterModalComponent,
-            {
-                data: report,
-                header: report.Name,
-                message: report.Description
-            })
-            .onClose
-            .filter(modalResult => modalResult === ConfirmActions.ACCEPT)
-            .subscribe(modalResult => this.uniModalService.open(UniPreviewModal, {
-                data: report
-            }));
     }
 
     public showUniQuery(report: UniQueryDefinition) {
