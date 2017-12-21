@@ -16,13 +16,7 @@ import { WorkitemTransferWizardPreview } from '@app/components/timetracking/invo
 
 @Component({
     selector: 'workitem-transfer-wizard',
-    templateUrl: './transfer-wizard.html',
-    styles: [
-        `.container { padding: 1em 1em 0 1em; }
-         .wizard-step-container { height: 15em; overflow-y: auto; }
-         .stepheader { padding-bottom: 0.5em; font-weight: bold; font-size: 12pt; }
-        `
-    ]
+    templateUrl: './transfer-wizard.html'
 })
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
     @Input() public options: IModalOptions = {};
@@ -122,14 +116,15 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
                 }
             break;
         case 2:
-            if (this.wizardProducts.selectedItems && this.wizardProducts.selectedItems.length > 0) {
+            const prodStatus = this.wizardProducts.canProceed();
+            if (prodStatus.ok) {
                 setTimeout(() => {
                     this.wizardOptions.selectedProducts = this.wizardProducts.selectedItems;
                     this.wizardPreview.refresh();
                     this.step++;
                 }, 20);
             } else {
-                this.toastService.addToast('Ingenting er valgt ut', ToastType.warn, 3, 'Du må velge hva som skal overføres.');
+                this.toastService.addToast('Kan ikke gå videre', ToastType.warn, 3, prodStatus.msg);
             }
             return;
         case 3:
