@@ -53,6 +53,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
                     this.orderList = this.updateOrders(list, this.options);
                     break;
                 case WizardSource.ProjectHours:
+                    this.orderList = this.createOrders(list, this.options);
                     break;
             }
 
@@ -69,6 +70,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
 
         let groupField = 'CustomerID';
         let customerField = 'CustomerID';
+        query.delete('join');
 
         switch (this.options.source) {
             case WizardSource.CustomerHours:
@@ -83,6 +85,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
                 groupField = 'Dimensions.ProjectID';
                 customerField = 'Project.ProjectCustomerID';
                 query.set('expand', 'workrelation.worker,worktype.product,dimensions');
+                query.set('join', 'dimensions.projectid eq project.id');
                 break;
         }
 
@@ -176,6 +179,9 @@ export class WorkitemTransferWizardPreview implements OnInit {
                 order.CustomerID = row.CustomerID;
                 order.CustomerName = customer.CustomerName;
                 order.OurReference = options.currentUser.DisplayName;
+                if (options.source === WizardSource.ProjectHours) {
+                    order.setProject(row.GroupValue);
+                }
                 orders.push(order);
             }
             const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
@@ -191,6 +197,9 @@ export class WorkitemTransferWizardPreview implements OnInit {
             item.ItemSource = new WorkItemSource();
             item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
             item.VatTypeID = workType.VatTypeID;
+            if (options.source === WizardSource.ProjectHours) {
+                item.setProject(row.GroupValue);
+            }
 
             order.addItem(item);
         }

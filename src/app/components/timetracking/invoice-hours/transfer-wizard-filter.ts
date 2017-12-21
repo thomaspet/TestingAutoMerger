@@ -44,6 +44,25 @@ export class WorkitemTransferWizardFilter implements OnInit {
         }
     }
 
+    public canProceed(): { ok: boolean, msg?: string } {
+        const list = <Array<any>>this.selectedItems;
+        if (list && list.length > 0) {
+            switch (this.options.source) {
+                case WizardSource.CustomerHours:
+                    break;
+                case WizardSource.OrderHours:
+                    break;
+                case WizardSource.ProjectHours:
+                    if (list.findIndex( x => !x.CustomerID) >= 0) {
+                        return { ok: false, msg: 'Prosjekt må ha knytning mot kunde for å kunne overføres.' };
+                    }
+                    break;
+            }
+            return { ok: true };
+        }
+        return { ok: false, msg: 'Du har ikke valgt noen som kan overføres.'};
+    }
+
     public dataSource(query: URLSearchParams) {
 
         this.busy = true;
@@ -77,9 +96,13 @@ export class WorkitemTransferWizardFilter implements OnInit {
                 query.set('select', 'Dimensions.ProjectID as ProjectID'
                     + ',Project.ProjectNumber as ProjectNumber'
                     + ',Project.Name as ProjectName'
+                    + ',businessrelation.Name as CustomerName'
+                    + ',customer.ID as CustomerID'
                     + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
                 query.set('expand', 'workrelation.worker,dimensions.project');
-                query.set('join', 'dimensions.projectid eq project.id');
+                query.set('join', 'dimensions.projectid eq project.id'
+                    + ' and project.projectcustomerid eq customer.id'
+                    + ' and customer.businessrelationid eq businessrelation.id');
                 query.set('orderby', 'dimensions.projectid desc');
                 query.set('filter', 'transferedtoorder eq 0 and dimensions.projectid gt 0');
                 break;
@@ -118,8 +141,9 @@ export class WorkitemTransferWizardFilter implements OnInit {
             case WizardSource.ProjectHours:
                 cols = [
                     new UniTableColumn('ProjectID', 'Nr.', UniTableColumnType.Number).setVisible(false),
-                    new UniTableColumn('ProjectNumber', 'Prosjektnr.').setWidth('14%'),
-                    new UniTableColumn('ProjectName', 'Navn').setWidth('40%')
+                    new UniTableColumn('ProjectNumber', 'Prosjektnr.').setWidth('15%'),
+                    new UniTableColumn('ProjectName', 'Navn').setWidth('40%'),
+                    new UniTableColumn('CustomerName', 'Kunde').setWidth('25%')
                 ];
                 break;
         }

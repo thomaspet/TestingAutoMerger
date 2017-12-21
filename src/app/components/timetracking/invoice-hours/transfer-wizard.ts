@@ -112,11 +112,12 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
                 this.wizardFilter.refresh();
                 break;
             case 1:
-                if (this.wizardFilter.selectedItems && this.wizardFilter.selectedItems.length > 0) {
+                const status = this.wizardFilter.canProceed();
+                if (status.ok) {
                     this.wizardOptions.selectedCustomers = this.wizardFilter.selectedItems;
                     this.wizardProducts.refresh();
                 } else {
-                    this.toastService.addToast('Ingenting er valgt ut', ToastType.warn, 3, 'Du må velge hva som skal overføres.');
+                    this.toastService.addToast('Kan ikke gå videre', ToastType.warn, 3, status.msg);
                     return;
                 }
             break;
