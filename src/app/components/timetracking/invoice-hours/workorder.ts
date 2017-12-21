@@ -17,6 +17,7 @@ export class WorkOrder {
     public InvoicePostalCode: string;
     public InvoiceCountry: string;
     public InvoiceCountryCode: string;
+    public DefaultDimensions: Dimensions;
     public _expand: boolean;
 
     constructor() {
@@ -57,6 +58,11 @@ export class WorkOrder {
             }
         }
     }
+
+    setProject(projectId: number) {
+        this.DefaultDimensions = new Dimensions(projectId);
+    }
+
 }
 
 export class WorkOrderItem {
@@ -68,6 +74,7 @@ export class WorkOrderItem {
     public PriceExVat: number;
     public SumTotalExVat: number;
     public VatTypeID: number;
+    public Dimensions: Dimensions;
     public _createguid: string;
     public constructor(productId?: number, itemText?: string, numberOfItems?: number, priceExVat?: number ) {
         this.ProductID = productId;
@@ -86,6 +93,20 @@ export class WorkOrderItem {
         this.SumTotalExVat = roundTo((this.NumberOfItems || 0) * (this.PriceExVat || 0), 2);
     }
 
+    setProject(projectId: number) {
+        this.Dimensions = new Dimensions(projectId);
+    }
+
+}
+
+export class Dimensions {
+    public _createguid: string;
+    public ProjectID: number;
+    public DepartmentID: number;
+    constructor(projectId?: number) {
+        this.ProjectID = projectId;
+        this._createguid = createGuid();
+    }
 }
 
 export class WorkItemSource {
