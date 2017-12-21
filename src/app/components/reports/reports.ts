@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit, Type} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
@@ -14,10 +14,13 @@ import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/sal
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
 import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
+import {
+    ReconciliationListParamsModalComponent
+} from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService, ConfirmActions} from '../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uniModal/barrel';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';
 
@@ -120,7 +123,10 @@ export class UniReports implements OnInit {
     public showReportParams(report: ReportDefinition) {
         switch (report.Name) {
             case 'Årsoppgave':
-                this.annualStatementReport(report);
+                this.openReportModal(AnnualSatementReportFilterModalComponent, report);
+                return;
+            case 'Avstemming':
+                this.openReportModal(ReconciliationListParamsModalComponent, report);
                 return;
         }
         switch (report.ID) {
@@ -179,19 +185,19 @@ export class UniReports implements OnInit {
             });
     }
 
-    private annualStatementReport(report: ReportDefinition) {
+    private openReportModal(type: Type<IUniModal>, report: ReportDefinition) {
         this.uniModalService
-            .open(AnnualSatementReportFilterModalComponent,
-            {
-                data: report,
-                header: report.Name,
-                message: report.Description
-            })
-            .onClose
-            .filter(modalResult => modalResult === ConfirmActions.ACCEPT)
-            .subscribe(modalResult => this.uniModalService.open(UniPreviewModal, {
-                data: report
-            }));
+        .open(type,
+        {
+            data: report,
+            header: report.Name,
+            message: report.Description
+        })
+        .onClose
+        .filter(modalResult => modalResult === ConfirmActions.ACCEPT)
+        .subscribe(modalResult => this.uniModalService.open(UniPreviewModal, {
+            data: report
+        }));
     }
 
     public showUniQuery(report: UniQueryDefinition) {
