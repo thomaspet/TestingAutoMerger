@@ -85,6 +85,12 @@ export class WorkOrderItem {
     }
 
     public merge(item: WorkOrderItem) {
+        // Merge source-details (link back to the workitem)
+        if (item.ItemSource && item.ItemSource.Details) {
+            for (let i = 0; i < item.ItemSource.Details.length; i++) {
+                this.ItemSource.Details.push(item.ItemSource.Details[i]);
+            }
+        }
         this.NumberOfItems = (this.NumberOfItems || 0) + item.NumberOfItems;
         this.calcSum();
     }
