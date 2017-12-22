@@ -4,12 +4,14 @@ import {
     IModalOptions,
     ConfirmActions,
     UniModalService,
-} from '../../../../../framework/uniModal/modalService';
-import {ReportDefinitionParameterService, ErrorService} from '../../../../services/services';
-import {StatisticsService} from '../../../../services/services';
+} from '@uni-framework/uniModal/modalService';
+import {ReportDefinitionParameterService, ErrorService} from '@app/services/services';
+import {StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
-import {ReportDefinitionParameter, ReportDefinition} from '../../../../unientities';
+import {ReportDefinitionParameter, ReportDefinition} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniForm, FieldType} from '@uni-framework/ui/uniform';
 
 @Component({
     selector: 'uni-report-params-modal',
@@ -25,17 +27,11 @@ import {Observable} from 'rxjs/Observable';
                     {{options.warning}}
                 </p>
 
-                <table>
-                    <tr *ngFor="let parameter of options?.data?.parameters">
-                        <td>
-                            <strong>{{ parameter.Label }}</strong>
-                        </td>
-                        <td>
-                            <input type="text" [(ngModel)]="parameter.value" />
-                        </td>
-                    </tr>
-                </table>
-
+                <uni-form [fields]="fields$"
+                  [model]="model$"
+                  [config]="formConfig$"
+                  (changeEvent)="onFormChange($event)">
+                </uni-form>
             </article>
 
             <footer (click)="busy = !busy" >
@@ -63,6 +59,11 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
     public busy: boolean = false;
 
+    // Parameter form
+    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private http: Http,
@@ -82,13 +83,50 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         }
         if (this.options && this.options.data) {
             this.busy = true;
-            this.loadParameters(this.options.data).then(() => this.busy = false);
+            this.loadParameters(this.options.data).then(() => {
+                this.fields$.next(this.options.data.parameters.map(p => {
+                    let type;
+                    switch (p.Type) {
+                        case 'Number':
+                            type = FieldType.NUMERIC;
+                            break;
+                        case 'Boolean':
+                            type = FieldType.CHECKBOX;
+                            break;
+                        default:
+                            type = FieldType.TEXT;
+                            break;
+                    }
+
+                    return {
+                        Property: p.Name,
+                        Label: p.Label,
+                        FieldType: type
+                    };
+                }));
+
+                let model = {};
+                this.options.data.parameters.map(p => {
+                    model[p.Name] = p.value;
+                });
+
+                this.model$.next(model);
+
+                this.busy = false
+            });
         }
     }
 
     public ngAfterViewInit() {
         setTimeout(function() {
             document.getElementById('good_button_ok').focus();
+        });
+    }
+
+    public onFormChange(changes) {
+        const model = this.model$.getValue();
+        this.options.data.parameters.map(p => {
+            p.value = model[p.Name];
         });
     }
 
