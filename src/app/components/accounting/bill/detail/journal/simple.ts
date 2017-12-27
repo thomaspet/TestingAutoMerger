@@ -62,6 +62,10 @@ export class BillSimpleJournalEntryView {
         this.vatTypeService.GetVatTypesWithDefaultVatPercent(null)
             .subscribe(vattypes => {
                 this.vatTypes = vattypes;
+
+                // run the vatpercent calculations in case the supplierinvoice finished loading
+                // before the vattypes were loaded
+                this.updateVatPercentBasedOnDate();
             }, err => this.errorService.handle(err)
         );
 
@@ -210,7 +214,7 @@ export class BillSimpleJournalEntryView {
             newVatTypes.push(vatType);
         });
 
-        if (didAnythingChange) {
+        if (didAnythingChange || this.costItems.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
             this.vatTypes = newVatTypes;
             this.costItems.forEach(ci => {
                 if (ci.VatType) {
