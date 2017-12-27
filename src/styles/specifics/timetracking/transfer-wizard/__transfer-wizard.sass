@@ -34,7 +34,18 @@ workitem-transfer-wizard
     .workorder-details
         margin: 0 0.5em 0.5em 1em
 
-    table
+    table.header
+        width: 100%
+
+        td:last-of-type
+            width: pxToRem(250)
+
+        td.label
+            text-align: right
+            padding-left: 1em
+            padding-right: 1em
+
+    table.preview
         width: 100%
         padding-left: 1em;
         padding-right: 0.3em;
@@ -62,4 +73,13 @@ workitem-transfer-wizard
 
         th.w6
             width: 6rem
+
+        td.text
+            color: $uni-color-c2a
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
         
+.merge-options
+    float: right
+    max-width: pxToRem(300)

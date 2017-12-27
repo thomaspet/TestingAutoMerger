@@ -1,28 +1,44 @@
-<article [attr.aria-busy]="busy" class="workorder">
+<article [attr.aria-busy]="busy" class="workorder" [class.wait-cursor]="computing" >
 
-    <strong *ngIf="options.source != 1">Opprette {{orderList?.length}} ordre(r):</strong>
-    <strong *ngIf="options.source == 1">Oppdatere {{orderList?.length}} ordre(r):</strong>
+    <table class="header">
+        <td>
+        <strong *ngIf="options.source != 1">Opprette {{orderList?.length}} ordre(r):</strong>
+        <strong *ngIf="options.source == 1">Oppdatere {{orderList?.length}} ordre(r):</strong>
+        </td>        
+        <td class="label">
+            Tekst-gruppering:
+        </td><td>
+            <select name="grouping" [(ngModel)]="mergeOption" (ngModelChange)="onMergeOptionChanged($event)" >
+                <option value="0">Timeart + Tekst</option>
+                <option value="1">Timeart</option>
+                <option value="2">Produktnavn</option>
+                <option value="3">Tekst</option>
+            </select>
+        </td>
+    </table>
 
-    <div class="workorder" *ngFor="let order of orderList">
-        <h3 (click)="order._expand = !order._expand" >{{order.ID ? 'Ordre ' + order.ID + ' - ' : ''}}{{order.CustomerName}}
-            <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">{{order.TaxExclusiveAmount | unicurrency}}</span>
-        </h3>
-        <div class="workorder-details" *ngIf="order._expand">
-            <table>
-            <tr>
-                <th>Tekst</th>
-                <th class="right w4">Antall</th>
-                <th class="right w6">Pris</th>
-                <th class="right w6">Linjesum</th>
-            </tr>
-            <tr *ngFor="let item of order.Items">
-                <td style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis" >{{item.ItemText}}</td>
-                <td class="right">{{item.NumberOfItems | numpipe:'1'}}</td>
-                <td class="right">{{item.PriceExVat | unicurrency}}</td>
-                <td class="right">{{item.SumTotalExVat | unicurrency}}</td>
-            </tr>
-            </table>
+    <section [attr.aria-busy]="computing">
+        <div class="workorder" *ngFor="let order of orderList">
+            <h3 (click)="order._expand = !order._expand" >{{order.ID ? 'Ordre ' + order.ID + ' - ' : ''}}{{order.CustomerName}}
+                <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">{{order.TaxExclusiveAmount | unicurrency}}</span>
+            </h3>
+            <div class="workorder-details" *ngIf="order._expand">
+                <table class="preview">
+                <tr>
+                    <th>Tekst</th>
+                    <th class="right w4">Antall</th>
+                    <th class="right w6">Pris</th>
+                    <th class="right w6">Linjesum</th>
+                </tr>
+                <tr *ngFor="let item of order.Items">
+                    <td class="text">{{item.ItemText}}</td>
+                    <td class="right">{{item.NumberOfItems | numpipe:'1'}}</td>
+                    <td class="right">{{item.PriceExVat | unicurrency}}</td>
+                    <td class="right">{{item.SumTotalExVat | unicurrency}}</td>
+                </tr>
+                </table>
+            </div>
         </div>
-    </div>
+    </section>
 
 </article>

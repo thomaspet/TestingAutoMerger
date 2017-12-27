@@ -1,12 +1,13 @@
 import {Component, OnInit, Input, ViewChild} from '@angular/core';
-import { StatisticsService } from '@app/services/common/statisticsService';
 import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
-import {IWizardOptions, WizardSource} from './wizardoptions';
+import {IWizardOptions, WizardSource, MergeByEnum} from './wizardoptions';
 import {WorkOrder, WorkOrderItem, WorkItemSource, WorkItemSourceDetail} from './workorder';
 import { roundTo } from '@app/components/common/utils/utils';
+import { InvoiceHourService } from './invoice-hours.service';
+import { setTimeout } from 'timers';
 
 @Component({
     selector: 'workitem-transfer-wizard-preview',
@@ -18,11 +19,14 @@ export class WorkitemTransferWizardPreview implements OnInit {
     public selectedItems: Array<{CustomerID: number}>;
     public tableConfig: IUniTableConfig;
     public busy = true;
+    public computing = true;
     public initialized = false;
     public orderList: Array<WorkOrder> = [];
+    public mergeOption: string;
+    private baseList: Array<IWorkHours>;
 
     constructor(
-        private statisticsService: StatisticsService,
+        private invoiceHourService: InvoiceHourService,
         private errorService: ErrorService
     ) {
 
@@ -39,103 +43,69 @@ export class WorkitemTransferWizardPreview implements OnInit {
         this.selectedItems = this.uniTable.getSelectedRows();
     }
 
+    public onMergeOptionChanged(event) {
+        if (this.baseList) {
+            this.options.mergeBy = parseInt(this.mergeOption, 10);
+            this.orderList.length = 0;
+            setTimeout( () => {
+                this.processList(this.baseList);
+            }, 20);
+            return;
+        }
+        this.refresh();
+    }
+
     public refresh() {
         this.initialized = true;
         this.busy = true;
         this.orderList.length = 0;
+        this.mergeOption = '' + this.options.mergeBy;
         this.fetchData().subscribe( list => {
-
-            switch (this.options.source) {
-                case WizardSource.CustomerHours:
-                    this.orderList = this.createOrders(list, this.options);
-                    break;
-                case WizardSource.OrderHours:
-                    this.orderList = this.updateOrders(list, this.options);
-                    break;
-                case WizardSource.ProjectHours:
-                    this.orderList = this.createOrders(list, this.options);
-                    break;
-            }
-
-            if (this.orderList.length === 1) {
-                this.orderList[0]._expand = true;
-            }
+            this.baseList = list;
+            this.processList(list);
+            this.busy = false;
         });
     }
 
-    public fetchData() {
+    private processList(list: Array<IWorkHours>) {
+        this.computing = true;
+        this.orderList.length = 0;
+        switch (this.options.source) {
+            case WizardSource.ProjectHours:
+            case WizardSource.CustomerHours:
+                this.createOrders(list, this.options).then( orders => {
+                    this.orderList = orders;
+                    this.orderList[0]._expand = true;
+                    this.computing = false;
+                });
+                break;
 
+            case WizardSource.OrderHours:
+                this.updateOrders(list, this.options).then( orders => {
+                    this.orderList = orders;
+                    this.orderList[0]._expand = true;
+                    this.computing = false;
+                });
+                break;
+        }
+
+    }
+
+    public fetchData() {
         const query: URLSearchParams = new URLSearchParams();
         this.busy = true;
-
-        let groupField = 'CustomerID';
-        let customerField = 'CustomerID';
-        query.delete('join');
-
-        switch (this.options.source) {
-            case WizardSource.CustomerHours:
-                query.set('expand', 'workrelation.worker,worktype.product');
-                break;
-            case WizardSource.OrderHours:
-                groupField = 'CustomerOrderID';
-                customerField = 'CustomerOrder.CustomerID';
-                query.set('expand', 'workrelation.worker,worktype.product,customerorder');
-                break;
-            case WizardSource.ProjectHours:
-                groupField = 'Dimensions.ProjectID';
-                customerField = 'Project.ProjectCustomerID';
-                query.set('expand', 'workrelation.worker,worktype.product,dimensions');
-                query.set('join', 'dimensions.projectid eq project.id');
-                break;
-        }
-
-        query.set('model', 'workitem');
-        query.set('select', 'ID as ID'
-        + ',Date as Date'
-        + `,${groupField} as GroupValue`
-        + `,${customerField} as CustomerID`
-        + ',Description as Description'
-        + ',Worktype.ID as WorktypeID'
-        + ',WorkType.Name as WorktypeName'
-        + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
-
-        query.set('orderby', `${groupField},worktype.name`);
-        query.set('filter', 'transferedtoorder eq 0');
-
-        if (this.options) {
-            if (this.options.selectedCustomers && this.options.selectedCustomers.length > 0) {
-                const list = [];
-                for (let i = 0; i < this.options.selectedCustomers.length; i++) {
-                    switch (this.options.source) {
-                        case WizardSource.CustomerHours:
-                            list.push(`customerid eq ${this.options.selectedCustomers[i].CustomerID}`);
-                            break;
-                        case WizardSource.OrderHours:
-                            list.push(`customerorderid eq ${this.options.selectedCustomers[i].OrderID}`);
-                            break;
-                        case WizardSource.ProjectHours:
-                            list.push(`dimensions.projectid eq ${this.options.selectedCustomers[i].ProjectID}`);
-                            break;
-                        }
-                }
-                query.set('filter', `${query.get('filter')} and (${list.join(' or ')})`);
-            }
-            if (this.options.filterByUserID) {
-                query.set('filter', `${query.get('filter')} and worker.userid eq ${this.options.filterByUserID}`);
-            }
-        }
-
-        return this.statisticsService.GetAllByUrlSearchParams(query, false)
-        .map(response => response.json().Data)
+        return this.invoiceHourService.getOrderLineBaseData(this.options)
         .finally( () => this.busy = false)
         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private updateOrders(list: Array<IWorkHours>, options: IWizardOptions): Array<WorkOrder> {
-        const orders: Array<WorkOrder> = [];
-        let order: WorkOrder;
+    private updateOrders(list: Array<IWorkHours>, options: IWizardOptions, appendTo = [], startIndex = 0
+        , order?: WorkOrder): Promise<Array<WorkOrder>> {
+        const orders: Array<WorkOrder> = appendTo;
 
-        for (let i = 0; i < list.length; i++) {
+        return new Promise( (resolve, reject) => {
+
+        for (let i = startIndex; i < list.length; i++) {
             const row = list[i];
             const filterDto = options.selectedCustomers.find( x => x.OrderID === row.GroupValue );
             const n = list.length;
@@ -149,7 +119,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
             const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
             const item = new WorkOrderItem();
             if (workType) {
-                item.ItemText = `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
+                item.ItemText = this.buildItemText(row, workType, options);
                 item.ProductID = workType.ProductID;
                 item.PriceExVat = workType.PriceExVat;
             } else {
@@ -161,16 +131,30 @@ export class WorkitemTransferWizardPreview implements OnInit {
             item.VatTypeID = workType.VatTypeID;
 
             order.addItem(item);
+
+            if (i - startIndex > 100) {
+                setTimeout(() => {
+                    this.updateOrders(list, options, orders, i + 1, order)
+                    .then( () => {
+                        resolve(orders);
+                    });
+                }, 20);
+                return;
+            }
         }
 
-        return orders;
+        resolve(orders);
+
+        });
     }
 
-    private createOrders(list: Array<IWorkHours>, options: IWizardOptions): Array<WorkOrder> {
-        const orders: Array<WorkOrder> = [];
-        let order: WorkOrder;
+    private createOrders(list: Array<IWorkHours>, options: IWizardOptions, appendTo = [], startIndex = 0
+        , order?: WorkOrder): Promise<Array<WorkOrder>> {
+        const orders: Array<WorkOrder> = appendTo;
 
-        for (let i = 0; i < list.length; i++) {
+        return new Promise( (resolve, reject) => {
+
+        for (let i = startIndex; i < list.length; i++) {
             const row = list[i];
             const customer = options.selectedCustomers.find( x => x.CustomerID === row.CustomerID );
             const n = list.length;
@@ -188,6 +172,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
             const item = new WorkOrderItem();
             if (workType) {
                 item.ItemText = `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
+                item.ItemText = this.buildItemText(row, workType, options);
                 item.ProductID = workType.ProductID;
                 item.PriceExVat = workType.PriceExVat;
             } else {
@@ -202,12 +187,47 @@ export class WorkitemTransferWizardPreview implements OnInit {
             }
 
             order.addItem(item);
+
+            if (i - startIndex > 100) {
+                setTimeout(() => {
+                    this.createOrders(list, options, orders, i + 1, order)
+                    .then( () => {
+                        resolve(orders);
+                    });
+                }, 20);
+                return;
+            }
         }
 
-        return orders;
+        resolve(orders);
+
+        });
     }
 
+    private buildItemText(row: IWorkHours, workType: IWorktypeInfo, options: IWizardOptions): any {
 
+        switch (options.mergeBy) {
+            case MergeByEnum.mergeByProduct:
+                return workType.ProductName;
+
+            case MergeByEnum.mergeByWorktype:
+                return workType.WorktypeName;
+
+            case MergeByEnum.mergeByText:
+                return row.Description ? row.Description : row.WorktypeName;
+
+            default:
+            case MergeByEnum.mergeByWorktypeAndText:
+                return `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
+        }
+    }
+
+}
+
+interface IWorktypeInfo {
+    ProductName: string;
+    PartName: string;
+    WorktypeName: string;
 }
 
 interface IWorkHours {

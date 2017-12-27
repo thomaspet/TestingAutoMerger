@@ -5,18 +5,19 @@ import {
     ConfirmActions,
     UniModalService
 } from '@uni-framework/uniModal/modalService';
-import { StatisticsService } from '@app/services/common/statisticsService';
 import { ErrorService } from '@app/services/common/errorService';
 import { UserService, CustomerOrderService, CustomerService } from '@app/services/services';
 import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { IWizardOptions, WizardSource } from './wizardoptions';
+import { IWizardOptions, WizardSource, MergeByEnum } from './wizardoptions';
 import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
-import { WorkitemTransferWizardPreview } from '@app/components/timetracking/invoice-hours/transfer-wizard-preview';
+import { WorkitemTransferWizardPreview } from './transfer-wizard-preview';
+import { InvoiceHourService, ISumHours } from './invoice-hours.service';
 
 @Component({
     selector: 'workitem-transfer-wizard',
-    templateUrl: './transfer-wizard.html'
+    templateUrl: './transfer-wizard.html',
+    providers: [ InvoiceHourService ]
 })
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
     @Input() public options: IModalOptions = {};
@@ -38,37 +39,39 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     public workInProgress = false;
     public workIndex = -1;
     public finalOrderList = [];
+    public sumHours: ISumHours[];
 
     public busy: boolean = false;
+    public fetching: boolean = false;
     public transferBusy = false;
-    public choices: Array<{ type: WizardSource, label: string, checked?: boolean }> = [
-        { type: WizardSource.CustomerHours, label: 'Kunde-timer', checked: true},
-        { type: WizardSource.OrderHours, label: 'Ordre-timer'},
-        { type: WizardSource.ProjectHours, label: 'Prosjekt-timer'}
+    public choices: Array<{ type: WizardSource, label: string, checked?: boolean, hours?: number }> = [
+        { type: WizardSource.CustomerHours, label: 'Kunde-timer', checked: true, hours: 0},
+        { type: WizardSource.OrderHours, label: 'Ordre-timer', hours: 0},
+        { type: WizardSource.ProjectHours, label: 'Prosjekt-timer', hours: 0}
     ];
 
     public wizardOptions: IWizardOptions = {
-        currentUserID: 0,
         currentUser: undefined,
         filterByUserID: 0,
         source: WizardSource.CustomerHours,
         selectedCustomers: [],
         selectedProducts: [],
-        orders: []
+        orders: [],
+        mergeBy: MergeByEnum.mergeByWorktype
     };
 
     constructor(
-        private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private userService: UserService,
         private toastService: ToastService,
         private orderService: CustomerOrderService,
-        private customerService: CustomerService
+        private customerService: CustomerService,
+        private invoiceHourService: InvoiceHourService
     ) {
         userService.getCurrentUser().subscribe( user => {
-            this.wizardOptions.currentUserID = user.ID;
             this.wizardOptions.currentUser = user;
+            this.fetchSums();
         });
     }
 
@@ -86,6 +89,33 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         });
     }
 
+    public onSourceChanged(event) {
+        this.fetchSums();
+    }
+
+    private fetchSums() {
+        this.wizardOptions.filterByUserID = this.workerTypeCombo === '0' ? this.wizardOptions.currentUser.ID : 0;
+        this.wizardOptions.source = this.choices.find( x => x.checked).type;
+        if (this.sumHours) {
+            this.showSums(this.sumHours);
+            return;
+        }
+        this.fetching = true;
+        this.invoiceHourService.getHourTotals(this.wizardOptions)
+            .finally( () => this.fetching = false )
+            .subscribe( result => {
+                this.showSums(result);
+            });
+    }
+
+    private showSums(result) {
+        this.sumHours = result;
+        const index = this.wizardOptions.filterByUserID > 0 ? 1 : 0;
+        this.choices[0].hours = result[index].customerHours;
+        this.choices[1].hours = result[index].orderHours;
+        this.choices[2].hours = result[index].projectHours;
+    }
+
     public goBack() {
         if (this.step > 0) {
             this.step--;
@@ -100,7 +130,7 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
 
        switch (this.step) {
             case 0:
-                this.wizardOptions.filterByUserID = this.workerTypeCombo === '0' ? this.wizardOptions.currentUserID : 0;
+                this.wizardOptions.filterByUserID = this.workerTypeCombo === '0' ? this.wizardOptions.currentUser.ID : 0;
                 this.wizardOptions.source = this.choices.find( x => x.checked).type;
                 this.wizardOptions.selectedCustomers.length = 0;
                 this.wizardFilter.refresh();

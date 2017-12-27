@@ -7,12 +7,13 @@ import { StatisticsService, ErrorService } from '@app/services/services';
 import { URLSearchParams } from '@angular/http';
 import { Alignment } from '@uni-entities';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
-import { ToastService } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uniModal/barrel';
 import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
+import { Observable } from 'rxjs/Observable';
 export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
 @Component({
@@ -34,7 +35,7 @@ export class InvoiceHours implements OnInit {
     public rowCount: number = 0;
     public toolbarConfig: IToolbarConfig = {
         title: 'Fakturere/overføre timer',
-        omitFinalCrumb: false,
+        omitFinalCrumb: true,
         saveactions: [
             {
                 action: (done) => this.createNew(done),
@@ -176,9 +177,17 @@ export class InvoiceHours implements OnInit {
 
         return this.statisticsService.GetAllByUrlSearchParams(query, true)
         .finally( () => this.busy = false)
-        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        .catch((err, obs) => this.handleQueryError(err, obs));
     }
 
+    handleQueryError(err, obs) {
+        if (err.status === 403) {
+            this.toastService.addToast('Beklager', ToastType.warn
+                , 5, 'Du har ikke tilgang til denne funksjonen.');
+            return Observable.empty();
+        }
+        return this.errorService.handleRxCatch(err, obs);
+    }
 
 }
 
