@@ -5,9 +5,8 @@ import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
 import {IWizardOptions, WizardSource, MergeByEnum} from './wizardoptions';
 import {WorkOrder, WorkOrderItem, WorkItemSource, WorkItemSourceDetail} from './workorder';
-import { roundTo } from '@app/components/common/utils/utils';
-import { InvoiceHourService } from './invoice-hours.service';
-import { setTimeout } from 'timers';
+import {roundTo} from '@app/components/common/utils/utils';
+import {InvoiceHourService} from './invoice-hours.service';
 
 @Component({
     selector: 'workitem-transfer-wizard-preview',

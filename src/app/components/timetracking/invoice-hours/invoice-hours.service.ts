@@ -53,6 +53,7 @@ export class InvoiceHourService {
                     mapped[0].orderHours += mapped[1].orderHours;
                     mapped[0].projectHours += mapped[1].projectHours;
                     mapped[0].total += mapped[1].total;
+                    mapped[0].total = roundTo(mapped[0].total, 1);
                 }
                 return mapped;
             });
