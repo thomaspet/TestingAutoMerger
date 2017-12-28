@@ -57,7 +57,8 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         selectedCustomers: [],
         selectedProducts: [],
         orders: [],
-        mergeBy: MergeByEnum.mergeByWorktype
+        mergeBy: MergeByEnum.mergeByWorktype,
+        addComment: true
     };
 
     constructor(
