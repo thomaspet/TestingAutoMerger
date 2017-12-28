@@ -7,6 +7,7 @@ export class UniCurrencyPipe implements PipeTransform {
     constructor(private errorService: ErrorService) {}
     public transform(value: number, numberOfDecimalPlaces?: number): string {
         try {
+            if (value === undefined) return '';
             const nrOfDecimal = numberOfDecimalPlaces || 2;
             const THOUSAND_SEPARATOR = ' ';
             const DECIMAL_SEPARATOR = ',';

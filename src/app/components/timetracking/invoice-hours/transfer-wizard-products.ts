@@ -75,6 +75,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
             + ',WorkType.Name as WorktypeName'
             + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
             + ',Product.PartName as PartName'
+            + ',Product.Unit as Unit'
             + ',Product.ID as ProductID'
             + ',Product.VatTypeID as VatTypeID'
             + ',Product.Name as ProductName');
@@ -148,7 +149,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
         params.set('filter', `partname eq '${value}' or startswith(name,'${value}')`);
         params.set('top', '50');
         params.set('hateoas', 'false');
-        params.set('select', 'ID,Partname,Name,PriceExVat');
+        params.set('select', 'ID,Partname,Name,PriceExVat,VatTypeID,Unit');
         return this.productService.GetAllByUrlSearchParams(params).map( result => result.json() );
     }
 
@@ -161,6 +162,8 @@ export class WorkitemTransferWizardProducts implements OnInit {
                     event.rowModel['PartName'] = change.value.PartName;
                     event.rowModel['ProductName'] = change.value.Name;
                     event.rowModel['PriceExVat'] = change.value.PriceExVat;
+                    event.rowModel['VatTypeID'] = change.value.VatTypeID;
+                    event.rowModel['Unit'] = change.value.Unit;
                 }
                 break;
         }
@@ -176,4 +179,5 @@ export interface IWorkProduct {
     ProductID: number;
     VatTypeID: number;
     ProductName: string;
+    Unit: string;
 }

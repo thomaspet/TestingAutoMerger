@@ -20,11 +20,47 @@ export class WorkOrder {
     public DefaultDimensions: Dimensions;
     public _expand: boolean;
 
+    private _minDate: LocalDate;
+    private _maxDate: LocalDate;
+
     constructor() {
         this.OrderDate = new LocalDate();
     }
 
-    public addItem(item: WorkOrderItem, merge = true) {
+    public insertDateComment(prefix = '', firstRow = true) {
+        let item: WorkOrderItem;
+        if (this._minDate && this._maxDate) {
+            const periodText = this.createPeriodText(this._minDate, this._maxDate);
+            item = new WorkOrderItem(undefined, prefix ? prefix + ' ' + periodText : periodText);
+        } else {
+            item = new WorkOrderItem(undefined, prefix);
+        }
+        if (firstRow) {
+            this.Items.splice(0, 0, item);
+            return;
+        }
+        this.Items.push(item);
+    }
+
+    private createPeriodText(d1: LocalDate, d2: LocalDate): string {
+        if (d1 && d2) {
+            const dt1 = d1.toDate().toLocaleDateString();
+            const dt2 = d2.toDate().toLocaleDateString();
+            if (d1 === d2) {
+                return dt1 + ' :';
+            }
+            return `${dt1} - ${dt2} :`;
+        }
+        return '';
+    }
+
+    public addItem(item: WorkOrderItem, merge = true, date?: string) {
+
+        if (date) {
+            const ld = new LocalDate(date);
+            this._maxDate = max(ld, this._maxDate);
+            this._minDate = max(ld, this._minDate, true);
+        }
 
         item.calcSum();
         this.TaxExclusiveAmount = (this.TaxExclusiveAmount || 0) + item.SumTotalExVat;
@@ -131,4 +167,11 @@ export class WorkItemSourceDetail {
         this.Amount = amount || this.Amount;
         this._createguid = createGuid();
     }
+}
+
+    
+function max(v1, v2, invert = false) {
+    if (!v1) return v2;
+    if (!v2) return v1;
+    return (invert ? v1 < v2 : v1 > v2) ? v1 : v2;
 }

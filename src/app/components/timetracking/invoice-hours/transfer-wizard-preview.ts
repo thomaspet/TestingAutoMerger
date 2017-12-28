@@ -8,6 +8,8 @@ import {WorkOrder, WorkOrderItem, WorkItemSource, WorkItemSourceDetail} from './
 import {roundTo} from '@app/components/common/utils/utils';
 import {InvoiceHourService} from './invoice-hours.service';
 
+const BATCH_SIZE = 100;
+
 @Component({
     selector: 'workitem-transfer-wizard-preview',
     templateUrl: './transfer-wizard-preview.html'
@@ -69,25 +71,14 @@ export class WorkitemTransferWizardPreview implements OnInit {
     private processList(list: Array<IWorkHours>) {
         this.computing = true;
         this.orderList.length = 0;
-        switch (this.options.source) {
-            case WizardSource.ProjectHours:
-            case WizardSource.CustomerHours:
-                this.createOrders(list, this.options).then( orders => {
-                    this.orderList = orders;
-                    this.orderList[0]._expand = true;
-                    this.computing = false;
-                });
-                break;
-
-            case WizardSource.OrderHours:
-                this.updateOrders(list, this.options).then( orders => {
-                    this.orderList = orders;
-                    this.orderList[0]._expand = true;
-                    this.computing = false;
-                });
-                break;
-        }
-
+        this.createOrders(list, this.options).then( orders => {
+            if (this.options.addComment) {
+                orders.forEach( x => x.insertDateComment('Timer for perioden'));
+            }
+            this.orderList = orders;
+            this.orderList[0]._expand = true;
+            this.computing = false;
+        });
     }
 
     public fetchData() {
@@ -98,107 +89,65 @@ export class WorkitemTransferWizardPreview implements OnInit {
         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private updateOrders(list: Array<IWorkHours>, options: IWizardOptions, appendTo = [], startIndex = 0
+    private createOrders(hours: Array<IWorkHours>, options: IWizardOptions, orders = [], startIndex = 0
         , order?: WorkOrder): Promise<Array<WorkOrder>> {
-        const orders: Array<WorkOrder> = appendTo;
+
+        const isOrderUpdate = options.source === WizardSource.OrderHours;
 
         return new Promise( (resolve, reject) => {
 
-        for (let i = startIndex; i < list.length; i++) {
-            const row = list[i];
-            const filterDto = options.selectedCustomers.find( x => x.OrderID === row.GroupValue );
-            const n = list.length;
-            if ((!order) || order.CustomerID !== row.CustomerID) {
-                order = new WorkOrder();
-                order.ID = row.GroupValue;
-                order.CustomerID = filterDto.CustomerID;
-                order.CustomerName = filterDto.CustomerName;
-                orders.push(order);
-            }
-            const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
-            const item = new WorkOrderItem();
-            if (workType) {
-                item.ItemText = this.buildItemText(row, workType, options);
-                item.ProductID = workType.ProductID;
-                item.PriceExVat = workType.PriceExVat;
-            } else {
-                item.ItemText = row.Description;
-            }
-            item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
-            item.ItemSource = new WorkItemSource();
-            item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
-            item.VatTypeID = workType.VatTypeID;
+            for (let i = startIndex; i < hours.length; i++) {
+                
+                const row = hours[i];
+                const dto = isOrderUpdate ?
+                    options.selectedCustomers.find( x => x.OrderID === row.GroupValue ) :
+                    options.selectedCustomers.find( x => x.CustomerID === row.CustomerID );
 
-            order.addItem(item);
-
-            if (i - startIndex > 100) {
-                setTimeout(() => {
-                    this.updateOrders(list, options, orders, i + 1, order)
-                    .then( () => {
-                        resolve(orders);
-                    });
-                }, 20);
-                return;
-            }
-        }
-
-        resolve(orders);
-
-        });
-    }
-
-    private createOrders(list: Array<IWorkHours>, options: IWizardOptions, appendTo = [], startIndex = 0
-        , order?: WorkOrder): Promise<Array<WorkOrder>> {
-        const orders: Array<WorkOrder> = appendTo;
-
-        return new Promise( (resolve, reject) => {
-
-        for (let i = startIndex; i < list.length; i++) {
-            const row = list[i];
-            const customer = options.selectedCustomers.find( x => x.CustomerID === row.CustomerID );
-            const n = list.length;
-            if ((!order) || order.CustomerID !== row.CustomerID) {
-                order = new WorkOrder();
-                order.CustomerID = row.CustomerID;
-                order.CustomerName = customer.CustomerName;
-                order.OurReference = options.currentUser.DisplayName;
-                if (options.source === WizardSource.ProjectHours) {
-                    order.setProject(row.GroupValue);
+                if ((!order) || order.CustomerID !== row.CustomerID) {
+                    order = new WorkOrder();
+                    order.ID = isOrderUpdate ? row.GroupValue : order.ID;
+                    order.CustomerID = isOrderUpdate ? dto.CustomerID : row.CustomerID;
+                    order.CustomerName = dto.CustomerName;
+                    order.OurReference = options.currentUser.DisplayName;
+                    if (options.source === WizardSource.ProjectHours) {
+                        order.setProject(row.GroupValue);
+                    }
+                    orders.push(order);
                 }
-                orders.push(order);
-            }
-            const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
-            const item = new WorkOrderItem();
-            if (workType) {
-                item.ItemText = `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
-                item.ItemText = this.buildItemText(row, workType, options);
-                item.ProductID = workType.ProductID;
-                item.PriceExVat = workType.PriceExVat;
-            } else {
-                item.ItemText = row.Description;
-            }
-            item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
-            item.ItemSource = new WorkItemSource();
-            item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
-            item.VatTypeID = workType.VatTypeID;
-            if (options.source === WizardSource.ProjectHours) {
-                item.setProject(row.GroupValue);
-            }
 
-            order.addItem(item);
+                const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
+                const item = new WorkOrderItem();
+                if (workType) {
+                    item.ItemText = this.buildItemText(row, workType, options);
+                    item.ProductID = workType.ProductID;
+                    item.Unit = workType.Unit;
+                    item.PriceExVat = workType.PriceExVat;
+                    item.VatTypeID = workType.VatTypeID;
+                } else {
+                    item.ItemText = row.Description;
+                }
+                item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
+                item.ItemSource = new WorkItemSource();
+                item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
+                if (options.source === WizardSource.ProjectHours) {
+                    item.setProject(row.GroupValue);
+                }
 
-            if (i - startIndex > 100) {
-                setTimeout(() => {
-                    this.createOrders(list, options, orders, i + 1, order)
-                    .then( () => {
-                        resolve(orders);
+                order.addItem(item, true, row.Date);
+
+                // To prevent js-locking we process only BATCH_SIZE rows at the time
+                if (i - startIndex > BATCH_SIZE) {
+                    setTimeout(() => {
+                        this.createOrders(hours, options, orders, i + 1, order)
+                        .then( () => {
+                            resolve(orders);
+                        });
                     });
-                }, 20);
-                return;
+                    return;
+                }
             }
-        }
 
-        resolve(orders);
+            resolve(orders);
 
         });
     }
@@ -231,7 +180,7 @@ interface IWorktypeInfo {
 
 interface IWorkHours {
     ID: number;
-    Date: Date;
+    Date: string;
     GroupValue: number;
     CustomerID: number;
     Description: string;
