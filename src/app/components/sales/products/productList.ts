@@ -67,17 +67,15 @@ export class ProductList {
         let nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
 
-        let priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Number)
+        let priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('15%')
-            .setFormat('{0:n}')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
-        let priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Number)
+        let priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva',  UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('15%')
-            .setFormat('{0:n}')
             .setIsSumColumn(true)
             .setCls('column-align-right');
 
