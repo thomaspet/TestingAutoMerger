@@ -65,7 +65,9 @@ export class BillSimpleJournalEntryView {
 
                 // run the vatpercent calculations in case the supplierinvoice finished loading
                 // before the vattypes were loaded
-                this.updateVatPercentBasedOnDate();
+                if (this.current) {
+                    this.updateVatPercentBasedOnDate();
+                }
             }, err => this.errorService.handle(err)
         );
 
