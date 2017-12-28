@@ -30,6 +30,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
+                <span>Aktivering av inngående eller utgående faktura for Uni Economy vil erstatte samme funksjon i V3/Uni24 om du har aktivert fra V3/Uni24 tidligere.</span>
             </article>
 
             <footer>
