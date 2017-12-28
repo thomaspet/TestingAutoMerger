@@ -523,7 +523,7 @@ export class SupplierDetails implements OnInit {
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'Info.BankAccounts',
-            displayValue: 'AccountNumber',
+            displayValue: 'IBAN',
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultBankAccount',
             storeIdInProperty: 'Info.DefaultBankAccountID',
@@ -688,15 +688,19 @@ export class SupplierDetails implements OnInit {
                         this.isDirty = false;
                         completeEvent('Leverandør lagret');
 
-                        this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(supplier => {
-                            supplier['BankAccounts'] = [supplier.DefaultBankAccount || this.emptyBankAccount];
-                            this.setDefaultContact(supplier);
-                            this.supplier$.next(supplier);
+                        this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(updatedSupplier => {
+                            updatedSupplier['BankAccounts'] = [updatedSupplier.DefaultBankAccount || this.emptyBankAccount];
+                            this.setDefaultContact(updatedSupplier);
+                            this.supplier$.next(updatedSupplier);
                             this.setTabTitle();
                         });
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
+                        if (supplier.Info.DefaultBankAccount._createguid) {
+                            supplier.Info.BankAccounts.push(supplier.Info.DefaultBankAccount);
+                            this.supplier$.next(supplier);
+                        }
                         this.errorService.handle(err);
                     }
                 );
