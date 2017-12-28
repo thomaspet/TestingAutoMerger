@@ -2175,7 +2175,9 @@ export class BillView {
 
         // start training - dont wait for result, this will run in the background
         // and handle reauthentication if needed
-        this.uniFilesService.trainOcrEngine(this.ocrData);
+        if (this.ocrData) {
+            this.uniFilesService.trainOcrEngine(this.ocrData);
+        }
 
         if (current.JournalEntry) {
             if (!current.JournalEntry.NumberSeriesTaskID) {
