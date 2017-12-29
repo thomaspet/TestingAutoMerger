@@ -5,13 +5,16 @@ import {BrowserStorageService} from '../../services/common/browserStorageService
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+
 @Injectable()
 export class BureauCustomHttpService {
     constructor(
         private http: Http,
         private authService: AuthService,
         private browserStorage: BrowserStorageService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private toastService: ToastService,
     ) {}
 
     public get(url: string, companyKey: string): Observable<any> {
@@ -35,7 +38,19 @@ export class BureauCustomHttpService {
 
                 return Observable.throw(err);
             })
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            .catch((err, obs) => {
+                if (err.status === 403) {
+                    this.toastService.addToast(
+                        'Ikke tilgang',
+                        ToastType.warn,
+                        ToastTime.long,
+                        'Du har ikke tilgang til det som blir forsøkt vist i selskapsoversikten for dette selskapet',
+                    );
+                    return Observable.empty();
+                } else {
+                    return this.errorService.handleRxCatch(err, obs)
+                }
+            });
     }
 
     private getCompanyYear(): string {
