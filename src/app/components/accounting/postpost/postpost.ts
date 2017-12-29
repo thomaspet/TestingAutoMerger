@@ -442,22 +442,18 @@ export class PostPost {
     }
 
     private setupAccountsTable() {
-        let accountCol = new UniTableColumn('AccountNumber', 'Konto', UniTableColumnType.Text)
-            .setWidth('1.5rem')
-            .setTemplate((account) => {
-                switch (this.register) {
-                    case 'customer':
-                        return `<a href='/#/sales/customer/${account.ID}'>${account.AccountNumber}</a>`;
-                    case 'supplier':
-                        return `<a href='/#/accounting/suppliers/${account.ID}'>${account.AccountNumber}</a>`;
-                }
-                return account.AccountNumber;
-            });
-
-        let nameCol = new UniTableColumn('AccountName', 'Navn', UniTableColumnType.Text).setWidth('5em');
-        let sumCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Money)
-            .setWidth('2.5em');
-
+        const accountCol = new UniTableColumn('AccountNumber', 'Konto', UniTableColumnType.Text)
+        .setWidth('1.5rem')
+        .setLinkResolver(row => {
+            switch (this.register) {
+                case 'customer':
+                    return `/sales/customer/${row.ID}`;
+                case 'supplier':
+                    return `/accounting/suppliers/${row.ID}`;
+            }
+        });
+        const nameCol = new UniTableColumn('AccountName', 'Navn', UniTableColumnType.Text).setWidth('5em');
+        const sumCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Money).setWidth('2.5em');
         this.accountsTableConfig = new UniTableConfig('accounting.postpost', false, true, 10)
             .setSearchable(true)
             .setColumnMenuVisible(false)
