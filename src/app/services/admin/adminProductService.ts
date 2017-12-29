@@ -50,23 +50,28 @@ export class AdminProductService {
             .map(this.convertSubProductsToArray);
     }
 
+    public FindProductByName(name: string): Observable<AdminProduct> {
+        return this.uniHttp
+            .asGET()
+            .usingAdminDomain()
+            .withEndPoint('/api/products')
+            .send()
+            .map(req => req.json())
+            .map(products => {
+                return products.filter(product => product.name === name)[0];
+            });
+    }
+
     private convertSubProductsToArray(products: AdminProduct[]): AdminProduct[] {
         const mainProducts = products.filter(product => !product.parentProductNames);
-        const subProducts = products.filter(product => !!product.parentProductNames);
-        subProducts.forEach(subProduct => {
-            const mainProductsForSubProduct = mainProducts
-                .filter(mainProduct => subProduct
+        let subProducts = products.filter(product => !!product.parentProductNames);
+        mainProducts.map(mainProduct => {
+            const subProductsForMainProduct = subProducts
+                .filter(subProduct => subProduct
                     .parentProductNames
                     .split(',')
-                    .some(name => name === mainProduct.name)
-                );
-            mainProductsForSubProduct.forEach(mainProduct => {
-                mainProduct.subProducts = mainProduct.subProducts || [];
-                mainProduct.subProducts.push(subProduct);
-            });
-            if (!mainProductsForSubProduct.length) {
-                console.log('ERROR: could not find a parent product for sub-product:', subProduct);
-            }
+                    .some(name => name === mainProduct.name));
+            mainProduct.subProducts = subProductsForMainProduct || [];
         });
         return mainProducts;
     }

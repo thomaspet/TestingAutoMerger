@@ -44,7 +44,8 @@ import {
     UniSearchAccountConfig,
     VatReportFormService,
     VatTypeService,
-    UniFilesService
+    UniFilesService,
+    AdminProductService
 } from '../../../services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -170,6 +171,7 @@ export class CompanySettingsComponent implements OnInit {
         private uniFilesService: UniFilesService,
         private subEntitySettingsService: SubEntitySettingsService,
         private companySettingsViewService: CompanySettingsViewService,
+        private adminProductService: AdminProductService,
         private router: Router,
         private agreementService: AgreementService
     ) {
@@ -695,7 +697,7 @@ export class CompanySettingsComponent implements OnInit {
 
         let settings = this.company$.getValue();
         let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = settings.APActivated ? 'Reaktiver EHF' : 'Aktiver EHF';
+        apActivated.Label = settings.APActivated ? 'Reaktiver EHF' : 'Kjøp EHF fra markedsplassen';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
@@ -1188,7 +1190,7 @@ export class CompanySettingsComponent implements OnInit {
                 EntityType: 'CompanySettings',
                 Property: 'APActivated',
                 FieldType: FieldType.BUTTON,
-                Label: 'Aktiver EHF',
+                Label: 'Kjøp EHF fra markedsplassen',
                 Sectionheader: 'EHF',
                 Section: 1,
                 FieldSet: 7,
@@ -1266,8 +1268,15 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private activateAP() {
-        this.modalService.open(UniActivateAPModal).onClose.subscribe(() => {},
-            err => this.errorService.handle(err));
+        let settings = this.company$.getValue();
+        if (settings.APActivated) {
+            this.modalService.open(UniActivateAPModal)
+                .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+        } else {
+            this.adminProductService.FindProductByName('EHF').subscribe(p => {
+                this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
+            });
+        }
     }
 
     private confirmTermsOCR() {

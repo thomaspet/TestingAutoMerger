@@ -22,7 +22,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{options.header || 'Aktiver aksesspunkt'}}</h1>
+                <h1>{{options.header || 'Aktiver EHF'}}</h1>
             </header>
             <article>
                 <uni-form
