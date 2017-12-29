@@ -99,7 +99,6 @@ export class MyStringFilterPipe implements PipeTransform {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniAssignModal implements IUniModal {
-
     private isOpen: boolean = false;
     private busy: boolean = false;
     private teams: Array<Team>;
@@ -111,6 +110,7 @@ export class UniAssignModal implements IUniModal {
     public searchString: string = '';
     public teamString: string = '';
     public comment: string = '';
+    private cleanupHandler: () => void;
 
     @Output() public okclicked: EventEmitter<AssignDetails> = new EventEmitter();
 
@@ -209,17 +209,20 @@ export class UniAssignModal implements IUniModal {
         if (this.userListIsShown) {
             document.getElementById(element).style.display = 'none';
             // Remove event listener when hit
-            document.removeEventListener('mouseup');
+            if (this.cleanupHandler) {                
+                this.cleanupHandler();
+                this.cleanupHandler = undefined;
+            }
         } else {
             document.getElementById(element).style.display = 'block';
             // Event listener to close on click outside
-            document.onmouseup = (e: any) => {
+            this.cleanupHandler = ownAddEventListener(document, 'mouseup', (e: any) => {
                 let doc = document.getElementById(element);
                 // Check if target is UL or child of UL
                 if (e.target !== doc && !doc.contains(e.target)) {
                     this.hideShowUsers(element);
                 }
-            };
+            }, false);
         }
         this.userListIsShown = !this.userListIsShown;
     }
@@ -276,4 +279,11 @@ export class AssignDetails {
     public Message: string;
     public TeamIDs: Array<number>;
     public UserIDs: Array<number>;
+}
+
+const ownAddEventListener = (scope, type, handler, capture) => {
+    scope.addEventListener(type, handler, capture);
+    return () => {
+        scope.removeEventListener(type, handler, capture);    
+    }
 }
