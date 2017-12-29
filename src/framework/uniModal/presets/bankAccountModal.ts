@@ -247,7 +247,7 @@ export class UniBankAccountModal implements IUniModal {
                         .switchMap((res: any) => {
                             if (res) {
                                 const account = this.formModel$.getValue();
-                                account.AccountNumber = res.AccountNumber;
+                                account.AccountNumber = searchValue;
                                 account.IBAN = res.IBAN;
                                 account.Bank = res.Bank;
                                 account.BankID = res.Bank.ID;
