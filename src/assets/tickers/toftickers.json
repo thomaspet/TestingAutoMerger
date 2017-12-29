@@ -751,7 +751,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerQuote",
-    "Expand": "",
+    "Expand": "Customer,Customer.Info",
     "OrderBy": "ID DESC",
     "Columns": [
         {
@@ -1282,7 +1282,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Items",
+    "Expand": "Customer,Customer.Info",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [
