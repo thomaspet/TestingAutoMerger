@@ -1246,7 +1246,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Brukk Orgnr for faktura e-mail',
+                Label: 'Bruk orgnr for faktura epost',
                 Property: '_FileFlowOrgnrEmailCheckbox',
                 Sectionheader: 'Diverse',
                 Section: 1,
@@ -1255,9 +1255,9 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 FieldType: FieldType.TEXT,
-                Label: 'Orgnr Faktura e-mail',
+                Label: 'Orgnr faktura epost',
                 Property: '_FileFlowOrgnrEmail',
-                Placeholder: 'ikke i brukk',
+                Placeholder: 'ikke i bruk',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
