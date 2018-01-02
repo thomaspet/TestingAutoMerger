@@ -93,6 +93,12 @@ export class Signup {
     }
 
     public submitStep2Form() {
+        if(!this.step2Form.valid){
+            this.step2Form.controls.Password.markAsTouched() 
+            this.step2Form.controls.ConfirmPassword.markAsTouched()
+            this.step2Form.controls.UserName.markAsTouched()
+            return;
+        }
         this.errorMessage = '';
         this.busy = true;
         const formValues = this.step2Form.value;

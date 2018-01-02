@@ -7,7 +7,7 @@ import {Subject} from 'rxjs/Subject';
     template: `
         <ul class="password-validation">
             <li [ngClass]="{'completed': passwordLength}">
-                8-16 tegn
+                Mer enn 8 tegn
             </li>
 
             <li [ngClass]="{'completed': upperCase}">
@@ -39,7 +39,7 @@ export class UniPasswordGuide {
             this.passwordControl.valueChanges
                 .takeUntil(this.componentDestroyed)
                 .subscribe((value: string) => {
-                    this.passwordLength = value.length >= 8 && value.length <= 16;
+                    this.passwordLength = value.length >= 8;
                     this.upperCase = /[A-Z]/.test(value);
                     this.lowerCase = /[a-z]/.test(value);
                     this.numOrSymbol =

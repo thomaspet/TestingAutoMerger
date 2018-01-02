@@ -38,6 +38,11 @@ export function passwordMatchValidator(formGroup: AbstractControl) {
             passwordMatchValidator: 'Passord må være like'
         });
     } else {
+        if(formGroup.get('ConfirmPassword').errors){
+            if(formGroup.get('ConfirmPassword').errors.passwordMatchValidator){
+                formGroup.get('ConfirmPassword').setErrors(null);
+            }
+        }
         return null;
     }
 }

@@ -77,6 +77,8 @@
             placeholder="Brukernavn"
             formControlName="UserName"
         />
+        <div *ngIf="(step2Form?.controls.UserName.touched && step2Form?.controls.UserName.invalid)" class="bad">Nødvendig*</div>
+        <div class="bad">{{step2Form?.controls.UserName.errors?.usernameValidator}}</div>
 
         <label for="passwordInput">Passord</label>
         <input id="passwordInput"
@@ -84,6 +86,7 @@
             placeholder="Passord"
             formControlName="Password"
         />
+        <div *ngIf="(step2Form?.controls.Password.touched && step2Form?.controls.Password.invalid)" class="bad">Nødvendig*</div>
 
         <label for="confirmPasswordInput">Bekreft passord</label>
         <input id="confirmPasswordInput"
@@ -91,6 +94,8 @@
             placeholder="Bekreft passord"
             formControlName="ConfirmPassword"
         />
+        <div *ngIf="step2Form?.controls.ConfirmPassword.touched && step2Form?.controls.ConfirmPassword.invalid" class="bad">Nødvendig*</div>
+        <div class="bad">{{step2Form?.controls.ConfirmPassword.errors?.passwordMatchValidator}}</div>
 
         <uni-password-guide *ngIf="step2Form?.controls"
             [passwordControl]="step2Form.controls.Password">
@@ -98,7 +103,7 @@
 
         <button class="auth-button bad"
             [attr.aria-busy]="busy"
-            [disabled]="busy || !step2.form.valid"
+            [disabled]="busy"
             (click)="submitStep2Form()">
             FULLFØR REGISTRERING
         </button>
