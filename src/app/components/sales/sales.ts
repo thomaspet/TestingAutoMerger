@@ -72,6 +72,19 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
+                x: 5,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Oversikt',
+                    description: 'Oversikt',
+                    icon: 'search',
+                    link: '/overview'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
                 x: 0,
                 y: 0,
                 widgetType: 'shortcut',
@@ -117,7 +130,7 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 5,
+                x: 6,
                 y: 0,
                 widgetType: 'overdue',
                 config: {}
@@ -292,8 +305,8 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 7,
-                y: 0,
+                x: 8,
+                y: 4,
                 widgetType: 'currency', // TODO: enum
                 config: {
                     dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
