@@ -29,26 +29,19 @@ account-details
         uni-form fieldset:nth-child(odd), uni-form fieldset:nth-of-type(even)
             min-width: 100%
 
-
-.icon-column
-    span
+account-list
+    .is-locked, .is-unlocked, .is-visible, .is-hidden
         @extend %hideText
-        height: 1.1rem
-        width: 1.1rem
-        padding: 0.6rem
-        margin-left: 0.4rem
-        background-size: 1rem 1rem
-        background-position: center center
-        background-repeat: no-repeat
 
     .is-locked
-        background-image: unicon-lock($uni-color-positive)
-
+        background: unicon-lock($uni-color-positive) no-repeat center center
+        background-size: 1rem
     .is-visible
-        background-image: unicon-visible($uni-color-positive)
-
+        background: unicon-visible($uni-color-positive) no-repeat center center
+        background-size: 1rem
     .is-hidden
-        background-image: unicon-hidden($uni-color-positive)
+        background: unicon-hidden($uni-color-positive) no-repeat center center
+        background-size: 1rem
 
 .accountList .menuDropDown
     float: right
