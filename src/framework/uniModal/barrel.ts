@@ -15,6 +15,7 @@ import {UniDownloadPaymentsModal} from './presets/downloadPaymentsModal';
 import {SingleTextFieldModal} from './presets/singleTextFieldModal';
 
 export * from './modalService';
+export * from './interfaces';
 export * from './presets/confirmModal';
 export * from './presets/confirmModalWithList';
 export * from './presets/addressModal';

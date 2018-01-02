@@ -50,11 +50,6 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 
-export enum JournalEntryMode {
-    Manual,
-    Payment
-}
-
 @Component({
     selector: 'journal-entry-manual',
     host: { '[class.runassubcomponent]': 'runAsSubComponent' },

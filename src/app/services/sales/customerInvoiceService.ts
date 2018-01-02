@@ -13,13 +13,14 @@ import { ToastService, ToastType } from '../../../framework/uniToast/toastServic
 import { ITickerActionOverride } from '../../services/common/uniTickerService';
 import { CompanySettingsService } from '../common/companySettingsService';
 import { EmailService } from '../common/emailService';
-import { UniModalService, ConfirmActions } from '../../../framework/uniModal/modalService';
+import { UniModalService } from '../../../framework/uniModal/modalService';
 import { UniSendEmailModal } from '../../../framework/uniModal/presets/sendEmailModal';
 import { UniRegisterPaymentModal } from '../../../framework/uniModal/presets/registerPaymentModal';
 import { BizHttp } from '../../../framework/core/http/BizHttp';
 import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../common/errorService';
 import * as moment from 'moment';
+import { ConfirmActions } from '@uni-framework/uniModal/interfaces';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {

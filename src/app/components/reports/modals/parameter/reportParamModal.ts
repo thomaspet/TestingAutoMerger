@@ -1,8 +1,5 @@
 import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
 import {
-    IUniModal,
-    IModalOptions,
-    ConfirmActions,
     UniModalService,
 } from '@uni-framework/uniModal/modalService';
 import {ReportDefinitionParameterService, ErrorService} from '@app/services/services';
@@ -12,6 +9,7 @@ import {ReportDefinitionParameter, ReportDefinition} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-report-params-modal',

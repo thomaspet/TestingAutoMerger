@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions, ConfirmActions} from '../modalService';
+import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uniModal/interfaces';
 
 
 @Component({
@@ -52,7 +52,7 @@ export class UniConfirmModalV2 implements IUniModal {
     public ngAfterViewInit() {
         setTimeout(function() {
             if (document.getElementById('good_button_ok')) {
-                document.getElementById('good_button_ok').focus();                
+                document.getElementById('good_button_ok').focus();
             }
         });
     }

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from '../modalService';
+import {IUniModal, IModalOptions} from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-unsaved-changes-modal',

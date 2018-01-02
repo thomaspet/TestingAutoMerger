@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {IModalOptions, IUniModal} from '../modalService';
+import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Email} from '../../../app/unientities';
 

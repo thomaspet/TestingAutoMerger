@@ -38,7 +38,6 @@ import {
     NumberSeries
 } from '../../../../../unientities';
 import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
-import {JournalEntryMode} from '../../journalentrymanual/journalentrymanual';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -72,6 +71,11 @@ import {UniMath} from '../../../../../../framework/core/uniMath';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _; // lodash
 
+export enum JournalEntryMode {
+    Manual,
+    Payment
+}
+
 @Component({
     selector: 'journal-entry-professional',
     templateUrl: './journalentryprofessional.html',
@@ -86,7 +90,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public defaultVisibleColumns: Array<string> = [];
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
-    @Input() public vatDeductions: Array<VatDeduction>;    
+    @Input() public vatDeductions: Array<VatDeduction>;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
 

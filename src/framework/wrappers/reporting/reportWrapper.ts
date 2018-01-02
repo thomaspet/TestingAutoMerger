@@ -2,8 +2,8 @@ import {Injectable} from '@angular/core';
 import {fromByteArray} from 'base64-js';
 import {environment} from 'src/environments/environment';
 import {saveAs} from 'file-saver';
-import {ErrorService} from '../../../app/services/services';
 import {APP_METADATA} from 'src/environments/metadata';
+import { ErrorService } from '@app/services/common/errorService';
 declare var Stimulsoft;
 
 @Injectable()

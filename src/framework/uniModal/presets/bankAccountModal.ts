@@ -3,16 +3,12 @@ import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {AccountService, BankService, ErrorService} from '../../../app/services/services';
-import {
-    IModalOptions,
-    IUniModal,
-    UniModalService,
-    ConfirmActions
-} from '../modalService';
+import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-bankaccount-modal',

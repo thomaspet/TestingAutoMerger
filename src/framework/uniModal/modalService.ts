@@ -11,38 +11,7 @@ import {
 import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniConfirmModalV2} from './presets/confirmModal';
 import {Observable} from 'rxjs/Observable';
-
-export enum ConfirmActions {
-    ACCEPT,
-    REJECT,
-    CANCEL
-};
-
-export interface IModalOptions {
-    data?: any;
-    class?: string;
-    header?: string;
-    message?: string;
-    warning?: string;
-    list?: any[];
-    listkey?: string;
-    listMessage?: string;
-    buttonLabels?: {
-        accept?: string;
-        reject?: string;
-        cancel?: string;
-    };
-    cancelValue?: any;
-    modalConfig?: any;
-    activateClickOutside?: boolean; // removeMe?
-    closeOnClickOutside?: boolean;
-    closeOnEscape?: boolean;
-}
-
-export interface IUniModal {
-    onClose: EventEmitter<any>;
-    options?: IModalOptions;
-}
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Injectable()
 export class UniModalService {
