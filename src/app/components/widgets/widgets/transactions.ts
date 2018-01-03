@@ -1,9 +1,10 @@
-import {Component, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectorRef, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {AuthService} from '../../../authService';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
+import {YearService} from '@app/services/services';
 
 enum PayrollRunPaymentStatus {
     None = 0,
@@ -55,7 +56,7 @@ enum PayrollRunPaymentStatus {
     `
 })
 
-export class UniTransactionsWidget {
+export class UniTransactionsWidget implements AfterViewInit {
 
     public items: Array<any> = [];
     public lookupResult: any;
@@ -72,7 +73,8 @@ export class UniTransactionsWidget {
         private dataService: WidgetDataService,
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
-        private router: Router
+        private router: Router,
+        private yearService: YearService
     ) { }
 
     public ngAfterViewInit() {
@@ -126,7 +128,7 @@ export class UniTransactionsWidget {
         if (this.widget.config.dashboard === 'Sale') {
             this.items = this.getSalesTransactionItems();
         } else if (this.widget.config.dashboard === 'Salary') {
-            this.items = this.getSalaryTransactionItems();
+            this.items = this.getSalaryTransactionItems(this.yearService.selectedYear$.getValue());
         } else if (this.widget.config.dashboard === 'Accounting') {
             this.items = this.getAccountingTransactionItems();
         }
@@ -152,7 +154,7 @@ export class UniTransactionsWidget {
         this.current.active = true;
 
         this.getData();
-    };
+    }
 
     public statusCodeToText(value) {
         // Should be in helper class?
@@ -500,12 +502,12 @@ export class UniTransactionsWidget {
         ];
     }
 
-    private getSalaryTransactionItems() {
+    private getSalaryTransactionItems(year: number) {
         return [
             {
                 label: 'Lønnsavregning',
                 header: 'Siste lønnsavregninger',
-                dataEndPoint: '/api/biz/payrollrun?orderby=ID desc',
+                dataEndPoint: `/api/biz/payrollrun?orderby=ID desc&filter=${year ? 'year(PayDate) eq ' + year : ''}`,
                 columns: [
                     {
                         label: 'Nr',
@@ -748,7 +750,7 @@ export class UniTransactionsWidget {
                 urlToNew: '/accounting/suppliers/0',
                 link: '/accounting/suppliers/'
             }
-        ]
+        ];
     }
 
 }
