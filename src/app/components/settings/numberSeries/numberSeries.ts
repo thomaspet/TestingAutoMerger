@@ -259,7 +259,7 @@ export class NumberSeries {
                         numberSeriesType.Series = numberSeriesType.Series || [];
                         if (uniTableNumberSeriesRow._isDirty) {
                             uniTableNumberSeriesRow.NumberSeriesType = null;
-                            if (this.currentSerie.ID === 'JournalEntry') {
+                            if (this.currentSerie.ID === 'JournalEntry' || this.currentSerie.ID === 'Accounts') {
                                 uniTableNumberSeriesRow.MainAccount = null;
                             }
                         }
