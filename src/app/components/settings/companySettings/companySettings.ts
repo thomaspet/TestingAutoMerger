@@ -398,7 +398,7 @@ export class CompanySettingsComponent implements OnInit {
     public onFormInputChange(changes: SimpleChanges) {
         if (changes['_FileFlowEmail']) {
             const customEmail = changes['_FileFlowEmail'].currentValue;
-            this.companyService.GetAction(this.authService.activeCompany.ID, 'check-email-changed-valid-availible', 'email=' + customEmail)
+            this.companyService.GetAction(this.authService.activeCompany.ID, 'check-email-changed-valid-available', 'email=' + customEmail)
             .subscribe(
                 isValid => {
                     if (isValid === true) {
