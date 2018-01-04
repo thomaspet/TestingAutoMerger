@@ -34,7 +34,6 @@
             {
                 "Header": "Kontonavn",
                 "Field": "Account.AccountName",
-                "Width": "100px",
                 "Type": "text"
             },
             {
@@ -50,7 +49,8 @@
             },
             {
                 "Header": "Regnskapsdato",
-                "Field": "FinancialDate"
+                "Field": "FinancialDate",
+                "Width": "120px"
             },
             {
                 "Header": "Mva-dato",
@@ -64,8 +64,9 @@
             {
                 "Header": "Mva-kode",
                 "Field": "VatType.VatCode",
+                "Width": "100px",
                 "Type": "text"
-            }, 
+            },
             {
                 "Header": "Fradrag %",
                 "Field": "VatDeductionPercent",
@@ -205,7 +206,7 @@
         "Group": "Regnskap",
         "Model": "JournalEntryLineDraft",
         "Expand": "",
-        "Joins": "JournalEntryLineDraft.JournalEntryID eq JournalEntry.ID and JournalEntryLineDraft.JournalEntryID eq FileEntityLink.EntityID",        
+        "Joins": "JournalEntryLineDraft.JournalEntryID eq JournalEntry.ID and JournalEntryLineDraft.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
                 "Header": "Bnr.",
@@ -261,7 +262,7 @@
                 "Header": "Mva-kode",
                 "Field": "VatType.VatCode",
                 "Type": "text"
-            }, 
+            },
             {
                 "Header": "Fradrag %",
                 "Field": "VatDeductionPercent",
