@@ -23,10 +23,14 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
 
-        this.lastSelectedFinancialYear$
-            .subscribe(financialYear =>
-                localStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, JSON.stringify(financialYear))
-            );
+        this.lastSelectedFinancialYear$.subscribe(financialYear => {
+            if (financialYear) {
+                localStorage.setItem(
+                    this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY,
+                    JSON.stringify(financialYear)
+                );
+            }
+        });
     }
 
     public setActiveYear(financialYear: FinancialYear) {
