@@ -35,12 +35,13 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
 
     public getYearInLocalStorage(): FinancialYear {
         const local = localStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
-        if (local !== null) {
-            const instance = new FinancialYear();
-            Object.assign(instance, JSON.parse(local));
-            return instance;
+        try {
+            const year = new FinancialYear();
+            Object.assign(year, JSON.parse(local));
+            return year;
+        } catch (e) {
+            return null;
         }
-        return null;
     }
 
     public getActiveYear(): Observable<number> {
