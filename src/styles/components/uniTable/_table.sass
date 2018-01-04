@@ -91,7 +91,9 @@ table.uni-table
             background: $uni-color-negative
 
         &[aria-readonly]:not([aria-readonly=false])
-            background: $uni-color-negative
+            $disabled-stripe1: mix($uni-color-scale9, $uni-color-negative, 60%)
+            $disabled-stripe2: mix($uni-color-scale9, $uni-color-negative, 30%)
+            background: repeating-linear-gradient(-45deg, $disabled-stripe1, $disabled-stripe1 1rem, $disabled-stripe2 1rem, $disabled-stripe2 2rem)
             color: $uni-color-scale4
 
         &:hover
