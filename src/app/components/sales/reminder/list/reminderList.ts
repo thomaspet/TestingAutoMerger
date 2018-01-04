@@ -335,6 +335,7 @@ export class ReminderList {
             .setMultiRowSelect(true)
             .setDeleteButton(false)
             .setAutoAddNewRow(false)
+            .setSearchListVisible(true)
             // .setFilters(this.defaultTableFilter()) // TODO: later on
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,

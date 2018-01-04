@@ -426,63 +426,42 @@ export class ReminderSending implements OnInit {
     }
 
     private setupReminderTable() {
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr', UniTableColumnType.Text)
             .setWidth('8%')
             .setEditable(false)
             .setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
+
+        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
             .setWidth('8%')
             .setEditable(false)
-            .setFilterOperator('contains')
-            .setTemplate((reminder) => {
-                let title = `Fakturadato: ${moment(reminder.InvoiceDate).format('DD.MM.YYYY')}\n`
-                    + `Forfallsdato: ${moment(reminder.InvoiceDueDate).format('DD.MM.YYYY')}`;
-                return this.modalMode
-                    ? `<span' title='${title}'>${reminder.InvoiceNumber}</span>`
-                    : `<a href='/#/sales/invoices/${reminder.InvoiceID}' title='${title}'>
-                        ${reminder.InvoiceNumber}
-                    </a>`;
-            });
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+            .setFilterOperator('contains');
 
-        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+        const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
             .setWidth('100px').setFilterOperator('startswith')
-            .setEditable(false)
-            .setTemplate((reminder) => {
-                return reminder.CustomerID
-                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>`
-                    : ``;
-            });
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
+            .setEditable(false);
+
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
             .setWidth('20%')
             .setEditable(false)
-            .setFilterOperator('contains')
-            .setTemplate((reminder) => {
-                let customersum = this.customerSums.find(x => x.SubAccountCustomerID === reminder.CustomerID);
-                let title = `Kundereskontro: ${this.numberFormat.asMoney(customersum ? customersum.sumAmount : 0)}`;
-                return this.modalMode
-                    ? `<span title='${title}'>${reminder.CustomerName}</span>`
-                    : `<a href='/#/sales/customer/${reminder.CustomerID}' title='${title}'>
-                        ${reminder.CustomerName}
-                    </a>`;
-            });
-        let emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
+        const emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
+            .setFilterOperator('contains');
 
-
-        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setEditable(false)
             .setTemplate((reminder) => {
                 return this.reminderService.getStatusText(reminder.StatusCode);
             });
 
-        let currencyCodeCol = new UniTableColumn('_CurrencyCode', 'Valuta', UniTableColumnType.Text)
+        const currencyCodeCol = new UniTableColumn('_CurrencyCode', 'Valuta', UniTableColumnType.Text)
             .setFilterOperator('contains')
             .setEditable(false)
             .setWidth('5%');
 
-        var taxInclusiveAmountCol = new UniTableColumn(
+        const taxInclusiveAmountCol = new UniTableColumn(
             'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number
         )
             .setWidth('8%')
@@ -495,7 +474,7 @@ export class ReminderSending implements OnInit {
             })
             .setCls('column-align-right');
 
-        var restAmountCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
+        const restAmountCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -504,7 +483,7 @@ export class ReminderSending implements OnInit {
                 return (+item.RestAmountCurrency >= 0) ? 'number-good' : 'number-bad';
             });
 
-        var feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
+        const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
@@ -512,6 +491,18 @@ export class ReminderSending implements OnInit {
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
+
+        if (!this.modalMode) {
+            invoiceNumberCol.setType(UniTableColumnType.Link);
+            invoiceNumberCol.setLinkResolver(reminder => `/sales/invoices/${reminder.InvoiceID}`);
+
+            customerNumberCol.setType(UniTableColumnType.Link);
+            customerNumberCol.setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
+
+            customerNameCol.setType(UniTableColumnType.Link);
+            customerNameCol.setLinkResolver(reminder => `/sales/customer/${reminder.CustomerID}`);
+
+        }
 
         this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', true, true, 25)
             .setSearchable(false)
