@@ -151,9 +151,8 @@ export class Dashboard {
                     description: 'Antall eposter i innboks',
                     icon: 'letter',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
-                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingMail" and File.Deleted eq 0',
-                    valueKey: 'Data[0].count',
+                    dataEndpoint: '/api/biz/filetags/IncomingMail/0?action=get-supplierInvoice-inbox-count',
+                    valueKey: null,
                     amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
@@ -169,9 +168,8 @@ export class Dashboard {
                     description: 'Antall EHFer i innboks',
                     icon: 'ehf',
                     link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: '/api/statistics?skip=0&model=FileTag&select=count(ID) as count&expand=File'
-                        + '&filter=FileTag.Status eq 0 and FileTag.TagName eq "IncomingEHF" and File.Deleted eq 0',
-                    valueKey: 'Data[0].count',
+                    dataEndpoint: '/api/biz/filetags/IncomingEHF/0?action=get-supplierInvoice-inbox-count',
+                    valueKey: null,
                     amount: 0,
                     class: 'uni-widget-notification-orange'
                 }
