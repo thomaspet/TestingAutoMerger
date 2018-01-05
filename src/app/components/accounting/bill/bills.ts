@@ -870,12 +870,8 @@ export class BillsView implements OnInit {
                 .setWidth('8%')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
-                .setTemplate(item => {
-                    const key = item.JournalEntryJournalEntryNumber;
-                    if (key) {
-                        return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`;
-                    }
-                }),
+                .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setWidth('5%')
                 .setFilterOperator('eq')

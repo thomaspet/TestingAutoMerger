@@ -144,12 +144,8 @@ export class BillHistoryView {
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setVisible(true)
                 .setFilterOperator('startswith')
-                .setTemplate(item => {
-                    var key = item.JournalEntryJournalEntryNumber;
-                    if (key) {
-                        return `<a href="#/accounting/transquery/details;JournalEntryNumber=${key}">${key}</a>`;
-                    }
-                }),
+                .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
                 .setFilterOperator('contains')
                 .setConditionalCls(item =>

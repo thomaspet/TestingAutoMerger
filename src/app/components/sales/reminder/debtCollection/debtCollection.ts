@@ -181,46 +181,37 @@ export class DebtCollection implements OnInit {
     private setupRemindersToDebtCollectTable() {
         this.updateReminderTable();
 
-        let reminderNumberCol = new UniTableColumn(
-            'ReminderNumber', 'Purring nr', UniTableColumnType.Text
-        ).setWidth('100px').setFilterOperator('contains');
-        let invoiceNumberCol = new UniTableColumn(
-            'InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text
-        ).setWidth('100px').setFilterOperator('contains');
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr')
+            .setWidth('100px')
+            .setFilterOperator('contains');
 
-        invoiceNumberCol.setTemplate((reminders) => {
-            return `<a href='/#/sales/invoices/${reminders.CustomerInvoiceID}'>${reminders.InvoiceNumber}</a>`;
-        });
+        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr.')
+            .setWidth('100px')
+            .setFilterOperator('contains')
+            .setLinkResolver(row => `/sales/invoices/${row.CustomerInvoiceID}`);
 
-        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
-            .setWidth('100px').setFilterOperator('startswith')
-            .setTemplate((reminder) => {
-                return reminder.CustomerID
-                    ? `<a href='/#/sales/customer/${reminder.CustomerID}'>${reminder.CustomerNumber}</a>`
-                    : ``;
-            });
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
+            .setWidth('100px')
+            .setFilterOperator('startswith')
+            .setLinkResolver(row => `/sales/customer/${row.CustomerID}`);
 
-        let customerNameCol = new UniTableColumn(
-            'CustomerName', 'Kunde', UniTableColumnType.Text
-        ).setFilterOperator('contains');
-        customerNameCol.setTemplate((reminders) => {
-            return `<a href='/#/sales/customer/${reminders.CustomerID}'>
-                ${reminders.CustomerNumber} - ${reminders.CustomerName}
-            </a>`;
-        });
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kunde')
+            .setFilterOperator('contains')
+            .setLinkResolver(row => `/sales/customer/${row.CustomerID}`);
 
-        let invoiceDateCol = new UniTableColumn(
-            'InvoiceDate', 'Dato', UniTableColumnType.DateTime
-        ).setWidth('120px').setFilterOperator('contains');
-        let invoiceDueDateCol = new UniTableColumn(
-            'DueDate', 'Forfallsdato', UniTableColumnType.DateTime
-        ).setWidth('120px').setFilterOperator('contains');
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.DateTime)
+            .setWidth('120px')
+            .setFilterOperator('contains');
 
-        var currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
+        const invoiceDueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.DateTime)
+            .setWidth('120px')
+            .setFilterOperator('contains');
+
+        const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
             .setWidth('5%');
 
-        var taxInclusiveAmountCurrencyCol = new UniTableColumn(
+        const taxInclusiveAmountCurrencyCol = new UniTableColumn(
             'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false
         )
             .setWidth('8%')
@@ -232,7 +223,7 @@ export class DebtCollection implements OnInit {
             })
             .setCls('column-align-right');
 
-        var restAmountCurrencyCol = new UniTableColumn(
+        const restAmountCurrencyCol = new UniTableColumn(
             'RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false
         )
             .setWidth('10%')
@@ -242,12 +233,12 @@ export class DebtCollection implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
-        var reminderStoppCol = new UniTableColumn('DontSendReminders', 'Purrestopp').setTemplate((item) => {
+        const reminderStoppCol = new UniTableColumn('DontSendReminders', 'Purrestopp').setTemplate((item) => {
             return item.DontSendReminders ? 'Ja' : 'Nei';
         });
 
         // Context menu
-        let contextMenuItems: IContextMenuItem[] = [];
+        const contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
             label: 'Inverter purrestopp',
             action: (rowModel) => {
