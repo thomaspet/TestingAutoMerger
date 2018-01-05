@@ -166,37 +166,33 @@ export class SellerSalesList {
         }
 
         // setup table
-        let dateCol = new UniTableColumn('Date', `${modeText}dato`, UniTableColumnType.LocalDate)
+        const dateCol = new UniTableColumn('Date', `${modeText}dato`, UniTableColumnType.LocalDate)
             .setWidth('7rem');
 
-        let numberCol = new UniTableColumn('Number', `${modeText}nr`, UniTableColumnType.Text)
-            .setTemplate(row => {
-                return `<a href='/#/sales/${this.mode}/${row.ID}'>${row.Number}</a>`;
-            })
+        const numberCol = new UniTableColumn('Number', `${modeText}nr`, UniTableColumnType.Text)
+            .setLinkResolver(row => `/sales/${this.mode}/${row.ID}`)
             .setWidth('7rem');
 
-        let customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Number)
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Number)
             .setWidth('7rem')
-            .setTemplate(row => {
-                return `<a href='/#/sales/customer/${row.CustomerID}'>${row.CustomerNumber}</a>`;
-            });
+            .setLinkResolver(row => `/sales/customer/${row.CustomerID}`);
 
-        let customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Number);
-        let totalExAmountCol = new UniTableColumn('TaxExclusiveAmount', 'Sum eks. mva', UniTableColumnType.Money);
-        let totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money);
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Number);
+        const totalExAmountCol = new UniTableColumn('TaxExclusiveAmount', 'Sum eks. mva', UniTableColumnType.Money);
+        const totalIncAmountCol = new UniTableColumn('TaxInclusiveAmount', 'Sum inkl. mva', UniTableColumnType.Money);
 
-        let sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
+        const sellerPercentCol = new UniTableColumn('SellerLinkPercent', '%', UniTableColumnType.Percent)
             .setWidth('4rem')
             .setTemplate(row => {
                 return row.SellerLinkPercent || '100';
             });
 
-        let sellerIncAmountCol = new UniTableColumn('SellerAmount', 'Selgersum inkl. mva', UniTableColumnType.Money)
+        const sellerIncAmountCol = new UniTableColumn('SellerAmount', 'Selgersum inkl. mva', UniTableColumnType.Money)
             .setTemplate(row => {
                 return (row.TaxInclusiveAmount * (row.SellerLinkPercent || 100) / 100).toString();
             });
 
-        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setWidth('7rem');
 
         // Setup table
