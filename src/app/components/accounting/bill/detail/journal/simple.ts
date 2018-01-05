@@ -193,13 +193,16 @@ export class BillSimpleJournalEntryView {
     }
 
     public updateVatPercentBasedOnDate() {
-        let invoicedate = moment(this.current.InvoiceDate);
+        if (!this.current) {
+            return;
+        }
 
-        let newVatTypes = [];
+        const invoicedate = moment(this.current.InvoiceDate);
+        const newVatTypes = [];
         let didAnythingChange = false;
 
         this.vatTypes.forEach((vatType) => {
-            let currentPercentage =
+            const currentPercentage =
                 vatType.VatTypePercentages.find(y =>
                     (moment(y.ValidFrom) <= invoicedate && y.ValidTo && moment(y.ValidTo) >= invoicedate)
                     || (moment(y.ValidFrom) <= invoicedate && !y.ValidTo));
