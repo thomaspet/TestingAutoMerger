@@ -7,7 +7,10 @@
         Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
     </p>
 
-    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="validation error" *ngIf="errorMessage">
+        {{errorMessage}} <a [routerLink]="['/init/sign-up']">tilbake for å registrere deg </a>
+    </small>
+
     <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
 
     <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">

@@ -51,7 +51,12 @@ export class Signup {
             // TODO: find out what the route param is (from email link)
             if (params['code']) {
                 this.confirmationCode = params['code'];
+                this.validateConfirmationCode(this.confirmationCode)
                 this.step1Form.disable();
+            } else {
+                this.step1Form.enable();
+                this.step2Form.disable();
+                this.confirmationCode = null;
             }
         });
     }
@@ -115,26 +120,56 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-                res => {
-                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
-                },
-                err => {
-                    let usernameExists;
+            res => {
+                this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
+            },
+            err => {
+                let usernameExists;
 
-                    // Try catch to avoid having to null check everything
-                    try {
-                        const errorBody = err.json();
-                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
-                    } catch (e) {}
+                // Try catch to avoid having to null check everything
+                try {
+                    const errorBody = err.json();
+                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                } catch (e) { }
 
-                    if (usernameExists) {
-                        this.errorMessage = 'Brukernavnet er allerede i bruk';
-                    } else {
-                        this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
-                    }
-
-                    this.busy = false;
+                if (usernameExists) {
+                    this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
+                } else {
+                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
                 }
+
+                this.busy = false;
+            }
+            );
+    }
+
+    public validateConfirmationCode(code) {
+
+        this.http.asGET()
+            .usingInitDomain()
+            .withEndPoint(`validate-confirmation?code=${code}`)
+            .send()
+            .subscribe(
+            res => {
+
+            },
+            err => {
+                let usernameExists;
+
+                // Try catch to avoid having to null check everything
+                try {
+                    const errorBody = err.json();
+                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                } catch (e) { }
+
+                if (usernameExists) {
+                    this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
+                } else {
+                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                }
+
+                this.busy = false;
+            }
             );
     }
 
