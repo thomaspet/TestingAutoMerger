@@ -191,7 +191,24 @@ export class SaftExportView implements OnInit {
             });
     }
 
-    public onUploadClick() {
+    public onUploadClick(authenticated = false) {
+        
+        if (!authenticated) {
+            this.busy = true;
+            this.authService.authenticateUniFiles()
+            .then( 
+                value => {
+                    this.busy = false;
+                    this.onUploadClick(true);
+                },
+                err => { 
+                    this.busy = false;
+                    this.errorService.handle(err);
+                }
+            );
+            return;
+        }
+
         let ip: any = this.fileInput.nativeElement;
         if (ip && ip.files && ip.files.length > 0) {
             let f: IFile = <IFile>ip.files[0];
@@ -202,6 +219,8 @@ export class SaftExportView implements OnInit {
             data.append('Key', this.activeCompany.Key);
             data.append('Caption', ''); // where should we get this from the user?
             data.append('File', <any>f);
+
+            
 
             this.ngHttp.post(this.baseUrl + '/api/file', data)
                 .map(res => res.json())
