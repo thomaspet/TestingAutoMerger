@@ -123,7 +123,7 @@ export class UniTicker {
             let params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
-                    .GetAllByUrlSearchParams(params)
+                    .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             } else if (this.ticker.ApiUrl) {
                 return this.http

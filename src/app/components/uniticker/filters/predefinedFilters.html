@@ -18,7 +18,7 @@
             [attr.aria-selected]="filter.Code === selectedFilter?.Code">
 
             {{filter.Name | uppercase}}
-            <span class="ticker-filter-count">
+            <span class="ticker-filter-count" *ngIf="!ticker.HideCounter">
                 {{filter.CurrentCount || 0}}
             </span>
         </li>
