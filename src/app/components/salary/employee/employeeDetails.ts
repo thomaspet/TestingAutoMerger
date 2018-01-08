@@ -357,7 +357,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             });
 
             super.getStateSubject(EMPLOYEE_TAX_KEY)
-                .subscribe((employeeTaxCard) => {
+                .subscribe((employeeTaxCard: EmployeeTaxCard) => {
                     this.employeeTaxCard = employeeTaxCard;
                     this.updateTaxAlerts(employeeTaxCard);
                     this.checkDirty();
@@ -727,13 +727,14 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getTax(): void {
         this.getTaxObservable()
-            .subscribe(taxCard => super.updateState(EMPLOYEE_TAX_KEY, taxCard, false));
+            .subscribe(empTaxcard => {
+                super.updateState(EMPLOYEE_TAX_KEY, empTaxcard, false)});
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
         return this.getFinancialYearObs()
             .switchMap(financialYear => this.employeeTaxCardService
-                .GetTaxCard(this.employeeID, financialYear))
+                .GetEmployeeTaxCard(this.employeeID, financialYear))
             .switchMap(taxCard => {
                 return taxCard
                     ? Observable.of(taxCard)
@@ -938,8 +939,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         if (refreshEmp) {
                             super.updateState(EMPLOYEE_KEY, emp, false);
                         }
-
-                        // super.updateState(EMPLOYEE_KEY, employee, false);
 
                         this.saveStatus = {
                             numberOfRequests: 0,

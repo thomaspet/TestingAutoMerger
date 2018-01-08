@@ -200,7 +200,9 @@ export class UniHttp {
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         const token = this.authService.getToken();
         const companyKey = this.authService.getCompanyKey();
-        const year = localStorage.getItem('activeFinancialYear');
+        const year = localStorage.getItem('activeFinancialYear') != 'undefined'
+            ? localStorage.getItem('activeFinancialYear')
+            : localStorage.getItem('ActiveYear');
 
         if (token) {
             this.headers.set('Authorization', 'Bearer ' + token);

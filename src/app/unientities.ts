@@ -251,8 +251,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
@@ -779,6 +779,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public Unit: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatDate: LocalDate;
     public VatTypeID: number;
     public Product: Product;
     public VatType: VatType;
@@ -905,6 +906,7 @@ export class CustomerOrderItem extends UniEntity {
     public Unit: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatDate: LocalDate;
     public VatTypeID: number;
     public Product: Product;
     public VatType: VatType;
@@ -1032,6 +1034,7 @@ export class CustomerQuoteItem extends UniEntity {
     public Unit: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatDate: LocalDate;
     public VatTypeID: number;
     public Product: Product;
     public VatType: VatType;
@@ -1439,26 +1442,54 @@ export class EmployeeTaxCard extends UniEntity {
     public Deleted: boolean;
     public EmployeeID: number;
     public EmployeeNumber: number;
-    public ForeignBorderCommuterPercent: number;
-    public ForeignBorderCommuterTable: string;
-    public ForeignCitizenInsurancePercent: number;
-    public ForeignCitizenInsuranceTable: string;
-    public ForeignOfficialPercent: number;
-    public ForeignOfficialTable: string;
     public ID: number;
+    public IssueDate: Date;
+    public loennFraBiarbeidsgiverID: number;
+    public loennFraHovedarbeidsgiverID: number;
+    public loennKunTrygdeavgiftTilUtenlandskBorgerID: number;
+    public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjengerID: number;
+    public loennTilUtenrikstjenestemannID: number;
     public NonTaxableAmount: number;
     public NotMainEmployer: boolean;
-    public NumberOfDrawMonths: number;
-    public PensionPercent: number;
-    public PensionTable: string;
+    public pensjonID: number;
     public Percent: number;
+    public ResultatStatus: string;
     public SecondaryPercent: number;
     public SecondaryTable: string;
     public StatusCode: number;
     public Table: string;
+    public TaxcardId: number;
+    public Tilleggsopplysning: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Year: number;
+    public loennFraHovedarbeidsgiver: TaxCard;
+    public loennFraBiarbeidsgiver: TaxCard;
+    public pensjon: TaxCard;
+    public loennTilUtenrikstjenestemann: TaxCard;
+    public loennKunTrygdeavgiftTilUtenlandskBorger: TaxCard;
+    public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger: TaxCard;
+    public CustomFields: any;
+}
+
+
+export class TaxCard extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TaxCard';
+
+    public _createguid: string;
+    public AntallMaanederForTrekk: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public freeAmountType: FreeAmountType;
+    public ID: number;
+    public NonTaxableAmount: number;
+    public Percent: number;
+    public tabellType: TabellType;
+    public Table: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -2657,6 +2688,25 @@ export class VatReportReferenceSetup extends UniEntity {
 }
 
 
+export class VatTypeSetupPercentage extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'VatTypeSetupPercentage';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
+    public VatPercent: number;
+    public VatTypeSetupID: number;
+    public CustomFields: any;
+}
+
+
 export class VatTypeSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypeSetup';
@@ -2676,11 +2726,9 @@ export class VatTypeSetup extends UniEntity {
     public ReversedTaxDutyVat: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ValidFrom: Date;
-    public ValidTo: Date;
     public VatCode: string;
     public VatCodeGroupNo: string;
-    public VatPercent: number;
+    public VatTypeSetupPercentages: Array<VatTypeSetupPercentage>;
     public CustomFields: any;
 }
 
@@ -3063,6 +3111,7 @@ export class User extends UniEntity {
     public ID: number;
     public LastLogin: Date;
     public PhoneNumber: string;
+    public Protected: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -3863,13 +3912,13 @@ export class NumberSeries extends UniEntity {
     public static EntityType = 'NumberSeries';
 
     public _createguid: string;
-    public DisplayName: string;
     public AccountYear: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
     public Disabled: boolean;
+    public DisplayName: string;
     public Empty: boolean;
     public FromNumber: number;
     public ID: number;
@@ -3960,6 +4009,7 @@ export class File extends UniEntity {
     public UpdatedBy: string;
     public UploadSlot: string;
     public FileTags: Array<FileTag>;
+    public EntityLinks: Array<FileEntityLink>;
     public CustomFields: any;
 }
 
@@ -4206,6 +4256,32 @@ export class BankIntegrationAgreement extends UniEntity {
 }
 
 
+export class CompanyBankAccount extends UniEntity {
+    public static RelativeUrl = 'companybankaccounts';
+    public static EntityType = 'CompanyBankAccount';
+
+    public _createguid: string;
+    public AccountID: number;
+    public BankAccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreditAmount: number;
+    public Deleted: boolean;
+    public ID: number;
+    public IsIncomming: boolean;
+    public IsOutgoing: boolean;
+    public IsSalary: boolean;
+    public IsTax: boolean;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public BankAccount: BankAccount;
+    public Account: Account;
+    public CustomFields: any;
+}
+
+
 export class JournalEntryType extends UniEntity {
     public static RelativeUrl = 'journalentrytypes';
     public static EntityType = 'JournalEntryType';
@@ -4256,8 +4332,8 @@ export class JournalEntry extends UniEntity {
     public JournalEntryAccrualID: number;
     public JournalEntryNumber: string;
     public JournalEntryNumberNumeric: number;
-    public NumberSeriesTaskID: number;
     public NumberSeriesID: number;
+    public NumberSeriesTaskID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4265,6 +4341,7 @@ export class JournalEntry extends UniEntity {
     public Lines: Array<JournalEntryLine>;
     public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
+    public NumberSeries: NumberSeriesTask;
     public JournalEntryAccrual: Accrual;
     public CustomFields: any;
 }
@@ -4615,6 +4692,26 @@ export class VatReportReference extends UniEntity {
 }
 
 
+export class VatTypePercentage extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'VatTypePercentage';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
+    public VatPercent: number;
+    public VatTypeID: number;
+    public CustomFields: any;
+}
+
+
 export class PostPost extends UniEntity {
     public static RelativeUrl = 'postposts';
     public static EntityType = 'PostPost';
@@ -4677,6 +4774,7 @@ export class SupplierInvoiceItem extends UniEntity {
     public Unit: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatDate: LocalDate;
     public VatTypeID: number;
     public Product: Product;
     public VatType: VatType;
@@ -5017,8 +5115,6 @@ export class VatType extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ValidFrom: Date;
-    public ValidTo: Date;
     public VatCode: string;
     public VatCodeGroupID: number;
     public VatCodeGroupingValue: VatCodeGroupingValueEnum;
@@ -5029,8 +5125,8 @@ export class VatType extends UniEntity {
     public OutgoingAccount: Account;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
-    public VatTypePercentages: Array<any>;
 }
 
 
@@ -5338,9 +5434,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5605,6 +5701,35 @@ export class VacationPayLastYear extends UniEntity {
 }
 
 
+export class Reconciliation extends UniEntity {
+    public BookedPayruns: number;
+    public CalculatedPayruns: number;
+    public CreatedPayruns: number;
+    public FromPeriod: number;
+    public ToPeriod: number;
+    public Year: number;
+    public Groups: Array<ReconciliationGroup>;
+}
+
+
+export class ReconciliationGroup extends UniEntity {
+    public AccountNumber: string;
+    public Sum: number;
+    public Lines: Array<ReconciliationLine>;
+}
+
+
+export class ReconciliationLine extends UniEntity {
+    public Benefit: string;
+    public Description: string;
+    public HasEmploymentTax: boolean;
+    public IncomeType: string;
+    public Sum: number;
+    public WageTypeName: string;
+    public WageTypeNumber: number;
+}
+
+
 export class SalaryTransactionSums extends UniEntity {
     public baseAGA: number;
     public basePercentTax: number;
@@ -5657,7 +5782,6 @@ export class SalaryTransactionPayLine extends UniEntity {
     public City: string;
     public EmployeeName: string;
     public EmployeeNumber: number;
-    public HasTaxInformation: boolean;
     public NetPayment: number;
     public PostalCode: string;
 }
@@ -5768,6 +5892,7 @@ export class UserDto extends UniEntity {
     public ID: number;
     public LastLogin: Date;
     public PhoneNumber: string;
+    public Protected: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -5803,6 +5928,12 @@ export class CompanyLicense extends UniEntity {
 export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
+}
+
+
+export class SplitFileResult extends UniEntity {
+    public FirstPart: File;
+    public SecondPart: File;
 }
 
 
@@ -6042,8 +6173,8 @@ export class JournalEntryData extends UniEntity {
     public InvoiceNumber: string;
     public JournalEntryDataAccrualID: number;
     public JournalEntryID: number;
-    public NumberSeriesID: number;
     public JournalEntryNo: string;
+    public NumberSeriesID: number;
     public NumberSeriesTaskID: number;
     public StatusCode: number;
     public SupplierInvoiceID: number;
@@ -6166,6 +6297,19 @@ export enum SalaryRegistry{
     Trans = 2,
     Svalbard = 3,
     Permisjon = 4,
+}
+
+
+export enum FreeAmountType{
+    None = 0,
+    WithAmount = 1,
+    NoLimit = 2,
+}
+
+
+export enum TabellType{
+    loenn = 0,
+    pension = 1,
 }
 
 
