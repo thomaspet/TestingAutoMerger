@@ -39,9 +39,9 @@ export class ErrorService {
     public extractMessage(err: any): string {
         let errBody;
         if (this.isHttpResponse(err)) {
-            if (err.headers.get('content-type') === 'application/json') {
+            try {
                 errBody = err.json();
-            } else {
+            } catch (e) {
                 errBody = err.text();
             }
         } else {
