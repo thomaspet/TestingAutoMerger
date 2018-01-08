@@ -24,9 +24,17 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             .map(response => response[0]);
     }
 
+    public hasTaxCard(taxcard: EmployeeTaxCard, year: number): boolean {
+        return taxcard && !!(taxcard.loennFraBiarbeidsgiver ||
+            taxcard.loennFraHovedarbeidsgiver ||
+            taxcard.loennKunTrygdeavgiftTilUtenlandskBorger ||
+            taxcard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger ||
+            taxcard.loennTilUtenrikstjenestemann ||
+            taxcard.pensjon) && taxcard.Year === year;
+    }
 
     public getLayout(layoutID: string, employeeTaxcard: EmployeeTaxCard) {
-        if( employeeTaxcard.Year > 2017) {
+        if (employeeTaxcard.Year > 2017) {
             return Observable.from([{
                 Name: layoutID,
                 BaseEntity: 'EmployeeTaxCard',
@@ -310,8 +318,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         ReadOnly: true
                     }]
             }]);
-        }
-        else {
+        } else {
             return Observable.from([{
                 Name: layoutID,
                 BaseEntity: 'EmployeeTaxCard',

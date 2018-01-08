@@ -7,7 +7,8 @@ import {
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
-    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel} from '../../../unientities';
+    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel
+} from '../../../unientities';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
@@ -21,7 +22,8 @@ import {
     AgaZoneService,
     NumberFormat,
     ErrorService,
-    SalarySumsService
+    SalarySumsService,
+    EmployeeTaxCardService
 } from '../../../services/services';
 
 declare var _;
@@ -57,7 +59,8 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         private route: ActivatedRoute,
         private router: Router,
         protected cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private taxCardService: EmployeeTaxCardService
     ) {
         super(router.url, cacheService);
 
@@ -73,19 +76,19 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 .do(employees => this.linkMenu$
                     .next(this.generateLinkMenu(this.payrollRun, employees[this.selectedIndex])))
                 .subscribe((employees: Employee[]) => {
-                this.employeeList = _.cloneDeep(employees) || [];
+                    this.employeeList = _.cloneDeep(employees) || [];
 
-                if (this.employeeList && this.employeeList.length) {
-                    this.focusRow(0);
-                }
-            });
+                    if (this.employeeList && this.employeeList.length) {
+                        this.focusRow(0);
+                    }
+                });
 
             super.getStateSubject('payrollRun')
                 .do(payrollRun => this.linkMenu$
                     .next(this.generateLinkMenu(payrollRun, this.employeeList[this.selectedIndex])))
                 .subscribe((payrollRun: PayrollRun) => {
-                this.payrollRun = payrollRun;
-            });
+                    this.payrollRun = payrollRun;
+                });
         });
     }
 
@@ -98,21 +101,21 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         if (employee) {
             items = [
                 ...items,
-                { label: 'Forskudd', link: this.createNewAdvanceLink(employee.ID) },
-                { label: 'Trekk', link: this.createNewDrawLink(employee.ID) },
-                { label: 'Saldooversikt', link: this.createSalaryBalanceListLink(employee.ID) }
+                {label: 'Forskudd', link: this.createNewAdvanceLink(employee.ID)},
+                {label: 'Trekk', link: this.createNewDrawLink(employee.ID)},
+                {label: 'Saldooversikt', link: this.createSalaryBalanceListLink(employee.ID)}
             ];
-            if (this.hasError(employee)) {
-                const error = this.generateEmployeeError(employee);
+            const error = this.generateEmployeeError(employee);
+            if (error) {
                 items.unshift(
-                    { label: error, link: this.createEmployeeLink(employee.ID), validation: ValidationLevel.Error }
+                    {label: error, link: this.createEmployeeLink(employee.ID), validation: ValidationLevel.Error}
                 );
             }
         }
 
         if (payrollRun) {
             if (payrollRun.StatusCode > 0) {
-                items.push({ label: 'Tilleggsopplysninger', link: this.createSupplementsLink(payrollRun.ID) });
+                items.push({label: 'Tilleggsopplysninger', link: this.createSupplementsLink(payrollRun.ID)});
             }
         }
 
@@ -149,32 +152,26 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     private generateEmployeeError(employee: Employee): string {
-        let error = '';
-        let taxError = !employee.TaxCards
-            || !employee.TaxCards.length
-            || (!employee.TaxCards[0].Table
-                && !employee.TaxCards[0].Percent);
-        let accountError = !employee.BusinessRelationID
-            || !employee.BusinessRelationInfo.DefaultBankAccountID;
-        let notUpdated = !taxError
-            && employee.TaxCards
-            && this.payrollRun
-            && employee.TaxCards[0].Year < new Date(this.payrollRun.PayDate).getFullYear();
+        const taxError = !employee.TaxCards ||
+            !this.taxCardService
+                .hasTaxCard(employee.TaxCards[0], this.payrollRun && new Date(this.payrollRun.PayDate).getFullYear());
 
-        if (taxError || accountError || notUpdated) {
-            if (accountError && taxError) {
-                error = 'Skatteinfo og kontonummer mangler';
-            } else if (accountError) {
-                error = 'Kontonummer mangler ';
-            } else if (taxError) {
-                error = 'Skatteinfo mangler ';
-            }
-            if (notUpdated) {
-                error += 'Skattekort er ikke oppdatert';
-            }
+        const accountError = !employee.BusinessRelationID
+            || !employee.BusinessRelationInfo.DefaultBankAccountID;
+
+        const errors: string[] = [];
+        if (taxError) {
+            errors.push('Skatteinfo');
+        }
+        if (accountError) {
+            errors.push((errors.length ? 'k' : 'K') + 'ontonummer');
+        }
+        const lastEntry = errors.pop() || '';
+        if (!lastEntry) {
+            return '';
         }
 
-        return error;
+        return (errors.length ? errors.join(', ') + ' og ' + lastEntry : lastEntry) + ' mangler';
     }
 
 
@@ -188,9 +185,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     private getAga() {
-        let employee = this.employeeList[this.selectedIndex];
+        const employee = this.employeeList[this.selectedIndex];
         if (employee.SubEntity) {
-            let obs = !this.agaZone || (employee.SubEntity.AgaZone !== this.agaZone.ID)
+            const obs = !this.agaZone || (employee.SubEntity.AgaZone !== this.agaZone.ID)
                 ? this._agaZoneService
                     .Get(employee.SubEntity.AgaZone)
                     .catch((err, errObs) => this.errorService.handleRxCatch(err, errObs))
@@ -205,9 +202,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     private setSums(employeeTotals: SalaryTransactionSums) {
-        let employee = this.employeeList[this.selectedIndex];
-        let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        let standardTaxPercent = taxCard && taxCard.Table ? '' : ' (50%)';
+        const employee = this.employeeList[this.selectedIndex];
+        const taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
+        const standardTaxPercent = taxCard && taxCard.Table ? '' : ' (50%)';
 
         this.summary = [{
             value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
@@ -251,7 +248,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     public goToNextEmployee() {
-        var index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
+        const index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
         if (index + 1 < this.employeeList.length) {
             this.selectedIndex = index + 1;
             this.focusRow(this.selectedIndex);
@@ -259,66 +256,11 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     public goToPreviousEmployee() {
-        var index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
+        const index = _.findIndex(this.employeeList, x => x.ID === this.employeeList[this.selectedIndex].ID);
         if (index > 0) {
             this.selectedIndex = index - 1;
             this.focusRow(this.selectedIndex);
         }
-    }
-
-    public generateErrorMessage(): string {
-        let employee: Employee = this.employeeList[this.selectedIndex];
-        let taxCard = this.getTaxcard(employee);
-
-        let name = `${employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name : '...'}`;
-        let error =
-            `Gå til <a href="/#/salary/employees/${employee.ID}">${name}</a> for å legge inn `;
-        let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
-        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
-
-        if (noBankAccounts && noTax) {
-            error = 'Skatteinfo og kontonummer mangler. ' + error + 'skatteinfo og kontonummer.';
-        } else if (noBankAccounts) {
-            error = 'Kontonummer mangler. ' + error + 'kontonummer.';
-        } else if (noTax) {
-            error = 'Skatteinfo mangler. ' + error + 'skatteinfo.';
-        }
-
-        return error;
-    }
-
-    public generateWarningMessage(): string {
-        let employee = this.employeeList[this.selectedIndex];
-        let taxCard = this.getTaxcard(employee);
-        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
-        let notUpdated = !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
-        let ret: string = '';
-        if (notUpdated) {
-            ret += 'Skattekort er ikke oppdatert.';
-
-            if (!this.hasError(employee)) {
-                let name = `${employee.BusinessRelationInfo ? employee.BusinessRelationInfo.Name : '...'}`;
-                ret += ` Gå til <a href="/#/salary/employees/${employee.ID}">
-                        ${name}
-                    </a> for å oppdatere skattekort.`;
-            }
-        }
-        return ret;
-    }
-
-    public hasWarning(): boolean {
-        let employee = this.employeeList[this.selectedIndex];
-        let taxCard = this.getTaxcard(employee);
-        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
-        return !noTax && this.payrollRun && taxCard.Year < new Date(this.payrollRun.PayDate).getFullYear();
-    }
-
-    public hasError(employee: Employee): boolean {
-        let taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        let noBankAccounts = !employee.BusinessRelationID || !employee.BusinessRelationInfo.DefaultBankAccountID;
-        let noTax = !taxCard || !taxCard.Table && !taxCard.Percent;
-
-        return noBankAccounts || noTax;
     }
 
     public hasDirty(): boolean {

@@ -616,18 +616,16 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
-        let alerts = this.employeeWidgets[2].config.alerts;
+        const alerts = this.employeeWidgets[2].config.alerts;
         this.getFinancialYearObs()
             .subscribe((year: number) => {
-                let checks = this.taxBoolChecks(employeeTaxCard, year);
+                const hasTaxCard = this.employeeTaxCardService.hasTaxCard(employeeTaxCard, year);
                 // Tax info ok?
                 alerts[1] = {
-                    text: checks.hasTaxCard
-                        ? (checks.taxCardIsUpToDate
-                            ? 'Skattekort ok'
-                            : 'Skattekortet er ikke oppdatert')
+                    text: hasTaxCard
+                        ? 'Skattekort ok'
                         : 'Skattekort mangler',
-                    class: checks.hasTaxCard && checks.taxCardIsUpToDate
+                    class: hasTaxCard
                         ? 'success'
                         : 'error'
                 };
@@ -649,13 +647,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return {
             hasSSN: this.modulusService.validSSN(employee.SocialSecurityNumber),
             hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
-        };
-    }
-
-    private taxBoolChecks(employeeTaxCard: EmployeeTaxCard, year): {hasTaxCard: any, taxCardIsUpToDate: boolean} {
-        return {
-            hasTaxCard: employeeTaxCard && (employeeTaxCard.Percent || employeeTaxCard.Table),
-            taxCardIsUpToDate: employeeTaxCard && employeeTaxCard.Year === year
         };
     }
 
