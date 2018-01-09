@@ -290,7 +290,8 @@ export class BillSimpleJournalEntryView implements OnInit {
                         select: 'AccountNumber,AccountName,ID,VatTypeID', visualKey: 'AccountNumber',
                         blankFilter: 'AccountNumber ge 4000 and AccountNumber le 9999 and setornull(visible)',
                         model: 'account',
-                        filter: 'setornull(visible)'
+                        filter: 'setornull(visible)',
+                        minWidth: 400
                     }),
                 new Column('VatTypeID', '', ColumnType.Integer,
                     <any>{
@@ -299,10 +300,11 @@ export class BillSimpleJournalEntryView implements OnInit {
                         route: '',
                         visualKey: 'VatCode',
                         visualKeyType: ColumnType.Text,
-                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name, 12)}`),
+                        render: x => (`${x.VatCode}: ${x.VatPercent}% - ${trimLength(x.Name, 25)}`),
                         getValue: x => this.vatTypes.find(y => y.ID === x),
                         searchValue: x => this.vatTypes.filter(vt => vt.VatCode.indexOf(x.toString()) !== -1 ||
-                            vt.Name.indexOf(x.toString()) !== -1)
+                            vt.Name.indexOf(x.toString()) !== -1),
+                        minWidth: 300
                     }
                 ),
                 new Column('Description'),
@@ -349,7 +351,7 @@ export class BillSimpleJournalEntryView implements OnInit {
                                 resolve((<any>details).columnDefinition.lookup.searchValue(details.value));
                             });
                         }
-                        this.lookup.onTypeSearch(details);
+                        this.lookup.onTypeSearch(details, true);
                     }
                 },
 

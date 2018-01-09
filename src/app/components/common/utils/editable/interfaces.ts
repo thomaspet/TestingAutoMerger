@@ -41,7 +41,6 @@ export interface IJQItem {
     outerWidth(value?: any): any;
     offset(ref?: any): any;
     select();
-    parent(): IJQItem;
     index(): number;
     append(content: any);
     find(filter?: any): IJQItem;
@@ -95,10 +94,10 @@ export interface ITypeSearch {
     promise?: Promise<any>;
     renderFunc?: (item: any) => string;
     itemPropertyToSet?: string;
-    rows?: Array<any>;    
+    rows?: Array<any>;
 }
 
-export var KEYS = {
+export const KEYS = {
     ARROW_LEFT : 37, ARROW_UP : 38, ARROW_RIGHT : 39, ARROW_DOWN : 40,
     ENTER : 13, ESC : 27, TAB : 9, F2 : 113, F3 : 114, F4 : 115, SPACE : 32,
     CTRL : 17, SHIFT : 16,
@@ -135,7 +134,7 @@ export class Column implements ICol {
     public tag: string;
     constructor(public name: string, label = '', colType = ColumnType.Text, lookup?: ILookupDetails, tag?: string) {
         this.label = label || name;
-        this.columnType = colType; 
+        this.columnType = colType;
         this.lookup = lookup;
         this.tag = tag || this.tag;
     }
@@ -145,11 +144,12 @@ export interface ILookupDetails {
     route: string;
     colToSave?: string;
     select?: string;
-    filter?: string;    
+    filter?: string;
     visualKey?: string;
     visualKeyType?: ColumnType;
     blankFilter?: string;
     model?: string;
     expand?: string;
     render?: (x: any) => string;
+    minWidth?: number;
 }
