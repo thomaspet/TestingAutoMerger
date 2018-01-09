@@ -271,10 +271,13 @@ export class WorkType extends UniEntity {
     public Description: string;
     public ID: number;
     public Name: string;
+    public Price: number;
+    public ProductID: number;
     public StatusCode: number;
     public SystemType: WorkTypeEnum;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Product: Product;
     public CustomFields: any;
 }
 
@@ -2975,6 +2978,7 @@ export class CompanySettings extends UniEntity {
     public APActivated: boolean;
     public APContactID: number;
     public APGuid: string;
+    public APIncludeAttachment: boolean;
     public AutoJournalPayment: boolean;
     public BankChargeAccountID: number;
     public BaseCurrencyCodeID: number;
@@ -3909,8 +3913,8 @@ export class NumberSeriesType extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Yearly: boolean;
-    public CustomFields: any;
     public Series: Array<NumberSeries>;
+    public CustomFields: any;
 }
 
 
@@ -4257,9 +4261,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DraftLines: Array<JournalEntryLineDraft>;
     public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
+    public DraftLines: Array<JournalEntryLineDraft>;
     public NumberSeriesTask: NumberSeriesTask;
     public JournalEntryAccrual: Accrual;
     public CustomFields: any;
@@ -5334,9 +5338,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5520,6 +5524,59 @@ export class Totals extends UniEntity {
 }
 
 
+export class AnnualStatement extends UniEntity {
+    public EmployeeAddress: string;
+    public EmployeeCity: string;
+    public EmployeeMunicipalName: string;
+    public EmployeeMunicipalNumber: string;
+    public EmployeeName: string;
+    public EmployeeNumber: number;
+    public EmployeePostCode: string;
+    public EmployeeSSn: string;
+    public EmployerAddress: string;
+    public EmployerCity: string;
+    public EmployerCountry: string;
+    public EmployerCountryCode: string;
+    public EmployerEmail: string;
+    public EmployerName: string;
+    public EmployerOrgNr: string;
+    public EmployerPhoneNumber: string;
+    public EmployerPostCode: string;
+    public EmployerTaxMandatory: boolean;
+    public EmployerWebAddress: string;
+    public VacationPayBase: number;
+    public Year: number;
+    public Contributions: Array<AnnualStatementLine>;
+    public PensionOrBenefits: Array<AnnualStatementLine>;
+    public Deductions: Array<AnnualStatementLine>;
+    public Draws: Array<AnnualStatementLine>;
+}
+
+
+export class AnnualStatementLine extends UniEntity {
+    public Amount: number;
+    public Description: string;
+    public IsDeduction: boolean;
+    public LineIndex: number;
+    public Sum: number;
+    public SupplementPackageName: string;
+    public TaxReturnPost: string;
+    public Supplements: Array<SupplementInfo>;
+}
+
+
+export class SupplementInfo extends UniEntity {
+    public Name: string;
+    public ValueBool: boolean;
+    public ValueDate: Date;
+    public ValueDate2: Date;
+    public ValueMoney: number;
+    public ValueString: string;
+    public ValueType: Valuetype;
+    public WageTypeSupplementID: number;
+}
+
+
 export class Paycheck extends UniEntity {
     public employee: Employee;
     public payroll: PayrollRun;
@@ -5590,6 +5647,7 @@ export class SalaryTransactionPay extends UniEntity {
     public TaxBankAccountID: number;
     public Withholding: number;
     public PayList: Array<SalaryTransactionPayLine>;
+    public SalaryBalancePayList: Array<SalaryBalancePayLine>;
 }
 
 
@@ -5602,6 +5660,13 @@ export class SalaryTransactionPayLine extends UniEntity {
     public HasTaxInformation: boolean;
     public NetPayment: number;
     public PostalCode: string;
+}
+
+
+export class SalaryBalancePayLine extends UniEntity {
+    public Account: string;
+    public Sum: number;
+    public Text: string;
 }
 
 
@@ -6155,6 +6220,10 @@ export enum Leavetype{
     NotSet = 0,
     Leave = 1,
     LayOff = 2,
+    Leave_with_parental_benefit = 3,
+    Military_service_leave = 4,
+    Educational_leave = 5,
+    Compassionate_leave = 6,
 }
 
 
