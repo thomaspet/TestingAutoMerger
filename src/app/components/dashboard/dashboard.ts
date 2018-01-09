@@ -221,8 +221,15 @@ export class Dashboard {
                 height: 1,
                 x: 10,
                 y: 2,
-                widgetType: 'overdue', // TODO: enum
-                config: {}
+                widgetType: 'sum',
+                config: {
+                    dataEndpoint: '/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as '
+                    + 'sum&filter=(CustomerInvoice.PaymentDueDate le \'getdate()\' )',
+                    title: 'Forfalte ubetalte faktura',
+                    description: 'Totalsum forfalte faktura',
+                    positive: false,
+                    link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices'
+                }
             },
             {
                 width: 4,
