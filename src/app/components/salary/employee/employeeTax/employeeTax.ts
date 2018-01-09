@@ -131,12 +131,13 @@ export class EmployeeTax extends UniView implements OnInit {
             .subscribe(layout => {
                 this.updateFields(layout, employeeTaxcard);
                 this.fields$.next(layout.Fields);
-            })
+            }, err => this.errorService.handle(err));
     }
 
     private updateFields(layout: any, employeeTaxcard: EmployeeTaxCard) {
         let trekkAlreadyVisible = false;
         let freeamountAlreadyVisible = false;
+        
         if (employeeTaxcard.Year > 2017) {
             let hovedarbeidsgiverField = this.findByProperty(layout.Fields, 'loennFraHovedarbeidsgiver.AntallMaanederForTrekk');
             hovedarbeidsgiverField.Hidden = this.layoutFieldHidden(employeeTaxcard, 'loennFraHovedarbeidsgiver', 'Table');
@@ -180,7 +181,7 @@ export class EmployeeTax extends UniView implements OnInit {
 
     private layoutFieldHidden(employeeTaxcard: EmployeeTaxCard, prop: string, propname: string) : boolean {
         let hide = false;
-        if (employeeTaxcard.hasOwnProperty(prop)) {
+        if (employeeTaxcard.hasOwnProperty(prop) && !!employeeTaxcard[prop]) {
             if (employeeTaxcard[prop][propname] === null || employeeTaxcard[prop][propname] === '' || employeeTaxcard[prop][propname] === '0') {
                 hide = true;
             }

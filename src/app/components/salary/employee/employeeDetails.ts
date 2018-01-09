@@ -135,6 +135,14 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private employeeSearch: IAutoCompleteConfig;
 
+    private expandOptionsNewTaxcardEntity: Array<string> = [
+        'loennFraHovedarbeidsgiver',
+        'loennFraBiarbeidsgiver',
+        'pensjon',
+        'loennTilUtenrikstjenestemann',
+        ',loennKunTrygdeavgiftTilUtenlandskBorger',
+        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
+    ];
 
     constructor(
         private route: ActivatedRoute,
@@ -723,16 +731,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
+        let year = 2018;
         return this.getFinancialYearObs()
-            .switchMap(financialYear => this.employeeTaxCardService
-                .GetEmployeeTaxCard(this.employeeID, financialYear))
+            .switchMap(financialYear => {
+                year = financialYear;
+                return this.employeeTaxCardService
+                .GetEmployeeTaxCard(this.employeeID, financialYear)})
             .switchMap(taxCard => {
                 return taxCard
                     ? Observable.of(taxCard)
                     : this.employeeTaxCardService
-                        .GetNewEntity(null, EMPLOYEE_TAX_KEY)
+                        .GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
                         .map((response: EmployeeTaxCard) => {
                             response.EmployeeID = this.employeeID;
+                            response.Year = year;
                             return response;
                         });
             })
@@ -1054,7 +1066,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveTax(done: (message: string) => void, updateTaxCard: boolean = true) {
-        let year = 0;
+        let year = 2018;
         return this.getFinancialYearObs()
             .do(fYear => year = fYear)
             .switchMap(() => super.getStateSubject(EMPLOYEE_TAX_KEY))
@@ -1064,7 +1076,39 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employeeTaxCard.ID = undefined;
                     employeeTaxCard.Year = year;
                 }
+                if (year > 2017) {
+                    
+                    if (!!employeeTaxCard.loennFraHovedarbeidsgiver) {
+                        employeeTaxCard.loennFraHovedarbeidsgiver.Percent = employeeTaxCard.loennFraHovedarbeidsgiver.Percent || 0;
+                    }
+                    if (!!employeeTaxCard.loennFraBiarbeidsgiver) {
+                        employeeTaxCard.loennFraBiarbeidsgiver.Percent = employeeTaxCard.loennFraBiarbeidsgiver.Percent || 0;
+                    }
+                    if (!!employeeTaxCard.pensjon) {
+                        employeeTaxCard.pensjon.Percent = employeeTaxCard.pensjon.Percent || 0;
+                    }
+                    if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger) {
+                        employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent || 0;
+                    }
+                    if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger) {
+                        employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
+                    }
+                    
+                }
+                else {
+                    if (!!employeeTaxCard.Percent) {
+                        employeeTaxCard.Percent = employeeTaxCard.Percent ? employeeTaxCard.Percent : 0;
+                    }
+                    if (!!employeeTaxCard.SecondaryPercent) {
+                        employeeTaxCard.SecondaryPercent = employeeTaxCard.SecondaryPercent ? employeeTaxCard.SecondaryPercent : 0;
+                    }
+                    
+                }
 
+                if (employeeTaxCard.ID == 0 || !employeeTaxCard.ID) {
+                    employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
+                }
+                
                 if (employeeTaxCard) {
                     return employeeTaxCard.ID
                         ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)

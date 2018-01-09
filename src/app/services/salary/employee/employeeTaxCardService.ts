@@ -395,7 +395,8 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Ikke trekkpliktig',
                         FieldSet: 1,
-                        Section: 0
+                        Section: 0,
+                        Hidden: true
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
@@ -411,83 +412,6 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         FieldType: FieldType.NUMERIC,
                         Label: 'Frikortbeløp',
                         FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'NumberOfDrawMonths',
-                        FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Antall måneder for trekk',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'PensionTable',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Pensjon tabell',
-                        FieldSet: 2,
-                        Legend: 'Spesielle skattekort',
-                        Section: 0,
-                        openByDefault: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'PensionPercent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Pensjon prosent',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'ForeignCitizenInsuranceTable',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Trygdeavgift utenlandsk borger tabell',
-                        FieldSet: 2,
-                        Section: 0,
-                        openByDefault: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'ForeignCitizenInsurancePercent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Trygdeavgift utenlandsk borger prosent',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'ForeignBorderCommuterTable',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Trygdeavgift utenlandsk borger grensegjenger tabell',
-                        FieldSet: 2,
-                        Section: 0,
-                        openByDefault: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'ForeignBorderCommuterPercent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Trygdeavgift utenlandsk borger grensegjenger prosent',
-                        FieldSet: 2,
                         Section: 0,
                         Options: {
                             format: 'Money',
