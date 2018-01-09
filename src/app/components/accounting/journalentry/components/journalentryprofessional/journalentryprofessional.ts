@@ -2195,7 +2195,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     public postJournalEntryData(completeCallback) {
         const tableData = this.table.getTableData();
         tableData.forEach(data => {
-            data.NumberSeriesID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.ID : null;
+            data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {
