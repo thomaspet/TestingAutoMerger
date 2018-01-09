@@ -192,7 +192,9 @@ export class WorkEditor {
             this.createHourColumn('Minutes', 'Timer')
                 .setWidth('3rem').setAlignment('center').setCls('ctoa'),
 
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setWidth('20%'),
+            new UniTableColumn('Description', 'Beskrivelse')
+                .setWidth('20%')
+                .setMaxLength(500),
 
             this.createLookupColumn('Dimensions.ProjectID', 'Prosjekt',
                 'Dimensions.Project', x => this.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber' )

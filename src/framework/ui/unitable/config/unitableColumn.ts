@@ -73,6 +73,7 @@ export interface IUniTableColumn {
     isSumColumn?: boolean;
     tooltipResolver?: (rowModel) => IColumnTooltip;
     linkResolver?: (rowModel) => string;
+    maxLength?: number;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -110,6 +111,7 @@ export class UniTableColumn implements IUniTableColumn {
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
     public onCellClick: (rowModel) => void;
+    public maxLength: number;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -311,6 +313,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setIsSumColumn(isSumColumn: boolean) {
         this.isSumColumn = isSumColumn;
+        return this;
+    }
+
+    public setMaxLength(maxLength: number) {
+        this.maxLength = maxLength;
         return this;
     }
 }
