@@ -7,7 +7,8 @@ import {Observable} from 'rxjs/Observable';
 
 export enum ReportNames {
     PAYCHECK_FROM_TO = 'Lønnslipp',
-    PAYCHECK_EMP_FILTER = 'Lønnslipp_emp_filter'
+    PAYCHECK_EMP_FILTER = 'Lønnslipp_emp_filter',
+    ANNUAL_STATEMENT = 'Årsoppgave'
 }
 
 @Injectable()
