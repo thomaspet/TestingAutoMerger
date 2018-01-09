@@ -2545,7 +2545,8 @@ export class BillView implements OnInit {
 
         const ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         const ending = file.Name.toLowerCase().split('.').pop();
-        return ocrformats.indexOf(ending) >= 0;
+
+        return ocrformats.indexOf(ending) >= 0 || ending.indexOf('pdf') >= 0;
     }
 
     private isEHF(file): Boolean {
