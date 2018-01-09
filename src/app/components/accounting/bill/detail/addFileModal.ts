@@ -63,6 +63,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
     private currentFiles: any;
     private file: any;
 
+
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniTable) private table: UniTable;

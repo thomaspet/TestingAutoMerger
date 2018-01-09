@@ -1068,7 +1068,6 @@ export class CustomerDetails implements OnInit {
                     Label: 'Hovedselger',
                     Section: 0
                 },
-
                 // Fieldset 5 (EHF)
                 {
                     FieldSet: 5,
