@@ -909,12 +909,14 @@
                 "Header": "Kode",
                 "Field": "VatCode",
                 "Width": "80px",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
                 "Field": "Name",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Synlig",
@@ -1036,6 +1038,11 @@
         "Model": "VatType",
         "Expand": "",
         "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
         "SubTickers": [],
         "Filters": [],
         "Columns": [
@@ -1133,6 +1140,138 @@
                 "FieldSetColumn": 1,
                 "Header": "Oppgavepost",
                 "Field": "VatReportReferences.VatPost.Name"
+            }
+        ]
+    },
+    {
+        "Name": "Hovedbok",
+        "Code": "accounts_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "Account",
+        "Expand": "AccountGroup,VatType",
+        "Columns": [
+            {
+                "Header": "Kontonr",
+                "Field": "AccountNumber",
+                "Width": "120px",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Kontonavn",
+                "Field": "AccountName",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Synlig",
+                "Field": "Visible",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Mva",
+                "Field": "VatType.Name",
+                "Width": "200px",
+                "Type": "text"
+            },
+            {
+                "Header": "Sperret",
+                "Field": "Locked",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Gruppe",
+                "Field": "AccountGroup.Name",
+                "Type": "boolean"
+            }
+        ],
+        "Actions": [],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_accounts",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "AccountID",
+                            "Operator": "eq",
+                            "Value": null
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Synlige",
+                "Code": "visible_accounts",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "AccountID",
+                            "Operator": "eq",
+                            "Value": null
+                        },
+                        {
+                            "Field": "Visible",
+                            "Operator": "eq",
+                            "Value": true
+                        }
+                    ]
+                }]
+            }
+        ],
+        "SubTickersCodes": ["Account_details"]
+    },
+    {
+        "Name": "Detaljer",
+        "Type": "Details",
+        "Code": "Account_details",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "Account",
+        "Expand": "Alias,CurrencyCode,AccountGroup",
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickers": [],
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Kontonr",
+                "Field": "AccountNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Kontonavn",
+                "Field": "AccountName",
+                "Type": "text"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Kontogruppe",
+                "Field": "AccountGroup.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text"
             }
         ]
     }
