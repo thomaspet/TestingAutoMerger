@@ -778,7 +778,7 @@ export class InvoiceDetails {
                 invoice.CurrencyCodeID,
                 this.companySettings.BaseCurrencyCodeID,
                 currencyDate
-            ).map(x => (x.ExchangeRate / x.Factor));
+            ).map(x => x.ExchangeRate);
         }
     }
 
