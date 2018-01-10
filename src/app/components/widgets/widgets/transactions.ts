@@ -571,7 +571,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                         label: 'Nr',
                         style: '',
                         class: 'transaction_table_ten_percent',
-                        key: 'ID'
+                        key: 'EmployeeNumber'
                     },
                     {
                         label: 'Navn',
@@ -600,9 +600,10 @@ export class UniTransactionsWidget implements AfterViewInit {
                         style: '',
                         class: '',
                         displayFunction: (value) => {
+                            if (!value) { return ''; }
                             return moment(value).format('DD.MM.YYYY');
                         },
-                        key: '_payStatus'
+                        key: 'BirthDate'
                     },
                     {
                         label: 'Virksomhet',
