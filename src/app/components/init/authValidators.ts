@@ -48,9 +48,9 @@ export function passwordMatchValidator(formGroup: AbstractControl) {
 }
 
 export function usernameValidator(control) {
-    const invalid = /[^a-zæøåA-ZÆØÅ0-9]/g.test(control.value);
+    const invalid = /[^a-zæøåA-ZÆØÅ0-9-_.]/g.test(control.value);
     if (invalid) {
-        return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver og tall'};
+        return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver, tall, bindestrek, understrek og punktom'};
     } else {
         return null;
     }
