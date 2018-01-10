@@ -175,6 +175,11 @@ export class TimetrackingDashboard {
                     header: 'Snarveier',
                     shortcuts: [
                         {
+                            label: 'Registrere timer',
+                            link: '/timetracking/timeentry',
+                            urlToNew: ''
+                        },
+                        {
                             label: 'Fakturere timer',
                             link: '/timetracking/invoice-hours',
                             urlToNew: ''

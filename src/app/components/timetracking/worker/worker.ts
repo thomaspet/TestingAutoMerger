@@ -8,7 +8,7 @@ import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 
-export var view = new View('workers', 'Person', 'WorkerDetailview', true, '');
+export const view = new View('workers', 'Person', 'WorkerDetailview', true, '');
 
 @Component({
     selector: view.name,
@@ -105,8 +105,7 @@ export class WorkerDetailview {
                 expand: 'info',
                 route: 'workers',
                 factory: () => {
-                        var item = new Worker();
-                        return item;
+                        return new Worker();
                     },
                 check: (item) => {
                 }
