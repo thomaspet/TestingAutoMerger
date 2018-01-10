@@ -66,6 +66,7 @@ export enum UniModules {
     Salarybalances  = 506,
     Supplements     = 507,
     AnnualStatements  = 508,
+    AltinnOverview = 509,
 
     WorkProfiles    = 600,
     Workers         = 601,

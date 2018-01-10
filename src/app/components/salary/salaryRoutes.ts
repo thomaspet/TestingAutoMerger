@@ -22,6 +22,7 @@ import {SalaryBalanceListContainer} from './salarybalance/salaryBalanceList/sala
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
+import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
 
 export const salaryRoutes: Routes = [
     {
@@ -90,5 +91,9 @@ export const salaryRoutes: Routes = [
     {
         path: 'annualstatements',
         component: AnnualStatementSenderContainerComponent
+    },
+    {
+        path: 'altinnoverview',
+        component: AltinnOverviewComponent
     }
 ];

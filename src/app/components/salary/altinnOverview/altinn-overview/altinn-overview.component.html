@@ -1,0 +1,11 @@
+<uni-toolbar [config]="{title: 'Altinn oversikt'}"></uni-toolbar>
+<section class="splitview application">
+    <nav class="splitview_list">
+        <uni-table [resource]="receipts$ | async" [config]="config$ | async" (rowSelected)="updateSelected($event)"></uni-table>
+    </nav>
+    <main class="splitview_detail salary_splitview_details">
+        <h1>Detaljer</h1>
+        <button (click)="updateReceipt()" [attr.aria-busy]="busy">Oppdater</button>
+        <uni-altinn-overview-details [receipt]="selectedReceipt$ | async"></uni-altinn-overview-details>
+    </main>
+</section>

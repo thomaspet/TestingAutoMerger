@@ -87,6 +87,8 @@ import { EmployeeReportPickerListComponent } from './common/employee-report-pick
 import {
     AnnualStatementSenderContainerComponent
 } from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
+import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
+import { AltinnOverviewDetailsComponent } from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
 
 @NgModule({
     imports: [
@@ -174,7 +176,9 @@ import {
         SalaryBalanceLineModal,
         AnnualStatementSenderComponent,
         EmployeeReportPickerListComponent,
-        AnnualStatementSenderContainerComponent
+        AnnualStatementSenderContainerComponent,
+        AltinnOverviewComponent,
+        AltinnOverviewDetailsComponent
     ],
     entryComponents: [
         TaxCardModal,
