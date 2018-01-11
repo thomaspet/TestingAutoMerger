@@ -19,6 +19,8 @@ export class EmployeeTax extends UniView implements OnInit {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
+    private previousYear: number = 0;
+
     constructor(
         protected cacheService: UniCacheService,
         protected router: Router,
@@ -32,7 +34,7 @@ export class EmployeeTax extends UniView implements OnInit {
             const employeeTaxCard$ = super.getStateSubject('employeeTaxCard');
             const employee$ = super.getStateSubject('employee');
             const taxOptions$ = super.getStateSubject('taxCardModalCallback');
-            
+
             this.fields$
                 .asObservable()
                 .take(1)
@@ -54,7 +56,13 @@ export class EmployeeTax extends UniView implements OnInit {
                 })
                 .do(employeeTaxCard => this.fields$.next(this.toggleReadOnly(employeeTaxCard)))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe(employeeTaxCard => this.employeeTaxCard$.next(employeeTaxCard));
+                .subscribe((employeeTaxCard: EmployeeTaxCard) => {
+                    if (this.previousYear !== 0 && (this.previousYear !== employeeTaxCard.Year)) {
+                        this.refreshLayout(employeeTaxCard);
+                    }
+                    this.previousYear = employeeTaxCard.Year;
+                    this.employeeTaxCard$.next(employeeTaxCard);
+                });
 
             employee$
                 .filter(emp => emp && emp.ID)
