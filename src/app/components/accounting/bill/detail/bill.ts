@@ -1262,12 +1262,13 @@ export class BillView implements OnInit {
                 const task = this.CurrentTask;
                 if (task.Approvals && task.Approvals.length > 0) {
                     list.forEach( x => x.main = false );
-                    const approval = task.Approvals[0];
+                    const approval = task.Approvals.find(a => a.UserID === this.myUser.ID);
+                    const approvalID = approval ? approval.ID : task.Approvals[0].ID;
                     let action = this.newAction(lang.task_approval, 'task_approval',
-                        `api/biz/approvals/${approval.ID}?action=approve`, true);
+                        `api/biz/approvals/${approvalID}?action=approve`, true);
                     list.push(action);
                     action = this.newAction(lang.task_reject, 'task_reject',
-                        `api/biz/approvals/${approval.ID}?action=approve`, false);
+                        `api/biz/approvals/${approvalID}?action=approve`, false);
                     list.push(action);
 
                     // Godkjenn og Bokfør, Godkjenn, Bokfør og Til betaling
@@ -1275,13 +1276,15 @@ export class BillView implements OnInit {
                         const toJournalAction = this.newAction(
                             lang.task_approve_and_journal,
                             'task_approve_and_journal',
-                            `api/biz/approvals/${approval.ID}?action=approve`);
+                            `api/biz/approvals/${approvalID}?action=approve`,
+                            false, approval === undefined);
                         list.push(toJournalAction);
 
                         const topaymentaction = this.newAction(
                             lang.task_approve_and_journal_and_topayment,
                             'task_approve_and_journal_and_topayment',
-                            `api/biz/approvals/${approval.ID}?action=approve`);
+                            `api/biz/approvals/${approvalID}?action=approve`,
+                            false, approval === undefined);
                         list.push(topaymentaction);
                     }
                 }
@@ -1338,14 +1341,16 @@ export class BillView implements OnInit {
         });
     }
 
-    private newAction(label: string, itemKey: string, href: string, asMain = false): any {
+    private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
+        console.log("label", label);
+        console.log("disabled", asDisabled);
         return {
             label: label,
             action: (done) => {
                 this.handleAction(itemKey, label, href, done);
             },
             main: asMain,
-            disabled: false
+            disabled: asDisabled
         };
     }
 
