@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniModal, IModalOptions} from '@uni-framework/uniModal/interfaces';
 import {UniFieldLayout} from '../../../framework/ui/uniform/interfaces';
-import {FieldType} from '../../ui/uniform/fieldTypes';
+import {FieldType} from '../../ui/uniform/field-type.enum';
 
 type FormModel = {field: string};
 

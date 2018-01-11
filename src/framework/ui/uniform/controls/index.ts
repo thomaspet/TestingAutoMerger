@@ -1,42 +1,42 @@
-export * from './text';
-export * from './numeric';
-export * from './password';
-export * from './email';
-export * from './textarea';
-export * from './url';
-export * from './hyperlink';
-export * from './select';
-export * from './datePicker/datePicker';
-export * from './autocomplete';
-export * from './multivalue';
-export * from './radiogroup';
-export * from './checkboxgroup';
-export * from './checkbox';
-export * from './radio';
-export * from './button';
-export * from './localDatePicker/LocalDatePicker';
-export * from './uniSearchWrapper';
+export * from './text/text';
+export * from './numeric/numeric';
+export * from './password/password';
+export * from './email/email';
+export * from './textarea/textarea';
+export * from './url/url';
+export * from './hyperlink/hyperlink';
+export * from './select/select-wrapper';
+export * from './date-picker/date-picker';
+export * from './autocomplete/autocomplete';
+export * from './multivalue/multivalue';
+export * from './radio-group/radio-group';
+export * from './checkbox-group/checkbox-group';
+export * from './checkbox/checkbox';
+export * from './radio/radio';
+export * from './button/button';
+export * from './local-date-picker/local-date-picker';
+export * from './uni-search-wrapper/uni-search-wrapper';
 
-import {UniTextInput}  from './text';
-import {UniNumericInput}  from './numeric';
-import {UniPasswordInput}  from './password';
-import {UniEmailInput}  from './email';
-import {UniTextareaInput}  from './textarea';
-import {UniUrlInput}  from './url';
-import {UniHyperlinkInput}  from './hyperlink';
-import {UniSelectInput}  from './select';
-import {DateTimePickerInput}  from './datePicker/datePicker';
-import {UniAutocompleteInput}  from './autocomplete';
-import {UniMultivalueInput}  from './multivalue';
-import {UniRadiogroupInput}  from './radiogroup';
-import {UniCheckboxgroupInput}  from './checkboxgroup';
-import {UniCheckboxInput}  from './checkbox';
-import {UniRadioInput}  from './radio';
-import {UniButtonInput}  from './button';
-import {LocalDatePickerInput} from './localDatePicker/LocalDatePicker';
-import {UniSearchWrapper} from './uniSearchWrapper';
+import {UniTextInput} from './text/text';
+import {UniNumericInput} from './numeric/numeric';
+import {UniPasswordInput} from './password/password';
+import {UniEmailInput} from './email/email';
+import {UniTextareaInput} from './textarea/textarea';
+import {UniUrlInput} from './url/url';
+import {UniHyperlinkInput} from './hyperlink/hyperlink';
+import {UniSelectInput} from './select/select-wrapper';
+import {DateTimePickerInput} from './date-picker/date-picker';
+import {UniAutocompleteInput} from './autocomplete/autocomplete';
+import {UniMultivalueInput} from './multivalue/multivalue';
+import {UniRadiogroupInput} from './radio-group/radio-group';
+import {UniCheckboxgroupInput} from './checkbox-group/checkbox-group';
+import {UniCheckboxInput} from './checkbox/checkbox';
+import {UniRadioInput} from './radio/radio';
+import {UniButtonInput} from './button/button';
+import {LocalDatePickerInput} from './local-date-picker/local-date-picker';
+import {UniSearchWrapper} from './uni-search-wrapper/uni-search-wrapper';
 
-export var CONTROLS = [
+export const CONTROLS = [
     UniAutocompleteInput, // 0 - autocomplete
     UniButtonInput, // 1 - button
     DateTimePickerInput, // 2 -  date
@@ -78,4 +78,4 @@ export enum CONTROLS_ENUM {
     TEXTAREA = 16, // 16 - textarea
     LOCAL_DATE = 17, // 17 - unidate
     UNI_SEARCH = 18 // 18 - unisearch wrapper
-};
+}

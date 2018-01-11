@@ -1,8 +1,6 @@
 import {EventEmitter, SimpleChange, SimpleChanges} from '@angular/core';
 import {UniFieldLayout} from '../interfaces';
-import {MessageComposer} from '../composers/messageComposer';
-import {ValidatorsComposer} from '../composers/validatorsComposer';
-import {FormControl, ValidatorFn, AsyncValidatorFn} from '@angular/forms';
+import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Subscription} from 'rxjs/Subscription';
 
@@ -42,9 +40,6 @@ export class BaseControl implements IBaseControl {
 
     public createControl(initialValue?: any) {
         const value = _.get(this.model, this.field.Property);
-        this.messages = MessageComposer.composeMessages(this.field);
-        const syncvalidators: ValidatorFn = ValidatorsComposer.composeSyncValidators(this.field);
-        const asyncvalidators: AsyncValidatorFn = ValidatorsComposer.composeAsyncValidators(this.field);
         let template;
         let item;
         if (!initialValue && this.field.Options && this.field.Options.source) {
@@ -60,24 +55,24 @@ export class BaseControl implements IBaseControl {
                 template = '';
             }
         }
-        const control = new FormControl(initialValue || template || value, syncvalidators, asyncvalidators);
+        const control = new FormControl(initialValue || template || value);
         this.control = control;
         this.readOnly$.next(this.field.ReadOnly);
     }
 
     public emitChange(previousValue, currentValue) {
-        let changeValue = new SimpleChange(previousValue, currentValue, false);
-        let property = this.field.Property;
-        let change = {};
+        const changeValue = new SimpleChange(previousValue, currentValue, false);
+        const property = this.field.Property;
+        const change = {};
         change[property] = changeValue;
         this.changeEvent.emit(change);
     }
 
     public emitInstantChange(previousValue, currentValue, valid?) {
-        let changeValue = new SimpleChange(previousValue, currentValue, false);
+        const changeValue = new SimpleChange(previousValue, currentValue, false);
         changeValue['valid'] = valid;
-        let property = this.field.Property;
-        let change = {};
+        const property = this.field.Property;
+        const change = {};
         change[property] = changeValue;
         this.inputEvent.emit(change);
     }

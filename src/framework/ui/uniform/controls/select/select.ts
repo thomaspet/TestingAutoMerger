@@ -1,11 +1,11 @@
 import {
     Component, Input, Output, EventEmitter, ViewChild, ElementRef,
-    Renderer, ChangeDetectionStrategy, ChangeDetectorRef
+    Renderer, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, AfterViewInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 import * as _ from 'lodash';
-import {KeyCodes} from '../../../../../app/services/common/keyCodes';
+import {KeyCodes} from '@app/services/common/keyCodes';
 
 export interface ISelectConfig {
     valueProperty?: string;
@@ -19,72 +19,10 @@ export interface ISelectConfig {
 
 @Component({
     selector: 'uni-select',
-    template: `
-        <article class="uniSelect"
-                 *ngIf="config && items" (clickOutside)="close()">
-
-            <input type="text" #valueInput
-                   [attr.aria-describedby]="config?.asideGuid"
-                   class="uniSelect_input"
-                   role="combobox"
-                   aria-autocomplete="none"
-                   [attr.aria-owns]="guid"
-                   [attr.aria-activedescendant]="activeDescendantId"
-                   tabindex="0"
-                   [value]="getDisplayValue(selectedItem)"
-                   [placeholder]="config?.placeholder || ''"
-                   [attr.aria-readonly]="readonly"
-                   (click)="toggle()"
-                   [title]="getTitle()"
-                   (keydown.delete)="clear($event)"
-                   readonly/>
-            <button
-                type="button"
-                class="closeBtn"
-                (click)="clear($event)"
-                *ngIf="selectedItem && !readonly && !config?.hideDeleteButton"
-            ></button>
-            <article class="uniSelect_dropdown" [hidden]="!expanded">
-                <section class="uniSelect_search" *ngIf="searchable">
-                    <input #searchInput type="search"
-                           [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
-                           [formControl]="searchControl"
-                    />
-                </section>
-
-                <ul #itemDropdown
-                    [id]="guid"
-                    [attr.aria-expanded]="true"
-                    class="uniSelect_dropdown_list"
-                    role="listbox"
-                    tabindex="-1">
-
-                    <li *ngFor="let item of filteredItems; let idx = index"
-                        class="uniSelect_dropdown_item"
-                        role="item"
-                        tabindex="-1"
-                        [id]="guid + '-item-' + idx"
-                        [attr.aria-selected]="idx === focusedIndex"
-                        (mouseover)="focusedIndex = idx"
-                        (click)="confirmSelection($event)">
-                        {{getDisplayValue(item)}}
-                    </li>
-                    <li *ngIf="newButtonAction"
-                        class="uniSelect_dropdown_new_button_item">
-                        <button
-                            type="button"
-                            (click)="onNewItemClick()">
-                            Ny
-                        </button>
-                    </li>
-                </ul>
-            </article>
-        </article>
-
-    `,
+    templateUrl: './select.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniSelect {
+export class UniSelect implements OnChanges, AfterViewInit {
     @ViewChild('searchInput') public searchInput: ElementRef;
     @ViewChild('valueInput') public valueInput: ElementRef;
     @ViewChild('itemDropdown') public itemDropdown: ElementRef;
@@ -266,7 +204,7 @@ export class UniSelect {
 
     private filterItems(filterString: string) {
         this.filteredItems = this.items.filter((item) => {
-            let displayValue = this.getDisplayValue(item) || '';
+            const displayValue = this.getDisplayValue(item) || '';
             return displayValue.toLowerCase().indexOf(filterString.toLowerCase()) >= 0;
         });
         this.cd.markForCheck();

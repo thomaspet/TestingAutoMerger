@@ -1,0 +1,89 @@
+<section (clickOutside)="close()"
+         class="uni-multivalue-ng"
+         (keyup.esc)="close()"
+         (keydown)="keyDownHandler($event)"
+         [class.-has-values]="rows?.length">
+
+    <input type="text"
+           #mainInput
+           [attr.aria-describedby]="asideGuid"
+           [ngModel]="getDisplayValue(selectedRow)"
+           [class.-has-editor]="field?.Options?.editor"
+           [placeholder]="field?.Placeholder || ''"
+           (focus)="focusHandler()"
+           [title]="control?.value || ''"
+           (keypress)="keyPressHandler($event)"
+           [attr.aria-readonly]="readOnly$ | async"
+           readonly
+    />
+
+    <button type="button"
+            #openbtn
+            class="uni-multivalue-moreBtn"
+            (click)="toggle()"
+            tabindex="-1"
+            [disabled]="readOnly$ | async">Ny</button>
+
+    <ul class="uni-multivalue-values" [attr.aria-expanded]="isOpen">
+        <li class="multivalue-help">
+            <small>Slett rad (del)</small>
+            <small>Rediger rad (F1)</small>
+            <small><a (click)="addNew(filter)">Legg til (F3)</a></small>
+        </li>
+        <li>
+            <input type="search"
+                   [formControl]="filterFormControl"
+                   placeholder="filter"
+                   [(ngModel)]="filter"
+                   [attr.aria-expanded]="rows?.length > 1"
+                   #filterElement
+            />
+        </li>
+
+        <li [attr.aria-selected]="!focusedRow"
+            (mouseover)="focusedRow = null"
+            (click)="clearSelection()">
+            Ikke valgt
+        </li>
+
+        <ng-template ngFor let-row [ngForOf]="filteredRows">
+            <li [attr.aria-selected]="focusedRow === row"
+                (mouseover)="focusedRow = row"
+                (click)="selectRow(row)">
+
+                <div *ngIf="!row.Deleted">
+                            <span class="uni-multivalue-value">
+                                  {{getDisplayValue(row)}}
+                            </span>
+
+                    <button type="button"
+                            class="uni-multivalue_edit_action-delete"
+                            (click)="delete(row, $event)">
+                        Delete
+                    </button>
+
+                    <button type="button"
+                            class="uni-multivalue_edit_action-edit"
+                            (click)="edit(row, $event)">
+                        Edit
+                    </button>
+                </div>
+
+                <p *ngIf="row.Deleted" class="uni-multivalue_deleted">
+                    Slettet &lsquo;{{getDisplayValue(row)}}&rsquo;.
+                    (<a (click)="regretDelete(row, $event)">Angre</a>)
+                </p>
+            </li>
+        </ng-template>
+
+        <li *ngIf="field.Options.allowAddValue !== false">
+            <button class="good uni-multivalue-addBtn"
+                    #addButton
+                    type="button"
+                    (click)="addNew(filter)">
+                Legg til ny
+            </button>
+        </li>
+
+    </ul>
+</section>

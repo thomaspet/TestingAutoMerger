@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType, UniValidationOperators, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';

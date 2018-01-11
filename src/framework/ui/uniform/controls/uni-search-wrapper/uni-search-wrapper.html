@@ -1,0 +1,6 @@
+<uni-search
+    [config]="field.Options.uniSearchConfig"
+    (changeEvent)="onChange($event)"
+    [disabled]="readOnly$ | async"
+></uni-search>
+<ng-content></ng-content>

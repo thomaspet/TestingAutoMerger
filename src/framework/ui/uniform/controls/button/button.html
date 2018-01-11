@@ -1,0 +1,10 @@
+<button #button
+        [attr.aria-describedby]="asideGuid"
+        [class]="field?.Options?.class"
+        [disabled]="readOnly$ | async"
+        (click)="clickHandler($event)"
+        (focus)="focusHandler($event)"
+        type="button"
+        [title]="field?.Label"
+>{{field?.Label}}</button>
+<ng-content></ng-content>

@@ -1,0 +1,19 @@
+<form (submit)="submit($event)" autocomplete="off">
+    <ng-template ngFor let-item [ngForOf]="_layout?.Fields | sectionIndexes" let-i="index">
+        <uni-section
+            [fields]="_layout?.Fields | bySection:item"
+            [model]="_model"
+            [formConfig]="_config"
+            (readyEvent)="onReadyHandler($event)"
+            (changeEvent)="onChangeHandler($event)"
+            (inputEvent)="onInputHandler($event)"
+            (toggleEvent)="onToggleHandler($event)"
+            (focusEvent)="onFocusHandler($event)"
+            (moveForwardEvent)="onMoveForward($event)"
+            (moveBackwardEvent)="onMoveBackward($event)"
+            (errorEvent)="onError($event)"
+        >
+        </uni-section>
+    </ng-template>
+    <button *ngIf="_config?.submitText" type="submit" [disabled]="!controls?.valid">{{_config?.submitText}}</button>
+</form>

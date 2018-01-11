@@ -34,7 +34,7 @@ import {
   UniImage
 } from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
-import { FieldType } from '../../../../framework/ui/uniform/fieldTypes';
+import { FieldType } from '../../../../framework/ui/uniform/field-type.enum';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
