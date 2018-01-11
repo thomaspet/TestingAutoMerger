@@ -116,3 +116,21 @@ uni-dashboard-detail-view
         background-image: unicon-info($uni-color-legend2)
     .question-mark-icon::before
         background-image: unicon-info($uni-color-legend2)
+
+    .no_access
+        display: block
+        position: relative
+
+    .no_access::before
+        content: "Du har ikke tilgang til denne informasjonen for dette selskapet"
+        position: absolute
+        top: 0
+        left: 0
+        width: 100%
+        height: 100%
+        background: $uni-color-scale9
+        color: $uni-color-legend2
+        text-align: center
+        line-height: 28rem
+
+
