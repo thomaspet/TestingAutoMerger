@@ -1066,45 +1066,26 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveTax(done: (message: string) => void, updateTaxCard: boolean = true) {
-        let year = 2018;
+        let year = 0;
         return this.getFinancialYearObs()
             .do(fYear => year = fYear)
             .switchMap(() => super.getStateSubject(EMPLOYEE_TAX_KEY))
             .take(1)
             .switchMap((employeeTaxCard: EmployeeTaxCard) => {
+                if (!this.employeeTaxCardService.isEmployeeTaxcard2018Model(employeeTaxCard) || employeeTaxCard.Year < 2018) {
+                    return this.employeeTaxCardService.updateModelTo2018(employeeTaxCard, this.employeeID);
+                }
+                else {
+                    return Observable.of(employeeTaxCard);
+                }
+            })
+            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
                 if (employeeTaxCard.Year !== year) {
                     employeeTaxCard.ID = undefined;
                     employeeTaxCard.Year = year;
                 }
-                if (year > 2017) {
-                    
-                    if (!!employeeTaxCard.loennFraHovedarbeidsgiver) {
-                        employeeTaxCard.loennFraHovedarbeidsgiver.Percent = employeeTaxCard.loennFraHovedarbeidsgiver.Percent || 0;
-                    }
-                    if (!!employeeTaxCard.loennFraBiarbeidsgiver) {
-                        employeeTaxCard.loennFraBiarbeidsgiver.Percent = employeeTaxCard.loennFraBiarbeidsgiver.Percent || 0;
-                    }
-                    if (!!employeeTaxCard.pensjon) {
-                        employeeTaxCard.pensjon.Percent = employeeTaxCard.pensjon.Percent || 0;
-                    }
-                    if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger) {
-                        employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent || 0;
-                    }
-                    if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger) {
-                        employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
-                    }
-                    
-                }
-                else {
-                    if (!!employeeTaxCard.Percent) {
-                        employeeTaxCard.Percent = employeeTaxCard.Percent ? employeeTaxCard.Percent : 0;
-                    }
-                    if (!!employeeTaxCard.SecondaryPercent) {
-                        employeeTaxCard.SecondaryPercent = employeeTaxCard.SecondaryPercent ? employeeTaxCard.SecondaryPercent : 0;
-                    }
-                    
-                }
-
+                this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
+                
                 if (employeeTaxCard.ID == 0 || !employeeTaxCard.ID) {
                     employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
                 }

@@ -5,6 +5,8 @@ import {EmployeeTaxCard, TaxCard} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 
+const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
+
 @Injectable()
 export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     constructor(protected http: UniHttp) {
@@ -36,6 +38,75 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     public taxExpands(): string {
         return 'loennFraHovedarbeidsgiver,loennFraBiarbeidsgiver,pensjon,loennTilUtenrikstjenestemann'
         + ',loennKunTrygdeavgiftTilUtenlandskBorger,loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger';
+    }
+
+    private expandOptionsNewTaxcardEntity: Array<string> = [
+        'loennFraHovedarbeidsgiver',
+        'loennFraBiarbeidsgiver',
+        'pensjon',
+        'loennTilUtenrikstjenestemann',
+        ',loennKunTrygdeavgiftTilUtenlandskBorger',
+        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
+    ];
+
+    public isEmployeeTaxcard2018Model(employeetaxcard: EmployeeTaxCard): boolean {
+        return !!(employeetaxcard && employeetaxcard.loennFraHovedarbeidsgiver)
+    }
+
+    public updateModelTo2018(employeetaxcard: EmployeeTaxCard, employeeID: number) : Observable<EmployeeTaxCard> {
+        return super.GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
+            .switchMap((emptaxcard: EmployeeTaxCard) => {
+                emptaxcard.EmployeeID = employeeID;
+                this.setNumericValues(employeetaxcard);
+                emptaxcard['_createguid'] = super.getNewGuid();
+                if (employeetaxcard.NotMainEmployer) {
+                    emptaxcard.loennFraBiarbeidsgiver.Table = employeetaxcard.Table;
+                    emptaxcard.loennFraBiarbeidsgiver.Percent = employeetaxcard.Percent;
+                    emptaxcard.loennFraBiarbeidsgiver.NonTaxableAmount = employeetaxcard.NonTaxableAmount;
+                }
+                else {
+                    emptaxcard.loennFraHovedarbeidsgiver.Table = employeetaxcard.Table;
+                    emptaxcard.loennFraHovedarbeidsgiver.Percent = employeetaxcard.Percent;
+                    emptaxcard.loennFraHovedarbeidsgiver.NonTaxableAmount = employeetaxcard.NonTaxableAmount;
+                }
+                emptaxcard.NotMainEmployer = employeetaxcard.NotMainEmployer;
+                
+                return Observable.of(emptaxcard);
+            });
+    }
+
+    public setNumericValues(employeeTaxCard: EmployeeTaxCard, year: number = 0) {
+        if (year === 0) {
+            year = employeeTaxCard.Year;
+        }
+        if (year > 2017) {
+                    
+            if (!!employeeTaxCard.loennFraHovedarbeidsgiver) {
+                employeeTaxCard.loennFraHovedarbeidsgiver.Percent = employeeTaxCard.loennFraHovedarbeidsgiver.Percent || 0;
+            }
+            if (!!employeeTaxCard.loennFraBiarbeidsgiver) {
+                employeeTaxCard.loennFraBiarbeidsgiver.Percent = employeeTaxCard.loennFraBiarbeidsgiver.Percent || 0;
+            }
+            if (!!employeeTaxCard.pensjon) {
+                employeeTaxCard.pensjon.Percent = employeeTaxCard.pensjon.Percent || 0;
+            }
+            if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger) {
+                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent || 0;
+            }
+            if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger) {
+                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
+            }
+            
+        }
+        else {
+            if (!!employeeTaxCard.Percent) {
+                employeeTaxCard.Percent = employeeTaxCard.Percent || 0;
+            }
+            if (!!employeeTaxCard.SecondaryPercent) {
+                employeeTaxCard.SecondaryPercent = employeeTaxCard.SecondaryPercent || 0;
+            }
+            
+        }
     }
 
     public getTaxCardPercentAndTable(taxCard: EmployeeTaxCard, year = taxCard && taxCard.Year): {percent: string, table: string} {
