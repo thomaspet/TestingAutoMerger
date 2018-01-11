@@ -40,11 +40,12 @@ export class AccountDetailsReport {
         close: () => void,
         modalMode: boolean,
         accountID: number,
-        subaccountID,
         accountNumber: number,
         accountName: string,
         dimensionType: number,
-        dimensionId: number
+        dimensionId: number,
+        isSubAccount: boolean
+
     };
 
     private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
@@ -59,6 +60,7 @@ export class AccountDetailsReport {
     private periodFilter2$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
     private periodFilter3$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
     private accountIDs: Array<number> = [];
+    private subAccountIDs: Array<number> = [];
     private includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     private dimensionEntityName: string;
@@ -83,7 +85,7 @@ export class AccountDetailsReport {
             close: () => {},
             modalMode: false,
             accountID: 0,
-            subaccountID: 0,
+            isSubAccount: false,
             accountNumber: 0,
             accountName: '',
             dimensionId: 0,
@@ -130,14 +132,10 @@ export class AccountDetailsReport {
             this.addTab();
 
             this.accountService.searchAccounts('Visible eq 1', 1).subscribe(data => {
-                let account = data[0];
+                const account = data[0];
+                this.setAccountConfig(account);
 
-                this.config.accountID = account.ID;
-                this.config.accountName = account.AccountName;
-                this.config.accountNumber = account.AccountNumber;
-                this.config.subaccountID = account.AccountID;
-
-                var searchparams = this.searchParams$.getValue();
+                const searchparams = this.searchParams$.getValue();
                 searchparams.AccountID = account.ID;
                 searchparams.AccountNumber = account.AccountNumber;
                 this.searchParams$.next(searchparams);
@@ -146,6 +144,14 @@ export class AccountDetailsReport {
         } else {
             this.loadData();
         }
+    }
+
+    private setAccountConfig(account: Account) {
+        this.config.accountID = account.ID;
+        this.config.accountName = account.AccountName;
+        this.config.accountNumber = account.AccountNumber;
+        this.config.isSubAccount = account.AccountID > 0 ? true : false;
+        console.log('this.console', this.config);
     }
 
     public doTurnAndInclude() {
@@ -189,13 +195,10 @@ export class AccountDetailsReport {
             .searchAccounts('Visible eq 1 and AccountNumber lt ' + this.config.accountNumber, 1, 'AccountNumber desc')
             .subscribe(data => {
                 if (data.length > 0) {
-                    let account = data[0];
-                    this.config.accountID = account.ID;
-                    this.config.accountName = account.AccountName;
-                    this.config.accountNumber = account.AccountNumber;
-                    this.config.subaccountID = account.AccountID;
+                    const account = data[0];
+                    this.setAccountConfig(account);
 
-                    var searchParams = this.searchParams$.getValue();
+                    const searchParams = this.searchParams$.getValue();
                     searchParams.AccountID = account.ID;
                     searchParams.AccountNumber = account.AccountNumber;
                     this.searchParams$.next(searchParams);
@@ -213,13 +216,10 @@ export class AccountDetailsReport {
             .searchAccounts('Visible eq 1 and AccountNumber gt ' + this.config.accountNumber, 1)
             .subscribe(data => {
                 if (data.length > 0) {
-                    let account = data[0];
-                    this.config.accountID = account.ID;
-                    this.config.accountName = account.AccountName;
-                    this.config.accountNumber = account.AccountNumber;
-                    this.config.subaccountID = account.AccountID;
+                    const account = data[0];
+                    this.setAccountConfig(account);
 
-                    var searchParams = this.searchParams$.getValue();
+                    const searchParams = this.searchParams$.getValue();
                     searchParams.AccountID = account.ID;
                     searchParams.AccountNumber = account.AccountNumber;
                     this.searchParams$.next(searchParams);
@@ -240,7 +240,8 @@ export class AccountDetailsReport {
         this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
         this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
 
-        this.accountIDs = [this.config.subaccountID ? this.config.subaccountID : this.config.accountID];
+        this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
+        this.subAccountIDs = this.config.isSubAccount === true ? [this.config.accountID] : null;
 
         if (this.config.dimensionType && this.config.dimensionId) {
              this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.config.dimensionType);
@@ -256,8 +257,13 @@ export class AccountDetailsReport {
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
-        filters.push(`JournalEntryLine.AccountID eq ${this.config.subaccountID
-            ? this.config.subaccountID : this.config.accountID}`);
+
+        if (this.config.isSubAccount) {
+        filters.push(`JournalEntryLine.SubAccountID eq ${this.config.accountID}`);
+        } else {
+            filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
+        }
+
         filters.push(`Period.AccountYear eq ${this.periodFilter3$.getValue().year}`);
         filters.push(`Period.No ge ${this.periodFilter3$.getValue().fromPeriodNo}`);
         filters.push(`Period.No le ${this.periodFilter3$.getValue().toPeriodNo}`);
@@ -285,7 +291,7 @@ export class AccountDetailsReport {
             'OriginalReferencePostID as OriginalReferencePostID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments');
 
-        urlParams.set('expand', 'Account,VatType,Dimensions.Department,Dimensions.Project,Period');
+        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
@@ -300,7 +306,7 @@ export class AccountDetailsReport {
     }
 
     public switchPeriods() {
-        let tmp = this.periodFilter1$.getValue();
+        const tmp = this.periodFilter1$.getValue();
         this.periodFilter1$.next(this.periodFilter2$.getValue());
         this.periodFilter2$.next(tmp);
         this.periodFilter3$.next(this.periodFilter2$.getValue());
@@ -309,7 +315,7 @@ export class AccountDetailsReport {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            let data = {
+            const data = {
                 entity: JournalEntry.EntityType,
                 entityID: event.row.JournalEntryID
 
@@ -319,7 +325,7 @@ export class AccountDetailsReport {
     }
 
     private setupTransactionsTable() {
-        let columns = [
+        const columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
                     .setFilterOperator('contains')
                     .setTemplate(line => {
@@ -371,15 +377,14 @@ export class AccountDetailsReport {
             .setPageSize(20)
             .setSearchable(true)
             .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
-
+                const tmp = data !== null ? data.Data : [];
                 return tmp;
             })
             .setColumns(columns));
     }
 
     public periodSelected(row) {
-        var filter = new PeriodFilter();
+        const filter = new PeriodFilter();
         if (row.periodNo === 0) {
             this.toastService.addToast(
                 'Ikke støttet',
@@ -417,7 +422,7 @@ export class AccountDetailsReport {
     }
 
     public onYearSelected(event) {
-        let tmp = this.periodFilter1$.getValue();
+        const tmp = this.periodFilter1$.getValue();
         this.periodFilter1$.next(this.periodFilter2$.getValue());
         this.periodFilter2$.next(tmp);
         this.periodFilter3$.next(this.periodFilter2$.getValue());
@@ -425,14 +430,10 @@ export class AccountDetailsReport {
     }
 
     public onFormFilterChange(event) {
-        let search = this.searchParams$.getValue();
+        const search = this.searchParams$.getValue();
         if (search.AccountID) {
             this.accountService.Get(search.AccountID).subscribe((account: Account) => {
-                this.config.accountID = account.ID;
-                this.config.accountName = account.AccountName;
-                this.config.accountNumber = account.AccountNumber;
-                this.config.subaccountID = account.AccountID;
-
+                this.setAccountConfig(account);
                 this.loadData();
                 this.setupLookupTransactions();
             });
