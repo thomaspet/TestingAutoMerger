@@ -7,7 +7,7 @@ import {
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
-    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel
+    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel, TaxCard
 } from '../../../unientities';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
@@ -27,6 +27,7 @@ import {
 } from '../../../services/services';
 
 declare var _;
+const PAYROLL_RUN_KEY = 'payrollRun';
 
 @Component({
     selector: 'salarytrans',
@@ -83,7 +84,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                     }
                 });
 
-            super.getStateSubject('payrollRun')
+            super.getStateSubject(PAYROLL_RUN_KEY)
                 .do(payrollRun => this.linkMenu$
                     .next(this.generateLinkMenu(payrollRun, this.employeeList[this.selectedIndex])))
                 .subscribe((payrollRun: PayrollRun) => {
@@ -204,32 +205,33 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     private setSums(employeeTotals: SalaryTransactionSums) {
         const employee = this.employeeList[this.selectedIndex];
         const taxCard = employee && employee.TaxCards && employee.TaxCards.length ? employee.TaxCards[0] : undefined;
-        const standardTaxPercent = taxCard && taxCard.Table ? '' : ' (50%)';
-
-        this.summary = [{
-            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-            title: `Prosenttrekk` + (taxCard && taxCard.Percent
-                ? ` (${taxCard.Percent}%)`
-                : standardTaxPercent),
-            description: employeeTotals
-                && employeeTotals.basePercentTax
-                ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
-        }, {
-            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
-            title: 'Tabelltrekk' + (taxCard && taxCard.Table ? ` (${taxCard.Table})` : ''),
-            description: employeeTotals
-                && employeeTotals.baseTableTax
-                ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null
-        }, {
-            title: 'Utbetalt beløp',
-            value: employeeTotals && this.numberFormat.asMoney(employeeTotals.netPayment)
-        }, {
-            title: 'Beregnet AGA',
-            value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.calculatedAGA) : null
-        }, {
-            title: 'Gr.lag feriepenger',
-            value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.baseVacation) : null
-        }];
+        super.getStateSubject(PAYROLL_RUN_KEY)
+            .take(1)
+            .map((run: PayrollRun) => this.taxCardService.getTaxCardPercentAndTable(taxCard, new Date(run.PayDate).getFullYear()))
+            .subscribe(taxCardInfo => {
+                this.summary = [{
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
+                    title: `Prosenttrekk ` + taxCardInfo.percent,
+                    description: employeeTotals
+                        && employeeTotals.basePercentTax
+                        ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
+                }, {
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
+                    title: 'Tabelltrekk ' + taxCardInfo.table,
+                    description: employeeTotals
+                        && employeeTotals.baseTableTax
+                        ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null
+                }, {
+                    title: 'Utbetalt beløp',
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.netPayment)
+                }, {
+                    title: 'Beregnet AGA',
+                    value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.calculatedAGA) : null
+                }, {
+                    title: 'Gr.lag feriepenger',
+                    value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.baseVacation) : null
+                }];
+            });
     }
 
     private setSummarySource() {

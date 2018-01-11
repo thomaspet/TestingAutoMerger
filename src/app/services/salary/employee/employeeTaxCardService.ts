@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {EmployeeTaxCard} from '../../../unientities';
+import {EmployeeTaxCard, TaxCard} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 
@@ -31,6 +31,75 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             taxcard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger ||
             taxcard.loennTilUtenrikstjenestemann ||
             taxcard.pensjon) && taxcard.Year === year;
+    }
+
+    public taxExpands(): string {
+        return 'loennFraHovedarbeidsgiver,loennFraBiarbeidsgiver,pensjon,loennTilUtenrikstjenestemann'
+        + ',loennKunTrygdeavgiftTilUtenlandskBorger,loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger';
+    }
+
+    public getTaxCardPercentAndTable(taxCard: EmployeeTaxCard, year = taxCard && taxCard.Year): {percent: string, table: string} {
+
+        if (year <= 2017) {
+            return this.formatTaxCardInfo(this.getTaxCardPercentAndTable2017(taxCard));
+        }
+
+        return this.formatTaxCardInfo(this.getTaxCardPercentAndTableFrom2018(taxCard));
+    }
+
+    private formatTaxCardInfo(taxInfo: {percent: string, table: string}): {percent: string, table: string} {
+        return {
+            percent: taxInfo.percent ? `(${taxInfo.percent}%)` : '',
+            table: taxInfo.table ? `(${taxInfo.table})` : ''
+        };
+    }
+
+    private getTaxCardPercentAndTable2017(taxCard: EmployeeTaxCard): {percent: string, table: string} {
+        if (!taxCard) {
+            return {
+                percent: '50',
+                table: ''
+            };
+        }
+        return {
+            percent: `${taxCard.Percent || ''}` || (taxCard.Table ? '' : '50'),
+            table: taxCard.Table || ''
+        };
+    }
+
+    private getTaxCardPercentAndTableFrom2018(taxCard: EmployeeTaxCard): {percent: string, table: string} {
+        if (!taxCard) {
+            return {
+                percent: '',
+                table: ''
+            };
+        }
+
+        const taxCards = [
+            ...this.addTaxCard((taxCard.NotMainEmployer ? taxCard.loennFraBiarbeidsgiver : taxCard.loennFraHovedarbeidsgiver)),
+            ...this.addTaxCard(taxCard.loennKunTrygdeavgiftTilUtenlandskBorger),
+            ...this.addTaxCard(taxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger),
+            ...this.addTaxCard(taxCard.loennTilUtenrikstjenestemann),
+            ...this.addTaxCard(taxCard.pensjon)
+        ];
+
+        if (!taxCards.length || taxCards.length > 1) {
+            return {
+                percent: '',
+                table: ''
+            };
+        }
+
+        return {
+            percent: `${taxCards[0].Percent || ''}`,
+            table: taxCards[0].Table || ''
+        };
+
+    }
+
+    private addTaxCard(taxCard: TaxCard): TaxCard[] {
+        if (!taxCard) { return []; }
+        return (taxCard.Table || taxCard.Percent) ? [taxCard] : [];
     }
 
     public getLayout(layoutID: string, employeeTaxcard: EmployeeTaxCard) {
