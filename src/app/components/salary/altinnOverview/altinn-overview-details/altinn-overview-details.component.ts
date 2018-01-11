@@ -69,8 +69,9 @@ export class AltinnOverviewDetailsComponent implements OnInit, OnChanges {
 
     private getConfig(): UniTableConfig {
         const textCol = new UniTableColumn('ReceiptText', 'Tekst', UniTableColumnType.Text);
-        const LastChanged = new UniTableColumn('LastChanged', 'Sist endret', UniTableColumnType.LocalDate);
-        const receiptID = new UniTableColumn('ReceiptId', 'KvitteringsID', UniTableColumnType.Number);
+        const LastChanged = new UniTableColumn('LastChanged', 'Sist endret', UniTableColumnType.LocalDate, false)
+            .setFormat('DD.MM.YYYY HH:mm:ss');
+        const receiptID = new UniTableColumn('ReceiptId', 'KvitteringsID', UniTableColumnType.Number, false);
         const receiptHistory = new UniTableColumn('ReceiptHistory', 'Log', UniTableColumnType.Text);
         return new UniTableConfig('salary.altinn-overview-details')
             .setColumns([textCol, LastChanged, receiptID, receiptHistory]);
