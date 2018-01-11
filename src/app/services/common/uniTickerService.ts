@@ -951,6 +951,7 @@ export class Ticker {
     public Filters?: Array<TickerFilter>;
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;
+    public Pagesize?: number;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public EditToggle?: boolean;

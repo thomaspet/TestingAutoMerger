@@ -937,7 +937,7 @@ export class UniTicker {
                 }
 
                 // Setup table
-                this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
+                this.tableConfig = new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 20)
                     .setColumns(columns)
                     .setEntityType(this.ticker.Model)
                     .setAllowGroupFilter(true)
