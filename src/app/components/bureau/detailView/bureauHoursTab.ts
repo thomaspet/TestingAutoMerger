@@ -4,7 +4,7 @@ import {
     ElementRef,
     ChangeDetectorRef,
     OnDestroy,
-    AfterViewInit
+    AfterViewInit, HostBinding
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
@@ -57,6 +57,7 @@ export class BureauHoursTab implements AfterViewInit, OnDestroy {
     public viewData: any[];
     public round: any = UniMath.round;
     private subscription: Subscription;
+    @HostBinding('class.no_access') public noAccess: boolean = false;
 
     constructor(
         private element: ElementRef,
@@ -74,19 +75,29 @@ export class BureauHoursTab implements AfterViewInit, OnDestroy {
         this.element.nativeElement.setAttribute('aria-busy', true);
         this.subscription = this.currentCompanyService
             .getCurrentCompany()
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', true))
-            .do(company => this.company = company)
-            .switchMap(company => Observable.forkJoin(
-                this.getNumberOfTimeTracings(company.Key),
-                this.getUnInvoicedHours(company.Key),
-                this.getInvoicedHours(company.Key),
-            ))
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
-            .do(() => this.cd.markForCheck())
-            .subscribe(
-                result => this.viewData = result,
-                err => this.errorService.handle(err),
-            );
+            .subscribe(company => {
+                this.company = company;
+                this.noAccess = false;
+                this.element.nativeElement.setAttribute('aria-busy', true);
+                Observable.forkJoin(
+                    this.getNumberOfTimeTracings(company.Key),
+                    this.getUnInvoicedHours(company.Key),
+                    this.getInvoicedHours(company.Key),
+                )
+                    .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
+                    .do(() => this.cd.markForCheck())
+                    .subscribe(
+                        result => this.viewData = result,
+                        err => {
+                            if (err.status === 403) {
+                                this.noAccess = true;
+                                this.cd.markForCheck();
+                            } else {
+                                this.errorService.handle(err);
+                            }
+                        },
+                    );
+            });
     }
 
     public ngOnDestroy() {

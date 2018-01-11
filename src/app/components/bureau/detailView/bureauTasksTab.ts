@@ -4,7 +4,7 @@ import {
     ElementRef,
     ChangeDetectorRef,
     AfterViewInit,
-    OnDestroy
+    OnDestroy, HostBinding
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
@@ -63,38 +63,49 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
     public accountingYear: number;
     public viewData: any[];
     private subscription: Subscription;
+    @HostBinding('class.no_access') public noAccess: boolean = false;
 
     constructor(
         private element: ElementRef,
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
-        private yearService: YearService,
         private authService: AuthService,
         private errorService: ErrorService,
         private userService: UserService,
         private currentCompanyService: BureauCurrentCompanyService,
+        yearService: YearService,
     ) {
-        this.accountingYear = this.yearService.selectedYear$.getValue();
+        this.accountingYear = yearService.selectedYear$.getValue();
     }
 
     public ngAfterViewInit() {
         this.element.nativeElement.setAttribute('aria-busy', true);
         this.subscription = this.currentCompanyService
             .getCurrentCompany()
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', true))
-            .do(company => this.company = company)
-            .switchMap(company => Observable.forkJoin(
-                this.getNumberOfItemsInInbox(company.Key),
-                this.getApprovedSupplierInvoices(company.Key),
-                this.getSupplierInvoiceApprovals(company.Key),
-                this.getHoursApprovals(company.Key),
-            ))
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
-            .do(() => this.cd.markForCheck())
-            .subscribe(
-                result => this.viewData = result,
-                err => this.errorService.handle(err),
-            );
+            .subscribe(company => {
+                this.company = company;
+                this.noAccess = false;
+                this.element.nativeElement.setAttribute('aria-busy', true);
+                Observable.forkJoin(
+                    this.getNumberOfItemsInInbox(company.Key),
+                    this.getApprovedSupplierInvoices(company.Key),
+                    this.getSupplierInvoiceApprovals(company.Key),
+                    this.getHoursApprovals(company.Key),
+                )
+                    .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
+                    .do(() => this.cd.markForCheck())
+                    .subscribe(
+                        result => this.viewData = result,
+                        err => {
+                            if (err.status === 403) {
+                                this.noAccess = true;
+                                this.cd.markForCheck();
+                            } else {
+                                this.errorService.handle(err);
+                            }
+                        },
+                    );
+            });
     }
 
     public ngOnDestroy() {

@@ -37,19 +37,6 @@ export class BureauCustomHttpService {
                 }
 
                 return Observable.throw(err);
-            })
-            .catch((err, obs) => {
-                if (err.status === 403) {
-                    this.toastService.addToast(
-                        'Ikke tilgang',
-                        ToastType.warn,
-                        ToastTime.long,
-                        'Du har ikke tilgang til det som blir forsøkt vist i selskapsoversikten for dette selskapet',
-                    );
-                    return Observable.empty();
-                } else {
-                    return this.errorService.handleRxCatch(err, obs)
-                }
             });
     }
 
