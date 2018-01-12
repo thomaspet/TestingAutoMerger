@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 @Component({
     selector: 'uni-password-input',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    template: './password.html'
+    templateUrl: './password.html'
 })
 export class UniPasswordInput extends BaseControl implements OnChanges {
     @Input() public field: UniFieldLayout;
