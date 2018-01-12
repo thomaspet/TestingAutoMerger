@@ -124,17 +124,18 @@ export class UniModalService {
     }
 
     private createModal(modal: Type<IUniModal>, options: IModalOptions): ComponentRef<IUniModal> {
-        let componentRef = this.compileModal(modal, options || {});
-        let componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
+        const componentRef = this.compileModal(modal, options || {});
+        const componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
             .rootNodes[0] as HTMLElement;
 
-        let dialogElement = componentRootNode.querySelector('.uni-modal');
+        const dialogElement = componentRootNode.querySelector('.uni-modal');
         if (dialogElement) {
             dialogElement.setAttribute('open', 'true');
 
             // Add close button
-            let header = dialogElement.querySelector('header');
-            if (header) {
+            const header = dialogElement.querySelector('header');
+            const headerButton = header && header.querySelector('button');
+            if (header && !headerButton) {
                 let button = document.createElement('button');
                 button.classList.add('modal-close-button');
                 button.onclick = (event) => {

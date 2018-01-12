@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from 'src/environments/environment';
-import {Company, User} from './unientities';
+import {Company, UserDto} from './unientities';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
@@ -14,7 +14,7 @@ import * as jwt_decode from 'jwt-decode';
 export interface IAuthDetails {
     token: string;
     activeCompany: any;
-    user: User;
+    user: UserDto;
 }
 
 const PUBLIC_ROUTES = [
@@ -309,7 +309,7 @@ export class AuthService {
         return (expires.valueOf() < new Date().valueOf() + (offsetMinutes * 60000));
     }
 
-    public canActivateRoute(user: User, url: string): boolean {
+    public canActivateRoute(user: UserDto, url: string): boolean {
         // First check if the route is a public route
         const rootRoute = this.getRootRoute(url);
         if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
