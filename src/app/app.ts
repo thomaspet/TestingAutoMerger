@@ -106,15 +106,13 @@ export class App {
         this.modalService
             .open(UniConfirmModalV2, {
                 message: `Lisensavtale må være godtatt før du kan ta Uni Economy i bruk.<br /> 
-                         Vennligst kontakt din systemeier for godkjenning av avtale.<br /><br />
-                         Du vil bli logget ut når du lukker denne meldingen`,
+                         Vennligst kontakt din systemeier for godkjenning av avtale.`,
                 header: `Lisens må godkjennes`,
                 buttonLabels: {
                     accept: 'OK'
                 }
             })
             .onClose
-            //.subscribe(() => this.authService.clearAuthAndGotoLogin());
-            .subscribe(() => console.log('User should be logged out, but that functionality is disabled because of backend bug...'));
+            .subscribe(()=>{});
     }
 }
