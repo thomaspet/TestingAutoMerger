@@ -114,6 +114,7 @@ export class App {
                 }
             })
             .onClose
-            .subscribe(() => this.authService.clearAuthAndGotoLogin());
+            //.subscribe(() => this.authService.clearAuthAndGotoLogin());
+            .subscribe(() => console.log('User should be logged out, but that functionality is disabled because of backend bug...'));
     }
 }
