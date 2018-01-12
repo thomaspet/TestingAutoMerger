@@ -59,6 +59,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private accountYear1: number;
     @Input() private accountYear2: number;
     @Input() private accountIDs: number[];
+    @Input() private subaccountIDs: number[];
     @Input() public showHeader: boolean = false;
     @Input() private doTurnAmounts: boolean = false;
     @Input() public activeDistributionElement: string;
@@ -130,30 +131,36 @@ export class DistributionPeriodReportPart implements OnChanges {
 
     private setupDistributionPeriodTable() {
 
-        let distributionPeriodData: Array<DistributionPeriodData> = [];
+        const distributionPeriodData: Array<DistributionPeriodData> = [];
         moment.locale();
 
-        if (this.accountIDs && this.accountYear1 && this.accountYear2) {
-            let accountIdFilter = this.accountIDs.length > 0
-                ? ' (AccountID eq ' + this.accountIDs.join(' or AccountID eq ') + ') '
-                : '';
+        let accountIdFilter = '';
 
+        if (this.accountIDs && this.accountIDs.length > 0) {
+            accountIdFilter = ' (Account.ID eq ' + this.accountIDs.join(' or Account.ID eq ') + ') ';
+        }
+
+        if (this.subaccountIDs && this.subaccountIDs.length > 0 ) {
+            accountIdFilter = ' (SubAccount.ID eq ' + this.subaccountIDs.join(' or SubAccount.ID eq ') + ') ';
+        }
+
+        if (accountIdFilter && this.accountYear1 && this.accountYear2) {
             if (accountIdFilter === '') {
                 accountIdFilter = 'TopLevelAccountGroup.GroupNumber ge 3';
             }
 
-            let dimensionFilter = this.dimensionEntityName
+            const dimensionFilter = this.dimensionEntityName
                 ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
                 : '';
-            let projectFilter = this.filter && this.filter.ProjectID
+            const projectFilter = this.filter && this.filter.ProjectID
                 ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
                 : '';
-            let departmentFilter = this.filter && this.filter.DepartmentID
+            const departmentFilter = this.filter && this.filter.DepartmentID
                 ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
                 : '';
 
-            let periodQuery = 'model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,Dimensions'
-                + `&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter} and `
+            const periodQuery = 'model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,Dimensions'
+                + `&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter} and `
                 + `(Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})`
                 + `&orderby=Period.AccountYear,Period.No&select=Period.AccountYear as PeriodAccountYear,`
                 + `Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;
@@ -163,8 +170,8 @@ export class DistributionPeriodReportPart implements OnChanges {
             if (this.includeIncomingBalance) {
                 subject = Observable.forkJoin(
                     this.statisticsService.GetAll(periodQuery),
-                    this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,Account.TopLevelAccountGroup,'
-                    + `Dimensions&filter=${accountIdFilter} ${dimensionFilter}${projectFilter}${departmentFilter}`
+                    this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,'
+                    + `Dimensions&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter}`
                     + `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,`
                     + `JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear `
                     + `lt ${this.accountYear2}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod2`)                   //
@@ -177,7 +184,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             }
 
             subject.subscribe((data: Array<any>) => {
-                let periodDataUnordered = data[0].Data;
+                const periodDataUnordered = data[0].Data;
 
                 // setup distributionperiods
                 for (let i = 1; i <= 12; i++) {
@@ -191,7 +198,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
                 // set real amounts based on feedback from API
                 periodDataUnordered.forEach((item) => {
-                    let periodData = distributionPeriodData.find(x => x.periodNo === item.PeriodNo);
+                    const periodData = distributionPeriodData.find(x => x.periodNo === item.PeriodNo);
                     if (periodData) {
                         if (item.PeriodAccountYear === this.accountYear1) {
                             periodData.amountPeriodYear1 = !this.doTurnAmounts ? item.SumAmount : item.SumAmount * -1;
@@ -202,7 +209,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                 });
 
                 if (this.includeIncomingBalance) {
-                    let incomingBalanceDistributionData = {
+                    const incomingBalanceDistributionData = {
                         periodNo: 0,
                         periodName: 'Inngående balanse',
                         amountPeriodYear1: !this.doTurnAmounts
@@ -216,7 +223,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                     distributionPeriodData.unshift(incomingBalanceDistributionData);
                 }
 
-                let sumDistributionData = {
+                const sumDistributionData = {
                     periodNo: 13,
                     periodName: this.includeIncomingBalance ? 'Utgående balanse' : 'Totalt',
                     amountPeriodYear1: distributionPeriodData.reduce((a, b) => a + b.amountPeriodYear1, 0),
@@ -278,8 +285,8 @@ export class DistributionPeriodReportPart implements OnChanges {
     }
 
     private setupDistributionPeriodChart() {
-        let labels = [];
-        let dataSets = [];
+        const labels = [];
+        const dataSets = [];
 
         dataSets.push({
             label: this.accountYear2.toString(),
@@ -316,7 +323,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             }
         }
 
-        let chartConfig = {
+        const chartConfig = {
             label: '',
             labels: labels,
             chartType: 'line',
