@@ -3675,73 +3675,6 @@ export class Mentioned extends UniEntity {
 }
 
 
-export class Altinn extends UniEntity {
-    public static RelativeUrl = 'altinn';
-    public static EntityType = 'Altinn';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Language: string;
-    public PreferredLogin: TypeOfLogin;
-    public StatusCode: number;
-    public SystemID: string;
-    public SystemPw: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class AltinnSigning extends UniEntity {
-    public static RelativeUrl = 'altinnsigning';
-    public static EntityType = 'AltinnSigning';
-
-    public _createguid: string;
-    public AltinnReceiptID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public DateSigned: Date;
-    public Deleted: boolean;
-    public ID: number;
-    public SignatureReference: string;
-    public SignatureText: string;
-    public StatusCode: number;
-    public StatusText: string;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public AltinnReceipt: AltinnReceipt;
-    public CustomFields: any;
-}
-
-
-export class AltinnReceipt extends UniEntity {
-    public static RelativeUrl = 'altinnreceipts';
-    public static EntityType = 'AltinnReceipt';
-
-    public _createguid: string;
-    public AltinnResponseData: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ErrorText: string;
-    public Form: string;
-    public HasBeenRegistered: boolean;
-    public ID: number;
-    public ReceiptID: number;
-    public StatusCode: number;
-    public TimeStamp: Date;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UserSign: string;
-    public XmlReceipt: string;
-    public Signings: Array<AltinnSigning>;
-    public CustomFields: any;
-}
-
-
 export class ProjectResourceSchedule extends UniEntity {
     public static RelativeUrl = 'projects-schedules-resources';
     public static EntityType = 'ProjectResourceSchedule';
@@ -4099,6 +4032,73 @@ export class EHFLog extends UniEntity {
 }
 
 
+export class Altinn extends UniEntity {
+    public static RelativeUrl = 'altinn';
+    public static EntityType = 'Altinn';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Language: string;
+    public PreferredLogin: TypeOfLogin;
+    public StatusCode: number;
+    public SystemID: string;
+    public SystemPw: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class AltinnSigning extends UniEntity {
+    public static RelativeUrl = 'altinnsigning';
+    public static EntityType = 'AltinnSigning';
+
+    public _createguid: string;
+    public AltinnReceiptID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public DateSigned: Date;
+    public Deleted: boolean;
+    public ID: number;
+    public SignatureReference: string;
+    public SignatureText: string;
+    public StatusCode: number;
+    public StatusText: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public AltinnReceipt: AltinnReceipt;
+    public CustomFields: any;
+}
+
+
+export class AltinnReceipt extends UniEntity {
+    public static RelativeUrl = 'altinnreceipts';
+    public static EntityType = 'AltinnReceipt';
+
+    public _createguid: string;
+    public AltinnResponseData: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ErrorText: string;
+    public Form: string;
+    public HasBeenRegistered: boolean;
+    public ID: number;
+    public ReceiptID: number;
+    public StatusCode: number;
+    public TimeStamp: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserSign: string;
+    public XmlReceipt: string;
+    public Signings: Array<AltinnSigning>;
+    public CustomFields: any;
+}
+
+
 export class Company extends UniEntity {
     public static RelativeUrl = 'companies';
     public static EntityType = 'Company';
@@ -4109,6 +4109,7 @@ export class Company extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public FileFlowEmail: string;
+    public FileFlowOrgnrEmail: string;
     public ID: number;
     public IsTest: boolean;
     public Key: string;
@@ -5977,6 +5978,27 @@ export class AltinnAuthRequest extends UniEntity {
 }
 
 
+export class A06Options extends UniEntity {
+    public FromPeriod: Maaned;
+    public IncludeEmployments: boolean;
+    public IncludeIncome: boolean;
+    public IncludeInfoPerPerson: boolean;
+    public ReportType: ReportType;
+    public ToPeriod: Maaned;
+    public Year: number;
+}
+
+
+export class A07Response extends UniEntity {
+    public Data: string;
+    public DataName: string;
+    public DataType: string;
+    public mainStatus: string;
+    public Text: string;
+    public Title: string;
+}
+
+
 export class SendEmail extends UniEntity {
     public CopyAddress: string;
     public EntityID: number;
@@ -6153,6 +6175,7 @@ export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
 
 
 export class BankData extends UniEntity {
+    public AccountNumber: string;
     public IBAN: string;
     public Bank: Bank;
 }
@@ -6641,16 +6664,16 @@ export enum TeamPositionEnum{
 }
 
 
+export enum Type{
+    Payroll = 0,
+}
+
+
 export enum TypeOfLogin{
     none = 0,
     AltinnPin = 1,
     SMSPin = 2,
     TaxPin = 3,
-}
-
-
-export enum Type{
-    Payroll = 0,
 }
 
 
@@ -6718,6 +6741,30 @@ export enum WorkStatus{
     Complete = 2,
     OvertimeOrFlex = 3,
     ValidTimeOff = 4,
+}
+
+
+export enum Maaned{
+    Item01 = 0,
+    Item02 = 1,
+    Item03 = 2,
+    Item04 = 3,
+    Item05 = 4,
+    Item06 = 5,
+    Item07 = 6,
+    Item08 = 7,
+    Item09 = 8,
+    Item10 = 9,
+    Item11 = 10,
+    Item12 = 11,
+}
+
+
+export enum ReportType{
+    regnearkOdsV2 = 0,
+    regnearkOdsV1 = 1,
+    xmlFormatV2 = 2,
+    maskinlesbartFormatXmlV1 = 3,
 }
 
 

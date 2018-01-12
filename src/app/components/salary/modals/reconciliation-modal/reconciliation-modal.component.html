@@ -1,0 +1,13 @@
+<section role="dialog" class="uni-modal large">
+    <header>
+        <h1>Avstemming fra Altinn</h1>
+    </header>
+    <article>
+        <uni-reconciliation-request (newReconciliation)="onReconciliationRequest()"></uni-reconciliation-request>
+        <uni-altinn-receipt-list [options]="receiptListOptions$ | async"></uni-altinn-receipt-list>
+    </article>
+    <footer>
+        <button (click)="close()">Lukk</button>
+    </footer>
+</section>
+

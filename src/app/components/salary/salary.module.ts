@@ -56,8 +56,10 @@ import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
 
 import {
-    SalaryTransSupplementsModal
-} from './modals/salaryTransSupplementsModal';
+    SalaryTransSupplementsModal,
+    ReconciliationModalComponent,
+    ReconciliationResponseModalComponent
+} from './modals';
 
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeDetail} from './wagetype/views/wagetypeDetails';
@@ -87,8 +89,12 @@ import { EmployeeReportPickerListComponent } from './common/employee-report-pick
 import {
     AnnualStatementSenderContainerComponent
 } from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
+import {AltinnReceiptListComponent} from './altinnReceiptList/altinn-receipt-list/altinn-receipt-list.component';
+import {ReconciliationRequestComponent} from './reconciliation/reconciliation-request/reconciliation-request.component';
+import {AltinnErrorHandlerService} from './sharedServices/altinnErrorHandlerService';
+import {AltinnResponseStatusComponent} from './common/altinn-response-status/altinn-response-status.component';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
-import { AltinnOverviewDetailsComponent } from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
+import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
 
 @NgModule({
     imports: [
@@ -177,6 +183,11 @@ import { AltinnOverviewDetailsComponent } from './altinnOverview/altinn-overview
         AnnualStatementSenderComponent,
         EmployeeReportPickerListComponent,
         AnnualStatementSenderContainerComponent,
+        ReconciliationModalComponent,
+        AltinnReceiptListComponent,
+        ReconciliationRequestComponent,
+        AltinnResponseStatusComponent,
+        ReconciliationResponseModalComponent,
         AltinnOverviewComponent,
         AltinnOverviewDetailsComponent
     ],
@@ -192,7 +203,9 @@ import { AltinnOverviewDetailsComponent } from './altinnOverview/altinn-overview
         SalarybalanceLine,
         PaycheckSenderModal,
         SalaryTransSupplementsModal,
-        SalaryBalanceLineModal
+        SalaryBalanceLineModal,
+        ReconciliationModalComponent,
+        ReconciliationResponseModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -201,7 +214,8 @@ import { AltinnOverviewDetailsComponent } from './altinnOverview/altinn-overview
         EmployeeDetailsService,
         SalaryBalanceViewService,
         CategoryViewService,
-        SalaryTransViewService
+        SalaryTransViewService,
+        AltinnErrorHandlerService,
     ],
     exports: [
         UniSalary,

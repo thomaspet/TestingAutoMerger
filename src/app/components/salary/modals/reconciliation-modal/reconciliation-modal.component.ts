@@ -1,0 +1,63 @@
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import {IUniModal, IModalOptions, UniModalService} from '../../../../../framework/uniModal/barrel';
+import {AltinnIntegrationService, ErrorService} from '../../../../services/services';
+import {A06Options, AltinnReceipt, A07Response} from '../../../../unientities';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {
+    IAltinnReceiptListOptions, AltinnReceiptListComponent
+} from '../../altinnReceiptList/altinn-receipt-list/altinn-receipt-list.component';
+import {Observable} from 'rxjs/Observable';
+import {AltinnAuthenticationModal} from '@app/components/common/modals/AltinnAuthenticationModal';
+import {ReconciliationResponseModalComponent} from '@app/components/salary/modals';
+
+@Component({
+    selector: 'uni-reconciliation-modal',
+    templateUrl: './reconciliation-modal.component.html',
+    styleUrls: ['./reconciliation-modal.component.sass']
+})
+export class ReconciliationModalComponent implements OnInit, IUniModal {
+    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    @Input() public options?: IModalOptions;
+    @ViewChild(AltinnReceiptListComponent) public receiptList: AltinnReceiptListComponent;
+    public receiptListOptions$: ReplaySubject<IAltinnReceiptListOptions> = new ReplaySubject(1);
+    public model: BehaviorSubject<A06Options> = new BehaviorSubject(new A06Options());
+
+
+    constructor(
+        private altinnIntegrationService: AltinnIntegrationService,
+        private errorService: ErrorService,
+        private modalService: UniModalService
+    ) { }
+
+    public ngOnInit() {
+        this.receiptListOptions$.next({
+            form: 'A06',
+            action: (receipt) => {
+                return this.modalService
+                    .open(AltinnAuthenticationModal)
+                    .onClose
+                    .filter(result => !!result)
+                    .switchMap(result => this.altinnIntegrationService.getA07Response(result, receipt.ReceiptID))
+                    .do(result => this.modalService.open(ReconciliationResponseModalComponent, {data: result}))
+                    .do(result => this.handleA07Response(result));
+            },
+            actionText: 'Last ned',
+            title: 'Last ned avstemming'
+        });
+    }
+
+    private handleA07Response(response: A07Response) {
+        if (!response.Data) {
+            return;
+        }
+    }
+
+    public onReconciliationRequest() {
+        this.receiptList.refreshList();
+    }
+
+    public close() {
+        this.onClose.next();
+    }
+}

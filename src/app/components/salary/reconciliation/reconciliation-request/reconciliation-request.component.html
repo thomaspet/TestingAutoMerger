@@ -1,0 +1,10 @@
+<article>
+    <section>
+        <h2>Send forespørsel om avstemming</h2>
+        <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$"></uni-form>
+        <p *ngIf="error" role="alert" class="error">{{error}}</p>
+    </section>
+    <footer>
+        <button class="c2a" (click)="onReconciliationRequest()" [attr.aria-busy]="busy">Send forespørsel til Altinn</button>
+    </footer>
+</article>

@@ -1,10 +1,11 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Altinn, AltinnReceipt, TaxCardReadStatus} from '../../unientities';
+import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
+import {RequestMethod} from '@angular/http';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
 import {FieldType} from '../../../framework/ui/uniform/index';
 
@@ -58,22 +59,32 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         return this.PostAction(1, 'sendtaxrequest', 'option=' + option + '&empId=' + empId + '&requestAllChanges=' + empsAndChanged);
     }
 
-    public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
+    public sendReconciliationRequest(option: A06Options): Observable<AltinnReceipt> {
+        return this.ActionWithBody(null, option, 'send-a06-request', RequestMethod.Post);
+    }
 
-        const headers = {
+    public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withHeaders(this.getHeaders(authData))
+            .withEndPoint(`employees/?action=read-tax-cards&receiptID=${receiptID}`)
+            .send()
+            .map(response => response.json());
+    }
+
+    public getA07Response(authData: AltinnAuthenticationData, receiptID: number) {
+        this.http.withHeaders(this.getHeaders(authData));
+        return this.GetAction(null, 'get-a07-response', `receiptID=${receiptID}`).do(response => console.log(response));
+    }
+
+    private getHeaders(authData: AltinnAuthenticationData): any {
+        return {
             'x-altinn-userid': authData.userID,
             'x-altinn-password': authData.password,
             'x-altinn-pinmethod': authData.preferredLogin,
             'x-altinn-pin': authData.pin
         };
-
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withHeaders(headers)
-            .withEndPoint(`employees/?action=read-tax-cards&receiptID=${receiptID}`)
-            .send()
-            .map(response => response.json());
     }
 
 

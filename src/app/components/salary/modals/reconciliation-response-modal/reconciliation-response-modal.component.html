@@ -1,0 +1,13 @@
+<section role="dialog" class="uni-modal medium">
+    <header>
+        <h1>{{header}}</h1>
+    </header>
+
+    <article>
+        <uni-altinn-response-status [status]="a07Status$ | async"></uni-altinn-response-status>
+    </article>
+
+    <footer>
+        <button (click)="close()">Lukk</button>
+    </footer>
+</section>

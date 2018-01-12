@@ -20,6 +20,7 @@ import {
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
+import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 
@@ -115,6 +116,10 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Trekk og AGA rapport',
                 action: () => this.openReport()
+            },
+            {
+                label: 'Avstemming',
+                action: () => this.openReconciliation()
             }
         ];
     }
@@ -151,6 +156,11 @@ export class AMeldingView implements OnInit {
                     data: report
                 });
         });
+    }
+
+    private openReconciliation() {
+        this.modalService
+            .open(ReconciliationModalComponent, {});
     }
 
     private loadYearData() {
