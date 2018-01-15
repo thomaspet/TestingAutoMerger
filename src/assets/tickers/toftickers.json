@@ -1282,7 +1282,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer,Customer.Info",
+    "Expand": "Customer,Customer.Info,Items",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [
@@ -1352,6 +1352,16 @@
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
             "SumColumn": true
+        },
+        {
+            "Header": "Restsum eks. mva",
+            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVatCurrency\\,0))",
+            "Alias": "Restsumexmva",
+            "Format": "NumberPositiveNegative",
+            "Width": "150px",
+            "FilterOperator": "gt",
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Restsum",
@@ -1498,6 +1508,28 @@
         {
             "Name": "Under arbeid",
             "Code": "draft_orders",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41002"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "41003"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "Ordrereserver",
+            "Code": "order_reserves",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {

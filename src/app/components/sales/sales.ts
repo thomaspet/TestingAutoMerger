@@ -332,7 +332,7 @@ export class UniSales {
                     title: 'Ordrereserver',
                     description: 'Totalsum ordrereserver',
                     positive: true,
-                    link: '/bureau/sales'
+                    link: '/overview/order_list?filter=order_reserves'
                 }
             },
         ];
