@@ -1,24 +1,24 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, AfterViewInit} from '@angular/core';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
 
 @Component({
-    selector: 'uni-overdue-invoice',
+    selector: 'uni-sum-widget',
     template: `
         <div class="positive-negative-widget"
             [ngClass]="positive ? 'positive' : 'negative'"
             (click)="onClickNavigate()"
-            title="Totalsum forfalte faktura">
+            title="{{ widget.config.description }}">
 
-            <span class="title">Forfalte ubetalte faktura</span>
-            <span class="value">{{displayValue}}</span>
+            <span class="title">{{ widget.config.title}}</span>
+            <span class="value">{{ displayValue | uninumberformat: 'money' }}</span>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class UniOverdueInvoiceWidget {
+export class UniSumWidget implements AfterViewInit {
     public widget: IUniWidget;
     public displayValue: string = '-';
     public positive: boolean;
@@ -30,7 +30,7 @@ export class UniOverdueInvoiceWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.widgetDataService.getData("/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as sum&filter=(CustomerInvoice.PaymentDueDate le 'getdate()' )")
+        this.widgetDataService.getData(this.widget.config.dataEndpoint)
             .subscribe(
                 (res) => {
                     if (!res || !res.Data) {
@@ -38,10 +38,12 @@ export class UniOverdueInvoiceWidget {
                     }
 
                     const sum = res.Data[0] && (res.Data[0].sum || 0);
-                    this.positive = sum <= 0;
-                    this.displayValue = sum.toFixed(2)
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-                        .replace('.', ',');
+                    if (this.widget.config.positive) {
+                        this.positive = sum >= 0;
+                    } else {
+                        this.positive = sum <= 0;
+                    }
+                    this.displayValue = sum;
 
                     this.cdr.markForCheck();
                 }, err => {}
@@ -50,7 +52,7 @@ export class UniOverdueInvoiceWidget {
 
     public onClickNavigate() {
         if (this.widget && !this.widget._editMode) {
-            this.router.navigateByUrl('/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices');
+            this.router.navigateByUrl(this.widget.config.link);
         }
     }
 }

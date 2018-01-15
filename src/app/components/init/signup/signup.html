@@ -7,7 +7,10 @@
         Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
     </p>
 
-    <small class="validation error" *ngIf="errorMessage">{{errorMessage}}</small>
+    <small class="validation error" *ngIf="errorMessage">
+        {{errorMessage}}
+    </small>
+
     <small class="validation good" *ngIf="successMessage">{{successMessage}}</small>
 
     <form #step1="ngForm" *ngIf="!confirmationCode" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
@@ -45,6 +48,8 @@
             av dine personlige data. <!--  i henhold til vår <a href="">personvernpolicy</a> -->
         </small>
 
+        <re-captcha formControlName="RecaptchaResponse"></re-captcha>
+
         <button class="auth-button bad"
             *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
@@ -75,6 +80,8 @@
             placeholder="Brukernavn"
             formControlName="UserName"
         />
+        <div *ngIf="(step2Form?.controls.UserName.touched && step2Form?.controls.UserName.invalid)" class="bad">Nødvendig*</div>
+        <div class="bad">{{step2Form?.controls.UserName.errors?.usernameValidator}}</div>
 
         <label for="passwordInput">Passord</label>
         <input id="passwordInput"
@@ -82,6 +89,7 @@
             placeholder="Passord"
             formControlName="Password"
         />
+        <div *ngIf="(step2Form?.controls.Password.touched && step2Form?.controls.Password.invalid)" class="bad">Nødvendig*</div>
 
         <label for="confirmPasswordInput">Bekreft passord</label>
         <input id="confirmPasswordInput"
@@ -89,6 +97,8 @@
             placeholder="Bekreft passord"
             formControlName="ConfirmPassword"
         />
+        <div *ngIf="step2Form?.controls.ConfirmPassword.touched && step2Form?.controls.ConfirmPassword.invalid" class="bad">Nødvendig*</div>
+        <div class="bad">{{step2Form?.controls.ConfirmPassword.errors?.passwordMatchValidator}}</div>
 
         <uni-password-guide *ngIf="step2Form?.controls"
             [passwordControl]="step2Form.controls.Password">
@@ -96,7 +106,7 @@
 
         <button class="auth-button bad"
             [attr.aria-busy]="busy"
-            [disabled]="busy || !step2.form.valid"
+            [disabled]="busy"
             (click)="submitStep2Form()">
             FULLFØR REGISTRERING
         </button>

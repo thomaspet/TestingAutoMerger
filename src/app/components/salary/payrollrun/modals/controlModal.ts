@@ -18,8 +18,7 @@ type PaylistSection = {
     employeeInfo: {
         number: number,
         name: string,
-        payment: number,
-        hasTaxInfo: boolean
+        payment: number
     },
     paymentLines: SalaryTransaction[],
     collapsed: boolean
@@ -36,7 +35,7 @@ export class ControlModal implements OnInit, IUniModal {
     private busy: boolean;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public payList: {
-        employeeInfo: { name: string, payment: number, hasTaxInfo: boolean },
+        employeeInfo: { name: string, payment: number},
         paymentLines: SalaryTransaction[], collapsed: boolean
     }[] = null;
     private description$: ReplaySubject<string>;
@@ -208,8 +207,7 @@ export class ControlModal implements OnInit, IUniModal {
                         employeeInfo: {
                             number: payline.EmployeeNumber,
                             name: payline.EmployeeName,
-                            payment: payline.NetPayment,
-                            hasTaxInfo: payline.HasTaxInformation
+                            payment: payline.NetPayment
                         },
                         paymentLines: salaryTranses,
                         collapsed: true

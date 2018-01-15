@@ -37,6 +37,7 @@ export class UniAutocompleteConfig {
     public minLength: number;
     public debounceTime: number;
     public search: (query: string) => Observable<any>;
+    public searchOnButtonClick: boolean;
 
     public static build(obj: any) {
         return _.assign(new UniAutocompleteConfig(), obj);
@@ -206,7 +207,9 @@ export class UniAutocompleteInput extends BaseControl {
                     return this.search(input);
                 });
 
-            let fromControl = this.control.valueChanges.debounceTime(this.options.debounceTime || 100)
+            let fromControl = this.control.valueChanges
+                .filter(value => !this.options.searchOnButtonClick)
+                .debounceTime(this.options.debounceTime || 100)
                 .do((input) => {
                     this.busy$.next(true);
                     this.isExpanded$.next(false);

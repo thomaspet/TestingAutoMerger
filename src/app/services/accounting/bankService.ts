@@ -18,6 +18,14 @@ export class BankService extends BizHttp<Bank> {
         this.DefaultOrderBy = null;
     }
 
+    public validateIBANUpsertBank(iban: string): Observable<BankData> {
+        return super.GetAction(null, `verify-iban-upsert-bank&iban=${iban}`);
+    }
+
+    public validateIBAN(iban: string): Observable<BankData> {
+        return super.GetAction(null, `verify-iban&iban=${iban}`);
+    }
+
     public getIBANUpsertBank(bankAccountNumber: string): Observable<BankData> {
         return super.GetAction(null, `get-iban-upsert-bank&bankaccountnumber=${bankAccountNumber}`);
     }

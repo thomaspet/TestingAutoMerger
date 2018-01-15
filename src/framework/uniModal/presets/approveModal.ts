@@ -14,7 +14,7 @@ import {
     billViewLanguage as lang,
     approvalStatusLabels as statusLabels}
 from '../../../app/components/accounting/bill/detail/lang';
-import {IModalOptions, IUniModal} from '../modalService';
+import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 // tslint:disable:max-line-length
 

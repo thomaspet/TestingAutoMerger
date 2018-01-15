@@ -8,7 +8,9 @@
               [config]="config$"
               [fields]="fields$"
               [model]="company$"
-              (changeEvent)="companySettingsChange($event)">
+              (changeEvent)="companySettingsChange($event)"
+              (inputEvent)="onFormInputChange($event)"
+              (readyEvent)="onFormReady()">
     </uni-form>
 
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">

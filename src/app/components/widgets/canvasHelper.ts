@@ -29,7 +29,6 @@ export class CanvasHelper {
                 if (this.verifyCustomLayout(layout)) {
                     return layout;
                 } else {
-                    window.alert('Something wrong with custom layout, resetting!');
                     this.removeLayout(name);
                 }
             }

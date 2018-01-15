@@ -13,8 +13,10 @@ import {UniActivateAPModal} from './presets/activateAPModal';
 import {UniApproveModal} from './presets/approveModal';
 import {UniDownloadPaymentsModal} from './presets/downloadPaymentsModal';
 import {SingleTextFieldModal} from './presets/singleTextFieldModal';
+import {LicenseAgreementModal} from '@uni-framework/uniModal/presets/licenseAgreementModal';
 
 export * from './modalService';
+export * from './interfaces';
 export * from './presets/confirmModal';
 export * from './presets/confirmModalWithList';
 export * from './presets/addressModal';
@@ -30,6 +32,7 @@ export * from './presets/activateAPModal';
 export * from './presets/approveModal';
 export * from './presets/downloadPaymentsModal';
 export * from './presets/singleTextFieldModal';
+export * from './presets/licenseAgreementModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -47,5 +50,6 @@ export const MODALS = [
     UniApproveModal,
     UniDownloadPaymentsModal,
     SingleTextFieldModal,
+    LicenseAgreementModal,
 ];
 

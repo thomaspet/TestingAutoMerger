@@ -72,6 +72,19 @@ export class UniSales {
             {
                 width: 1,
                 height: 1,
+                x: 5,
+                y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Oversikt',
+                    description: 'Oversikt',
+                    icon: 'search',
+                    link: '/overview'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
                 x: 0,
                 y: 0,
                 widgetType: 'shortcut',
@@ -117,10 +130,17 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 5,
+                x: 6,
                 y: 0,
-                widgetType: 'overdue',
-                config: {}
+                widgetType: 'sum',
+                config: {
+                    dataEndpoint: '/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as '
+                    + 'sum&filter=(CustomerInvoice.PaymentDueDate le \'getdate()\' )',
+                    title: 'Forfalte ubetalte faktura',
+                    description: 'Totalsum forfalte faktura',
+                    positive: false,
+                    link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices'
+                }
             },
             {
                 width: 3,
@@ -292,13 +312,29 @@ export class UniSales {
             {
                 width: 2,
                 height: 1,
-                x: 7,
-                y: 0,
+                x: 8,
+                y: 4,
                 widgetType: 'currency', // TODO: enum
                 config: {
                     dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
                 }
-            }
+            },
+            {
+                width: 2,
+                height: 1,
+                x: 8,
+                y: 5,
+                widgetType: 'sum',
+                config: {
+                    dataEndpoint: `/api/statistics?model=customerorder`
+                    + `&select=sum(items.SumTotalExVat) as sum,count(id) as counter`
+                    + `&filter=items.statuscode eq 41102 and (statuscode eq 41002 or statuscode eq 41003)&join=&expand=items`,
+                    title: 'Ordrereserver',
+                    description: 'Totalsum ordrereserver',
+                    positive: true,
+                    link: '/bureau/sales'
+                }
+            },
         ];
     }
 }

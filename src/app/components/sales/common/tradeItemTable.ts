@@ -160,12 +160,14 @@ export class TradeItemTable {
                         let newVatType = this.vatTypes.find(x => x.ID === item.VatType.ID);
                         item.VatType = newVatType;
 
-                        this.tradeItemHelper.calculatePriceIncVat(item);
-                        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
-                        this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
-
                         didAnythingReallyChange = true;
                     }
+
+                    item.VatPercent = item.VatType ? item.VatType.VatPercent : 0;
+
+                    this.tradeItemHelper.calculatePriceIncVat(item);
+                    this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
+                    this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
                 });
 
                 if (didAnythingReallyChange) {
@@ -261,7 +263,7 @@ export class TradeItemTable {
             .setWidth('15%')
             .setTemplate((row) => {
                 const vatType = row['VatType'];
-                return (vatType) ? `${vatType.VatPercent}% - ${vatType.Name}` : '';
+                return (vatType) ? `${row.VatPercent}% - ${vatType.Name}` : '';
             })
             .setOptions({
                 itemTemplate: item => `${item.VatCode}: ${item.VatPercent}% - ${item.Name}`,
@@ -411,6 +413,8 @@ export class TradeItemTable {
                 if (updatedRow.VatTypeID && !updatedRow.VatType) {
                     updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
                 }
+
+                updatedRow.VatPercent = updatedRow.VatType ? updatedRow.VatType.VatPercent : 0;
 
                 if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
                     let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;

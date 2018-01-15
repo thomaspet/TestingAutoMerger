@@ -34,7 +34,6 @@
             {
                 "Header": "Kontonavn",
                 "Field": "Account.AccountName",
-                "Width": "100px",
                 "Type": "text"
             },
             {
@@ -50,7 +49,8 @@
             },
             {
                 "Header": "Regnskapsdato",
-                "Field": "FinancialDate"
+                "Field": "FinancialDate",
+                "Width": "120px"
             },
             {
                 "Header": "Mva-dato",
@@ -64,8 +64,9 @@
             {
                 "Header": "Mva-kode",
                 "Field": "VatType.VatCode",
+                "Width": "100px",
                 "Type": "text"
-            }, 
+            },
             {
                 "Header": "Fradrag %",
                 "Field": "VatDeductionPercent",
@@ -205,7 +206,7 @@
         "Group": "Regnskap",
         "Model": "JournalEntryLineDraft",
         "Expand": "",
-        "Joins": "JournalEntryLineDraft.JournalEntryID eq JournalEntry.ID and JournalEntryLineDraft.JournalEntryID eq FileEntityLink.EntityID",        
+        "Joins": "JournalEntryLineDraft.JournalEntryID eq JournalEntry.ID and JournalEntryLineDraft.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
                 "Header": "Bnr.",
@@ -261,7 +262,7 @@
                 "Header": "Mva-kode",
                 "Field": "VatType.VatCode",
                 "Type": "text"
-            }, 
+            },
             {
                 "Header": "Fradrag %",
                 "Field": "VatDeductionPercent",
@@ -888,6 +889,389 @@
             {
                 "Header": "Foretrukket valuta",
                 "Field": "CurrencyCode.Code"
+            }
+        ]
+    },
+    {
+        "Name": "MVA-Koder",
+        "Code": "Vatcode_list",
+        "HideCounter": true,
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "VatType",
+        "Expand": "VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account,VatTypePercentages",
+        "Filter": "year(vattypepercentages.validfrom) le year(getdate()) and year(getdate()) le year(isnull(vattypepercentages.validto,'20991231'))",
+        "Distinct": true,
+        "Joins": "",
+        "Columns": [
+            {
+                "Header": "Kode",
+                "Field": "VatCode",
+                "Width": "80px",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Name",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Synlig",
+                "Field": "Visible",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Gyldig fra",
+                "Field": "VatTypePercentages.ValidFrom",
+                "Width": "120px",
+                "Type": "date"
+            },
+            {
+                "Header": "Sperret",
+                "Field": "Locked",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Inng.konto",
+                "Field": "IncomingAccount.AccountNumber",
+                "Width": "120px",
+                "Type": "text"
+            },
+            {
+                "Header": "Utg.konto",
+                "Field": "OutgoingAccount.AccountNumber",
+                "Width": "120px",
+                "Type": "text"
+            },
+            {
+                "Header": "Prosent",
+                "Field": "VatTypePercentages.VatPercent",
+                "Width": "120px",
+                "Type": "number"
+            },
+            {
+                "Header": "Gruppe",
+                "Field": "VatCodeGroup.Name",
+                "Type": "text"
+            }
+        ],
+        "Actions": [],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_vattypes",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "Deleted",
+                            "Operator": "eq",
+                            "Value": "false"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Synlige",
+                "Code": "visible_vattypes",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "Visible",
+                            "Operator": "eq",
+                            "Value": "true"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "I bruk",
+                "Code": "inuse_vattypes",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "InUse",
+                            "Operator": "eq",
+                            "Value": "true"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Sperret",
+                "Code": "locked_vattypes",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "Locked",
+                            "Operator": "eq",
+                            "Value": "true"
+                        }
+                    ]
+                }]
+            }
+        ],
+        "SubTickersCodes": ["Vattype_details", "vattype_rates", "vattype_references"]
+    },
+    {
+        "Name": "Detaljer",
+        "Type": "Details",
+        "Code": "Vattype_details",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "VatType",
+        "Expand": "",
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickers": [],
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Mvakode",
+                "Field": "VatCode",
+                "Type": "text"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Inng.konto",
+                "Field": "IncomingAccount.AccountNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Utg.konto",
+                "Field": "OutgoingAccount.AccountNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Gruppe",
+                "Field": "VatCodeGroup.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Alias",
+                "Field": "Alias",
+                "Type": "text"
+            }
+        ]
+    },
+    {
+        "Name": "Satser",
+        "Type": "Table",
+        "Code": "vattype_rates",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "VatType",
+        "Expand": "VatTypePercentages",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "FieldSetColumn": 1,
+                "Header": "Fra",
+                "Field": "VatTypePercentages.ValidFrom",
+                "Type": "date"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "Til",
+                "Field": "VatTypePercentages.ValidTo",
+                "Type": "date"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "Sats(%)",
+                "Field": "VatTypePercentages.VatPercent"
+            }
+        ]
+    },
+    {
+        "Name": "Regnskap",
+        "Type": "Table",
+        "Code": "vattype_references",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "VatType",
+        "Expand": "VatReportReferences,VatReportReferences.VatPost",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "FieldSetColumn": 1,
+                "Header": "Nummer",
+                "Field": "VatReportReferences.VatPost.No",
+                "Type": "text",
+                "Width": "100px"
+            },
+            {
+                "FieldSetColumn": 1,
+                "Header": "Oppgavepost",
+                "Field": "VatReportReferences.VatPost.Name"
+            }
+        ]
+    },
+    {
+        "Name": "Hovedbok",
+        "Code": "accounts_list",
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "Account",
+        "Expand": "AccountGroup,VatType",
+        "Columns": [
+            {
+                "Header": "Kontonr",
+                "Field": "AccountNumber",
+                "Width": "120px",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Kontonavn",
+                "Field": "AccountName",
+                "Type": "text",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Synlig",
+                "Field": "Visible",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Mva",
+                "Field": "VatType.Name",
+                "Width": "200px",
+                "Type": "text"
+            },
+            {
+                "Header": "Sperret",
+                "Field": "Locked",
+                "Width": "80px",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Gruppe",
+                "Field": "AccountGroup.Name",
+                "Type": "boolean"
+            }
+        ],
+        "Actions": [],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_accounts",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "AccountID",
+                            "Operator": "eq",
+                            "Value": null
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Synlige",
+                "Code": "visible_accounts",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": false,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "AccountID",
+                            "Operator": "eq",
+                            "Value": null
+                        },
+                        {
+                            "Field": "Visible",
+                            "Operator": "eq",
+                            "Value": true
+                        }
+                    ]
+                }]
+            }
+        ],
+        "SubTickersCodes": ["Account_details"]
+    },
+    {
+        "Name": "Detaljer",
+        "Type": "Details",
+        "Code": "Account_details",
+        "IsTopLevelTicker": false,
+        "Group": "Regnskap",
+        "Model": "Account",
+        "Expand": "Alias,CurrencyCode,AccountGroup",
+        "UseParentTickerActions": true,
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "SubTickers": [],
+        "Filters": [],
+        "Columns": [
+            {
+                "Header": "Kontonr",
+                "Field": "AccountNumber",
+                "Type": "text"
+            },
+            {
+                "Header": "Kontonavn",
+                "Field": "AccountName",
+                "Type": "text"
+            },
+            {
+                "Header": "Mvakode",
+                "Field": "VatType.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Kontogruppe",
+                "Field": "AccountGroup.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text"
             }
         ]
     }

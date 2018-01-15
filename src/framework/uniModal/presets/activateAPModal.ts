@@ -1,11 +1,10 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '../modalService';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {CompanySettings, User} from '../../../../src/app/unientities';
 import {ActivateAP} from '../../../../src/app/models/activateAP';
 import {ActivationEnum} from '../../../../src/app/models/activationEnum';
-import {UniModalService, ConfirmActions} from '../modalService';
+import {UniModalService} from '../modalService';
 import {
     EHFService,
     UserService,
@@ -16,13 +15,14 @@ import {
 
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-activate-ap-modal',
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{options.header || 'Aktiver aksesspunkt'}}</h1>
+                <h1>{{options.header || 'Aktiver EHF'}}</h1>
             </header>
             <article>
                 <uni-form
@@ -30,6 +30,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
+                <span>Aktivering av inngående eller utgående faktura for Uni Economy vil erstatte samme funksjon i V3/Uni24 om du har aktivert fra V3/Uni24 tidligere.</span>
             </article>
 
             <footer>

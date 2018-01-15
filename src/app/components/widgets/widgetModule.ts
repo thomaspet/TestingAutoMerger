@@ -3,13 +3,15 @@ import {CommonModule} from '@angular/common';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniWidgetCanvas} from './widgetCanvas';
 import {UniWidget, WidgetContainer} from './uniWidget';
+import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetDataService} from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
 
 @NgModule({
     imports: [
         CommonModule,
-        UniFrameworkModule
+        UniFrameworkModule,
+        AppPipesModule
     ],
     declarations: [
         UniWidgetCanvas,

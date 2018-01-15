@@ -44,7 +44,8 @@ import {
     EmailService,
     SellerService,
     SellerLinkService,
-    VatTypeService
+    VatTypeService,
+    AdminProductService
 } from '../../../../services/services';
 
 import {
@@ -205,7 +206,8 @@ export class InvoiceDetails {
         private emailService: EmailService,
         private sellerService: SellerService,
         private sellerLinkService: SellerLinkService,
-        private vatTypeService: VatTypeService
+        private vatTypeService: VatTypeService,
+        private adminProductService: AdminProductService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -410,10 +412,20 @@ export class InvoiceDetails {
         if (this.companySettings.APActivated && this.companySettings.APGuid) {
             this.askSendEHF(doneHandler);
         } else {
-            this.modalService.open(UniActivateAPModal).onClose.subscribe(status => {
-                if (status === ActivationEnum.ACTIVATED) {
-                    this.askSendEHF(doneHandler);
+            this.modalService.confirm({
+                header: 'Markedsplassen',
+                message: 'Til markedsplassen for å kjøpe tilgang til å sende EHF?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Nei'
                 }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.adminProductService.FindProductByName('EHF').subscribe(p => {
+                        this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
+                    });
+                }
+                doneHandler('');
             });
         }
     }

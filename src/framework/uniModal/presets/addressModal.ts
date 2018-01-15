@@ -1,5 +1,4 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {IModalOptions, IUniModal} from '../modalService';
 import {Address, Country} from '../../../app/unientities';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {
@@ -11,6 +10,7 @@ import {
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-address-modal',

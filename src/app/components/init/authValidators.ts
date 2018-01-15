@@ -38,14 +38,19 @@ export function passwordMatchValidator(formGroup: AbstractControl) {
             passwordMatchValidator: 'Passord må være like'
         });
     } else {
+        if(formGroup.get('ConfirmPassword').errors){
+            if(formGroup.get('ConfirmPassword').errors.passwordMatchValidator){
+                formGroup.get('ConfirmPassword').setErrors(null);
+            }
+        }
         return null;
     }
 }
 
 export function usernameValidator(control) {
-    const invalid = /[^a-zæøåA-ZÆØÅ0-9]/g.test(control.value);
+    const invalid = /[^a-zA-Z0-9-_.]/g.test(control.value);
     if (invalid) {
-        return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver og tall'};
+        return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver (a-z), tall, bindestrek, understrek og punktom'};
     } else {
         return null;
     }

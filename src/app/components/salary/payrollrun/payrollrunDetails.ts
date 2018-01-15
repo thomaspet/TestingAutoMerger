@@ -388,7 +388,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private updateTax(employees: Employee[]) {
         let filter: string = 'filter=';
-        let employeeFilterTable: string[] = [];
+        const employeeFilterTable: string[] = [];
 
         this.yearService
             .getActiveYear()
@@ -398,6 +398,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 });
                 filter += '(' + employeeFilterTable.join(' or ') + ') ';
                 filter += `and Year le ${financialYear}&orderby=Year DESC`;
+                filter += `&expand=${this._employeeTaxCardService.taxExpands()}`;
 
                 return employeeFilterTable.length
                     ? this._employeeTaxCardService.GetAll(filter)
@@ -405,7 +406,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             })
             .subscribe((taxCards: EmployeeTaxCard[]) => {
                 employees.map(employee => {
-                    let taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
+                    const taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
                     employee.TaxCards = taxCard ? [taxCard] : [];
                 });
                 super.updateState('employees', employees, false);

@@ -44,7 +44,8 @@ import {
     UniSearchAccountConfig,
     VatReportFormService,
     VatTypeService,
-    UniFilesService
+    UniFilesService,
+    AdminProductService
 } from '../../../services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -61,6 +62,7 @@ import {
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
+import { AgreementService } from '@app/services/common/agreementService';
 
 declare var _;
 
@@ -169,7 +171,9 @@ export class CompanySettingsComponent implements OnInit {
         private uniFilesService: UniFilesService,
         private subEntitySettingsService: SubEntitySettingsService,
         private companySettingsViewService: CompanySettingsViewService,
-        private router: Router
+        private adminProductService: AdminProductService,
+        private router: Router,
+        private agreementService: AgreementService
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -182,7 +186,6 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getDataAndSetupForm() {
-        this.getFormLayout();
 
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
@@ -218,9 +221,13 @@ export class CompanySettingsComponent implements OnInit {
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
                 this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                     company => {
-                        let data = this.company$.getValue();
+                        const data = this.company$.getValue();
                         data['_FileFlowEmail'] = company['FileFlowEmail'];
+                        data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
+                        data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
                         this.company$.next(data);
+                        this.getFormLayout();
+                        this.extendFormConfig();
                     },
                     err => this.errorService.handle(err)
                 );
@@ -233,7 +240,6 @@ export class CompanySettingsComponent implements OnInit {
                     });
                 }
 
-                this.extendFormConfig();
                 if (this.showExternalSearch) {
                     this.form.field('CompanyName')
                         .component
@@ -265,8 +271,15 @@ export class CompanySettingsComponent implements OnInit {
         return companySettings;
     }
 
+    public onFormReady() {
+        const data = this.company$.getValue();
+        if (data['_FileFlowEmail']) {
+            this.form.field('_UpdateEmail').readMode(); // Disable button update email address as initial state
+        }
+    }
+
     public addSearchInfo(searchInfo: SearchResultItem) {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
 
         company.OrganizationNumber = searchInfo.orgnr;
         company.CompanyName = searchInfo.navn;
@@ -277,7 +290,7 @@ export class CompanySettingsComponent implements OnInit {
         company.DefaultPhone.Number = searchInfo.tlf;
         company.WebAddress = searchInfo.url;
 
-        let companyType = this.companyTypes.find(x => x !== null && x.Name === searchInfo.organisasjonsform);
+        const companyType = this.companyTypes.find(x => x !== null && x.Name === searchInfo.organisasjonsform);
         if (companyType) {
             company.CompanyTypeID = companyType.ID;
         }
@@ -371,8 +384,31 @@ export class CompanySettingsComponent implements OnInit {
                     );
             }
         }
+
+        if (changes['_FileFlowOrgnrEmailCheckbox']) {
+            const data = this.company$.getValue();
+            if (data['_FileFlowOrgnrEmailCheckbox']) {
+                this.generateOrgnrInvoiceEmail();
+            } else {
+                this.disableOrgnrInvoiceEmail();
+            }
+        }
     }
 
+    public onFormInputChange(changes: SimpleChanges) {
+        if (changes['_FileFlowEmail']) {
+            const customEmail = changes['_FileFlowEmail'].currentValue;
+            this.companyService.GetAction(this.authService.activeCompany.ID, 'check-email-changed-valid-available', 'email=' + customEmail)
+            .subscribe(
+                isValid => {
+                    if (isValid === true) {
+                        this.form.field('_UpdateEmail').editMode();
+                    } else {
+                        this.form.field('_UpdateEmail').readMode();
+                    }
+            }, err => this.errorService.handle(err));
+        }
+    }
     public saveSettings(complete) {
         let company = this.company$.getValue();
         if (company.BankAccounts) {
@@ -425,7 +461,8 @@ export class CompanySettingsComponent implements OnInit {
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
-                    this.company$.next(this.setupCompanySettingsData(retrievedCompany));
+                    // this.company$.next(this.setupCompanySettingsData(retrievedCompany));
+                    this.getDataAndSetupForm();
                     this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
                     this.reminderSettings.save().then(() => {
@@ -660,7 +697,7 @@ export class CompanySettingsComponent implements OnInit {
 
         let settings = this.company$.getValue();
         let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
+        apActivated.Label = settings.APActivated ? 'Reaktiver EHF' : 'Kjøp EHF fra markedsplassen';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
@@ -697,17 +734,85 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private generateInvoiceEmail() {
-        this.companyService.Action(this.authService.activeCompany.ID, 'create-email')
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email')
             .subscribe(
             company => {
-                let data = this.company$.getValue();
+                const data = this.company$.getValue();
+                data['_FileFlowEmail'] = company['FileFlowEmail'];
+                const fields = this.fields$.getValue();
+                fields.find(f => f.Property === '_APActivatedOCR').Label = 'Deaktiver OCR';
+                fields.find(f => f.Property === '_FileFlowEmail').Hidden = false;
+                fields.find(f => f.Property === '_UpdateEmail').Hidden = false;
+                fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = false;
+                fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = false;
+                this.fields$.next(fields);
+                this.company$.next(data);
+                setTimeout(() => {
+                     this.form.field('_UpdateEmail').readMode();
+                }, 100); // temp solution
+            }, err => this.errorService.handle(err));
+    }
+
+    private updateInvoiceEmail() {
+        const data = this.company$.getValue();
+        const customEmail = data['_FileFlowEmail'];
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email', 'customEmail=' + customEmail)
+        .subscribe(
+            company => {
+                this.form.field('_UpdateEmail').readMode();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
                 this.company$.next(data);
             }, err => this.errorService.handle(err));
     }
 
-    private getFormLayout() {
+    private disableInvoiceEmail() {
+        this.companyService.Action(this.authService.activeCompany.ID, 'disable-email')
+        .subscribe(
+        company => {
+            const data = this.company$.getValue();
+            const fields = this.fields$.getValue();
+            data['_FileFlowEmail'] = '';
+            data['_FileFlowOrgnrEmail'] = '';
+            data['_FileFlowOrgnrEmailCheckbox'] = false;
+            fields.find(f => f.Property === '_APActivatedOCR').Label = 'Aktiver OCR';
+            fields.find(f => f.Property === '_FileFlowEmail').Hidden = true;
+            fields.find(f => f.Property === '_UpdateEmail').Hidden = true;
+            fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = true;
+            fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = true;
+            this.fields$.next(fields);
+            this.company$.next(data);
+        }, err => this.errorService.handle(err));
+    }
 
+    private generateOrgnrInvoiceEmail() {
+        const data = this.company$.getValue();
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-orgnr-email')
+            .subscribe(
+            company => {
+                data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
+                this.company$.next(data);
+            }, err => {
+                data['_FileFlowOrgnrEmailCheckbox'] = false;
+                this.company$.next(data);
+                this.errorService.handle(err);
+            });
+    }
+
+    private disableOrgnrInvoiceEmail() {
+        const data = this.company$.getValue();
+        this.companyService.Action(this.authService.activeCompany.ID, 'disable-orgnr-email')
+            .subscribe(
+            company => {
+                data['_FileFlowOrgnrEmail'] = '';
+                this.company$.next(data);
+            }, err => {
+                data['_FileFlowOrgnrEmailCheckbox'] = true;
+                this.company$.next(data);
+                this.errorService.handle(err);
+            });
+    }
+
+    private getFormLayout() {
         this.config$.next({});
         this.fields$.next([
             {
@@ -1085,7 +1190,7 @@ export class CompanySettingsComponent implements OnInit {
                 EntityType: 'CompanySettings',
                 Property: 'APActivated',
                 FieldType: FieldType.BUTTON,
-                Label: 'Aktiver EHF',
+                Label: 'Kjøp EHF fra markedsplassen',
                 Sectionheader: 'EHF',
                 Section: 1,
                 FieldSet: 7,
@@ -1104,31 +1209,97 @@ export class CompanySettingsComponent implements OnInit {
                 Legend: 'Elektronisk Faktura'
             },
             {
-                FieldType: FieldType.TEXT,
-                Label: 'Faktura e-mail',
-                Property: '_FileFlowEmail',
-                Placeholder: 'Trykk på knapp for å generere',
+                Property: '_APActivatedOCR',
+                FieldType: FieldType.BUTTON,
+                Label: this.company$.getValue()['_FileFlowEmail'] ? 'Deaktiver OCR' : 'Aktiver OCR',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
-                ReadOnly: true
+                Legend: 'OCR Faktura',
+                Options: {
+                    click: () => this.confirmTermsOCR()
+                 }
+            },
+            {
+                FieldType: FieldType.TEXT,
+                Label: 'Firmanavn Faktura e-mail',
+                Property: '_FileFlowEmail',
+                Placeholder: 'epost',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                FieldSet: 7,
+                ReadOnly: false,
+                Hidden: !this.company$.getValue()['_FileFlowEmail']
             },
             {
                 FieldType: FieldType.BUTTON,
-                Label: 'Generer faktura epost adresse',
+                Label: 'Endre epost adresse',
+                Property: '_UpdateEmail',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
                 Options: {
-                    click: () => this.generateInvoiceEmail()
-                }
+                    click: () => this.updateInvoiceEmail()
+                },
+                ReadOnly: this.company$.getValue()['_FileFlowEmail'],
+                Hidden: !this.company$.getValue()['_FileFlowEmail']
+            },
+            {
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bruk orgnr for faktura epost',
+                Property: '_FileFlowOrgnrEmailCheckbox',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                FieldSet: 7,
+                Hidden: !this.company$.getValue()['_FileFlowEmail']
+            },
+            {
+                FieldType: FieldType.TEXT,
+                Label: 'Orgnr faktura epost',
+                Property: '_FileFlowOrgnrEmail',
+                Placeholder: 'ikke i bruk',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                FieldSet: 7,
+                ReadOnly: true,
+                Hidden: !this.company$.getValue()['_FileFlowEmail']
             }
         ]);
     }
 
     private activateAP() {
-        this.modalService.open(UniActivateAPModal)
-            .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+        let settings = this.company$.getValue();
+        if (settings.APActivated) {
+            this.modalService.open(UniActivateAPModal)
+                .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+        } else {
+            this.adminProductService.FindProductByName('EHF').subscribe(p => {
+                this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
+            });
+        }
+    }
+
+    private confirmTermsOCR() {
+        const data = this.company$.getValue();
+        if (!data['_FileFlowEmail']) {
+            this.agreementService.Current('OCR').subscribe(message => {
+                this.modalService.confirm({
+                    header: 'Betingelser',
+                    message: message,
+                    class: 'medium',
+                    buttonLabels: {
+                        accept: 'Aksepter',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.generateInvoiceEmail();
+                    }
+                });
+            });
+        } else {
+            this.disableInvoiceEmail();
+        }
     }
 
     //#region Test data

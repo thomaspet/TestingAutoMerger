@@ -300,9 +300,9 @@ export class TradeItemHelper  {
     }
 
     public calculatePriceIncVat(rowModel) {
-        let vatType = rowModel['VatType'] || {VatPercent: 0};
+        let vatPercent = rowModel.VatPercent || 0;
         let priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
-        rowModel['PriceIncVatCurrency'] = this.round((priceExVatCurrency * (100 + vatType.VatPercent)) / 100, 4);
+        rowModel['PriceIncVatCurrency'] = this.round((priceExVatCurrency * (100 + vatPercent)) / 100, 4);
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {

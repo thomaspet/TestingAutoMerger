@@ -123,7 +123,7 @@ export class UniTicker {
             let params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
-                    .GetAllByUrlSearchParams(params)
+                    .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             } else if (this.ticker.ApiUrl) {
                 return this.http
@@ -754,6 +754,14 @@ export class UniTicker {
                                     col.setType(UniTableColumnType.Text);
                                     col.setTemplate(row => row[col.alias] ? moment(row[col.alias]).format('DD.MM.YYYY HH:mm') : '');
                                     break;
+                                case 'DateMonth':
+                                    col.setType(UniTableColumnType.Text);
+                                    col.setTemplate(row =>  {
+                                        const month = row[col.alias] ? moment(row[col.alias]).format('MM') : '';
+                                        return month.startsWith('0') ? month.slice(1, 2) : month;
+                                    });
+                                    col.setAlignment('right');
+                                    break;
                                 case 'NumberPositiveNegative':
                                     col.setConditionalCls(row => row[column.Alias] >= 0 ?
                                         'number-good'
@@ -777,7 +785,7 @@ export class UniTicker {
                                             case StatusCodeSharing.InProgress:
                                                 return 'status-waiting';
                                         }
-                                    })
+                                    });
                                     break;
                                 case 'json':
                                     col.setTemplate(row => JSON.stringify(row));

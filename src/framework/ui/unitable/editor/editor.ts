@@ -35,7 +35,6 @@ export interface IEditorChangeEvent {
             [ngStyle]="{'top': position.top, 'left': position.left, 'height': position.height, 'width': position.width}"
             (keydown)="onKeyDown($event)"
             class="unitable-editor-span">
-
             <span #editor></span>
         </span>
     `,

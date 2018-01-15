@@ -272,7 +272,6 @@ export class BillView implements OnInit {
             displayProperty: 'Code',
             debounceTime: 200
         };
-
         const projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
         projectsField.Options = {
             source: this.projects,
@@ -280,6 +279,8 @@ export class BillView implements OnInit {
             displayProperty: 'Name',
             debounceTime: 200
         };
+        projectsField.Section = 1;
+        projectsField.Sectionheader = 'Prosjekt/avdeling';
 
         const departmentsField = fields.find(f => f.Property === 'DefaultDimensions.DepartmentID');
         departmentsField.Options = {
@@ -288,6 +289,7 @@ export class BillView implements OnInit {
             displayProperty: 'Name',
             debounceTime: 200
         };
+        departmentsField.Section = 1;
 
         this.fields$.next(fields);
     }
@@ -2543,7 +2545,8 @@ export class BillView implements OnInit {
 
         const ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         const ending = file.Name.toLowerCase().split('.').pop();
-        return ocrformats.indexOf(ending) >= 0;
+
+        return ocrformats.indexOf(ending) >= 0 || ending.indexOf('pdf') >= 0;
     }
 
     private isEHF(file): Boolean {

@@ -8,6 +8,7 @@
     <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionType" [dimensionId]="filterDimensionID"></drilldown-result-report-part>
 
     <distribution-period-report-part [accountIDs]="distributionPeriodAccountIDs"
+                                     [subaccountIDs]=""
                                      [accountYear1]="periodFilter1.year - 1"
                                      [accountYear2]="periodFilter1.year"
                                      [doTurnAmounts]="true"

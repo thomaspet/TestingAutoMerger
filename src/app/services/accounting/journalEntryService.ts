@@ -748,6 +748,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.DebitAccount = line.AccountID ? line.Account : null;
             jed.DebitVatTypeID = line.VatTypeID;
             jed.DebitVatType = line.VatTypeID ? line.VatType : null;
+            if (jed.DebitVatType) {
+                jed.DebitVatType.VatPercent = line.VatPercent;
+            }
             jed.CustomerInvoiceID = line.CustomerInvoiceID;
             jed.SupplierInvoiceID = line.SupplierInvoiceID;
             jed.VatDeductionPercent = jed.VatDeductionPercent
@@ -758,6 +761,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.CreditAccount = line.AccountID ? line.Account : null;
             jed.CreditVatTypeID = line.VatTypeID;
             jed.CreditVatType = line.VatTypeID ? line.VatType : null;
+            if (jed.CreditVatType) {
+                jed.CreditVatType.VatPercent = line.VatPercent;
+            }
             jed.CustomerInvoiceID = line.CustomerInvoiceID;
             jed.SupplierInvoiceID = line.SupplierInvoiceID;
             jed.VatDeductionPercent = jed.VatDeductionPercent

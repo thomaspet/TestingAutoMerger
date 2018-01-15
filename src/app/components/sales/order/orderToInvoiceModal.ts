@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '../../../../framework/uniModal/modalService';
+import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
 import {
     UniTable,
     UniTableColumn,

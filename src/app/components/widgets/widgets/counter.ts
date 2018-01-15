@@ -38,6 +38,9 @@ export class UniCounterWidget {
                     if (config.valueKey) {
                         this.count = _.get(res, config.valueKey) || 0;
                         this.cdr.markForCheck();
+                    } else if (typeof res === 'number') {
+                        this.count = res;
+                        this.cdr.markForCheck();
                     }
                 },
                 err => {}

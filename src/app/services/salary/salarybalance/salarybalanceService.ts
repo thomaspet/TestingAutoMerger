@@ -420,7 +420,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         EntityType: 'salarybalance',
                         Property: 'CreatePayment',
                         FieldType: FieldType.CHECKBOX,
-                        ReadOnly: true,
+                        ReadOnly: false,
                         HelpText: this.getHelpText('createpayment'),
                         Label: 'Lag utbetaling',
                         FieldSet: 0,

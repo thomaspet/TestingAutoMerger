@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { IModalOptions, IUniModal } from '../modalService';
+import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 import { UniFieldLayout, FieldType } from '../../ui/uniform/index';
 import { ToastService, ToastType } from '../../uniToast/toastService';
 import {
@@ -79,12 +79,12 @@ export class UniSendVippsInvoiceModal implements IUniModal {
             this.errorService.handle(err);
             this.onClose.emit();
         });
-    } 
+    }
 
 
     public onGoodClick() {
         const model = this.formModel$.getValue();
-        
+
         if (model["Text"]) {
             this.customLabel = "Behandling..."
             this.isLoading = true

@@ -1,0 +1,18 @@
+uni-reconciliation-list-params-modal
+    $offset: 5rem
+    input[type=checkbox]
+        & + label
+            width: 20rem
+            &:before
+                left: calc(#{$labelLength} + #{$offset} - .3rem)
+            &:after
+                left: calc(#{$labelLength} + #{$offset} + .3rem)
+
+        & + label.toggle
+            width: 12rem
+            &:after
+                left: calc(#{$labelLength} + #{$offset})
+
+        &:checked + label.toggle
+            &:after
+                left: calc(#{$labelLength} + #{$offset} + 1.6rem)

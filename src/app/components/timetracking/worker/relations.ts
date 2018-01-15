@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
@@ -13,7 +13,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     selector: 'workrelations',
     templateUrl: './relations.html',
 })
-export class View {
+export class View implements OnInit {
     @Input()
     public set workerid(id: number) {
         this.currentId = id;
@@ -52,7 +52,7 @@ export class View {
 
     public onChange(event: any) {
         this.valueChange.emit(this.currentRelation);
-        var ix = this.items.indexOf(this.currentRelation);
+        const ix = this.items.indexOf(this.currentRelation);
         this.changeMap.add(ix, this.currentRelation);
     }
 
@@ -69,7 +69,7 @@ export class View {
     }
 
     public onAddNew() {
-        var item: WorkRelation = this.layout.data.factory();
+        const item: WorkRelation = this.layout.data.factory();
         item.WorkPercentage = 100;
         item.CompanyName = this.workerService.user.company;
         item.IsActive = true;
@@ -80,18 +80,18 @@ export class View {
     }
 
     public onRegisterHours() {
-        this.router.navigateByUrl('/timetracking?workerId=' + this.currentId + '&workRelationId='
+        this.router.navigateByUrl('/timetracking/timeentry?workerId=' + this.currentId + '&workRelationId='
             + this.currentRelation.ID);
     }
 
     public onDelete() {
-        var rel = this.currentRelation;
+        const rel = this.currentRelation;
         if (rel && rel.ID) {
             this.changeMap.addRemove(rel.ID, rel);
             this.valueChange.emit(rel);
         }
         if (rel) {
-            var ix = this.items.indexOf(rel);
+            const ix = this.items.indexOf(rel);
             this.items.splice(ix, 1);
             if (this.items.length > ix + 1) {
                 this.onItemClicked(this.items[ix]);
@@ -108,7 +108,7 @@ export class View {
 
     public saveChanges(parentID: number): Promise<IResult> {
         return new Promise((resolve, reject) => {
-            var result = this.save(parentID);
+            const result = this.save(parentID);
             if (result === null) {
                 resolve({success: true});
             }
@@ -122,23 +122,23 @@ export class View {
 
     private save(parentID: number): Observable<any> {
 
-        var items = this.changeMap.getValues();
+        const items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach(item => item.WorkerID = parentID);
         }
 
-        var removables = this.changeMap.getRemovables();
+        const removables = this.changeMap.getRemovables();
         if (items.length === 0 && removables.length === 0) {
             return null;
         }
 
-        var obs = this.saveAndDelete('workrelations', items, removables);
+        const obs = this.saveAndDelete('workrelations', items, removables);
         return Observable.forkJoin(obs);
     }
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
 
-        var obsSave = Observable.from(items).switchMap((item: any) => {
+        const obsSave = Observable.from(items).switchMap((item: any) => {
             item.ID = item.ID < 0 ? 0 : item.ID;
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkRelation) => {
                 this.changeMap.remove(item._rowIndex, true);
@@ -147,7 +147,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).switchMap( (item: any) => {
+            const obsDel = Observable.from(deletables).switchMap( (item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });
@@ -181,7 +181,7 @@ export class View {
 
     private createLayout() {
 
-        var layout = {
+        const layout = {
             data: {
                 route: 'workrelations',
                 factory: () => {

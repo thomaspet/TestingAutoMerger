@@ -92,35 +92,40 @@ export class AccountList implements OnInit, AfterViewInit {
             .setWidth('7rem')
             .setTemplate((account: Account) => {
                 if (account.VatType !== null) {
-                    return account.VatType.VatCode + ' - ' + account.VatType.VatPercent + '%';
+                    return account.VatType.VatCode + ' - ' + account.VatType.Name;
                 } else {
                     return '';
                 }
             })
             .setFilterable(false);
 
-        const lockedCol = new UniTableColumn('Visible', 'Synlig/låst',  UniTableColumnType.Text)
+        const visibilityCol = new UniTableColumn('Visible', 'Synlig', UniTableColumnType.Boolean)
             .setFilterable(false)
-            .setCls('icon-column')
-            .setTemplate((rowModel: Account) => {
-                let iconsHtml = '';
+            .setWidth('5rem')
+            .setAlignment('center')
+            .setConditionalCls(rowModel => {
                 if (rowModel.Visible) {
-                    iconsHtml += '<span class="is-visible" role="presentation">Visible</span>';
+                    return 'is-visible';
                 } else {
-                    iconsHtml += '<span class="is-hidden" role="presentation">Hidden</span>';
+                    return 'is-hidden';
                 }
-                if (rowModel.Locked) {
-                    iconsHtml += '<span class="is-locked" role="presentation">Locked</span>';
+            });
+
+        const lockedCol = new UniTableColumn('Locked', 'Låst',  UniTableColumnType.Boolean)
+            .setFilterable(false)
+            .setWidth('5rem')
+            .setAlignment('center')
+            .setConditionalCls(rowModel => {
+                if (rowModel.locked) {
+                    return 'is-locked';
                 } else {
-                    iconsHtml += '<span class="is-unlocked" role="presentation">Unlocked</span>';
+                    return 'is-unlocked';
                 }
-                return iconsHtml;
-            })
-            .setWidth('5rem');
+            });
 
         // Setup table
         this.accountTable = new UniTableConfig('accounting.accountSettings.accountList', false, true, 15)
             .setSearchable(true)
-            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, lockedCol]);
+            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, visibilityCol, lockedCol]);
     }
 }

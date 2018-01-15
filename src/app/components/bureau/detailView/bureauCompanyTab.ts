@@ -4,7 +4,7 @@ import {
     ElementRef,
     ChangeDetectorRef,
     AfterViewInit,
-    OnDestroy
+    OnDestroy, HostBinding
 } from '@angular/core';
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
@@ -62,6 +62,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
     public accountingYear: number;
     public viewData: any[];
     public logoUrl: string;
+    @HostBinding('class.no_access') public noAccess: boolean = false;
 
     private authToken: string;
     private subscription: Subscription;
@@ -70,13 +71,13 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         private element: ElementRef,
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
-        private yearService: YearService,
         private authService: AuthService,
         private uniFilesService: UniFilesService,
         private errorService: ErrorService,
-        private currentCompanyService: BureauCurrentCompanyService
+        private currentCompanyService: BureauCurrentCompanyService,
+        yearService: YearService,
     ) {
-        this.accountingYear = this.yearService.selectedYear$.getValue();
+        this.accountingYear = yearService.selectedYear$.getValue();
         this.authService.filesToken$.subscribe(token => this.authToken = token);
     }
 
@@ -84,25 +85,35 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         this.element.nativeElement.setAttribute('aria-busy', true);
         this.subscription = this.currentCompanyService
             .getCurrentCompany()
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', true))
-            .do(company => this.company = company)
-            .switchMap(company => Observable.forkJoin(
-                this.getCompanySettings(company.Key),
-                this.getNumberOfUsersInCompany(company.Key),
-                this.getSubEntities(company.Key),
-            ))
-            .do(() => this.element.nativeElement.setAttribute('aria-busy', false))
-            .do(() => this.cd.markForCheck())
-            .do(() => this.logoUrl = undefined)
-            .subscribe(
-                result => {
-                    this.viewData = result;
-                    this.getLogoUrl(result[0], this.company.Key)
-                        .do(() => this.cd.markForCheck())
-                        .subscribe(logoUrl => this.logoUrl = logoUrl);
-                },
-                err => this.errorService.handle(err)
-            );
+            .subscribe(company => {
+                this.company = company;
+                this.noAccess = false;
+                this.element.nativeElement.setAttribute('aria-busy', true);
+                Observable.forkJoin(
+                    this.getCompanySettings(company.Key),
+                    this.getNumberOfUsersInCompany(company.Key),
+                    this.getSubEntities(company.Key),
+                )
+                    .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
+                    .do(() => this.cd.markForCheck())
+                    .subscribe(
+                        result => {
+                            this.viewData = result;
+                            this.logoUrl = undefined;
+                            this.getLogoUrl(this.company.Key)
+                                .do(() => this.cd.markForCheck())
+                                .subscribe(logoUrl => this.logoUrl = logoUrl);
+                        },
+                        err => {
+                            if (err.status === 403) {
+                                this.noAccess = true;
+                                this.cd.markForCheck();
+                            } else {
+                                this.errorService.handle(err);
+                            }
+                        },
+                    )
+            });
     }
 
     public ngOnDestroy() {
@@ -116,7 +127,8 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
             `${BASE}/api/biz/${CompanySettings.EntityType}/1`
             + `?expand=DefaultAddress,DefaultEmail,DefaultPhone,CompanyBankAccount`,
             companyKey
-        ).map(response => response.json());
+        )
+            .map(response => response.json());
     }
 
     public getNumberOfUsersInCompany(companyKey: string): Observable<number> {
@@ -137,19 +149,11 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
             .map(result => result.countid);
     }
 
-    private getLogoUrl(companySettings: CompanySettings, companyKey: string): Observable<string> {
-        console.log("companySettings:", companySettings)
-        // if (!companySettings.LogoFileID) {
-        //     return Observable.of('/assets/Logo-Placeholder.png');
-        // }
-
+    private getLogoUrl(companyKey: string): Observable<string> {
         const logoUrlObservable = this.customHttpService
             .get(`/api/biz/files/${CompanySettings.EntityType}/1`, companyKey)
             .map(response => response.json())
-            // .map(files => files.length ? files[0] : Observable.empty())
-            // .do(file => console.log("file:", file))
-            .map(files =>
-                files.length
+            .map(files => files.length && files[0]
                     ? `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${files[0].StorageReference}`
                     : '/assets/Logo-Placeholder.png'
             );

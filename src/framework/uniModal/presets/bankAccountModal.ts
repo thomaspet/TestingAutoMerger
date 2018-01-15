@@ -2,17 +2,13 @@ import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core'
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {AccountService, BankService, ErrorService} from '../../../app/services/services';
-import {
-    IModalOptions,
-    IUniModal,
-    UniModalService,
-    ConfirmActions
-} from '../modalService';
+import {AccountService, BankService, ErrorService, BankAccountService} from '../../../app/services/services';
+import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-bankaccount-modal',
@@ -21,7 +17,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
             <header>
                 <h1>{{options.header || 'Bankkonto'}}</h1>
             </header>
-            <article>
+            <article [attr.aria-busy]="busy">
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -34,7 +30,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
             <footer>
                 <button class="good"
                         (click)="close(true)"
-                        [disabled]="isDirty && !validAccount">
+                        [disabled]="isDirty && !validAccount || !hasChanges">
                     Ok
                 </button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
@@ -59,13 +55,16 @@ export class UniBankAccountModal implements IUniModal {
     private isDirty: boolean;
     private validAccount: boolean = true;
     private isBankChanged: boolean = false;
+    private busy: boolean = false;
+    private hasChanges: boolean = false;
 
     constructor(
         private bankService: BankService,
         private accountService: AccountService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private elementRef: ElementRef
+        private elementRef: ElementRef,
+        private bankAccountService: BankAccountService
     ) {}
 
     public ngOnInit() {
@@ -100,35 +99,46 @@ export class UniBankAccountModal implements IUniModal {
         if (emitValue) {
             account = this.formModel$.getValue();
 
-            if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
-               this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
-               return;
-            }
-
-            if (this.isBankChanged) {
-                this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
-                .subscribe(item => {}, err => this.errorService.handle(err));
-            }
-
-            if (this.options.modalConfig
-                && this.options.modalConfig.ledgerAccountVisible
-                && !account.AccountID) {
-
-                const confirm = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft manglende konto',
-                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
-                });
-
-                confirm.onClose.subscribe((response) => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.onClose.emit(account);
-                    } else {
-                        return;
-                    }
+            if (account && account.Bank && account.Bank.BIC && account.AccountNumber && !account.ID) {
+                // Set account type to - to pass validation check backend
+                if (!account.BankAccountType) {
+                    account.BankAccountType = '-';
+                }
+                this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
+                    this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+                    this.onClose.emit(res);
                 });
             } else {
-                this.onClose.emit(account);
+                if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
+                    this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
+                    return;
+                 }
+                 if (this.isBankChanged) {
+                     this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
+                     .subscribe(item => {}, err => this.errorService.handle(err));
+                 }
+
+                 if (this.options.modalConfig
+                     && this.options.modalConfig.ledgerAccountVisible
+                     && !account.AccountID) {
+
+                     const confirm = this.modalService.open(UniConfirmModalV2, {
+                         header: 'Bekreft manglende konto',
+                         message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
+                     });
+
+                     confirm.onClose.subscribe((response) => {
+                         if (response === ConfirmActions.ACCEPT) {
+                             this.onClose.emit(account);
+                         } else {
+                             return;
+                         }
+                     });
+                 } else {
+                     this.onClose.emit(account);
+                 }
             }
+
         } else {
             this.onClose.emit(null);
         }
@@ -136,11 +146,12 @@ export class UniBankAccountModal implements IUniModal {
 
     public onFormChange(changes) {
         this.isDirty = true;
+        this.validAccount = true;
+        this.hasChanges = true;
 
         if (changes['Bank.BIC']) {
             this.isBankChanged = true;
         }
-
         if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
@@ -148,41 +159,73 @@ export class UniBankAccountModal implements IUniModal {
 
             this.validateAccountNumber(account);
         }
+        if (changes['_manualAccountNumber']) {
+            const account = this.formModel$.getValue();
+            const fields = this.formFields$.getValue();
+            this.formFields$.getValue().forEach(field => {
+                if (field.FieldSet === 1 && field.Property === '_ibanAccountSearch') {
+                    field.ReadOnly = account['_manualAccountNumber'];
+                }
+                if (field.FieldSet === 2) {
+                    field.ReadOnly = !account['_manualAccountNumber'];
+                }
+            });
+            this.formFields$.next(fields);
+        }
+        if (changes['_ibanAccountSearch']) {
+            this.toastService.clear();
+            this.validAccount = false;
+            const account = this.formModel$.value;
+
+            if (changes['_ibanAccountSearch'].currentValue && /^\d{1,100}$/.test(changes['_ibanAccountSearch'].currentValue)) {
+                this.busy = true;
+                this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
+                this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
+                    this.busy = false;
+                }, (err) => { this.busy = false; this.errorService.handle(err); });
+            } else {
+                this.toastService.addToast('Ugyldig kontonummer');
+                this.validAccount = false;
+                return;
+            }
+        }
     }
 
     private validateAccountNumber(account: any) {
         const valid = account
             && account.AccountNumber
-            && /^\d{11}$/.test(account.AccountNumber);
+            && /^\d{1,100}$/.test(account.AccountNumber);
 
         if (!valid) {
             this.toastService.addToast('Ugyldig kontonummer');
             this.validAccount = false;
             return;
         }
-
-        this.getAccountDetails(account);
     }
 
-    private getAccountDetails(account: BankAccount) {
-        this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
-        this.bankService.getIBANUpsertBank(account.AccountNumber).subscribe(
-            res => {
+    private accountAndIBANSearch(searchValue: string) {
+        const request = (isNaN(Number(searchValue)))
+            ? this.bankService.validateIBANUpsertBank(searchValue)
+            : this.bankService.getIBANUpsertBank(searchValue);
+
+        return request.catch(res => {
+            this.validAccount = false;
+            this.toastService.clear();
+            this.toastService.addToast('Ugyldig IBAN/Kontonummer', ToastType.bad, 5, 'Sjekk kontonummer og prøv igjen.') ;
+            return Observable.of(null);
+        })
+        .switchMap((res: any) => {
+            if (res) {
+                const account = this.formModel$.getValue();
+                account.AccountNumber = searchValue;
                 account.IBAN = res.IBAN;
                 account.Bank = res.Bank;
                 account.BankID = res.Bank.ID;
                 this.formModel$.next(account);
                 this.validAccount = true;
-                setTimeout(() => {
-                    this.toastService.clear();
-                }, 1000);
-            },
-            err => {
-                this.validAccount = false;
-                this.toastService.clear();
-                this.toastService.addToast('Ugyldig kontonummer');
             }
-        );
+            return Observable.of([]);
+        });
     }
 
     // Copy paste old bankmodal..
@@ -211,13 +254,30 @@ export class UniBankAccountModal implements IUniModal {
             <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
-                EntityType: 'BankAccount',
-                Property: 'AccountNumber',
+                Property: '_ibanAccountSearch',
                 FieldType: FieldType.TEXT,
-                Label: 'Kontonummer',
+                ReadOnly: false,
+                Label: 'IBAN/Kontonummer søk'
             },
             <any> {
                 FieldSet: 1,
+                FieldSetColumn: 1,
+                Property: '_manualAccountNumber',
+                FieldType: FieldType.CHECKBOX,
+                ReadOnly: false,
+                Label: 'Manuelt',
+            },
+            <any> {
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                EntityType: 'BankAccount',
+                Property: 'AccountNumber',
+                FieldType: FieldType.TEXT,
+                ReadOnly: true,
+                Label: 'Kontonummer',
+            },
+            <any> {
+                FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'IBAN',
@@ -226,11 +286,12 @@ export class UniBankAccountModal implements IUniModal {
                 Label: 'IBAN',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'AccountID',
                 FieldType: FieldType.AUTOCOMPLETE,
+                ReadOnly: true,
                 Label: 'Hovedbokskonto',
                 Options: {
                     displayProperty: 'AccountName',
@@ -252,7 +313,7 @@ export class UniBankAccountModal implements IUniModal {
                 Hidden: !this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible,
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.Name',
@@ -261,16 +322,16 @@ export class UniBankAccountModal implements IUniModal {
                 Label: 'Banknavn',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.BIC',
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
+                ReadOnly: true,
                 Label: 'BIC',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.Web',
@@ -280,7 +341,16 @@ export class UniBankAccountModal implements IUniModal {
                 LineBreak: true,
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                EntityType: 'Bank',
+                Property: 'Bank.Email.EmailAddress',
+                FieldType: FieldType.TEXT,
+                ReadOnly: true,
+                Label: 'E-post',
+            },
+            <any> {
+                FieldSet: 2,
                 FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.AddressLine1',
@@ -289,7 +359,7 @@ export class UniBankAccountModal implements IUniModal {
                 Label: 'Adresse',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.PostalCode',
@@ -298,7 +368,7 @@ export class UniBankAccountModal implements IUniModal {
                 Label: 'Postnr',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Address.City',
@@ -307,16 +377,16 @@ export class UniBankAccountModal implements IUniModal {
                 Label: 'Poststed',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 2,
                 EntityType: 'Bank',
-                Property: 'Bank.Email.EmailAddress',
+                Property: 'Bank.Address.Country',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                Label: 'E-post',
+                Label: 'Country',
             },
             <any> {
-                FieldSet: 1,
+                FieldSet: 2,
                 FieldSetColumn: 2,
                 EntityType: 'Bank',
                 Property: 'Bank.Phone.Number',

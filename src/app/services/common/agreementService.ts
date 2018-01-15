@@ -16,6 +16,6 @@ export class AgreementService extends BizHttp<Agreement> {
     }
 
     public Current(name: string) {
-        return this.GetAction(null, `current&name=${name}'`);
+        return this.GetAction(null, `current&name=${name}`);
     }
 }

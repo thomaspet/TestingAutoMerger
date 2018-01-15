@@ -5,6 +5,7 @@ import {AdminProductService, AdminProduct} from '../../../services/admin/adminPr
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
+import {UniModalService, UniActivateAPModal} from '@uni-framework/uniModal/barrel';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -20,7 +21,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private adminProductService: AdminProductService,
         private route: ActivatedRoute,
         private router: Router,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private modalService: UniModalService
     ) {}
 
     public mapHeaderBackmapHeaderBackgroundClass(product) {
@@ -103,13 +105,25 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         this.adminProductService
             .PurchaseProduct(product)
             .subscribe(
-                result => result
-                    ? this.toastService.addToast(
-                        `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
-                    )
-                    : this.toastService.addToast(
-                        `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
-                    )
+                result => {
+                    if (result) {
+                        this.toastService.addToast(
+                            `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
+                        );
+
+                        switch (product.name) {
+                            case 'EHF':
+                                this.modalService.open(UniActivateAPModal)
+                                    .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+                                break;
+                        }
+
+                    } else {
+                        this.toastService.addToast(
+                            `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
+                        );
+                    }
+                }
             );
     }
 }

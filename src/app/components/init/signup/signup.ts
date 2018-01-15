@@ -12,6 +12,7 @@ import {Company} from '../../../unientities';
 })
 export class Signup {
     private confirmationCode: string;
+    private recaptchaResponse: string;
     private busy: boolean;
 
     private successMessage: string;
@@ -31,7 +32,8 @@ export class Signup {
             CompanyName: new FormControl('', Validators.required),
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
-            PhoneNumber: new FormControl('', Validators.required)
+            PhoneNumber: new FormControl('', Validators.required),
+            RecaptchaResponse: new FormControl('', Validators.required)
         });
 
         this.step2Form = formBuilder.group({
@@ -49,7 +51,12 @@ export class Signup {
             // TODO: find out what the route param is (from email link)
             if (params['code']) {
                 this.confirmationCode = params['code'];
+                this.validateConfirmationCode(this.confirmationCode)
                 this.step1Form.disable();
+            } else {
+                this.step1Form.enable();
+                this.step2Form.disable();
+                this.confirmationCode = null;
             }
         });
     }
@@ -73,7 +80,8 @@ export class Signup {
                 err => {
                     this.busy = false;
                     this.step1Form.enable();
-
+                    grecaptcha.reset();
+                    this.step1Form.value.RecaptchaResponse = null;
                     try {
                         const errorBody = err.json();
                         if (errorBody.Message.indexOf('Email') >= 0) {
@@ -90,6 +98,12 @@ export class Signup {
     }
 
     public submitStep2Form() {
+        if(!this.step2Form.valid){
+            this.step2Form.controls.Password.markAsTouched()
+            this.step2Form.controls.ConfirmPassword.markAsTouched()
+            this.step2Form.controls.UserName.markAsTouched()
+            return;
+        }
         this.errorMessage = '';
         this.busy = true;
         const formValues = this.step2Form.value;
@@ -106,26 +120,56 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-                res => {
-                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
-                },
-                err => {
-                    let usernameExists;
+            res => {
+                this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
+            },
+            err => {
+                let usernameExists;
 
-                    // Try catch to avoid having to null check everything
-                    try {
-                        const errorBody = err.json();
-                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
-                    } catch (e) {}
+                // Try catch to avoid having to null check everything
+                try {
+                    const errorBody = err.json();
+                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                } catch (e) { }
 
-                    if (usernameExists) {
-                        this.errorMessage = 'Brukernavnet er allerede i bruk';
-                    } else {
-                        this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
-                    }
-
-                    this.busy = false;
+                if (usernameExists) {
+                    this.errorMessage = 'Brukernavnet er opptatt. Vennligst prøv igjen med et annet brukernavn.';
+                } else {
+                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
                 }
+
+                this.busy = false;
+            }
+            );
+    }
+
+    public validateConfirmationCode(code) {
+
+        this.http.asGET()
+            .usingInitDomain()
+            .withEndPoint(`validate-confirmation?code=${code}`)
+            .send()
+            .subscribe(
+            res => {
+
+            },
+            err => {
+                let usernameExists;
+
+                // Try catch to avoid having to null check everything
+                try {
+                    const errorBody = err.json();
+                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                } catch (e) { }
+
+                if (usernameExists) {
+                    this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
+                } else {
+                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                }
+
+                this.busy = false;
+            }
             );
     }
 

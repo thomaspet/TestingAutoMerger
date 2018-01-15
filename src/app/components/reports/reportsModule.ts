@@ -31,8 +31,7 @@ import {UniPrintModal} from './modals/print/printModal';
 
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
-import {SupplierAccountReportFilterModal}
-    from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
+import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {
     SalaryPaymentListReportFilterModal,
@@ -53,8 +52,13 @@ import {
     PayCheckReportFilterModal,
     PaycheckReportFilterModalContent
 } from './modals/paycheck/paycheckReportFilterModal';
+
+import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
 import {UniReports} from './reports';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
+import {
+    ReconciliationListParamsModalComponent
+} from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 
 @NgModule({
     imports: [
@@ -97,7 +101,9 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
         UniPrintModal,
-        UniReportParamsModal
+        UniReportParamsModal,
+        AnnualSatementReportFilterModalComponent,
+        ReconciliationListParamsModalComponent,
     ],
     entryComponents: [
         BalanceReportFilterForm,
@@ -111,9 +117,11 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
         PaycheckReportFilterModalContent,
+        AnnualSatementReportFilterModalComponent,
         UniReportParamsModal,
         UniPreviewModal,
-        UniPrintModal
+        UniPrintModal,
+        ReconciliationListParamsModalComponent,
     ],
     exports: [
         UniReports,
@@ -140,7 +148,9 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
         SalaryWithholdingAndAGAReportFilterModalContent,
         PayCheckReportFilterModal,
         PaycheckReportFilterModalContent,
-        UniReportParamsModal
+        UniReportParamsModal,
+        AnnualSatementReportFilterModalComponent,
+        ReconciliationListParamsModalComponent,
     ]
 })
 export class ReportsModule {}

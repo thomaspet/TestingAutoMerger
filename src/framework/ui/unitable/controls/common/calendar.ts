@@ -27,8 +27,8 @@ import * as moment from 'moment';
                             'selected': weekday.selected
                         }">
                         {{weekday.day}}
-                        <div 
-                            *ngIf="config?.dailyProgress.length" 
+                        <div
+                            *ngIf="config?.dailyProgress.length"
                             [ngClass]="config.dailyProgress[outerIndex][innerIndex]">
                         </div>
                     </td>
@@ -42,7 +42,7 @@ export class UniCalendar {
     private date: Date;
 
     @Input()
-    private config: any; 
+    private config: any;
 
     @Output()
     private dateChange: EventEmitter<any> = new EventEmitter<any>();
@@ -113,7 +113,7 @@ export class UniCalendar {
         const nextMonth = date.month() + 1;
         const numDaysFromNextMonth = 42 - days.length;
         for (let i = 1; i <= numDaysFromNextMonth; i++) {
-            days.push({day: i, month: nextMonth, selected: false});
+            days.push({day: i, month: nextMonth, year: date.year(), selected: false});
         }
 
         this.calendarWeeks = [];

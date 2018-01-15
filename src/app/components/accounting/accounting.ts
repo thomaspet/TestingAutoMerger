@@ -96,6 +96,19 @@ export class UniAccounting {
                 height: 1,
                 x: 5,
                 y: 0,
+                widgetType: 'shortcut',
+                config: {
+                    label: 'Oversikt',
+                    description: 'Oversikt',
+                    icon: 'search',
+                    link: '/overview'
+                }
+            },
+            {
+                width: 1,
+                height: 1,
+                x: 6,
+                y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
                     label: 'Epost',
@@ -112,7 +125,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 6,
+                x: 7,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -130,7 +143,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 7,
+                x: 8,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {
@@ -148,7 +161,7 @@ export class UniAccounting {
             {
                 width: 1,
                 height: 1,
-                x: 8,
+                x: 9,
                 y: 0,
                 widgetType: 'counter', // TODO: enum
                 config: {

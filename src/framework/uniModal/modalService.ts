@@ -11,38 +11,7 @@ import {
 import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
 import {UniConfirmModalV2} from './presets/confirmModal';
 import {Observable} from 'rxjs/Observable';
-
-export enum ConfirmActions {
-    ACCEPT,
-    REJECT,
-    CANCEL
-};
-
-export interface IModalOptions {
-    data?: any;
-    class?: string;
-    header?: string;
-    message?: string;
-    warning?: string;
-    list?: any[];
-    listkey?: string;
-    listMessage?: string;
-    buttonLabels?: {
-        accept?: string;
-        reject?: string;
-        cancel?: string;
-    };
-    cancelValue?: any;
-    modalConfig?: any;
-    activateClickOutside?: boolean; // removeMe?
-    closeOnClickOutside?: boolean;
-    closeOnEscape?: boolean;
-}
-
-export interface IUniModal {
-    onClose: EventEmitter<any>;
-    options?: IModalOptions;
-}
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Injectable()
 export class UniModalService {
@@ -155,17 +124,18 @@ export class UniModalService {
     }
 
     private createModal(modal: Type<IUniModal>, options: IModalOptions): ComponentRef<IUniModal> {
-        let componentRef = this.compileModal(modal, options || {});
-        let componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
+        const componentRef = this.compileModal(modal, options || {});
+        const componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
             .rootNodes[0] as HTMLElement;
 
-        let dialogElement = componentRootNode.querySelector('.uni-modal');
+        const dialogElement = componentRootNode.querySelector('.uni-modal');
         if (dialogElement) {
             dialogElement.setAttribute('open', 'true');
 
             // Add close button
-            let header = dialogElement.querySelector('header');
-            if (header) {
+            const header = dialogElement.querySelector('header');
+            const headerButton = header && header.querySelector('button');
+            if (header && !headerButton) {
                 let button = document.createElement('button');
                 button.classList.add('modal-close-button');
                 button.onclick = (event) => {

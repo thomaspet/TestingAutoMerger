@@ -1,8 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {
-    IUniModal,
-    IModalOptions,
-    ConfirmActions,
     UniModalService
 } from '@uni-framework/uniModal/modalService';
 import { ErrorService } from '@app/services/common/errorService';
@@ -13,6 +10,7 @@ import { IWizardOptions, WizardSource, MergeByEnum } from './wizardoptions';
 import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
 import { WorkitemTransferWizardPreview } from './transfer-wizard-preview';
 import { InvoiceHourService, ISumHours } from './invoice-hours.service';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'workitem-transfer-wizard',

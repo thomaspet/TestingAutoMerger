@@ -15,6 +15,7 @@ import {
     timetrackingRouteMap,
     commonRouteMap
 } from './entityRouteMap';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 
 @Component({
@@ -35,7 +36,8 @@ export class UniNotifications {
         private cdr: ChangeDetectorRef,
         private authService: AuthService,
         private companyService: CompanyService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService,
     ) {
         this.getNotifications();
 
@@ -108,6 +110,16 @@ export class UniNotifications {
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                 const company = this.companies.find(c => c.Key === notification.CompanyKey);
+                if (!company) {
+                    this.toastService.addToast(
+                        'Mistet tilgang',
+                        ToastType.warn,
+                        ToastTime.long,
+                        `Det ser ut som om du nå mangler tilgang til ${notification.CompanyName}, 
+                        vennligst kontakt selskapets administrator om du ønsker tilgang.`,
+                    );
+                    return
+                }
                 this.authService.setActiveCompany(company);
                 this.routeToNotification(notification);
             }

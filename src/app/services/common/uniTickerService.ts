@@ -932,10 +932,12 @@ export class Ticker {
     public Type?: string;
     public Group: string;
     public IsTopLevelTicker: boolean;
+    public HideCounter?: boolean;
     public Model: string;
     public OrderBy?: string;
     public ApiModel?: ApiModel;
     public Expand?: string;
+    public Distinct?: boolean;
     public CountExpand?: string;
     public Joins?: string;
     public ApiUrl?: string;

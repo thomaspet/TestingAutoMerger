@@ -58,6 +58,8 @@ export class UniTablePipe implements PipeTransform {
             if (colType === UniTableColumnType.Boolean) {
                 if (typeof parsedValue === 'boolean') {
                     parsedValue = parsedValue ? 'Ja' : 'Nei';
+                } else if (parsedValue === null) {
+                    parsedValue = 'Nei';
                 }
             }
 

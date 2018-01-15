@@ -102,10 +102,9 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     public canDeactivate(): Observable<boolean> {
 
-        let obs = !super.isDirty(SALARY_BALANCE_KEY)
+        const obs = !super.isDirty(SALARY_BALANCE_KEY)
             ? Observable.of(ConfirmActions.REJECT)
             : this.modalService.openUnsavedChangesModal().onClose;
-
         return obs
             .map((result: ConfirmActions) => {
                 if (result === ConfirmActions.ACCEPT) {
@@ -129,7 +128,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     private setupCache(salarybalanceID: number) {
         super.updateCacheKey(this.router.url);
 
-        let sub = super.getStateSubject(SALARY_BALANCE_KEY)
+        const sub = super.getStateSubject(SALARY_BALANCE_KEY)
             .do(salaryBalance => {
                 if (this.contextMenuItems.length) {
                     return;
@@ -224,8 +223,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             return;
         }
         this.salarybalance = salBal;
-        let childRoute = this.router.url.split('/').pop();
-        this.router.navigateByUrl(this.url + salBal.ID + '/' + childRoute);
+        this.router.navigate([this.url, salBal.ID]);
     }
 
     public openSalarybalancelineModal() {
@@ -275,8 +273,7 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             .subscribe((salbal: SalaryBalance) => {
                 if (updateView) {
                     super.updateState(SALARY_BALANCE_KEY, salbal, false);
-                    let childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + salbal.ID + '/' + childRoute);
+                    this.router.navigate([this.url, salbal.ID]);
                     done('Lagring fullført');
                     this.saveActions[0].disabled = true;
                 }

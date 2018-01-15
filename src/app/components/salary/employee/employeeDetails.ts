@@ -135,6 +135,14 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private employeeSearch: IAutoCompleteConfig;
 
+    private expandOptionsNewTaxcardEntity: Array<string> = [
+        'loennFraHovedarbeidsgiver',
+        'loennFraBiarbeidsgiver',
+        'pensjon',
+        'loennTilUtenrikstjenestemann',
+        ',loennKunTrygdeavgiftTilUtenlandskBorger',
+        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
+    ];
 
     constructor(
         private route: ActivatedRoute,
@@ -357,7 +365,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             });
 
             super.getStateSubject(EMPLOYEE_TAX_KEY)
-                .subscribe((employeeTaxCard) => {
+                .subscribe((employeeTaxCard: EmployeeTaxCard) => {
                     this.employeeTaxCard = employeeTaxCard;
                     this.updateTaxAlerts(employeeTaxCard);
                     this.checkDirty();
@@ -616,18 +624,16 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
-        let alerts = this.employeeWidgets[2].config.alerts;
+        const alerts = this.employeeWidgets[2].config.alerts;
         this.getFinancialYearObs()
             .subscribe((year: number) => {
-                let checks = this.taxBoolChecks(employeeTaxCard, year);
+                const hasTaxCard = this.employeeTaxCardService.hasTaxCard(employeeTaxCard, year);
                 // Tax info ok?
                 alerts[1] = {
-                    text: checks.hasTaxCard
-                        ? (checks.taxCardIsUpToDate
-                            ? 'Skattekort ok'
-                            : 'Skattekortet er ikke oppdatert')
+                    text: hasTaxCard
+                        ? 'Skattekort ok'
                         : 'Skattekort mangler',
-                    class: checks.hasTaxCard && checks.taxCardIsUpToDate
+                    class: hasTaxCard
                         ? 'success'
                         : 'error'
                 };
@@ -649,13 +655,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return {
             hasSSN: this.modulusService.validSSN(employee.SocialSecurityNumber),
             hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
-        };
-    }
-
-    private taxBoolChecks(employeeTaxCard: EmployeeTaxCard, year): {hasTaxCard: any, taxCardIsUpToDate: boolean} {
-        return {
-            hasTaxCard: employeeTaxCard && (employeeTaxCard.Percent || employeeTaxCard.Table),
-            taxCardIsUpToDate: employeeTaxCard && employeeTaxCard.Year === year
         };
     }
 
@@ -727,20 +726,25 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getTax(): void {
         this.getTaxObservable()
-            .subscribe(taxCard => super.updateState(EMPLOYEE_TAX_KEY, taxCard, false));
+            .subscribe(empTaxcard => {
+                super.updateState(EMPLOYEE_TAX_KEY, empTaxcard, false)});
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
+        let year = 2018;
         return this.getFinancialYearObs()
-            .switchMap(financialYear => this.employeeTaxCardService
-                .GetTaxCard(this.employeeID, financialYear))
+            .switchMap(financialYear => {
+                year = financialYear;
+                return this.employeeTaxCardService
+                .GetEmployeeTaxCard(this.employeeID, financialYear)})
             .switchMap(taxCard => {
                 return taxCard
                     ? Observable.of(taxCard)
                     : this.employeeTaxCardService
-                        .GetNewEntity(null, EMPLOYEE_TAX_KEY)
+                        .GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
                         .map((response: EmployeeTaxCard) => {
                             response.EmployeeID = this.employeeID;
+                            response.Year = year;
                             return response;
                         });
             })
@@ -939,8 +943,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             super.updateState(EMPLOYEE_KEY, emp, false);
                         }
 
-                        // super.updateState(EMPLOYEE_KEY, employee, false);
-
                         this.saveStatus = {
                             numberOfRequests: 0,
                             completeCount: 0,
@@ -1070,11 +1072,24 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             .switchMap(() => super.getStateSubject(EMPLOYEE_TAX_KEY))
             .take(1)
             .switchMap((employeeTaxCard: EmployeeTaxCard) => {
+                if (!this.employeeTaxCardService.isEmployeeTaxcard2018Model(employeeTaxCard) || employeeTaxCard.Year < 2018) {
+                    return this.employeeTaxCardService.updateModelTo2018(employeeTaxCard, this.employeeID);
+                }
+                else {
+                    return Observable.of(employeeTaxCard);
+                }
+            })
+            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
                 if (employeeTaxCard.Year !== year) {
                     employeeTaxCard.ID = undefined;
                     employeeTaxCard.Year = year;
                 }
-
+                this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
+                
+                if (employeeTaxCard.ID == 0 || !employeeTaxCard.ID) {
+                    employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
+                }
+                
                 if (employeeTaxCard) {
                     return employeeTaxCard.ID
                         ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)

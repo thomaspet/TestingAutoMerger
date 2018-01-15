@@ -16,6 +16,7 @@
         <h1>Detaljer for konto {{config.accountNumber}} - {{config.accountName}}</h1>
 
         <distribution-period-report-part [accountIDs]="accountIDs"
+                                        [subaccountIDs]="subAccountIDs"
                                         [accountYear1]="(periodFilter1$ | async).year - 1"
                                         [accountYear2]="(periodFilter1$ | async).year"
                                         [showHeader]="false"

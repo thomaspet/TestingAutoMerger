@@ -695,6 +695,55 @@
         "Group": "Lønn",
         "Model": "SalaryTransaction",
         "Expand": "",
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_transactions",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "UseAllCriterias": true,
+                        "FieldFilters": [
+                            {
+                                "Field": "PayrollRunID",
+                                "Operator": "ne",
+                                "Value": "0"
+                            }
+                        ]
+                    },
+                    {
+                        "UseAllCriterias": false,
+                        "FieldFilters": [
+                            {
+                                "Field": "SystemType",
+                                "Operator": "ne",
+                                "Value": "1"
+                            },
+                            {
+                                "Field": "Sum",
+                                "Operator": "ne",
+                                "Value": "0"
+                            }
+                        ]
+                    },
+                    {
+                        "UseAllCriterias": false,
+                        "FieldFilters": [
+                            {
+                                "Field": "SystemType",
+                                "Operator": "ne",
+                                "Value": "4"
+                            },
+                            {
+                                "Field": "Sum",
+                                "Operator": "ne",
+                                "Value": "0"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
         "Columns": [{
                 "Header": "Lønnsart",
                 "Field": "WageTypeNumber",
@@ -747,8 +796,31 @@
                 "Type": "money"
             },
             {
+                "Header": "Inntektstype",
+                "Field": "Wagetype.IncomeType"
+            },
+            {
+                "Header": "Fordel",
+                "Field": "Wagetype.Benefit"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Wagetype.Description"
+            },
+            {
+                "Header": "Aga",
+                "Field": "Wagetype.Base_EmploymentTax",
+                "Type": "boolean"
+            },
+            {
+                "Header": "Utbetalingsmåned",
+                "Field": "Payrollrun.PayDate",
+                "Format": "DateMonth"
+            },
+            {
                 "Header": "Utbetales",
                 "Field": "Wagetype.Base_Payment",
+                "Type": "boolean",
                 "DefaultHidden": true
             },
             {

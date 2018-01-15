@@ -25,7 +25,7 @@ export class DropList {
     private itemsParent: IJQItem;
     private isVisible: boolean = false;
     private domEventHandlers: DomEvents = new DomEvents();
-    private template: string = "<div class='droplist' tabindex='50' ></div>";
+    private template: string = '<div class=\'droplist\' tabindex=\'50\' ></div>';
     private rowIndex: number = -1;
     private parentColIndex: number = -1;
 
@@ -83,8 +83,8 @@ export class DropList {
 
     public showSelectedRow(rowIndex: number): boolean {
         if (this.items && this.items.length > rowIndex) {
-            var current = this.getRowElement(this.rowIndex);
-            var item = this.getRowElement(rowIndex);
+            const current = this.getRowElement(this.rowIndex);
+            const item = this.getRowElement(rowIndex);
             if (this.rowIndex >= 0) {
                 this.showSelectedStyleOnElement(current, false);
             }
@@ -97,7 +97,7 @@ export class DropList {
 
     private getRowElement(rowIndex: number): IJQItem {
         if (this.itemsParent && rowIndex >= 0) {
-            var listParent = this.itemsParent.children().eq(0);
+            const listParent = this.itemsParent.children().eq(0);
             if (listParent && listParent.length) {
                 return listParent.children().eq(rowIndex);
             }
@@ -133,11 +133,11 @@ export class DropList {
     }
 
     public moveNextToEditor() {
-        var offset = this.editorElement.offset();
-        var wh = $(window).height();
-        var boxHeight = this.rootElement.outerHeight();
-        var scroll = this.calcScroll(this.editorElement);
-        var upwards = offset.top + boxHeight > wh + scroll;
+        const offset = this.editorElement.offset();
+        const wh = $(window).height();
+        const boxHeight = this.rootElement.outerHeight();
+        const scroll = this.calcScroll(this.editorElement);
+        const upwards = offset.top + boxHeight > wh + scroll;
         if (upwards) {
             offset.top -= (boxHeight + 2);
         } else {
@@ -145,17 +145,17 @@ export class DropList {
         }
         this.rootElement.offset(offset);
         // Width ?
-        var cellWidth = this.editorElement.outerWidth();
-        var w = this.rootElement.outerWidth();
-        if (cellWidth < 200) { cellWidth = 200; }
-        if (w < cellWidth) {
-            this.rootElement.outerWidth(cellWidth);
-        }
+        const minSize = this.details.columnDefinition && this.details.columnDefinition.lookup
+            ? this.details.columnDefinition.lookup.minWidth || 200 : 200;
+        let cellWidth = this.editorElement.outerWidth();
+        const w = this.rootElement.outerWidth();
+        if (cellWidth < minSize) { cellWidth = minSize; }
+        this.rootElement.outerWidth(cellWidth);
     }
 
     private calcScroll(ref: IJQItem): number {
         if (ref.length === 0) { return 0; }
-        var st = ref[0].scrollTop;
+        const st = ref[0].scrollTop;
         if (st) { return st; }
         return this.calcScroll(ref.parent());
     }
@@ -172,8 +172,8 @@ export class DropList {
             });
         } else {
             if (this.ensureSelfElement()) {
-                var items = data || details.rows;
-                var txt = this.buildContent(items, details.renderFunc);
+                const items = data || details.rows;
+                const txt = this.buildContent(items, details.renderFunc);
                 this.itemsParent.html('<ul>' + txt + '</ul>');
                 if (!this.isVisible) {
                     this.rootElement.show();
@@ -189,8 +189,8 @@ export class DropList {
     }
 
     private buildContent(data: Array<any>, renderFunc?: (item: any) => string): string {
-        var txt = '';
-        for (var i = 0; i < data.length; i++) {
+        let txt = '';
+        for (let i = 0; i < data.length; i++) {
             data[i]._label = this.renderRow(data[i], renderFunc);
             txt += '<li>' + data[i]._label + '</li>';
         }
@@ -202,7 +202,7 @@ export class DropList {
             return renderFunc(item);
         }
         if (typeof item === 'object') {
-            for (var key in item) {
+            for (const key in item) {
                 if (item.hasOwnProperty(key)) {
                     return item[key];
                 }
@@ -224,7 +224,7 @@ export class DropList {
 
         this.domEventHandlers.Create(this.itemsParent, 'click', (event) => {
             if (this.onClick) {
-                var row = $(event.target).index();
+                const row = $(event.target).index();
                 this.raiseClickEvent(row);
             }
         });
@@ -236,19 +236,19 @@ export class DropList {
 }
 
 export function scrollToView(element: IJQItem, parent: IJQItem) {
-    var li: any = element[0];
+    let li: any = element[0];
     // scroll UL to make li visible
     // li can be the li element or its id
     if (typeof li !== 'object') {
         li = document.getElementById(li);
     }
-    var ul = parent[0]; // li.parentNode;
+    const ul = parent[0]; // li.parentNode;
     // fudge adjustment for borders effect on offsetHeight
-    var fudge = 4;
+    const fudge = 4;
     // bottom most position needed for viewing
-    var bottom = (ul.scrollTop + (ul.offsetHeight - fudge) - li.offsetHeight);
+    const bottom = (ul.scrollTop + (ul.offsetHeight - fudge) - li.offsetHeight);
     // top most position needed for viewing
-    var top = ul.scrollTop + fudge;
+    const top = ul.scrollTop + fudge;
     if (li.offsetTop <= top) {
         // move to top position if LI above it
         // use algebra to subtract fudge from both sides to solve for ul.scrollTop

@@ -58,15 +58,15 @@ export class SalaryTransViewService {
     }
 
     private isOnlyAmountField(row: SalaryTransaction) {
-        let supplement = row.Supplements[0];
-        let wtSupp = supplement.WageTypeSupplement
+        const supplement = row.Supplements[0];
+        const wtSupp = supplement.WageTypeSupplement
             || (row.Wagetype && row.Wagetype.SupplementaryInformations
                 ? row.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID)
                 : null);
         return row.Supplements.length === 1
             && wtSupp
             && wtSupp.ValueType === Valuetype.IsMoney
-            && wtSupp.Description.toLowerCase().startsWith('antall');
+            && wtSupp.Name.toLowerCase().trim() === 'antall';
     }
 
     private generateSupplementsTitle(trans: SalaryTransaction, wtSupps: WageTypeSupplement[]): string {
