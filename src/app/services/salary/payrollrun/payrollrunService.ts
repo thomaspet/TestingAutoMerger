@@ -175,8 +175,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(ID, 'postingsummary');
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, report: string = null) {
-        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}`);
+    public postTransactions(ID: number, date: LocalDate = null, report: string = null, numberseriesID: string = null) {
+        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}&numberseriesID=${numberseriesID}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
