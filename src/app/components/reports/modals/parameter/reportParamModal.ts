@@ -1,7 +1,5 @@
 import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
-import {
-    UniModalService,
-} from '@uni-framework/uniModal/modalService';
+import {UniModalService} from '@uni-framework/uniModal/modalService';
 import {ReportDefinitionParameterService, ErrorService} from '@app/services/services';
 import {StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
@@ -90,6 +88,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             break;
                         case 'Boolean':
                             type = FieldType.CHECKBOX;
+                            p.DefaultValue = p.DefaultValue === 'true';
+                            p.value = p.DefaultValue;
                             break;
                         default:
                             type = FieldType.TEXT;
@@ -103,14 +103,14 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     };
                 }));
 
-                let model = {};
+                const model = {};
                 this.options.data.parameters.map(p => {
                     model[p.Name] = p.value;
                 });
 
                 this.model$.next(model);
 
-                this.busy = false
+                this.busy = false;
             });
         }
     }
