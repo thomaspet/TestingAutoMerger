@@ -12,7 +12,7 @@ import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModa
 @Component({
     selector: 'uni-report-params-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal" style="width: 20vw">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
