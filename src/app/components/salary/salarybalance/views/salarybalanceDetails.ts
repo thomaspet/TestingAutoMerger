@@ -50,6 +50,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     @Input() public salarybalance: SalaryBalance;
     @Input() public useExternalChangeDetection: boolean = false;
+    @Input() public ignoreFields: string[] = [];
     @Output() private salarybalanceChange: EventEmitter<SalaryBalance> = new EventEmitter<SalaryBalance>();
 
     constructor(
@@ -236,7 +237,11 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
                 const [wagetypes, employees, suppliers] = result;
                 return this.salarybalanceService
-                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers);
+                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers)
+                    .map(layout => {
+                        layout.Fields = layout.Fields.filter(field => !this.ignoreFields.some(name => name === field.Property));
+                        return layout;
+                    });
             })
             .do(layout => {
                 if (layout.Fields) {

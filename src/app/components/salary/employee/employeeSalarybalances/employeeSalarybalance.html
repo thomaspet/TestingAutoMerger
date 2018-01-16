@@ -11,6 +11,7 @@
         <salarybalance-details
             [salarybalance]="selectedSalaryBalance$ | async"
             [useExternalChangeDetection]="true"
+            [ignoreFields]="['EmployeeID']"
             (salarybalanceChange)="onSalarybalanceChange($event)">
         </salarybalance-details>
     </main>
