@@ -394,8 +394,9 @@ export class BillSimpleJournalEntryView implements OnInit {
             row.AmountCurrency = this.sumRemainder;
         }
         if ((!row.Description) && (this.current && this.current.Supplier && this.current.Supplier.Info)) {
-            row.Description = this.current.Supplier.SupplierNumber + ' - '
-                + this.current.Supplier.Info.Name + ' - ' + 'fakturanr.' + this.current.InvoiceNumber;
+            row.Description = (this.current.Supplier.SupplierNumber || '') + ' - '
+                + this.current.Supplier.Info.Name
+                + (this.current.InvoiceNumber ? ' - ' + 'fakturanr.' + this.current.InvoiceNumber : '');
         }
     }
 

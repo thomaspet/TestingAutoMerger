@@ -16,7 +16,8 @@ import {
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
     Project, Department, User, ApprovalStatus, Approval,
-    UserRole
+    UserRole,
+    TaskStatus
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -230,10 +231,18 @@ export class BillView implements OnInit {
         return (current ? current.ID : 0);
     }
 
+    private set currentID(value: number) {
+        const current = this.current.getValue();
+        if (current) {
+            current.ID = value;
+            this.current.next(current);
+        }
+    }
+
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
             const id = safeInt(params.id);
-
+            if (id === this.currentID) { return; } // no-reload-required
             Observable.forkJoin(
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
@@ -372,6 +381,9 @@ export class BillView implements OnInit {
                 return this.modalService.open(UniNewSupplierModal, {
                     data: currentInputValue
                 }).onClose.asObservable().map((returnValue) => {
+                    if (returnValue && returnValue.Info) {
+                        returnValue.Info.BankAccounts = returnValue.Info.BankAccounts || [];
+                    }
                     this.uniForm.field('Supplier').focus();
                     return returnValue;
                 });
@@ -993,16 +1005,36 @@ export class BillView implements OnInit {
         }
     }
 
+    public onToggleEvent(event) {
+        setTimeout(() => {
+            this.simpleJournalentry.closeEditor();
+        });
+    }
+
     public onFormChange(change: SimpleChanges) {
+        try {
+            this.onFormChanged(change);
+        } catch (err) {
+            console.log('onFormChange-Error', err);
+        }
+    }
+
+    private onFormChanged(change: SimpleChanges) {
 
         const model = this.current.getValue();
+
+        if (!model) { return; }
 
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
 
         if (change['Supplier'])  {
-            model.SupplierID = change['Supplier'].currentValue.ID;
+            const newID = change['Supplier'].currentValue.ID;
+            if (newID) {
+                this.fetchNewSupplier(newID);
+            }
+            return;
         }
 
         if (change['InvoiceDate']) {
@@ -1071,7 +1103,7 @@ export class BillView implements OnInit {
         }
 
         // need to add _createguid if missing making a new dimension
-        if (change['DefaultDimensions.ProjectID']) {
+        if (change['DefaultDimensions.ProjectID'] || change['DefaultDimensions.DepartmentID']) {
             if (!model.DefaultDimensions.ID && !model.DefaultDimensions['_createguid']) {
                 model.DefaultDimensions['_createguid'] = this.projectService.getNewGuid();
                 this.current.next(model);
@@ -1105,6 +1137,8 @@ export class BillView implements OnInit {
     }
 
     private setSupplier(result: Supplier, updateCombo = true) {
+
+
         const current: SupplierInvoice = this.current.getValue();
         this.currentSupplierID = result.ID;
         current.Supplier = result;
@@ -1248,19 +1282,11 @@ export class BillView implements OnInit {
                 }
             }
 
-            /* todo: add smartbooking whenever it works properly..
-            if (it._links.actions && it._links.actions.smartbooking) {
-                if (it.StatusCode < StatusCodeSupplierInvoice.Journaled) {
-                    list.push(this.newAction(
-                        workflowLabels.smartbooking,
-                        'smartbooking',
-                        it._links.actions.smartbooking.href, false
-                    ));
-                }
-            } */
-            if (this.CurrentTask) {
+            if (this.CurrentTask && this.CurrentTask.StatusCode !== TaskStatus.Complete) {
                 const task = this.CurrentTask;
-                if (task.Approvals && task.Approvals.length > 0) {
+                const hasActiveApproval = task.Approvals && task.Approvals.findIndex( t => t.StatusCode === ApprovalStatus.Active ) >= 0;
+                if (hasActiveApproval ) {
+
                     list.forEach( x => x.main = false );
                     const approval = task.Approvals.find(a => a.UserID === this.myUser.ID);
                     const approvalID = approval ? approval.ID : task.Approvals[0].ID;
@@ -1342,8 +1368,6 @@ export class BillView implements OnInit {
     }
 
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
-        console.log("label", label);
-        console.log("disabled", asDisabled);
         return {
             label: label,
             action: (done) => {
@@ -1499,7 +1523,7 @@ export class BillView implements OnInit {
                     warning: lang.warning_action_not_reversable
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        return this.RunActionOnCurrent(key, done);
+                        return this.RunActionOnCurrent(key, done, undefined, true);
                     }
 
                     done();
@@ -1606,7 +1630,7 @@ export class BillView implements OnInit {
                 return true;
 
             default:
-                return this.RunActionOnCurrent(key, done);
+                return this.RunActionOnCurrent(key, done, undefined, true);
         }
     }
 
@@ -1718,13 +1742,18 @@ export class BillView implements OnInit {
             });
     }
 
-    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string): boolean {
+    private RunActionOnCurrent(action: string, done?: (msg) => {}, successMsg?: string, reload = false): boolean {
         const current = this.current.getValue();
         this.busy = true;
         this.supplierInvoiceService.PostAction(current.ID, action)
             .finally(() => this.busy = false)
             .subscribe(() => {
-                if (done) { done(successMsg); }
+                if (done) {
+                    done(successMsg);
+                    if (reload) {
+                        this.fetchInvoice(current.ID, false);
+                    }
+                }
             }, (err) => {
                 this.errorService.handle(err);
                 done(trimLength(err, 100, true));
@@ -1940,14 +1969,14 @@ export class BillView implements OnInit {
     }
 
 
-    public save(done?): Promise<ILocalValidation> {
+    public save(done?, updateRoute = true): Promise<ILocalValidation> {
 
         this.preSave();
 
         return new Promise((resolve, reject) => {
 
             const reload = () => {
-                this.fetchInvoice(this.currentSupplierID, (!!done))
+                this.fetchInvoice(this.currentID, (!!done))
                 .then(() => {
                     resolve({ success: true });
                     if (done) { done(lang.save_success); }
@@ -1968,11 +1997,15 @@ export class BillView implements OnInit {
                     obs = this.supplierInvoiceService.Post(current);
                 }
                 obs.subscribe((result) => {
-                    this.currentSupplierID = result.ID;
+                    if ((!current.ID) && updateRoute) {
+                        this.currentID = result.ID;
+                        this.router.navigateByUrl('/accounting/bills/' + result.ID);
+                    }
+                    this.currentID = result.ID;
                     this.hasUnsavedChanges = false;
                     this.commentsConfig.entityID = result.ID;
                     if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(this.currentSupplierID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(
+                        this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(
                             () => {
                             this.hasStartupFileID = false;
                             this.resetDocuments();
@@ -2087,6 +2120,8 @@ export class BillView implements OnInit {
     }
 
     private preSave(): boolean {
+
+        this.simpleJournalentry.closeEditor();
 
         let changesMade = false;
         const current = this.current.getValue();
@@ -2237,7 +2272,7 @@ export class BillView implements OnInit {
                     .finally(() => this.busy = false)
                     .subscribe((res) => {
                         this.fetchInvoice(bill.ID, true);
-                        this.userMsg(lang.payment_ok, null, null, null);
+                        this.userMsg(lang.payment_ok, null, 3, true);
                         done('Betaling registrert');
                     }, err => {
                         this.errorService.handle(err);
@@ -2335,7 +2370,7 @@ export class BillView implements OnInit {
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
                     this.busy = false;
-                    this.save().then(() => {
+                    this.save(undefined, false).then(() => {
                         this.busy = false;
                         resolve(true);
                     });

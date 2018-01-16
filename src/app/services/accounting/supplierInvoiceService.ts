@@ -14,12 +14,12 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     // TODO: To be retrieved from database schema shared.Status instead?
     public statusTypes: Array<any> = [
         { Code: StatusCodeSupplierInvoice.Draft, Text: 'Kladd', isPrimary: true},
-        { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'For godkjenning', isPrimary: false },
+        { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'Tildelt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Rejected, Text: 'Avvist', isPrimary: false},
         { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
-        { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Til betaling', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delvis betalt', isPrimary: false },
+        { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Betalingsliste', isPrimary: false },
+        { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delbetalt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
         { Code: 40001, Text: 'Arkivert', isPrimary: false },
         { Code: 90001, Text: 'Slettet', isPrimary: false }

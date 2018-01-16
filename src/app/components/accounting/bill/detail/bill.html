@@ -29,7 +29,8 @@
             (readyEvent)="onFormReady($event)"
             (changeEvent)="onFormChange($event)"
             (inputEvent)="onFormInput($event)"
-            (focusEvent)="onFocusEvent($event)">
+            (focusEvent)="onFocusEvent($event)"
+            (toggleEvent)="onToggleEvent($event)">
         </uni-form>
 
         <article class="collapsable" [ngClass]="{'-is-open': !collapseSimpleJournal}">

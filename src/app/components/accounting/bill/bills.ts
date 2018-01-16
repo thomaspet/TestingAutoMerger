@@ -361,7 +361,9 @@ export class BillsView implements OnInit {
 
     public assignSupplierInvoices(done: any) {
         this.modalService.open(UniAssignModal).onClose.subscribe(details => {
-            this.onAssignSupplierInvoicesClickOk(details);
+            if (details) {
+                this.onAssignSupplierInvoicesClickOk(details);
+            }
         });
         done();
     }
