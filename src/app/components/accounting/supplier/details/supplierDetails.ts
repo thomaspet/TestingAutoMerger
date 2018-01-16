@@ -523,7 +523,7 @@ export class SupplierDetails implements OnInit {
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'Info.BankAccounts',
-            displayValue: 'IBAN',
+            displayValue: 'AccountNumber',
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultBankAccount',
             storeIdInProperty: 'Info.DefaultBankAccountID',
