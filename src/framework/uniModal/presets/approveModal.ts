@@ -1,5 +1,5 @@
 import {Component, Output, Input, ChangeDetectionStrategy, ChangeDetectorRef
-    , HostListener, EventEmitter} from '@angular/core';
+    , HostListener, EventEmitter, OnInit} from '@angular/core';
 import {ErrorService, SupplierInvoiceService, UserService} from '../../../app/services/services';
 import {
     User,
@@ -12,8 +12,7 @@ import {
 } from '../../../app/unientities';
 import {
     billViewLanguage as lang,
-    approvalStatusLabels as statusLabels}
-from '../../../app/components/accounting/bill/detail/lang';
+    approvalStatusLabels as statusLabels} from '../../../app/components/accounting/bill/detail/lang';
 import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 
 // tslint:disable:max-line-length
@@ -29,7 +28,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
                 </h1>
             </header>
 
-            <article [attr.aria-busy]="busy">
+            <article>
                 <ul class="approveModalAssignRejectUl">
                     <li (click)="switchTab(0)" [ngClass]="{'selected_tab_view': !rejectTab}">
                         Godkjenning
@@ -40,7 +39,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
                     <div style="clear: both"></div>
                 </ul>
 
-                <section class="tab-page">
+                <section [attr.aria-busy]="busy" class="tab-page">
 
                     <article [hidden]="rejectTab">
                         <strong>Status:</strong>
@@ -67,7 +66,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniApproveModal implements IUniModal {
+export class UniApproveModal implements IUniModal, OnInit {
 
     private isOpen: boolean = false;
     private busy: boolean = false;
@@ -87,6 +86,7 @@ export class UniApproveModal implements IUniModal {
     private myApproval: Approval;
     private myUser: User;
     public comment: string = '';
+    public isAdmin = false;
 
     @Input()
     public options: IModalOptions = {};
@@ -99,12 +99,17 @@ export class UniApproveModal implements IUniModal {
         private changeDetectorRef: ChangeDetectorRef,
         private errorService: ErrorService,
         private userService: UserService) {
-            userService.getCurrentUser().subscribe( usr => {
-                this.myUser = usr;
-            });
+
     }
 
     public ngOnInit() {
+        this.userService.getCurrentUser().subscribe( usr => {
+            this.myUser = usr;
+            this.initUsersAndRoles();
+        });
+    }
+
+    public initUsersAndRoles() {
         if (!this.options || !this.options.data) {
             return;
         }
@@ -114,29 +119,27 @@ export class UniApproveModal implements IUniModal {
         this.rejectTab = !this.options.data.forApproval;
 
         if (this.currentTask) {
-            let approvals = this.currentTask.Approvals;
+            const approvals = this.currentTask.Approvals;
             if (approvals) {
                 this.userService.getRolesByUserId(this.myUser.ID).subscribe((roles: UserRole[]) => {
-                    let isAdmin = false;
-                    if (roles.find(x => x.SharedRoleName === 'Administrator' || x.SharedRoleName === 'Accounting.Admin')) {
-                        isAdmin = true;
-                    }
 
-                    if (this.currentTask.UserID === this.myUser.ID || isAdmin) {
-                        let approval: Approval = approvals.find(x => x.StatusCode === ApprovalStatus.Active);
-                        if (approval) {
-                            this.myApproval = approval;
-                            this.canReject = true;
-                            this.canApprove = true;
-                        }
+                    this.isAdmin = roles.findIndex(x => x.SharedRoleName === 'Administrator' || x.SharedRoleName === 'Accounting.Admin') >= 0;
+                    let approval: Approval = approvals.find(x => x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active);
+
+                    if (approval) {
+                        this.myApproval = approval;
+                        this.canReject = true;
+                        this.canApprove = true;
                     } else {
-                        let approval: Approval = approvals.find(x => x.UserID === this.myUser.ID && x.StatusCode === ApprovalStatus.Active);
-                        if (approval) {
-                            this.myApproval = approval;
-                            this.canApprove = true;
+                        if (this.currentTask.UserID === this.myUser.ID || this.isAdmin) {
+                            approval = approvals.find(x => x.StatusCode === ApprovalStatus.Active);
+                            if (approval) {
+                                this.myApproval = approval;
+                                this.canReject = true;
+                                this.canApprove = true;
+                            }
                         }
                     }
-
                     approvals.forEach( x => {
                         x['statusLabel'] = statusLabels[x.StatusCode];
                     });
@@ -159,7 +162,7 @@ export class UniApproveModal implements IUniModal {
                     let names = '';
                     if (t.Positions) {
                         t.Positions.forEach( p => {
-                            let user = this.users.find( u => u.ID === p.UserID);
+                            const user = this.users.find( u => u.ID === p.UserID);
                             if (user) {
                                 p['User'] = user;
                                 names += ( names ? ', ' : '' ) + user.DisplayName;
@@ -173,10 +176,9 @@ export class UniApproveModal implements IUniModal {
 
             // Copy usernames into approvals
             if (this.currentTask) {
-                let approvals = this.currentTask.Approvals;
-                if (approvals) {
-                    approvals.forEach( a => {
-                        let user = this.users.find( u => u.ID === a.UserID );
+                if (this.currentTask.Approvals) {
+                    this.currentTask.Approvals.forEach( a => {
+                        const user = this.users.find( u => u.ID === a.UserID );
                         if (user) {
                             a['userName'] = user.DisplayName;
                         }
@@ -196,7 +198,7 @@ export class UniApproveModal implements IUniModal {
     }
 
     public get currentDetails(): ApprovalDetails {
-        var details = new ApprovalDetails();
+        const details = new ApprovalDetails();
         if (this.rejectTab) {
             details.rejected = true;
         } else {
@@ -216,7 +218,7 @@ export class UniApproveModal implements IUniModal {
                 return;
             }
 
-            var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
+            const prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
             prom.then( () => this.onClose.emit( this.currentDetails) );
             return;
         }
