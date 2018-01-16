@@ -1364,11 +1364,7 @@ export class BillView implements OnInit {
         });
     }
 
-<<<<<<< HEAD
-    private newAction(label: string, itemKey: string, href: string, asMain = false): any {
-=======
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
->>>>>>> d2354e3fd... Fix/sf/fakturamottak prod bugs (#4052)
         return {
             label: label,
             action: (done) => {
