@@ -145,6 +145,16 @@ export class EmployeeTax extends UniView implements OnInit {
     private updateFields(layout: any, employeeTaxcard: EmployeeTaxCard) {
         let trekkAlreadyVisible = false;
         let freeamountAlreadyVisible = false;
+
+        let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
+        taxButton.Options = {
+            click: (event) => {
+                this.getStateSubject('taxCardModalCallback')
+                    .subscribe(options => {
+                        options.openModal();
+                    });
+            }
+        };
         
         if (employeeTaxcard.Year > 2017) {
             let hovedarbeidsgiverField = this.findByProperty(layout.Fields, 'loennFraHovedarbeidsgiver.AntallMaanederForTrekk');
