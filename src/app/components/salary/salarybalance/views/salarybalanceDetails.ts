@@ -114,14 +114,14 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        Observable
+        setTimeout(() => Observable
             .of(changes)
             .filter(change => !!change['salarybalance'] && !!change['salarybalance'].currentValue)
             .map(change => change['salarybalance'])
             .switchMap(salBalChange => !salBalChange.previousValue || salBalChange.previousValue.ID !== salBalChange.currentValue.ID
                 ? this.setup(salBalChange.currentValue)
                 : Observable.of(salBalChange.currentValue))
-            .subscribe(salbal => this.salarybalance$.next(salbal));
+            .subscribe(salbal => this.salarybalance$.next(salbal)));
     }
 
     public change(changes: SimpleChanges) {

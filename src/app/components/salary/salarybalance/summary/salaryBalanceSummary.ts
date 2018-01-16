@@ -1,6 +1,6 @@
 import {
     Component, OnInit, ViewChild, Input, Output, OnChanges,
-    ChangeDetectionStrategy, EventEmitter, SimpleChanges
+    ChangeDetectionStrategy, EventEmitter, SimpleChanges, SimpleChange
 } from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -51,6 +51,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
 
     public ngOnChanges(change: SimpleChanges) {
         if (change['salaryBalance']) {
+            this.handleTableBlur(change['salaryBalance']);
             this.onSalaryBalanceChange(change['salaryBalance'].currentValue);
         }
         if (change['busy'] && !change['busy'].firstChange) {
@@ -58,13 +59,32 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         }
     }
 
+    private handleTableBlur(salBalChange: SimpleChange) {
+        if (!this.editMode) { return; }
+        if (!this.table) { return; }
+        const currentSalBal: SalaryBalance = salBalChange.currentValue;
+        const prevSalBal: SalaryBalance = salBalChange.previousValue;
+        if (!prevSalBal) {
+            return;
+        }
+        if (!currentSalBal || prevSalBal.ID !== currentSalBal.ID) {
+            this.toggleEditMode(false);
+        }
+    }
+
     private onBusychange(busy: boolean) {
         if (busy) {
             return;
         }
-        this.editMode = false;
-        this.createConfig(this.editMode);
-        this.table.blur();
+        this.toggleEditMode(false);
+    }
+
+    private toggleEditMode(editMode) {
+        this.editMode = editMode;
+        this.createConfig(editMode);
+        if (this.table) {
+            this.table.blur();
+        }
     }
 
     private onSalaryBalanceChange(salaryBalance: SalaryBalance) {

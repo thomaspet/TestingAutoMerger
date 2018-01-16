@@ -788,14 +788,24 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             });
     }
 
-    private getSalarybalancesObservable(cacheFirst: boolean = false): Observable<SalaryBalance[]> {
-        return cacheFirst && this.salarybalances
-            ? Observable.of(this.salarybalances)
-            : this.salarybalanceService.GetAll('filter=EmployeeID eq ' + this.employeeID);
+    private getSalarybalancesObservable(): Observable<SalaryBalance[]> {
+        return this.salarybalanceService
+                .GetAll(
+                    'filter=EmployeeID eq ' + this.employeeID,
+                    ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions'])
+                .switchMap(salBals => (salBals && salBals.length) || !this.employeeID
+                    ? Observable.of(salBals || [])
+                    : this.salarybalanceService
+                        .GetNewEntity()
+                        .map((salBal: SalaryBalance) => {
+                            salBal.EmployeeID = this.employeeID;
+                            return salBal;
+                        })
+                        .map(salBal => [salBal]));
     }
 
     private getRecurringPosts() {
-        let filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
+        const filter = `EmployeeID eq ${this.employeeID} and IsRecurringPost eq true and PayrollRunID eq 0`;
         Observable.forkJoin(
             this.salaryTransService.GetAll('filter=' + filter, ['Supplements.WageTypeSupplement', 'Dimensions']),
             this.getProjectsObservable(),
@@ -803,7 +813,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.getWageTypesObservable(),
             this.getEmploymentsObservable(true))
             .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
-                let [transes, projects, departments, wageTypes, employments] = response;
+                const [transes, projects, departments, wageTypes, employments] = response;
 
                 transes.map(trans => {
                     if (trans.Dimensions) {
@@ -1085,11 +1095,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employeeTaxCard.Year = year;
                 }
                 this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
-                
+
                 if (employeeTaxCard.ID == 0 || !employeeTaxCard.ID) {
                     employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
                 }
-                
+
                 if (employeeTaxCard) {
                     return employeeTaxCard.ID
                         ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
