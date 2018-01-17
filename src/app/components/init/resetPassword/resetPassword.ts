@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {passwordValidator} from '../authValidators';
+import {ActivatedRoute, Router} from '@angular/router';
+import {FormControl, FormGroup, FormBuilder, Validators} from '@angular/forms';
+import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Logger} from '../../../../framework/core/logger';
 
@@ -16,48 +16,34 @@ export class ResetPassword {
     private busy: boolean = false;
     private emailSent: boolean = false;
     private passwordChanged: boolean = false;
-    private passwordsMatch: boolean = false;
 
     private successMessage: string = '';
     private errorMessage: string = '';
     private emailForm: FormGroup;
     private passwordForm: FormGroup;
 
-    constructor(private route: ActivatedRoute, private uniHttp: UniHttp, private logger: Logger) {
+    constructor(
+        private route: ActivatedRoute, 
+        private uniHttp: UniHttp, 
+        private logger: Logger, 
+        private router: Router,
+        private formBuilder: FormBuilder
+    ) {
         this.route.queryParams.subscribe(params => {
             this.code = params['code'];
             this.userid = params['userid'];
         });
 
-        var validator = Validators.compose([
-            passwordValidator,
-            Validators.required,
-            Validators.minLength(8),
-            Validators.maxLength(16)
-        ]);
-
         this.emailForm = new FormGroup({
             email: new FormControl('', Validators.required)
         });
 
-        let passwordCtrl = new FormControl('', validator);
-        let confirmPasswordCtrl = new FormControl('', validator);
-
-        // TODO: This should be handled through a validator!
-        passwordCtrl.valueChanges.subscribe((value) => {
-            this.passwordsMatch = (value === confirmPasswordCtrl.value);
-            console.log(this.passwordsMatch);
+        this.passwordForm = formBuilder.group({
+            Password: new FormControl('', [Validators.required, passwordValidator]),
+            ConfirmPassword: new FormControl('', [Validators.required, passwordValidator])
+        }, {
+            validator: passwordMatchValidator
         });
-        confirmPasswordCtrl.valueChanges.subscribe((value) => {
-            this.passwordsMatch = (value === passwordCtrl.value);
-            console.log(this.passwordsMatch);
-        });
-
-        this.passwordForm = new FormGroup({
-            password: passwordCtrl,
-            confirmPassword: confirmPasswordCtrl
-        });
-
     }
 
     public sendResetEmail() {
@@ -89,6 +75,12 @@ export class ResetPassword {
     }
 
     public resetPassword() {
+        if(!this.passwordForm.valid){
+            this.passwordForm.controls.Password.markAsTouched() 
+            this.passwordForm.controls.ConfirmPassword.markAsTouched()
+            return;
+        }
+        
         this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';
@@ -97,7 +89,7 @@ export class ResetPassword {
             .usingInitDomain()
             .withEndPoint('reset-password')
             .withBody({
-                newpassword: this.passwordForm.controls['password'].value,
+                newpassword: this.passwordForm.controls['Password'].value,
                 resetpasswordcode: decodeURIComponent(this.code),
                 userid: decodeURIComponent(this.userid)
             })
@@ -107,6 +99,7 @@ export class ResetPassword {
                     if (response.status === 200) {
                         this.passwordChanged = true;
                         this.busy = false;
+                        setTimeout(() => this.router.navigate(['/init/login']), 5000);
                     }
                 },
                 (error) => {
