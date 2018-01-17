@@ -1025,6 +1025,12 @@ export class BillView implements OnInit {
 
         if (!model) { return; }
 
+
+        if(change['DefaultDimensions.ProjectID'] || change['DefaultDimensions.DepartmentID']) {
+            this.current.next(model);
+        }
+
+
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
         }
