@@ -3,11 +3,14 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';
 import {URLSearchParams} from '@angular/http';
+import {WagetypeDetail} from '@app/components/salary/wagetype/views/wagetypeDetails';
+import {ModulusService} from '../../common/modulusService';
+import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 
 interface IFieldFunc {
     prop: string;
@@ -35,7 +38,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     constructor(
         protected http: UniHttp,
         private salaryBalanceLineService: SalaryBalanceLineService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private modulusService: ModulusService
+    ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
         this.entityType = SalaryBalance.EntityType;
@@ -260,7 +265,20 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             displayProperty: 'Name',
                             valueProperty: 'ID',
                             debounceTime: 500
-                        }
+                        },
+                        Validations: [
+                            (value: number, field: UniFieldLayout) => {
+                                if (!!value) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Type er påkrevd',
+                                    isWarning: false};
+                                }
+                        ]
                     },
                     {
                         EntityType: 'salarybalance',
@@ -288,7 +306,20 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             template: (employee: Employee) => employee
                                 ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
                                 : ''
-                        }
+                        },
+                        Validations: [
+                            (value: number, field: UniFieldLayout) => {
+                                if (!!value) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Ansatt er påkrevd',
+                                    isWarning: false};
+                                }
+                        ]
                     },
                     {
                         EntityType: 'salarybalance',
@@ -306,7 +337,20 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             template: (wagetype: WageType) => wagetype
                                 ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
                                 : ''
-                        }
+                        },
+                        Validations: [
+                            (value: number, field: UniFieldLayout) => {
+                                if (!!value) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Lønnsart er påkrevd',
+                                    isWarning: false};
+                                }
+                        ]
                     },
                     {
                         EntityType: 'salarybalance',
@@ -390,7 +434,20 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
                                 : ''
-                        }
+                        },
+                        Validations: [
+                            (value: number, field: UniFieldLayout) => {
+                                if (!!value) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Leverandør er påkrevd',
+                                    isWarning: false};
+                                }
+                        ]
                     },
                     {
                         EntityType: 'salarybalance',
@@ -402,6 +459,24 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Section: 0,
                         Placement: 10,
                         Options: {},
+                        Validations: [
+                            (value: string, field: UniFieldLayout) => {
+                                if (typeof(value) !== 'string') {
+                                    return;
+                                }
+
+                                if (field.Hidden || field.ReadOnly || !value || this.modulusService.isValidKID(value)) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Ugyldig KID',
+                                    isWarning: false
+                                };
+                            }
+                        ],
                         Hidden: this.isHiddenByInstalmentType(salaryBalance)
                     },
                     {

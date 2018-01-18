@@ -32,8 +32,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-
-    private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
@@ -72,7 +70,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .do(params => {
                 this.subscriptions.forEach(sub => sub.unsubscribe());
                 super.updateCacheKey(router.url);
-                this.invalidKID = false;
                 super.getStateSubject(SAVING_KEY)
                     .subscribe(isSaving => this.summaryBusy$.next(isSaving));
             })
@@ -135,10 +132,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .map(model => {
                 if (changes['InstalmentType']) {
                     this.setWagetype(model);
-                }
-
-                if (changes['KID'] || changes['Instalment']) {
-                    this.validateKID(model);
                 }
 
                 if (changes['SupplierID']) {
@@ -322,11 +315,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             return edit(field.field);
         }
         return null;
-    }
-
-    private validateKID(salaryBalance: SalaryBalance) {
-        this.invalidKID = !this.salarybalanceService.isHiddenByInstalmentType(salaryBalance)
-            && !this.modulusService.isValidKID(salaryBalance.KID);
     }
 
     private setWagetype(salarybalance: SalaryBalance, wagetypes = this.wagetypes): SalaryBalance {
