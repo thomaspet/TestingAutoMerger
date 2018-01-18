@@ -454,7 +454,7 @@ export class RecurringPost extends UniView {
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {
         if (trans) {
-            let row: SalaryTransaction = this.recurringPosts.find(x => x.ID === trans.ID && !x.Deleted);
+            let row: SalaryTransaction = this.recurringPosts.find((x: SalaryTransaction) => x['_originalIndex'] === trans['_originalIndex'] && !x.Deleted);
             if (row) {
                 row.Supplements = trans.Supplements;
                 this.updateAndCacheSalaryTransactionRow(row);
