@@ -1,4 +1,5 @@
 import {Injectable} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {IUniTab} from './tabStrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -94,7 +95,7 @@ export class TabService {
     public tabs$: BehaviorSubject<IUniTab[]> = new BehaviorSubject([]);
     public activeTab$: BehaviorSubject<IUniTab> = new BehaviorSubject(null);
 
-    constructor(private router: Router) {
+    constructor(private router: Router, private titleService: Title) {
         this.tabs = this.getMemStore() || [];
 
         this.tabs.forEach((tab, i) => {
@@ -190,6 +191,13 @@ export class TabService {
         this.updateTabStorage();
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
+
+        // Set document title so browser history makes sense
+        const documentTitle = this.currentActiveTab
+            ? 'UE - ' + this.currentActiveTab.name
+            : 'Uni Economy';
+
+        this.titleService.setTitle(documentTitle);
     }
 
     public deactivateCurrentTab() {
