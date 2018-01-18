@@ -66,8 +66,10 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
             .map((result: [UniTable, SalaryBalance[]]) => {
                 const [table, salaryBalances] = result;
                 const rowIndx = salaryBalances.findIndex(row => row.ID === salaryBalance.ID);
-                const focusRow = salaryBalances[rowIndx];
-                table.focusRow((focusRow && focusRow['_originalIndex']) || rowIndx);
+                const focusRow = salaryBalances[rowIndx] || salaryBalances[salaryBalances.length - 1];
+                if (focusRow) {
+                    table.focusRow((focusRow && focusRow['_originalIndex']) || rowIndx);
+                }
                 return focusRow;
             })
             .filter(salBal => !!salBal)
@@ -107,10 +109,24 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
         const balanceCol = new UniTableColumn('CalculatedBalance', 'Saldo', UniTableColumnType.Text)
             .setAlignment('right')
-            .setTemplate((salaryBalance: SalaryBalance) =>
-                salaryBalance.CalculatedBalance || salaryBalance.CalculatedBalance === 0
-                    ? this.numberService.asMoney(salaryBalance.CalculatedBalance)
-                    : '')
+            .setTemplate((salaryBalance: SalaryBalance) => {
+                if (!salaryBalance.CalculatedBalance && salaryBalance.CalculatedBalance !== 0) {
+                    return '';
+                }
+                if (!salaryBalance.Transactions || !salaryBalance.Transactions.length) {
+                    return this.numberService.asMoney(salaryBalance.CalculatedBalance);
+                }
+
+                const sum = salaryBalance
+                    .Transactions
+                    .filter(salBal => !salBal.SalaryTransactionID
+                        || (salBal.SalaryTransaction
+                            && salBal.SalaryTransaction.payrollrun
+                            && !!salBal.SalaryTransaction.payrollrun.StatusCode))
+                    .map(line => line.Amount)
+                    .reduce((acc, curr) => acc + curr, 0);
+                return this.numberService.asMoney(sum);
+            })
             .setWidth('14rem');
 
         if (!lightWeight) {

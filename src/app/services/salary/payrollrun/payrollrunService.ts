@@ -152,7 +152,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 this.validateTransesOnRun(transes, done);
             })
             .filter((trans: SalaryTransaction[]) => !!trans.length)
-            .switchMap(transes => super.PutAction(ID, 'calculate'));
+            .switchMap(transes => super.PutAction(ID, 'calculate'))
+            .do(() => this.clearRelatedCaches());
     }
 
     public controlPayroll(ID) {

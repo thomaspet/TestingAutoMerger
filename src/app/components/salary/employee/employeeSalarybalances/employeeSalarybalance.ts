@@ -85,9 +85,6 @@ export class EmployeeSalarybalance extends UniView implements AfterViewInit, OnI
     }
 
     public setSalarybalance(salaryBal: SalaryBalance) {
-        if (salaryBal['_isDirty']) {
-            return;
-        }
 
         Observable
             .of(salaryBal)
@@ -95,7 +92,7 @@ export class EmployeeSalarybalance extends UniView implements AfterViewInit, OnI
                 return !salBal.ID || (salBal.Transactions && salBal.Transactions.length)
                     ? Observable.of(salBal)
                     : this.salaryBalanceLineService
-                        .GetAll(`filter=SalaryBalanceID eq ${salBal.ID}`)
+                        .GetAll(`filter=SalaryBalanceID eq ${salBal.ID}`, ['SalaryTransaction.payrollrun'])
                         .map(lines => {
                             salBal.Transactions = lines;
                             return salBal;
@@ -117,6 +114,12 @@ export class EmployeeSalarybalance extends UniView implements AfterViewInit, OnI
             });
         }
 
+        const prevSalBal = this.salarybalances[index];
+
+        if (prevSalBal.InstalmentType !== salarybalance.InstalmentType && salarybalance.InstalmentType) {
+            salarybalance.Name = this.salaryBalanceService.getInstalmentTypes().find(type => type.ID === salarybalance.InstalmentType).Name;
+        }
+
         this.salarybalances[index] = salarybalance;
         super.updateState(SALARYBALANCES_KEY, this.salarybalances, true);
     }
@@ -128,8 +131,10 @@ export class EmployeeSalarybalance extends UniView implements AfterViewInit, OnI
             .map((salarybalance: SalaryBalance) => {
                 salarybalance.EmployeeID = this.employeeID;
                 salarybalance['_createguid'] = this.salaryBalanceService.getNewGuid();
+                salarybalance.FromDate = new Date();
                 return salarybalance;
             })
-            .subscribe(salBal => this.addSalaryBalance(salBal));
+            .do(salBal => this.addSalaryBalance(salBal))
+            .subscribe(salBal => this.salarybalances = [...this.salarybalances, salBal]);
     }
 }

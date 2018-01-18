@@ -112,14 +112,14 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        setTimeout(() => Observable
+        Observable
             .of(changes)
             .filter(change => !!change['salarybalance'] && !!change['salarybalance'].currentValue)
             .map(change => change['salarybalance'])
             .switchMap(salBalChange => !salBalChange.previousValue || salBalChange.previousValue.ID !== salBalChange.currentValue.ID
                 ? this.setup(salBalChange.currentValue)
                 : Observable.of(salBalChange.currentValue))
-            .subscribe(salbal => this.salarybalance$.next(salbal)));
+            .subscribe(salbal => this.salarybalance$.next(salbal));
     }
 
     public change(changes: SimpleChanges) {
@@ -132,6 +132,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .map(model => {
                 if (changes['InstalmentType']) {
                     this.setWagetype(model);
+                    this.setText(model);
                 }
 
                 if (changes['SupplierID']) {
@@ -218,7 +219,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
         return this.refreshLayout(salaryBalance)
-            .map(response => this.setWagetype(salaryBalance));
+            .map(response => this.setWagetype(salaryBalance))
+            .map(response => this.setText(salaryBalance));
     }
 
     private refreshLayout(salaryBalance: SalaryBalance): Observable<UniFieldLayout[]> {
@@ -339,6 +341,12 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         }
 
         return salarybalance;
+    }
+
+    private setText(salaryBalance: SalaryBalance): SalaryBalance {
+        if (!salaryBalance.InstalmentType) { return salaryBalance; }
+        salaryBalance.Name = this.salarybalanceService.getInstalmentTypes().find(type => type.ID === salaryBalance.InstalmentType).Name;
+        return salaryBalance;
     }
 
     public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {

@@ -24,7 +24,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService
+    ModulusService, SalarybalanceService, SalaryBalanceLineService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
@@ -169,7 +169,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private modulusService: ModulusService,
         private modalService: UniModalService,
         private employeeDetailsService: EmployeeDetailsService,
-        private salarybalanceService: SalarybalanceService
+        private salarybalanceService: SalarybalanceService,
+        private salaryBalanceLineService: SalaryBalanceLineService
     ) {
         super(router.url, cacheService);
 
@@ -792,13 +793,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return this.salarybalanceService
                 .GetAll(
                     'filter=EmployeeID eq ' + this.employeeID,
-                    ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions'])
+                    ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions.SalaryTransaction.payrollrun'])
                 .switchMap(salBals => (salBals && salBals.length) || !this.employeeID
                     ? Observable.of(salBals || [])
                     : this.salarybalanceService
                         .GetNewEntity()
                         .map((salBal: SalaryBalance) => {
                             salBal.EmployeeID = this.employeeID;
+                            salBal.FromDate = new Date();
+                            salBal._createguid = this.salarybalanceService.getNewGuid();
                             return salBal;
                         })
                         .map(salBal => [salBal]));
@@ -1214,6 +1217,24 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 : this.salarybalanceService.Post(salarybalance);
 
                             const newObs: Observable<SalaryBalance> = <Observable<SalaryBalance>>source
+                                .catch((err, obs) => {
+                                    hasErrors = true;
+                                    salarybalances[index].Deleted = false;
+                                    const toastHeader =
+                                        `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
+                                    const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                    return this.errorService.handleRxCatch(err, obs);
+                                })
+                                .switchMap((res: SalaryBalance) => {
+                                    return this.salaryBalanceLineService
+                                        .GetAll(`filter=SalaryBalanceID eq ${res.ID}`, ['SalaryTransaction.payrollrun'])
+                                        .map(lines => {
+                                            res.Transactions = lines;
+                                            return res;
+                                        });
+                                })
+                                .do((res: SalaryBalance) => salarybalances[index] = res)
                                 .finally(() => {
                                     saveCount++;
                                     if (saveCount === changeCount) {
@@ -1229,21 +1250,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                                         this.checkForSaveDone(done);
                                     }
-                                })
-                                .catch((err, obs) => {
-                                    hasErrors = true;
-                                    salarybalances[index].Deleted = false;
-                                    const toastHeader =
-                                        `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
-                                    const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                    return this.errorService.handleRxCatch(err, obs);
-                                })
-                                .map(
-                                (res: SalaryBalance) => {
-                                    res.Transactions = [];
-                                    salarybalances[index] = res;
-                                    return res;
                                 });
 
                             obsList.push(newObs);

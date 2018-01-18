@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType} from '../../../unientities';
+import {SalaryBalance, WageType, Employee, Supplier, SalBalType, SalBalDrawType, SalaryBalanceLine, SalaryTransaction} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {UniTableColumnType} from '../../../../framework/ui/unitable/index';

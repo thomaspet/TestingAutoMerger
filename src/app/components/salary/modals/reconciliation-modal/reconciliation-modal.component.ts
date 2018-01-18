@@ -9,7 +9,7 @@ import {
 } from '../../altinnReceiptList/altinn-receipt-list/altinn-receipt-list.component';
 import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationModal} from '@app/components/common/modals/AltinnAuthenticationModal';
-import {ReconciliationResponseModalComponent} from '@app/components/salary/modals';
+import {ReconciliationResponseModalComponent} from '../reconciliation-response-modal/reconciliation-response-modal.component';
 
 @Component({
     selector: 'uni-reconciliation-modal',
