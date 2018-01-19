@@ -663,7 +663,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
-                this.employeeService.getNext(this.employee.ID).subscribe((next: Employee) => {
+                this.employeeService.getNext(this.employee.EmployeeNumber).subscribe((next: Employee) => {
                     if (next) {
                         this.employee = next;
                         let childRoute = this.router.url.split('/').pop();
@@ -677,7 +677,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public previousEmployee() {
         this.canDeactivate().subscribe(canDeactivate => {
             if (canDeactivate) {
-                this.employeeService.getPrevious(this.employee.ID).subscribe((prev: Employee) => {
+                this.employeeService.getPrevious(this.employee.EmployeeNumber).subscribe((prev: Employee) => {
                     if (prev) {
                         this.employee = prev;
                         let childRoute = this.router.url.split('/').pop();
