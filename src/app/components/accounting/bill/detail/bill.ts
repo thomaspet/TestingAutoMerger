@@ -498,6 +498,8 @@ export class BillView implements OnInit {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
             .subscribe( (invoice: SupplierInvoice) => {
+                invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+
                 this.current.next(invoice);
                 this.toast.clear();
                 this.handleEHFResult(invoice);
@@ -532,9 +534,8 @@ export class BillView implements OnInit {
                     );
                 }
             });
-        }
-
-        if (!invoice.BankAccountID && invoice.BankAccount) {
+        // Existing supplier and new bankaccount
+        } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
                 message: `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
