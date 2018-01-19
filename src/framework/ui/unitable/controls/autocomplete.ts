@@ -23,6 +23,25 @@ export interface IAutoCompleteOptions {
     addNewButtonVisible?: boolean;
     addNewButtonText?: string;
     addNewButtonCallback?: (searchText: string) => Promise<any>;
+    showResultAsTable: boolean;
+    resultTableConfig: IResultTableConfig;
+}
+
+export interface IResultTableConfig {
+    fields: IResultTableField[];
+    buttons: IResultTableButtons[];
+}
+
+export interface IResultTableField {
+    header: string;
+    key: string;
+    class?: string;
+    width?: string;
+}
+
+export interface IResultTableButtons {
+    buttonText: string;
+    action: () => {};
 }
 
 export interface IGroupInfo {
@@ -62,6 +81,7 @@ export interface IGroupConfig {
                 id="autocomplete-results"
                 role="listbox"
                 tabindex="-1"
+                *ngIf="!options.showResultAsTable"
                 [attr.aria-expanded]="expanded">
 
                 <li *ngFor="let item of lookupResults; let idx = index"
@@ -79,6 +99,41 @@ export interface IGroupConfig {
                     </button>
                 </li>
             </ul>
+            <div
+                *ngIf="options.showResultAsTable && options.resultTableConfig"
+                class="unitable_dropdown_table"
+                [attr.aria-expanded]="expanded">
+                <div *ngIf="options.resultTableConfig.createNewButton">
+                    <button (click)="onActionClick(options.resultTableConfig.createNewButton)">
+                        {{ options.resultTableConfig.createNewButton.buttonText }}
+                    </button>
+                </div>
+                <table #list *ngIf="lookupResults.length > 0">
+                    <thead>
+                        <tr>
+                            <th *ngFor="let field of options.resultTableConfig.fields"
+                                [ngStyle]="{width: field.width}">
+                                {{ field.header }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of lookupResults; let idx = index"
+                            [attr.aria-selected]="selectedIndex === idx"
+                            role="option"
+                            (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
+                            (click)="itemClicked(idx, item.isHeader)">
+
+                            <td *ngFor="let field of options.resultTableConfig.fields"
+                                [ngStyle]="{width: field.width}"
+                                [ngClass]="field.class">
+                                {{item[field.key]}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p *ngIf="lookupResults.length === 0">Ingen treff</p>
+            </div>
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -160,6 +215,12 @@ export class UnitableAutocomplete implements OnInit {
 
             this.inputElement.nativeElement.focus();
         }
+    }
+
+    public onActionClick(button: any) {
+        this.addValuePromise = new Promise((resolve) => {
+            button.action().subscribe(item => resolve(item || undefined));
+        });
     }
 
     private formatGrouping() {

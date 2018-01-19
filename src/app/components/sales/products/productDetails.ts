@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, SimpleChanges, ElementRef} from '@angular/core';
+import {Component, Input, Output, ViewChild, SimpleChanges, ElementRef, EventEmitter} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {Product, Account, VatType} from '../../../unientities';
@@ -27,6 +27,7 @@ import {
 } from '../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
+import { IProduct } from '@uni-framework/interfaces/interfaces';
 declare const _; // lodash
 
 @Component({
@@ -36,6 +37,12 @@ declare const _; // lodash
 export class ProductDetails {
     @Input()
     public productId: any;
+
+    @Input()
+    public modalMode: boolean;
+
+    @Output()
+    public productSavedInModalMode: EventEmitter<IProduct> = new EventEmitter<IProduct>();
 
     @ViewChild(UniForm)
     public form: UniForm;
@@ -183,8 +190,10 @@ export class ProductDetails {
             this.product$.next(response[0]);
             this.descriptionControl.setValue(response[0] && response[0].Description);
 
-            this.setTabTitle();
-            this.setupToolbar();
+            if (!this.modalMode) {
+                this.setTabTitle();
+                this.setupToolbar();
+            }
             this.showHidePriceFields(this.product$.getValue().CalculateGrossPriceBasedOnNetPrice);
 
             if (response.length > 1 && response[1] !== null) {
@@ -235,7 +244,7 @@ export class ProductDetails {
         }
     }
 
-    private saveProduct(completeEvent) {
+    public saveProduct(completeEvent) {
         const product = this.product$.getValue();
         if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
             product.Dimensions['_createguid'] = this.productService.getNewGuid();
@@ -253,25 +262,35 @@ export class ProductDetails {
         if (this.productId > 0) {
             this.productService.Put(product.ID, product).subscribe(
                 (updatedValue) => {
-                    completeEvent('Produkt lagret');
-                    this.loadProduct();
-                    this.setTabTitle();
+                    if (this.modalMode) {
+                        this.productSavedInModalMode.emit(updatedValue);
+                    } else {
+                        completeEvent('Produkt lagret');
+                        this.loadProduct();
+                        this.setTabTitle();
+                    }
                 },
                 (err) => {
                     completeEvent('Feil oppsto ved lagring');
                     this.errorService.handle(err);
+                    this.productSavedInModalMode.emit(null);
                 }
             );
         } else {
             this.productService.Post(this.product$.getValue())
                 .subscribe(
                     (newProduct) => {
-                        completeEvent('Produkt lagret');
-                        this.router.navigateByUrl('/sales/products/' + newProduct.ID);
+                        if (this.modalMode) {
+                            this.productSavedInModalMode.emit(newProduct);
+                        } else {
+                            completeEvent('Produkt lagret');
+                            this.router.navigateByUrl('/sales/products/' + newProduct.ID);
+                        }
                     },
                     (err) => {
                         completeEvent('Feil oppsto ved lagring');
                         this.errorService.handle(err);
+                        this.productSavedInModalMode.emit(null);
                     }
                 );
         }
