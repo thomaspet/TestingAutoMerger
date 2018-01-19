@@ -37,22 +37,6 @@
     &[aria-expanded]:not([aria-expanded=false])
         display: block
 
-    // arrow
-    &:before
-        border: solid transparent
-        content: ''
-        height: 0
-        width: 0
-        position: absolute
-        pointer-events: none
-        display: block
-        border-color: rgba(255, 255, 255, 0)
-        border-bottom-color: #fff
-        border-width: .5rem
-        margin-left: -.5rem
-        top: -1rem
-        right: 6rem
-
     h2
         margin: .5rem 2rem 0 2rem
 
@@ -124,8 +108,6 @@
     &:hover
         background-color: transparentize($uni-color-c2a, .5)
         cursor: pointer
-
-
 
 .notification_deleteBtn
     @extend %hideText
