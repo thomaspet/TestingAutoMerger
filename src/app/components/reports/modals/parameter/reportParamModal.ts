@@ -12,7 +12,7 @@ import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModa
 @Component({
     selector: 'uni-report-params-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 31vw">
+        <section role="dialog" class="uni-modal" style="width: 33vw">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
@@ -26,8 +26,7 @@ import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModa
                 <uni-form
                     [fields]="fields$"
                     [model]="model$"
-                    [config]="formConfig$"
-                    (changeEvent)="onFormChange($event)">
+                    [config]="formConfig$">
                 </uni-form>
             </article>
 
@@ -99,8 +98,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             let source = [];
                             if (p.Name === 'OrderBy') {
                                 source = JSON.parse(p.DefaultValueList);
-                                p.value = p.Name;
-
+                                p.value = source[0].Label;
                                 options = {
                                     source: source,
                                     valueProperty: 'Label',
@@ -141,7 +139,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         });
     }
 
-    public onFormChange(changes) {
+    public accept() {
         const model = this.model$.getValue();
 
         this.options.data.parameters.map(p => {
@@ -177,9 +175,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 p.value = model[p.Name];
             }
         });
-    }
 
-    public accept() {
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
