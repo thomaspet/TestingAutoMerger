@@ -841,7 +841,7 @@ export class LedgerAccountReconciliation {
                 .setWidth('60px')
                 .setTemplate(
                     x => x.NumberOfPayments > 0
-                        ? `<span title="${x.NumberOfPayments} relaterte betalinger finnes">1</span>`
+                        ? `${x.NumberOfPayments}`
                         : ''
                 ),
             new UniTableColumn('Markings', 'Motpost', UniTableColumnType.Text)
