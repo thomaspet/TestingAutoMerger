@@ -697,7 +697,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        if (supplier.Info.DefaultBankAccount._createguid) {
+                        if (supplier.Info.DefaultBankAccount && supplier.Info.DefaultBankAccount._createguid) {
                             supplier.Info.BankAccounts.push(supplier.Info.DefaultBankAccount);
                             this.supplier$.next(supplier);
                         }
