@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {CompanySettings, User} from '../../../../src/app/unientities';
+import {CompanySettings, User, BankAccount} from '../../../../src/app/unientities';
 import {ActivateAP} from '../../../../src/app/models/activateAP';
 import {ActivationEnum} from '../../../../src/app/models/activationEnum';
 import {UniModalService} from '../modalService';
@@ -11,8 +11,9 @@ import {
     CompanySettingsService,
     AgreementService,
     ErrorService,
+    BankAccountService
 } from '../../../../src/app/services/services';
-
+import {UniBankAccountModal} from '@uni-framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
@@ -71,11 +72,13 @@ export class UniActivateAPModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private userService: UserService,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private bankaccountService: BankAccountService
     ) {}
 
     public ngOnInit() {
         this.formFields$.next(this.getFormFields());
+        this.extendFormConfig();
         this.initActivationModel();
 
         this.options.cancelValue = ActivationEnum.NOT_ACTIVATED;
@@ -90,7 +93,9 @@ export class UniActivateAPModal implements IUniModal {
                 'APContact.Info.DefaultPhone',
                 'APContact.Info.DefaultEmail',
                 'APIncomming',
-                'APOutgoing'
+                'APOutgoing',
+                'BankAccounts',
+                'CompanyBankAccount'
         ])).subscribe(
             res => {
                 let model = new ActivateAP();
@@ -113,8 +118,10 @@ export class UniActivateAPModal implements IUniModal {
                     ? settings.APContact.Info.DefaultPhone.Number
                     : user.PhoneNumber;
 
-                model.incommingInvoice = false;
-                model.outgoingInvoice = true;
+                model.incommingInvoice = settings.APIncomming.find(f => f.Name == 'EHF INVOICE 2.0') != null;
+                model.outgoingInvoice = settings.APOutgoing.find(f => f.Name == 'EHF INVOICE 2.0') != null;
+
+                model.settings = settings;
 
                 this.formModel$.next(model);
             },
@@ -143,32 +150,75 @@ export class UniActivateAPModal implements IUniModal {
     }
 
     public activate() {
-        this.ehfService.activate(this.formModel$.getValue()).subscribe(
-            status => {
-                if (status === ActivationEnum.ACTIVATED) {
-                    this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
-                } else if (status === ActivationEnum.CONFIRMATION) {
-                    this.toastService.addToast(
-                        'Aktivering på vent',
-                        ToastType.good, 10,
-                        'EHF er tidligere aktivert for org.nr. Venter på godkjenning sendt på epost til kontaktepostadresse registerert på Uni Micro sitt aksesspunkt.'
-                    );
-                } else {
-                    this.toastService.addToast(
-                        'Aktivering feilet!',
-                        ToastType.bad, 5,
-                        'Noe gikk galt ved aktivering'
-                    );
-                }
+        const model = this.formModel$.getValue();
+        // Save Bankaccount settings
+        this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
+            // Activate EHF
+            this.ehfService.activate(model).subscribe(
+                status => {
+                    if (status === ActivationEnum.ACTIVATED) {
+                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                    } else if (status === ActivationEnum.CONFIRMATION) {
+                        this.toastService.addToast(
+                            'Aktivering på vent',
+                            ToastType.good, 10,
+                            'Varsel om venting på godkjenning sendt til kontakt-e-post'
+                        );
+                    } else {
+                        this.toastService.addToast(
+                            'Aktivering feilet!',
+                            ToastType.bad, 5,
+                            'Noe gikk galt ved aktivering'
+                        );
+                    }
 
-                this.close(<any> status);
-            },
-            err => this.errorService.handle(err)
-        );
+                    this.close(<any> status);
+                },
+                err => this.errorService.handle(err)
+            );
+        },
+        err => this.errorService.handle(err));
     }
 
     public close(activationCode = ActivationEnum.NOT_ACTIVATED) {
         this.onClose.emit(activationCode);
+    }
+
+    private extendFormConfig() {
+        let fields = this.formFields$.getValue();
+
+        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'settings.CompanyBankAccount');
+        companyBankAccount.Options = this.getBankAccountOptions('settings.CompanyBankAccount', 'company');
+    }
+
+    private getBankAccountOptions(storeResultInProperty, bankAccountType) {
+        return {
+            entity: BankAccount,
+            listProperty: 'settings.BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeResultInProperty: storeResultInProperty,
+            storeIdInProperty: storeResultInProperty + 'ID',
+            editor: (bankaccount: BankAccount) => {
+                if (!bankaccount || !bankaccount.ID) {
+                    bankaccount = bankaccount || new BankAccount();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount.BankAccountType = bankAccountType;
+                    bankaccount.CompanySettingsID = this.formModel$.getValue().settings.ID;
+                    bankaccount.ID = 0;
+                }
+
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount,
+                    modalConfig: {
+                        ledgerAccountVisible: true
+                    },
+                    closeOnClickOutside: false
+                });
+
+                return modal.onClose.take(1).toPromise();
+            }
+        };
     }
 
     private getFormFields(): UniFieldLayout[] {
@@ -196,7 +246,7 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'contactname',
                 FieldType: FieldType.TEXT,
-                Label: 'Kontaktnavn',
+                Label: 'Kontaktnavn'
             },
             <any> {
                 Property: 'contactphone',
@@ -206,7 +256,12 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'contactemail',
                 FieldType: FieldType.EMAIL,
-                Label: 'Kontaktepost',
+                Label: 'Kontakt-e-post',
+            },
+            <any> {
+                Property: 'settings.CompanyBankAccount',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Driftskonto'
             },
             <any> {
                 Property: 'incommingInvoice',

@@ -1,3 +1,5 @@
+import { CompanySettings } from "@uni-entities";
+
 export class ActivateAP {
     public orgnumber: string;
     public orgname: string;
@@ -8,4 +10,5 @@ export class ActivateAP {
     public contactemail: string;
     public incommingInvoice: boolean;
     public outgoingInvoice: boolean;
+    public settings: CompanySettings;
 }
