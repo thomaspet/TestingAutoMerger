@@ -177,16 +177,13 @@ export class UniBankAccountModal implements IUniModal {
             this.validAccount = false;
             const account = this.formModel$.value;
 
-            if (changes['_ibanAccountSearch'].currentValue && /^\d{1,100}$/.test(changes['_ibanAccountSearch'].currentValue)) {
+            if (changes['_ibanAccountSearch'].currentValue) {
                 this.busy = true;
-                this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
+                const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
                 this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
                     this.busy = false;
-                }, (err) => { this.busy = false; this.errorService.handle(err); });
-            } else {
-                this.toastService.addToast('Ugyldig kontonummer');
-                this.validAccount = false;
-                return;
+                    this.toastService.removeToast(toastSearchBankAccount);
+                }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount); this.errorService.handle(err); });
             }
         }
     }
@@ -194,10 +191,10 @@ export class UniBankAccountModal implements IUniModal {
     private validateAccountNumber(account: any) {
         const valid = account
             && account.AccountNumber
-            && /^\d{1,100}$/.test(account.AccountNumber);
+            && /^[a-zA-Z0-9]{1,100}$/.test(account.AccountNumber);
 
         if (!valid) {
-            this.toastService.addToast('Ugyldig kontonummer');
+            this.toastService.addToast('Ugyldig kontonummer', ToastType.bad, null, 'Bare bokstaver og sifre er tillatt');
             this.validAccount = false;
             return;
         }
