@@ -123,6 +123,12 @@ export class TradeItemHelper  {
             this.mapVatTypeToQuoteItem(newRow);
         }
 
+        if (newRow.VatTypeID && !newRow.VatType) {
+            newRow.VatType = vatTypes.find(vt => vt.ID === newRow.VatTypeID);
+        }
+
+        newRow.VatPercent = newRow.VatType ? newRow.VatType.VatPercent : 0;
+
         if (event.field === 'Account') {
             this.mapAccountToQuoteItem(
                 newRow,
