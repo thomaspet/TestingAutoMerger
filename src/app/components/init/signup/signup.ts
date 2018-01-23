@@ -60,7 +60,7 @@ export class Signup {
             }
         });
     }
-    
+
     public submitStep1Form() {
         this.step1Form.disable();
         this.busy = true;
@@ -99,7 +99,7 @@ export class Signup {
 
     public submitStep2Form() {
         if(!this.step2Form.valid){
-            this.step2Form.controls.Password.markAsTouched() 
+            this.step2Form.controls.Password.markAsTouched()
             this.step2Form.controls.ConfirmPassword.markAsTouched()
             this.step2Form.controls.UserName.markAsTouched()
             return;
@@ -133,7 +133,7 @@ export class Signup {
                 } catch (e) { }
 
                 if (usernameExists) {
-                    this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
+                    this.errorMessage = 'Brukernavnet er opptatt. Vennligst prøv igjen med et annet brukernavn.';
                 } else {
                     this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
                 }

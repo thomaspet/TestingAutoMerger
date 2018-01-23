@@ -5908,9 +5908,17 @@ export class UserLicense extends UniEntity {
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
+    public Agreement: LicenseAgreement;
     public UserType: UserLicenseType;
     public Company: CompanyLicense;
     public ContractType: ContractLicenseType;
+}
+
+
+export class LicenseAgreement extends UniEntity {
+    public AgreementId: number;
+    public CanAgreeToLicense: boolean;
+    public HasAgreededToLicense: boolean;
 }
 
 

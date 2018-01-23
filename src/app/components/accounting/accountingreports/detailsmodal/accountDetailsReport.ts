@@ -153,6 +153,7 @@ export class AccountDetailsReport {
         this.config.isSubAccount = account.AccountID > 0;
     }
 
+
     public doTurnAndInclude() {
         // "turn" amounts for accountgroup 2 and 3, because it will be confusing for the users when these amounts are
         // displayed as negative numbers (which they will usually be)
