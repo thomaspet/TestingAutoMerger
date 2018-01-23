@@ -431,7 +431,7 @@ export class TradeItemTable {
             .setCopyFromCellAbove(false)
             .setIsRowReadOnly(row => row.StatusCode === 41103)
             .setChangeCallback((event) => {
-                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
+                let updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
                     event,
                     this.currencyCodeID,
                     this.currencyExchangeRate,
@@ -441,13 +441,11 @@ export class TradeItemTable {
                     this.vatDate
                 );
 
+
+
+
                 updatedRow['_isDirty'] = true;
 
-                if (updatedRow.VatTypeID && !updatedRow.VatType) {
-                    updatedRow.VatType = this.vatTypes.find(vt => vt.ID === updatedRow.VatTypeID);
-                }
-
-                updatedRow.VatPercent = updatedRow.VatType ? updatedRow.VatType.VatPercent : 0;
 
                 if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
                     let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;

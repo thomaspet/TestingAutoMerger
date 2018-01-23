@@ -1257,6 +1257,10 @@ export class InvoiceDetails {
                 return reject('Forfallsdato må være lik eller senere enn fakturadato.');
             }
 
+            if (this.invoice.Items.filter(x => !x.VatTypeID && (x.PriceExVat > 0 || x.PriceIncVat > 0)).length > 0) {
+                return reject('Kan ikke lagre faktura, mvakode må velges på alle linjene med et beløp');
+            }
+
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
             if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
