@@ -11,6 +11,7 @@ interface BalanceActionFormattedType {
     salaryBalanceID: number;
     balance: number;
 }
+const SELECTED_KEY = '_rowSelected';
 
 @Component({
     selector: 'salarybalances',
@@ -22,11 +23,14 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
     @Input() public salarybalances: SalaryBalance[];
     @Input() public lightWeight: boolean;
     @Output() public selectedSalarybalance: EventEmitter<SalaryBalance> = new EventEmitter();
+    @Output() public updatedList: EventEmitter<SalaryBalance[]> = new EventEmitter();
     @Output() public createSalaryBalance: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild(UniTable) private table: UniTable;
     private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
-    private salaryBalances$: ReplaySubject<SalaryBalance[]> = new ReplaySubject(1);
     private busy: boolean;
+
+    private focus: SalaryBalance;
+    private selected: SalaryBalance;
 
     constructor(
         private _salarybalanceService: SalarybalanceService,
@@ -39,7 +43,7 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['salarybalances']) {
-            this.salaryBalances$.next(this.salarybalances);
+            this.focusRow(this.salarybalances);
         }
     }
 
@@ -49,41 +53,49 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
     public rowSelected(event) {
         this.selectedSalarybalance.emit(event.rowModel);
+        this.updateSelected(event.rowModel);
     }
 
     public createSalarybalance() {
         this.createSalaryBalance.next();
     }
 
-    public selectRow(salaryBalance: SalaryBalance) {
-        Observable
-            .combineLatest(
-            this.table$.asObservable(),
-            this.salaryBalances$
-                .asObservable()
-                .filter(salBals => !!salBals.length && salBals[0].EmployeeID === salaryBalance.EmployeeID))
+    private updateSelected(row: SalaryBalance) {
+        this.table$
             .take(1)
-            .map((result: [UniTable, SalaryBalance[]]) => {
-                const [table, salaryBalances] = result;
-                const rowIndx = salaryBalances.findIndex(row => row.ID === salaryBalance.ID);
-                const focusRow = salaryBalances[rowIndx] || salaryBalances[salaryBalances.length - 1];
-                if (focusRow) {
-                    table.focusRow((focusRow && focusRow['_originalIndex']) || rowIndx);
-                }
-                return focusRow;
+            .map(table => table.getTableData())
+            .map(salaryBalances => {
+                salaryBalances.forEach(salBal => salBal[SELECTED_KEY] = salBal['_originalIndex'] === row['_originalIndex']);
+                return salaryBalances;
             })
-            .filter(salBal => !!salBal)
-            .subscribe((salBal) => this.selectedSalarybalance.next(salBal));
+            .subscribe(salaryBalances => this.setSelected(salaryBalances));
     }
 
-    public addRow(salaryBalance: SalaryBalance): void {
+    private focusRow(salaryBalances: SalaryBalance[]) {
+        const row = salaryBalances.find(x => x[SELECTED_KEY]);
+        if (!row) {
+            return;
+        }
         this.table$
-            .map(table => {
-                table.addRow(salaryBalance);
-                table.focusRow(table.getTableData().length - 1);
-                return salaryBalance;
-            })
-            .subscribe(salBal => this.selectedSalarybalance.next(salaryBalance));
+            .take(1)
+            .subscribe(table => this.setFocus(row, salaryBalances, table));
+    }
+
+    private setFocus(salaryBalance: SalaryBalance, salaryBalances: SalaryBalance[], table: UniTable) {
+        table.focusRow(
+            salaryBalance['_originalIndex'] ||
+            salaryBalances.findIndex(salBal => salaryBalance.ID
+                ? salBal.ID === salaryBalance.ID
+                : salBal._createguid === salaryBalance._createguid));
+    }
+
+    private setSelected(salaryBalances: SalaryBalance[]) {
+        const selected = salaryBalances.find(salBal => salBal[SELECTED_KEY]);
+        if (this.selected && this.selected['_originalIndex'] === selected['_originalIndex']) {
+            return;
+        }
+        this.updatedList.next(salaryBalances);
+        this.selected = selected;
     }
 
     private createConfig(lightWeight: boolean) {
@@ -110,22 +122,22 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
         const balanceCol = new UniTableColumn('CalculatedBalance', 'Saldo', UniTableColumnType.Text)
             .setAlignment('right')
             .setTemplate((salaryBalance: SalaryBalance) => {
-                if (!salaryBalance.CalculatedBalance && salaryBalance.CalculatedBalance !== 0) {
+                if (salaryBalance.CalculatedBalance === undefined || salaryBalance.CalculatedBalance === null) {
                     return '';
                 }
-                if (!salaryBalance.Transactions || !salaryBalance.Transactions.length) {
-                    return this.numberService.asMoney(salaryBalance.CalculatedBalance);
-                }
 
-                const sum = salaryBalance
-                    .Transactions
-                    .filter(salBal => !salBal.SalaryTransactionID
-                        || (salBal.SalaryTransaction
-                            && salBal.SalaryTransaction.payrollrun
-                            && !!salBal.SalaryTransaction.payrollrun.StatusCode))
-                    .map(line => line.Amount)
-                    .reduce((acc, curr) => acc + curr, 0);
-                return this.numberService.asMoney(sum);
+                if (salaryBalance.Transactions && salaryBalance.Transactions.length) {
+                    const sum = salaryBalance
+                        .Transactions
+                        .filter(salBal => (salBal.ID && !salBal.SalaryTransactionID)
+                            || (salBal.SalaryTransaction
+                                && salBal.SalaryTransaction.payrollrun
+                                && !!salBal.SalaryTransaction.payrollrun.StatusCode))
+                        .map(line => line.Amount)
+                        .reduce((acc, curr) => acc + curr, 0);
+                    return this.numberService.asMoney(sum);
+                }
+                return this.numberService.asMoney(salaryBalance.CalculatedBalance);
             })
             .setWidth('14rem');
 
@@ -136,7 +148,7 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
             activeColumns = [idCol, typeCol, balanceCol];
         }
 
-        this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, true, 15)
+        this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, !lightWeight, 15)
             .setColumns(activeColumns)
             .setSearchable(true);
     }

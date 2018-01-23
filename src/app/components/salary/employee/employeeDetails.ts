@@ -1,16 +1,16 @@
-import {Component, ViewChild, OnDestroy} from '@angular/core';
+import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
+import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig, UniToolbar} from '../../common/toolbar/toolbar';
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {IPosterWidget} from '../../common/poster/poster';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -28,6 +28,7 @@ import {
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
+import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 declare var _;
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
@@ -37,6 +38,10 @@ const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 const EMPLOYEE_KEY = 'employee';
 const SUB_ENTITIES_KEY = 'subEntities';
 const SAVING_KEY = 'viewSaving';
+const SAVE_TRIGGER_KEY = 'save';
+const NEW_TRIGGER_KEY = 'new';
+const SELECTED_KEY = '_rowSelected';
+
 type DirtyStatuses = {
     employee?: boolean,
     employeeTaxCard?: boolean,
@@ -90,8 +95,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
     };
 
-    @ViewChild(TaxCardModal)
-    public taxCardModal: TaxCardModal;
+    @ViewChild(UniToolbar) public toolbar: UniToolbar;
 
     private employeeWidgets: IPosterWidget[] = [
         {
@@ -170,6 +174,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private modalService: UniModalService,
         private employeeDetailsService: EmployeeDetailsService,
         private salarybalanceService: SalarybalanceService,
+        private salaryBalanceViewService: SalaryBalanceViewService,
         private salaryBalanceLineService: SalaryBalanceLineService
     ) {
         super(router.url, cacheService);
@@ -259,6 +264,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
             // Update cache key and clear data variables when employee ID is changed
             super.updateCacheKey(this.router.url);
+
+            super.getStateSubject(SAVE_TRIGGER_KEY)
+                .subscribe((type: Type<UniEntity>) => this.triggerSave(type));
+            super.getStateSubject(NEW_TRIGGER_KEY)
+                .subscribe((type: Type<UniEntity>) => this.createNewChildEntity(type));
+
             if (!this.employeeID) {
                 this.cacheService.clearPageCache(this.cacheKey);
 
@@ -728,7 +739,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private getTax(): void {
         this.getTaxObservable()
             .subscribe(empTaxcard => {
-                super.updateState(EMPLOYEE_TAX_KEY, empTaxcard, false)});
+                super.updateState(EMPLOYEE_TAX_KEY, empTaxcard, false)
+            });
     }
 
     private getTaxObservable(): Observable<EmployeeTaxCard> {
@@ -737,7 +749,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             .switchMap(financialYear => {
                 year = financialYear;
                 return this.employeeTaxCardService
-                .GetEmployeeTaxCard(this.employeeID, financialYear)})
+                    .GetEmployeeTaxCard(this.employeeID, financialYear)
+            })
             .switchMap(taxCard => {
                 return taxCard
                     ? Observable.of(taxCard)
@@ -791,20 +804,21 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getSalarybalancesObservable(): Observable<SalaryBalance[]> {
         return this.salarybalanceService
-                .GetAll(
-                    'filter=EmployeeID eq ' + this.employeeID,
-                    ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions.SalaryTransaction.payrollrun'])
-                .switchMap(salBals => (salBals && salBals.length) || !this.employeeID
-                    ? Observable.of(salBals || [])
-                    : this.salarybalanceService
-                        .GetNewEntity()
-                        .map((salBal: SalaryBalance) => {
-                            salBal.EmployeeID = this.employeeID;
-                            salBal.FromDate = new Date();
-                            salBal._createguid = this.salarybalanceService.getNewGuid();
-                            return salBal;
-                        })
-                        .map(salBal => [salBal]));
+            .GetAll(
+            'filter=EmployeeID eq ' + this.employeeID,
+            ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions.SalaryTransaction.payrollrun'])
+            .switchMap(salBals => (salBals && salBals.length) || !this.employeeID
+                ? Observable.of(salBals || [])
+                : this.salarybalanceService
+                    .GetNewEntity()
+                    .map((salBal: SalaryBalance) => {
+                        salBal.EmployeeID = this.employeeID;
+                        salBal.FromDate = new Date();
+                        salBal._createguid = this.salarybalanceService.getNewGuid();
+                        return salBal;
+                    })
+                    .map(salBal => [salBal]))
+            .map(salBals => this.markEntityAsSelected(salBals, salBals[0]));
     }
 
     private getRecurringPosts() {
@@ -905,17 +919,74 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 done('Feil ved lagring');
             } else {
                 done('Lagring fullført');
-                this.saveActions[0].disabled = true;
+                this.checkDirty();
             }
+        }
+    }
+
+    private triggerSave(type: Type<UniEntity> = null) {
+        let saveAction: IUniSaveAction = _.cloneDeep(this.saveActions[0]);
+        if (!type) {
+            this.toolbar.triggerSaveAction(saveAction);
+            return;
+        }
+        super.updateState(SAVING_KEY, true, false);
+        saveAction.action = (done) => {
+            this.saveAllObs(done)
+                .finally(() => super.updateState(SAVING_KEY, false, false))
+                .switchMap(() => this.createNewChildEntityObs(type))
+                .subscribe();
+        };
+        this.toolbar.triggerSaveAction(saveAction);
+    }
+
+    private createNewChildEntity(type: Type<UniEntity>) {
+        this.createNewChildEntityObs(type)
+            .subscribe();
+    }
+
+    private createNewChildEntityObs(type: Type<UniEntity>) {
+        return this.getState(Employee)
+            .switchMap(emp => this.employeeDetailsService.newEntity(type, emp))
+            .switchMap(element => this.getState(type)
+                .map(list => [...list, element || []])
+                .map(list => this.markEntityAsSelected(list, element)))
+            .do(model => this.updateStateWithType(type, model));
+    }
+
+    private markEntityAsSelected(list: any[], element: any): any[] {
+        if (!element) {
+            return list;
+        }
+        return list.map(entity => {
+            entity[SELECTED_KEY] = element.ID
+                ? entity.ID === element.ID
+                : entity._createguid === element._createguid;
+            return entity;
+        });
+    }
+
+    private getState(type: Type<UniEntity>): Observable<any> {
+        switch (type) {
+            case SalaryBalance:
+                return super.getStateSubject(SALARYBALANCES_KEY).take(1);
+            case Employee:
+                return super.getStateSubject(EMPLOYEE_KEY).take(1);
+        }
+    }
+
+    private updateStateWithType(type: Type<UniEntity>, model: any, isDirty: boolean = false) {
+        switch (type) {
+            case SalaryBalance:
+                super.updateState(SALARYBALANCES_KEY, model, isDirty);
+                break;
         }
     }
 
     private saveAll(done: (message: string) => void, refreshEmp: boolean = true) {
         super.updateState(SAVING_KEY, true, false);
         this.saveAllObs(done, refreshEmp)
-            .finally(() => {
-                super.updateState(SAVING_KEY, false, false);
-            })
+            .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe();
     }
 
@@ -1198,6 +1269,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveSalarybalancesObs(done, updateSalarybalances: boolean = true): Observable<SalaryBalance[]> {
+        this.salaryBalanceLineService.invalidateCache();
         return super.getStateSubject(SALARYBALANCES_KEY)
             .take(1)
             .switchMap((salarybalances: SalaryBalance[]) => {
@@ -1208,52 +1280,59 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                 salarybalances
                     .forEach((salarybalance, index) => {
-                        if (salarybalance['_isDirty'] || salarybalance.Deleted) {
-                            changeCount++;
-                            salarybalance.EmployeeID = this.employee.ID;
-
-                            const source = (salarybalance.ID > 0)
-                                ? this.salarybalanceService.Put(salarybalance.ID, salarybalance)
-                                : this.salarybalanceService.Post(salarybalance);
-
-                            const newObs: Observable<SalaryBalance> = <Observable<SalaryBalance>>source
-                                .catch((err, obs) => {
-                                    hasErrors = true;
-                                    salarybalances[index].Deleted = false;
-                                    const toastHeader =
-                                        `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
-                                    const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                    return this.errorService.handleRxCatch(err, obs);
-                                })
-                                .switchMap((res: SalaryBalance) => {
-                                    return this.salaryBalanceLineService
-                                        .GetAll(`filter=SalaryBalanceID eq ${res.ID}`, ['SalaryTransaction.payrollrun'])
-                                        .map(lines => {
-                                            res.Transactions = lines;
-                                            return res;
-                                        });
-                                })
-                                .do((res: SalaryBalance) => salarybalances[index] = res)
-                                .finally(() => {
-                                    saveCount++;
-                                    if (saveCount === changeCount) {
-                                        this.saveStatus.completeCount++;
-                                        if (hasErrors) {
-                                            this.saveStatus.hasErrors = true;
-                                        }
-                                        if (updateSalarybalances) {
-                                            super.updateState(SALARYBALANCES_KEY,
-                                                salarybalances.filter(x => !x.Deleted),
-                                                salarybalances.some(salbal => salbal['_isDirty']));
-                                        }
-
-                                        this.checkForSaveDone(done);
-                                    }
-                                });
-
-                            obsList.push(newObs);
+                        if (!salarybalance['_isDirty'] && !salarybalance.Deleted) {
+                            return;
                         }
+                        changeCount++;
+                        salarybalance.EmployeeID = this.employee.ID;
+
+                        const newObs: Observable<SalaryBalance> = this.salaryBalanceViewService
+                            .save(salarybalance)
+                            .catch((err, obs) => {
+                                hasErrors = true;
+                                salarybalances[index].Deleted = false;
+                                const toastHeader =
+                                    `Feil ved lagring av trekk linje ${salarybalance['_originalIndex'] + 1}`;
+                                const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                return this.errorService.handleRxCatch(err, obs);
+                            })
+                            .switchMap((res: SalaryBalance) => {
+                                if (!res.ID) {
+                                    return Observable.of(res);
+                                }
+                                return this.salaryBalanceLineService
+                                    .GetAll(`filter=SalaryBalanceID eq ${res.ID}`, ['SalaryTransaction.payrollrun'])
+                                    .map(lines => {
+                                        res.Transactions = lines;
+                                        return res;
+                                    });
+                            })
+                            .do((res: SalaryBalance) => {
+                                if (!res.ID) {
+                                    return;
+                                }
+                                res[SELECTED_KEY] = salarybalances[index][SELECTED_KEY];
+                                salarybalances[index] = res;
+                            })
+                            .finally(() => {
+                                saveCount++;
+                                if (saveCount === changeCount) {
+                                    this.saveStatus.completeCount++;
+                                    if (hasErrors) {
+                                        this.saveStatus.hasErrors = true;
+                                    }
+                                    if (updateSalarybalances) {
+                                        super.updateState(SALARYBALANCES_KEY,
+                                            salarybalances.filter(x => !x.Deleted),
+                                            salarybalances.some(salbal => salbal['_isDirty']));
+                                    }
+
+                                    this.checkForSaveDone(done);
+                                }
+                            });
+
+                        obsList.push(newObs);
                     });
                 return Observable.forkJoin(obsList);
             });

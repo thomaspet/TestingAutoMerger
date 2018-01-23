@@ -258,59 +258,24 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     private saveSalarybalance(done: (message: string) => void, updateView = true) {
         super.updateState(SAVING_KEY, true, false);
-        this.handlePaymentCreation(this.salarybalance)
-            .switchMap(salaryBalance => this.salarybalanceService.save(salaryBalance))
-            .do(salaryBalance => {
-                if (this.salarybalance['_newFiles'] && this.salarybalance['_newFiles'].length > 0) {
-                    this.linkNewFiles(salaryBalance.ID, this.salarybalance['_newFiles'], 'SalaryBalance');
-                }
-
-                if (!salaryBalance['CreatePayment'] && this.salarybalance.InstalmentType === SalBalType.Advance && !this.salarybalance.ID) {
-                    this.showAdvanceReport(salaryBalance.ID);
-                }
-            })
+        this.salaryBalanceViewService
+            .save(this.salarybalance)
             .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe((salbal: SalaryBalance) => {
+                this.saveActions[0].disabled = true;
+                if (!salbal.ID) {
+                    done('Lagring avbrutt');
+                    return;
+                }
                 if (updateView) {
                     super.updateState(SALARY_BALANCE_KEY, salbal, false);
                     this.router.navigate([this.url, salbal.ID]);
                     done('Lagring fullført');
-                    this.saveActions[0].disabled = true;
                 }
             }, err => {
                 this.errorService.handle(err);
                 done('Lagring feilet');
             });
-    }
-
-
-
-    private linkNewFiles(ID: any, fileIDs: Array<any>, entityType: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            fileIDs.forEach(fileID => {
-                this.fileService.linkFile(entityType, ID, fileID).subscribe(x => resolve(x));
-            });
-        });
-    }
-
-    private handlePaymentCreation(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
-        if (salaryBalance.ID || !this.salarybalanceService.hasBalance(salaryBalance)) {
-            return Observable.of(salaryBalance);
-        }
-
-        const modal = this.modalService.confirm({
-            header: 'Opprett utbetaling',
-            message: 'Vil du opprette en utbetalingspost av dette forskuddet?',
-            buttonLabels: {
-                accept: 'Opprett',
-                cancel: 'Avbryt'
-            }
-        });
-
-        return modal.onClose.map(response => {
-            salaryBalance.CreatePayment = response === ConfirmActions.ACCEPT;
-            return salaryBalance;
-        });
     }
 
     private updateTabStrip(salarybalanceID: number) {
