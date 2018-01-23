@@ -18,7 +18,6 @@ import {
     ErrorService,
     SalarybalanceService,
     ReportDefinitionService,
-    CompanySalaryService,
     FileService,
     WageTypeService,
     EmployeeService,
@@ -53,7 +52,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         private errorService: ErrorService,
         protected cacheService: UniCacheService,
         private reportDefinitionService: ReportDefinitionService,
-        private companySalaryService: CompanySalaryService,
         private fileService: FileService,
         private modalService: UniModalService,
         private wageTypeService: WageTypeService,
@@ -204,14 +202,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
                 this.salarybalanceService
                     .GetNewEntity()
-                    .switchMap(salBal => {
-                        return this.companySalaryService
-                            .getCompanySalary()
-                            .map(compSal => {
-                                salBal.CreatePayment = compSal.RemitRegularTraits;
-                                return salBal;
-                            });
-                    })
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .subscribe((response) => this.handleNextPreviousNewSalaryBalance(response));
 
@@ -246,13 +236,6 @@ export class SalarybalanceView extends UniView implements OnDestroy {
             ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
                 'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(salBal => salBal.ID
-                ? Observable.of(salBal)
-                : this.companySalaryService.getCompanySalary()
-                    .map(compSal => {
-                        salBal.CreatePayment = compSal.RemitRegularTraits;
-                        return salBal;
-                    }))
             .subscribe((salbal: SalaryBalance) => super.updateState(SALARY_BALANCE_KEY, salbal, false));
     }
 

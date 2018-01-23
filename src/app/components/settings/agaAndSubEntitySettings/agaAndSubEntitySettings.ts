@@ -98,7 +98,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             this.agazoneService.getAgaRules()
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
-                let [companysalaries, mainOrg, zones, rules] = dataset;
+                const [companysalaries, mainOrg, zones, rules] = dataset;
                 this.companySalary$.next(companysalaries);
                 this.agaZones = zones;
                 this.agaRules = rules;
@@ -113,7 +113,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     private buildForms() {
-        var mainOrgName = new UniFieldLayout();
+        const mainOrgName = new UniFieldLayout();
         mainOrgName.Label = 'Firmanavn';
         mainOrgName.EntityType = 'mainOrganization';
         mainOrgName.Property = 'BusinessRelationInfo.Name';
@@ -122,7 +122,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgName.FieldSet = 1;
         mainOrgName.Legend = 'Juridisk enhet';
 
-        var mainOrgOrg = new UniFieldLayout();
+        const mainOrgOrg = new UniFieldLayout();
         mainOrgOrg.Label = 'Orgnummer';
         mainOrgOrg.EntityType = 'mainOrganization';
         mainOrgOrg.Property = 'OrgNumber';
@@ -130,7 +130,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.Section = 0;
         mainOrgOrg.FieldSet = 1;
 
-        var mainOrgFreeAmount = new UniFieldLayout();
+        const mainOrgFreeAmount = new UniFieldLayout();
         mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
         mainOrgFreeAmount.EntityType = 'mainOrganization';
         mainOrgFreeAmount.Property = 'freeAmount';
@@ -138,7 +138,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgFreeAmount.Section = 0;
         mainOrgFreeAmount.FieldSet = 1;
 
-        var mainOrgZone = new UniFieldLayout();
+        const mainOrgZone = new UniFieldLayout();
         mainOrgZone.Label = 'Sone';
         mainOrgZone.EntityType = 'mainOrganization';
         mainOrgZone.Property = 'AgaZone';
@@ -153,7 +153,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             debounceTime: 500
         };
 
-        var mainOrgRule = new UniFieldLayout();
+        const mainOrgRule = new UniFieldLayout();
         mainOrgRule.Label = 'Beregningsregel aga';
         mainOrgRule.EntityType = 'mainOrganization';
         mainOrgRule.Property = 'AgaRule';
@@ -167,7 +167,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             debounceTime: 500
         };
 
-        var agaSoneLink = new UniFieldLayout();
+        const agaSoneLink = new UniFieldLayout();
         agaSoneLink.Label = 'AGA soner';
         agaSoneLink.HelpText = 'Oversikt over arbeidsgiveravgift soner';
         agaSoneLink.EntityType = 'mainOrganization';
@@ -180,7 +180,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             target: '_blank'
         };
 
-        var freeAmountBtn = new UniFieldLayout();
+        const freeAmountBtn = new UniFieldLayout();
         freeAmountBtn.Label = 'Oversikt fribeløp';
         freeAmountBtn.EntityType = 'mainOrganization';
         freeAmountBtn.Property = 'FreeAmountBtn';
@@ -193,7 +193,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             }
         };
 
-        var grantBtn = new UniFieldLayout();
+        const grantBtn = new UniFieldLayout();
         grantBtn.Label = 'Tilskudd';
         grantBtn.EntityType = 'mainOrganization';
         grantBtn.Property = 'TilskuddBtn';
@@ -208,7 +208,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
 
 
-        var mainAccountAlocatedAga = new UniFieldLayout();
+        const mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
         mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
@@ -226,7 +226,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        var mainAccountCostAga = new UniFieldLayout();
+        const mainAccountCostAga = new UniFieldLayout();
         mainAccountCostAga.Label = 'Konto kostnad aga';
         mainAccountCostAga.EntityType = 'CompanySalary';
         mainAccountCostAga.Property = 'MainAccountCostAGA';
@@ -242,7 +242,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        var mainAccountAllocatedAgaVacation = new UniFieldLayout();
+        const mainAccountAllocatedAgaVacation = new UniFieldLayout();
         mainAccountAllocatedAgaVacation.EntityType = 'CompanySalary';
         mainAccountAllocatedAgaVacation.Label = 'Avsatt aga av feriepenger';
         mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
@@ -258,7 +258,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        var mainAccountCostAgaVacation = new UniFieldLayout();
+        const mainAccountCostAgaVacation = new UniFieldLayout();
         mainAccountCostAgaVacation.EntityType = 'CompanySalary';
         mainAccountCostAgaVacation.Label = 'Kostnad aga feriepenger';
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
@@ -274,7 +274,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        var interrimRemit = new UniFieldLayout();
+        const interrimRemit = new UniFieldLayout();
         interrimRemit.EntityType = 'CompanySalary';
         interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
         interrimRemit.Property = 'InterrimRemitAccount';
@@ -290,7 +290,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        let postTax = new UniFieldLayout();
+        const postTax = new UniFieldLayout();
         postTax.Label = 'Poster skattetrekk automatisk';
         postTax.EntityType = 'CompanySalary';
         postTax.Property = 'PostToTaxDraw';
@@ -305,16 +305,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             valueProperty: 'PostToTaxDraw'
         };
 
-        let remitRegularTraits = new UniFieldLayout();
-        remitRegularTraits.Label = 'Lag utbetaling av faste trekk ved lønnsutbetaling';
-        remitRegularTraits.EntityType = 'CompanySalary';
-        remitRegularTraits.Property = 'RemitRegularTraits';
-        remitRegularTraits.FieldType = FieldType.CHECKBOX;
-        remitRegularTraits.Section = 2;
-        remitRegularTraits.FieldSet = 2;
-
-
-        let paymentInterval = new UniFieldLayout();
+        const paymentInterval = new UniFieldLayout();
         paymentInterval.EntityType = 'CompanySalary';
         paymentInterval.Label = 'Lønnsintervall';
         paymentInterval.Property = 'PaymentInterval';
@@ -350,8 +341,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAgaVacation,
             interrimRemit,
             paymentInterval,
-            postTax,
-            remitRegularTraits
+            postTax
         ]);
     }
 
@@ -369,8 +359,8 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveAgaAndSubEntities(done) {
-        let saveObs: Observable<any>[] = [];
-        let companySalary = this.companySalary$.getValue();
+        const saveObs: Observable<any>[] = [];
+        const companySalary = this.companySalary$.getValue();
         if (companySalary) {
             let companySaveObs: Observable<CompanySalary>;
             companySaveObs = companySalary['_isDirty']
@@ -383,7 +373,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         if (this.subEntityList) {
             saveObs.push(this.subEntityList.saveSubEntity());
         }
-        let mainOrganization = this.mainOrganization$.getValue();
+        const mainOrganization = this.mainOrganization$.getValue();
         if (mainOrganization) {
             let mainOrgSave: Observable<SubEntity> = null;
 
@@ -428,13 +418,13 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public companySalarychange(event) {
-        let value = this.companySalary$.getValue();
+        const value = this.companySalary$.getValue();
         value['_isDirty'] = true;
         this.companySalary$.next(value);
     }
 
     public mainOrgChange(event) {
-        let value = this.mainOrganization$.getValue();
+        const value = this.mainOrganization$.getValue();
 
         if (event['AgaRule']) {
             if (value['freeAmount'] === null && event['AgaRule'].currentValue === 1) {

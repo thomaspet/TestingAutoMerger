@@ -117,8 +117,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 helpText = 'For trekk som må ha kidnr ved betaling, legges kidnr inn som en fast opplysning her.';
                 break;
             case 'createpayment':
-                helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning. ' +
-                    'Vil bare fungere viss Firmainnstillinger er satt opp med lag utbetaling av faste trekk (i firmainnstillinger, lønn)';
+                helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning.';
                 break;
             default:
                 break;
