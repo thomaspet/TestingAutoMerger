@@ -32,7 +32,7 @@ import {EHFService} from './common/EHFService';
 import {AgaZoneService} from './common/agaZoneService';
 import {AgaSumService} from './common/agaSumService';
 import {MunicipalService} from './common/municipalsService';
-import {BrowserStorageService} from './common/browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniCacheService} from './common/cacheService';
 import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
@@ -94,7 +94,7 @@ export * from './common/EHFService';
 export * from './common/agaZoneService';
 export * from './common/agaSumService'
 export * from './common/municipalsService';
-export * from './common/browserStorageService';
+export * from '../../framework/core/browserStorageService';
 export * from './common/cacheService';
 export * from './common/staticRegisterService';
 export * from './common/dimensionService';

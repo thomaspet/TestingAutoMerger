@@ -3,6 +3,7 @@ import {ITableFilter, IExpressionFilterValue} from './unitable';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
 import * as Immutable from 'immutable';
 import * as moment from 'moment';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 interface IColumnSetupMap {
     [key: string]: UniTableColumn[];
@@ -25,10 +26,12 @@ export class UniTableUtils {
     private columnSetupMap: IColumnSetupMap = {};
     private tableFilterMap: ITableFilterMap = {};
 
-    constructor() {
+    constructor(
+        private browserStorage: BrowserStorageService,
+    ) {
         try {
-            this.columnSetupMap = JSON.parse(localStorage.getItem(CONFIG_STORAGE_KEY)) || {};
-            this.tableFilterMap = JSON.parse(localStorage.getItem(FILTER_STORAGE_KEY)) || {};
+            this.columnSetupMap = browserStorage.getItem(CONFIG_STORAGE_KEY) || {};
+            this.tableFilterMap = browserStorage.getItem(FILTER_STORAGE_KEY) || {};
         } catch (e) {
             console.log('Error trying to get column setup or filters (unitableUtils constructor)');
             console.log(e);
@@ -75,7 +78,7 @@ export class UniTableUtils {
 
         try {
             this.columnSetupMap[key] = safeToSave;
-            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
+            this.browserStorage.setItem(CONFIG_STORAGE_KEY, this.columnSetupMap);
         } catch (e) {
             console.log(e);
         }
@@ -88,7 +91,7 @@ export class UniTableUtils {
 
         try {
             delete this.columnSetupMap[key];
-            localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(this.columnSetupMap));
+            this.browserStorage.setItem(CONFIG_STORAGE_KEY, this.columnSetupMap);
         } catch (e) {
             console.log(e);
         }
@@ -109,7 +112,7 @@ export class UniTableUtils {
             delete this.tableFilterMap[tableName];
         }
 
-        localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(this.tableFilterMap));
+        this.browserStorage.setItem(FILTER_STORAGE_KEY, this.tableFilterMap);
     }
 
     /**

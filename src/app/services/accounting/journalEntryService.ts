@@ -11,7 +11,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {JournalEntrySimpleCalculationSummary} from '../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../models/accounting/AccountBalanceInfo';
-import {BrowserStorageService} from '../common/browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
 import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
 
@@ -80,36 +80,32 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getJournalEntrySettings(mode: number): JournalEntrySettings {
-        let settingsJson = this.storageService.get(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`);
-        let settings: JournalEntrySettings;
+        let settings = this.storageService.getItem(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`);
 
-        if (!settingsJson) {
+        if (!settings) {
             settings = new JournalEntrySettings();
             settings.AttachmentsVisible = false;
-        } else {
-            settings = JSON.parse(settingsJson);
         }
 
         return settings;
     }
 
     public setJournalEntrySettings(settings: JournalEntrySettings, mode: number) {
-        this.storageService.save(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`, JSON.stringify(settings));
+        this.storageService.setItem(`${this.JOURNAL_ENTRY_SETTINGS_LOCALSTORAGE_KEY}_${mode}`, settings);
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {
-        let previousSessionData = this.storageService.sessionGet(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, true);
+        let previousSessionData = this.storageService.getSessionItemFromCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`);
 
         if (previousSessionData) {
-            let data = JSON.parse(previousSessionData);
-            return data;
+            return previousSessionData;
         }
 
         return null;
     }
 
     public setSessionData(mode: number, data: Array<JournalEntryData>) {
-        this.storageService.sessionSave(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, JSON.stringify(data), true);
+        this.storageService.setSessionItemOnCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, data);
     }
 
     public getLastJournalEntryNumber(): Observable<any> {

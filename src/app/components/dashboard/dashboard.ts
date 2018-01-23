@@ -4,6 +4,7 @@ import {YearService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
 
 import * as Chart from 'chart.js';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export interface IChartDataSet {
     label: string;
@@ -22,13 +23,14 @@ export class Dashboard {
     @ViewChild(UniWidgetCanvas)
     public widgetCanvas: UniWidgetCanvas;
 
-    public welcomeHidden: boolean = JSON.parse(localStorage.getItem('welcomeHidden'));
+    public welcomeHidden: boolean = this.browserStorage.getItem('welcomeHidden');
     private layout: any[] = [];
     private activeYear: number;
 
     constructor(
         private http: UniHttp,
-        private yearService: YearService
+        private yearService: YearService,
+        private browserStorage: BrowserStorageService,
     ) {
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;

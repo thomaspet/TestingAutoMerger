@@ -5,6 +5,7 @@ import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/cal
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import * as moment from 'moment';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export interface ITimeTrackingTemplate {
     StartTime: string;
@@ -51,11 +52,15 @@ export class SideMenu {
     private initDate: Date = new Date();
 
 
-    constructor(private toast: ToastService, private modalService: UniModalService) {
-        let temp = localStorage.getItem('timeTrackingTemplates');
-
-        if (temp) {
-            this.timeTrackingTemplates = JSON.parse(temp);
+    constructor(
+        private toast: ToastService,
+        private modalService: UniModalService,
+        private browserStorage: BrowserStorageService,
+    ) {
+        const key = 'timeTrackingTemplates';
+        const templates = browserStorage.getItem(key);
+        if (templates) {
+            this.timeTrackingTemplates = templates;
         }
     }
 
@@ -95,11 +100,11 @@ export class SideMenu {
                 } else {
                     this.timeTrackingTemplates.push(item.template);
                 }
-                localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+                this.browserStorage.setItem('timeTrackingTemplates', this.timeTrackingTemplates);
                 break;
             case TemplateCloseOptions.delete:
                 this.timeTrackingTemplates.splice(item.index, 1);
-                localStorage.setItem('timeTrackingTemplates', JSON.stringify(this.timeTrackingTemplates));
+                this.browserStorage.setItem('timeTrackingTemplates', this.timeTrackingTemplates);
                 break;
             case TemplateCloseOptions.cancel:
                 break;

@@ -1,10 +1,16 @@
 import {IWidgetLayout} from './widgetCanvas';
 import {IUniWidget, WIDGET_MAP} from './uniWidget';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {Injectable} from '@angular/core';
 
+@Injectable()
 export class CanvasHelper {
     public canvasGrid: boolean[][];
     private numColumns: number;
     private numRows: number;
+
+    constructor(private browserStorage: BrowserStorageService) {
+    }
 
     public verifyCustomLayout(layout: IWidgetLayout) {
         const widgets = [
@@ -23,7 +29,7 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+            const layoutStore = this.browserStorage.getItem('uni_widget_layouts');
             if (layoutStore[name]) {
                 let layout =  layoutStore[name];
                 if (this.verifyCustomLayout(layout)) {
@@ -42,7 +48,7 @@ export class CanvasHelper {
 
         let layoutStore;
         try {
-            layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+            layoutStore = this.browserStorage.getItem('uni_widget_layouts');
         } catch (e) {}
 
         if (!layoutStore) {
@@ -57,7 +63,7 @@ export class CanvasHelper {
             }
             return value;
         });
-        localStorage.setItem('uni_widget_layouts', stringified);
+        this.browserStorage.setItem('uni_widget_layouts', JSON.parse(stringified));
     }
 
     public removeLayout(name: string) {
@@ -66,9 +72,9 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = JSON.parse(localStorage.getItem('uni_widget_layouts'));
+            const layoutStore = this.browserStorage.getItem('uni_widget_layouts');
             delete layoutStore[name];
-            localStorage.setItem('uni_widget_layouts', JSON.stringify(layoutStore));
+            this.browserStorage.setItem('uni_widget_layouts', layoutStore);
         } catch (e) {}
     }
 

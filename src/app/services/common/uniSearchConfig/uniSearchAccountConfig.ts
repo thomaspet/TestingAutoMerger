@@ -6,7 +6,7 @@ import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {AccountService} from '../../accounting/accountService';
-import {BrowserStorageService} from '../browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 const MAX_RESULTS = 50;
 
@@ -89,7 +89,7 @@ export class UniSearchAccountConfig {
                 // saving to localStorage to have last selected search be stored and used in accrualModal
                 // to get initial data in that field
                 if(selectedItem.ID && selectedItem.AccountNumber) {
-                    this.browserStorageService.save('BalanceAccountID', JSON.stringify(selectedItem.ID));
+                    this.browserStorageService.setItem('BalanceAccountID', selectedItem.ID);
                 }
                 if (selectedItem.ID) {
                     return this.accountService.Get(selectedItem.ID, expands)

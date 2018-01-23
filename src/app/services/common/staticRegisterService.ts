@@ -3,11 +3,16 @@ import {StaticRegister} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Injectable} from '@angular/core';
 import {ErrorService} from '../common/errorService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class StaticRegisterService extends BizHttp<StaticRegister> {
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp,
+        private errorService: ErrorService,
+        private browserStorage: BrowserStorageService,
+    ) {
         super(http);
     }
 
@@ -19,7 +24,7 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .map(response => response.json())
         .subscribe((response) => {
             response.forEach(entity => {
-                var localstorageStamp = localStorage.getItem(entity.Registry + 'Stamp');
+                const localstorageStamp = this.browserStorage.getItem(entity.Registry + 'Stamp');
                 if ((!localstorageStamp) || (localstorageStamp < entity.stamp)) {
                     this.postStaticRegisterDataset(entity);
                 }
@@ -35,13 +40,13 @@ export class StaticRegisterService extends BizHttp<StaticRegister> {
         .send()
         .map(response => response.json())
         .subscribe((response) => {
-            localStorage.setItem(entity.Registry + 'Data', JSON.stringify(response));
-            localStorage.setItem(entity.Registry + 'Stamp', entity.stamp);
+            this.browserStorage.setItem(entity.Registry + 'Data', response);
+            this.browserStorage.setItem(entity.Registry + 'Stamp', entity.stamp);
         }, err => this.errorService.handle(err));
     }
 
     public getStaticRegisterDataset(registry: string) {
-        return JSON.parse(localStorage.getItem(registry + 'Data'));
+        return this.browserStorage.getItem(registry + 'Data');
     }
 
 }

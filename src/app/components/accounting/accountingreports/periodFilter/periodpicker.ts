@@ -16,7 +16,10 @@ export class PeriodPicker {
     private periodFilterData: PeriodFilter;
     public pickerAreaVisible: boolean = false;
 
-    constructor(private el: ElementRef) {
+    constructor(
+        private el: ElementRef,
+        private periodFilterHelper: PeriodFilterHelper,
+    ) {
     }
 
     public ngOnInit() {
@@ -41,7 +44,7 @@ export class PeriodPicker {
     }
 
     private update() { // tslint:disable-line
-        this.periodFilterData.name = PeriodFilterHelper.getFilterName(this.periodFilterData);
+        this.periodFilterData.name = this.periodFilterHelper.getFilterName(this.periodFilterData);
         this.periodFilter = _.cloneDeep(this.periodFilterData);
 
         this.periodFilterChanged.emit(this.periodFilter);

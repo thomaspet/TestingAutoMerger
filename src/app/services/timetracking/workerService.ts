@@ -8,6 +8,7 @@ import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';
 import {ErrorService} from '../common/errorService';
 import * as moment from 'moment';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export enum ItemInterval {
     all = 0,
@@ -50,7 +51,12 @@ export class WorkerService extends BizHttp<Worker> {
         company: ''
     };
 
-    constructor(http: UniHttp, private userService: UserService, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp,
+        private userService: UserService,
+        private errorService: ErrorService,
+        private browserStorage: BrowserStorageService,
+    ) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
         this.entityType = Worker.EntityType;
@@ -90,7 +96,7 @@ export class WorkerService extends BizHttp<Worker> {
                 this.user.name = usr.DisplayName;
                 this.user.id = usr.ID;
                 this.user.guid = usr.GlobalIdentity;
-                this.user.company = JSON.parse(localStorage.getItem('activeCompany')).Name;
+                this.user.company = this.browserStorage.getItem('activeCompany').Name;
                 resolve(usr.ID);
             }, err => {
                 reject(err.statusText);

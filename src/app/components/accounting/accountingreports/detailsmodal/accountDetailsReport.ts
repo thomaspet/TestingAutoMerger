@@ -78,7 +78,8 @@ export class AccountDetailsReport {
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private tabService: TabService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private periodFilterHelper: PeriodFilterHelper,
     ) {
 
         this.config = {
@@ -92,9 +93,9 @@ export class AccountDetailsReport {
             dimensionType: 0
         };
 
-        this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
-        this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
         this.fields$.next(this.getLayout().Fields);
 
@@ -236,9 +237,9 @@ export class AccountDetailsReport {
     // loadData will be called from the accountDetailsReportModal when opening the modal
     public loadData() {
         // get default period filters
-        this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
-        this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
         this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;
@@ -415,7 +416,7 @@ export class AccountDetailsReport {
         }
 
         filter.year = row.year;
-        filter.name = PeriodFilterHelper.getFilterName(filter);
+        filter.name = this.periodFilterHelper.getFilterName(filter);
         this.periodFilter3$.next(filter);
 
         this.setupLookupTransactions();

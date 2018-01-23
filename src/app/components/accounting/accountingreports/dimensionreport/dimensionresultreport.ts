@@ -34,10 +34,13 @@ export class DimensionResultReport {
 
     private toolbarconfig: IToolbarConfig;
 
-    constructor(private router: Router,
-                private route: ActivatedRoute,
-                private statisticsService: StatisticsService,
-                private tabService: TabService) {
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private statisticsService: StatisticsService,
+        private tabService: TabService,
+        private periodFilterHelper: PeriodFilterHelper,
+    ) {
         this.route.params.subscribe(params => {
             this.dimensionType = params['type'];
             this.filterDimensionID = +params['id'];
@@ -72,17 +75,17 @@ export class DimensionResultReport {
 
     public ngOnInit() {
         // get default period filters
-        this.periodFilter1 = PeriodFilterHelper.getFilter(1, null);
-        this.periodFilter2 = PeriodFilterHelper.getFilter(2, this.periodFilter1);
+        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null);
+        this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
     }
 
     public onPeriodFilter1Changed(event) {
         this.periodFilter1 = event;
-        PeriodFilterHelper.saveFilterSettings(1, this.periodFilter1);
+        this.periodFilterHelper.saveFilterSettings(1, this.periodFilter1);
     }
 
     public onPeriodFilter2Changed(event) {
         this.periodFilter2 = event;
-        PeriodFilterHelper.saveFilterSettings(2, this.periodFilter2);
+        this.periodFilterHelper.saveFilterSettings(2, this.periodFilter2);
     }
 }

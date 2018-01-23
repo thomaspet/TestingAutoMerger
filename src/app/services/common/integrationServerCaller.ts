@@ -4,11 +4,15 @@ import {Observable} from 'rxjs/Observable';
 import {environment} from 'src/environments/environment';
 import {Altinn} from '../../unientities';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class IntegrationServerCaller {
 
-    constructor(protected http: UniHttp) {}
+    constructor(
+        protected http: UniHttp,
+        private browserStorage: BrowserStorageService,
+    ) {}
 
     public checkSystemLogin(orgno: string, sysuser: string, syspw: string, lang: string): Observable<any> {
         return this.http.withNewHeaders()
@@ -34,7 +38,7 @@ export class IntegrationServerCaller {
             pin: string,
             preferredLogin: string,
             timeStamp: string
-        } = JSON.parse(localStorage.getItem('AltinnUserData'));
+        } = this.browserStorage.getItem('AltinnUserData');
         return this.http
             .withNewHeaders()
             .withHeaders({

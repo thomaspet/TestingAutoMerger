@@ -15,6 +15,7 @@ import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineServic
 import {StatisticsService} from '../../common/statisticsService';
 import {YearService} from '../../common/yearService';
 import {ITag} from '../../../components/common/toolbar/tags';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, //Note: NOT in Use yet
@@ -55,7 +56,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private statisticsService: StatisticsService,
         private yearService: YearService,
         private salaryBalanceService: SalarybalanceService,
-        private salaryBalanceLineService: SalaryBalanceLineService
+        private salaryBalanceLineService: SalaryBalanceLineService,
+        private browserStorage: BrowserStorageService,
     ) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -141,7 +143,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getYear(): number {
-        let financialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        let financialYear = this.browserStorage.getItem('activeFinancialYear');
         return financialYear && financialYear.Year ? financialYear.Year : undefined;
     }
 

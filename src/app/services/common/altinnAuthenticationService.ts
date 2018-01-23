@@ -4,6 +4,7 @@ import {AltinnAuthRequest} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
@@ -16,7 +17,10 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
         { ID: 3, text: 'TaxPin'}
     ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private browserStorage: BrowserStorageService,
+    ) {
         super(http);
 
         this.relativeURL = 'altinn';
@@ -34,14 +38,14 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
     }
 
     public storeAltinnAuthenticationDataInLocalstorage(altinnAuthenticationData: AltinnAuthenticationData) {
-        localStorage.setItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY, JSON.stringify(altinnAuthenticationData));
+        this.browserStorage.setItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY, altinnAuthenticationData);
     }
 
     public getAltinnAuthenticationDataFromLocalstorage(): AltinnAuthenticationData {
-        return AltinnAuthenticationData.fromObject(JSON.parse(localStorage.getItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY)));
+        return AltinnAuthenticationData.fromObject(this.browserStorage.getItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY));
     }
 
     public clearAltinnAuthenticationDataFromLocalstorage()    {
-        localStorage.removeItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY);
+        this.browserStorage.removeItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY);
     }
 }

@@ -515,7 +515,7 @@ export class TransqueryDetails implements OnInit {
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
         const showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
-        const visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
+        const visibleColumnsString = this.storageService.getItem(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY);
 
         let visibleColumns = [];
         if (visibleColumnsString) {

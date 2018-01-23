@@ -1,13 +1,14 @@
 import {Injectable} from '@angular/core';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class SettingsService {
 
-    constructor() {
+    constructor(private browserStorage: BrowserStorageService) {
     }
 
     public getViewSettings(viewName: string): ViewSettings {
-        return new ViewSettings(viewName);
+        return new ViewSettings(viewName, this.browserStorage);
     }
 }
 
@@ -16,9 +17,14 @@ export class ViewSettings {
     private settingsObject: any = {};
     private settingsKey: string;
     private isLoaded: boolean = false;
+    private browserStorage: BrowserStorageService;
 
-    constructor(viewName: string) {
+    constructor(
+        viewName: string,
+        browserStorage: BrowserStorageService,
+    ) {
         this.settingsKey = viewName;
+        this.browserStorage = browserStorage;
     }
 
     public setProp(name: string, value: any) {
@@ -33,14 +39,13 @@ export class ViewSettings {
         return this.settingsObject[name] || defaultValue;
     }
 
-    private save() {        
-        localStorage.setItem(this.settingsKey, JSON.stringify(this.settingsObject));
+    private save() {
+        this.browserStorage.setItem(this.settingsKey, this.settingsObject);
         this.isLoaded = true;
     }
 
     private load() {
-        var raw = localStorage.getItem(this.settingsKey);
-        this.settingsObject = raw ? JSON.parse(raw) : this.settingsObject;
+        this.settingsObject = this.browserStorage.getItem(this.settingsKey) || this.settingsObject;
         this.isLoaded = true;
     }
 

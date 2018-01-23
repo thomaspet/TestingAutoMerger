@@ -18,6 +18,7 @@ import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bu
 import {SingleTextFieldModal} from '../../../framework/uniModal/presets/singleTextFieldModal';
 import {isNullOrUndefined} from 'util';
 import {Router, ActivationEnd} from '@angular/router';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -65,7 +66,8 @@ export class BureauDashboard {
         private currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
         private elementRef: ElementRef,
-        private router: Router
+        private router: Router,
+        private browserStorage: BrowserStorageService,
     ) {
 
         this.toolbarConfig = {
@@ -146,7 +148,7 @@ export class BureauDashboard {
                 sortField: this.currentSortField,
                 tagsForCompany: this.companyTags
             };
-            localStorage.setItem('bureau_list_user_preferences', JSON.stringify(preferences));
+            this.browserStorage.setItem('bureau_list_user_preferences', preferences);
         } catch (e) {}
     }
 
@@ -296,7 +298,7 @@ export class BureauDashboard {
     private getUserPreferences(): BureauPreferences {
         let preferences: BureauPreferences;
         try {
-            preferences = JSON.parse(localStorage.getItem('bureau_list_user_preferences'));
+            preferences = this.browserStorage.getItem('bureau_list_user_preferences');
         } catch (e) {}
 
         return preferences || <BureauPreferences>{};

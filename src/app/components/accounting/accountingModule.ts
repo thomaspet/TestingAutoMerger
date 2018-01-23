@@ -67,6 +67,7 @@ import {PostPost} from './postpost/postpost';
 import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
+import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 
 @NgModule({
     imports: [
@@ -208,6 +209,9 @@ import {SupplierList} from './supplier/list/supplierList';
 
         // PostPost
         PostPost
+    ],
+    providers: [
+        PeriodFilterHelper,
     ]
 })
 export class AccountingModule {

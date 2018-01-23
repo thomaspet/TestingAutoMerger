@@ -6,6 +6,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {UniSelect, ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {Logger} from '../../../../framework/core/logger';
 import * as $ from 'jquery';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'uni-login',
@@ -35,7 +36,8 @@ export class Login {
         private _authService: AuthService,
         private _router: Router,
         private http: UniHttp,
-        private logger: Logger
+        private logger: Logger,
+        private browserStorage: BrowserStorageService,
     ) {
         this.selectConfig = {
             displayProperty: 'Name',
@@ -87,7 +89,7 @@ export class Login {
                 this.availableCompanies = response.json();
 
                 try {
-                    const lastActiveCompanyKey = localStorage.getItem('lastActiveCompanyKey');
+                    const lastActiveCompanyKey = this.browserStorage.getItem('lastActiveCompanyKey');
                     const lastActiveCompany = this.availableCompanies.find((company) => {
                         return company.Key === lastActiveCompanyKey;
                     });
@@ -113,8 +115,8 @@ export class Login {
 
     private onCompanySelected(company) {
         if (company) {
-            const url = localStorage.getItem('lastNavigationAttempt') || '/';
-            localStorage.removeItem('lastNavigationAttempt');
+            const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
+            this.browserStorage.removeItem('lastNavigationAttempt');
             // this._router.navigateByUrl(url);
             this._authService.setActiveCompany(company, url);
         }

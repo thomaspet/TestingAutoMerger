@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/http';
 import {AuthService} from '../../authService';
-import {BrowserStorageService} from '../../services/common/browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
@@ -41,10 +41,9 @@ export class BureauCustomHttpService {
     }
 
     private getCompanyYear(): string {
-        const year = this.browserStorage.get('activeFinancialYear');
+        const year = this.browserStorage.getItem('activeFinancialYear');
         if (year) {
-            const parsed = JSON.parse(year);
-            return parsed.Year;
+            return year.Year;
         }
     }
 
