@@ -1,13 +1,12 @@
 import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
 import {UniModalService} from '@uni-framework/uniModal/modalService';
-import {ReportDefinitionParameterService, ErrorService} from '@app/services/services';
-import {StatisticsService} from '@app/services/services';
+import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
 import {ReportDefinitionParameter, ReportDefinition} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
-import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-report-params-modal',
@@ -65,7 +64,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private http: Http,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private yearService: YearService,
     ) {}
 
     public ngOnInit() {
@@ -111,6 +111,15 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         default:
                             type = FieldType.TEXT;
                             break;
+                    }
+
+                    // Check for system values
+                    if (p.Name.includes('System_')) {
+                        switch (p.Name.split('_')[1]) {
+                            case 'PeriodAccountYear':
+                                this.yearService.getActiveYear().subscribe(res => p.value = res.toString());
+                                break;
+                        }
                     }
 
                     return {
