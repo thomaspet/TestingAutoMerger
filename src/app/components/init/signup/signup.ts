@@ -78,20 +78,20 @@ export class Signup {
                         + 'Vennligst sjekk innboks for videre informasjon.';
                 },
                 err => {
-                    this.busy = false;
                     this.step1Form.enable();
+                    this.busy = false;
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
                     try {
                         const errorBody = err.json();
-                        if (errorBody.Message.indexOf('Email') >= 0) {
-                            this.errorMessage = 'Eposten er allerede i bruk';
-                        }
-                    } catch (e) {}
-
-                    if (!this.errorMessage) {
-                        this.errorMessage = 'Noe gikk galt under verifisering. '
+                        if (errorBody.Message) this.errorMessage = errorBody.Message
+                        else {
+                            this.errorMessage = 'Noe gikk galt under verifisering.'
                             + 'Vennligst sjekk detaljer og prøv igjen.';
+                        }
+                    } catch (error) {
+                        this.errorMessage = 'Noe gikk galt under verifisering.'
+                        + 'Vennligst sjekk detaljer og prøv igjen.';
                     }
                 }
             );
@@ -124,21 +124,18 @@ export class Signup {
                 this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
             },
             err => {
-                let usernameExists;
-
-                // Try catch to avoid having to null check everything
+                this.busy = false;
                 try {
                     const errorBody = err.json();
-                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
-                } catch (e) { }
-
-                if (usernameExists) {
-                    this.errorMessage = 'Brukernavnet er opptatt. Vennligst prøv igjen med et annet brukernavn.';
-                } else {
-                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                    if (errorBody.Message) this.errorMessage = errorBody.Message
+                    else if (errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0) {
+                        this.errorMessage = 'Eposten er allerede i bruk';
+                    } else {
+                        this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
+                    } 
+                } catch (error) {
+                    this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
                 }
-
-                this.busy = false;
             }
             );
     }
