@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import {DateUtil} from '../common/DateUtil';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 import {LocalDate} from '../../../../../app/unientities';
+import { UniTableColumn } from '@uni-framework/ui/unitable';
 
 
 @Component({
@@ -13,7 +14,7 @@ import {LocalDate} from '../../../../../app/unientities';
             <input #input type="text"
                 (change)="inputChange()"
                 (keydown)="onKeyDown($event)"
-                [formControl]="inputControl" 
+                [formControl]="inputControl"
                 class="uni-datepicker-input"/>
 
             <button class="uni-datepicker-calendarBtn"
@@ -36,6 +37,7 @@ export class  LocalDatePicker {
     private inputControl: FormControl;
 
     public expanded: boolean;
+    public column: Immutable.Map<any, any>;
     private selectedDate: Date;
     private calendarDate: Date;
 
@@ -58,11 +60,14 @@ export class  LocalDatePicker {
         const value = this.inputControl.value;
         let date;
 
+        const options = this.column.get('options');
+        const year = options.defaultYear;
+
         if (value && value.length) {
             if (value === '*') {
                 date = new Date();
             } else {
-                date = this.dateUtil.autocompleteDate(value) || null;
+                date = this.dateUtil.autocompleteDate(value, year) || null;
             }
         }
 

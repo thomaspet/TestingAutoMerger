@@ -11,7 +11,7 @@ import {DateUtil} from '../common/DateUtil';
             <input #input type="text"
                 (change)="inputChange()"
                 (keydown)="onKeyDown($event)"
-                [formControl]="inputControl" 
+                [formControl]="inputControl"
                 class="uni-datepicker-input" />
 
             <button class="uni-datepicker-calendarBtn"

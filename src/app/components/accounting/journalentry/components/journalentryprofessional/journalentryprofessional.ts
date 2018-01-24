@@ -845,11 +845,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
-            .setWidth('110px');
+            .setWidth('110px')
+            .setOptions({defaultYear: this.currentFinancialYear.Year});
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setVisible(false);
+            .setVisible(false)
+            .setOptions({defaultYear: this.currentFinancialYear.Year});
 
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -877,7 +879,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false);
 
         const dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('80px')
-            .setVisible(false);
+            .setVisible(false)
+            .setOptions({defaultYear: this.currentFinancialYear.Year});
 
         const debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
