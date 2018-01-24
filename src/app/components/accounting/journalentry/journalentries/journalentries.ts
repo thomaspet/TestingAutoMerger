@@ -2,7 +2,12 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, ErrorService, JournalEntryLineService, NumberSeriesService} from '../../../../services/services';
+import {
+    JournalEntryService,
+    ErrorService,
+    JournalEntryLineService,
+    NumberSeriesService,
+} from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
@@ -13,6 +18,7 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
+import {SelectDraftLineModal} from './selectDraftLineModal';
 
 @Component({
     selector: 'journalentries',
@@ -50,7 +56,7 @@ export class JournalEntries {
         private journalEntryService: JournalEntryService,
         private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
     ) {
         this.tabService.addTab({
             name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
@@ -157,9 +163,14 @@ export class JournalEntries {
                 disabled: () => false
             },
             {
-                    action: (item) => this.openPredefinedDescriptions(),
-                    disabled: (item) => false,
-                    label: 'Faste tekster'
+                action: (item) => this.openPredefinedDescriptions(),
+                disabled: (item) => false,
+                label: 'Faste tekster'
+            },
+            {
+                label: 'Hent kladd',
+                action: () => this.getDrafts(),
+                disabled: () => false
             }
         ];
 
@@ -225,6 +236,7 @@ export class JournalEntries {
             this.selectedNumberSeriesTaskID = selectedNumberSerie.NumberSeriesTaskID;
         }
     }
+
     private openPredefinedDescriptions() {
         this.router.navigate(['./predefined-descriptions']);
     }
@@ -271,6 +283,29 @@ export class JournalEntries {
                 err => this.errorService.handle(err)
             );
         });
+    }
+
+    private getDrafts() {
+        this.journalEntryService.GetAll('filter=JournalEntryNumberNumeric eq null', ['DraftLines'])
+            .subscribe(data => {
+                const draftLines = data.map((x) => x.DraftLines[0]);
+                const lines = draftLines.filter(x => x !== undefined);
+                const totalAmount = data.map(x => x.DraftLines.filter(y => y.Amount > 0).map(z => z.Amount))
+                    .map(x => x.reduce((a, c) => a + c, 0));
+                draftLines.map((x, i) => x.Amount = totalAmount[i]);
+
+                this.modalService.open(SelectDraftLineModal, {data: {draftLines: lines}})
+                    .onClose
+                    .subscribe(selectedLine => {
+                        if (!selectedLine) {
+                            return;
+                        }
+                        this.journalEntryManual.clear();
+                        this.journalEntryManual.currentJournalEntryID = selectedLine.JournalEntryID;
+                        this.currentJournalEntryID = selectedLine.JournalEntryID;
+                    });
+            },
+            err => this.errorService.handle(err));
     }
 
     private showNext() {

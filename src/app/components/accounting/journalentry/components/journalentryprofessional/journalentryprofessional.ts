@@ -46,6 +46,7 @@ import {
     AccountService,
     JournalEntryService,
     JournalEntryLineService,
+    JournalEntryLineDraftService,
     DepartmentService,
     ProjectService,
     CustomerInvoiceService,
@@ -169,6 +170,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private uniHttpService: UniHttp,
         private accountService: AccountService,
         private journalEntryService: JournalEntryService,
+        private journalEntryLineDraftService: JournalEntryLineDraftService,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
         private customerInvoiceService: CustomerInvoiceService,
@@ -2152,21 +2154,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             if (this.journalEntryID && this.journalEntryLines && this.journalEntryLines.length > 0) {
                 // if this is an existing journalentry, dont allow selecting "new" as an option for journalentryno
                 this.journalEntryNumberAlternatives = [];
-                this.journalEntryNumberAlternatives.push({
-                    ID: this.journalEntryLines[0].JournalEntryNo,
-                    Name: this.journalEntryLines[0].JournalEntryNo
-                });
+                if (this.journalEntryLines[0] && this.journalEntryLines[0].JournalEntryNo) {
+                    this.journalEntryNumberAlternatives.push({
+                        ID: this.journalEntryLines[0].JournalEntryNo,
+                        Name: this.journalEntryLines[0].JournalEntryNo
+                    });
+                } else {
+                    this.journalEntryNumberAlternatives = [];
+
+                    if (this.table) {
+                        const tableData = this.table.getTableData();
+                        tableData.map(x => x.JournalEntryNo = this.firstAvailableJournalEntryNumber);
+                        tableData.map(x => this.updateJournalEntryLine(x));
+                    }
+
+                    // new always last one
+                    this.journalEntryNumberAlternatives.push(this.newAlternative);
+                }
 
             } else if (this.firstAvailableJournalEntryNumber
                 && this.firstAvailableJournalEntryNumber !== '') {
 
                 this.journalEntryNumberAlternatives = [];
 
-                let currentRow: any;
-
                 // add list of possible numbers from start to end if we have any table data
                 if (this.table) {
-                    currentRow = this.table.getCurrentRow();
                     const tableData = this.table.getTableData();
 
                     if (tableData.length > 0) {
@@ -2192,52 +2204,70 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
-    public postJournalEntryData(completeCallback) {
+    public postJournalEntryData(completeCallback, saveAsDraft?: boolean, id?: number) {
         const tableData = this.table.getTableData();
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
-        this.journalEntryService.postJournalEntryData(tableData)
-            .subscribe(data => {
-                const firstJournalEntry = data[0];
-                const lastJournalEntry = data[data.length - 1];
 
-                // Validate if journalEntry number has changed
-                const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
+        if (saveAsDraft) {
+            this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id)
+                .subscribe(data => {
+                    completeCallback('Lagret som kladd');
 
-                if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
-                    lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
-                    this.toastService.addToast(
-                        'Lagring var vellykket, men merk at tildelt bilagsnummer er '
-                            + firstJournalEntry.JournalEntryNumber + ' - '
-                            + lastJournalEntry.JournalEntryNumber,
-                        ToastType.warn
-                    );
-
-                } else {
-                    this.toastService.addToast(
-                        'Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNumber
-                            + (firstJournalEntry.JournalEntryNumber !== lastJournalEntry.JournalEntryNumber
-                                ? ' - ' + lastJournalEntry.JournalEntryNumber
-                                : ''
-                            ),
-                        ToastType.good, 10);
+                    // Empty list
+                    this.journalEntryLines = new Array<JournalEntryData>();
+                    this.setupJournalEntryNumbers(false);
+                    this.dataChanged.emit(this.journalEntryLines);
+                },
+                err => {
+                    completeCallback('Feil ved lagring av kladd');
+                    this.errorService.handle(err);
                 }
+            );
+        } else {
+            this.journalEntryService.postJournalEntryData(tableData)
+                .subscribe(data => {
+                    const firstJournalEntry = data[0];
+                    const lastJournalEntry = data[data.length - 1];
 
-                completeCallback('Lagret og bokført');
+                    // Validate if journalEntry number has changed
+                    const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
 
-                // Empty list
-                this.journalEntryLines = new Array<JournalEntryData>();
+                    if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                        lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
+                        this.toastService.addToast(
+                            'Lagring var vellykket, men merk at tildelt bilagsnummer er '
+                                + firstJournalEntry.JournalEntryNumber + ' - '
+                                + lastJournalEntry.JournalEntryNumber,
+                            ToastType.warn
+                        );
 
-                this.setupJournalEntryNumbers(false);
+                    } else {
+                        this.toastService.addToast(
+                            'Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNumber
+                                + (firstJournalEntry.JournalEntryNumber !== lastJournalEntry.JournalEntryNumber
+                                    ? ' - ' + lastJournalEntry.JournalEntryNumber
+                                    : ''
+                                ),
+                            ToastType.good, 10);
+                    }
 
-                this.dataChanged.emit(this.journalEntryLines);
-            },
-            err => {
-                completeCallback('');
-                this.errorService.handle(err);
-            }
-        );
+                    completeCallback('Lagret og bokført');
+
+                    // Empty list
+                    this.journalEntryLines = new Array<JournalEntryData>();
+
+                    this.setupJournalEntryNumbers(false);
+
+                    this.dataChanged.emit(this.journalEntryLines);
+                },
+                err => {
+                    completeCallback('Feil ved lagring av bilag');
+                    this.errorService.handle(err);
+                }
+            );
+        }
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {

@@ -68,6 +68,7 @@ import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
+import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 
 @NgModule({
     imports: [
@@ -98,6 +99,7 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
         VatDeductionSettings,
 
         NewAccountModal,
+        SelectDraftLineModal,
 
         SupplierList,
         SupplierDetails,
@@ -156,7 +158,8 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
         UniAssignModal,
         UniAddFileModal,
         UniNewSupplierModal,
-        AccountDetailsReportModal
+        AccountDetailsReportModal,
+        SelectDraftLineModal
     ],
     exports: [
         AccountSettings,

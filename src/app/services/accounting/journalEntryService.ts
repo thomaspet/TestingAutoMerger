@@ -36,6 +36,8 @@ import {CompanySettingsService} from '../common/companySettingsService';
 import {ErrorService} from '../common/errorService';
 import {UniMath} from '../../../framework/core/uniMath';
 import {AuthService, IAuthDetails} from '../../authService';
+import { JournalEntries } from '@app/components/accounting/journalentry/journalentries/journalentries';
+import { IJournalEntryLineDraft } from '@uni-framework/interfaces/interfaces';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
@@ -136,29 +138,65 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<any> {
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number): Observable<any> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
-        let journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
+        const journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
 
-        let journalEntryDataWithJournalEntryID =
+        const journalEntryDataWithJournalEntryID =
             journalEntryDataNew.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
-        let existingJournalEntryIDs: Array<number> = [];
+        const existingJournalEntryIDs: Array<number> = [];
         journalEntryDataWithJournalEntryID.forEach(line => {
             existingJournalEntryIDs.push(line.JournalEntryID);
         });
 
+        if (saveAsDraft && id) {
+            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+                .flatMap(existingJournalEntries => {
+                    const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
+                    const lineID = [];
+
+                    journalEntryData.map(x => x.JournalEntryDrafts.map(y => lineID.push(y.ID)));
+                    journalEntries[0].DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account);
+                    journalEntries[0].ID = id;
+                    journalEntries[0].DraftLines.map((x, i) => x.ID = lineID[i] ? lineID[i] : null);
+                    return this.saveDraftLines(journalEntries);
+                });
+        }
+
+        if (saveAsDraft) {
+            const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
+            const draftLines = [];
+            journalEntries.map(jE => jE.DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account));
+            journalEntries.map(jE => jE.DraftLines.map(dL => draftLines.push(dL)));
+            journalEntries[0].DraftLines = draftLines;
+            return this.saveDraftLines(journalEntries);
+        }
+
         if (existingJournalEntryIDs.length) {
             return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
                 .flatMap(existingJournalEntries => {
-                    let journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
+                    const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
                     return this.bookJournalEntries(journalEntries);
                 });
         } else {
-            let journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
+            const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
             return this.bookJournalEntries(journalEntries);
         }
+    }
+
+    private saveDraftLines(journalEntries: Array<JournalEntry>): Observable<any> {
+        const jE = journalEntries[0];
+        const httpAction = jE.ID ? this.http.asPUT() : this.http.asPOST();
+        const route = jE.ID ? `${this.relativeURL}/${jE.ID}` : this.relativeURL;
+
+        return httpAction
+            .usingBusinessDomain()
+            .withEndPoint(route)
+            .withBody(jE)
+            .send()
+            .map(response => response.json());
     }
 
     private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<any> {
@@ -194,7 +232,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         // look in the existingJournalEntries retrieved from the server and
                         // set some extra properties on that
                         let existingJournalEntry =
-                            existingJournalEntries.find(x => x.ID.toString() === line.JournalEntryID.toString());
+                            existingJournalEntries.find(
+                                x => x.ID ? x.ID.toString() : x.JournalEntryID.toString() === line.JournalEntryID.toString()
+                            );
 
                         if (existingJournalEntry) {
                             je = existingJournalEntry;
