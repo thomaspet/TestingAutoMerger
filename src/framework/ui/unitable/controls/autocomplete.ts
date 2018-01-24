@@ -102,7 +102,8 @@ export interface IGroupConfig {
             <div
                 *ngIf="options.showResultAsTable && options.resultTableConfig"
                 class="unitable_dropdown_table"
-                [attr.aria-expanded]="expanded">
+                [attr.aria-expanded]="expanded"
+                [attr.aria-upwards]="showDropdownAbove">
                 <div *ngIf="options.resultTableConfig.createNewButton">
                     <button (click)="onActionClick(options.resultTableConfig.createNewButton)">
                         {{ options.resultTableConfig.createNewButton.buttonText }}
@@ -132,7 +133,7 @@ export interface IGroupConfig {
                         </tr>
                     </tbody>
                 </table>
-                <p *ngIf="lookupResults.length === 0">Ingen treff</p>
+                <p *ngIf="lookupResults.length === 0">{{ emptySearchString }}</p>
             </div>
         </article>
     `,
@@ -153,9 +154,11 @@ export class UnitableAutocomplete implements OnInit {
     public busy: boolean = false;
     public expanded: boolean;
 
+    private showDropdownAbove: boolean = false;
     private lookupResults: any[] = [];
     private selectedIndex: any;
     private addValuePromise: Promise<any>;
+    private emptySearchString: string = '';
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -178,11 +181,13 @@ export class UnitableAutocomplete implements OnInit {
                     return selectedItem[field];
                 };
             }
+            this.showDropdownAbove = 480 > window.innerHeight - document.activeElement.getBoundingClientRect().top;
         }
 
         this.inputControl.valueChanges
         .switchMap((value) => {
             this.lookupResults = [];
+            this.emptySearchString = 'Søker...';
             this.busy = true;
             if (value) {
                 this.selectedIndex = 0;
@@ -196,6 +201,7 @@ export class UnitableAutocomplete implements OnInit {
         .subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
                 this.lookupResults = results;
+                this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
                 if (this.groupConfig) {
                     this.formatGrouping();
                 }
@@ -291,6 +297,7 @@ export class UnitableAutocomplete implements OnInit {
         this.performLookup('').subscribe((res) => {
             this.selectedIndex = -1;
             this.lookupResults = res;
+            this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
             if (this.groupConfig) {
                 this.formatGrouping();
             }
@@ -402,5 +409,4 @@ export class UnitableAutocomplete implements OnInit {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
     }
-
 }

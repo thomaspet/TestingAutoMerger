@@ -318,13 +318,16 @@ uni-table .uni-datepicker
     box-sizing: border-box
     border: 1px solid $uni-color-positive
     border-radius: .25rem
-    top: 40px
-    z-index: 99
+    z-index: 399
     background-color: rgba(255, 255, 255, 1)
     padding: .5rem 1rem
     visibility: hidden
     &[aria-expanded]:not([aria-expanded=false])
         visibility: visible
+    &[aria-upwards]:not([aria-upwards=false])
+        bottom: 6px
+    &[aria-upwards]:not([aria-upwards=true])
+        top: 40px
 
     button
         background-color: transparent
