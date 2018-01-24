@@ -481,7 +481,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             }
 
-            let sortedJournalEntries = journalDataEntries.sort((a, b) => a.JournalEntryNo > b.JournalEntryNo ? 1 : 0);
+            let sortedJournalEntries = journalDataEntries
+                .concat()
+                .sort((a, b) => {
+                    if (a.JournalEntryNo > b.JournalEntryNo) {
+                        return 1;
+                    } else if (a.JournalEntryNo < b.JournalEntryNo) {
+                        return -1
+                    }
+                    return 0;
+                });
 
             let lastJournalEntryNo: string = '';
             let currentSumDebit: number = 0;
@@ -490,10 +499,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             sortedJournalEntries.forEach(entry => {
                 if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                    if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
+                    const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+                    if (diff !== 0) {
                         let message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
-                        message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse. Sum debet og sum kredit må være lik`;
+                        message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse.`
+                            + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
                         result.Messages.push(message);
                     }
 
@@ -571,9 +582,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 lastJournalEntryFinancialDate = entry.FinancialDate;
             });
 
-            if (UniMath.round(currentSumDebit, 2) !== UniMath.round(currentSumCredit * -1, 2)) {
-                let diff = UniMath.round((UniMath.round(currentSumDebit, 2)
-                    - UniMath.round(currentSumCredit * -1, 2)), 2);
+            const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+            if (diff !== 0) {
                 let message = new ValidationMessage();
                 message.Level = ValidationLevel.Error;
                 message.Message = `Bilag ${lastJournalEntryNo}
