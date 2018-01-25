@@ -37,6 +37,7 @@ export interface IResultTableField {
     key: string;
     class?: string;
     width?: string;
+    isMoneyField?: boolean;
 }
 
 export interface IResultTableButtons {
@@ -113,7 +114,7 @@ export interface IGroupConfig {
                     <thead>
                         <tr>
                             <th *ngFor="let field of options.resultTableConfig.fields"
-                                [ngStyle]="{width: field.width}">
+                                [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }">
                                 {{ field.header }}
                             </th>
                         </tr>
@@ -126,9 +127,12 @@ export interface IGroupConfig {
                             (click)="itemClicked(idx, item.isHeader)">
 
                             <td *ngFor="let field of options.resultTableConfig.fields"
-                                [ngStyle]="{width: field.width}"
+                                [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }"
                                 [ngClass]="field.class">
-                                <span class="result_td"> {{item[field.key]}} </span>
+                                <span class="result_td" *ngIf="!field.isMoneyField"> {{item[field.key]}} </span>
+                                <span *ngIf="field.isMoneyField">
+                                    {{ item[field.key] | uninumberformat: 'money' }}
+                                </span>
                             </td>
                         </tr>
                     </tbody>

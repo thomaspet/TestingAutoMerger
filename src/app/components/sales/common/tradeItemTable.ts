@@ -245,7 +245,8 @@ export class TradeItemTable {
                             header: 'Pris',
                             key: 'PriceIncVat',
                             class: '',
-                            width: '100px'
+                            width: '100px',
+                            isMoneyField: true
                         }
                     ],
                     createNewButton: {
