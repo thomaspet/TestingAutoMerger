@@ -185,54 +185,10 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         FieldType: FieldType.BUTTON,
                         Label: 'Elektronisk skattekort',
                         FieldSet: 1,
-                        Legend: 'Skatt',
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'loennFraHovedarbeidsgiver.Table',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Hovedarbeidsgiver tabell',
-                        FieldSet: 1,
-                        Section: 0,
-                        openByDefault: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'loennFraHovedarbeidsgiver.Percent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Hovedarbeidsgiver prosent',
-                        FieldSet: 1,
+                        Legend: 'Generelt',
                         Section: 0,
                         Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'loennFraBiarbeidsgiver.Table',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Biarbeidsgiver tabell',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        },
-                        openByDefault: true,
-                        Hidden: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'loennFraBiarbeidsgiver.Percent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Biarbeidsgiver prosent',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
+                            class: 'taxbtn'
                         }
                     },
                     {
@@ -247,12 +203,34 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'ikkeTrekkPlikt',
-                        FieldType: FieldType.CHECKBOX,
-                        Label: 'Ikke trekkpliktig',
+                        Property: 'ResultatStatus',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Resultat status',
                         FieldSet: 1,
                         Section: 0,
-                        ReadOnly: true
+                        Options: {
+                            source: [
+                                { id: 0, statusname: 'ikkeSkattekort', name: 'Ikke skattekort' },
+                                { id: 1, statusname: 'vurderArbeidstillatelse', name: 'Vurder arbeidstillatelse' },
+                                { id: 3, statusname: 'ikkeTrekkplikt', name: 'Ikke trekkplikt' },
+                                { id: 1, statusname: 'skattekortopplysningerOK', name: 'Skattekort OK' },
+                                { id: 1, statusname: 'ugyldigOrganisasjonsnummer', name: 'Ugyldig orgnr' },
+                                { id: 1, statusname: 'ugyldigFoedselsEllerDnummer', name: 'Ugyldig f-nr/d-nr' },
+                                { id: 1, statusname: 'utgaattDnummerSkattekortForFoedselsnummerErLevert', name: 'Utgått d-nr, skattekort for f-nr er levert' }
+                            ],
+                            template: (obj) => `${obj.id} - ${obj.name}`,
+                            valueProperty: 'statusname',
+                            displayProperty: 'name'
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'Tilleggsopplysning',
+                        FieldType: FieldType.TEXT,
+                        ReadOnly: true,
+                        Label: 'Tilleggsopplysning status',
+                        FieldSet: 1,
+                        Section: 0,
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
@@ -264,10 +242,32 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
+                        Property: 'loennFraHovedarbeidsgiver.Table',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Tabell',
+                        FieldSet: 2,
+                        Legend: 'Hovedarbeidsgiver',
+                        Section: 0,
+                        openByDefault: true
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'loennFraHovedarbeidsgiver.Percent',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Prosent',
+                        FieldSet: 2,
+                        Section: 0,
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
                         Property: 'loennFraHovedarbeidsgiver.freeAmountType',
                         FieldType: FieldType.DROPDOWN,
-                        Label: 'Frikort type (hoved)',
-                        FieldSet: 1,
+                        Label: 'Frikort type',
+                        FieldSet: 2,
                         Section: 0,
                         Options: {
                             source: [
@@ -282,28 +282,10 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'pensjon.freeAmountType',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Frikort type (pensjon)',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            source: [
-                                { id: 0, name: 'Ingen' },
-                                { id: 1, name: 'Frikort med beløp' },
-                                { id: 3, name: 'Frikort uten beløp' }
-                            ],
-                            template: (obj) => `${obj.id} - ${obj.name}`,
-                            valueProperty: 'id',
-                            displayProperty: 'name'
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'NonTaxableAmount',
+                        Property: 'loennFraHovedarbeidsgiver.NonTaxableAmount',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Frikortbeløp',
-                        FieldSet: 1,
+                        FieldSet: 2,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -314,9 +296,8 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'loennFraHovedarbeidsgiver.AntallMaanederForTrekk',
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Måneder trekk (hoved)',
-                        FieldSet: 1,
+                        Label: 'Antall måneder trekk',
+                        FieldSet: 2,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -325,11 +306,11 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'loennFraBiarbeidsgiver.AntallMaanederForTrekk',
+                        Property: 'loennFraBiarbeidsgiver.Percent',
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Måneder trekk (bi)',
-                        FieldSet: 1,
+                        Label: 'Prosent',
+                        FieldSet: 3,
+                        Legend: 'Biarbeidsgiver',
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -338,37 +319,28 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'pensjon.AntallMaanederForTrekk',
-                        FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Måneder trekk (pensjon)',
-                        FieldSet: 1,
+                        Property: 'loennFraBiarbeidsgiver.freeAmountType',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Frikort type',
+                        FieldSet: 3,
                         Section: 0,
                         Options: {
-                            format: 'Money',
-                            decimalLength: 2
+                            source: [
+                                { id: 0, name: 'Ingen' },
+                                { id: 1, name: 'Frikort med beløp' },
+                                { id: 3, name: 'Frikort uten beløp' }
+                            ],
+                            template: (obj) => `${obj.id} - ${obj.name}`,
+                            valueProperty: 'id',
+                            displayProperty: 'name'
                         }
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'loennKunTrygdeavgiftTilUtenlandskBorger.AntallMaanederForTrekk',
+                        Property: 'loennFraBiarbeidsgiver.NonTaxableAmount',
                         FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Måneder trekk (utl)',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            format: 'Money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.AntallMaanederForTrekk',
-                        FieldType: FieldType.NUMERIC,
-                        ReadOnly: true,
-                        Label: 'Måneder trekk (grense)',
-                        FieldSet: 1,
+                        Label: 'Frikortbeløp',
+                        FieldSet: 3,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -379,9 +351,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'pensjon.Table',
                         FieldType: FieldType.TEXT,
-                        Label: 'Pensjon tabell',
-                        FieldSet: 2,
-                        Legend: 'Spesielle skattekort',
+                        Label: 'Tabell',
+                        FieldSet: 4,
+                        Legend: 'Pensjon',
                         Section: 0,
                         openByDefault: true
                     },
@@ -389,8 +361,37 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'pensjon.Percent',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Pensjon prosent',
-                        FieldSet: 2,
+                        Label: 'Prosent',
+                        FieldSet: 4,
+                        Section: 0,
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'pensjon.freeAmountType',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Frikort type',
+                        FieldSet: 4,
+                        Section: 0,
+                        Options: {
+                            source: [
+                                { id: 0, name: 'Ingen' },
+                                { id: 3, name: 'Frikort uten beløp' }
+                            ],
+                            template: (obj) => `${obj.id} - ${obj.name}`,
+                            valueProperty: 'id',
+                            displayProperty: 'name'
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'pensjon.AntallMaanederForTrekk',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Antall måneder trekk',
+                        FieldSet: 4,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -401,8 +402,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'loennKunTrygdeavgiftTilUtenlandskBorger.Table',
                         FieldType: FieldType.TEXT,
-                        Label: 'Trygdeavgift utenlandsk borger tabell',
-                        FieldSet: 2,
+                        Label: 'Tabell',
+                        FieldSet: 5,
+                        Legend: 'Trygd utenlandsk borger',
                         Section: 0,
                         openByDefault: true
                     },
@@ -410,8 +412,20 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'loennKunTrygdeavgiftTilUtenlandskBorger.Percent',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Trygdeavgift utenlandsk borger prosent',
-                        FieldSet: 2,
+                        Label: 'Prosent',
+                        FieldSet: 5,
+                        Section: 0,
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'loennKunTrygdeavgiftTilUtenlandskBorger.AntallMaanederForTrekk',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Antall måneder trekk',
+                        FieldSet: 5,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -422,8 +436,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Table',
                         FieldType: FieldType.TEXT,
-                        Label: 'Trygdeavgift utenlandsk borger grensegjenger tabell',
-                        FieldSet: 2,
+                        Label: 'Tabell',
+                        FieldSet: 6,
+                        Legend: 'Grensegjenger',
                         Section: 0,
                         openByDefault: true
                     },
@@ -431,8 +446,8 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         EntityType: 'EmployeeTaxCard',
                         Property: 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Trygdeavgift utenlandsk borger grensegjenger prosent',
-                        FieldSet: 2,
+                        Label: 'Prosent',
+                        FieldSet: 6,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -441,21 +456,15 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     },
                     {
                         EntityType: 'EmployeeTaxCard',
-                        Property: 'ResultatStatus',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Resultat status',
-                        FieldSet: 2,
+                        Property: 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.AntallMaanederForTrekk',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Antall måneder trekk',
+                        FieldSet: 6,
                         Section: 0,
-                        ReadOnly: true
-                    },
-                    {
-                        EntityType: 'EmployeeTaxCard',
-                        Property: 'Tilleggsopplysning',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Tilleggsopplysning status',
-                        FieldSet: 2,
-                        Section: 0,
-                        ReadOnly: true
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
                     }]
             }]);
         } else {
@@ -468,7 +477,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'TaxBtn',
                         FieldType: FieldType.BUTTON,
                         Label: 'Elektronisk skattekort',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Legend: 'Skatt',
                         Section: 0
                     },
@@ -477,7 +486,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'Table',
                         FieldType: FieldType.TEXT,
                         Label: 'Hovedarbeidsgiver tabell',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         openByDefault: true
                     },
@@ -486,7 +495,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'Percent',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Hovedarbeidsgiver prosent',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -498,7 +507,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'SecondaryTable',
                         FieldType: FieldType.TEXT,
                         Label: 'Biarbeidsgiver tabell',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -512,7 +521,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'SecondaryPercent',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Biarbeidsgiver prosent',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         Options: {
                             format: 'Money',
@@ -525,7 +534,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         FieldType: FieldType.DATE_TIME_PICKER,
                         ReadOnly: true,
                         Label: 'Sist oppdatert',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         openByDefault: true,
                     },
@@ -534,7 +543,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'ikkeTrekkPlikt',
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Ikke trekkpliktig',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         Hidden: true
                     },
@@ -543,7 +552,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'NotMainEmployer',
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Biarbeidsgiver',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0
                     },
                     {
@@ -551,7 +560,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Property: 'NonTaxableAmount',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Frikortbeløp',
-                        FieldSet: 1,
+                        FieldSet: 10,
                         Section: 0,
                         Options: {
                             format: 'Money',

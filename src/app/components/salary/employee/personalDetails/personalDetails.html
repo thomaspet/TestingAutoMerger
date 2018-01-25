@@ -5,10 +5,4 @@
               (changeEvent)="onFormChange($event)"
               (readyEvent)="onFormReady($event)">
     </uni-form>
-    <section class="personal-details-tax collapsable" [ngClass]="{'-is-open': !collapseTax}">
-        <h4 (click)="collapseTax = !collapseTax">Skatt</h4>
-        <section class="collapsable-content">
-            <employee-tax></employee-tax>
-        </section>
-    </section>
 </article>

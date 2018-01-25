@@ -12,7 +12,8 @@ import { SimpleChange } from '@angular/core/src/change_detection/change_detectio
 
 @Component({
     selector: 'employee-tax',
-    templateUrl: './employeeTax.html'
+    templateUrl: './employeeTax.html',
+    styleUrls: ['./employeeTax.sass']
 })
 
 export class EmployeeTax extends UniView implements OnInit {
@@ -49,12 +50,8 @@ export class EmployeeTax extends UniView implements OnInit {
             employeeTaxCard$
                 .map((employeeTaxCard: EmployeeTaxCard) => {
                     employeeTaxCard['_lastUpdated'] = employeeTaxCard.UpdatedAt || employeeTaxCard.CreatedAt;
-                    if (employeeTaxCard['ResultatStatus'] === 'ikkeTrekkplikt') {
-                        employeeTaxCard['ikkeTrekkPlikt'] = 1;
-                    }
                     return employeeTaxCard;
                 })
-                .do(employeeTaxCard => this.fields$.next(this.toggleReadOnly(employeeTaxCard)))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .subscribe((employeeTaxCard: EmployeeTaxCard) => {
                     if (this.previousYear !== 0 && (this.previousYear !== employeeTaxCard.Year)) {
@@ -85,7 +82,6 @@ export class EmployeeTax extends UniView implements OnInit {
             };
             this.updateFields(layout, employeeTaxCard);
             this.toggleTaxButtonActive(employee, <any>layout.Fields);
-            this.toggleReadOnly(employeeTaxCard, <any>layout.Fields);
             this.fields$.next(layout.Fields);
         }, err => this.errorService.handle(err));
     }
@@ -97,16 +93,6 @@ export class EmployeeTax extends UniView implements OnInit {
             .filter(empTax => Object
                 .keys(changes)
                 .some(key => changes[key].currentValue !== changes[key].previousValue) && !!empTax.EmployeeID)
-            .map(model => {
-                if (changes['loennFraHovedarbeidsgiver.Table']
-                    || changes['loennFraBiarbeidsgiver.Table']
-                    || changes['pensjon.Table']
-                    || changes['loennKunTrygdeavgiftTilUtenlandskBorger.Table']
-                    || changes['loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Table']) {
-                    this.refreshLayout(model);
-                }
-                return model;
-            })
             .subscribe(empTax => super.updateState('employeeTaxCard', empTax, true));
     }
 
@@ -121,16 +107,6 @@ export class EmployeeTax extends UniView implements OnInit {
             let field = this.findByProperty(fields, 'TaxBtn');
             field.ReadOnly = !employee.SocialSecurityNumber || !employee.ID || super.isDirty('employee');
         }
-        return fields;
-    }
-
-    private toggleReadOnly(taxCard: EmployeeTaxCard, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
-        fields = fields || this.fields$.getValue();
-        fields.filter(field =>
-            field.Property !== 'TaxBtn')
-                .forEach(field =>
-                    field.Property === '_lastUpdated' ? field.ReadOnly = true : field.ReadOnly = !taxCard.EmployeeID
-                );
         return fields;
     }
 
@@ -155,55 +131,5 @@ export class EmployeeTax extends UniView implements OnInit {
                     });
             }
         };
-        
-        if (employeeTaxcard.Year > 2017) {
-            let hovedarbeidsgiverField = this.findByProperty(layout.Fields, 'loennFraHovedarbeidsgiver.AntallMaanederForTrekk');
-            hovedarbeidsgiverField.Hidden = this.layoutFieldHidden(employeeTaxcard, 'loennFraHovedarbeidsgiver', 'Table');
-            trekkAlreadyVisible = !hovedarbeidsgiverField.Hidden;
-
-            let biarbeidsgiverField = this.findByProperty(layout.Fields, 'loennFraBiarbeidsgiver.AntallMaanederForTrekk');
-            biarbeidsgiverField.Hidden = trekkAlreadyVisible ? true : this.layoutFieldHidden(employeeTaxcard, 'loennFraBiarbeidsgiver', 'Table');
-            if (!trekkAlreadyVisible) {
-                trekkAlreadyVisible = !biarbeidsgiverField.Hidden;
-            }
-
-            let pensjonField = this.findByProperty(layout.Fields, 'pensjon.AntallMaanederForTrekk');
-            pensjonField.Hidden = trekkAlreadyVisible ? true : this.layoutFieldHidden(employeeTaxcard, 'pensjon', 'Table');
-            if (!trekkAlreadyVisible) {
-                trekkAlreadyVisible = !pensjonField.Hidden;
-            }
-
-            let utlendingField = this.findByProperty(layout.Fields, 'loennKunTrygdeavgiftTilUtenlandskBorger.AntallMaanederForTrekk');
-            utlendingField.Hidden = trekkAlreadyVisible ? true : this.layoutFieldHidden(employeeTaxcard, 'loennKunTrygdeavgiftTilUtenlandskBorger', 'Table');
-            if (!trekkAlreadyVisible) {
-                trekkAlreadyVisible = !utlendingField.Hidden;
-            }
-
-            let grensegjengerField = this.findByProperty(layout.Fields, 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.AntallMaanederForTrekk');
-            grensegjengerField.Hidden = trekkAlreadyVisible ? true : this.layoutFieldHidden(employeeTaxcard, 'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger', 'Table');
-            if (!trekkAlreadyVisible) {
-                trekkAlreadyVisible = !grensegjengerField.Hidden;
-            }
-
-            let freeAmountTypeMain = this.findByProperty(layout.Fields, 'loennFraHovedarbeidsgiver.freeAmountType');
-            freeAmountTypeMain.Hidden = this.layoutFieldHidden(employeeTaxcard, 'loennFraHovedarbeidsgiver', 'freeAmountType');
-            freeamountAlreadyVisible = !freeAmountTypeMain.Hidden;
-
-            let freeAmountTypePensjon = this.findByProperty(layout.Fields, 'pensjon.freeAmountType');
-            freeAmountTypePensjon.Hidden = freeamountAlreadyVisible ? true : this.layoutFieldHidden(employeeTaxcard, 'pensjon', 'freeAmountType');
-            if (!freeamountAlreadyVisible) {
-                freeamountAlreadyVisible = !freeAmountTypePensjon.Hidden;
-            }
-        }
-    }
-
-    private layoutFieldHidden(employeeTaxcard: EmployeeTaxCard, prop: string, propname: string) : boolean {
-        let hide = false;
-        if (employeeTaxcard.hasOwnProperty(prop) && !!employeeTaxcard[prop]) {
-            if (employeeTaxcard[prop][propname] === null || employeeTaxcard[prop][propname] === '' || employeeTaxcard[prop][propname] === '0') {
-                hide = true;
-            }
-        }
-        return hide;
     }
 }

@@ -181,6 +181,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         this.childRoutes = [
             {name: 'Detaljer', path: 'personal-details'},
+            {name: 'Skatt', path: 'employee-tax'},
             {name: 'Arbeidsforhold', path: 'employments'},
             {name: 'Faste poster', path: 'recurring-post'},
             {name: 'Forskudd/trekk', path: 'employee-salarybalances'},

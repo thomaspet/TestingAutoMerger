@@ -1,6 +1,8 @@
-<small *ngIf="!employeeTaxCard$.getValue().EmployeeID">Ansatt må lagres før skattekort kan registreres</small>
-<uni-form [config]="config$"
+<article class="application">
+    <small *ngIf="!employeeTaxCard$.getValue().EmployeeID">Ansatt må lagres før skattekort kan registreres</small>
+    <uni-form [config]="config$"
         [fields]="fields$"
         [model]="employeeTaxCard$"
         (changeEvent)="onFormChange($event)">
-</uni-form>
+    </uni-form>
+</article>
