@@ -185,6 +185,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public clear() {
+        this.disabled = false;
+        this.journalEntryID = 0;
         this.clearJournalEntryInfo();
         this.dataCleared.emit();
     }
@@ -318,7 +320,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         const fileIds: number[] = [];
 
         files.forEach(file => {
-            fileIds.push(parseInt(file.ID));
+            fileIds.push(parseInt(file.ID, 10));
         });
 
         let didChangeAnything: boolean = false;
@@ -387,7 +389,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(lines, retryCount++);
                 }, 500);
             } else {
-                console.log('Vattype data not loaded correctly, could not set data')
+                console.log('Vattype data not loaded correctly, could not set data');
             }
         } else {
             if (this.journalEntryProfessional) {
@@ -732,8 +734,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                         if (result && result !== '') {
                             this.onDataChanged([]);
-                            this.clearJournalEntryInfo();
-                            this.dataCleared.emit();
+                            this.clear();
                         }
                     }, saveAsDraft, id);
 

@@ -11,7 +11,7 @@ import {
     selector: 'select-draftline-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 70vw">
-            <header><h1>Velg faktura</h1></header>
+            <header><h1>Velg bilagskladd</h1></header>
             <article class='modal-content' *ngIf="config">
                 <uni-table
                     [resource]="config.draftLines"

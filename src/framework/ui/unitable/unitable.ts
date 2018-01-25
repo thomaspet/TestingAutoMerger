@@ -867,7 +867,7 @@ export class UniTable implements OnChanges {
         newItem._guid = performance.now();
 
         this.tableData = this.tableData.push(Immutable.fromJS(newItem));
-        this.tableDataOriginal = this.tableDataOriginal.push(Immutable.fromJS(newItem))
+        this.tableDataOriginal = this.tableDataOriginal.push(Immutable.fromJS(newItem));
         this.rowCount++;
         this.cdr.markForCheck();
     }
