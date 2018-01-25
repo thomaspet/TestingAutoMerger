@@ -12,7 +12,7 @@ export class DateUtil {
         if (split.length > 1) {
             day = split[0];
             month = +split[1] - 1;
-            year = split[2] || date.getFullYear();
+            year = currentYear || split[2] || date.getFullYear();
         } else {
             const input = inputValue.replace(/[^0-9]/g, '');
             switch (input.length) {
