@@ -48,13 +48,12 @@ export class StimulsoftReportWrapper {
 
         // remove connections specified in the template file
         report.dictionary.databases.clear();
-
         // add variables based on parameters
         if (parameters) {
             for (let i = 0; i < parameters.length; i++) {
                 let reportParam = report.dictionary.variables.getByName(parameters[i].Name);
                 if (reportParam) {
-                    reportParam.valueObject = parameters[i].value;
+                    reportParam.value = parameters[i].value;
                 }
             }
         }
