@@ -128,7 +128,7 @@ export interface IGroupConfig {
                             <td *ngFor="let field of options.resultTableConfig.fields"
                                 [ngStyle]="{width: field.width}"
                                 [ngClass]="field.class">
-                                {{item[field.key]}}
+                                <span class="result_td"> {{item[field.key]}} </span>
                             </td>
                         </tr>
                     </tbody>
@@ -206,6 +206,30 @@ export class UnitableAutocomplete implements OnInit {
                     this.formatGrouping();
                 }
                 this.expanded = true;
+
+                if (this.options.showResultAsTable) {
+                    // Get all the cells in the result table
+                    const cells = document.getElementsByClassName('result_td');
+                    setTimeout(() => {
+                        if (cells.length > 0) {
+                            // Loop the cells to see if there are matches
+                            for (let i = 0; i < cells.length; i++) {
+                                // Check to see if cell contains query, set both to lowercase to ignore casing
+                                if (cells[i].innerHTML.toLowerCase().match(query.toLowerCase())) {
+                                    // Find the text to replace, no matter the casing!
+                                    const index = cells[i].innerHTML.toLowerCase().indexOf(query.toLowerCase());
+                                    const textToReplace = cells[i].innerHTML.substr(index, query.length);
+
+                                    // If cell contains query, hightlight it in cell!
+                                    let data = cells[i].innerHTML;
+                                    data = data.replace(textToReplace, '<span class="highlighed_search_hit">' + textToReplace + '</span>');
+                                    cells[i].innerHTML = data;
+                                }
+                            }
+                        }
+                    });
+                }
+
                 this.busy = false;
                 this.cdr.markForCheck();
             });
