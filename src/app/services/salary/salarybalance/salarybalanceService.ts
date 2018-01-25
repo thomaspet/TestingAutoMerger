@@ -185,7 +185,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         if (modalResponse === ConfirmActions.CANCEL) {
             return Observable.of(salBal);
         }
-        salBal.CreatePayment = modalResponse === ConfirmActions.ACCEPT;
+
+        salBal.CreatePayment = salBal.CreatePayment || modalResponse === ConfirmActions.ACCEPT;
+
         return salBal.ID
             ? this.Put(salBal.ID, salBal)
             : this.Post(salBal);
@@ -255,6 +257,11 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
             && (salaryBalance.InstalmentType !== SalBalType.Outlay)
             && (salaryBalance.InstalmentType !== SalBalType.Other);
+    }
+
+    public resetFields(salaryBalance: SalaryBalance): SalaryBalance {
+        salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance) && salaryBalance.CreatePayment;
+        return salaryBalance;
     }
 
     public GetFieldFuncs(salaryBalance: SalaryBalance): IFieldFunc[] {

@@ -241,8 +241,9 @@ export class SalarybalanceView extends UniView implements OnDestroy {
 
     private saveSalarybalance(done: (message: string) => void, updateView = true) {
         super.updateState(SAVING_KEY, true, false);
-        this.salaryBalanceViewService
-            .save(this.salarybalance)
+        super.getStateSubject(SALARY_BALANCE_KEY)
+            .take(1)
+            .switchMap(salaryBalance => this.salaryBalanceViewService.save(salaryBalance))
             .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe((salbal: SalaryBalance) => {
                 this.saveActions[0].disabled = true;

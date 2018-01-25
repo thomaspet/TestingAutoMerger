@@ -133,6 +133,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 if (changes['InstalmentType']) {
                     this.setWagetype(model);
                     this.setText(model);
+                    this.salarybalanceService.resetFields(model);
                 }
 
                 if (changes['SupplierID']) {
