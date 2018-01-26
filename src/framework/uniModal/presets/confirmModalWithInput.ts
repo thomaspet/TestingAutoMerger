@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions, ConfirmActions} from '../modalService';
+import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-confirm-modal-with-input',
