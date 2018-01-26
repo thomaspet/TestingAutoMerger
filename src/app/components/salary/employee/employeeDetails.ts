@@ -672,32 +672,29 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     public nextEmployee() {
-
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.employeeService.getNext(this.employee.EmployeeNumber).subscribe((next: Employee) => {
-                    if (next) {
-                        this.employee = next;
-                        let childRoute = this.router.url.split('/').pop();
-                        this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
-                    }
-                }, err => this.errorService.handle(err));
-            }
-        });
+        this.employeeService
+            .getNext(this.employee.EmployeeNumber)
+            .filter(emp => !!emp)
+            .switchMap(emp => this.canDeactivate().filter(canDeactivate => !!canDeactivate).map(() => emp))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe(next => {
+                this.employee = next;
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+            });
     }
 
     public previousEmployee() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.employeeService.getPrevious(this.employee.EmployeeNumber).subscribe((prev: Employee) => {
-                    if (prev) {
-                        this.employee = prev;
-                        let childRoute = this.router.url.split('/').pop();
-                        this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
-                    }
-                }, err => this.errorService.handle(err));
-            }
-        });
+        this.employeeService
+            .getPrevious(this.employee.EmployeeNumber)
+            .filter(emp => !!emp)
+            .switchMap(emp => this.canDeactivate().filter(canDeactivate => !!canDeactivate).map(() => emp))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe(prev => {
+                this.employee = prev;
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+            });
     }
 
     public newEmployee() {
