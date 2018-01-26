@@ -6,6 +6,7 @@ import {SalaryBalance, SalBalDrawType} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 interface BalanceActionFormattedType {
     salaryBalanceID: number;
@@ -21,6 +22,7 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
     private tableConfig: UniTableConfig;
     @Input() public salarybalances: SalaryBalance[];
+    private salaryBalances$: BehaviorSubject<SalaryBalance[]> = new BehaviorSubject([]);
     @Input() public lightWeight: boolean;
     @Output() public selectedSalarybalance: EventEmitter<SalaryBalance> = new EventEmitter();
     @Output() public updatedList: EventEmitter<SalaryBalance[]> = new EventEmitter();
@@ -39,11 +41,13 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
     public ngOnInit() {
         this.createConfig(this.lightWeight);
+        this.salaryBalances$
+            .subscribe(model => this.focusRow(model));
     }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['salarybalances']) {
-            this.focusRow(this.salarybalances);
+            this.salaryBalances$.next(this.salarybalances.filter(x => !x.Deleted));
         }
     }
 
@@ -150,6 +154,24 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
         this.tableConfig = new UniTableConfig('salary.salarybalance.list', false, !lightWeight, 15)
             .setColumns(activeColumns)
+            .setDeleteButton(lightWeight ? {
+                deleteHandler: row => this.handleDeletion(row)
+            } : false)
             .setSearchable(true);
+    }
+
+    private handleDeletion(row: SalaryBalance) {
+        if (!row.ID) {
+            this.updatedList.next(this.salarybalances.filter(x => x['_originalIndex'] !== row['_originalIndex']));
+            return;
+        }
+        row.Deleted = true;
+        row[SELECTED_KEY] = false;
+        const index = this.salarybalances.findIndex(salBal => row.ID
+            ? row.ID === salBal.ID
+            : row._createguid === salBal._createguid
+        );
+        this.salarybalances[index] = row;
+        this.updatedList.next(this.salarybalances);
     }
 }

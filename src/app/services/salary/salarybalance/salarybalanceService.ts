@@ -16,6 +16,7 @@ import {ModulusService} from '../../common/modulusService';
 import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 import {UniModalService} from '../../../../framework/uniModal/modalService';
 import {ConfirmActions} from '../../../../framework/uniModal/interfaces';
+import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 interface IFieldFunc {
@@ -47,6 +48,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private errorService: ErrorService,
         private modulusService: ModulusService,
         private modalService: UniModalService,
+        private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService
     ) {
         super(http);
@@ -163,6 +165,16 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     })
                 : Observable.of(salbal)
             );
+    }
+
+    public deleteSalaryBalance(id: number): Observable<any> {
+        return this.Remove(id)
+            .do(() => this.clearRelatedCaches())
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    private clearRelatedCaches(): void {
+        this.salaryTransactionService.invalidateCache();
     }
 
     public handlePaymentCreation(salaryBalance: SalaryBalance): Observable<ConfirmActions> {

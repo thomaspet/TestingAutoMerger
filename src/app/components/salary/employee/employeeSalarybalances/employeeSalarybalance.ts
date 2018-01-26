@@ -60,7 +60,7 @@ export class EmployeeSalarybalance extends UniView implements OnInit {
     }
 
     public onUpdatedList(salaryBalances: SalaryBalance[]) {
-        super.updateState(SALARYBALANCES_KEY, salaryBalances, salaryBalances.some(x => x['_isDirty']));
+        super.updateState(SALARYBALANCES_KEY, salaryBalances, salaryBalances.some(x => x['_isDirty'] || x['Deleted']));
     }
 
     public setSalarybalance(salaryBal: SalaryBalance) {

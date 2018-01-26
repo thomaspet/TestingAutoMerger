@@ -3,12 +3,15 @@ import {Router} from '@angular/router';
 import {SalarybalanceService, ErrorService, ReportDefinitionService, FileService} from '../../../../services/services';
 import {SalaryBalance, SalBalType} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {UniModalService} from '@uni-framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import * as _ from 'lodash';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SalaryBalanceViewService {
+
+    private url: string = '/salary/salarybalances';
 
     constructor(
         private salaryBalanceService: SalarybalanceService,
@@ -59,6 +62,28 @@ export class SalaryBalanceViewService {
                 this.fileService.linkFile(entityType, ID, fileID).subscribe(x => resolve(x));
             });
         });
+    }
+
+    public delete(id: number) {
+        this.modalService
+            .confirm({
+                header: 'Slett forskudd/trekk',
+                message: `Er du sikker på at du vil slette forskudd/trekk ${id}?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            })
+            .onClose
+            .switchMap((result: ConfirmActions) => result === ConfirmActions.ACCEPT
+                ? this.salaryBalanceService.deleteSalaryBalance(id).map(() => result)
+                : Observable.of(result))
+            .subscribe((result) => {
+                if (result !== ConfirmActions.ACCEPT) {
+                    return;
+                }
+                this.router.navigateByUrl(this.url);
+            });
     }
 
     public showAdvanceReport(id: number) {

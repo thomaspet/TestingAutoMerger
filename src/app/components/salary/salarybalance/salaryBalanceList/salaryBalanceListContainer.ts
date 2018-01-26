@@ -25,6 +25,7 @@ export class SalaryBalanceListContainer implements OnInit {
         this.route
             .params
             .map(params => +params['empID'] || 0)
+            .do(empID => this.handleTab(empID))
             .subscribe(empID => this.getSalaryBalances(empID));
     }
 

@@ -143,6 +143,11 @@ export class SalarybalanceView extends UniView implements OnDestroy {
                         action: () => this.showAdvanceReport(salarybalanceID),
                         disabled: () => !salarybalanceID
                             || !this.salarybalanceService.hasBalance(salaryBalance)
+                    },
+                    {
+                        label: 'Slett forskudd/trekk',
+                        action: () => this.salaryBalanceViewService.delete(salarybalanceID),
+                        disabled: () => !salarybalanceID
                     }
                 ];
 
