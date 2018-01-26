@@ -58,7 +58,6 @@ export class ReminderSending implements OnInit {
     private currentRunNumber: number = 0;
     private currentRunNumberData: IRunNumberData;
     private runNumbers: IRunNumberData[];
-    private customerSums: any;
     private toolbarconfig: IToolbarConfig;
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];
@@ -108,7 +107,6 @@ export class ReminderSending implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.loadLastRunNumber();
         this.setupReminderTable();
         this.statisticsService.GetAllUnwrapped(
             'model=CustomerInvoiceReminder'
@@ -118,6 +116,9 @@ export class ReminderSending implements OnInit {
         )
             .subscribe((data) => {
                 this.runNumbers = data;
+                if (this.runNumbers && this.runNumbers.length > 0) {
+                    this.loadRunNumber(this.runNumbers[0].RunNumber);
+                }
                 this.fields$.next(this.getLayout().Fields);
             });
     }
@@ -281,15 +282,6 @@ export class ReminderSending implements OnInit {
         this.toolbarconfig = toolbarconfig;
     }
 
-    public loadLastRunNumber() {
-        this.statisticsService.GetAllUnwrapped(
-            'model=CustomerInvoiceReminder&select=RunNumber%20as%20RunNumber&orderby=RunNumber%20desc&top=1'
-        ).subscribe((data) => {
-            let reminder = data[0];
-            if (reminder) { this.loadRunNumber(reminder.RunNumber); }
-        });
-    }
-
     public loadRunNumber(runNumber): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.modalMode || runNumber < 1) {
@@ -345,25 +337,16 @@ export class ReminderSending implements OnInit {
 
     public updateReminderList(reminders) {
         if (this.currentRunNumber === 0) { this.currentRunNumber = reminders[0].RunNumber; }
-        let filter = reminders.map((r) => 'ID eq ' + r.ID).join(' or ');
+        let filter = `RunNumber eq ${this.currentRunNumber}`;
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
             .subscribe((remindersAll) => {
-                let cfilter = remindersAll.map((r) => `SubAccount.CustomerID eq ${r.CustomerID}`).join(' or ');
-                this.statisticsService.GetAllUnwrapped(
-                    'model=JournalEntryLine&expand=SubAccount&select=SubAccount.CustomerID,sum(Amount)&filter='
-                    + cfilter
-                ).subscribe((customersums) => {
-                    this.customerSums = customersums;
-
-                    this.remindersAll = remindersAll;
-                    this.remindersAll = remindersAll.map((r) => {
-                        r._rowSelected = true;
-                        return r;
-                    });
-
-                    this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
-                    this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+                this.remindersAll = remindersAll.map((r) => {
+                    r._rowSelected = true;
+                    return r;
                 });
+
+                this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
+                this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
             });
     }
 
