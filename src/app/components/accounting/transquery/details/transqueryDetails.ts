@@ -16,7 +16,7 @@ import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {
@@ -32,7 +32,8 @@ import {
 
 import {
     UniModalService,
-    ConfirmActions
+    ConfirmActions,
+    UniConfirmModalWithInput
 } from '../../../../../framework/uniModal/barrel';
 
 import {FieldType} from '../../../../../framework/ui/uniform/index';
@@ -465,29 +466,33 @@ export class TransqueryDetails implements OnInit {
     }
 
     private creditJournalEntry(journalEntryNumber: string) {
-        const modal = this.modalService.confirm({
-            header: 'Bekreft kreditering',
-            message: `Vennligst bekreft kreditering av hele bilag ${journalEntryNumber}`,
+        this.modalService.open(UniConfirmModalWithInput, {
+            header: `Kreditere bilag ${journalEntryNumber}?`,
+            message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             }
-        });
+        }).onClose.subscribe(response => {
+            if (response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(journalEntryNumber, response.input)
+                    .subscribe(
+                        res => {
+                            this.toastService.addToast(
+                                'Kreditering utført',
+                                ToastType.good,
+                                ToastTime.short
+                            );
 
-        modal.onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(journalEntryNumber).subscribe(
-                    res => {
-                        this.toastService.addToast('Kreditering utført', ToastType.good, 5);
-                        this.table.refreshTableData();
+                            this.table.refreshTableData();
 
-                        // Force summary recalc
-                        if (this.lastFilterString) {
-                            this.onFiltersChange(this.lastFilterString);
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
+                            // Force summary recalc
+                            if (this.lastFilterString) {
+                                this.onFiltersChange(this.lastFilterString);
+                            }
+                        },
+                        err => this.errorService.handle(err)
+                    );
             }
         });
     }
@@ -702,7 +707,7 @@ export class TransqueryDetails implements OnInit {
                         item.JournalEntryLineJournalEntryNumber
                     ),
                     disabled: (item) => false,
-                    label: 'Rediger bilag'
+                    label: 'Korriger bilag'
                 }
             ])
             .setColumns(columns);
