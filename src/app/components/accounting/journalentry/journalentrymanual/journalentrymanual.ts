@@ -391,6 +391,20 @@ export class JournalEntryManual implements OnChanges, OnInit {
             } else {
                 console.log('Vattype data not loaded correctly, could not set data');
             }
+        }
+
+        if (this.journalEntryProfessional) {
+            if (this.editmode === true) {
+                const copiedArray = [...lines];
+
+                copiedArray.map(line => {
+                    line.StatusCode = null;
+                    return line;
+                });
+                this.journalEntryProfessional.setJournalEntryData(copiedArray);
+            } else {
+                this.journalEntryProfessional.setJournalEntryData(lines);
+            }
         } else {
             if (this.journalEntryProfessional) {
                 this.journalEntryProfessional.setJournalEntryData(lines);

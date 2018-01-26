@@ -10,11 +10,12 @@ import {
 } from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {NumberSeriesTask, NumberSeries} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
+    UniConfirmModalWithInput,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
@@ -76,6 +77,7 @@ export class JournalEntries {
                 this.editmode = false;
                 if (params['editmode']) {
                     this.editmode = params['editmode'];
+                    setTimeout(() => this.editJournalEntry());
                 }
 
                 this.currentJournalEntryNumber = params['journalEntryNumber'];
@@ -95,6 +97,7 @@ export class JournalEntries {
                         this.editmode = false;
                         if (params['editmode']) {
                             this.editmode = params['editmode'];
+                            setTimeout(() => this.editJournalEntry());
                         }
 
                         this.currentJournalEntryNumber = journalEntryNumber;
@@ -115,6 +118,7 @@ export class JournalEntries {
                         this.editmode = false;
                         if (params['editmode']) {
                             this.editmode = params['editmode'];
+                            setTimeout(() => this.editJournalEntry());
                         }
 
                         this.currentJournalEntryNumber = journalEntryNumber;
@@ -148,7 +152,7 @@ export class JournalEntries {
 
         this.contextMenuItems = [
             {
-                label: 'Rediger',
+                label: 'Korriger',
                 action: () => this.editJournalEntry(),
                 disabled: () => this.editmode === true || !this.currentJournalEntryID
             },
@@ -357,13 +361,41 @@ export class JournalEntries {
     }
 
     private editJournalEntry() {
-        if (!this.journalEntryManual.isDirty) {
-            this.editmode = true;
-        }
+        this.modalService.open(UniConfirmModalWithInput, {
+            header: `Bilag ${this.currentJournalEntryNumber} blir kreditert før du korrigerer.`,
+            message: 'Vil du kreditere hele dette bilaget?',
+            buttonLabels: {
+                accept: 'Krediter',
+                cancel: 'Avbryt'
+            }
+        }).onClose.subscribe(response => {
+            if (response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
+                    .subscribe(
+                        res => {
+                            this.toastService.addToast(
+                                'Kreditering utført',
+                                ToastType.good,
+                                ToastTime.short
+                            );
+
+                            this.editmode = true;
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.editmode = false;
+                        }
+                    );
+            } else if (response === ConfirmActions.CANCEL) {
+                this.editmode = false;
+            } else {
+                this.editmode = false;
+            }
+        });
     }
 
      private creditJournalEntry() {
-        this.modalService.open(UniConfirmModalV2, {
+        this.modalService.open(UniConfirmModalWithInput, {
             header: `Kreditere bilag ${this.currentJournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
@@ -371,14 +403,14 @@ export class JournalEntries {
                 cancel: 'Avbryt'
             }
         }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber)
+            if (response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
                                 'Kreditering utført',
                                 ToastType.good,
-                                5
+                                ToastTime.short
                             );
 
                             this.journalEntryManual.loadData();

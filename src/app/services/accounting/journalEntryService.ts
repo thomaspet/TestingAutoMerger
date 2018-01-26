@@ -830,11 +830,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return jed;
     }
 
-    public creditJournalEntry(journalEntryNumber: string): Observable<any> {
+    public creditJournalEntry(journalEntryNumber: string, date?: Date): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber)
+            .withEndPoint(this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber + '&creditDate=' + date)
             .send()
             .map(response => response.json());
     }

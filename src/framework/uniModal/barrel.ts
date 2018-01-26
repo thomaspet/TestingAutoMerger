@@ -1,5 +1,6 @@
 import {UniConfirmModalV2} from './presets/confirmModal';
 import {UniConfirmModalWithList} from './presets/confirmModalWithList';
+import {UniConfirmModalWithInput} from './presets/confirmModalWithInput';
 import {UniAddressModal} from './presets/addressModal';
 import {UniPhoneModal} from './presets/phoneModal';
 import {UniEmailModal} from './presets/emailModal';
@@ -19,6 +20,7 @@ export * from './modalService';
 export * from './interfaces';
 export * from './presets/confirmModal';
 export * from './presets/confirmModalWithList';
+export * from './presets/confirmModalWithInput';
 export * from './presets/addressModal';
 export * from './presets/phoneModal';
 export * from './presets/emailModal';
@@ -37,6 +39,7 @@ export * from './presets/licenseAgreementModal';
 export const MODALS = [
     UniConfirmModalV2,
     UniConfirmModalWithList,
+    UniConfirmModalWithInput,
     UniAddressModal,
     UniPhoneModal,
     UniEmailModal,
