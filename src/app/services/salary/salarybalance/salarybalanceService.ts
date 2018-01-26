@@ -16,6 +16,7 @@ import {ModulusService} from '../../common/modulusService';
 import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 import {UniModalService} from '../../../../framework/uniModal/modalService';
 import {ConfirmActions} from '../../../../framework/uniModal/interfaces';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 interface IFieldFunc {
     prop: string;
@@ -46,6 +47,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private errorService: ErrorService,
         private modulusService: ModulusService,
         private modalService: UniModalService,
+        private toastService: ToastService
     ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
@@ -260,6 +262,11 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public resetFields(salaryBalance: SalaryBalance): SalaryBalance {
+        this.resetCreatePayment(salaryBalance);
+        return salaryBalance;
+    }
+
+    public resetCreatePayment(salaryBalance: SalaryBalance): SalaryBalance {
         salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance) && salaryBalance.CreatePayment;
         return salaryBalance;
     }
@@ -275,6 +282,19 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 func: percentField => percentField.ReadOnly = !!salaryBalance.Instalment
             }
         ];
+    }
+
+    public validateCreatePaymentChange(salaryBalance: SalaryBalance): SalaryBalance {
+        if (salaryBalance.SupplierID) {
+            return salaryBalance;
+        }
+        salaryBalance.CreatePayment = false;
+        this.toastService.addToast(
+            'Kan ikke lage utbetaling',
+            ToastType.bad,
+            ToastTime.long,
+            'Må ha leverandør for at man skal kunne lage betaling');
+        return salaryBalance;
     }
 
     public layout(
@@ -473,20 +493,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
                                 : ''
-                        },
-                        Validations: [
-                            (value: number, field: UniFieldLayout) => {
-                                if (!!value) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Leverandør er påkrevd',
-                                    isWarning: false};
-                                }
-                        ]
+                        }
                     },
                     {
                         EntityType: 'salarybalance',

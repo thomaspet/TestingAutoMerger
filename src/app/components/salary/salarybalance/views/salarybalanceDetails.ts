@@ -138,6 +138,9 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
                 if (changes['SupplierID']) {
                     model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
+                    if (!model.SupplierID) {
+                        this.salarybalanceService.resetCreatePayment(model);
+                    }
                 }
 
                 if (changes['Amount']) {
@@ -156,6 +159,10 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                                 message);
                         }
                     }
+                }
+
+                if (changes['CreatePayment']) {
+                    this.salarybalanceService.validateCreatePaymentChange(model);
                 }
 
                 return model;
