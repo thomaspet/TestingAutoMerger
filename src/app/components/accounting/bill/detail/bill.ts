@@ -1876,6 +1876,8 @@ export class BillView implements OnInit {
                     this.supplierIsReadOnly = false;
                     this.uniForm.field('PaymentID').editMode();
                     this.uniForm.field('PaymentDueDate').editMode();
+                    this.uniForm.field('DefaultDimensions.ProjectID').editMode();
+                    this.uniForm.field('DefaultDimensions.DepartmentID').editMode();
                     return;
             }
         }
