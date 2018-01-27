@@ -74,7 +74,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
     private currentJournalEntryImages: number[] = [];
-    private currentJournalEntryData: JournalEntryData;
+    public currentJournalEntryData: JournalEntryData;
     public currentJournalEntryID: string;
 
     private companySettings: CompanySettings;

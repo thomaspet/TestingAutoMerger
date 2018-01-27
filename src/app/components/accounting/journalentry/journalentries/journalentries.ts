@@ -15,11 +15,11 @@ import {NumberSeriesTask, NumberSeries} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
-    UniConfirmModalWithInput,
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {SelectDraftLineModal} from './selectDraftLineModal';
+import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 
 @Component({
     selector: 'journalentries',
@@ -361,15 +361,16 @@ export class JournalEntries {
     }
 
     private editJournalEntry() {
-        this.modalService.open(UniConfirmModalWithInput, {
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
             header: `Bilag ${this.currentJournalEntryNumber} blir kreditert før du korrigerer.`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
-            }
+            },
+            data: this.journalEntryManual.currentJournalEntryData
         }).onClose.subscribe(response => {
-            if (response.action === ConfirmActions.ACCEPT) {
+            if (response && response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
                     .subscribe(
                         res => {
@@ -386,7 +387,7 @@ export class JournalEntries {
                             this.editmode = false;
                         }
                     );
-            } else if (response === ConfirmActions.CANCEL) {
+            } else if (response && response.action === ConfirmActions.CANCEL) {
                 this.editmode = false;
             } else {
                 this.editmode = false;
@@ -395,13 +396,14 @@ export class JournalEntries {
     }
 
      private creditJournalEntry() {
-        this.modalService.open(UniConfirmModalWithInput, {
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
             header: `Kreditere bilag ${this.currentJournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
-            }
+            },
+            data: this.journalEntryManual.currentJournalEntryData
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)

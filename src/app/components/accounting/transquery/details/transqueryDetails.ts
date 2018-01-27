@@ -33,8 +33,8 @@ import {
 import {
     UniModalService,
     ConfirmActions,
-    UniConfirmModalWithInput
 } from '../../../../../framework/uniModal/barrel';
+import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
@@ -465,17 +465,18 @@ export class TransqueryDetails implements OnInit {
         return filter;
     }
 
-    private creditJournalEntry(journalEntryNumber: string) {
-        this.modalService.open(UniConfirmModalWithInput, {
-            header: `Kreditere bilag ${journalEntryNumber}?`,
+    private creditJournalEntry(item: any) {
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+            header: `Kreditere bilag ${item.JournalEntryLineJournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
-            }
+            },
+            data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(journalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryLineJournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
@@ -697,7 +698,7 @@ export class TransqueryDetails implements OnInit {
             })
             .setContextMenu([
                 {
-                    action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
+                    action: (item) => this.creditJournalEntry(item),
                     disabled: (item) => false,
                     label: 'Krediter bilag'
                 },
