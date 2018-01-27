@@ -63,9 +63,20 @@
         <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 4">
             <legend>Dokumenter</legend>
             <label for="attachments">
-                <span>Vedlegg</span>
+                <span *ngIf="data?.ID">Vedlegg</span>
+                <p *ngIf="!data?.ID">
+                    <span *ngIf="entityName == 'CustomerInvoice'">
+                        Du må lagre faktura som kladd før du kan legge til dokumenter.
+                    </span>
+                    <span *ngIf="entityName == 'CustomerOrder'">
+                        Du må lagre ordre som kladd eller registrere ordre før du kan legge til dokumenter.
+                    </span>
+                    <span *ngIf="entityName == 'CustomerQuote'">
+                        Du må lagre tilbud som kladd eller registrere tilbud før du kan legge til dokumenter.
+                    </span>                    
+                </p>
             </label>
-            <uni-attachments
+            <uni-attachments *ngIf="data?.ID"
                 id="attachments"
                 [entity]="entityName"
                 [entityID]="data?.ID"
