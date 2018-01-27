@@ -1,9 +1,9 @@
-import {Component, Input, Output, ViewChild, EventEmitter, SimpleChange} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, SimpleChange, AfterViewInit, OnInit, OnChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../framework/uniModal/barrel';
 import {UniForm} from '../../../framework/ui/uniform/index';
 import {BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IUniSearchConfig} from '../../../framework/ui/unisearch/index';
+import {IUniSearchConfig, UniSearch} from '../../../framework/ui/unisearch/index';
 import {AccountService, CustomerService, SupplierService} from '../../services/services';
 import {UniSearchCustomerConfig} from '../../services/common/uniSearchConfig/uniSearchCustomerConfig';
 
@@ -48,14 +48,15 @@ declare const _; // lodash
     `
 })
 
-export class NewAccountModal implements IUniModal {
+export class NewAccountModal implements IUniModal, AfterViewInit, OnInit, OnChanges {
     @Input()
     public options: IModalOptions;
 
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UniForm) public form: UniForm;
+    // @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniSearch) private uniSearch: UniSearch;
 
     public config: any = {};
     public uniSearchConfig: IUniSearchConfig;
@@ -73,7 +74,16 @@ export class NewAccountModal implements IUniModal {
         this.uniSearchConfig = this.uniSearchCustomerConfig.generateOnlyExternalSearch();
     }
 
+    public ngAfterViewInit() {
+        setTimeout(() => {
+            if (this.uniSearch) {
+                this.uniSearch.focus();
+            }
+        }, 300);
+    }
+
     public ngOnInit() {
+
         this.config = {
             title: 'Ny konto',
             initSearchCriteria: this.options.data.searchCriteria,
