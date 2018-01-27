@@ -5,7 +5,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {EmployeeTaxCard, Employee} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
-    UniCacheService,ErrorService,EmployeeTaxCardService
+    UniCacheService, ErrorService, EmployeeTaxCardService
 } from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
@@ -46,7 +46,6 @@ export class EmployeeTax extends UniView implements OnInit {
                     const [employeeTaxCard, employee, taxOptions] = result;
                     this.getTaxLayout(taxOptions, employee, employeeTaxCard);
                 });
-            
             employeeTaxCard$
                 .map((employeeTaxCard: EmployeeTaxCard) => {
                     employeeTaxCard['_lastUpdated'] = employeeTaxCard.UpdatedAt || employeeTaxCard.CreatedAt;
@@ -74,7 +73,7 @@ export class EmployeeTax extends UniView implements OnInit {
         employee: Employee,
         employeeTaxCard: EmployeeTaxCard) {
         this.employeeTaxCardService.getLayout('EmployeeTaxCardForm', employeeTaxCard).subscribe(layout => {
-            let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
+            const taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
             taxButton.Options = {
                 click: (event) => {
                     taxCardOptions.openModal();
@@ -100,11 +99,11 @@ export class EmployeeTax extends UniView implements OnInit {
         return fields.find((fld) => fld.Property === name);
     }
 
-    private toggleTaxButtonActive(employee: Employee, fields: UniFieldLayout[] = undefined): UniFieldLayout[] {
+    private toggleTaxButtonActive(employee: Employee, fields?: UniFieldLayout[]): UniFieldLayout[] {
         fields = fields || this.fields$.getValue();
 
         if (employee && fields.length) {
-            let field = this.findByProperty(fields, 'TaxBtn');
+            const field = this.findByProperty(fields, 'TaxBtn');
             field.ReadOnly = !employee.SocialSecurityNumber || !employee.ID || super.isDirty('employee');
         }
         return fields;
@@ -119,10 +118,7 @@ export class EmployeeTax extends UniView implements OnInit {
     }
 
     private updateFields(layout: any, employeeTaxcard: EmployeeTaxCard) {
-        let trekkAlreadyVisible = false;
-        let freeamountAlreadyVisible = false;
-
-        let taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
+        const taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
         taxButton.Options = {
             click: (event) => {
                 this.getStateSubject('taxCardModalCallback')
