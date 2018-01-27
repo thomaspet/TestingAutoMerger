@@ -18,6 +18,7 @@ import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
+import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 
 export enum UniImageSize {
     small = 150,
@@ -201,7 +202,8 @@ export class UniImage {
         private fileService: FileService,
         private modalService: UniModalService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService
+        private uniFilesService: UniFilesService,
+        private toastService: ToastService
     ) {
         this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -445,9 +447,18 @@ export class UniImage {
 
     private printImage(source: string) {
         var pwa = window.open('_new');
-        pwa.document.open();
-        pwa.document.write(this.imageToPrint(source));
-        pwa.document.close();
+        if (pwa) {
+            pwa.document.open();
+            pwa.document.write(this.imageToPrint(source));
+            pwa.document.close();    
+        } else {
+            this.toastService.addToast(
+                'Blokkert?', 
+                ToastType.warn, 
+                ToastTime.medium, 
+                'Sjekk om du har blokkering for ny fane/vindu i nettleseren din.'
+            );
+        }
     }
 
     private splitFile() {
