@@ -6,7 +6,7 @@ import * as moment from 'moment';
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',
     template: `
-        <dialog class="uni-modal"
+        <section role="dialog" class="uni-modal"
             (clickOutside)="cancel()"
             (keydown.esc)="cancel()">
             <header>
@@ -37,7 +37,7 @@ import * as moment from 'moment';
                     {{options.buttonLabels.cancel}}
                 </button>
             </footer>
-        </dialog>
+        </section>
     `
 })
 export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, AfterViewInit {
