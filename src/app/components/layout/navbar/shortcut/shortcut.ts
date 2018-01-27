@@ -84,6 +84,12 @@ export class UniShortcut {
                 moduleID: UniModules.Quotes
             },
             {
+                componentName: 'Nytt bilag',
+                componentUrl: '/accounting/journalentry/manual',
+                navigationUrl: '/accounting/journalentry/manual',
+                moduleID: UniModules.Accounting
+            },
+            {
                 componentName: 'Ny kunde',
                 componentUrl: '/sales/customers',
                 navigationUrl: '/sales/customer/0',
