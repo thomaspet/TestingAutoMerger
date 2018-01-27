@@ -1,6 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
+import {WidgetDataService} from '../widgets/widgetDataService';
 
 @Component({
     selector: 'uni-accounting',
@@ -10,18 +11,30 @@ import {IUniWidget} from '../widgets/widgetCanvas';
         </uni-widget-canvas>
     `,
 })
-export class UniAccounting {
+export class UniAccounting implements OnDestroy {
     private widgetLayout: IUniWidget[];
+    private refreshInterval;
 
-    constructor(tabService: TabService) {
+    constructor(tabService: TabService, private widgetService: WidgetDataService) {
         tabService.addTab({
              name: 'Regnskap',
              url: '/accounting',
              moduleID: UniModules.Accounting,
              active: true
         });
-
+        this.widgetService.clearCache();
         this.widgetLayout = this.getDefaultLayout();
+        const that = this;
+        this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
+    }
+
+    private refreshOnTimer() {
+        this.widgetService.clearCache();
+        this.widgetLayout = [...this.getDefaultLayout()];
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
     }
 
     private getDefaultLayout(): IUniWidget[] {

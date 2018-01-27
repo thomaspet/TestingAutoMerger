@@ -1,7 +1,8 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnDestroy} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {YearService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
+import {WidgetDataService} from '../widgets/widgetDataService';
 
 import * as Chart from 'chart.js';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -19,18 +20,20 @@ export interface IChartDataSet {
     selector: 'uni-dashboard',
     templateUrl: './dashboard.html'
 })
-export class Dashboard {
+export class Dashboard implements OnDestroy  {
     @ViewChild(UniWidgetCanvas)
     public widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = this.browserStorage.getItem('welcomeHidden');
     private layout: any[] = [];
     private activeYear: number;
+    private refreshInterval;
 
     constructor(
         private http: UniHttp,
         private yearService: YearService,
         private browserStorage: BrowserStorageService,
+        private widgetService: WidgetDataService
     ) {
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
@@ -38,10 +41,22 @@ export class Dashboard {
 
         this.yearService.selectedYear$.subscribe(year => {
             this.activeYear = year;
+            this.widgetService.clearCache();
             this.layout = this.initLayout();
+            const that = this;
+            // Refresh dashboard every 10 minutes. Minutes here could be user specified?
+            this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
         });
     }
 
+    private refreshOnTimer() {
+        this.widgetService.clearCache();
+        this.layout = [...this.initLayout()];
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
+    }
 
     public initLayout() {
         return [
