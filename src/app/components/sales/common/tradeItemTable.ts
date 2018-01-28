@@ -220,7 +220,7 @@ export class TradeItemTable {
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
-                        `filter=contains(Name,'${query}') or startswith(PartName,'${query}')&top=10`,
+                        `filter=contains(Name,'${query}') or startswith(PartName,'${query}')&top=100`,
                         ['Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
                     )
 
