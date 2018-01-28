@@ -69,12 +69,21 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Sum eks. mva",
+            "Field": "TaxExclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true
+        },
+        {
             "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "FilterOperator": "gt",
-            "SumColumn": true
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Rest",
@@ -82,7 +91,8 @@
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "FilterOperator": "gt",
-            "SumColumn": true
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Kreditert",
@@ -95,6 +105,13 @@
         {
             "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
+        },
+        {
+            "Header": "Sum eks. mva [BASECURRENCY]",
+            "Field": "TaxExclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
             "SumColumn": true
@@ -814,11 +831,26 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Sum eks. mva",
+            "Field": "TaxExclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "SumColumn": true
+        },
+        {
+            "Header": "Sum eks. mva [BASECURRENCY]",
+            "Field": "TaxExclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
+        },
+        {
             "Header": "Sum inkl. mva",
             "Field": "TaxInclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
-            "SumColumn": true
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Sum inkl. mva [BASECURRENCY]",
@@ -1339,16 +1371,32 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Sum inkl. mva",
-            "Field": "TaxInclusiveAmountCurrency",
+            "Header": "Sum eks. mva",
+            "Field": "TaxExclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "FilterOperator": "gt",
             "SumColumn": true
         },
         {
+            "Header": "Sum inkl. mva",
+            "Field": "TaxInclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true,
+            "DefaultHidden": true
+        },
+        {
             "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
+        },
+        {
+            "Header": "Sum eks. mva [BASECURRENCY]",
+            "Field": "TaxExclusiveAmount",
             "Format": "NumberPositiveNegative",
             "DefaultHidden": true,
             "SumColumn": true
@@ -1359,17 +1407,16 @@
             "Alias": "Restsumexmva",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt",
-            "SumColumn": true,
-            "DefaultHidden": true
+            "FilterOperator": "gt"
         },
         {
-            "Header": "Restsum",
-            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalIncVatCurrency\\,0))",
+            "Header": "Restsum inkl. mva",
+            "Field": "TaxExclusiveAmountCurrency",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "DefaultHidden": true
         },
         {
             "Header": "Hovedselger",
