@@ -253,6 +253,12 @@ export class TradeItemTable {
                         buttonText: 'Nytt produkt',
                         action: () => {
                             return this.modalService.open(UniProductDetailsModal, {  }).onClose;
+                        },
+                        getAction: (item) => {
+                            return this.productService.Get(item.ID);
+                        },
+                        errorAction: (msg: string) => {
+                            this.errorService.handle(msg);
                         }
                     }
                 },

@@ -29,7 +29,7 @@ export interface IAutoCompleteOptions {
 
 export interface IResultTableConfig {
     fields: IResultTableField[];
-    buttons: IResultTableButtons[];
+    createNewButton: IResultTableButton;
 }
 
 export interface IResultTableField {
@@ -40,9 +40,11 @@ export interface IResultTableField {
     isMoneyField?: boolean;
 }
 
-export interface IResultTableButtons {
+export interface IResultTableButton {
     buttonText: string;
     action: () => {};
+    getAction: (item) => {};
+    errorAction: (msg: string) => {};
 }
 
 export interface IGroupInfo {
@@ -276,7 +278,14 @@ export class UnitableAutocomplete implements OnInit {
 
     public onActionClick(button: any) {
         this.addValuePromise = new Promise((resolve) => {
-            button.action().subscribe(item => resolve(item || undefined));
+            button.action().subscribe(item => {
+                button.getAction(item).subscribe((result) => {
+                    resolve(result || undefined);
+                },
+                (err) => {
+                    button.errorAction(err);
+                });
+            });
         });
     }
 
@@ -327,7 +336,6 @@ export class UnitableAutocomplete implements OnInit {
 
         // User was "too quick"
         if (this.busy && this.inputControl.value) {
-            console.log('hello')
             return this.performLookup(this.inputControl.value).switchMap((res) => {
                 return Observable.of(this.findExactMatch(res, this.inputControl.value)[0]);
             });
