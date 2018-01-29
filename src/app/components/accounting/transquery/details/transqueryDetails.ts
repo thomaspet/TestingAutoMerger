@@ -672,7 +672,7 @@ export class TransqueryDetails implements OnInit {
 
         let pageSize = window.innerHeight // Window size
             - 144 // Form height
-            - 208 // Body margin and padding
+            - 20 // Body margin and padding
             - 32 // Application class margin
             - 64 // Unitable pagination
             - 91; // Unitable filter and thead
