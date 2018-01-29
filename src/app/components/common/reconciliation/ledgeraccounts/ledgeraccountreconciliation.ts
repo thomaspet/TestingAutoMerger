@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine,
-    LocalDate,
+    LocalDate, JournalEntryLinePostPostData,
     JournalEntryLine, Payment, BusinessRelation, BankAccount, i18nModule, Customer, CompanySettings, Paycheck, PaymentCode} from '../../../../unientities';
 import {
     UniTable,
@@ -310,26 +310,51 @@ export class LedgerAccountReconciliation {
     }
 
     public export() {
-        let lines = this.journalEntryLines;
+        this.exportLines(this.journalEntryLines);
+    }
 
-        var list = [];
-        lines.forEach((line) => {
-            var row = {
-                JournalEntryNumber: line.JournalEntryNumber,
-                FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
-                InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
-                DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
-                Amount: line.Amount,
-                RestAmount: line.RestAmount,
-                Description: line.Description,
-                Status: this.journalEntryLineService.getStatusText(line.StatusCode),
-                NumberOfPayments: line.NumberOfPayments,
-                Markings: this.getMarkingsText(line)
-            };
-            list.push(row);
-        });
+    public exportAll(register: string) {
+        this.journalEntryLineService.getJournalEntryLinePostPostData(
+            this.displayPostsOption !== 'MARKED',
+            this.displayPostsOption !== 'OPEN',
+            (register === "customer") ? -1 : null,
+            (register === "supplier") ? -1 : null,
+            (register === "account") ? -1 : null,
+            this.pointInTime)
+            .subscribe((lines: Array<JournalEntryLinePostPostData>) => {
+                this.exportLines(lines);
+            },
+            (err) => this.errorService.handle(err)
+        );
+    }
 
-        exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
+    private exportLines(lines: Array<JournalEntryLinePostPostData>) {
+        let list = [];
+        if (lines && lines.length > 0) {
+            lines.forEach((line: JournalEntryLinePostPostData) => {
+                var row = {
+                    JournalEntryNumber: line.JournalEntryNumber,
+                    FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
+                    InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
+                    DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
+                    Amount: line.Amount,
+                    RestAmount: line.RestAmount,
+                    Description: line.Description,
+                    Status: this.journalEntryLineService.getStatusText(line.StatusCode),
+                    NumberOfPayments: line.NumberOfPayments,
+                    Markings: this.getMarkingsText(line)
+                };
+                list.push(row);
+            });
+
+            exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
+        } else {
+            this.toastService.addToast('Ingen poster',
+                ToastType.warn,
+                ToastTime.medium,
+                'Det er ingen poster å eksportere'
+            );
+        }
     }
 
     public autoMarkJournalEntries() {
