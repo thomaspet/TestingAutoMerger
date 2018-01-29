@@ -160,7 +160,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     journalEntryData.map(x => x.JournalEntryDrafts.map(y => lineID.push(y.ID)));
                     journalEntries[0].DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account);
                     journalEntries[0].ID = id;
-                    journalEntries[0].DraftLines.map((x, i) => x.ID = lineID[i] ? lineID[i] : null);
+                    journalEntries[0].DraftLines.map((x: JournalEntryLineDraft, i) => x.ID = lineID[i] ? lineID[i] : null);
                     return this.saveDraftLines(journalEntries);
                 });
         }
@@ -168,8 +168,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         if (saveAsDraft) {
             const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
             const draftLines = [];
-            journalEntries.map(jE => jE.DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account));
-            journalEntries.map(jE => jE.DraftLines.map(dL => draftLines.push(dL)));
+            journalEntries.map((journalEntry: JournalEntry) => journalEntry.DraftLines.map((lines: JournalEntryLineDraft) => {
+                delete lines.Account;
+                lines.Amount = lines.Amount || 0;
+                draftLines.push(lines);
+            }));
             journalEntries[0].DraftLines = draftLines;
             return this.saveDraftLines(journalEntries);
         }

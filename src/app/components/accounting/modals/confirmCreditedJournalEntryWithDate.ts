@@ -23,7 +23,9 @@ import * as moment from 'moment';
                 <p *ngIf="vatLockedDateReformatted">Mva er låst til dato: {{vatLockedDateReformatted}}</p>
                 <p *ngIf="accountingLockedDateReformatted">Regnskap er låst til dato: {{accountingLockedDateReformatted}}</p>
                 <br>
-                <p>Ny dato på det krediterte bilaget: </p>
+                <p>{{message}} </p>
+                <br>
+                <p>Velg dato:</p>
                 <input type="date" [(ngModel)]="input">
                 <p *ngIf="requiredInput" style="color:red">Fyll ut dato</p>
             </article>
@@ -51,6 +53,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public requiredInput: boolean;
     public vatLockedDateReformatted: string;
     public accountingLockedDateReformatted: string;
+    public message: string;
 
     constructor(private companySettingsService: CompanySettingsService) {}
 
@@ -76,7 +79,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     private findNonLockedDate() {
         this.companySettingsService.getCompanySettings().subscribe(x => {
             const today = moment(new Date()).format('YYYY-MM-DD');
-            let date, greatestLockedDate;
+            let date: Date | string, greatestLockedDate: Date | string, message: string;
 
             // reformat the dates so its easier to read for the users(used in html)
             this.vatLockedDateReformatted = x.VatLockedDate ? moment(x.VatLockedDate).format('DD-MM-YYYY') : null;
@@ -90,16 +93,25 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             if (this.options && this.options.data && this.options.data.VatDate) {
                 // choose the greatest of the two dates as a suggestion to the user
                 if (greatestLockedDate) {
+                    message = moment(this.options.data.VatDate) > moment(greatestLockedDate)
+                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
+                        : 'Dato er satt til låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(this.options.data.VatDate) > moment(greatestLockedDate)
                         ? this.options.data.VatDate
                         : moment(greatestLockedDate).add('days', 1).format('YYYY-MM-DD');
 
                 } else if (!x.VatLockedDate && x.AccountingLockedDate) {
+                    message = moment(this.options.data.VatDate) > moment(greatestLockedDate)
+                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
+                        : 'Dato er satt til regnskaps-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(this.options.data.VatDate) > moment(x.AccountingLockedDate)
                         ? this.options.data.VatDate
                         : moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
 
                 } else if (!x.AccountingLockedDate) {
+                    message = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
+                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
+                        : 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
                         ? this.options.data.VatDate
                         : moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
@@ -107,18 +119,23 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             } else {
                 // choose a date 1 day after the locked period if no other date is selected already
                 if (greatestLockedDate) {
+                    message = 'Dato er satt til låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(greatestLockedDate).add('days', 1).format('YYYY-MM-DD');
                 } else if (!x.VatLockedDate && x.AccountingLockedDate) {
+                    message = 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
                 } else if (!x.AccountingLockedDate) {
+                    message = 'Dato er satt til regnskaps-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
                 }
             }
 
             if (!date) {
                 // set todays date if no date is set already
+                message = 'Dato er satt til dagens dato, du kan overstyre denne om du ønsker.';
                 date = today;
             }
+            this.message = message;
             this.input = date;
         });
     }

@@ -11,7 +11,7 @@ import {
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {NumberSeriesTask, NumberSeries} from '../../../../unientities';
+import {NumberSeriesTask, NumberSeries, JournalEntry, JournalEntryLineDraft} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -20,6 +20,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
+import { JournalEntryData } from '@app/models/models';
 
 @Component({
     selector: 'journalentries',
@@ -76,8 +77,12 @@ export class JournalEntries {
 
                 this.editmode = false;
                 if (params['editmode']) {
-                    this.editmode = params['editmode'];
-                    setTimeout(() => this.editJournalEntry());
+                    this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
+                        .subscribe(journalEntry => {
+                            this.editmode = params['editmode'];
+                            this.editJournalEntry(journalEntry);
+                        }
+                    );
                 }
 
                 this.currentJournalEntryNumber = params['journalEntryNumber'];
@@ -85,7 +90,7 @@ export class JournalEntries {
             } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
                 this.journalEntryService.Get(params['journalEntryID'])
                     .subscribe(journalEntry => {
-                        let journalEntryNumber = journalEntry.JournalEntryNumber;
+                        const journalEntryNumber = journalEntry.JournalEntryNumber;
                         this.tabService.addTab({
                             name: 'Bilagsregistrering',
                             url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
@@ -97,7 +102,7 @@ export class JournalEntries {
                         this.editmode = false;
                         if (params['editmode']) {
                             this.editmode = params['editmode'];
-                            setTimeout(() => this.editJournalEntry());
+                            setTimeout(() => this.editJournalEntry(journalEntry));
                         }
 
                         this.currentJournalEntryNumber = journalEntryNumber;
@@ -106,7 +111,7 @@ export class JournalEntries {
             } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
                 this.journalEntryLineService.Get(params['journalEntryLineID'])
                     .subscribe(journalEntryLine => {
-                        let journalEntryNumber = journalEntryLine.JournalEntryNumber;
+                        const journalEntryNumber = journalEntryLine.JournalEntryNumber;
                         this.tabService.addTab({
                             name: 'Bilagsregistrering',
                             url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
@@ -178,7 +183,7 @@ export class JournalEntries {
             }
         ];
 
-        let toolbarConfig: IToolbarConfig = {
+        const toolbarConfig: IToolbarConfig = {
             title: 'Bilagsregistrering',
             navigation: {
                 prev: () => this.showPrevious(),
@@ -188,7 +193,7 @@ export class JournalEntries {
             contextmenu: this.contextMenuItems
         };
 
-        let selectConfig = this.journalEntryManual
+        const selectConfig = this.journalEntryManual
             && !this.currentJournalEntryID
             && this.journalEntryManual.numberSeries.length > 1 ?
                 {
@@ -205,7 +210,7 @@ export class JournalEntries {
     public numberSeriesChanged(selectedNumberSerie) {
         if (this.journalEntryManual) {
             if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeriesID) {
-                let currentData = this.journalEntryManual.getJournalEntryData();
+                const currentData = this.journalEntryManual.getJournalEntryData();
 
                 if (currentData.length > 0) {
                     this.modalService.open(UniConfirmModalV2, {
@@ -292,13 +297,14 @@ export class JournalEntries {
     private getDrafts() {
         this.journalEntryService.GetAll('filter=JournalEntryNumberNumeric eq null', ['DraftLines'])
             .subscribe(data => {
-                const draftLines = data.map((x) => x.DraftLines[0]);
-                const lines = draftLines.filter(x => x !== undefined);
-                const totalAmount = data.map(x => x.DraftLines.filter(y => y.Amount > 0).map(z => z.Amount))
-                    .map(x => x.reduce((a, c) => a + c, 0));
-                draftLines.map((x, i) => x.Amount = totalAmount[i]);
+                const lines = data.map((x: JournalEntry) => x.DraftLines[0]);
+                const draftLines = lines.filter((x: JournalEntry) => !!x);
+                const totalAmount = data.map(
+                    (x: JournalEntry) => x.DraftLines.filter((y: JournalEntryLineDraft) => y.Amount > 0).map(z => z.Amount)
+                ).map(x => x.reduce((a, c) => a + c, 0));
+                draftLines.map((x: JournalEntryData, i) => x.Amount = totalAmount[i]);
 
-                this.modalService.open(SelectDraftLineModal, {data: {draftLines: lines}})
+                this.modalService.open(SelectDraftLineModal, {data: {draftLines: draftLines}})
                     .onClose
                     .subscribe(selectedLine => {
                         if (!selectedLine) {
@@ -360,7 +366,7 @@ export class JournalEntries {
         });
     }
 
-    private editJournalEntry() {
+    private editJournalEntry(data?: JournalEntry) {
         this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
             header: `Bilag ${this.currentJournalEntryNumber} blir kreditert før du korrigerer.`,
             message: 'Vil du kreditere hele dette bilaget?',
@@ -368,7 +374,7 @@ export class JournalEntries {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: this.journalEntryManual.currentJournalEntryData
+            data: {VatDate: data ? data.DraftLines[0].VatDate : this.journalEntryManual.currentJournalEntryData.VatDate}
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
