@@ -1735,10 +1735,10 @@ export class InvoiceDetails {
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
             },
             {
-                title: 'Restbeløp',
+                title: this.itemsSummaryData && this.invoice.RestAmountCurrency < 0 ? 'Overbetalt beløp' : 'Restbeløp',
                 value: !this.itemsSummaryData ?
                     this.numberFormat.asMoney(0)
-                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
+                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(Math.abs(this.invoice.RestAmountCurrency))
             },
         ];
     }
