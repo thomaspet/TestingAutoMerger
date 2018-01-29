@@ -17,7 +17,7 @@ export interface ISelectConfig {
     hideDeleteButton?: boolean;
 }
 
-@Component({
+@   Component({
     selector: 'uni-select',
     template: `
         <article class="uniSelect"
@@ -149,22 +149,23 @@ export class UniSelect {
 
     private createOpenCloseListeners() {
         const keyDownEvent = Observable.fromEvent(this.el.nativeElement, 'keydown');
-        const f4AndSpaceEvent = keyDownEvent.filter((event: KeyboardEvent) => {
-            return event.keyCode === KeyCodes.F4 || event.keyCode === KeyCodes.SPACE;
-        });
+        const f4Event = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.F4);
+        const spaceEvent = keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.SPACE);
         const arrowDownEvent = keyDownEvent.filter((event: KeyboardEvent) => {
             return (event.keyCode === KeyCodes.UP_ARROW
                 || event.keyCode === KeyCodes.DOWN_ARROW)
                 && event.altKey;
         });
 
-        Observable.merge(f4AndSpaceEvent, arrowDownEvent)
+        Observable.merge(f4Event, arrowDownEvent)
             .subscribe((event: KeyboardEvent) => {
                 event.preventDefault();
                 event.stopPropagation();
 
                 this.toggle();
             });
+
+        spaceEvent.subscribe((event: KeyboardEvent) => this.open());
 
         keyDownEvent.filter((event: KeyboardEvent) => event.keyCode === KeyCodes.ESCAPE)
             .subscribe((event: KeyboardEvent) => {
