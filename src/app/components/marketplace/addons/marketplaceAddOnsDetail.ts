@@ -6,6 +6,8 @@ import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {UniModalService, UniActivateAPModal} from '@uni-framework/uniModal/barrel';
+import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -14,11 +16,13 @@ import {UniModalService, UniActivateAPModal} from '@uni-framework/uniModal/barre
 export class MarketplaceAddOnsDetails implements AfterViewInit {
     public product$: Observable<AdminProduct>;
     public suggestedProducts$: Observable<AdminProduct[]>;
+    public hasBoughtProduct$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
         private tabService: TabService,
         private errorService: ErrorService,
         private adminProductService: AdminProductService,
+        private adminPurchasesService: AdminPurchasesService,
         private route: ActivatedRoute,
         private router: Router,
         private toastService: ToastService,
@@ -86,7 +90,15 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                         }
                     }
                     this.router.navigateByUrl('/marketplace');
-                });
+                })
+                .do(product =>
+                    this.adminPurchasesService.GetAll()
+                        .map(purchases => purchases.some(purchase => purchase.productID === product.id))
+                        .subscribe(
+                            hasBoughtProduct => this.hasBoughtProduct$.next(hasBoughtProduct),
+                            err => this.errorService.handle(err),
+                        )
+                );
 
             this.suggestedProducts$ = this.adminProductService
                 .GetAll()
@@ -94,6 +106,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                 .map(products => products.filter(product => !product.isBundle))
                 .map(products => this.adminProductService.maxChar(products, 120))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+
         });
     }
 
@@ -110,6 +124,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                         this.toastService.addToast(
                             `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
                         );
+
+                        this.hasBoughtProduct$.next(true);
 
                         switch (product.name) {
                             case 'EHF':
