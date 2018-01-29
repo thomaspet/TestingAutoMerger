@@ -147,6 +147,15 @@ export class AccountDetailsReport {
         }
     }
 
+    public onPeriodFilterChanged(item) {
+        if (item.fromPeriodNo === item.toPeriodNo) {
+            this.periodSelected({periodNo: item.toPeriodNo, year: item.year});
+        } else {
+            const periode = (parseInt(item.fromPeriodNo) * 100) + parseInt(item.toPeriodNo);
+            this.periodSelected({periodNo: periode, year: item.year});
+        }
+    }
+
     private setAccountConfig(account: Account) {
         this.config.accountID = account.ID;
         this.config.accountName = account.AccountName;

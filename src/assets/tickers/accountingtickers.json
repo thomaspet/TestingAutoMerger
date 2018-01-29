@@ -15,7 +15,8 @@
                 "Width": "100px",
                 "Type": "link",
                 "LinkNavigationProperty": "JournalEntryID",
-                "ExternalModel": "JournalEntry"
+                "ExternalModel": "JournalEntry",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Bnr. med år",
@@ -29,7 +30,8 @@
                 "Header": "Kontonr.",
                 "Field": "Account.AccountNumber",
                 "Width": "100px",
-                "Type": "text"
+                "Type": "text",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Kontonavn",
@@ -59,7 +61,8 @@
             },
             {
                 "Header": "Beskrivelse",
-                "Field": "Description"
+                "Field": "Description",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Mva-kode",
@@ -371,12 +374,14 @@
                 "Header": "Nr.",
                 "Field": "ID",
                 "Width": "100px",
-                "Type": "Link"
+                "Type": "Link",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Fakturanr.",
                 "Field": "InvoiceNumber",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Lev.nr.",
@@ -384,7 +389,8 @@
                 "Type": "link",
                 "ExternalModel": "Supplier",
                 "LinkNavigationProperty": "Supplier.ID",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Leverandør",
@@ -392,7 +398,8 @@
                 "Type": "link",
                 "Width": "200px",
                 "ExternalModel": "Supplier",
-                "LinkNavigationProperty": "Supplier.ID"
+                "LinkNavigationProperty": "Supplier.ID",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Fakturadato",
@@ -410,7 +417,8 @@
             },
             {
                 "Header": "KID/Melding",
-                "Field": "PaymentID"
+                "Field": "PaymentID",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Bilagsnr.",
@@ -429,7 +437,8 @@
                 "Field": "TaxInclusiveAmountCurrency",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px",
-                "SumColumn": true
+                "SumColumn": true,
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Tildelt/godkjent av",
@@ -723,12 +732,14 @@
                 "Field": "Supplier.SupplierNumber",
                 "Type": "Link",
                 "LinkNavigationProperty": "Supplier.ID",
-                "Width": "120px"
+                "Width": "120px",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
                 "Field": "Supplier.Info.Name",
-                "Width": "250px"
+                "Width": "250px",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Telefon",
