@@ -264,7 +264,7 @@ export class UniAccounting implements OnDestroy {
                             urlToNew: ''
                         },
                         {
-                            label: 'Forespørsel bilg',
+                            label: 'Forespørsel bilag',
                             link: '/accounting/transquery/details',
                             urlToNew: ''
                         },
