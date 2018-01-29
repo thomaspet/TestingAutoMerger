@@ -1411,7 +1411,7 @@
         },
         {
             "Header": "Restsum inkl. mva",
-            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalIncVatCurrency\\,0))",
+            "Field": "TaxExclusiveAmountCurrency",
             "Alias": "Restsum",
             "Format": "NumberPositiveNegative",
             "Width": "120px",

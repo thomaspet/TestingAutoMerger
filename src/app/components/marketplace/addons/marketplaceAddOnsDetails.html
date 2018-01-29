@@ -8,7 +8,8 @@
             <span>{{product.label}}</span>
         </section>
         <section class="button-section">
-            <button (click)="buy(product)">Kjøp nå</button>
+            <button *ngIf="!(hasBoughtProduct$ | async)" (click)="buy(product)">Kjøp nå</button>
+            <button *ngIf="(hasBoughtProduct$ | async)" disabled>Har kjøpt</button>
         </section>
     </section>
     <section class="background add-on-background-image">
