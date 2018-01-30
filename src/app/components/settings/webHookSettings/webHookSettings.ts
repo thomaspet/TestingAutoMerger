@@ -66,7 +66,8 @@ export class WebHookSettings {
         this.actionSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg handling',
-            searchable: true
+            searchable: false,
+            hideDeleteButton: true
         };
 
         this.umhSerivce.isPermitted(true).subscribe(
