@@ -497,7 +497,7 @@ export class NumberSeries {
                     }
                 }
             ])
-            .setConditionalRowCls((serie) => serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
                 NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
