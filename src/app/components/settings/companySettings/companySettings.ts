@@ -4,7 +4,7 @@ import {IUniSaveAction} from '@uni-framework/save/save';
 import {FieldType, UniForm} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
@@ -1265,6 +1265,22 @@ export class CompanySettingsComponent implements OnInit {
                 Hidden: !this.company$.getValue()['_FileFlowEmail']
             }
         ]);
+    }
+
+    private logoFileChanged(files: Array<any>) {
+        let company = this.company$.getValue();
+        if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
+            // update logourl in company object
+            company.LogoFileID = files[files.length - 1].ID;
+            this.company$.next(company);
+
+            // run request to save it without the user clicking save, because otherwise
+            // the LogoFileID and FileEntityLinks will be left in an inconsistent state
+            this.companySettingsService.PostAction(1, 'update-logo', `logoFileId=${company.LogoFileID}`)
+                .subscribe((res) => {
+                    this.toastService.addToast('Logo lagret', ToastType.good, ToastTime.short);
+                }, err => this.errorService.handle(err));
+        }
     }
 
     private activateAP() {
