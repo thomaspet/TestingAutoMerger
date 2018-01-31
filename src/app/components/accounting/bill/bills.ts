@@ -933,7 +933,7 @@ export class BillsView implements OnInit {
 
                 modal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        if (fileId === this.fileID[0]) {
+                        if (this.fileID && this.fileID[0] === fileId) {
                             this.fileID = null;
                             this.hidePreview();
                         }
