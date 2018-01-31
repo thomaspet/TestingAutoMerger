@@ -99,7 +99,9 @@ export interface IUploadConfig {
                 </picture>
             </section>
 
-            <ul class="uni-thumbnail-list" [ngClass]="{'-has-thumbnails': this.thumbnails.length > 0}">
+            <ul class="uni-thumbnail-list" *ngIf="thumbnils?.length || !readonly"
+                [ngClass]="{'-has-thumbnails': thumbnails?.length}">
+
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
                     <label
                         class="uni-image-upload"
