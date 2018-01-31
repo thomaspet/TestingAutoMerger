@@ -716,12 +716,13 @@ export class TransqueryDetails implements OnInit {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            let data = {
+            const modalOptions = {
                 entity: JournalEntry.EntityType,
-                entityID: event.row.JournalEntryID
-
+                entityID: event.row.JournalEntryID,
+                singleImage: false
             };
-            this.modalService.open(ImageModal, { data: data });
+
+            this.modalService.open(ImageModal, {data: modalOptions});
         }
     }
 
