@@ -61,12 +61,10 @@ export class TofDetailsForm {
             if (!this.entity) {
                 this.form.readMode();
             } else {
-
                 if (this.entityType === 'CustomerInvoice') {
                     this.form.editMode();
                     switch (this.entity.StatusCode) {
                         case null:
-                            break;
                         case 42001:
                             break;
                         case 42002:

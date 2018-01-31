@@ -1,13 +1,16 @@
 import {RouterModule} from '@angular/router';
+import {AuthGuard} from './authGuard';
+
 import {Dashboard} from './components/dashboard/dashboard';
 import {BureauDashboard} from './components/bureau/bureauDashboard';
-import {AuthGuard} from './authGuard';
-import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
+import {UniTickerOverview} from './components/uniticker/overview/overview';
 import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
 import {bureauRoutes} from './components/bureau/bureauRoutes';
-import {UniTickerOverview} from './components/uniticker/overview/overview';
+
+import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
+import {UniAdmin, adminRoutes} from './components/admin/adminModule';
 
 const routes = [
     {
@@ -32,6 +35,11 @@ const routes = [
     {
         path: 'overview/:code',
         component: UniTickerOverview
+    },
+    {
+        path: 'admin',
+        component: UniAdmin,
+        children: adminRoutes
     },
 
     // Lazy loaded modules

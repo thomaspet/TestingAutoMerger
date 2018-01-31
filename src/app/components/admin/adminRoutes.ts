@@ -10,7 +10,7 @@ import {UniModels} from './models/models';
 import {UniRoles} from './roles/roles';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 
-export const childRoutes = [
+export const adminRoutes = [
     {
         path: 'jobs',
         component: JobList
@@ -40,14 +40,3 @@ export const childRoutes = [
         component: ApprovalThresholds
     }
 ];
-
-const adminRoutes: Routes = [
-    {
-        path: 'admin',
-        component: UniAdmin,
-        children: childRoutes,
-
-    }
-];
-
-export const routes: ModuleWithProviders = RouterModule.forChild(adminRoutes);
