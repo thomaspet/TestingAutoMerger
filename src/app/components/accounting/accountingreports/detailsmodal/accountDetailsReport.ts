@@ -113,7 +113,7 @@ export class AccountDetailsReport {
             this.activeFinancialYear = data[1];
 
             // set default value for filtering
-            let searchParams = {
+            const searchParams = {
                 AccountID: null,
                 AccountNumber: null,
                 AccountYear: null
@@ -151,7 +151,7 @@ export class AccountDetailsReport {
         if (item.fromPeriodNo === item.toPeriodNo) {
             this.periodSelected({periodNo: item.toPeriodNo, year: item.year});
         } else {
-            const periode = (parseInt(item.fromPeriodNo) * 100) + parseInt(item.toPeriodNo);
+            const periode = (parseInt(item.fromPeriodNo, 10) * 100) + parseInt(item.toPeriodNo, 10);
             this.periodSelected({periodNo: periode, year: item.year});
         }
     }
@@ -178,7 +178,7 @@ export class AccountDetailsReport {
     }
 
     public updateToolbar() {
-        let toolbarconfig: IToolbarConfig = {
+        this.toolbarconfig = {
             title: 'Forespørsel konto',
             subheads: [
             ],
@@ -187,8 +187,6 @@ export class AccountDetailsReport {
                 next: this.next.bind(this)
             }
         };
-
-        this.toolbarconfig = toolbarconfig;
     }
 
     public addTab() {
@@ -245,10 +243,12 @@ export class AccountDetailsReport {
     // modal is reused if multiple accounts are viewed, and the
     // loadData will be called from the accountDetailsReportModal when opening the modal
     public loadData() {
+        let financialYear;
+        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
         // get default period filters
-        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
         this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
         this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;
