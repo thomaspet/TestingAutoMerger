@@ -12,9 +12,9 @@ import {
 } from '../../../../services/services';
 import * as moment from 'moment';
 
-interface IPageState { 
-    projectID?: string; 
-    month?: string; 
+interface IPageState {
+    projectID?: string;
+    month?: string;
     year?: string;
 }
 
@@ -25,7 +25,7 @@ interface IPageState {
 export class ProjectHourTotals {
     private currentProjectID: number;
     private currentProject: Project;
-    private filter: string; 
+    private filter: string;
     private busy: boolean = false;
     private report: Array<IReport>;
     private toolbarConfig: IToolbarConfig;
@@ -42,17 +42,17 @@ export class ProjectHourTotals {
         private userService: UserService,
         private errorService: ErrorService,
         private projectService: ProjectService) {
-        
+
     }
 
-    public ngOnInit() {        
+    public ngOnInit() {
         this.route.queryParams.subscribe((params) => {
             this.createFilter(this.filters.find( x => x.isActive).name);
         });
 
         this.projectService.toolbarConfig.subscribe( cfg => {
             this.toolbarConfig = cfg;
-        });        
+        });
 
         this.projectService.currentProject.subscribe( p => {
             this.currentProject = p;
@@ -64,7 +64,11 @@ export class ProjectHourTotals {
     }
 
     public onAddHoursClick() {
-        this.router.navigateByUrl('/timetracking/timeentry');
+        if (this.currentProjectID) {
+            this.router.navigateByUrl(`/timetracking/timeentry?projectID=${this.currentProjectID}`);
+        } else {
+            this.router.navigateByUrl('/timetracking/timeentry');
+        }
     }
 
     public onFilterClick(filter: { name: string, isActive: boolean }) {
@@ -117,7 +121,7 @@ export class ProjectHourTotals {
 
     private refreshData() {
         this.busy = true;
-        this.getStatistics(this.filter)            
+        this.getStatistics(this.filter)
         .finally( () => this.busy = false)
         .subscribe( result => {
             this.report = this.buildReport(result);
@@ -125,7 +129,7 @@ export class ProjectHourTotals {
         });
     }
 
-   
+
     private setupContextMenu() {
         utils.addContextMenu(this.toolbarConfig, 'export', 'Eksporter timeoversikt', () => this.exportToFile());
         this.projectService.toolbarConfig.next(this.toolbarConfig);
@@ -136,7 +140,7 @@ export class ProjectHourTotals {
             utils.removeContextMenu(this.toolbarConfig, 'export');
             this.projectService.toolbarConfig.next(this.toolbarConfig);
         }
-    }    
+    }
 
     private buildReport(data: Array<IQueryData>): Array<IReport> {
         var groupedReports = [];
@@ -144,8 +148,8 @@ export class ProjectHourTotals {
         var level2: IReportRow;
         data.forEach( item => {
             if ((!level1) || level1.title !== item.yr.toString()) {
-                level1 = { 
-                    title: item.yr.toString(), 
+                level1 = {
+                    title: item.yr.toString(),
                     columns: moment.monthsShort(),
                     sum: 0,
                     rows: []
@@ -161,7 +165,7 @@ export class ProjectHourTotals {
             }
             level2.items[item.md - 1].tsum = item.tsum;
             level2.sum += item.tsum;
-            level1.sum += item.tsum;            
+            level1.sum += item.tsum;
         });
         groupedReports.forEach( (report: IReport) => {
             report.rows.forEach( row => row.prc = parseInt( (row.sum / ( report.sum || 1) * 100).toFixed() ) );
@@ -183,7 +187,7 @@ export class ProjectHourTotals {
             if (!this.currentProject) {
                 resolve(false);
                 return;
-            }            
+            }
 
             // No report?
             if (!(this.currentProject && this.report && this.report.length > 0)) {
@@ -193,13 +197,13 @@ export class ProjectHourTotals {
             let colCount = this.report[0].columns.length + 2;
 
             // Title
-            csv.push( utils.createRow(colCount, '', 
+            csv.push( utils.createRow(colCount, '',
                 `Prosjektnr. ${this.currentProject.ProjectNumber} - ${this.currentProject.Name}` ));
             csv.push(utils.createRow(colCount, ''));
             csv.push(utils.createRow(colCount, ''));
 
             this.report.forEach( group => {
-                
+
                 var record = [];
                 record.push(group.title);
                 record.push('Sum');
@@ -224,26 +228,26 @@ export class ProjectHourTotals {
                 // Empty-row
                 csv.push(utils.createRow(colCount, ''));
             });
-            utils.exportToFile(utils.arrayToCsv(csv, undefined, undefined, undefined, false), 
-                `ProjectHours_ProjectNumber${this.currentProject.ProjectNumber}.csv`);  
-                
+            utils.exportToFile(utils.arrayToCsv(csv, undefined, undefined, undefined, false),
+                `ProjectHours_ProjectNumber${this.currentProject.ProjectNumber}.csv`);
+
             resolve(true);
         });
     }
-            
+
 }
 
 class ReportRow implements IReportRow {
     public title: string;
     public sum: number;
     public prc: number;
-    public items: Array<{tsum: number}>;    
+    public items: Array<{tsum: number}>;
     constructor(title: string) {
         this.title = title;
         this.items = utils.createRow(12, () => { return { tsum: 0 }; });
         this.sum = 0;
         this.prc = 0;
-    }   
+    }
 }
 
 

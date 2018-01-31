@@ -70,7 +70,7 @@
             </header>
 
             <workeditor [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
-                (valueChanged)="onEditChanged(true)" >
+                (valueChanged)="onEditChanged(true,$event)" >
             </workeditor>
 
         </section>

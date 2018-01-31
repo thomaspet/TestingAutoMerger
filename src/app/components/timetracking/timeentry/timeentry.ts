@@ -7,7 +7,7 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
 import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice, BrowserStorageService} from '../../../services/services';
+import {Lookupservice, BrowserStorageService, ProjectService, Dimension} from '../../../services/services';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -22,6 +22,8 @@ import {TeamworkReport, Team} from '../components/teamworkreport';
 import {UniFileImport} from '../components/popupfileimport';
 import {UniHttp} from '../../../../framework/core/http/http';
 import * as moment from 'moment';
+import { Project } from '@app/components/dimensions/project/project';
+import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
@@ -116,6 +118,7 @@ export class TimeEntry {
         { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab }
     ];
     private isEntryTab: boolean = true;
+    private project;
 
     public filters: Array<IFilter>;
 
@@ -131,20 +134,29 @@ export class TimeEntry {
         private localStore: BrowserStorageService,
         private changeDetectorRef: ChangeDetectorRef,
         private http: UniHttp,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private projectService: ProjectService
     ) {
 
         this.loadSettings();
         this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
-        route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
-            if (item.workerId) {
-                this.init(item.workerId);
+        route.queryParamMap.subscribe(paramMap => {
+            if (paramMap.has('workerId')) {
+                this.init(+paramMap.get('workerId'));
             } else {
                 this.init();
             }
-        });
+            if (paramMap.has('projectID')) {
+                this.tabService.addTab({
+                    name: view.label,
+                    url: view.url + '?projectID='+paramMap.get('projectID'),
+                    moduleID: UniModules.Timesheets
+                });
+                this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
+            }
+        })
 
         this.initTabPositions();
         this.approvalCheck();
@@ -284,7 +296,6 @@ export class TimeEntry {
             workItem.Worktype = types[0];
         }
         workItem.WorkTypeID = workItem.Worktype.ID;
-
         return workItem;
     }
 
@@ -456,7 +467,19 @@ export class TimeEntry {
         }
     }
 
-    public onEditChanged(rowDeleted: boolean) {
+    public onEditChanged(rowDeleted: boolean, event) {
+        if (event) {
+            const row = <WorkItem>this.timeSheet.items[event.rowIndex];
+            if (!row.Dimensions && this.project && this.project.ID) {
+                let value: ValueItem = {
+                    name: 'Dimensions.ProjectID',
+                    value: this.project,
+                    isParsed: false,
+                    rowIndex: event.rowIndex
+                };
+                this.timeSheet.setItemValue(value);
+            }
+        }
         this.flagUnsavedChanged(false, true);
     }
 
