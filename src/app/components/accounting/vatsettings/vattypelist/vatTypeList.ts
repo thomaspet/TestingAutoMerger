@@ -1,7 +1,7 @@
-import {Component, ViewChild, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {VatType, LocalDate} from '../../../../unientities';
-import {VatTypeService, ErrorService} from '../../../../services/services';
+import {VatType, LocalDate, VatTypePercentage} from '../../../../unientities';
+import {VatTypeService, ErrorService, YearService} from '../../../../services/services';
 import {
     UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
 } from '../../../../../framework/ui/unitable/index';
@@ -11,21 +11,27 @@ import * as moment from 'moment';
     selector: 'vattype-list',
     templateUrl: './vatTypeList.html'
 })
-export class VatTypeList {
+export class VatTypeList implements OnInit, AfterViewInit {
     @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();
     @ViewChild(UniTable) private table: UniTable;
     private vatTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+    private vatPercent: number;
+    private activeYear: number;
 
     constructor(
         private vatTypeService: VatTypeService,
         private errorService: ErrorService,
-        private elementRef: ElementRef
+        private elementRef: ElementRef,
+        private yearService: YearService
     ) {
     }
 
     public ngOnInit() {
-        this.setupTable();
+        this.yearService.getActiveYear().subscribe(activeYear => {
+            this.activeYear = activeYear;
+            this.setupTable();
+        });
     }
 
     public ngAfterViewInit() {
@@ -35,7 +41,7 @@ export class VatTypeList {
 
     public onRowSelected (event) {
         this.uniVatTypeChange.emit(event.rowModel);
-    };
+    }
 
     public refresh() {
         this.table.refreshTableData();
@@ -65,21 +71,37 @@ export class VatTypeList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        let groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('20%');
-        let codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
-        let aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
-        let nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('30%');
-        let incomingAccountCol = new UniTableColumn(
+        const groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('20%');
+        const codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
+        const aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
+        const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('30%');
+        const incomingAccountCol = new UniTableColumn(
             'IncomingAccount.AccountNumber', 'Inng. konto', UniTableColumnType.Text
         ).setWidth('10%');
-        let outgoingAccountCol = new UniTableColumn(
+        const outgoingAccountCol = new UniTableColumn(
             'OutgoingAccount.AccountNumber', 'Utg. konto', UniTableColumnType.Text
         ).setWidth('10%');
-        let percentCol = new UniTableColumn('VatTypePercentages.VatPercent', 'Prosent', UniTableColumnType.Number)
+        const percentCol = new UniTableColumn('VatTypePercentages.VatPercent', 'Prosent', UniTableColumnType.Number)
             .setWidth('10%')
             .setDisplayField('VatPercent')
             .setFilterable(false)
-            .setTemplate((data) => data.VatPercent + '%')
+            .setTemplate((data) => {
+               if (data.VatTypePercentages.length > 1) {
+                   let returnString = '-';
+                   data.VatTypePercentages.forEach(vatType => {
+                       const validToYear = moment(vatType.ValidTo).year();
+                       const validFromYear = moment(vatType.ValidFrom).year();
+                       if (validFromYear && !!validToYear && validFromYear <= this.activeYear && validToYear >= this.activeYear) {
+                           returnString = vatType.VatPercent + '%';
+                       } else if (validFromYear && validFromYear <= this.activeYear) {
+                           returnString = vatType.VatPercent + '%';
+                       }
+                   });
+                   return returnString;
+               } else {
+                   return data.VatPercent + '%';
+               }
+            })
             .setFilterOperator('eq');
 
         // Setup table
@@ -87,12 +109,12 @@ export class VatTypeList {
             .setSearchable(true)
             .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol])
             .setDataMapper((data: Array<VatType>) => {
-                let dataWithPercentage = [];
+                const dataWithPercentage = [];
 
-                let today = moment(new Date());
+                const today = moment(new Date());
 
                 data.forEach((vatType) => {
-                    let currentPercentage =
+                    const currentPercentage =
                         vatType.VatTypePercentages.find(y =>
                             (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
                             || (moment(y.ValidFrom) <= today && !y.ValidTo));

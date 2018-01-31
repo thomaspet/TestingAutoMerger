@@ -7,6 +7,7 @@ import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {RoleService, ErrorService, UserService} from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 
 @Component({
@@ -45,7 +46,8 @@ export class Users {
         private tabService: TabService,
         private roleService: RoleService,
         private userService: UserService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private browserStorage: BrowserStorageService,
     ) {
         this.initTableConfigs();
         this.initFormConfigs();
@@ -192,7 +194,7 @@ export class Users {
 
     private sendInvite(user?) {
         this.errorMessage = '';
-        let companyId = JSON.parse(localStorage.getItem('activeCompany')).id;
+        let companyId = this.browserStorage.getItem('activeCompany').id;
         let newUser = user || this.newUserForm.value;
 
         this.busy = true;

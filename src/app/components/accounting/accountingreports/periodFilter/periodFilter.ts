@@ -1,4 +1,6 @@
 import * as moment from 'moment';
+import {Injectable} from '@angular/core';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export class PeriodFilter {
     public year: number;
@@ -7,22 +9,22 @@ export class PeriodFilter {
     public name: string;
 }
 
+@Injectable()
 export class PeriodFilterHelper {
-    private static PERIOD_LOCAL_STORAGE_KEY: string = 'ACCOUNTING_REPORTS_PERIOD_FILTER';
+    private PERIOD_LOCAL_STORAGE_KEY: string = 'ACCOUNTING_REPORTS_PERIOD_FILTER';
 
-    public static getFilter(
+    constructor(
+        private browserStorage: BrowserStorageService,
+    ){}
+
+    public getFilter(
         periodNumber: number,
         otherFilter: PeriodFilter,
         override: boolean = false
     ): PeriodFilter {
-        let filter: PeriodFilter = null;
-
         let localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
 
-        // get from localStorage if that exists, if not, get resonable default period
-        if (localStorage.getItem(localStorageKey)) {
-            filter = JSON.parse(localStorage.getItem(localStorageKey));
-        }
+        let filter: PeriodFilter = this.browserStorage.getItem(localStorageKey);
 
         if (!filter) {
             filter = new PeriodFilter();
@@ -49,12 +51,12 @@ export class PeriodFilterHelper {
         return filter;
     }
 
-    public static saveFilterSettings(periodNumber: number, periodFilter: PeriodFilter) {
+    public saveFilterSettings(periodNumber: number, periodFilter: PeriodFilter) {
         let localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
-        localStorage.setItem(localStorageKey, JSON.stringify(periodFilter));
+        this.browserStorage.setItem(localStorageKey, periodFilter);
     }
 
-    public static getFilterName(filter: PeriodFilter): string {
+    public getFilterName(filter: PeriodFilter): string {
         let filterName: string = '';
 
         if (filter.fromPeriodNo.toString() !== filter.toPeriodNo.toString()) {

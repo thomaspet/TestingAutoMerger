@@ -72,7 +72,6 @@ export class UniWidgetCanvas {
     private gridUnitInPx: number;
     private widgetMargin: number;
 
-    private canvasHelper: CanvasHelper;
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
     private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
 
@@ -83,9 +82,9 @@ export class UniWidgetCanvas {
     constructor(
         private cdr: ChangeDetectorRef,
         private toastService: ToastService,
-        private authService: AuthService
+        private authService: AuthService,
+        private canvasHelper: CanvasHelper,
     ) {
-        this.canvasHelper = new CanvasHelper();
         this.widgetMargin = 10;
 
         this.authService.authentication$.subscribe(change => {

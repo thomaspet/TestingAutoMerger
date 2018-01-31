@@ -15,6 +15,7 @@ import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineServic
 import {StatisticsService} from '../../common/statisticsService';
 import {YearService} from '../../common/yearService';
 import {ITag} from '../../../components/common/toolbar/tags';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, //Note: NOT in Use yet
@@ -55,7 +56,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private statisticsService: StatisticsService,
         private yearService: YearService,
         private salaryBalanceService: SalarybalanceService,
-        private salaryBalanceLineService: SalaryBalanceLineService
+        private salaryBalanceLineService: SalaryBalanceLineService,
+        private browserStorage: BrowserStorageService,
     ) {
         super(http);
         this.relativeURL = PayrollRun.RelativeUrl;
@@ -141,7 +143,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getYear(): number {
-        let financialYear = JSON.parse(localStorage.getItem('activeFinancialYear'));
+        let financialYear = this.browserStorage.getItem('activeFinancialYear');
         return financialYear && financialYear.Year ? financialYear.Year : undefined;
     }
 
@@ -152,7 +154,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 this.validateTransesOnRun(transes, done);
             })
             .filter((trans: SalaryTransaction[]) => !!trans.length)
-            .switchMap(transes => super.PutAction(ID, 'calculate'));
+            .switchMap(transes => super.PutAction(ID, 'calculate'))
+            .do(() => this.clearRelatedCaches());
     }
 
     public controlPayroll(ID) {
@@ -175,8 +178,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(ID, 'postingsummary');
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, report: string = null) {
-        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}`);
+    public postTransactions(ID: number, date: LocalDate = null, report: string = null, numberseriesID: string = null) {
+        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}&numberseriesID=${numberseriesID}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {

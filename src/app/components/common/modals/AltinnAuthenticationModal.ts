@@ -67,7 +67,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     public busy: boolean = true;
     public userMessage: string;
-    public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public formState: LoginState = LoginState.UsernameAndPasswordAndPinType;
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
         = new BehaviorSubject(this.createUsernameAndPasswordForm());
@@ -78,7 +78,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
     private getAuthenticationDataFromLocalstorage: () => AltinnAuthenticationData =
-        () => this.altinnAuthService.getAltinnAuthenticationDataFromLocalstorage();
+        () => this.altinnAuthService.getAltinnAuthenticationDataFromLocalstorage()
 
     private storeAuthenticationDataInLocalstorage: (auth: AltinnAuthenticationData) => AltinnAuthenticationData =
         authData => {
@@ -97,9 +97,15 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         this.elementRef.nativeElement.addEventListener('keypress', event => {
             if (
                 event.which === KeyCodes.ENTER
-                && this.formState === LoginState.Pin
             ) {
-                this.submitPin();
+                switch (this.formState) {
+                    case LoginState.Pin:
+                    this.submitPin();
+                    break;
+                    case LoginState.UsernameAndPasswordAndPinType:
+                    this.submitUsernameAndPasswordAndPinType();
+                    break;
+                }
             }
         });
         this.handleAuthentication()
@@ -121,7 +127,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     }
 
     private createUsernameAndPasswordForm(): UniFieldLayout[] {
-        var username: UniFieldLayout = new UniFieldLayout();
+        const username: UniFieldLayout = new UniFieldLayout();
         username.FieldSet = 0;
         username.Section = 0;
         username.Combo = 0;
@@ -133,7 +139,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         username.Label = 'BrukerID Altinn';
         username.LineBreak = true;
 
-        var password: UniFieldLayout = new UniFieldLayout();
+        const password: UniFieldLayout = new UniFieldLayout();
         password.FieldSet = 0;
         password.Section = 0;
         password.Combo = 0;
@@ -145,7 +151,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         password.Label = 'Passord BrukerID Altinn';
         password.LineBreak = true;
 
-        var pinChoice: UniFieldLayout = new UniFieldLayout();
+        const pinChoice: UniFieldLayout = new UniFieldLayout();
 
         pinChoice.FieldSet = 0;
         pinChoice.Section = 0;
@@ -168,7 +174,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     private createPinForm(): UniFieldLayout[] {
 
-        var pincode: UniFieldLayout = new UniFieldLayout();
+        const pincode: UniFieldLayout = new UniFieldLayout();
 
         pincode.FieldSet = 0;
         pincode.Section = 0;
@@ -192,8 +198,10 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     public getAltinnAuthenticationData(): Promise<AltinnAuthenticationData> {
         this.busy = false;
         this.formState = LoginState.UsernameAndPasswordAndPinType;
-        let userLoginData = this.userLoginData$.getValue();
-        userLoginData.preferredLogin = userLoginData.preferredLogin || this.altinnAuthService.loginTypes[0].text;
+        const userLoginData = this.userLoginData$.getValue();
+        const loginTypes = this.altinnAuthService.loginTypes;
+        userLoginData.preferredLogin = userLoginData.preferredLogin
+            || (loginTypes.find(type => type.text === 'SMSPin') || loginTypes[0]).text;
         if (this.userSubmittedUsernameAndPasswordAndPinType.observers.length === 0) {
             this.userSubmittedUsernameAndPasswordAndPinType
                 .subscribe(() => {

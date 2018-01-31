@@ -1,36 +1,35 @@
 import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
 import {UniModalService} from '@uni-framework/uniModal/modalService';
-import {ReportDefinitionParameterService, ErrorService} from '@app/services/services';
-import {StatisticsService} from '@app/services/services';
+import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
 import {ReportDefinitionParameter, ReportDefinition} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
-import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
 
 @Component({
     selector: 'uni-report-params-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 20vw">
+        <section role="dialog" class="uni-modal" style="width: 33vw">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
 
-            <article [attr.aria-busy]="busy">
-                <section [innerHtml]="options.message"></section>
+            <article [attr.aria-busy]="busy" class="modal-content">
+                <p [innerHtml]="options.message"></p>
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
 
-                <uni-form [fields]="fields$"
-                  [model]="model$"
-                  [config]="formConfig$"
-                  (changeEvent)="onFormChange($event)">
+                <uni-form
+                    [fields]="fields$"
+                    [model]="model$"
+                    [config]="formConfig$">
                 </uni-form>
             </article>
 
-            <footer (click)="busy = !busy" >
+            <footer>
                 <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
                     {{options.buttonLabels.accept}}
                 </button>
@@ -65,10 +64,9 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private http: Http,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private modalService: UniModalService
-    ) {
-
-    }
+        private modalService: UniModalService,
+        private yearService: YearService,
+    ) {}
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {
@@ -77,11 +75,14 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 cancel: 'Avbryt'
             };
         }
+
         if (this.options && this.options.data) {
             this.busy = true;
             this.loadParameters(this.options.data).then(() => {
                 this.fields$.next(this.options.data.parameters.map(p => {
                     let type;
+                    let options;
+
                     switch (p.Type) {
                         case 'Number':
                             type = FieldType.NUMERIC;
@@ -91,15 +92,41 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             p.DefaultValue = p.DefaultValue === 'true';
                             p.value = p.DefaultValue;
                             break;
+                        case 'Dropdown':
+                            type = FieldType.DROPDOWN;
+                            p.value = p.DefaultValue;
+                            let source = [];
+                            if (p.Name === 'OrderBy') {
+                                source = JSON.parse(p.DefaultValueList);
+                                p.value = source[0].Label;
+                                options = {
+                                    source: source,
+                                    valueProperty: 'Label',
+                                    displayProperty: 'Label',
+                                    searchable: false,
+                                    hideDeleteButton: true,
+                                };
+                            }
+                            break;
                         default:
                             type = FieldType.TEXT;
                             break;
                     }
 
+                    // Check for system values
+                    if (p.Name.includes('System_')) {
+                        switch (p.Name.split('_')[1]) {
+                            case 'PeriodAccountYear':
+                                this.yearService.getActiveYear().subscribe(res => p.value = res.toString());
+                                break;
+                        }
+                    }
+
                     return {
                         Property: p.Name,
                         Label: p.Label,
-                        FieldType: type
+                        FieldType: type,
+                        Options: options
                     };
                 }));
 
@@ -121,14 +148,43 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         });
     }
 
-    public onFormChange(changes) {
-        const model = this.model$.getValue();
-        this.options.data.parameters.map(p => {
-            p.value = model[p.Name];
-        });
-    }
-
     public accept() {
+        const model = this.model$.getValue();
+
+        this.options.data.parameters.map(p => {
+            if (!model[p.Name] && p.Type === 'Number') {
+                model[p.Name] = 0;
+            }
+
+            p.value = model[p.Name];
+
+            if (p.Name === 'OrderBy') {
+                const source: any[] = JSON.parse(p.DefaultValueList);
+                const selectedSort = source.find(element => element.Label === p.value);
+
+                if (selectedSort) {
+                    selectedSort.Value.forEach(sortValue => {
+                        switch (sortValue.Source) {
+                            case 'OrderBy':
+                                model['OrderBy'] = sortValue.Field;
+                                break;
+                            case 'OrderByGroup':
+                                model['OrderByGroup'] = sortValue.Field;
+
+                                const orderByGroup = {
+                                    Name: 'OrderByGroup',
+                                    value: model['OrderByGroup']
+                                };
+                                this.options.data.parameters.push(orderByGroup);
+                                break;
+                        }
+                    });
+                }
+
+                p.value = model[p.Name];
+            }
+        });
+
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
@@ -223,8 +279,11 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     pickValueFromResult(param: IParameterDto, result: any): any {
-        if (param.DefaultValue) {
-            return result[param.DefaultValue];
+        if ((!!param.DefaultValue) || param.DefaultValue === '0') {
+            if (result.hasOwnProperty(param.DefaultValue)) {
+                return result[param.DefaultValue];
+            }
+            return param.DefaultValue;
         } else {
             for (const key in result) {
                 if (result.hasOwnProperty(key)) {

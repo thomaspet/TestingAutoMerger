@@ -1,0 +1,11 @@
+<input
+    #query
+    [attr.aria-describedby]="asideGuid"
+    type="checkbox"
+    [readonly]="readOnly$ | async"
+    [placeholder]="field?.Placeholder || ''"
+    [checked]="isChecked()"
+    (focus)="focusHandler()"
+/>
+<label (click)="checkIt()" tabindex="-1">{{field?.Label}}</label>
+<ng-content></ng-content>

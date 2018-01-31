@@ -26,10 +26,16 @@ export class UniSearch {
 
     private onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
+    constructor(private componentElement: ElementRef) {
+    }
+
     private onChangeEvent(event) {
         this.changeEvent.emit(event);
     }
     private getTitle() {
         return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
+    }
+    public focus() {
+        this.componentElement.nativeElement.querySelector('input').focus();
     }
 }

@@ -64,7 +64,7 @@ export class UniSave {
         }
     }
 
-    private onSave(action) {
+    public onSave(action) {
         // don't call save again if its still working on saving or is disabled
         if (this.busy || action.disabled || action.isUpload) { return; }
 

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {IUniSaveAction} from './../../../../framework/save/save';
+import {IUniSaveAction, UniSave} from './../../../../framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
@@ -64,6 +64,7 @@ export interface IShareAction {
 export class UniToolbar {
     @ViewChild('toolbarExtras')
     private extrasElement: ElementRef;
+    @ViewChild(UniSave) private save: UniSave;
 
     @Input() public tags: ITag[];
     @Input() public tagConfig: IUniTagsConfig;
@@ -178,5 +179,12 @@ export class UniToolbar {
         if (subhead.event) {
             return subhead.event();
         }
+    }
+
+    public triggerSaveAction(action: IUniSaveAction) {
+        if (!action) {
+            return;
+        }
+        this.save.onSave(action);
     }
 }

@@ -2,10 +2,15 @@ import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {Router, ActivatedRoute} from '@angular/router';
-import {JournalEntryService, ErrorService, JournalEntryLineService, NumberSeriesService} from '../../../../services/services';
+import {
+    JournalEntryService,
+    ErrorService,
+    JournalEntryLineService,
+    NumberSeriesService,
+} from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {NumberSeriesTask, NumberSeries} from '../../../../unientities';
 import {
     UniModalService,
@@ -13,6 +18,8 @@ import {
     ConfirmActions
 } from '../../../../../framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
+import {SelectDraftLineModal} from './selectDraftLineModal';
+import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 
 @Component({
     selector: 'journalentries',
@@ -50,7 +57,7 @@ export class JournalEntries {
         private journalEntryService: JournalEntryService,
         private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService,
-        private numberSeriesService: NumberSeriesService
+        private numberSeriesService: NumberSeriesService,
     ) {
         this.tabService.addTab({
             name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
@@ -70,6 +77,7 @@ export class JournalEntries {
                 this.editmode = false;
                 if (params['editmode']) {
                     this.editmode = params['editmode'];
+                    setTimeout(() => this.editJournalEntry());
                 }
 
                 this.currentJournalEntryNumber = params['journalEntryNumber'];
@@ -89,6 +97,7 @@ export class JournalEntries {
                         this.editmode = false;
                         if (params['editmode']) {
                             this.editmode = params['editmode'];
+                            setTimeout(() => this.editJournalEntry());
                         }
 
                         this.currentJournalEntryNumber = journalEntryNumber;
@@ -109,6 +118,7 @@ export class JournalEntries {
                         this.editmode = false;
                         if (params['editmode']) {
                             this.editmode = params['editmode'];
+                            setTimeout(() => this.editJournalEntry());
                         }
 
                         this.currentJournalEntryNumber = journalEntryNumber;
@@ -142,7 +152,7 @@ export class JournalEntries {
 
         this.contextMenuItems = [
             {
-                label: 'Rediger',
+                label: 'Korriger',
                 action: () => this.editJournalEntry(),
                 disabled: () => this.editmode === true || !this.currentJournalEntryID
             },
@@ -157,9 +167,14 @@ export class JournalEntries {
                 disabled: () => false
             },
             {
-                    action: (item) => this.openPredefinedDescriptions(),
-                    disabled: (item) => false,
-                    label: 'Faste tekster'
+                action: (item) => this.openPredefinedDescriptions(),
+                disabled: (item) => false,
+                label: 'Faste tekster'
+            },
+            {
+                label: 'Hent kladd',
+                action: () => this.getDrafts(),
+                disabled: () => false
             }
         ];
 
@@ -225,6 +240,7 @@ export class JournalEntries {
             this.selectedNumberSeriesTaskID = selectedNumberSerie.NumberSeriesTaskID;
         }
     }
+
     private openPredefinedDescriptions() {
         this.router.navigate(['./predefined-descriptions']);
     }
@@ -271,6 +287,29 @@ export class JournalEntries {
                 err => this.errorService.handle(err)
             );
         });
+    }
+
+    private getDrafts() {
+        this.journalEntryService.GetAll('filter=JournalEntryNumberNumeric eq null', ['DraftLines'])
+            .subscribe(data => {
+                const draftLines = data.map((x) => x.DraftLines[0]);
+                const lines = draftLines.filter(x => x !== undefined);
+                const totalAmount = data.map(x => x.DraftLines.filter(y => y.Amount > 0).map(z => z.Amount))
+                    .map(x => x.reduce((a, c) => a + c, 0));
+                draftLines.map((x, i) => x.Amount = totalAmount[i]);
+
+                this.modalService.open(SelectDraftLineModal, {data: {draftLines: lines}})
+                    .onClose
+                    .subscribe(selectedLine => {
+                        if (!selectedLine) {
+                            return;
+                        }
+                        this.journalEntryManual.clear();
+                        this.journalEntryManual.currentJournalEntryID = selectedLine.JournalEntryID;
+                        this.currentJournalEntryID = selectedLine.JournalEntryID;
+                    });
+            },
+            err => this.errorService.handle(err));
     }
 
     private showNext() {
@@ -322,28 +361,58 @@ export class JournalEntries {
     }
 
     private editJournalEntry() {
-        if (!this.journalEntryManual.isDirty) {
-            this.editmode = true;
-        }
-    }
-
-     private creditJournalEntry() {
-        this.modalService.open(UniConfirmModalV2, {
-            header: `Kreditere bilag ${this.currentJournalEntryNumber}?`,
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+            header: `Bilag ${this.currentJournalEntryNumber} blir kreditert før du korrigerer.`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
-            }
+            },
+            data: this.journalEntryManual.currentJournalEntryData
         }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber)
+            if (response && response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
                                 'Kreditering utført',
                                 ToastType.good,
-                                5
+                                ToastTime.short
+                            );
+
+                            this.editmode = true;
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.editmode = false;
+                        }
+                    );
+            } else if (response && response.action === ConfirmActions.CANCEL) {
+                this.editmode = false;
+            } else {
+                this.editmode = false;
+            }
+        });
+    }
+
+     private creditJournalEntry() {
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+            header: `Kreditere bilag ${this.currentJournalEntryNumber}?`,
+            message: 'Vil du kreditere hele dette bilaget?',
+            buttonLabels: {
+                accept: 'Krediter',
+                cancel: 'Avbryt'
+            },
+            data: this.journalEntryManual.currentJournalEntryData
+        }).onClose.subscribe(response => {
+            if (response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
+                    .subscribe(
+                        res => {
+                            this.toastService.addToast(
+                                'Kreditering utført',
+                                ToastType.good,
+                                ToastTime.short
                             );
 
                             this.journalEntryManual.loadData();

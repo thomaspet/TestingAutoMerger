@@ -45,12 +45,35 @@ export class AuthService {
         'Accept': 'application/json'
     });
 
-    constructor(private router: Router, private http: Http) {
-        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
 
-        this.jwt = localStorage.getItem('jwt');
+    // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
+    private storage = {
+        saveOnUser: (key, value) => {
+            if (value === undefined) {
+                throw new Error('Tried to marshal undefined into a JSON string, failing to prevent corrupt localStorage');
+            }
+            localStorage.setItem(key, JSON.stringify(value));
+        },
+        getOnUser: key => {
+            try {
+                return JSON.parse(localStorage.getItem(key));
+            } catch (e) {
+                localStorage.removeItem(key);
+                return null;
+            }
+        },
+        removeOnUser: key => localStorage.removeItem(key),
+    };
+
+    constructor(
+        private router: Router,
+        private http: Http,
+    ) {
+        this.activeCompany = this.storage.getOnUser('activeCompany');
+
+        this.jwt = this.storage.getOnUser('jwt');
         this.jwtDecoded = this.decodeToken(this.jwt);
-        this.filesToken = localStorage.getItem('filesToken');
+        this.filesToken = this.storage.getOnUser('filesToken');
 
         if (this.jwt && this.activeCompany) {
             this.setLoadIndicatorVisibility(true);
@@ -124,7 +147,7 @@ export class AuthService {
 
                 this.authenticateUniFiles();
 
-                localStorage.setItem('jwt', this.jwt);
+                this.storage.saveOnUser('jwt', this.jwt);
                 return Observable.of(true);
             });
     }
@@ -140,7 +163,7 @@ export class AuthService {
                 res => {
                     if (res && res.status === 200) {
                         this.filesToken = res.json();
-                        localStorage.setItem('filesToken', this.filesToken);
+                        this.storage.saveOnUser('filesToken', this.filesToken);
 
                         this.filesToken$.next(this.filesToken);
                         resolve(this.filesToken);
@@ -159,8 +182,8 @@ export class AuthService {
      * @param {Object} activeCompany
      */
     public setActiveCompany(activeCompany: Company, redirectUrl?: string): Subject<IAuthDetails> {
-        localStorage.setItem('activeCompany', JSON.stringify(activeCompany));
-        localStorage.setItem('lastActiveCompanyKey', activeCompany.Key);
+        this.storage.saveOnUser('activeCompany', activeCompany);
+        this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
 
         this.activeCompany = activeCompany;
         this.companyChange.emit(activeCompany);
@@ -268,9 +291,9 @@ export class AuthService {
             this.http.post(url, '', {headers: headers}).subscribe();
         }
 
-        localStorage.removeItem('jwt');
-        localStorage.removeItem('activeCompany');
-        localStorage.removeItem('activeFinancialYear');
+        this.storage.removeOnUser('jwt');
+        this.storage.removeOnUser('activeCompany');
+        this.storage.removeOnUser('activeFinancialYear');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;

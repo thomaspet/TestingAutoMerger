@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Http} from '@angular/http';
-import {BrowserStorageService} from './browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
@@ -796,26 +796,26 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             existingHistory.pop();
         }
 
-        this.storageService.save(this.TICKER_LOCALSTORAGE_KEY, JSON.stringify(existingHistory), true);
+        this.storageService.setItemOnCompany(this.TICKER_LOCALSTORAGE_KEY, existingHistory);
 
         return newHistoryItem;
     }
 
     public getSearchHistoryItems(): Array<TickerHistory> {
-        let json = this.storageService.get(this.TICKER_LOCALSTORAGE_KEY, true);
+        const historicalItems = this.storageService.getItemFromCompany(this.TICKER_LOCALSTORAGE_KEY);
 
-        if (json) {
-            return JSON.parse(json);
+        if (historicalItems) {
+            return historicalItems;
         }
 
         return [];
     }
 
     public getSearchHistoryItem(ticker: Ticker, filter: TickerFilter): TickerHistory {
-        let json = this.storageService.get(this.TICKER_LOCALSTORAGE_KEY, true);
+        let historyItem = this.storageService.getItemFromCompany(this.TICKER_LOCALSTORAGE_KEY);
 
-        if (json) {
-            let array: Array<TickerHistory> = JSON.parse(json);
+        if (historyItem) {
+            let array: Array<TickerHistory> = historyItem;
 
             if (filter) {
                 return array.find(
@@ -838,7 +838,7 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                     || (x.TickerFilterCode && filter && x.TickerFilterCode === filter.Code)))
             );
 
-        this.storageService.save(this.TICKER_LOCALSTORAGE_KEY, JSON.stringify(existingHistory), true);
+        this.storageService.setItemOnCompany(this.TICKER_LOCALSTORAGE_KEY, existingHistory);
     }
 
     public getOperators() {
@@ -951,6 +951,7 @@ export class Ticker {
     public Filters?: Array<TickerFilter>;
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;
+    public Pagesize?: number;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public EditToggle?: boolean;

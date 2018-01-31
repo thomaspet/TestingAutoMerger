@@ -311,21 +311,41 @@ export class ReminderList {
         // Context menu
         const contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
-            label: 'Inverter purrestopp',
+            label: 'Sett purrestopp',
             action: (rowModel) => {
                 const warnToastID = this.toastService.addToast('Purrestopp', ToastType.warn);
                 this.customerInvoiceService.ActionWithBody(
                     rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop'
                 ).subscribe(() => {
                     this.toastService.removeToast(warnToastID);
-                    this.toastService.addToast('Purrestopp invertert', ToastType.good, 10);
+                    this.toastService.addToast('Purrestoppet', ToastType.good, 10);
                     this.updateReminderTable();
                 },
                     (err) => {
                         this.toastService.removeToast(warnToastID);
                         this.errorService.handle(err);
                     });
-            }
+            },
+            disabled: (item) =>  item.DontSendReminders
+        });
+
+        contextMenuItems.push({
+            label: 'Opphev purrestopp',
+            action: (rowModel) => {
+                const warnToastID = this.toastService.addToast('Purrestopp', ToastType.warn);
+                this.customerInvoiceService.ActionWithBody(
+                    rowModel.CustomerInvoiceID, rowModel, 'toggle-reminder-stop'
+                ).subscribe(() => {
+                    this.toastService.removeToast(warnToastID);
+                    this.toastService.addToast('Purrestopp opphevet', ToastType.good, 10);
+                    this.updateReminderTable();
+                },
+                    (err) => {
+                        this.toastService.removeToast(warnToastID);
+                        this.errorService.handle(err);
+                    });
+            },
+            disabled: (item) =>  !item.DontSendReminders
         });
 
         // Setup table

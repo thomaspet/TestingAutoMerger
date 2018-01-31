@@ -1,58 +1,83 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {UniView} from '../../../../../framework/core/uniView';
 import {Router, ActivatedRoute} from '@angular/router';
-import {UniCacheService} from '../../../../services/services';
-import {SalaryBalance} from '../../../../unientities';
+import {UniCacheService, SalaryBalanceLineService, SalarybalanceService, ErrorService} from '../../../../services/services';
+import {SalaryBalance, SalBalDrawType, SalBalType} from '../../../../unientities';
 import * as _ from 'lodash';
+import {UniTable} from '@uni-framework/ui/unitable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salaryBalanceList';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
+import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
 
 const SALARYBALANCES_KEY = 'salarybalances';
+const SAVE_TRIGGER_KEY = 'save';
+const NEW_TRIGGER_KEY = 'new';
+const SELECTED_KEY = '_rowSelected';
 
 @Component({
     selector: 'employee-salarybalance',
     templateUrl: './employeeSalarybalance.html'
 })
-export class EmployeeSalarybalance extends UniView {
+export class EmployeeSalarybalance extends UniView implements OnInit {
     private employeeID: number;
-    private salarybalance: SalaryBalance;
+    private selectedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject(1);
     private salarybalances: SalaryBalance[] = [];
 
     constructor(
-        router: Router,
-        route: ActivatedRoute,
-        cacheService: UniCacheService
+        private router: Router,
+        private route: ActivatedRoute,
+        protected cacheService: UniCacheService,
+        private salaryBalanceLineService: SalaryBalanceLineService,
+        private salaryBalanceService: SalarybalanceService,
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
+    }
 
-        route.parent.params.subscribe((paramsChange) => {
-            super.updateCacheKey(router.url);
-            this.salarybalances = [];
-            this.employeeID = +paramsChange['id'];
-            super.getStateSubject(SALARYBALANCES_KEY)
-                .filter((salBal: SalaryBalance[]) => !salBal.some(x => {
-                    if (!x.Transactions) {
-                        return false;
-                    }
-                    return x.Transactions.some(trans => !!trans._createguid);
-                }))
-                .subscribe(model => this.refreshSalaryBalances(model));
-        });
+    public ngOnInit() {
+
+        this.route
+            .parent
+            .params
+            .do((paramsChange) => {
+                super.updateCacheKey(this.router.url);
+                this.salarybalances = [];
+                this.employeeID = +paramsChange['id'];
+            })
+            .switchMap(() => super.getStateSubject(SALARYBALANCES_KEY))
+            .do(model => this.selectSalaryBalance(model))
+            .subscribe(model => this.refreshSalaryBalances(model));
     }
 
     private refreshSalaryBalances(salaryBalances: SalaryBalance[]) {
-        if (!this.salarybalance || !this.salarybalances) {
+        if (!salaryBalances) {
             return;
         }
-
-        this.setSalarybalance(salaryBalances
-            .find(salBal => salBal['_originalIndex'] === this.salarybalance['_originalIndex']));
         this.salarybalances = _.cloneDeep(salaryBalances);
     }
 
-    public setSalarybalance(salaryBal: SalaryBalance) {
-        this.salarybalance = _.cloneDeep(salaryBal);
+    public onUpdatedList(salaryBalances: SalaryBalance[]) {
+        super.updateState(SALARYBALANCES_KEY, salaryBalances, salaryBalances.some(x => x['_isDirty'] || x['Deleted']));
     }
 
-    private onSalarybalanceChange(salarybalance: SalaryBalance) {
+    public setSalarybalance(salaryBal: SalaryBalance) {
+        if (!salaryBal) {
+            return;
+        }
+        this.selectedSalaryBalance$.next(salaryBal);
+    }
+
+    private selectSalaryBalance(salaryBalances: SalaryBalance[]) {
+        if (!salaryBalances.length) {
+            return;
+        }
+        this.setSalarybalance(salaryBalances.find(salBal => salBal[SELECTED_KEY]));
+    }
+
+    public onSalarybalanceChange(salarybalance: SalaryBalance) {
         salarybalance['_isDirty'] = true;
         let index = 0;
         if (this.salarybalances && this.salarybalances.length > 0) {
@@ -65,7 +90,31 @@ export class EmployeeSalarybalance extends UniView {
             });
         }
 
-        this.salarybalances[index] = salarybalance;
+        const prevSalBal = this.salarybalances[index];
+
+        if (prevSalBal.InstalmentType !== salarybalance.InstalmentType && salarybalance.InstalmentType) {
+            salarybalance.Name = this.salaryBalanceService.getInstalmentTypes().find(type => type.ID === salarybalance.InstalmentType).Name;
+        }
+
+        this.salarybalances[index] = _.cloneDeep(salarybalance);
         super.updateState(SALARYBALANCES_KEY, this.salarybalances, true);
+    }
+
+    public createSalaryBalance() {
+        if (!this.salarybalances.some(x => !x.ID && x.InstalmentType === SalBalType.Advance)) {
+            super.updateState(NEW_TRIGGER_KEY, SalaryBalance, false);
+            return;
+        }
+        this.modalService
+            .confirm({
+                message: 'Du har et ulagret forskudd. Du må lagre før du kan opprette nytt trekk/forskudd',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    cancel: 'Avbryt'
+                }
+            })
+            .onClose
+            .filter((result: ConfirmActions) => result === ConfirmActions.ACCEPT)
+            .subscribe(() => super.updateState(SAVE_TRIGGER_KEY, SalaryBalance, false));
     }
 }

@@ -1,6 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
+import {WidgetDataService} from '../widgets/widgetDataService';
 import {ToastService} from '../../../framework/uniToast/toastService';
 import {CompanySettings} from '../../unientities';
 import {
@@ -17,16 +18,18 @@ import {
         </uni-widget-canvas>
     `,
 })
-export class UniSales {
+export class UniSales implements OnDestroy {
     private widgetLayout: IUniWidget[] = [];
     private companySettings: CompanySettings;
+    private refreshInterval;
 
     constructor(
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
         private ehfService: EHFService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private widgetService: WidgetDataService
     ) {
         this.tabService.addTab({
              name: 'Salg',
@@ -37,8 +40,21 @@ export class UniSales {
 
         this.companySettingsService.Get(1).subscribe((settings) => {
             this.companySettings = settings;
+            this.widgetService.clearCache();
             this.widgetLayout = this.getDefaultLayout();
+            const that = this;
+            // Refresh dashboard every 10 minutes. Minutes here could be user specified?
+            this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
         });
+    }
+
+    private refreshOnTimer() {
+        this.widgetService.clearCache();
+        this.widgetLayout = [...this.getDefaultLayout()];
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
     }
 
     private getDefaultLayout(): IUniWidget[] {
@@ -332,7 +348,7 @@ export class UniSales {
                     title: 'Ordrereserver',
                     description: 'Totalsum ordrereserver',
                     positive: true,
-                    link: '/bureau/sales'
+                    link: '/overview/order_list?filter=order_reserves'
                 }
             },
         ];

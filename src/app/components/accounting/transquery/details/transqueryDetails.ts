@@ -16,7 +16,7 @@ import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {
@@ -32,8 +32,9 @@ import {
 
 import {
     UniModalService,
-    ConfirmActions
+    ConfirmActions,
 } from '../../../../../framework/uniModal/barrel';
+import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
@@ -464,30 +465,35 @@ export class TransqueryDetails implements OnInit {
         return filter;
     }
 
-    private creditJournalEntry(journalEntryNumber: string) {
-        const modal = this.modalService.confirm({
-            header: 'Bekreft kreditering',
-            message: `Vennligst bekreft kreditering av hele bilag ${journalEntryNumber}`,
+    private creditJournalEntry(item: any) {
+        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+            header: `Kreditere bilag ${item.JournalEntryLineJournalEntryNumber}?`,
+            message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
-            }
-        });
+            },
+            data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
+        }).onClose.subscribe(response => {
+            if (response.action === ConfirmActions.ACCEPT) {
+                this.journalEntryService.creditJournalEntry(item.JournalEntryLineJournalEntryNumber, response.input)
+                    .subscribe(
+                        res => {
+                            this.toastService.addToast(
+                                'Kreditering utført',
+                                ToastType.good,
+                                ToastTime.short
+                            );
 
-        modal.onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(journalEntryNumber).subscribe(
-                    res => {
-                        this.toastService.addToast('Kreditering utført', ToastType.good, 5);
-                        this.table.refreshTableData();
+                            this.table.refreshTableData();
 
-                        // Force summary recalc
-                        if (this.lastFilterString) {
-                            this.onFiltersChange(this.lastFilterString);
-                        }
-                    },
-                    err => this.errorService.handle(err)
-                );
+                            // Force summary recalc
+                            if (this.lastFilterString) {
+                                this.onFiltersChange(this.lastFilterString);
+                            }
+                        },
+                        err => this.errorService.handle(err)
+                    );
             }
         });
     }
@@ -515,7 +521,7 @@ export class TransqueryDetails implements OnInit {
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
         const showTaxBasisAmount = routeParams && routeParams['showTaxBasisAmount'] === 'true';
-        const visibleColumnsString = this.storageService.get(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY, true);
+        const visibleColumnsString = this.storageService.getItem(this.COLUMN_VISIBILITY_LOCALSTORAGE_KEY);
 
         let visibleColumns = [];
         if (visibleColumnsString) {
@@ -692,7 +698,7 @@ export class TransqueryDetails implements OnInit {
             })
             .setContextMenu([
                 {
-                    action: (item) => this.creditJournalEntry(item.JournalEntryLineJournalEntryNumber),
+                    action: (item) => this.creditJournalEntry(item),
                     disabled: (item) => false,
                     label: 'Krediter bilag'
                 },
@@ -702,7 +708,7 @@ export class TransqueryDetails implements OnInit {
                         item.JournalEntryLineJournalEntryNumber
                     ),
                     disabled: (item) => false,
-                    label: 'Rediger bilag'
+                    label: 'Korriger bilag'
                 }
             ])
             .setColumns(columns);
@@ -710,12 +716,13 @@ export class TransqueryDetails implements OnInit {
 
     public onCellClick(event: ICellClickEvent) {
         if (event.column.field === 'ID') {
-            let data = {
+            const modalOptions = {
                 entity: JournalEntry.EntityType,
-                entityID: event.row.JournalEntryID
-
+                entityID: event.row.JournalEntryID,
+                singleImage: false
             };
-            this.modalService.open(ImageModal, { data: data });
+
+            this.modalService.open(ImageModal, {data: modalOptions});
         }
     }
 

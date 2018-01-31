@@ -90,7 +90,7 @@ export class WorkEditor {
     }
 
     private loadUserSettings() {
-        var map = this.localStore.get('workeditor.columns', true);
+        var map = this.localStore.getItem('workeditor.columns');
         if (map) {
             this.visibleColumns = map.split(',');
         }

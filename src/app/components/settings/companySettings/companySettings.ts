@@ -1,10 +1,10 @@
 ﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {FieldType, UniForm} from '../../../../framework/ui/uniform/index';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {IUniSaveAction} from '@uni-framework/save/save';
+import {FieldType, UniForm} from '@uni-framework/ui/uniform/index';
+import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
+import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
@@ -22,7 +22,7 @@ import {
     PeriodSeries,
     Phone,
     VatReportForm
-} from '../../../unientities';
+} from '@uni-entities';
 import {
     AccountService,
     AccountGroupSetService,
@@ -46,7 +46,7 @@ import {
     VatTypeService,
     UniFilesService,
     AdminProductService
-} from '../../../services/services';
+} from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
@@ -58,7 +58,7 @@ import {
     UniModalService,
     UniPhoneModal,
     ConfirmActions
-} from '../../../../framework/uniModal/barrel';
+} from '@uni-framework/uniModal/barrel';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -1271,7 +1271,16 @@ export class CompanySettingsComponent implements OnInit {
         let settings = this.company$.getValue();
         if (settings.APActivated) {
             this.modalService.open(UniActivateAPModal)
-                .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+                .onClose.subscribe((status) => {
+                    if (status !== 0) {
+                        this.companySettingsService.Get(1).subscribe(settings => {
+                            let company = this.company$.getValue();
+                            company.BankAccounts = settings.BankAccounts;
+                            company.CompanyBankAccount = settings.CompanyBankAccount;
+                            this.company$.next(company);
+                        });
+                    }
+                }, err => this.errorService.handle(err));
         } else {
             this.adminProductService.FindProductByName('EHF').subscribe(p => {
                 this.router.navigateByUrl('/marketplace/add-ons/' + p.id);

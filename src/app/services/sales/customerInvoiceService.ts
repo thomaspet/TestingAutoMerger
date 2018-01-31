@@ -84,6 +84,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
+        this.entityType = CustomerInvoice.EntityType;
     }
 
     public createInvoice() {

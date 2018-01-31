@@ -1,4 +1,4 @@
-import {Component, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, ViewChild, AfterViewInit, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
@@ -8,12 +8,13 @@ import {
 import {Employee, Employment, SubEntity, Project, Department} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'employments',
     templateUrl: './employments.html'
 })
-export class Employments extends UniView implements AfterViewInit {
+export class Employments extends UniView implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild(UniTable)
     private table: UniTable;
     private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
@@ -27,12 +28,13 @@ export class Employments extends UniView implements AfterViewInit {
     private departments: Department[];
     private cachedEmployments: ReplaySubject<Employment[]> = new ReplaySubject<Employment[]>(1);
     private employeeID: number;
+    private selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
 
     constructor(
         private employmentService: EmploymentService,
-        cacheService: UniCacheService,
-        router: Router,
-        route: ActivatedRoute,
+        protected cacheService: UniCacheService,
+        private router: Router,
+        private route: ActivatedRoute,
         private errorService: ErrorService
     ) {
 
@@ -45,12 +47,18 @@ export class Employments extends UniView implements AfterViewInit {
                 new UniTableColumn('JobName', 'Stillingsnavn'),
                 new UniTableColumn('JobCode', 'Stillingskode')
             ]);
+    }
 
-        // Update cache key and (re)subscribe when param changes (different employee selected)
-        route.parent.params.subscribe((paramsChange) => {
-            super.updateCacheKey(router.url);
-            this.employeeID = +paramsChange['id'];
-            this.selectedIndex = undefined;
+    public ngOnInit() {
+        this.route
+            .parent
+            .params
+            .do((paramsChange) => {
+                super.updateCacheKey(this.router.url);
+                this.employeeID = +paramsChange['id'];
+                this.selectedIndex = 0;
+            })
+            .subscribe((paramsChange) => {
 
             super.getStateSubject('subEntities')
                 .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
@@ -67,21 +75,29 @@ export class Employments extends UniView implements AfterViewInit {
             super.getStateSubject('employments')
                 .subscribe((employments: Employment[]) => {
                     this.cachedEmployments.next(employments);
+                    this.refreshEmployments(employments);
                 });
         });
+        this.route.params
+            .subscribe((paramsChange) => {
+                this.cachedEmployments
+                    .asObservable()
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                    .do(employments => this.selectEmployment(employments))
+                    .subscribe(employments => {
+                        this.employments = employments || [];
+                        if (employments && !employments.length && this.employeeID) {
+                            this.newEmployment();
+                        }
+                    });
+        });
+    }
 
-        route.params.subscribe((paramsChange) => {
-            this.cachedEmployments
-                .asObservable()
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .do(employments => setTimeout(() => this.focusRow(+paramsChange['EmploymentID'])))
-                .subscribe(employments => {
-                    this.employments = employments || [];
-                    if (employments && !employments.length && this.employeeID) {
-                        this.newEmployment();
-                    }
-                });
-        });
+    private refreshEmployments(employments: Employment[]) {
+        if (!employments) {
+            return;
+        }
+        this.employments = _.cloneDeep(employments);
     }
 
     public ngAfterViewInit() {
@@ -90,9 +106,9 @@ export class Employments extends UniView implements AfterViewInit {
 
     public ngOnDestroy() {
         // Remove untouched new rows
-        let employments = this.employments.filter(emp => emp.ID > 0 || emp['_isDirty']);
+        const employments = this.employments.filter(emp => emp.ID > 0 || emp['_isDirty']);
         if (employments.length !== this.employments.length) {
-            let isDirty = employments.some(emp => emp['_isDirty']);
+            const isDirty = employments.some(emp => emp['_isDirty']);
             super.updateState('employments', employments, isDirty);
         }
     }
@@ -125,7 +141,7 @@ export class Employments extends UniView implements AfterViewInit {
 
     private newEmployment() {
         this.employmentService.GetNewEntity().subscribe((response: Employment) => {
-            let newEmployment = response;
+            const newEmployment = response;
             newEmployment.EmployeeNumber = this.employee.EmployeeNumber;
             newEmployment.EmployeeID = this.employee.ID;
             newEmployment.JobCode = '';
@@ -158,22 +174,44 @@ export class Employments extends UniView implements AfterViewInit {
 
     public onEmploymentChange(employment: Employment) {
         employment['_isDirty'] = true;
-
+        let index = 0;
         // Update employments array and table row
-        const index = this.employments.findIndex((emp) => {
-            if (!emp.ID) {
-                return emp['_createguid'] === employment['_createguid'];
-            }
-
-            return emp.ID === employment.ID;
-        });
-
-        this.employments[index] = employment;
+        if (this.employments && this.employments.length > 0) {
+            index = this.employments.findIndex((emp) => {
+                if (!emp.ID) {
+                    return emp['_createguid'] === employment['_createguid'];
+                }
+                return emp.ID === employment.ID;
+            });
+        }
+        this.employments[index] = _.cloneDeep(employment);
+        this.selectedEmployment$.next(employment);
         super.updateState('employments', this.employments, true);
     }
 
     public onRowSelected(event) {
         this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
         this.selectedIndex = event.rowModel['_originalIndex'];
+        this.selectedEmployment$.next(this.employments[this.selectedIndex]);
+    }
+
+    private selectEmployment(employments: Employment[]) {
+        if (!employments.length) {
+            return;
+        }
+        this.setEmployment(employments[this.selectedIndex]);
+    }
+
+    public setEmployment(employment: Employment) {
+        if (!employment) {
+            return;
+        }
+        this.focusRow(employment.ID || this.employments.length - 1);
+        this.selectedEmployment$.next(employment);
+    }
+
+    public btnDisabled(): boolean {
+        const newemplt = this.employments.filter(empl => empl.ID === 0);
+        return newemplt.length > 0 ? true : false;
     }
 }

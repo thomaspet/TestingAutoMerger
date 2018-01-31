@@ -77,7 +77,6 @@ uni-image
                 border-left: $size solid transparent
                 border-right: $size solid transparent
 
-
     .uni-thumbnail-list
         display: block
         list-style: none
@@ -89,13 +88,7 @@ uni-image
             display: inline-block
             float: left
             cursor: pointer
-
-            @media (min-width: pxToRem(1600px))
-                padding-bottom: 0.4rem
-
-            @media (max-width: pxToRem(1600px))
-                &:not(:first-of-type)
-                    margin-left: pxToRem(5)
+            margin-right: 5px
 
             &:last-of-type
                 @include clearfix()
@@ -104,7 +97,6 @@ uni-image
                 width: auto
                 height: 100%
                 max-width: 100%
-                border: solid $uni-color-scale8 0.03rem
 
             // REVISIT: Quickfix. Get help from Jørgen!
             &[aria-busy]:not([aria-busy=false])
@@ -114,7 +106,7 @@ uni-image
             .uni-image-upload
                 display: block
                 height: 50px
-                min-width: 2.4rem
+                width: 3rem
                 border: 1px dashed $uni-color-scale8
                 border-radius: pxToRem(5)
                 box-sizing: border-box
@@ -129,29 +121,53 @@ uni-image
                     // "visible" only for screen readers
                     @extend %visuallyHidden
 
+    .uniImage
+        .image-section
+            display: block
+            width: 100%
+            height: 100%
+
+        @media (min-width: 1000px)
+            position: relative
+            display: flex
+            width: 100%
+
+            .image-section
+                flex: 1 1 auto
+
+            .uni-thumbnail-list
+                flex: 0 1 3rem
+                margin: 0 0 0 .5rem
+
+                li
+                    margin: 0 0 5px 0
+
+        @media (max-width: 1000px)
+            .uni-thumbnail-list
+                position: static
+                height: 3.5rem
+                margin: .5rem 0 0 0
+
     .uni-image-pager
         width: 100%
         height: 3rem
-        clip: initial
-
-    .uni-image-pager
-        @extend %visuallyHidden
-        top: 0
-        position: relative
+        line-height: 3rem
         background: transparentize(#000, 0.5)
+        text-align: center
+        color: $uni-color-negative
 
-        label
-            position: absolute
-            width: calc(100% - 10rem)
-            left: 2rem
-            text-align: center
-            line-height: 3rem
+        i.material-icons
+            cursor: pointer
+            vertical-align: middle
             color: $uni-color-negative
+            padding-left: 5px
+            font-size: 20px
+
+        .print
+            margin-left: 5px
 
         .prev, .next
-            position: absolute
             cursor: pointer
-
             &:before
                 height: 3rem
                 width: 2rem
@@ -162,68 +178,15 @@ uni-image
 
             &:hover:before
                 background-size: .45rem
+
         .prev
-            left: 1%
+            float: left
             transform: rotate(180deg)
-
         .next
-            right: 1%
-
-        .print
-            position: absolute
-            cursor: pointer
-            right: calc(1% + 6rem)
-
-            &:before
-                height: 3rem
-                width: 2rem
-                display: block
-                content: ''
-                background: url('assets/print_white.png') center center no-repeat
-                background-size: 1.1rem
-
-            &:hover:before
-                background-size: 1.2rem
-
-        .trash
-            position: absolute
-            cursor: pointer
-            right: calc(1% + 3rem)
-
-            &:before
-                height: 3rem
-                width: 2rem
-                display: block
-                content: ''
-                background: unicon-trash($uni-color-negative) center center no-repeat
-                background-size: .8rem
-
-            &:hover:before
-                background-size: .9rem
-
-        .split
-            position: absolute
-            cursor: pointer
-            right: calc(1% + 4.5rem)
-            height: 3rem
-            width: 2rem
-            margin-top: 0.9rem
-
-            i
-                font-size: 20px
-                color: $uni-color-scale9
-
-                &:hover
-                    font-size: 22px
-
-    .uni-thumbnail-list.-has-thumbnails
-        @media (min-width: pxToRem(1600px))
-            position: absolute
-            max-width: 2.2rem
-            min-width: 2.2rem
-            top: -1rem
-            left: 41rem
+            float: right
 
 uni-modal .uni-thumbnail-list.-has-thumbnails
     position: static
     max-width: none
+
+

@@ -32,8 +32,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     private wagetypes: WageType[];
     private employees: Employee[];
     private suppliers: Supplier[];
-
-    private invalidKID: boolean;
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
     private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
@@ -50,6 +48,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     @Input() public salarybalance: SalaryBalance;
     @Input() public useExternalChangeDetection: boolean = false;
+    @Input() public ignoreFields: string[] = [];
     @Output() private salarybalanceChange: EventEmitter<SalaryBalance> = new EventEmitter<SalaryBalance>();
 
     constructor(
@@ -71,7 +70,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .do(params => {
                 this.subscriptions.forEach(sub => sub.unsubscribe());
                 super.updateCacheKey(router.url);
-                this.invalidKID = false;
                 super.getStateSubject(SAVING_KEY)
                     .subscribe(isSaving => this.summaryBusy$.next(isSaving));
             })
@@ -134,14 +132,15 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .map(model => {
                 if (changes['InstalmentType']) {
                     this.setWagetype(model);
-                }
-
-                if (changes['KID'] || changes['Instalment']) {
-                    this.validateKID(model);
+                    this.setText(model);
+                    this.salarybalanceService.resetFields(model);
                 }
 
                 if (changes['SupplierID']) {
                     model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
+                    if (!model.SupplierID) {
+                        this.salarybalanceService.resetCreatePayment(model);
+                    }
                 }
 
                 if (changes['Amount']) {
@@ -160,6 +159,10 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                                 message);
                         }
                     }
+                }
+
+                if (changes['CreatePayment']) {
+                    this.salarybalanceService.validateCreatePaymentChange(model);
                 }
 
                 return model;
@@ -224,7 +227,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
         return this.refreshLayout(salaryBalance)
-            .map(response => this.setWagetype(salaryBalance));
+            .map(response => this.setWagetype(salaryBalance))
+            .map(response => this.setText(salaryBalance));
     }
 
     private refreshLayout(salaryBalance: SalaryBalance): Observable<UniFieldLayout[]> {
@@ -236,7 +240,11 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
                 const [wagetypes, employees, suppliers] = result;
                 return this.salarybalanceService
-                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers);
+                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers)
+                    .map(layout => {
+                        layout.Fields = layout.Fields.filter(field => !this.ignoreFields.some(name => name === field.Property));
+                        return layout;
+                    });
             })
             .do(layout => {
                 if (layout.Fields) {
@@ -319,11 +327,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         return null;
     }
 
-    private validateKID(salaryBalance: SalaryBalance) {
-        this.invalidKID = !this.salarybalanceService.isHiddenByInstalmentType(salaryBalance)
-            && !this.modulusService.isValidKID(salaryBalance.KID);
-    }
-
     private setWagetype(salarybalance: SalaryBalance, wagetypes = this.wagetypes): SalaryBalance {
         let wagetype: WageType;
 
@@ -346,6 +349,12 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         }
 
         return salarybalance;
+    }
+
+    private setText(salaryBalance: SalaryBalance): SalaryBalance {
+        if (!salaryBalance.InstalmentType) { return salaryBalance; }
+        salaryBalance.Name = this.salarybalanceService.getInstalmentTypes().find(type => type.ID === salaryBalance.InstalmentType).Name;
+        return salaryBalance;
     }
 
     public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {

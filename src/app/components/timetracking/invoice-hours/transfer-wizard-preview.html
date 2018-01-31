@@ -32,7 +32,7 @@
                 </tr>
                 <tr *ngFor="let item of order.Items">
                     <td class="text">{{item.ItemText}}</td>
-                    <td class="right">{{item.NumberOfItems | numpipe:'1'}}</td>
+                    <td class="right">{{item.NumberOfItems | numpipe:'2'}}</td>
                     <td class="right">{{item.PriceExVat | unicurrency}}</td>
                     <td class="right">{{item.SumTotalExVat | unicurrency}}</td>
                 </tr>

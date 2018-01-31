@@ -59,13 +59,15 @@ export class WebHookSettings {
         this.objectiveSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg objektiv',
-            searchable: true
+            searchable: true,
+            hideDeleteButton: true
         };
 
         this.actionSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg handling',
-            searchable: true
+            searchable: false,
+            hideDeleteButton: true
         };
 
         this.umhSerivce.isPermitted(true).subscribe(
@@ -76,7 +78,6 @@ export class WebHookSettings {
                     this.companyService.invalidateCache();
                     this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                         company => {
-                            console.log('COMPANY' + JSON.stringify(company));
                             this.company = company;
                             this.isEnabled = this.company !== undefined && this.company.WebHookSubscriberId !== null;
 

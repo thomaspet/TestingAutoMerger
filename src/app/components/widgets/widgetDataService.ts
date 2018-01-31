@@ -33,6 +33,10 @@ export class WidgetDataService {
         return this.request(endpoint);
     }
 
+    public clearCache() {
+        this.requestCache = {};
+    }
+
     public request(endpoint) {
         const hash = this.hashFnv32a(endpoint);
 

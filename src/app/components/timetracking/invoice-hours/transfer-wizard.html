@@ -7,20 +7,11 @@
         <div class="stepheader">{{steps[step].label}}:</div>
         
         <section class="wizard-step-container" [hidden]="step !== 0">
-            <form>
-                <div class="container">
-                    <label>Medarbeidere:</label>
-                    <select name="workertype" [(ngModel)]="workerTypeCombo" (ngModelChange)="onSourceChanged($event)" >
-                        <option value="0">Mine timer <span *ngIf="sumHours">({{sumHours[1].total}} timer)</span></option>
-                        <option value="1">Alle medarbeidere <span *ngIf="sumHours">({{sumHours[0].total}} timer)</span></option>
-                    </select>
-                </div>
-                <div class="container">
-                    <div *ngFor="let choice of choices">                        
-                        <input type="radio" [checked]="choice.checked"><label (click)="checkOption(choice)">{{choice.label}} <span *ngIf="choice.hours">({{choice.hours}} timer)</span></label>
-                    </div>
-                </div>
-            </form>
+            <uni-form [fields]="fields$"
+                [model]="model$"
+                [config]="formConfig$"
+                (changeEvent)="onFormChange($event)">
+            </uni-form>
         </section>
 
         <section class="wizard-step-container" [hidden]="step !== 1">

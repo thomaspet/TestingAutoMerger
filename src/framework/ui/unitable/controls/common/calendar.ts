@@ -104,7 +104,7 @@ export class UniCalendar {
         if (firstDayOfMonth !== 0) {
             const numDaysLastMonth = date.clone().subtract(1, 'month').endOf('month').date();
             for (let i = 0; i < firstDayOfMonth; i++) {
-                days.unshift({day: (numDaysLastMonth - i), month: (date.month() - 1)});
+                days.unshift({day: (numDaysLastMonth - i), month: (date.month() - 1), year: date.year()});
             }
         }
 

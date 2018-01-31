@@ -8,13 +8,43 @@ workitem-transfer-wizard
         padding: 1em 1em 0 1em
     
     .wizard-step-container
-        height: 15em
+        height: 16em
         overflow-y: auto
 
     .stepheader
         padding-bottom: 0.5em
         font-weight: bold
         font-size: 12pt
+
+    label
+        padding-bottom: 0 !important
+        margin-left: 0.35rem !important
+
+    .uniSelect_input
+        cursor: auto
+
+    .small
+        width: 50%
+        min-width: pxToRem(350) !important
+        display: inline-block
+
+        &:nth-of-type(4) label > span
+            text-align: right
+            width: 5em
+
+    .nolabel
+        width: 50%
+        min-width: pxToRem(350) !important
+        display: inline-block
+
+        span
+            display: none
+
+        localdate-picker-input
+            width: 50%
+            display: inline-block
+            float: none
+
 
 .workorder
 
@@ -75,7 +105,6 @@ workitem-transfer-wizard
             width: 6rem
 
         td.text
-            color: $uni-color-c2a
             white-space: nowrap
             overflow: hidden
             text-overflow: ellipsis

@@ -523,7 +523,7 @@ export class SupplierDetails implements OnInit {
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'Info.BankAccounts',
-            displayValue: 'IBAN',
+            displayValue: 'AccountNumber',
             linkProperty: 'ID',
             storeResultInProperty: 'Info.DefaultBankAccount',
             storeIdInProperty: 'Info.DefaultBankAccountID',
@@ -697,7 +697,7 @@ export class SupplierDetails implements OnInit {
                     },
                     (err) => {
                         completeEvent('Feil ved lagring');
-                        if (supplier.Info.DefaultBankAccount._createguid) {
+                        if (supplier.Info.DefaultBankAccount && supplier.Info.DefaultBankAccount._createguid) {
                             supplier.Info.BankAccounts.push(supplier.Info.DefaultBankAccount);
                             this.supplier$.next(supplier);
                         }

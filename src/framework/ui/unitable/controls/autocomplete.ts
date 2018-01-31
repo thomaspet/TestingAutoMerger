@@ -23,6 +23,28 @@ export interface IAutoCompleteOptions {
     addNewButtonVisible?: boolean;
     addNewButtonText?: string;
     addNewButtonCallback?: (searchText: string) => Promise<any>;
+    showResultAsTable: boolean;
+    resultTableConfig: IResultTableConfig;
+}
+
+export interface IResultTableConfig {
+    fields: IResultTableField[];
+    createNewButton: IResultTableButton;
+}
+
+export interface IResultTableField {
+    header: string;
+    key: string;
+    class?: string;
+    width?: string;
+    isMoneyField?: boolean;
+}
+
+export interface IResultTableButton {
+    buttonText: string;
+    action: () => {};
+    getAction: (item) => {};
+    errorAction: (msg: string) => {};
 }
 
 export interface IGroupInfo {
@@ -62,6 +84,7 @@ export interface IGroupConfig {
                 id="autocomplete-results"
                 role="listbox"
                 tabindex="-1"
+                *ngIf="!options.showResultAsTable"
                 [attr.aria-expanded]="expanded">
 
                 <li *ngFor="let item of lookupResults; let idx = index"
@@ -79,6 +102,47 @@ export interface IGroupConfig {
                     </button>
                 </li>
             </ul>
+            <div
+                *ngIf="options.showResultAsTable && options.resultTableConfig"
+                class="unitable_dropdown_table"
+                [attr.aria-expanded]="expanded"
+                [attr.aria-upwards]="showDropdownAbove">
+                <div *ngIf="options.resultTableConfig.createNewButton">
+                    <button (click)="onActionClick(options.resultTableConfig.createNewButton)">
+                        {{ options.resultTableConfig.createNewButton.buttonText }}
+                    </button>
+                </div>
+                <div class="result_table_container" *ngIf="lookupResults.length > 0" #container>
+                    <table #list>
+                        <thead>
+                            <tr>
+                                <th *ngFor="let field of options.resultTableConfig.fields"
+                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }">
+                                    {{ field.header }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of lookupResults; let idx = index"
+                                [attr.aria-selected]="selectedIndex === idx"
+                                role="option"
+                                (mouseover)="selectedIndex = item.isHeader ? selectedIndex : idx"
+                                (click)="itemClicked(idx, item.isHeader)">
+
+                                <td *ngFor="let field of options.resultTableConfig.fields"
+                                    [ngStyle]="{width: field.width, textAlign: field.isMoneyField ? 'right' : 'left' }"
+                                    [ngClass]="field.class">
+                                    <span class="result_td" *ngIf="!field.isMoneyField"> {{item[field.key]}} </span>
+                                    <span *ngIf="field.isMoneyField">
+                                        {{ item[field.key] | uninumberformat: 'money' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p *ngIf="lookupResults.length === 0">{{ emptySearchString }}</p>
+            </div>
         </article>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -86,6 +150,7 @@ export interface IGroupConfig {
 export class UnitableAutocomplete implements OnInit {
     @ViewChild('input') public inputElement: ElementRef;
     @ViewChild('list')  private list: ElementRef;
+    @ViewChild('container')  private container: ElementRef;
 
     @Input()
     private column: any;
@@ -98,9 +163,11 @@ export class UnitableAutocomplete implements OnInit {
     public busy: boolean = false;
     public expanded: boolean;
 
+    private showDropdownAbove: boolean = false;
     private lookupResults: any[] = [];
     private selectedIndex: any;
     private addValuePromise: Promise<any>;
+    private emptySearchString: string = '';
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -123,11 +190,13 @@ export class UnitableAutocomplete implements OnInit {
                     return selectedItem[field];
                 };
             }
+            this.showDropdownAbove = 480 > window.innerHeight - document.activeElement.getBoundingClientRect().top;
         }
 
         this.inputControl.valueChanges
         .switchMap((value) => {
             this.lookupResults = [];
+            this.emptySearchString = 'Søker...';
             this.busy = true;
             if (value) {
                 this.selectedIndex = 0;
@@ -140,15 +209,60 @@ export class UnitableAutocomplete implements OnInit {
         .distinctUntilChanged()
         .subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
-                this.lookupResults = results;
+                this.lookupResults = this.findExactMatch(results, query);
+                this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
                 if (this.groupConfig) {
                     this.formatGrouping();
                 }
                 this.expanded = true;
+
+                if (this.options.showResultAsTable) {
+                    // Get all the cells in the result table
+                    const cells = document.getElementsByClassName('result_td');
+                    setTimeout(() => {
+                        if (cells.length > 0) {
+                            // Loop the cells to see if there are matches
+                            for (let i = 0; i < cells.length; i++) {
+                                // Check to see if cell contains query, set both to lowercase to ignore casing
+                                if (cells[i].innerHTML.toLowerCase().match(query.toLowerCase())) {
+                                    // Find the text to replace, no matter the casing!
+                                    const index = cells[i].innerHTML.toLowerCase().indexOf(query.toLowerCase());
+                                    const textToReplace = cells[i].innerHTML.substr(index, query.length);
+
+                                    // If cell contains query, hightlight it in cell!
+                                    let data = cells[i].innerHTML;
+                                    data = data.replace(textToReplace, '<span class="highlighed_search_hit">' + textToReplace + '</span>');
+                                    cells[i].innerHTML = data;
+                                }
+                            }
+                        }
+                    });
+                }
+
                 this.busy = false;
                 this.cdr.markForCheck();
             });
         });
+    }
+
+    private findExactMatch(result: any[], query: string): any[] {
+        if (!this.options.showResultAsTable) {
+            return result;
+        }
+
+        let exactMatch;
+        const myArray = [].concat(result);
+        for (let i = 0; i < myArray.length; i++) {
+            if (query.toLowerCase() === myArray[i][this.options.resultTableConfig.fields[0].key].toLowerCase()) {
+                exactMatch = myArray[i];
+                myArray.splice(i, 1);
+            }
+        }
+        if (exactMatch) {
+            myArray.unshift(exactMatch);
+        }
+
+        return myArray;
     }
 
     private addNewItem() {
@@ -160,6 +274,19 @@ export class UnitableAutocomplete implements OnInit {
 
             this.inputElement.nativeElement.focus();
         }
+    }
+
+    public onActionClick(button: any) {
+        this.addValuePromise = new Promise((resolve) => {
+            button.action().subscribe(item => {
+                button.getAction(item).subscribe((result) => {
+                    resolve(result || undefined);
+                },
+                (err) => {
+                    button.errorAction(err);
+                });
+            });
+        });
     }
 
     private formatGrouping() {
@@ -203,16 +330,17 @@ export class UnitableAutocomplete implements OnInit {
 
         // user is adding a value throug a promise
         if (this.addValuePromise) {
+            this.addValuePromise.then(item => console.log(item));
             return this.addValuePromise;
         }
 
         // User was "too quick"
         if (this.busy && this.inputControl.value) {
             return this.performLookup(this.inputControl.value).switchMap((res) => {
-                return Observable.of(res[0]);
+                return Observable.of(this.findExactMatch(res, this.inputControl.value)[0]);
             });
         }
-
+        console.log(this.selectedIndex);
         return (this.selectedIndex >= 0)
             ? this.lookupResults[this.selectedIndex]
             : undefined;
@@ -230,6 +358,7 @@ export class UnitableAutocomplete implements OnInit {
         this.performLookup('').subscribe((res) => {
             this.selectedIndex = -1;
             this.lookupResults = res;
+            this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
             if (this.groupConfig) {
                 this.formatGrouping();
             }
@@ -326,8 +455,13 @@ export class UnitableAutocomplete implements OnInit {
     }
 
     private scrollToListItem() {
-        const list = this.list.nativeElement;
-        const currItem = list.children[this.selectedIndex];
+        let list = this.list.nativeElement;
+        let currItem = list.children[this.selectedIndex];
+        // If result is table, change elements
+        if (this.options.showResultAsTable) {
+            currItem = list.children[1].children[this.selectedIndex];
+            list = this.container.nativeElement;
+        }
 
         if (!currItem) {
             return;
@@ -341,5 +475,4 @@ export class UnitableAutocomplete implements OnInit {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
     }
-
 }

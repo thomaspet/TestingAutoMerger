@@ -3,69 +3,56 @@ import {IModalOptions, IUniModal} from '../../../../framework/uniModal/barrel';
 import {File} from '../../../unientities';
 import {UniImage, UniImageSize} from '../../../../framework/uniImage/uniImage';
 
-
-type Config = {
-    close: () => void,
-    fileIDs: Array<number>,
-    entity: string,
-    entityID: number,
-    showFileID: Number,
-    readOnly: boolean,
-    size: UniImageSize,
-    event: (files: File[]) => void
-};
-
-export type UpdatedFileListEvent = {
-    entity: string,
-    entityID: number,
-    files: File[]
-};
+export interface IUpdatedFileListEvent {
+    entity: string;
+    entityID: number;
+    files: File[];
+}
 
 @Component({
     selector: 'image-modal',
     template: `
         <section role="dialog" class="uni-modal account_detail_modal_size">
             <header><h1>Forhåndsvisning</h1></header>
-            <article [attr.aria-busy]="busy">
-                    <uni-image
-                        [singleImage]="true"
-                        [fileIDs]="config.fileIDs"
-                        [entity]="config.entity"
-                        [entityID]="config.entityID"
-                        [showFileID]="config.showFileID"
-                        [readonly]="config.readOnly"
-                        (fileListReady)="fileListReady($event)"
-                        [size]="config.size"
-                    ></uni-image>
+            <article class="image-modal-body" [attr.aria-busy]="busy">
+                <uni-image *ngIf="options?.data"
+                    [singleImage]="singleImage"
+                    [fileIDs]="options.data.fileIDs || []"
+                    [entity]="options.data.entity"
+                    [entityID]="options.data.entityID"
+                    [showFileID]="options.data.showFileID || null"
+                    [readonly]="options.data.readOnly"
+                    [size]="options.data.size || null"
+                    (fileListReady)="fileListReady($event)"
+                ></uni-image>
             </article>
-            <footer>
-
-            </footer>
+            <footer></footer>
         </section>
-    `
+    `,
+    styles: [`
+        .image-modal-body {
+            min-height: 10rem
+        }
+    `]
 })
 export class ImageModal implements IUniModal {
-    public config: any = {};
     private files: any;
+    private singleImage: boolean = true;
 
     @ViewChild(UniImage)
     public uniImage: UniImage;
 
     @Output()
-    public onClose: EventEmitter<UpdatedFileListEvent> = new EventEmitter<UpdatedFileListEvent>();
+    public onClose: EventEmitter<IUpdatedFileListEvent> = new EventEmitter(false);
 
     @Input()
     public options: IModalOptions;
 
-    constructor() { }
-
     public ngOnInit() {
-        this.config.entity = this.options.data.entity;
-        this.config.entityID = this.options.data.entityID;
-        this.config.fileIDs = this.options.data.fileIDs;
-        this.config.showFileID = this.options.data.showFileID || null;
-        this.config.readOnly = this.options.data.readonly;
-        this.config.size = this.options.data.size || null;
+        // Check specifically for false because truthy/falsy..
+        if (this.options.data.singleImage === false) {
+            this.singleImage = false;
+        }
     }
 
     public refreshImages() {
@@ -74,10 +61,18 @@ export class ImageModal implements IUniModal {
 
     public fileListReady(files: File[]) {
         this.files = files;
-        this.options.cancelValue = {entity: this.config.entity, entityID: this.config.entityID, files: this.files};
+        this.options.cancelValue = {
+            entity: this.options.data.entity,
+            entityID: this.options.data.entityID,
+            files: this.files
+        };
     }
 
     public close() {
-        this.onClose.emit({entity: this.config.entity, entityID: this.config.entityID, files: this.files});
+        this.onClose.emit({
+            entity: this.options.data.entity,
+            entityID: this.options.data.entityID,
+            files: this.files
+        });
     }
 }

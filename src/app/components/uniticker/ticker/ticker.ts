@@ -34,7 +34,7 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {BrowserStorageService} from '../../../services/common/browserStorageService';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
@@ -937,7 +937,7 @@ export class UniTicker {
                 }
 
                 // Setup table
-                this.tableConfig = new UniTableConfig(configStoreKey, false, true, 20)
+                this.tableConfig = new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 20)
                     .setColumns(columns)
                     .setEntityType(this.ticker.Model)
                     .setAllowGroupFilter(true)

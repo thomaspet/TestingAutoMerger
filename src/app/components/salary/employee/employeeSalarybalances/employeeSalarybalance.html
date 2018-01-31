@@ -1,14 +1,17 @@
 <section class="splitview application" *ngIf="employeeID">
     <nav class="splitview_list">
         <salarybalances
-            [employeeID]="employeeID"
-            (selectedSalarybalance)="setSalarybalance($event)">
+            (updatedList) = "onUpdatedList($event)"
+            (createSalaryBalance)="createSalaryBalance()"
+            [salarybalances]="salarybalances"
+            [lightWeight]="true">
         </salarybalances>
     </nav>
     <main class="splitview_detail">
         <salarybalance-details
-            [salarybalance]="salarybalance"
+            [salarybalance]="selectedSalaryBalance$ | async"
             [useExternalChangeDetection]="true"
+            [ignoreFields]="['EmployeeID']"
             (salarybalanceChange)="onSalarybalanceChange($event)">
         </salarybalance-details>
     </main>

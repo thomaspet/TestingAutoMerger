@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
+import {Title} from '@angular/platform-browser';
 import {IUniTab} from './tabStrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 // The enum is numbered based on its parent app:
 //      1×× - Key figures
@@ -66,6 +68,7 @@ export enum UniModules {
     Salarybalances  = 506,
     Supplements     = 507,
     AnnualStatements  = 508,
+    AltinnOverview = 509,
 
     WorkProfiles    = 600,
     Workers         = 601,
@@ -93,7 +96,11 @@ export class TabService {
     public tabs$: BehaviorSubject<IUniTab[]> = new BehaviorSubject([]);
     public activeTab$: BehaviorSubject<IUniTab> = new BehaviorSubject(null);
 
-    constructor(private router: Router) {
+    constructor(
+        private router: Router,
+        private browserStorage: BrowserStorageService,
+        private titleService: Title,
+    ) {
         this.tabs = this.getMemStore() || [];
 
         this.tabs.forEach((tab, i) => {
@@ -189,6 +196,13 @@ export class TabService {
         this.updateTabStorage();
         this.tabs$.next(this.tabs);
         this.activeTab$.next(this.currentActiveTab);
+
+        // Set document title so browser history makes sense
+        const documentTitle = this.currentActiveTab
+            ? 'UE - ' + this.currentActiveTab.name
+            : 'Uni Economy';
+
+        this.titleService.setTitle(documentTitle);
     }
 
     public deactivateCurrentTab() {
@@ -252,7 +266,7 @@ export class TabService {
     }
 
     private getMemStore(): IUniTab[] {
-        let tabs: IUniTab[] = JSON.parse(localStorage.getItem(this.storageKey));
+        let tabs: IUniTab[] = this.browserStorage.getItem(this.storageKey);
 
         // TODO: this can be removed after some time (added 04.09.17)
         // It's only here to remove old tab store entries that includes Dashboard
@@ -266,11 +280,11 @@ export class TabService {
     }
 
     private updateTabStorage() {
-        localStorage.setItem(this.storageKey, JSON.stringify(this.tabs));
+        this.browserStorage.setItem(this.storageKey, this.tabs);
     }
 
     private clearTabStorage() {
-        localStorage.removeItem(this.storageKey);
+        this.browserStorage.removeItem(this.storageKey);
     }
 
 }

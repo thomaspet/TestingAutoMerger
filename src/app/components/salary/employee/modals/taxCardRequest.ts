@@ -13,9 +13,7 @@ type TaxRequestModel = {
 
 @Component({
     selector: 'tax-card-request',
-    templateUrl: './taxCardRequest.html',
-    host: { '(document:keydown)': 'checkForEnterSubmit($event)' }
-
+    templateUrl: './taxCardRequest.html'
 })
 export class TaxCardRequest {
     public title: string = '';
@@ -42,15 +40,6 @@ export class TaxCardRequest {
         private errorService: ErrorService
     ) {
         this.initialize();
-    }
-
-    public checkForEnterSubmit(event) {
-        if (this.isActive) {
-            if (event.keyCode === 13) {
-                this.submit();
-            }
-        }
-
     }
 
     public initialize() {

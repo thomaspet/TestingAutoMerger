@@ -125,15 +125,15 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(response => response.json());
     }
 
-    public getNext(id: number, expand: string[] = null) {
+    public getNext(employeeNumber: number, expand: string[] = null) {
         let expands = expand || this.defaultExpands;
-        return super.GetAll(`filter=ID gt ${id}&top=1&orderBy=ID`, expands)
+        return super.GetAll(`filter=EmployeeNumber gt ${employeeNumber}&top=1&orderBy=EmployeeNumber`, expands)
             .map(resultSet => resultSet[0]);
     }
 
-    public getPrevious(id: number, expand: string[] = null) {
+    public getPrevious(employeeNumber: number, expand: string[] = null) {
         let expands = expand || this.defaultExpands;
-        return super.GetAll(`filter=ID lt ${id}&top=1&orderBy=ID desc`, expands)
+        return super.GetAll(`filter=EmployeeNumber lt ${employeeNumber}&top=1&orderBy=EmployeeNumber desc`, expands)
             .map(resultSet => resultSet[0]);
     }
 

@@ -898,10 +898,12 @@
         "HideCounter": true,
         "Type": "Table",
         "IsTopLevelTicker": true,
+        "Pagesize": 40,
         "Group": "Regnskap",
         "Model": "VatType",
         "Expand": "VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,VatReportReferences.VatPost,VatReportReferences.Account,VatTypePercentages",
         "Filter": "year(vattypepercentages.validfrom) le year(getdate()) and year(getdate()) le year(isnull(vattypepercentages.validto,'20991231'))",
+        "OrderBy": "VatCode",
         "Distinct": true,
         "Joins": "",
         "Columns": [
@@ -1151,6 +1153,7 @@
         "Group": "Regnskap",
         "Model": "Account",
         "Expand": "AccountGroup,VatType",
+        "OrderBy": "AccountNumber",
         "Columns": [
             {
                 "Header": "Kontonr",

@@ -46,6 +46,7 @@ import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
 import {ProductDetails} from './products/productDetails';
 import {ProductList} from './products/productList';
+import {UniProductDetailsModal} from './products/productDetailsModal';
 import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerLinks';
 import {SellerDetails} from './sellers/sellerDetails';
@@ -109,6 +110,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
         ProductDetails,
         ProductList,
+        UniProductDetailsModal,
 
         SellerList,
         SellerLinks,
@@ -123,7 +125,8 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         ReminderSending,
         InvoiceReminders,
         CustomerDetailsModal,
-        UniTofSelectModal
+        UniTofSelectModal,
+        UniProductDetailsModal
     ],
     providers: [
         TradeItemHelper,
@@ -154,6 +157,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
         ProductDetails,
         ProductList,
+        UniProductDetailsModal,
 
         SellerList,
         SellerLinks,

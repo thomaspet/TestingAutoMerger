@@ -1,16 +1,25 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {SalarybalanceService, ErrorService} from '../../../../services/services';
-import {SalaryBalance} from '../../../../unientities';
+import {SalarybalanceService, ErrorService, ReportDefinitionService, FileService} from '../../../../services/services';
+import {SalaryBalance, SalBalType} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
+import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
+import * as _ from 'lodash';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SalaryBalanceViewService {
 
+    private url: string = '/salary/salarybalances';
+
     constructor(
         private salaryBalanceService: SalarybalanceService,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private reportDefinitionService: ReportDefinitionService,
+        private modalService: UniModalService,
+        private fileService: FileService
     ) {}
 
     public setupSearchConfig(salaryBalance: SalaryBalance): IToolbarSearchConfig {
@@ -27,5 +36,64 @@ export class SalaryBalanceViewService {
                 : `${salaryBalance.ID} - ${salaryBalance.Name || 'Forskudd/Trekk'}`,
             onSelect: selected => this.router.navigate(['salary/wagetypes/' + selected.ID])
         };
+    }
+
+    public save(salarybalance: SalaryBalance) {
+        const currentSalBal = _.cloneDeep(salarybalance);
+        return this.salaryBalanceService
+            .save(salarybalance)
+            .do(salaryBalance => {
+                if (!salaryBalance.ID) {
+                    return;
+                }
+                if (currentSalBal['_newFiles'] && currentSalBal['_newFiles'].length > 0) {
+                    this.linkNewFiles(salaryBalance.ID, currentSalBal['_newFiles'], 'SalaryBalance');
+                }
+
+                if (!salaryBalance['CreatePayment'] && currentSalBal.InstalmentType === SalBalType.Advance && !currentSalBal.ID) {
+                    this.showAdvanceReport(salaryBalance.ID);
+                }
+            });
+    }
+
+    private linkNewFiles(ID: any, fileIDs: Array<any>, entityType: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fileIDs.forEach(fileID => {
+                this.fileService.linkFile(entityType, ID, fileID).subscribe(x => resolve(x));
+            });
+        });
+    }
+
+    public delete(id: number) {
+        this.modalService
+            .confirm({
+                header: 'Slett forskudd/trekk',
+                message: `Er du sikker på at du vil slette forskudd/trekk ${id}?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            })
+            .onClose
+            .switchMap((result: ConfirmActions) => result === ConfirmActions.ACCEPT
+                ? this.salaryBalanceService.deleteSalaryBalance(id).map(() => result)
+                : Observable.of(result))
+            .subscribe((result) => {
+                if (result !== ConfirmActions.ACCEPT) {
+                    return;
+                }
+                this.router.navigateByUrl(this.url);
+            });
+    }
+
+    public showAdvanceReport(id: number) {
+        this.reportDefinitionService
+            .getReportByName('Forskuddskvittering')
+            .subscribe(report => {
+                report.parameters = [{Name: 'SalaryBalanceID', value: id}];
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                });
+            });
     }
 }

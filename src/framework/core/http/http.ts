@@ -4,6 +4,7 @@ import {environment} from 'src/environments/environment';
 import {AuthService} from '../../../app/authService';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
@@ -34,7 +35,11 @@ export class UniHttp {
     private reAuthenticated$: EventEmitter<any> = new EventEmitter();
 
     // AuthService is used by BizHttp for caching, don't remove!
-    constructor(public http: Http, public authService: AuthService) {
+    constructor(
+        public http: Http,
+        public authService: AuthService,
+        private browserStorage: BrowserStorageService,
+    ) {
         const headers = environment.DEFAULT_HEADERS;
         this.headers = new Headers();
         this.appendHeaders(headers);
@@ -200,9 +205,8 @@ export class UniHttp {
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         const token = this.authService.getToken();
         const companyKey = this.authService.getCompanyKey();
-        const year = localStorage.getItem('activeFinancialYear') != 'undefined'
-            ? localStorage.getItem('activeFinancialYear')
-            : localStorage.getItem('ActiveYear');
+        let year = this.browserStorage.getItem('activeFinancialYear');
+        year = year || this.browserStorage.getItem('ActiveYear');
 
         if (token) {
             this.headers.set('Authorization', 'Bearer ' + token);
@@ -213,8 +217,7 @@ export class UniHttp {
         }
 
         if (year) {
-            const parsed = JSON.parse(year);
-            this.headers.set('Year', parsed.Year);
+            this.headers.set('Year', year.Year);
         }
 
         this.headers.set('Accept', 'application/json');

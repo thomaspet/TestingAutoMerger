@@ -5,7 +5,7 @@ import {IUniTabsRoute} from '../layout/uniTabs/uniTabs';
     selector: 'uni-marketplace',
     template: `
     <section class="title">
-        <span>uni</span><span>Economy</span><span>marketplace</span>
+        <span>uni</span><span>Economy</span><span>markedsplass</span>
     </section>
     <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
     <router-outlet></router-outlet>

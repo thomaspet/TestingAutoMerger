@@ -2,7 +2,6 @@
     <fieldset>
         <legend>Detaljer</legend>
         <aside>
-            <p *ngIf="invalidKID" role="alert" class="error">Ugyldig KID</p>
             <uni-form
                 [config]="config$"
                 [fields]="fields$ | async"

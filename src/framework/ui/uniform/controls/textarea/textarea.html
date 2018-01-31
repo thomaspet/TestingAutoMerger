@@ -1,0 +1,14 @@
+<textarea
+    *ngIf="control"
+    [attr.aria-describedby]="asideGuid"
+    [formControl]="control"
+    [readonly]="readOnly$ | async"
+    [cols]="field?.Options?.cols || 100"
+    [rows]="field?.Options?.rows || 10"
+    [placeholder]="field?.Placeholder || ''"
+    (blur)="blurHandler($event)"
+    (focus)="focusHandler()"
+    [title]="control?.value || ''"
+    (keydown)="onKeydown($event)"
+></textarea>
+<ng-content></ng-content>

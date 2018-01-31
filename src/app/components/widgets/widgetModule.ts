@@ -6,6 +6,7 @@ import {UniWidget, WidgetContainer} from './uniWidget';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetDataService} from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
+import {CanvasHelper} from '@app/components/widgets/canvasHelper';
 
 @NgModule({
     imports: [
@@ -24,7 +25,8 @@ import {UNI_WIDGETS} from './widgets/barrel';
         UniWidgetCanvas
     ],
     providers: [
-        WidgetDataService
+        WidgetDataService,
+        CanvasHelper,
     ],
     exports: [
         UniWidgetCanvas

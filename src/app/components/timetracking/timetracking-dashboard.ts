@@ -1,6 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
+import {WidgetDataService} from '../widgets/widgetDataService';
 import {ToastService} from '../../../framework/uniToast/toastService';
 import {CompanySettings, User, UserDto, Permission} from '../../unientities';
 import {
@@ -17,18 +18,20 @@ import {
     </uni-widget-canvas>
     `,
 })
-export class TimetrackingDashboard {
+export class TimetrackingDashboard implements OnDestroy {
     private widgetLayout: IUniWidget[] = [];
     private allWidgets: IUniWidget[] = [];
     private companySettings: CompanySettings;
     private localTesting = true;
     public currentYear: number = new Date().getFullYear();
+    private refreshInterval;
 
     constructor(
         private tabService: TabService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private userService: UserService
+        private userService: UserService,
+        private widgetService: WidgetDataService
     ) {
         this.tabService.addTab({
              name: 'Timer',
@@ -38,6 +41,7 @@ export class TimetrackingDashboard {
         });
 
         this.userService.getCurrentUser().subscribe( user => {
+            this.widgetService.clearCache();
             this.allWidgets = this.getDefaultLayout(user);
             this.switchUserRole(this.getPermissionLevel(user));
         });
@@ -45,6 +49,18 @@ export class TimetrackingDashboard {
 
     public switchUserRole(level: PermissionLevel) {
         this.widgetLayout = this.compressWidgets( this.allWidgets, level );
+        const that = this;
+        // Refresh dashboard every 10 minutes. Minutes here could be user specified?
+        this.refreshInterval = setInterval(() => { that.refreshOnTimer(level); }, 1000 * 60 * 10 );
+    }
+
+    private refreshOnTimer(level: PermissionLevel) {
+        this.widgetService.clearCache();
+        this.widgetLayout = [...this.compressWidgets(this.allWidgets, level)];
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
     }
 
     private getPermissionLevel(user: IUserWithPermissions): PermissionLevel {

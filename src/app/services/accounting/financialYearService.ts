@@ -7,6 +7,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import 'rxjs/add/observable/of';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class FinancialYearService extends BizHttp<FinancialYear> {
@@ -16,7 +17,9 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     constructor(
         http: UniHttp,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService) {
+        private errorService: ErrorService,
+        private browserStorage: BrowserStorageService,
+    ) {
         super(http);
 
         this.relativeURL = FinancialYear.RelativeUrl;
@@ -25,10 +28,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
 
         this.lastSelectedFinancialYear$.subscribe(financialYear => {
             if (financialYear) {
-                localStorage.setItem(
-                    this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY,
-                    JSON.stringify(financialYear)
-                );
+                this.browserStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, financialYear);
             }
         });
     }
@@ -38,10 +38,10 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public getYearInLocalStorage(): FinancialYear {
-        const local = localStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
         try {
+            const local = this.browserStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
             const year = new FinancialYear();
-            Object.assign(year, JSON.parse(local));
+            Object.assign(year, local);
             return year;
         } catch (e) {
             return null;

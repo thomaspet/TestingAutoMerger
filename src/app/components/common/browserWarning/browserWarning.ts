@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'browser-warning',
@@ -21,6 +22,10 @@ import {Component} from '@angular/core';
 export class BrowserWarning {
     private showBrowserWarning: boolean = false;
 
+    constructor(
+        private browserStorage: BrowserStorageService,
+    ) {}
+
     public ngOnInit() {
         const userAgent = navigator.userAgent;
 
@@ -31,7 +36,7 @@ export class BrowserWarning {
         const isIE10 = (navigator.appVersion.indexOf('MSIE') !== -1 && !isIE11);
 
         // See if we're already hiding the warning this session
-        if (sessionStorage.getItem('hideBrowserWarning') !== 'true') {
+        if (this.browserStorage.getSessionItem('hideBrowserWarning') !== true) {
             const unsupportedBrowser = isIE10 || isIE11;
             this.showBrowserWarning = unsupportedBrowser;
         }
@@ -40,7 +45,7 @@ export class BrowserWarning {
     public hide() {
         if (window.confirm('Er du sikker? Uni Economy vil kanskje ikke virke som forventet i denne nettleseren.')) {
             this.showBrowserWarning = false;
-            sessionStorage.setItem('hideBrowserWarning', 'true');
+            this.browserStorage.setSessionItem('hideBrowserWarning', true);
         }
     };
 }

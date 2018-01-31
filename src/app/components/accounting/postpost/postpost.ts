@@ -323,6 +323,7 @@ export class PostPost {
 
     public onPointInTimeChanged(model) {
         this.pointInTime$.next(model.PointInTime.currentValue);
+        this.reloadRegister();
     }
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {

@@ -67,6 +67,9 @@ import {PostPost} from './postpost/postpost';
 import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
+import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
+import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
+import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 
 @NgModule({
     imports: [
@@ -97,6 +100,7 @@ import {SupplierList} from './supplier/list/supplierList';
         VatDeductionSettings,
 
         NewAccountModal,
+        SelectDraftLineModal,
 
         SupplierList,
         SupplierDetails,
@@ -113,6 +117,7 @@ import {SupplierList} from './supplier/list/supplierList';
         BillSimpleJournalEntryView, BillHistoryView,
         AccountPipe, VatCodePipe, TrimTextPipe,
         SelectJournalEntryLineModal,
+        ConfirmCreditedJournalEntryWithDate,
         UniAssignModal, MyStringFilterPipe,
         UniAddFileModal, NumberAsMoneyPipe,
 
@@ -151,11 +156,13 @@ import {SupplierList} from './supplier/list/supplierList';
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineModal,
+        ConfirmCreditedJournalEntryWithDate,
         NewAccountModal,
         UniAssignModal,
         UniAddFileModal,
         UniNewSupplierModal,
-        AccountDetailsReportModal
+        AccountDetailsReportModal,
+        SelectDraftLineModal
     ],
     exports: [
         AccountSettings,
@@ -208,6 +215,9 @@ import {SupplierList} from './supplier/list/supplierList';
 
         // PostPost
         PostPost
+    ],
+    providers: [
+        PeriodFilterHelper,
     ]
 })
 export class AccountingModule {

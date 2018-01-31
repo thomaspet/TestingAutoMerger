@@ -8,6 +8,7 @@ import { IWizardOptions, WizardSource } from './wizardoptions';
 import { ProductService } from '@app/services/services';
 import { filterInput } from '@app/components/common/utils/utils';
 import { ValueItem } from '@app/services/timetracking/timesheetService';
+import { InvoiceHourService } from './invoice-hours.service';
 
 @Component({
     selector: 'workitem-transfer-wizard-products',
@@ -27,7 +28,8 @@ export class WorkitemTransferWizardProducts implements OnInit {
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private productService: ProductService
+        private productService: ProductService,
+        private invoiceHourService: InvoiceHourService
     ) {
 
     }
@@ -66,48 +68,8 @@ export class WorkitemTransferWizardProducts implements OnInit {
     }
 
     public dataSource(query: URLSearchParams) {
-
         this.busy = true;
-
-        query.set('model', 'workitem');
-        query.set('select', 'sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
-            + ',Worktype.ID as WorktypeID'
-            + ',WorkType.Name as WorktypeName'
-            + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
-            + ',Product.PartName as PartName'
-            + ',Product.Unit as Unit'
-            + ',Product.ID as ProductID'
-            + ',Product.VatTypeID as VatTypeID'
-            + ',Product.Name as ProductName');
-        query.set('expand', 'workrelation.worker,worktype.product');
-        query.set('orderby', 'worktype.name');
-        query.set('filter', 'transferedtoorder eq 0');
-
-        if (this.options) {
-            if (this.options.selectedCustomers && this.options.selectedCustomers.length > 0) {
-                const list = [];
-                for (let i = 0; i < this.options.selectedCustomers.length; i++) {
-                    switch (this.options.source) {
-                        case WizardSource.CustomerHours:
-                            list.push(`customerid eq ${this.options.selectedCustomers[i].CustomerID}`);
-                            break;
-                        case WizardSource.OrderHours:
-                            list.push(`customerorderid eq ${this.options.selectedCustomers[i].OrderID}`);
-                            break;
-                        case WizardSource.ProjectHours:
-                            list.push(`dimensions.projectid eq ${this.options.selectedCustomers[i].ProjectID}`);
-                            query.set('expand', 'workrelation.worker,worktype.product,dimensions');
-                            break;
-                        }
-                }
-                query.set('filter', `${query.get('filter')} and (${list.join(' or ')})`);
-            }
-            if (this.options.filterByUserID) {
-                query.set('filter', `${query.get('filter')} and worker.userid eq ${this.options.filterByUserID}`);
-            }
-        }
-
-        return this.statisticsService.GetAllByUrlSearchParams(query, true)
+        return this.invoiceHourService.getWorkTypeWithProducts(this.options)
         .finally( () => this.busy = false)
         .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }

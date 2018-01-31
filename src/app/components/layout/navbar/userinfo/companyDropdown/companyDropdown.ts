@@ -17,6 +17,7 @@ import {
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 
 import {YearModal, IChangeYear} from './modals/yearModal';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -113,7 +114,8 @@ export class UniCompanyDropdown {
         private cdr: ChangeDetectorRef,
         private yearService: YearService,
         private modalService: UniModalService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private browserStorage: BrowserStorageService,
     ) {
         this.userService.getCurrentUser().subscribe((user: User) => {
             this.currentUser = user;
@@ -137,7 +139,7 @@ export class UniCompanyDropdown {
             err => this.errorService.handle(err)
         );
 
-        this.activeCompany = JSON.parse(localStorage.getItem('activeCompany'));
+        this.activeCompany = this.browserStorage.getItem('activeCompany');
         this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {

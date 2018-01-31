@@ -6,6 +6,7 @@ import {CompanySettingsService} from './companySettingsService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService} from '../../components/layout/navbar/tabstrip/tabService';
 import {Router} from '@angular/router';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
 export class YearService {
@@ -16,7 +17,11 @@ export class YearService {
     //private tabService : tabService;
 
     constructor(
-        private companySettings: CompanySettingsService, private tabservice: TabService, private router: Router) {
+        private companySettings: CompanySettingsService,
+        private tabservice: TabService,
+        private router: Router,
+        private browserStorage: BrowserStorageService,
+    ) {
             this.selectedYear$ = new BehaviorSubject<number>(this.activeYear);
 
             this.getActiveYear().subscribe(val => {
@@ -27,7 +32,7 @@ export class YearService {
 
     public setSelectedYear(year: number): void {
         if(year !== this.getSavedYear()) {
-            localStorage.setItem(this.ACTIVE_YEAR, year.toString());
+            this.browserStorage.setItem(this.ACTIVE_YEAR, year.toString());
             this.selectedYear$.next(year);
             this.tabservice.removeAllTabs();
             this.router.navigateByUrl('/');
@@ -35,7 +40,7 @@ export class YearService {
     }
 
     public getActiveYear(): Observable<number>{
-        let val = localStorage.getItem(this.ACTIVE_YEAR);
+        let val = this.browserStorage.getItem(this.ACTIVE_YEAR);
         if(val) {
              return Observable.of(parseInt(val));
         }
@@ -43,12 +48,12 @@ export class YearService {
     }
 
     public getSavedYear(): number {
-        return parseInt(localStorage.getItem(this.ACTIVE_YEAR));
+        return parseInt(this.browserStorage.getItem(this.ACTIVE_YEAR));
 
     }
 
     public clearActiveYear(): void {
-        localStorage.removeItem(this.ACTIVE_YEAR);
+        this.browserStorage.removeItem(this.ACTIVE_YEAR);
     }
 
 

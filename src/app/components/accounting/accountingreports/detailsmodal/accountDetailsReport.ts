@@ -78,7 +78,8 @@ export class AccountDetailsReport {
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private tabService: TabService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private periodFilterHelper: PeriodFilterHelper,
     ) {
 
         this.config = {
@@ -92,9 +93,9 @@ export class AccountDetailsReport {
             dimensionType: 0
         };
 
-        this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
-        this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
         this.fields$.next(this.getLayout().Fields);
 
@@ -150,9 +151,9 @@ export class AccountDetailsReport {
         this.config.accountID = account.ID;
         this.config.accountName = account.AccountName;
         this.config.accountNumber = account.AccountNumber;
-        this.config.isSubAccount = account.AccountID > 0 ? true : false;
-        console.log('this.console', this.config);
+        this.config.isSubAccount = account.AccountID > 0;
     }
+
 
     public doTurnAndInclude() {
         // "turn" amounts for accountgroup 2 and 3, because it will be confusing for the users when these amounts are
@@ -236,12 +237,12 @@ export class AccountDetailsReport {
     // loadData will be called from the accountDetailsReportModal when opening the modal
     public loadData() {
         // get default period filters
-        this.periodFilter1$.next(PeriodFilterHelper.getFilter(1, null));
-        this.periodFilter2$.next(PeriodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(PeriodFilterHelper.getFilter(1, null));
+        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
+        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
-        this.subAccountIDs = this.config.isSubAccount === true ? [this.config.accountID] : null;
+        this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;
 
         if (this.config.dimensionType && this.config.dimensionId) {
              this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.config.dimensionType);
@@ -325,57 +326,56 @@ export class AccountDetailsReport {
     }
 
     private setupTransactionsTable() {
+        const journalEntryNumberCol = new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+            .setFilterOperator('contains');
+
+        if (!this.config || !this.config.modalMode) {
+            journalEntryNumberCol.setLinkResolver(row => {
+                return `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryNumber}`;
+            });
+        }
+
         const columns = [
-            new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                    .setFilterOperator('contains')
-                    .setTemplate(line => {
-                        return this.config.modalMode
-                            ? line.JournalEntryNumber
-                            : `<a href="#/accounting/transquery/details;`
-                                + `journalEntryNumber=${line.JournalEntryNumber}">
-                                    ${line.JournalEntryNumber}
-                                </a>`;
-                    }),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
-                    .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY')
-                    .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                    .setFilterOperator('contains'),
-                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.VatTypeVatCode),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                    .setCls('column-align-right')
-                    .setFilterOperator('eq'),
-                new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+            journalEntryNumberCol,
+            new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
+                .setFilterOperator('contains')
+                .setFormat('DD.MM.YYYY')
+                .setTemplate(line => line.JournalEntryLineFinancialDate),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setFilterOperator('contains'),
+            new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
+                .setFilterOperator('eq')
+                .setTemplate(line => line.VatTypeVatCode),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setCls('column-align-right')
                 .setFilterOperator('eq'),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => { return line.DepartmentDepartmentNumber
-                        ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
-                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber
-                        ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
-                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
-                    .setTemplate(line => line.Attachments ? PAPERCLIP : '')
-                    .setWidth('40px')
-                    .setFilterable(false)
+            new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+            .setCls('column-align-right')
+            .setFilterOperator('eq'),
+            new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => { return line.DepartmentDepartmentNumber
+                    ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+            new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => { return line.ProjectProjectNumber
+                    ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+            new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
+                .setTemplate(line => line.Attachments ? PAPERCLIP : '')
+                .setWidth('40px')
+                .setFilterable(false)
         ];
-
-        columns.forEach(x => {
-            x.conditionalCls = (data) => {
-                return data.ReferenceCreditPostID || data.OriginalReferencePostID ? 'journal-entry-credited' : '';
-            };
-        });
 
         const tableName = 'accounting.accountingreports.detailsmodal';
         this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false)
             .setPageable(true)
             .setPageSize(20)
             .setSearchable(true)
+            .setConditionalRowCls(row => {
+                if (row.ReferenceCreditPostID || row.OriginalReferencePostID) {
+                    return 'journal-entry-credited';
+                }
+            })
             .setDataMapper((data) => {
                 const tmp = data !== null ? data.Data : [];
                 return tmp;
@@ -415,7 +415,7 @@ export class AccountDetailsReport {
         }
 
         filter.year = row.year;
-        filter.name = PeriodFilterHelper.getFilterName(filter);
+        filter.name = this.periodFilterHelper.getFilterName(filter);
         this.periodFilter3$.next(filter);
 
         this.setupLookupTransactions();

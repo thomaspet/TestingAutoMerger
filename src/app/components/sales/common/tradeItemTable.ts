@@ -1,6 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
+import {UniProductDetailsModal} from '../products/productDetailsModal';
+import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {
     UniTable,
     UniTableColumn,
@@ -13,7 +15,8 @@ import {
     CompanySettings,
     Project,
     Dimensions,
-    LocalDate
+    LocalDate,
+    ProductCategory
 } from '../../../unientities';
 import {
     ProductService,
@@ -31,10 +34,10 @@ import * as moment from 'moment';
     selector: 'uni-tradeitem-table',
     template: `
         <uni-table *ngIf="settings"
-                   [resource]="tableData"
-                   [config]="tableConfig"
-                   (rowChanged)="onRowChange($event)"
-                   (rowDeleted)="onRowDeleted($event.rowModel)">
+            [resource]="tableData"
+            [config]="tableConfig"
+            (rowChanged)="onRowChange($event)"
+            (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
     `
 })
@@ -66,7 +69,8 @@ export class TradeItemTable {
         private projectService: ProjectService,
         private projectTaskService: ProjectTaskService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private modalService: UniModalService
     ) {}
 
     public ngOnInit() {
@@ -216,12 +220,48 @@ export class TradeItemTable {
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
-                        `filter=contains(Name,'${query}') or contains(PartName,'${query}')&top=20`,
+                        `filter=contains(Name,'${query}') or startswith(PartName,'${query}')&top=100`,
                         ['Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
                     )
 
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                }
+                },
+                showResultAsTable: true,
+                resultTableConfig: {
+                    fields: [
+                        {
+                            header: 'Nr',
+                            key: 'PartName',
+                            class: '',
+                            width: '100px'
+                        },
+                        {
+                            header: 'Navn',
+                            key: 'Name',
+                            class: '',
+                            width: ''
+                        },
+                        {
+                            header: 'Pris',
+                            key: 'PriceIncVat',
+                            class: '',
+                            width: '100px',
+                            isMoneyField: true
+                        }
+                    ],
+                    createNewButton: {
+                        buttonText: 'Nytt produkt',
+                        action: () => {
+                            return this.modalService.open(UniProductDetailsModal, {  }).onClose;
+                        },
+                        getAction: (item) => {
+                            return this.productService.Get(item.ID);
+                        },
+                        errorAction: (msg: string) => {
+                            this.errorService.handle(msg);
+                        }
+                    }
+                },
             });
 
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst')

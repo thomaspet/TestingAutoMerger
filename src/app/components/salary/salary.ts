@@ -1,6 +1,7 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
+import {WidgetDataService} from '../widgets/widgetDataService';
 
 @Component({
     selector: 'uni-salary',
@@ -10,10 +11,11 @@ import {IUniWidget} from '../widgets/widgetCanvas';
         </uni-widget-canvas>
     `,
 })
-export class UniSalary {
+export class UniSalary implements OnDestroy {
     private widgetLayout: IUniWidget[];
+    private refreshInterval;
 
-    constructor(tabService: TabService) {
+    constructor(tabService: TabService, private widgetService: WidgetDataService) {
         tabService.addTab({
              name: 'Lønn',
              url: '/salary',
@@ -21,7 +23,20 @@ export class UniSalary {
              active: true
         });
 
+        this.widgetService.clearCache();
         this.widgetLayout = this.getDefaultLayout();
+        const that = this;
+        // Refresh dashboard every 10 minutes. Minutes here could be user specified?
+        this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
+    }
+
+    private refreshOnTimer() {
+        this.widgetService.clearCache();
+        this.widgetLayout = [...this.getDefaultLayout()];
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
     }
 
     private getDefaultLayout(): IUniWidget[] {

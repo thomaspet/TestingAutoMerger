@@ -1,17 +1,25 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { BySectionPipe, SectionIndexesPipe, UniForm, UniformErrorTemplatePipe } from './uniform';
+import {UniForm} from './uniform/uniform';
+
+import {SectionIndexesPipe} from '@uni-framework/ui/uniform/pipes/section-indexes.pipe';
+import {BySectionPipe} from '@uni-framework/ui/uniform/pipes/by-section.pipe';
+import {UniformErrorTemplatePipe} from '@uni-framework/ui/uniform/pipes/uniform-error-template.pipe';
+import {NoFieldSetPipe} from '@uni-framework/ui/uniform/pipes/no-fieldset.pipe';
+import {FieldsetIndexesPipe} from '@uni-framework/ui/uniform/pipes/fieldset-indexes.pipe';
+import {ColumnIndexesPipe} from '@uni-framework/ui/uniform/pipes/column-indexes.pipe';
+import {GetLegendPipe} from '@uni-framework/ui/uniform/pipes/get-legend.pipe';
+import {ByFieldsetPipe} from '@uni-framework/ui/uniform/pipes/by-fieldset.pipe';
+import {IsRequiredPipe} from '@uni-framework/ui/uniform/pipes/is-required.pipe';
+
 import {UniSelect} from './controls/select/select';
-import { IsRequiredPipe, UniField } from './unifield';
-import {
-    byFieldSetPipe, columnIndexesPipe, fieldsetIndexesPipe, getLegendPipe, noFieldSetPipe,
-    UniSection
-} from './unisection';
+import {UniField} from './unifield/unifield';
+import {UniSection} from './unisection/unisection';
 import {CONTROLS} from './controls/index';
-import {ShowError} from './showError';
-import {UniCalendar} from './controls/calendar';
-import {UniLineBreak} from './unilinebreak';
+import {ShowError} from './showError.component';
+import {UniCalendar} from './controls/calendar/calendar';
+import {UniLineBreak} from './uni-linebreak.component';
 import {LayoutBuilder} from './services/index';
 import {ClickOutsideDirective} from './shared/clickOutside';
 
@@ -36,11 +44,11 @@ import {UniSearchModule} from '../unisearch/index';
         ClickOutsideDirective,
         SectionIndexesPipe,
         BySectionPipe,
-        noFieldSetPipe,
-        getLegendPipe,
-        byFieldSetPipe,
-        fieldsetIndexesPipe,
-        columnIndexesPipe,
+        NoFieldSetPipe,
+        GetLegendPipe,
+        ByFieldsetPipe,
+        FieldsetIndexesPipe,
+        ColumnIndexesPipe,
         UniformErrorTemplatePipe,
         IsRequiredPipe
     ],

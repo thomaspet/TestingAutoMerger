@@ -1,4 +1,5 @@
 import {Component} from '@angular/core';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'uni-init',
@@ -9,18 +10,18 @@ export class UniInit {
     private marketingContentHidden: boolean;
     public currentYear: number; // used in copyright footer
 
-    constructor() {
+    constructor(private browserStorage: BrowserStorageService) {
         this.currentYear = new Date().getFullYear();
 
         // Try/catch to avoid crashing the app when localstorage has no entry
         try {
-            this.marketingContentHidden = JSON.parse(localStorage.getItem('marketingContent_hidden'));
+            this.marketingContentHidden = browserStorage.getItem('marketingContent_hidden');
         } catch (e) {}
     }
 
     public toggleMarketingContent() {
         this.marketingContentHidden = !this.marketingContentHidden;
-        localStorage.setItem('marketingContent_hidden', JSON.stringify(this.marketingContentHidden));
+        this.browserStorage.setItem('marketingContent_hidden', this.marketingContentHidden);
         this.registrationFormExpanded = false;
     }
 }

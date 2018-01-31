@@ -1,0 +1,11 @@
+<input
+    #rd
+    type="radio"
+    [attr.aria-describedby]="asideGuid"
+    [readonly]="readOnly$ | async"
+    [placeholder]="field?.Placeholder || ''"
+    [checked]="isChecked()"
+    (focus)="focusHandler()"
+/>
+<label (click)="checkIt()">{{field?.Label}}</label>
+<ng-content></ng-content>

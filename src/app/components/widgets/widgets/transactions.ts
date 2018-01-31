@@ -5,6 +5,7 @@ import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
 import {YearService} from '@app/services/services';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 enum PayrollRunPaymentStatus {
     None = 0,
@@ -74,12 +75,13 @@ export class UniTransactionsWidget implements AfterViewInit {
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private router: Router,
-        private yearService: YearService
+        private yearService: YearService,
+        private browserStorage: BrowserStorageService,
     ) { }
 
     public ngAfterViewInit() {
         if (this.widget) {
-            this.lastVisitedModel = localStorage.getItem('lastVisitedModel');
+            this.lastVisitedModel = this.browserStorage.getItem('lastVisitedModel');
 
             // Authenticate all routes/modules
             this.authService.authentication$.subscribe(auth => {
@@ -99,7 +101,7 @@ export class UniTransactionsWidget implements AfterViewInit {
 
         // Local variable and local storage to remember last
         this.lastVisitedModel = this.current.label;
-        localStorage.setItem('lastVisitedModel', this.lastVisitedModel);
+        this.browserStorage.setItem('lastVisitedModel', this.lastVisitedModel);
 
         // Get new data
         this.getData();
@@ -148,7 +150,7 @@ export class UniTransactionsWidget implements AfterViewInit {
 
         if (!this.current) {
             this.current = this.items[0];
-            localStorage.setItem('lastVisitedModel', this.items[0].label);
+            this.browserStorage.setItem('lastVisitedModel', this.items[0].label);
         }
 
         this.current.active = true;

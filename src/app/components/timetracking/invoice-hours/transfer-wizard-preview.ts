@@ -97,7 +97,7 @@ export class WorkitemTransferWizardPreview implements OnInit {
         return new Promise( (resolve, reject) => {
 
             for (let i = startIndex; i < hours.length; i++) {
-                
+
                 const row = hours[i];
                 const dto = isOrderUpdate ?
                     options.selectedCustomers.find( x => x.OrderID === row.GroupValue ) :

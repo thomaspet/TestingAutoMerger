@@ -598,13 +598,13 @@ export class TimeEntry {
     // }
 
     public saveSettings() {
-        this.localStore.save('timeentry.settings', JSON.stringify(this.settings), false );
+        this.localStore.setItem('timeentry.settings', this.settings);
     }
 
     private loadSettings() {
-        var js = this.localStore.get('timeentry.settings', false);
-        if (js) {
-            this.settings = JSON.parse(js);
+        const settings = this.localStore.getItem('timeentry.settings');
+        if (settings) {
+            this.settings = settings;
         }
     }
 

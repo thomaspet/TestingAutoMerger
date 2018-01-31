@@ -1,5 +1,5 @@
 import { WorkOrder } from './workorder';
-import { User } from '@uni-entities';
+import { User, LocalDate } from '@uni-entities';
 
 export enum WizardSource {
     CustomerHours = 0,
@@ -11,6 +11,8 @@ export interface IWizardOptions {
     currentUser: User;
     filterByUserID: number;
     source: WizardSource;
+    periodFrom: LocalDate;
+    periodTo: LocalDate;
     selectedCustomers: Array<any>;
     selectedProducts: Array<any>;
     orders: Array<WorkOrder>;

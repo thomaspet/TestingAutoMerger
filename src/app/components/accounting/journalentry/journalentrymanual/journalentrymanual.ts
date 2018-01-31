@@ -74,7 +74,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
     private currentJournalEntryImages: number[] = [];
-    private currentJournalEntryData: JournalEntryData;
+    public currentJournalEntryData: JournalEntryData;
+    public currentJournalEntryID: string;
 
     private companySettings: CompanySettings;
     private financialYears: Array<FinancialYear>;
@@ -183,6 +184,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.setupSubscriptions();
     }
 
+    public clear() {
+        this.disabled = false;
+        this.journalEntryID = 0;
+        this.clearJournalEntryInfo();
+        this.dataCleared.emit();
+    }
+
     public clearJournalEntryInfo() {
         this.showImagesForJournalEntryNo = null;
         this.currentJournalEntryImages = [];
@@ -205,6 +213,17 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     action: (completeEvent) => this.postJournalEntryData(completeEvent),
                     main: true,
                     disabled: !this.isDirty
+                },
+                {
+                    label: 'Lagre som kladd',
+                    action: (completeEvent) => {
+                        this.postJournalEntryData(
+                            completeEvent, true, this.currentJournalEntryID ? parseInt(this.currentJournalEntryID, 10) : null
+                        );
+                    },
+                    main: true,
+                    disabled: !this.isDirty
+
                 }
             ];
 
@@ -301,7 +320,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         const fileIds: number[] = [];
 
         files.forEach(file => {
-            fileIds.push(parseInt(file.ID));
+            fileIds.push(parseInt(file.ID, 10));
         });
 
         let didChangeAnything: boolean = false;
@@ -370,7 +389,21 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(lines, retryCount++);
                 }, 500);
             } else {
-                console.log('Vattype data not loaded correctly, could not set data')
+                console.log('Vattype data not loaded correctly, could not set data');
+            }
+        }
+
+        if (this.journalEntryProfessional) {
+            if (this.editmode === true) {
+                const copiedArray = [...lines];
+
+                copiedArray.map(line => {
+                    line.StatusCode = null;
+                    return line;
+                });
+                this.journalEntryProfessional.setJournalEntryData(copiedArray);
+            } else {
+                this.journalEntryProfessional.setJournalEntryData(lines);
             }
         } else {
             if (this.journalEntryProfessional) {
@@ -703,7 +736,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         return Observable.of(true);
     }
 
-    private postJournalEntryData(completeCallback) {
+    private postJournalEntryData(completeCallback, saveAsDraft?: boolean, id?: number | null) {
         // allow events from UniTable to finish, e.g. if the focus was in a cell
         // when the user clicked the save button the unitable events should be allowed
         // to run first, to let it update its' datasource
@@ -715,10 +748,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                         if (result && result !== '') {
                             this.onDataChanged([]);
-                            this.clearJournalEntryInfo();
-                            this.dataCleared.emit();
+                            this.clear();
                         }
-                    });
+                    }, saveAsDraft, id);
 
                     this.onShowImageForJournalEntry(null);
                 } else {

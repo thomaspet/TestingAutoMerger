@@ -1,0 +1,15 @@
+<ng-template ngFor let-item [ngForOf]="items" let-i="index">
+    <input
+        #rd
+        type="radio"
+        [attr.aria-describedby]="asideGuid"
+        [readonly]="readOnly$ | async"
+        [placeholder]="field?.Placeholder || ''"
+        [checked]="isChecked(item)"
+        [value]="getValue(item)"
+        [name]="field?.Property"
+        (focus)="focusHandler()"
+    />
+    <label (click)="checkIt(item)">{{getLabel(item)}}</label>
+</ng-template>
+<ng-content></ng-content>

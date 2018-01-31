@@ -18,6 +18,7 @@ import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
+import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 
 export enum UniImageSize {
     small = 150,
@@ -34,65 +35,74 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
-            <section class="uni-image-pager" *ngIf="files.length > 0 && !singleImage">
-                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="prev" (click)="previous()"></a>
-                <label>{{fileInfo}}</label>
+            <section class="image-section">
+                <section class="uni-image-pager" *ngIf="files.length > 0 && !singleImage">
+                    <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
+                        class="prev"
+                        (click)="previous()">
+                    </a>
 
-                <a *ngIf="this.printOut" class="print" (click)="print()"></a>
-                <a class="split"
-                    (click)="splitFile()"
-                    *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 0">
-                    <i class="material-icons">call_split</i>
-                </a>
-                <a class="trash" (click)="deleteImage()" *ngIf="!readonly"></a>
-                <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)" class="next" (click)="next()"></a>
-            </section>
-            <picture
-                #imageContainer
-                *ngIf="imgUrl.length"
-                [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}"
-                (click)="onImageClick()">
+                    {{fileInfo}}
 
-                <source
-                    [attr.srcset]="imageUrl2x"
-                    media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
+                    <a *ngIf="this.printOut" class="print" (click)="print()">
+                        <i class="material-icons">print</i>
+                    </a>
 
-                <img
-                    #image
-                    [attr.src]="imgUrl"
-                    alt=""
-                    (error)="onLoadImageError($event)"
-                    (load)="finishedLoadingImage()"
-                    *ngIf="currentFileIndex >= 0">
+                    <a class="split" (click)="splitFile()"
+                        *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 0">
+                        <i class="material-icons">call_split</i>
+                    </a>
 
-                <span *ngIf="!imageIsLoading">
-                    <span *ngFor="let word of ocrWords" class="image-word" title="{{word.text}}" [ngStyle]="word._style" (click)="onWordClicked($event, word)"></span>
+                    <a class="trash" (click)="deleteImage()" *ngIf="!readonly">
+                        <i class="material-icons">delete</i>
+                    </a>
 
-                    <div *ngIf="wordPickerAreaVisible" class="word-picker-area" [ngStyle]="currentClickedWordStyle" (clickOutside)="abortUseWord()">
-                        <p>Valgt verdi: {{currentClickedWord.text}}</p>
-                        <h3>Bruk verdi som:</h3>
-                        <button (click)="selectWordUsage(7)">Fakturadato</button>
-                        <button (click)="selectWordUsage(8)">Forfallsdato</button>
-                        <button (click)="selectWordUsage(5)">Fakturanummer</button>
-                        <button (click)="selectWordUsage(3)">Bankkonto</button>
-                        <button (click)="selectWordUsage(4)">KID</button>
-                        <button (click)="selectWordUsage(6)">Fakturabeløp</button>
-                    </div>
+                    <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
+                        class="next"
+                        (click)="next()">
+                    </a>
+                </section>
+                <picture
+                    #imageContainer
+                    *ngIf="imgUrl.length"
+                    [ngClass]="{'loading': imageIsLoading,'clickable': currentClicked}"
+                    (click)="onImageClick()">
 
-                    <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
-                </span>
-            </picture>
+                    <source
+                        [attr.srcset]="imageUrl2x"
+                        media="(-webkit-min-device-pixel-radio: 2), (min-resolution: 192dpi)">
 
-            <ul class="uni-thumbnail-list" [ngClass]="{'-has-thumbnails': this.thumbnails.length > 0}">
-                <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img
-                        [attr.src]="thumbnail"
-                        [attr.alt]="shorten(files[idx]?.Description, 20)"
-                        (click)="thumbnailClicked(idx)">
-                </li>
+                        #image
+                        [attr.src]="imgUrl"
+                        alt=""
+                        (error)="onLoadImageError($event)"
+                        (load)="finishedLoadingImage()"
+                        *ngIf="currentFileIndex >= 0">
+
+                    <span *ngIf="!imageIsLoading">
+                        <span *ngFor="let word of ocrWords" class="image-word" title="{{word.text}}" [ngStyle]="word._style" (click)="onWordClicked($event, word)"></span>
+
+                        <div *ngIf="wordPickerAreaVisible" class="word-picker-area" [ngStyle]="currentClickedWordStyle" (clickOutside)="abortUseWord()">
+                            <p>Valgt verdi: {{currentClickedWord.text}}</p>
+                            <h3>Bruk verdi som:</h3>
+                            <button (click)="selectWordUsage(7)">Fakturadato</button>
+                            <button (click)="selectWordUsage(8)">Forfallsdato</button>
+                            <button (click)="selectWordUsage(5)">Fakturanummer</button>
+                            <button (click)="selectWordUsage(3)">Bankkonto</button>
+                            <button (click)="selectWordUsage(4)">KID</button>
+                            <button (click)="selectWordUsage(6)">Fakturabeløp</button>
+                        </div>
+
+                        <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
+                    </span>
+                </picture>
+            </section>
+
+            <ul class="uni-thumbnail-list" *ngIf="thumbnils?.length || !readonly"
+                [ngClass]="{'-has-thumbnails': thumbnails?.length}">
 
                 <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
-
                     <label
                         class="uni-image-upload"
                         [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
@@ -104,6 +114,12 @@ export interface IUploadConfig {
                             [attr.aria-disabled]="uploadConfig?.isDisabled"
                             [disabled]="uploadConfig?.isDisabled">
                     </label>
+                </li>
+                <li *ngFor="let thumbnail of thumbnails; let idx = index">
+                    <img [attr.src]="thumbnail"
+                        [attr.alt]="shorten(files[idx]?.Description, 20)"
+                        (click)="thumbnailClicked(idx)"
+                    >
                 </li>
             </ul>
         </article>
@@ -201,7 +217,8 @@ export class UniImage {
         private fileService: FileService,
         private modalService: UniModalService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService
+        private uniFilesService: UniFilesService,
+        private toastService: ToastService
     ) {
         this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -445,9 +462,18 @@ export class UniImage {
 
     private printImage(source: string) {
         var pwa = window.open('_new');
-        pwa.document.open();
-        pwa.document.write(this.imageToPrint(source));
-        pwa.document.close();
+        if (pwa) {
+            pwa.document.open();
+            pwa.document.write(this.imageToPrint(source));
+            pwa.document.close();
+        } else {
+            this.toastService.addToast(
+                'Blokkert?',
+                ToastType.warn,
+                ToastTime.medium,
+                'Sjekk om du har blokkering for ny fane/vindu i nettleseren din.'
+            );
+        }
     }
 
     private splitFile() {

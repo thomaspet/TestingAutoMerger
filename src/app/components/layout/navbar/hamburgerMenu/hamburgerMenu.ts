@@ -310,6 +310,8 @@ export class HamburgerMenu {
                         moduleID: UniModules.Wagetypes},
                     {componentName: 'Kategorier', componentUrl: '/salary/employeecategories',
                         moduleID: UniModules.Categories},
+                    {componentName: 'Altinn oversikt', componentUrl: '/salary/altinnoverview',
+                        moduleID: UniModules.AltinnOverview}
                 ]
             },
             {
@@ -322,7 +324,7 @@ export class HamburgerMenu {
                     {componentName: 'Timeregistrering', componentUrl: '/timetracking/timeentry',
                         moduleID: UniModules.Timesheets},
                     {componentName: 'Fakturering av timer', componentUrl: '/timetracking/invoice-hours',
-                        moduleID: UniModules.Timesheets},                        
+                        moduleID: UniModules.Timesheets},
                     {componentName: 'Personer', componentUrl: '/timetracking/workers',
                         moduleID: UniModules.Workers, groupHeader: 'Register'},
                     {componentName: 'Timearter', componentUrl: '/timetracking/worktypes',

@@ -1,0 +1,12 @@
+<input #input
+       *ngIf="control"
+       type="text"
+       [attr.aria-describedby]="asideGuid"
+       [formControl]="control"
+       [readonly]="readOnly$ | async"
+       [placeholder]="field?.Placeholder || ''"
+       (blur)="blurHandler()"
+       (focus)="focusHandler()"
+       [title]="control?.value || ''"
+/>
+<ng-content></ng-content>

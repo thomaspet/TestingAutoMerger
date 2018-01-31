@@ -298,7 +298,7 @@ export class AccrualModal implements IUniModal {
 
         // changing BalanceAccountID on model to localStorage so that your newest selected
         // value becomes standard value on accrualModal initialization
-        this.modalConfig.model.BalanceAccountID = this.browserStorageService.get('BalanceAccountID');
+        this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem('BalanceAccountID');
         this.model$.next(this.modalConfig.model);
         this.yearService.getActiveFinancialYear().subscribe(res => {
             this.currentFinancialYear = res.Year;

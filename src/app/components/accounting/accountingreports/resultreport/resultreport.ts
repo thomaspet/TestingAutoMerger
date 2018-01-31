@@ -76,7 +76,8 @@ export class ResultReport {
         private statisticsService: StatisticsService,
         private tabService: TabService,
         private projectService: ProjectService,
-        private departmentService: DepartmentService
+        private departmentService: DepartmentService,
+        private periodFilterHelper: PeriodFilterHelper,
     ) {
         this.tabService.addTab({
             name: 'Resultat - oversikt',
@@ -88,8 +89,8 @@ export class ResultReport {
 
     public ngOnInit() {
         // get default period filters
-        this.periodFilter1 = PeriodFilterHelper.getFilter(1, null);
-        this.periodFilter2 = PeriodFilterHelper.getFilter(2, this.periodFilter1);
+        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null);
+        this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
 
         this.yearItems = this.getYearComboSelection(this.periodFilter1.year);
 
@@ -124,12 +125,12 @@ export class ResultReport {
     public onYearSelect(year) {
         let periodFilter1 = _.cloneDeep(this.periodFilter1);
         periodFilter1.year = year.toString();
-        periodFilter1.name = PeriodFilterHelper.getFilterName(periodFilter1);
+        periodFilter1.name = this.periodFilterHelper.getFilterName(periodFilter1);
         this.onPeriodFilter1Changed(periodFilter1);
 
         let periodFilter2 = _.cloneDeep(this.periodFilter2);
         periodFilter2.year = (year - 1).toString();
-        periodFilter2.name = PeriodFilterHelper.getFilterName(periodFilter2);
+        periodFilter2.name = this.periodFilterHelper.getFilterName(periodFilter2);
         this.onPeriodFilter2Changed(periodFilter2);
 
         this.yearItems = this.getYearComboSelection(year);
@@ -153,12 +154,12 @@ export class ResultReport {
 
     private onPeriodFilter1Changed(event) {
         this.periodFilter1 = event;
-        PeriodFilterHelper.saveFilterSettings(1, this.periodFilter1);
+        this.periodFilterHelper.saveFilterSettings(1, this.periodFilter1);
     }
 
     private onPeriodFilter2Changed(event) {
         this.periodFilter2 = event;
-        PeriodFilterHelper.saveFilterSettings(2, this.periodFilter2);
+        this.periodFilterHelper.saveFilterSettings(2, this.periodFilter2);
     }
 
     //
