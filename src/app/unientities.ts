@@ -5929,6 +5929,8 @@ export class UserLicenseType extends UniEntity {
 
 
 export class CompanyLicense extends UniEntity {
+    public ContactEmail: string;
+    public ContactPerson: string;
     public Key: string;
     public Name: string;
 }

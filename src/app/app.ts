@@ -61,7 +61,7 @@ export class App {
                     if (this.canAcceptLicense(authDetails.user)) {
                         this.showLicenseModal();
                     } else {
-                        this.showCanNotAcceptLicenseModal();
+                        this.showCanNotAcceptLicenseModal(authDetails.user);
                     }
                 }
             }
@@ -102,11 +102,16 @@ export class App {
             });
     }
 
-    private showCanNotAcceptLicenseModal() {
+    private showCanNotAcceptLicenseModal(user: UserDto) {
+        const company = user.License.Company;
+
         this.modalService
             .open(UniConfirmModalV2, {
-                message: `Lisensavtale må være godtatt før du kan ta Uni Economy i bruk.<br /> 
-                         Vennligst kontakt din systemeier for godkjenning av avtale.`,
+                message: `Lisensavtale for ${company.Name} må være godtatt før du kan ta Uni Economy i bruk.<br /> 
+                          Vennligst kontakt din systemeier for godkjenning av avtale.<br /><br />
+                          <b>Kontaktinfo:</b><br />
+                          ${company.ContactPerson}<br />
+                          ${company.ContactEmail}`,
                 header: `Lisens må godkjennes`,
                 buttonLabels: {
                     accept: 'OK'

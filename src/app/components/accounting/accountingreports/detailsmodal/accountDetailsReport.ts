@@ -335,52 +335,56 @@ export class AccountDetailsReport {
     }
 
     private setupTransactionsTable() {
+        const journalEntryNumberCol = new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+            .setFilterOperator('contains');
+
+        if (!this.config || !this.config.modalMode) {
+            journalEntryNumberCol.setLinkResolver(row => {
+                return `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryNumber}`;
+            });
+        }
+
         const columns = [
-            new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
-                    .setFilterOperator('contains')
-                    .setTemplate(line => {
-                        return line.JournalEntryNumber;
-                    }),
-                new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
-                    .setFilterOperator('contains')
-                    .setFormat('DD.MM.YYYY')
-                    .setTemplate(line => line.JournalEntryLineFinancialDate),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                    .setFilterOperator('contains'),
-                new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
-                    .setFilterOperator('eq')
-                    .setTemplate(line => line.VatTypeVatCode),
-                new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                    .setCls('column-align-right')
-                    .setFilterOperator('eq'),
-                new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+            journalEntryNumberCol,
+            new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
+                .setFilterOperator('contains')
+                .setFormat('DD.MM.YYYY')
+                .setTemplate(line => line.JournalEntryLineFinancialDate),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setFilterOperator('contains'),
+            new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
+                .setFilterOperator('eq')
+                .setTemplate(line => line.VatTypeVatCode),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setCls('column-align-right')
                 .setFilterOperator('eq'),
-                new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => { return line.DepartmentDepartmentNumber
-                        ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
-                new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
-                    .setFilterOperator('contains')
-                    .setTemplate(line => { return line.ProjectProjectNumber
-                        ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
-                new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
-                    .setTemplate(line => line.Attachments ? PAPERCLIP : '')
-                    .setWidth('40px')
-                    .setFilterable(false)
+            new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+            .setCls('column-align-right')
+            .setFilterOperator('eq'),
+            new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => { return line.DepartmentDepartmentNumber
+                    ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+            new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
+                .setFilterOperator('contains')
+                .setTemplate(line => { return line.ProjectProjectNumber
+                    ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+            new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
+                .setTemplate(line => line.Attachments ? PAPERCLIP : '')
+                .setWidth('40px')
+                .setFilterable(false)
         ];
-
-        columns.forEach(x => {
-            x.conditionalCls = (data) => {
-                return data.ReferenceCreditPostID || data.OriginalReferencePostID ? 'journal-entry-credited' : '';
-            };
-        });
 
         const tableName = 'accounting.accountingreports.detailsmodal';
         this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false)
             .setPageable(true)
             .setPageSize(20)
             .setSearchable(true)
+            .setConditionalRowCls(row => {
+                if (row.ReferenceCreditPostID || row.OriginalReferencePostID) {
+                    return 'journal-entry-credited';
+                }
+            })
             .setDataMapper((data) => {
                 const tmp = data !== null ? data.Data : [];
                 return tmp;

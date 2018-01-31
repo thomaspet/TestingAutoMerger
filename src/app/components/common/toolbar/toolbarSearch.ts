@@ -45,9 +45,10 @@ export class UniToolbarSearch {
     @ViewChild('inputElement') private input: ElementRef;
 
     private searchControl: FormControl = new FormControl('');
-    private searchResults: any[];
+    private searchResults: any[] = [];
     private expanded: boolean;
     private selectedIndex: number;
+    private lookupInProgress: boolean;
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -59,20 +60,23 @@ export class UniToolbarSearch {
 
     public ngAfterViewInit() {
         this.searchControl.valueChanges
+            .do(() => this.lookupInProgress = true)
             .debounceTime(250)
             .subscribe(value => {
-                this.config.lookupFunction(value || '').subscribe(items => {
-                    if (items && items.length) {
-                        this.searchResults = items.map(item => {
-                            item['_displayValue'] = this.config.itemTemplate(item);
-                            return item;
-                        });
+                this.config.lookupFunction(value || '')
+                    .finally(() => this.lookupInProgress = false)
+                    .subscribe(items => {
+                        if (items && items.length) {
+                            this.searchResults = items.map(item => {
+                                item['_displayValue'] = this.config.itemTemplate(item);
+                                return item;
+                            });
 
-                        this.expanded = true;
-                        this.selectedIndex = 0;
-                        this.cdr.detectChanges();
-                    }
-                });
+                            this.expanded = true;
+                            this.selectedIndex = 0;
+                            this.cdr.detectChanges();
+                        }
+                    });
             });
     }
 
@@ -106,7 +110,18 @@ export class UniToolbarSearch {
         }
     }
 
-    public itemSelected(index: number) {
+    public itemSelected(index: number, retryCount: number = 0) {
+        if (this.lookupInProgress) {
+            if (retryCount < 5) {
+                setTimeout(() => {
+                    retryCount++;
+                    this.itemSelected(index, retryCount);
+                }, 250);
+            }
+
+            return;
+        }
+
         if (this.searchResults[index]) {
             this.config.onSelect(this.searchResults[index]);
             this.close();
@@ -114,7 +129,7 @@ export class UniToolbarSearch {
     }
 
     public markText() {
-        if (!this.input || !this.input.nativeElement){
+        if (!this.input || !this.input.nativeElement) {
             return;
         }
 

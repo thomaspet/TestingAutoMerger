@@ -20,7 +20,7 @@ import {
 import {UniForm} from '../../../../framework/ui/uniform/index';
 
 import {UniView} from '../../../../framework/core/uniView';
-import {ImageModal, UpdatedFileListEvent} from '../../common/modals/ImageModal';
+import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 declare var _;
@@ -611,7 +611,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 fileIDs: row['_FileIDs'] || []
             };
 
-            this.modalService.open(ImageModal, {data: data}).onClose.subscribe((list: UpdatedFileListEvent) => {
+            this.modalService.open(ImageModal, {data: data}).onClose.subscribe((list: IUpdatedFileListEvent) => {
                 this.updateFileList(list);
             });
         }
@@ -628,7 +628,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         this.salarytransEmployeeTableConfig.setEditable(isEditable);
     }
 
-    public updateFileList(event: UpdatedFileListEvent) {
+    public updateFileList(event: IUpdatedFileListEvent) {
         let update: boolean;
         this.salaryTransactions.forEach((trans) => {
             if (!event || trans.ID !== event.entityID || trans['_FileIDs'].length === event.files.length) {
