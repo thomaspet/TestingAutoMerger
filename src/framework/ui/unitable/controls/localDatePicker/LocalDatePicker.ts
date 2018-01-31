@@ -60,8 +60,8 @@ export class  LocalDatePicker {
         const value = this.inputControl.value;
         let date;
 
-        const options = this.column.get('options');
-        const year = options.defaultYear;
+        const options = this.column.get('options') || {};
+        const year = options.defaultYear || new Date().getFullYear();
 
         if (value && value.length) {
             if (value === '*') {
