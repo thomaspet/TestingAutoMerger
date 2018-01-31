@@ -278,10 +278,11 @@ export class TofCustomerCard {
 
             const addresses = customer.Info.Addresses || [];
             this.mapAddressesToEntity(customer, addresses);
-        } else {
+        } else if (customer) {
             this.entity.CustomerID = null;
-            let cName = customer ? customer.Info.Name : null;
-            this.entity.CustomerName = cName;
+            this.entity.CustomerName = customer.Info.Name;
+            this.addressService.addressToInvoice(this.entity, customer.Info.InvoiceAddress);
+            this.addressService.addressToShipping(this.entity, customer.Info.ShippingAddress);
         }
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
