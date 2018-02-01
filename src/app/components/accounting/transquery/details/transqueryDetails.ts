@@ -142,7 +142,7 @@ export class TransqueryDetails implements OnInit {
         const splitted = filters[0].split(`'`);
 
         let searchValue;
-        if (splitted.length > 1) {
+        if (splitted.length > 1 && splitted[1] !== undefined) {
             searchValue = splitted[1];
         }
 
@@ -150,7 +150,7 @@ export class TransqueryDetails implements OnInit {
         if (splitted[0].includes('JournalEntryNumber ')) {
             filters[0] = `JournalEntryNumber eq '${searchValue}'`;
         // If search in unitable filter is text
-        } else if (isNaN(searchValue) && filters[0] !== '') {
+        } else if (isNaN(searchValue) && !!searchValue) {
             filters[0] = `contains(Description, '${searchValue}') or contains(Account.AccountName, '${searchValue}')`;
         } else {
             if (filters && filters.length > 0) {
