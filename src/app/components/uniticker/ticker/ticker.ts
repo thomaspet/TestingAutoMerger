@@ -622,6 +622,8 @@ export class UniTicker {
                 let selects: string[] = [];
                 const customColumnSetup = this.utils.getColumnSetup(configStoreKey) || [];
 
+                this.headers = '';
+
                 for (let i = 0; i < this.ticker.Columns.length; i++) {
                     const column = this.ticker.Columns[i];
 
