@@ -1022,8 +1022,8 @@ export class QuoteDetails {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
 
         // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
-        if (this.quote.Sellers && this.quote.Sellers.map(x => x.CustomerQuoteID) && this.quote.ID === 0) {
-            this.quote.Sellers.map(x => x.CustomerQuoteID = null);
+        if (this.quote.Sellers && this.quote.ID === 0) {
+            this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
         }
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
