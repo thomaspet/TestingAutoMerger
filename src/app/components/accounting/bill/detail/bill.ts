@@ -580,7 +580,7 @@ export class BillView implements OnInit {
             entityID: current.ID || 0,
             fileIDs: null,
             showFileID: file.ID,
-            readonly: false,
+            readonly: true,
             size: UniImageSize.large
         };
 

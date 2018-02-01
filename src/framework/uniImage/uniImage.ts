@@ -36,7 +36,7 @@ export interface IUploadConfig {
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
             <section class="image-section">
-                <section class="uni-image-pager" *ngIf="files.length > 0 && !singleImage">
+                <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
                     <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                         class="prev"
                         (click)="previous()">
@@ -44,7 +44,7 @@ export interface IUploadConfig {
 
                     {{fileInfo}}
 
-                    <a *ngIf="this.printOut" class="print" (click)="print()">
+                    <a class="print" (click)="print()">
                         <i class="material-icons">print</i>
                     </a>
 
@@ -149,10 +149,10 @@ export class UniImage {
     public splitAllowed: boolean;
 
     @Input()
-    public singleImage: boolean;
+    public hideToolbar: boolean;
 
     @Input()
-    public printOut: boolean;
+    public singleImage: boolean;
 
     @Input()
     public expandInNewTab: boolean;
@@ -435,18 +435,21 @@ export class UniImage {
     }
 
     private print() {
-        return this.fileService.printFile(this.files[this.currentFileIndex].ID)
-            .subscribe((res: any) => {
-                let url = JSON.parse(res._body) + '&attachment=false';
+        const currentFile = this.files[this.currentFileIndex];
 
-                if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
-                    return this.modalService.open(UniPrintModal, {data: {url: url}})
-                        .onClose.subscribe(
-                            () => {},
-                            err => this.errorService.handle(err)
-                        );
-                }
-                return this.printImage(url);
+        // If not pdf, just print the image
+        if (!currentFile.Name || !currentFile.Name.includes('.pdf')) {
+            this.printImage(this.imgUrl);
+            return;
+        }
+
+        this.fileService.printFile(this.files[this.currentFileIndex].ID)
+            .subscribe((res: any) => {
+                const url = JSON.parse(res._body) + '&attachment=false';
+
+                this.modalService.open(UniPrintModal, {
+                    data: { url: url }
+                }).onClose.take(1).subscribe();
             },
             err => this.errorService.handle(err)
         );

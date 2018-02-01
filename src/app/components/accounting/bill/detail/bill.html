@@ -60,7 +60,6 @@
         <uni-image
             *ngIf="(current | async)?.ID"
             [entity]="'SupplierInvoice'"
-            [printOut]="true"
             [entityID]="(current | async)?.ID"
             [splitAllowed]="true"
             (fileListReady)="onFileListReady($event)"
