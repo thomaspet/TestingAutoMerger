@@ -335,15 +335,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
 
-            super.getStateSubject(EMPLOYMENTS_KEY).subscribe((employments) => {
-                this.employments = employments;
-                this.posterEmployee.employments = employments;
-                this.posterEmployee = _.cloneDeep(this.posterEmployee);
-                this.checkDirty();
-                if (this.employeeID) {
-                    this.updatePosterEmployments(employments);
-                }
-            }, err => this.errorService.handle(err));
+            super.getStateSubject(EMPLOYMENTS_KEY)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .subscribe((employments) => {
+                    this.employments = employments;
+                    this.posterEmployee.employments = employments;
+                    this.posterEmployee = _.cloneDeep(this.posterEmployee);
+                    this.checkDirty();
+                    if (this.employeeID) {
+                        this.updatePosterEmployments(employments);
+                    }
+                });
 
             super.getStateSubject(SALARYBALANCES_KEY)
                 .do(salaryBalances => this.checkSelectedOnChildEntities(salaryBalances, SalaryBalance))
@@ -775,15 +777,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getEmployments(updateEmployments: boolean = true) {
         this.getEmploymentsObservable(updateEmployments)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((employments) => {
                 super.updateState(EMPLOYMENTS_KEY, employments, false);
-            }, err => this.errorService.handle(err));
+            });
     }
 
-    private getEmploymentsObservable(cacheFirst: boolean = false): Observable<Employment[]> {
-        return cacheFirst && this.employments
-            ? Observable.of(this.employments)
-            : this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
+    private getEmploymentsObservable(updateEmployments: boolean = false): Observable<Employment[]> {
+        return updateEmployments || !this.employments
+            ? this.employmentService.GetAll('filter=EmployeeID eq ' + this.employeeID, ['Dimensions'])
                 .map(employments => {
                     employments
                         .filter(employment => !employment.DimensionsID)
@@ -791,7 +793,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             x.Dimensions = new Dimensions();
                         });
                     return employments;
-                });
+                })
+            : Observable.of(this.employments);
     }
 
     private getSalarybalances() {
@@ -828,7 +831,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.getProjectsObservable(),
             this.getDepartmentsObservable(),
             this.getWageTypesObservable(),
-            this.getEmploymentsObservable(true))
+            this.getEmploymentsObservable(false))
             .subscribe((response: [SalaryTransaction[], Project[], Department[], WageType[], Employment[]]) => {
                 const [transes, projects, departments, wageTypes, employments] = response;
 
@@ -1211,27 +1214,26 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveEmploymentsObs(done, updateEmployments: boolean = true): Observable<Employment[]> {
+        this.employmentService.invalidateCache();
         return super.getStateSubject(EMPLOYMENTS_KEY)
             .take(1)
             .switchMap((employments: Employment[]) => {
                 const changes = [];
                 let hasStandard = false;
 
-                // Build changes array consisting of only changed employments
-                // Check for standard employment
-                employments.forEach((employment) => {
-                    if (employment.Standard) {
-                        hasStandard = true;
-                    }
-
-                    if (employment['_isDirty']) {
+                employments
+                    .forEach((employment) => {
+                        if (employment.Standard) {
+                            hasStandard = true;
+                        }
+                        if (!employment['_isDirty']) {
+                            return;
+                        }
                         employment.EmployeeID = this.employee.ID;
                         employment.EmployeeNumber = this.employee.EmployeeNumber;
-
                         if (!employment.DimensionsID && employment.Dimensions) {
                             employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                         }
-
                         employment.MonthRate = employment.MonthRate || 0;
                         employment.HourRate = employment.HourRate || 0;
                         employment.UserDefinedRate = employment.UserDefinedRate || 0;
@@ -1239,8 +1241,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         employment.HoursPerWeek = employment.HoursPerWeek || 0;
 
                         changes.push(employment);
-                    }
-                });
+                    });
 
                 if (!hasStandard) {
                     changes[0].Standard = true;
@@ -1278,7 +1279,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     .map((emp: Employee) => {
                         return emp.Employments;
                     });
-            });
+        });
     }
 
     private saveSalarybalancesObs(done, updateSalarybalances: boolean = true): Observable<SalaryBalance[]> {
