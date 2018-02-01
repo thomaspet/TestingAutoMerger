@@ -271,18 +271,15 @@ export class TofCustomerCard {
     }
 
     public customerSelected(customer: Customer) {
-
-        if (customer && customer.ID > 0) {
-            this.entity.CustomerID = customer.ID;
-            this.entity.CustomerName = customer.Info.Name;
-
-            const addresses = customer.Info.Addresses || [];
-            this.mapAddressesToEntity(customer, addresses);
-        } else if (customer) {
-            this.entity.CustomerID = null;
-            this.entity.CustomerName = customer.Info.Name;
-            this.addressService.addressToInvoice(this.entity, customer.Info.InvoiceAddress);
-            this.addressService.addressToShipping(this.entity, customer.Info.ShippingAddress);
+        if (customer) {
+            this.entity.CustomerID = customer.ID || null;
+            if (customer.Info) {
+                this.entity.CustomerName = customer.Info.Name;
+                const addresses = customer.Info.Addresses || [];
+                this.mapAddressesToEntity(customer, addresses);
+            } else {
+                this.entity.CustomerName = null;
+            }
         }
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
@@ -338,10 +335,16 @@ export class TofCustomerCard {
         if (info.InvoiceAddressID) {
             let invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
             this.addressService.addressToInvoice(this.entity, invoiceAddress);
+        } else {
+            let invoiceAddress = addresses.find(addr => addr !== null);
+            this.addressService.addressToInvoice(this.entity, invoiceAddress);
         }
 
         if (info.ShippingAddressID) {
             let shippingAddress = addresses.find(addr => addr.ID === info.ShippingAddressID);
+            this.addressService.addressToShipping(this.entity, shippingAddress);
+        } else {
+            let shippingAddress = addresses.find(addr => addr !== null);
             this.addressService.addressToShipping(this.entity, shippingAddress);
         }
     }
