@@ -331,7 +331,7 @@ export class AccountDetailsReport {
 
         if (!this.config || !this.config.modalMode) {
             journalEntryNumberCol.setLinkResolver(row => {
-                return `/accounting/transquery/details;journalEntryNumber=${row.JournalEntryNumber}`;
+                return `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryNumber}`;
             });
         }
 

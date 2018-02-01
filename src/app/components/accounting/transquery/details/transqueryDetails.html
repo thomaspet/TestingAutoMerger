@@ -1,7 +1,7 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
     <article class="transquery-search">
-        <uni-form class="transquery-filter-form" 
+        <uni-form class="transquery-filter-form"
                 [config]="config$"
                 [fields]="fields$"
                 [model]="searchParams$"
@@ -12,7 +12,6 @@
     <uni-table
         [resource]="lookupFunction"
         [config]="uniTableConfig"
-        (filtersChange)="onFiltersChange($event.filter)"
         (cellClick)="onCellClick($event)">
     </uni-table>
 
