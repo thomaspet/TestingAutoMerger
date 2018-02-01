@@ -846,12 +846,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setOptions({defaultYear: this.currentFinancialYear.Year});
+            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
             .setVisible(false)
-            .setOptions({defaultYear: this.currentFinancialYear.Year});
+            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
@@ -880,7 +880,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const dueDateCol = new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate).setWidth('80px')
             .setVisible(false)
-            .setOptions({defaultYear: this.currentFinancialYear.Year});
+            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
         const debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
@@ -2082,7 +2082,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return new Promise((resolve, reject) => {
             const journalentrytoday: JournalEntryData = new JournalEntryData();
             journalentrytoday.FinancialDate = this.currentFinancialYear.ValidFrom;
-            journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
+            journalentrytoday.NumberSeriesTaskID = this.selectedNumberSeriesTaskID || null;
             journalentrytoday.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
 
             this.journalEntryService.getNextJournalEntryNumber(journalentrytoday)

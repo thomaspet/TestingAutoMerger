@@ -740,24 +740,37 @@ export class JournalEntryManual implements OnChanges, OnInit {
         // allow events from UniTable to finish, e.g. if the focus was in a cell
         // when the user clicked the save button the unitable events should be allowed
         // to run first, to let it update its' datasource
-        setTimeout(() => {
-            this.canPostData().subscribe(canPost => {
-                if (canPost && this.journalEntryProfessional) {
-                    this.journalEntryProfessional.postJournalEntryData((result: string) => {
-                        completeCallback(result);
+        if (saveAsDraft) {
+            this.journalEntryProfessional.postJournalEntryData((result: string) => {
+                completeCallback(result);
 
-                        if (result && result !== '') {
-                            this.onDataChanged([]);
-                            this.clear();
-                        }
-                    }, saveAsDraft, id);
+                    if (result && result !== '') {
+                        this.onDataChanged([]);
+                        this.clear();
+                    }
+            }, saveAsDraft, id);
 
-                    this.onShowImageForJournalEntry(null);
-                } else {
-                    completeCallback('Lagring avbrutt');
-                }
+            this.onShowImageForJournalEntry(null);
+        } else {
+            setTimeout(() => {
+                this.canPostData().subscribe((canPost: boolean) => {
+                    if (canPost && this.journalEntryProfessional) {
+                        this.journalEntryProfessional.postJournalEntryData((result: string) => {
+                            completeCallback(result);
+
+                            if (result && result !== '') {
+                                this.onDataChanged([]);
+                                this.clear();
+                            }
+                        });
+
+                        this.onShowImageForJournalEntry(null);
+                    } else {
+                        completeCallback('Lagring avbrutt');
+                    }
+                });
             });
-        });
+        }
     }
 
     public removeJournalEntryData() {
