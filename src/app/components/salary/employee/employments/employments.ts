@@ -9,6 +9,7 @@ import {Employee, Employment, SubEntity, Project, Department} from '../../../../
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import * as _ from 'lodash';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'employments',
@@ -21,6 +22,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
 
     private employee: Employee;
     private employments: Employment[] = [];
+    private employments$: BehaviorSubject<Employment[]> = new BehaviorSubject([]);
     private selectedIndex: number;
     private tableConfig: UniTableConfig;
     private subEntities: SubEntity[];
@@ -37,9 +39,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
         private route: ActivatedRoute,
         private errorService: ErrorService
     ) {
-
         super(router.url, cacheService);
-
         this.tableConfig = new UniTableConfig('salary.employee.employments', false)
             .setColumnMenuVisible(false)
             .setColumns([
@@ -57,35 +57,36 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
                 super.updateCacheKey(this.router.url);
                 this.employeeID = +paramsChange['id'];
                 this.selectedIndex = 0;
+                this.employments$.next([]);
             })
-            .subscribe((paramsChange) => {
+            .subscribe(() => {
+                super.getStateSubject('subEntities')
+                    .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
 
-            super.getStateSubject('subEntities')
-                .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
+                super.getStateSubject('employee')
+                    .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
 
-            super.getStateSubject('employee')
-                .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
+                super.getStateSubject('projects')
+                    .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
 
-            super.getStateSubject('projects')
-                .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
+                super.getStateSubject('departments')
+                    .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
 
-            super.getStateSubject('departments')
-                .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+                super.getStateSubject('employments')
+                    .subscribe((employments: Employment[]) => {
+                        this.cachedEmployments.next(employments);
+                        this.refreshEmployments(employments);
+                    });
+            });
 
-            super.getStateSubject('employments')
-                .subscribe((employments: Employment[]) => {
-                    this.cachedEmployments.next(employments);
-                    this.refreshEmployments(employments);
-                });
-        });
         this.route.params
             .subscribe((paramsChange) => {
                 this.cachedEmployments
                     .asObservable()
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                    .do(employments => this.selectEmployment(employments))
                     .subscribe(employments => {
                         this.employments = employments || [];
+                        this.employments$.next(this.employments);
                         if (employments && !employments.length && this.employeeID) {
                             this.newEmployment();
                         }
@@ -98,6 +99,8 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
             return;
         }
         this.employments = _.cloneDeep(employments);
+        this.employments$.next(this.employments);
+        this.selectStandardEmployment(this.employments);
     }
 
     public ngAfterViewInit() {
@@ -175,7 +178,6 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
     public onEmploymentChange(employment: Employment) {
         employment['_isDirty'] = true;
         let index = 0;
-        // Update employments array and table row
         if (this.employments && this.employments.length > 0) {
             index = this.employments.findIndex((emp) => {
                 if (!emp.ID) {
@@ -186,6 +188,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
         }
         this.employments[index] = _.cloneDeep(employment);
         this.selectedEmployment$.next(employment);
+        this.employments$.next(this.employments);
         super.updateState('employments', this.employments, true);
     }
 
@@ -195,7 +198,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
         this.selectedEmployment$.next(this.employments[this.selectedIndex]);
     }
 
-    private selectEmployment(employments: Employment[]) {
+    private selectStandardEmployment(employments: Employment[]) {
         if (!employments.length) {
             return;
         }
@@ -211,7 +214,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
     }
 
     public btnDisabled(): boolean {
-        const newemplt = this.employments.filter(empl => empl.ID === 0);
-        return newemplt.length > 0 ? true : false;
+        const cnt = this.employments$.getValue().filter(e => e.ID === 0);
+        return cnt.length > 0 ? true : false;
     }
 }
