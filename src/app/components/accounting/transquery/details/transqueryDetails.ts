@@ -242,7 +242,7 @@ export class TransqueryDetails implements OnInit {
         );
         urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
         urlParams.set('filter', filters.join(' and '));
-        urlParams.set('orderby', 'JournalEntryNumberNumeric');
+        urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
         return this.statisticsService.GetAllByUrlSearchParams(urlParams);
     }
@@ -531,19 +531,18 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
                 .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('eq')
-                .setWidth('65px'),
+                .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
                 .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
-                .setDisplayField('AccountAccountNumber')
+                .setTemplate(line => line.AccountAccountNumber)
                 .setLinkResolver(row => `/accounting/transquery/details;Account_AccountNumber=${row.AccountAccountNumber}`)
                 .setWidth('85px')
                 .setFilterOperator('eq'),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
-                .setFilterable(false)
                 .setTemplate(line => line.AccountAccountName),
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
@@ -568,34 +567,34 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                 .setWidth('20%')
                 .setFilterable(false)
-                .setDisplayField('JournalEntryLineDescription'),
+                .setTemplate(line => line.JournalEntryLineDescription),
             new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
             .setFilterable(false)
                 .setWidth('60px')
-                .setDisplayField('VatTypeVatCode'),
+                .setTemplate(line => line.VatTypeVatCode),
             new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setFilterable(false)
-                .setDisplayField('VatDeductionPercent')
+                .setTemplate(line => line.VatDeductionPercent)
                 .setVisible(false),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setFilterable(false)
                 .setTemplate(line => line.JournalEntryLineAmount),
             new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
                 .setFilterable(false)
-                .setDisplayField('JournalEntryLineAmountCurrency')
+                .setTemplate(line => line.JournalEntryLineAmountCurrency)
                 .setVisible(false),
             new UniTableColumn('CurrencyCode.Code', 'Valuta', UniTableColumnType.Text)
             .setFilterable(false)
-                .setDisplayField('CurrencyCodeCode')
+                .setTemplate(line => line.CurrencyCodeCode)
                 .setVisible(false),
             new UniTableColumn('CurrencyExchangeRate', 'V-kurs', UniTableColumnType.Number)
             .setFilterable(false)
-                .setDisplayField('JournalEntryLineCurrencyExchangeRate')
+                .setTemplate(line => line.JournalEntryLineCurrencyExchangeRate)
                 .setVisible(false),
             new UniTableColumn('TaxBasisAmount', 'Grunnlag mva', UniTableColumnType.Money)
             .setFilterable(false)
                 .setVisible(showTaxBasisAmount)
-                .setDisplayField('JournalEntryLineTaxBasisAmount'),
+                .setTemplate(line => line.JournalEntryLineTaxBasisAmount),
             new UniTableColumn('TaxBasisAmountCurrency', 'V-grunnlag mva', UniTableColumnType.Money)
             .setFilterable(false)
                 .setVisible(showTaxBasisAmount)
@@ -608,18 +607,18 @@ export class TransqueryDetails implements OnInit {
                 .setCls('column-align-right')
                 .setFilterable(false)
                 .setVisible(false)
-                .setDisplayField('JournalEntryLineInvoiceNumber'),
+                .setTemplate(line => line.JournalEntryLineInvoiceNumber),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
-                .setDisplayField('JournalEntryLineDueDate')
+                .setTemplate(line => line.JournalEntryLineDueDate)
                 .setFilterable(false)
                 .setVisible(false),
             new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
                 .setFilterable(false)
-                .setDisplayField('JournalEntryLineRestAmount')
+                .setTemplate(line => line.JournalEntryLineRestAmount)
                 .setVisible(false),
             new UniTableColumn('RestAmountCurrency', 'V-restbeløp', UniTableColumnType.Money)
                 .setFilterable(false)
-                .setDisplayField('JournalEntryLineRestAmountCurrency')
+                .setTemplate(line => line.JournalEntryLineRestAmountCurrency)
                 .setVisible(false),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setFilterable(false)
@@ -643,7 +642,7 @@ export class TransqueryDetails implements OnInit {
                 .setWidth('60px')
                 .setFilterable(false)
                 .setVisible(false)
-                .setDisplayField('JournalEntryJournalEntryAccrualID')
+                .setTemplate(line => line.JournalEntryJournalEntryAccrualID)
                 .setLinkResolver(row => `/accounting/transquery/details;`
                     + `JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
                 ),
