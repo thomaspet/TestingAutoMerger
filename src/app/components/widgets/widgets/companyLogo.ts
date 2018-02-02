@@ -5,10 +5,10 @@ import {IUniWidget} from '../uniWidget';
     selector: 'uni-company-logo-widget',
     template: `
         <section class="widget-logo-wrapper">
-            <uni-image
+            <uni-image class="header_logo"
                 [entity]="'companysettings'"
                 [entityID]="1"
-                class="header_logo"
+                [hideToolbar]="true"
                 [singleImage]="true"
                 [readonly]="true">
             </uni-image>

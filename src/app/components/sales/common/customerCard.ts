@@ -277,9 +277,11 @@ export class TofCustomerCard {
                 this.entity.CustomerName = customer.Info.Name;
                 const addresses = customer.Info.Addresses || [];
                 this.mapAddressesToEntity(customer, addresses);
-            } else {
-                this.entity.CustomerName = null;
-            }
+        } else if (customer) {
+            this.entity.CustomerID = null;
+            this.entity.CustomerName = customer.Info.Name;
+            this.addressService.addressToInvoice(this.entity, customer.Info.InvoiceAddress);
+            this.addressService.addressToShipping(this.entity, customer.Info.ShippingAddress);
         }
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);

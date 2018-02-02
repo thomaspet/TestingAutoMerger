@@ -60,13 +60,12 @@
         <uni-image
             *ngIf="(current | async)?.ID"
             [entity]="'SupplierInvoice'"
-            [printOut]="true"
             [entityID]="(current | async)?.ID"
             [splitAllowed]="true"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
             (imageClicked)="onImageClicked($event)"
-            (wordClicked)="onWordClicked($event)">
+            (useWord)="onUseWord($event)">
         </uni-image>
         <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </fieldset>

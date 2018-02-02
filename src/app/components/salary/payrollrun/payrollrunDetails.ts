@@ -174,7 +174,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                                 'Bilag ' + payrollRun.JournalEntryNumber
                                 : '',
                             link: payrollRun.JournalEntryNumber
-                                ? '#/accounting/transquery/details;journalEntryNumber='
+                                ? '#/accounting/transquery/details;JournalEntryNumber='
                                     + payrollRun.JournalEntryNumber
                                 : ''
                         },

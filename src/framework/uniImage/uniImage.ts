@@ -36,7 +36,7 @@ export interface IUploadConfig {
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
             <section class="image-section">
-                <section class="uni-image-pager" *ngIf="files.length > 0 && !singleImage">
+                <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
                     <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                         class="prev"
                         (click)="previous()">
@@ -44,7 +44,7 @@ export interface IUploadConfig {
 
                     {{fileInfo}}
 
-                    <a *ngIf="this.printOut" class="print" (click)="print()">
+                    <a class="print" (click)="print()">
                         <i class="material-icons">print</i>
                     </a>
 
@@ -81,17 +81,27 @@ export interface IUploadConfig {
                         *ngIf="currentFileIndex >= 0">
 
                     <span *ngIf="!imageIsLoading">
-                        <span *ngFor="let word of ocrWords" class="image-word" title="{{word.text}}" [ngStyle]="word._style" (click)="onWordClicked($event, word)"></span>
+                        <span *ngFor="let word of ocrWords"
+                            class="image-word"
+                            title="{{word.text}}"
+                            [ngStyle]="word._style"
+                            (click)="onWordClicked(word, $event)">
+                        </span>
 
-                        <div *ngIf="wordPickerAreaVisible" class="word-picker-area" [ngStyle]="currentClickedWordStyle" (clickOutside)="abortUseWord()">
+                        <div *ngIf="wordPickerAreaVisible"
+                            class="word-picker-area"
+                            [ngStyle]="currentClickedWordStyle"
+                            (click)="$event.stopPropagation()"
+                            (clickOutside)="abortUseWord()">
+
                             <p>Valgt verdi: {{currentClickedWord.text}}</p>
                             <h3>Bruk verdi som:</h3>
-                            <button (click)="selectWordUsage(7)">Fakturadato</button>
-                            <button (click)="selectWordUsage(8)">Forfallsdato</button>
-                            <button (click)="selectWordUsage(5)">Fakturanummer</button>
-                            <button (click)="selectWordUsage(3)">Bankkonto</button>
-                            <button (click)="selectWordUsage(4)">KID</button>
-                            <button (click)="selectWordUsage(6)">Fakturabeløp</button>
+                            <button (click)="selectWordUsage(7, $event)">Fakturadato</button>
+                            <button (click)="selectWordUsage(8, $event)">Forfallsdato</button>
+                            <button (click)="selectWordUsage(5, $event)">Fakturanummer</button>
+                            <button (click)="selectWordUsage(3, $event)">Bankkonto</button>
+                            <button (click)="selectWordUsage(4, $event)">KID</button>
+                            <button (click)="selectWordUsage(6, $event)">Fakturabeløp</button>
                         </div>
 
                         <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
@@ -149,10 +159,10 @@ export class UniImage {
     public splitAllowed: boolean;
 
     @Input()
-    public singleImage: boolean;
+    public hideToolbar: boolean;
 
     @Input()
-    public printOut: boolean;
+    public singleImage: boolean;
 
     @Input()
     public expandInNewTab: boolean;
@@ -278,7 +288,7 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    public onWordClicked(event, word) {
+    public onWordClicked(word, event: MouseEvent) {
         this.wordPickerAreaVisible = true;
         this.currentClickedWord = word;
 
@@ -290,7 +300,7 @@ export class UniImage {
         event.stopPropagation();
     }
 
-    public selectWordUsage(useWordAs) {
+    public selectWordUsage(useWordAs, event: MouseEvent) {
         this.useWord.emit({
             word: this.currentClickedWord,
             propertyType: useWordAs
@@ -303,12 +313,10 @@ export class UniImage {
         event.stopPropagation();
     }
 
-    public abortUseWord() {
+    public abortUseWord(event: MouseEvent) {
         this.currentClickedWord = null;
         this.currentClickedWordStyle = null;
         this.wordPickerAreaVisible = false;
-
-        event.stopPropagation();
     }
 
     public refreshFiles() {
@@ -435,18 +443,21 @@ export class UniImage {
     }
 
     private print() {
-        return this.fileService.printFile(this.files[this.currentFileIndex].ID)
-            .subscribe((res: any) => {
-                let url = JSON.parse(res._body) + '&attachment=false';
+        const currentFile = this.files[this.currentFileIndex];
 
-                if (this.files[this.currentFileIndex].Name.includes('.pdf')) {
-                    return this.modalService.open(UniPrintModal, {data: {url: url}})
-                        .onClose.subscribe(
-                            () => {},
-                            err => this.errorService.handle(err)
-                        );
-                }
-                return this.printImage(url);
+        // If not pdf, just print the image
+        if (!currentFile.Name || !currentFile.Name.includes('.pdf')) {
+            this.printImage(this.imgUrl);
+            return;
+        }
+
+        this.fileService.printFile(this.files[this.currentFileIndex].ID)
+            .subscribe((res: any) => {
+                const url = JSON.parse(res._body) + '&attachment=false';
+
+                this.modalService.open(UniPrintModal, {
+                    data: { url: url }
+                }).onClose.take(1).subscribe();
             },
             err => this.errorService.handle(err)
         );

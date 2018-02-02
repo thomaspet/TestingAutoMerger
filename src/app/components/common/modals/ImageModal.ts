@@ -21,7 +21,7 @@ export interface IUpdatedFileListEvent {
                     [entity]="options.data.entity"
                     [entityID]="options.data.entityID"
                     [showFileID]="options.data.showFileID || null"
-                    [readonly]="options.data.readOnly"
+                    [readonly]="options.data.readonly"
                     [size]="options.data.size || null"
                     (fileListReady)="fileListReady($event)"
                 ></uni-image>
