@@ -444,6 +444,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                     if (childRoute === 'recurring-post') {
                         if (!this.recurringPosts) {
+                            this.getEmployments(false);
                             this.getRecurringPosts();
                         }
                     }
@@ -456,6 +457,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
                     if (childRoute === 'employee-leave') {
                         if (!this.employeeLeave) {
+                            this.getEmployments(false);
                             super.getStateSubject(EMPLOYMENTS_KEY)
                                 .take(1)
                                 .subscribe((employments) => {
