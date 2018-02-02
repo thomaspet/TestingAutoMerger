@@ -275,14 +275,12 @@ export class TofCustomerCard {
             this.entity.CustomerID = customer.ID || null;
             if (customer.Info) {
                 this.entity.CustomerName = customer.Info.Name;
-                const addresses = customer.Info.Addresses || [];
-                this.mapAddressesToEntity(customer, addresses);
-        } else if (customer) {
-            this.entity.CustomerID = null;
-            this.entity.CustomerName = customer.Info.Name;
-            this.addressService.addressToInvoice(this.entity, customer.Info.InvoiceAddress);
-            this.addressService.addressToShipping(this.entity, customer.Info.ShippingAddress);
+                this.mapAddressesToEntity(customer, customer.Info.Addresses || []);
+            } else {
+                this.entity.CustomerName = null;
+            }
         }
+
         this.mapProjectToEntity(customer, this.entity);
         this.mapTermsToEntity(customer, this.entity);
 
