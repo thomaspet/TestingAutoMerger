@@ -11,6 +11,7 @@ import {
     UniTableColumnType,
     UniTableColumnSortMode
 } from '../../../../../framework/ui/unitable/index';
+import {INumberOptions} from '../../../../../framework/ui/uniform/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
@@ -330,15 +331,23 @@ export class LedgerAccountReconciliation {
 
     private exportLines(lines: Array<JournalEntryLinePostPostData>) {
         let list = [];
+        const moneyFormat: INumberOptions = {
+            thousandSeparator: '',
+            decimalSeparator: ',',
+            decimalLength: 2
+        };
+
         if (lines && lines.length > 0) {
             lines.forEach((line: JournalEntryLinePostPostData) => {
-                var row = {
+                const row = {
                     JournalEntryNumber: line.JournalEntryNumber,
                     FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
+                    SubAccountNumber: line.SubAccountNumber,
+                    SubAccountName: line.SubAccountName,
                     InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
                     DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
-                    Amount: line.Amount,
-                    RestAmount: line.RestAmount,
+                    Amount: this.numberFormatService.asMoney(line.Amount, moneyFormat),
+                    RestAmount: this.numberFormatService.asMoney(line.RestAmount, moneyFormat),
                     Description: line.Description,
                     Status: this.journalEntryLineService.getStatusText(line.StatusCode),
                     NumberOfPayments: line.NumberOfPayments,

@@ -6122,6 +6122,8 @@ export class JournalEntryLinePostPostData extends UniEntity {
     public SumPostPostAmount: number;
     public SumPostPostAmountCurrency: number;
     public Markings: Array<JournalEntryLinePostPostData>;
+    public SubAccountName: string;
+    public SubAccountNumber: number;
 }
 
 
