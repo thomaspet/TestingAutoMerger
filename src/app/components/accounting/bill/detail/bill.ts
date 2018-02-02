@@ -892,6 +892,11 @@ export class BillView implements OnInit {
     }
 
     public onUseWord(event) {
+        const invoice = this.current.getValue();
+        if (invoice.StatusCode && invoice.StatusCode !== StatusCodeSupplierInvoice.Draft) {
+            return;
+        }
+
         let property = this.ocrData.InterpretedProperties.find(x => x.OcrProperty.PropertyType === event.propertyType);
 
         if (!property) {
@@ -905,25 +910,24 @@ export class BillView implements OnInit {
             this.ocrData.InterpretedProperties.push(property);
         }
 
-        const current = this.current.getValue();
         let isValid = true;
         let value = event.word.text;
 
         switch (event.propertyType) {
             case OcrPropertyType.CustomerIdentificationNumber:
                 if (this.validationService.isKidNumber(value)) {
-                    current.PaymentID = value;
+                    invoice.PaymentID = value;
                 } else {
                     isValid = false;
                 }
                 break;
             case OcrPropertyType.InvoiceNumber:
-                current.InvoiceNumber = value;
+                invoice.InvoiceNumber = value;
                 break;
             case OcrPropertyType.TotalAmount:
                 if (this.validationService.isNumber(value)) {
                     value = this.validationService.getSanitizedNumber(value);
-                    current.TaxInclusiveAmountCurrency = value;
+                    invoice.TaxInclusiveAmountCurrency = value;
                 } else {
                     isValid = false;
                 }
@@ -931,7 +935,7 @@ export class BillView implements OnInit {
             case OcrPropertyType.InvoiceDate:
                 if (this.validationService.isDate(value)) {
                     value = this.validationService.getSanitizedDate(value);
-                    current.InvoiceDate = new LocalDate(value);
+                    invoice.InvoiceDate = new LocalDate(value);
                 } else {
                     isValid = false;
                 }
@@ -939,7 +943,7 @@ export class BillView implements OnInit {
             case OcrPropertyType.DueDate:
                 if (this.validationService.isDate(value)) {
                     value = this.validationService.getSanitizedDate(value);
-                    current.PaymentDueDate = new LocalDate(value);
+                    invoice.PaymentDueDate = new LocalDate(value);
                 } else {
                     isValid = false;
                 }
@@ -947,7 +951,7 @@ export class BillView implements OnInit {
             case OcrPropertyType.BankAccountNumber:
                 if (this.validationService.isBankAccountNumber(value)) {
                     value = this.validationService.getSanitizedBankAccount(value);
-                    const supplier = current.Supplier;
+                    const supplier = invoice.Supplier;
                     const bankAccount = supplier.Info.BankAccounts.find(x => x.AccountNumber === value);
                     this.setOrCreateBankAccount(bankAccount, supplier, value);
                 } else {
@@ -956,8 +960,10 @@ export class BillView implements OnInit {
                 break;
         }
 
+        console.log(isValid, invoice);
+
         if (isValid) {
-            this.current.next(current);
+            this.current.next(invoice);
             if (property.InterpretationCandidates) {
                 const existingCandiate =
                     property.InterpretationCandidates.find(x =>
