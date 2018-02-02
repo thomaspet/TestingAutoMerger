@@ -114,9 +114,9 @@ export class BrowserStorageService  {
         try {
             return JSON.parse(jsonString);
         } catch (e) {
-            console.error(new Error(`Could not unmarshal JSON string from localStorage: "${jsonString}"`));
-            setTimeout(() => window.location.reload(), 500);
-            throw e;
+            const message = `Could not unmarshal JSON string from localStorage: "${jsonString}"`;
+            console.error(message);
+            throw new Error(message);
         }
     }
 
