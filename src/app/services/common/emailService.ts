@@ -4,7 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Email} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {SendEmail} from '../../models/sendEmail';
-import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
 import {environment} from 'src/environments/environment';
 
@@ -63,10 +63,19 @@ export class EmailService extends BizHttp<Email> {
                 EntityID: sendemail.EntityID
             };
 
-            this.ActionWithBody(null, email, 'send', RequestMethod.Post).subscribe(() => {
+            this.ActionWithBody(null, email, 'send', RequestMethod.Post).subscribe((success) => {
                 this.toastService.removeToast(this.emailtoast);
-                this.toastService.addToast('Epost sendt', ToastType.good, 3);
-                if (doneHandler) { doneHandler('Epost sendt'); }
+                if (success) {
+                    this.toastService.addToast('Epost sendt', ToastType.good, ToastTime.short);
+                    if (doneHandler) { doneHandler('Epost sendt'); }
+                } else {
+                    this.toastService.addToast('Epost ikke sendt',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        'Feilet i oppretting av jobb'
+                    );
+                    if (doneHandler) { doneHandler(''); }
+                }
             }, err => {
                 if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
                 this.errorService.handle(err);
