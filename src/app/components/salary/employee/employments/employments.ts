@@ -16,8 +16,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     templateUrl: './employments.html'
 })
 export class Employments extends UniView implements OnInit, OnDestroy, AfterViewInit {
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(UniTable) private table: UniTable;
     private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
 
     private employee: Employee;
@@ -120,14 +119,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
         if (isNaN(employmentID)) {
             employmentID = undefined;
         }
-
-        if (employmentID === 0) {
-            this.newEmployment();
-            return;
-        }
-
         if (this.selectedIndex === undefined && this.employments.length) {
-
             let focusIndex = this.employments.findIndex(employment => employmentID !== undefined
                 ? employment.ID === employmentID
                 : employment.Standard);
@@ -143,23 +135,25 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
     }
 
     private newEmployment() {
-        this.employmentService.GetNewEntity().subscribe((response: Employment) => {
-            const newEmployment = response;
-            newEmployment.EmployeeNumber = this.employee.EmployeeNumber;
-            newEmployment.EmployeeID = this.employee.ID;
-            newEmployment.JobCode = '';
-            newEmployment.JobName = '';
-            newEmployment.StartDate = new Date();
-            newEmployment.LastSalaryChangeDate = new Date();
-            newEmployment.LastWorkPercentChangeDate = new Date();
-            newEmployment.SeniorityDate = new Date();
-            newEmployment.SubEntityID = this.employee.SubEntityID;
+        this.employmentService
+            .GetNewEntity()
+            .subscribe((response: Employment) => {
+                const newEmployment = response;
+                newEmployment.EmployeeNumber = this.employee.EmployeeNumber;
+                newEmployment.EmployeeID = this.employee.ID;
+                newEmployment.JobCode = '';
+                newEmployment.JobName = '';
+                newEmployment.StartDate = new Date();
+                newEmployment.LastSalaryChangeDate = new Date();
+                newEmployment.LastWorkPercentChangeDate = new Date();
+                newEmployment.SeniorityDate = new Date();
+                newEmployment.SubEntityID = this.employee.SubEntityID;
 
-            newEmployment['_createguid'] = this.employmentService.getNewGuid();
+                newEmployment['_createguid'] = this.employmentService.getNewGuid();
 
-            this.employments.push(newEmployment);
-            this.addAndFocusRow(newEmployment, this.employments);
-        }, err => this.errorService.handle(err));
+                this.employments.push(newEmployment);
+                this.addAndFocusRow(newEmployment, this.employments);
+            }, err => this.errorService.handle(err));
     }
 
     private addAndFocusRow(employment: Employment, employments: Employment[]) {
