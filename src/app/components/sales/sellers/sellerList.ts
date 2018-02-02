@@ -13,6 +13,7 @@ import {
     SellerService,
     UserService
 } from '../../../services/services';
+import { Seller } from '../../../unientities';
 
 declare const _;
 
@@ -24,7 +25,9 @@ export class SellerList {
     @ViewChild(UniTable) public table: UniTable;
 
     private sellerTableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    private sellers: Seller[] = [];
+    private expandString = 'DefaultDimensions,DefaultDimensions.Project,'
+        + 'DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo';
 
     constructor(
         private router: Router,
@@ -36,11 +39,18 @@ export class SellerList {
         private sellerService: SellerService,
         private userService: UserService
     ) {
-        this.setupTable();
+        this.getData();
         this.tabService.addTab({
             name: 'Selgere',
             url: '/sales/sellers',
             active: true, moduleID: UniModules.Sellers
+        });
+    }
+
+    private getData() {
+        this.sellerService.GetAll('', [this.expandString]).subscribe((sellerResult) => {
+            this.sellers = sellerResult;
+            this.setupTable();
         });
     }
 
@@ -53,51 +63,34 @@ export class SellerList {
     }
 
     private setupTable() {
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = urlParams;
-
-            if (params === null) {
-                params = new URLSearchParams();
-            }
-
-            params.set(
-                'expand',
-                'DefaultDimensions,DefaultDimensions.Project,'
-                    + 'DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo'
-            );
-
-            return this.sellerService.GetAllByUrlSearchParams(params)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-        };
-
         // Define columns to use in the table
-        let nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
+        const nameCol = new UniTableColumn('Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
 
-        let userCol = new UniTableColumn('User', 'Bruker', UniTableColumnType.Text)
+        const userCol = new UniTableColumn('User', 'Bruker', UniTableColumnType.Text)
             .setTemplate((row) => {
                 return row.UserID ? row.User.DisplayName : '';
             });
 
-        let employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
+        const employeeCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Text)
             .setTemplate((row) => {
                 return row.EmployeeID
                     ? `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`
                     : '';
             });
 
-        let teamCol = new UniTableColumn('Team', 'Team', UniTableColumnType.Text)
+        const teamCol = new UniTableColumn('Team', 'Team', UniTableColumnType.Text)
             .setTemplate((row) => {
                 return row.TeamID ? row.Team.Name : '';
             });
 
-        let projectCol = new UniTableColumn('DefaultDimenions.Project', 'Prosjekt', UniTableColumnType.Text)
+        const projectCol = new UniTableColumn('DefaultDimenions.Project', 'Prosjekt', UniTableColumnType.Text)
             .setTemplate((row) => {
                 return row.DefaultDimensionsID && row.DefaultDimensions.ProjectID
                     ? row.DefaultDimensions.Project.Name
                     : '';
             });
 
-        let departmentCol = new UniTableColumn('DefaultDimensions.Department', 'Avdeling', UniTableColumnType.Text)
+        const departmentCol = new UniTableColumn('DefaultDimensions.Department', 'Avdeling', UniTableColumnType.Text)
             .setTemplate((row) => {
                 return row.DefaultDimensionsID && row.DefaultDimensions.DepartmentID
                     ? row.DefaultDimensions.Department.Name
@@ -107,7 +100,14 @@ export class SellerList {
         // Setup table
         this.sellerTableConfig = new UniTableConfig('common.seller.sellerList', false, true, 15)
             .setSearchable(true)
+            .setDeleteButton(true)
             .setSortable(false)
             .setColumns([nameCol, userCol, employeeCol, teamCol, projectCol, departmentCol]);
+    }
+
+    public deleteSeller(event) {
+        this.sellerService.Remove(event.ID).subscribe(() => {
+            this.getData();
+        }, (err) => { this.errorService.handle(err); });
     }
 }

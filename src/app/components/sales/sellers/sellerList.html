@@ -4,8 +4,9 @@
 <section class="application">
     <button (click)="createSeller()" class="new-button">Ny selger</button>
     <uni-table
-        [resource]="lookupFunction"
+        [resource]="sellers"
         [config]="sellerTableConfig"
-        (rowSelected)="onRowSelected($event)">
+        (rowSelected)="onRowSelected($event)"
+        (rowDeleted)="deleteSeller($event.rowModel)">
     </uni-table>
 </section>

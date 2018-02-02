@@ -60,27 +60,26 @@ export class SellerDetailsComponent {
         private statisticsService: StatisticsService,
         private numberformat: NumberFormat
     ) {
-        this.childRoutes = [
-            {
-                name: 'Detaljer',
-                path: 'details'
-            },
-            {
-                name: 'Faktura',
-                path: 'invoices'
-            },
-            {
-                name: 'Ordre',
-                path: 'orders'
-            },
-            {
-                name: 'Tilbud',
-                path: 'quotes'
-            }
-        ];
-
         this.route.params.subscribe(params => {
             this.sellerId = +params['id'];
+            this.childRoutes = [
+                {
+                    name: 'Detaljer',
+                    path: 'details'
+                },
+                {
+                    name: 'Faktura',
+                    path: 'invoices'
+                },
+                {
+                    name: 'Ordre',
+                    path: 'orders'
+                },
+                {
+                    name: 'Tilbud',
+                    path: 'quotes'
+                }
+            ].filter((item) =>  item.path === 'details' || this.sellerId);
         });
 
         this.loadSalesSums();
