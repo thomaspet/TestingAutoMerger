@@ -64,7 +64,7 @@ export class NavbarSearch implements AfterViewInit {
         private cdr: ChangeDetectorRef,
         private errorService: ErrorService
     ) {
-        let componentSections = HamburgerMenu.getAvailableComponents();
+        const componentSections = HamburgerMenu.getAvailableComponents();
         componentSections.forEach((section) => {
             this.componentLookupSource.push(...section.componentList);
         });
@@ -81,7 +81,7 @@ export class NavbarSearch implements AfterViewInit {
         this.inputControl.valueChanges.subscribe((inputValue) => {
             this.isExpanded = false;
             this.selectedIndex = 0;
-            let query = inputValue.toLowerCase();
+            const query = inputValue.toLowerCase();
 
             // TODO: This should be reworked after 30.6
             if (query.indexOf('faktura ') === 0) {
@@ -110,9 +110,8 @@ export class NavbarSearch implements AfterViewInit {
     }
 
     public onKeyDown(event) {
-        var prevItem = undefined;
-        var currItem = undefined;
-        var overflow = 0;
+        let prevItem, currItem;
+        let overflow = 0;
 
         switch (event.keyCode) {
             case 9:
@@ -177,19 +176,16 @@ export class NavbarSearch implements AfterViewInit {
     }
 
     private close() {
-        setTimeout(() => {
-            this.focusPositionTop = 0;
-            this.searchResults = [];
-            this.inputControl.setValue('', { emitEvent: false });
-            this.isExpanded = false;
-            this.inputElement.nativeElement.blur();
-            this.cdr.detectChanges();
-        }, 120);
-
+        this.focusPositionTop = 0;
+        this.searchResults = [];
+        this.inputControl.setValue('', { emitEvent: false });
+        this.isExpanded = false;
+        this.inputElement.nativeElement.blur();
+        this.cdr.markForCheck();
     }
 
     private componentLookup(query: string) {
-        let results = [];
+        const results = [];
 
         this.componentLookupSource.forEach((component) => {
             if (component.componentName.toLocaleLowerCase().indexOf(query) !== -1) {
@@ -214,7 +210,7 @@ export class NavbarSearch implements AfterViewInit {
             .map(response => response.json())
             .subscribe(
                 (response) => {
-                    let results = [];
+                    const results = [];
                     response.forEach((tof) => {
                         if (tof[filterKey] === null) {
                             tof[filterKey] = 'Kladd ' + tof.ID;
