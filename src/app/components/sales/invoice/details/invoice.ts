@@ -1428,7 +1428,7 @@ export class InvoiceDetails {
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
-            this.invoice.StatusCode = StatusCodeCustomerInvoice.Draft;
+            this.invoice.StatusCode = StatusCode.Draft;
         }
 
         this.saveInvoice(done).then((invoice) => {
