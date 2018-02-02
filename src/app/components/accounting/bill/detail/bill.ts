@@ -508,7 +508,9 @@ export class BillView implements OnInit {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
             .subscribe( (invoice: SupplierInvoice) => {
-                invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+                if (invoice.Supplier.Info.DefaultBankAccount) {
+                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+                }
 
                 this.current.next(invoice);
                 this.toast.clear();
