@@ -90,7 +90,7 @@ export class CompanySettingsComponent implements OnInit {
         'DefaultSalesAccount'
     ];
 
-    private company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
+    public company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
     private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
@@ -120,6 +120,7 @@ export class CompanySettingsComponent implements OnInit {
     public isDirty: boolean = false;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public companyLogoFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     public saveactions: IUniSaveAction[] = [{
         label: 'Lagre',
@@ -140,6 +141,11 @@ export class CompanySettingsComponent implements OnInit {
         {Decimals: 2, Label: '2 desimaler'},
         // {Decimals: 3, Label: '3 desimaler'},
         // {Decimals: 4, Label: '4 desimaler'}
+    ];
+
+    private logoAlignOptions: {Alignment: string, Label: string}[] = [
+        {Alignment: 'left', Label: 'Venstre'},
+        {Alignment: 'right', Label: 'Høyre'}
     ];
 
     private currentYear: number;
@@ -1264,6 +1270,19 @@ export class CompanySettingsComponent implements OnInit {
                 ReadOnly: true,
                 Hidden: !this.company$.getValue()['_FileFlowEmail']
             }
+        ]);
+
+        this.companyLogoFields$.next([
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: "Rapportlogo plassering",
+                Property: "LogoAlign",
+                Options: {
+                    source: this.logoAlignOptions,
+                    valueProperty: 'Alignment',
+                    displayProperty: 'Label'
+                },
+            },
         ]);
     }
 

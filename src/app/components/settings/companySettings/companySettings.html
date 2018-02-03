@@ -16,6 +16,14 @@
     <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
         <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
         <div class="collapsable-content">
+            <uni-form class="companySettings"
+                [config]="config$"
+                [fields]="companyLogoFields$"
+                [model]="company$"
+                (changeEvent)="companySettingsChange($event)"
+                (inputEvent)="onFormInputChange($event)"
+                (readyEvent)="onFormReady()">
+            </uni-form>
             <uni-image
                 [entity]="'companysettings'"
                 [entityID]="1"
