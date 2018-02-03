@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IPosterWidget} from '../common/poster/poster';
@@ -12,7 +12,7 @@ import {IToolbarConfig} from '../common/toolbar/toolbar';
     selector: 'settings',
     templateUrl: './settings.html'
 })
-export class Settings {
+export class Settings implements OnInit {
 
     private childRoutes: any[];
     private widgets: IPosterWidget[] = [
@@ -87,7 +87,7 @@ export class Settings {
             .map(response => response.json())
             .map(response => response[0])
         ).subscribe((response: [CompanySettings, SubEntity[], User[], User, File]) => {
-            let [settings, subEntities, users, currentUser, file] = response;
+            const [settings, subEntities, users, currentUser, file] = response;
             this.updateWidgets(settings, subEntities, users, currentUser, file);
 
         }, err => this.errorService.handle(err));
@@ -100,16 +100,17 @@ export class Settings {
         currentUser: User,
         file: File) {
 
-        let posterCompanyLogo: IPosterWidget = {
+        const posterCompanyLogo: IPosterWidget = {
             type: 'image',
             config: {
                 fileID: file ? file.ID : null,
                 placeholderSrc: '/assets/Logo-Placeholder.png',
-                altText: 'firmalogo'
+                altText: 'firmalogo',
+                hideToolbar: true
             }
         };
 
-        let posterOrgNumber: IPosterWidget = {
+        const posterOrgNumber: IPosterWidget = {
             type: 'text',
             config: {
                 topText: [{ text: 'Org.Nummer', class: 'large' }],
@@ -117,7 +118,7 @@ export class Settings {
                 bottomText: [{ text: subEntities.length + ' virksomheter', class: 'small' }]
             }
         };
-        let posterCurrentUser: IPosterWidget = {
+        const posterCurrentUser: IPosterWidget = {
             type: 'contact',
             config: {
                 contacts: [{
@@ -125,7 +126,7 @@ export class Settings {
                 }]
             }
         };
-        let posterActiveUsers: IPosterWidget = {
+        const posterActiveUsers: IPosterWidget = {
             type: 'text',
             config: {
                 mainText: { text: users.length, class: 'large' },
