@@ -17,7 +17,8 @@ import {
     UniDownloadPaymentsModal,
     UniSendPaymentModal,
     UniConfirmModalV2,
-    ConfirmActions
+    ConfirmActions,
+    UniAutobankAgreementModal
 } from '../../../framework/uniModal/barrel';
 import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -51,6 +52,9 @@ import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
                     </ul>
                 </li>
             </ul>
+            <section style="position: absolute; bottom: 20px; width: 14rem; text-align: center; display: none;">
+                <button class="good" (click)="openAutobankAgreementModal()" style="margin-top: 20px;"> Ny autobankavtale </button>
+            </section>
 
             <uni-ticker-container
                 [ticker]="selectedTicker"
@@ -334,6 +338,10 @@ export class BankComponent implements AfterViewInit {
 
     private openEditModal() {
         return this.modalService.open(UniPaymentEditModal).onClose;
+    }
+
+    public openAutobankAgreementModal() {
+        this.modalService.open(UniAutobankAgreementModal);
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {
