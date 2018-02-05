@@ -225,8 +225,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                             // we know what the service/altinn returns on bad user/pass
                             this.errorService.handleWithMessage(
                                 error,
-                                'Got an error back from Altinn, '
-                                    + 'it might be bad ID/password or Altinn crashed, nobody knows'
+                                'Got an error back from Altinn, it might be bad ID/password or Altinn crashed'
                             );
                         });
                 }, err => this.errorService.handle(err));
