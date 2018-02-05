@@ -1347,12 +1347,13 @@ export class InvoiceDetails {
         invoice.JournalEntryID = null;
         invoice.Payment = null;
         invoice.PaymentID = null;
-        if (!invoice.PaymentTerms && !invoice.PaymentDueDate) {
+        invoice.DeliveryDate = null;
+        if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
+            this.setPaymentDueDate(invoice);
+        } else {
             invoice.PaymentDueDate = new LocalDate(
                 moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
             );
-        } else if (!invoice.PaymentDueDate) {
-            this.setPaymentDueDate(invoice);
         }
         invoice.InvoiceReferenceID = null;
         invoice.Comment = null;
