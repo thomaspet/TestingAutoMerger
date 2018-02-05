@@ -96,53 +96,59 @@ export class UniBankAccountModal implements IUniModal {
     public close(emitValue?: boolean) {
         let account: BankAccount;
 
+
+
         if (emitValue) {
             account = this.formModel$.getValue();
+            if (this.options.modalConfig
+                && this.options.modalConfig.ledgerAccountVisible
+                && !account.AccountID) {
 
-            if (account && account.Bank && account.Bank.BIC && account.AccountNumber && !account.ID) {
-                // Set account type to - to pass validation check backend
-                if (!account.BankAccountType) {
-                    account.BankAccountType = '-';
-                }
-                this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
-                    this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
-                    this.onClose.emit(res);
+                const confirm = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Bekreft manglende konto',
+                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
+                });
+
+                confirm.onClose.subscribe((response) => {
+                    if (response !== ConfirmActions.ACCEPT) {
+                        return;
+                    } else {
+                        this.SaveBankAccount(account);
+                        this.onClose.emit(null);
+                    }
                 });
             } else {
-                if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
-                    this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
-                    return;
-                 }
-                 if (this.isBankChanged) {
-                     this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
-                     .subscribe(item => {}, err => this.errorService.handle(err));
-                 }
-
-                 if (this.options.modalConfig
-                     && this.options.modalConfig.ledgerAccountVisible
-                     && !account.AccountID) {
-
-                     const confirm = this.modalService.open(UniConfirmModalV2, {
-                         header: 'Bekreft manglende konto',
-                         message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Vil du fortsette uten å velge konto?'
-                     });
-
-                     confirm.onClose.subscribe((response) => {
-                         if (response === ConfirmActions.ACCEPT) {
-                             this.onClose.emit(account);
-                         } else {
-                             return;
-                         }
-                     });
-                 } else {
-                     this.onClose.emit(account);
-                 }
+                this.SaveBankAccount(account);
+                this.onClose.emit(null);
             }
-
         } else {
             this.onClose.emit(null);
         }
     }
+
+    public SaveBankAccount(account: BankAccount) {
+        if (account && account.Bank && account.Bank.BIC && account.AccountNumber && !account.ID) {
+            // Set account type to - to pass validation check backend
+            if (!account.BankAccountType) {
+                account.BankAccountType = '-';
+            }
+
+            this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
+                this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+            });
+        } else {
+            if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
+                this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
+                return;
+             }
+             if (this.isBankChanged) {
+                 this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
+                 .subscribe(item => {}, err => this.errorService.handle(err));
+             }
+        }
+    }
+
+
 
     public onFormChange(changes) {
         this.isDirty = true;
@@ -288,7 +294,7 @@ export class UniBankAccountModal implements IUniModal {
                 EntityType: 'BankAccount',
                 Property: 'AccountID',
                 FieldType: FieldType.AUTOCOMPLETE,
-                ReadOnly: true,
+                ReadOnly: false,
                 Label: 'Hovedbokskonto',
                 Options: {
                     displayProperty: 'AccountName',
