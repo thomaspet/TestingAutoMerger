@@ -2,6 +2,7 @@
     {
         "Name": "Innbetaling",
         "Code": "bank_list",
+        "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Bank",
@@ -133,6 +134,7 @@
     {
         "Name": "Utbetaling",
         "Code": "payment_list",
+        "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "EditToggle": false,

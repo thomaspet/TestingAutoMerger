@@ -7,7 +7,7 @@ import {WidgetDataService} from '../widgetDataService';
     selector: 'uni-top-ten-widget',
     template: `
         <section class="uni-widget-header">
-            {{widget.config.header}}
+            {{widget.description}}
         </section>
 
         <section class="uni-widget-content topten-table-container">

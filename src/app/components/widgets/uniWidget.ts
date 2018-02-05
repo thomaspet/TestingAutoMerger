@@ -32,6 +32,8 @@ import {
 } from './widgets/barrel';
 
 export interface IUniWidget {
+    id: string;
+    permissions?: string[];
     x?: number;
     y?: number;
     width: number;
@@ -111,7 +113,7 @@ export class UniWidget {
         const widget = WIDGET_MAP[this.widget.widgetType];
         const componentFactory = this.factoryResolver.resolveComponentFactory(widget);
 
-        let viewContainerRef = this.widgetContainer.viewContainerRef;
+        const viewContainerRef = this.widgetContainer.viewContainerRef;
         viewContainerRef.clear();
 
         this.widgetComponent = viewContainerRef.createComponent(componentFactory);

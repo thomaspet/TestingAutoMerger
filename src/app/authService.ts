@@ -343,28 +343,33 @@ export class AuthService {
             return false;
         }
 
-        // Treat empty permissions array as access to everything for now
-        if (!user['Permissions'] || !user['Permissions'].length) {
+        const permissionKey: string = this.getPermissionKey(url);
+        return this.hasUIPermission(user, permissionKey);
+    }
+
+    public hasUIPermission(user: UserDto, permission: string) {
+        // Treat missing or empty permissions array as access to everything
+        const userPermissions = user['Permissions'] || [];
+        if (!userPermissions.length) {
             return true;
         }
 
-        const permissionKey: string = this.getPermissionKey(url);
+        permission = permission.trim();
 
         // Check for direct match
-        let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
+        let hasPermission = user['Permissions'].some(p => p === permission);
 
-        // If no direct match: pop route parts one by one and check for
-        // permission to everything under that.
-        // E.g no permission for 'ui_salary_employees_employments
-        // but permission for 'ui_salary_employees' and therefore employments
+        // Pop permission parts and check for * access
         if (!hasPermission) {
-            const permissionParts = permissionKey.split('_');
-            while (permissionParts.length) {
-                permissionParts.pop();
-                if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
+            const permissionSplit = permission.split('_');
+
+            while (permissionSplit.length && !hasPermission) {
+                const multiPermision = permissionSplit.join('_') + '_*';
+                if (user['Permissions'].some(p => p === multiPermision)) {
                     hasPermission = true;
-                    break;
                 }
+
+                permissionSplit.pop();
             }
         }
 

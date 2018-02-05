@@ -1,7 +1,17 @@
-import {IWidgetLayout} from './widgetCanvas';
+import {Injectable} from '@angular/core';
+import {IResponsiveWidgetLayout, IWidgetReference} from './widgetCanvas';
 import {IUniWidget, WIDGET_MAP} from './uniWidget';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Injectable} from '@angular/core';
+import {AuthService} from '@app/authService';
+
+import {WIDGET_CONFIGS} from './configs';
+import {UserDto} from '@uni-entities';
+
+interface ISavedLayout {
+    small: IWidgetReference[];
+    medium: IWidgetReference[];
+    large: IWidgetReference[];
+}
 
 @Injectable()
 export class CanvasHelper {
@@ -9,61 +19,125 @@ export class CanvasHelper {
     private numColumns: number;
     private numRows: number;
 
-    constructor(private browserStorage: BrowserStorageService) {
-    }
+    constructor(
+        private browserStorage: BrowserStorageService,
+        private authService: AuthService
+    ) {}
 
-    public verifyCustomLayout(layout: IWidgetLayout) {
-        const widgets = [
-            ...layout.large,
-            ...layout.medium,
-            ...layout.small
-        ];
-
-        // Verify that all widgets are in our map of available widgets
-        return widgets.every(w => !!WIDGET_MAP[w.widgetType]);
-    }
-
-    public getSavedLayout(name: string): IWidgetLayout {
-        if (!name || !name.length) {
-            return;
+    public getWidgetsFromReferences(layout: IWidgetReference[]): IUniWidget[] {
+        if (!layout || !layout.length) {
+            return [];
         }
 
-        try {
-            const layoutStore = this.browserStorage.getItem('uni_widget_layouts');
-            if (layoutStore[name]) {
-                let layout =  layoutStore[name];
-                if (this.verifyCustomLayout(layout)) {
-                    return layout;
-                } else {
-                    this.removeLayout(name);
-                }
+        const widgetConfigs: IUniWidget[] = WIDGET_CONFIGS || [];
+        const widgets = [];
+        layout.forEach(item => {
+            const config = widgetConfigs.find(w => w.id === item.widgetID);
+            if (config) {
+                config.x = item.x;
+                config.y = item.y;
+                widgets.push(config);
             }
-        } catch (e) {}
+        });
+
+        return widgets;
     }
 
-    public saveLayout(name: string, layout: IWidgetLayout) {
+    private getReferencesFromWidgets(widgets: IUniWidget[]): IWidgetReference[] {
+        const layout = [];
+        widgets.forEach(widget => {
+            if (widget.id) {
+                layout.push({
+                    widgetID: widget.id,
+                    x: widget.x,
+                    y: widget.y
+                });
+            }
+        });
+
+        return layout;
+    }
+
+    public filterLayout(layout: IResponsiveWidgetLayout, user: UserDto): IResponsiveWidgetLayout {
+        return {
+            small: this.filterWidgetsByPermissions(layout.small, user),
+            medium: this.filterWidgetsByPermissions(layout.medium, user),
+            large: this.filterWidgetsByPermissions(layout.large, user),
+        };
+    }
+
+    public filterWidgetsByPermissions(widgets: IUniWidget[], user: UserDto): IUniWidget[] {
+        const filtered = widgets.filter(widget => {
+            if (!widget.permissions || !widget.permissions.length) {
+                return true;
+            }
+
+            return widget.permissions.every(requiredPermission => {
+                return this.authService.hasUIPermission(user, requiredPermission);
+            });
+        });
+
+        if (filtered.length !== widgets.length) {
+            // Remove x/y coordinates so that the widget position is re-calculated
+            // This prevents layouts with lots of holes after filtering widgets
+            filtered.forEach(w => {
+                w.x = undefined;
+                w.y = undefined;
+            });
+        }
+
+        return filtered;
+    }
+
+    public verifyCustomLayout(layout: ISavedLayout) {
+        // Verify that all elements have a widgetID
+        if (layout && layout.small && layout.medium && layout.large) {
+            return layout.small.every(w => !!w.widgetID)
+                && layout.medium.every(w => !!w.widgetID)
+                && layout.large.every(w => !!w.widgetID);
+        }
+
+        return false;
+    }
+
+    public getSavedLayout(name: string): IResponsiveWidgetLayout {
         if (!name || !name.length) {
             return;
         }
 
-        let layoutStore;
-        try {
-            layoutStore = this.browserStorage.getItem('uni_widget_layouts');
-        } catch (e) {}
+        const layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
+        if (layoutStore && layoutStore[name]) {
+            const layout: ISavedLayout = layoutStore[name];
+            if (this.verifyCustomLayout(layout)) {
+                return {
+                    small: this.getWidgetsFromReferences(layout.small),
+                    medium: this.getWidgetsFromReferences(layout.medium),
+                    large: this.getWidgetsFromReferences(layout.large)
+                };
+            } else {
+                console.warn('Saved layout in did not pass verification in canvasHelper');
+                this.removeLayout(name);
+            }
+        }
+    }
 
+    public saveLayout(name: string, layout: IResponsiveWidgetLayout) {
+        if (!name || !name.length) {
+            return;
+        }
+
+        let layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
         if (!layoutStore) {
             layoutStore = {};
         }
 
-        layoutStore[name] = layout;
+        layoutStore[name] = {
+            small: this.getReferencesFromWidgets(layout.small),
+            medium: this.getReferencesFromWidgets(layout.medium),
+            large: this.getReferencesFromWidgets(layout.large)
+        };
 
-        let stringified = JSON.stringify(layoutStore, (key, value) => {
-            if (key === '_editMode') {
-                return false;
-            }
-            return value;
-        });
-        this.browserStorage.setItem('uni_widget_layouts', JSON.parse(stringified));
+        this.browserStorage.setItemOnCompany('uni_widget_layouts', layoutStore);
     }
 
     public removeLayout(name: string) {
@@ -72,9 +146,9 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = this.browserStorage.getItem('uni_widget_layouts');
+            const layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
             delete layoutStore[name];
-            this.browserStorage.setItem('uni_widget_layouts', layoutStore);
+            this.browserStorage.setItemOnCompany('uni_widget_layouts', layoutStore);
         } catch (e) {}
     }
 
@@ -84,7 +158,7 @@ export class CanvasHelper {
 
         this.canvasGrid = [];
         for (let y = 0; y < this.numRows; y++) {
-            let row = [];
+            const row = [];
             for (let x = 0; x < this.numColumns; x++) {
                 row.push(false);
             }
@@ -95,7 +169,7 @@ export class CanvasHelper {
 
     public activateLayout(widgets: IUniWidget[], targetCols) {
         this.resetGrid(targetCols);
-        let overflow: IUniWidget[] = [];
+        const overflow: IUniWidget[] = [];
 
         widgets.forEach((widget: IUniWidget) => {
             if (widget.x <= (targetCols - widget.width)) {
@@ -108,9 +182,11 @@ export class CanvasHelper {
         if (overflow.length) {
             overflow.forEach((w: IUniWidget) => {
                 const position = this.getNextAvailablePosition(w);
-                w.x = position.x;
-                w.y = position.y;
-                this.reserveGridSpace(w);
+                if (position) {
+                    w.x = position.x;
+                    w.y = position.y;
+                    this.reserveGridSpace(w);
+                }
             });
         }
     }
@@ -123,19 +199,23 @@ export class CanvasHelper {
     }
 
     public reserveGridSpace(widget: IUniWidget) {
-        for (let y = widget.y; y < widget.y + widget.height; y++) {
-            for (let x = widget.x; x < widget.x + widget.width; x++) {
-                this.canvasGrid[y][x] = true;
+        try {
+            for (let y = widget.y; y < widget.y + widget.height; y++) {
+                for (let x = widget.x; x < widget.x + widget.width; x++) {
+                    this.canvasGrid[y][x] = true;
+                }
             }
-        }
+        } catch (e) {}
     }
 
     public releaseGridSpace(widget: IUniWidget) {
-        for (let y = widget.y; y < widget.y + widget.height; y++) {
-            for (let x = widget.x; x < widget.x + widget.width; x++) {
-                this.canvasGrid[y][x] = false;
+        try {
+            for (let y = widget.y; y < widget.y + widget.height; y++) {
+                for (let x = widget.x; x < widget.x + widget.width; x++) {
+                    this.canvasGrid[y][x] = false;
+                }
             }
-        }
+        } catch (e) {}
     }
 
     public getNextAvailablePosition(widget: IUniWidget): {x: number, y: number} {
@@ -172,82 +252,4 @@ export class CanvasHelper {
             }
         }
     }
-
-    public getMockWidget(widgetName: string) {
-        let mockWidgets: any = {
-            notification: {
-                width: 1,
-                height: 1,
-                widgetType: 'notification', // TODO: enum
-                config: {
-                    label: 'Varsler',
-                    description: 'Trenger tilsyn',
-                    icon: 'bell',
-                    link: '/sales/quotes',
-                    amount: 90,
-                    backgroundColor: '#dc9346'
-                }
-            },
-
-            rss: {
-                width: 4,
-                height: 4,
-                widgetType: 'rss', // TODO: enum
-                config: {
-                    header: 'Nyheter fra kundesenteret',
-                    description: 'Trenger tilsyn',
-                    icon: 'bell',
-                    link: '/sales/quotes',
-                    amount: 90,
-                    backgroundColor: '#dc9346'
-                }
-            },
-
-            shortcut: {
-                width: 1,
-                height: 1,
-                widgetType: 'shortcut', // TODO: enum
-                config: {
-                    label: 'Tilbud',
-                    description: 'Tilbudsoversikt',
-                    icon: 'paperclip',
-                    link: '/sales/quotes'
-                }
-            },
-
-            chart: {
-                width: 4,
-                height: 3,
-                widgetType: 'chart',
-                config: {
-                    header: 'Ansatte per avdeling',
-                    chartType: 'pie',
-                    labels: ['Utvikling', 'Salg', 'Konsulent', 'Kundeservice', 'Teknisk', 'Administrasjon'],
-                    dataset: [
-                        {
-                            data: [22, 8, 6, 16, 4, 10],
-                            backgroundColor: ['#7293cb', '#6b4c9a', '#e1974c', '#84ba5b', '#ff0000', '#ffff00'],
-                            label: 'Ansatte',
-                            borderColor: '#fff',
-                        }
-                    ],
-                    options: {
-                        cutoutPercentage: 85,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'left'
-                        }
-                    },
-                    title: 'Driftsresultat',
-                    drilldown: false,
-                    chartID: 487515
-                }
-            }
-        };
-
-        return JSON.parse(JSON.stringify(mockWidgets[widgetName]));
-    }
-
 }

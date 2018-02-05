@@ -319,7 +319,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Timer',
                 componentListUrl: '/timetracking',
                 componentList: [
-                    {componentName: 'Timemodul', componentUrl: '/timetracking/dashboard',
+                    {componentName: 'Timemodul', componentUrl: '/timetracking',
                         moduleID: UniModules.Timesheets},
                     {componentName: 'Timeregistrering', componentUrl: '/timetracking/timeentry',
                         moduleID: UniModules.Timesheets},

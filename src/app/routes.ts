@@ -33,10 +33,6 @@ const routes = [
         component: UniTickerOverview
     },
     {
-        path: 'overview/:code',
-        component: UniTickerOverview
-    },
-    {
         path: 'admin',
         component: UniAdmin,
         children: adminRoutes

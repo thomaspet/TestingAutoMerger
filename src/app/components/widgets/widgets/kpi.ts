@@ -17,7 +17,7 @@ interface IKeyNumberObject {
     selector: 'uni-kpi-widget',
     template: `
         <section class="uni-widget-header">
-            {{ widget.config.header }}
+            {{ widget.description }}
         </section>
 
         <section class="uni-widget-content" [attr.aria-busy]="!(dataLoaded | async)">

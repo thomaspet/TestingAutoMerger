@@ -1,43 +1,144 @@
-export const CHARTS = {
-    operatingProfits: {
+export const CHARTS = [
+    {
+        id: 'kpi',
+        description: 'Nøkkeltall',
+        permissions: ['ui_accounting_accountingreports'],
+        width: 4,
+        height: 3,
+        widgetType: 'kpi',
+        config: {}
+    },
+    {
+        id: 'topten_customers',
+        description: '10 største kunder',
+        width: 4,
+        height: 3,
+        widgetType: 'topten',
+        config: {
+            contextMenuItems: [
+                {
+                    label: 'Ny faktura',
+                    link: '/sales/invoices/0;customerID=',
+                    needsID: true
+                },
+                {
+                    label: 'Ny ordre',
+                    link: '/sales/orders/0;customerID=',
+                    needsID: true
+                },
+                {
+                    label: 'Nytt tilbud',
+                    link: '/sales/quotes/0;customerID=',
+                    needsID: true
+                }
+            ]
+        }
+    },
+    {
+        id: 'transaction_accounting',
+        description: 'Transaksjoner - Regnskap',
+        width: 8,
+        height: 3,
+        widgetType: 'transaction',
+        config: {
+            dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
+        }
+    },
+    {
+        id: 'transaction_sales',
+        description: 'Transaksjoner - Salg',
+        width: 8,
+        height: 3,
+        widgetType: 'transaction',
+        config: {
+            dashboard: 'Sale' // Identifyer for which fields to show.. fix while not dynamic
+        }
+    },
+    {
+        id: 'transaction_salary',
+        description: 'Transaksjoner - Lønn',
+        width: 8,
+        height: 3,
+        widgetType: 'transaction',
+        config: {
+            dashboard: 'Salary' // Identifyer for which fields to show.. FIX while not dynamic
+        }
+    },
+    {
+        id: 'chart_operating_profits',
+        description: 'Driftsresultater',
+        permissions: ['ui_accounting_accountingreports'],
         width: 4,
         height: 3,
         widgetType: 'chart',
         config: {
-            header: 'Driftsresultater',
             chartType: 'line',
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            colors: ['#ab6857'],
-            dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),sum(amount)&join=journalentryline.accountid eq account.id&filter=account.accountnumber ge 3000 and account.accountnumber le 9999 &range=monthfinancialdate'],
+            labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
+            colors: ['#7293cb'],
+            backgroundColors: ['transparent'],
+            dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),'
+                + 'sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) '
+                + 'eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 '
+                + '&range=monthfinancialdate'
+            ],
             dataKey: ['sumamount'],
             multiplyValue: -1,
             dataset: [],
+            fill: 'none',
             options: {
                 showLines: true,
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'top'
-                }
+                bezierCurve: false
             },
-            title: ['Driftsresultat'],
-            drilldown: false,
-            chartID: 487515
+            title: ['Driftsresultat']
         }
     },
-
-    outstandingInvoices: {
+    {
+        id: 'chart_employees_per_employment',
+        description: 'Ansatte per stillingskode',
+        permissions: ['ui_salary'],
         width: 4,
         height: 3,
         widgetType: 'chart',
         config: {
-            header: 'Utestående per kunde',
             chartType: 'pie',
             labels: [],
             colors: [],
             dataEndpoint: [
-                '/api/statistics?model=Customer&select=Info.Name as Name,isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
+                '/api/statistics?model=Employee&select=count(ID) as '
+                + 'Count,Employments.JobName as JobName&expand=Employments'
+            ],
+            labelKey: 'JobName',
+            valueKey: 'Count',
+            maxNumberOfLabels: 7,
+            useIf: '',
+            addDataValueToLabel: false,
+            dataset: [],
+            options: {
+                cutoutPercentage: 80,
+                animation: {
+                    animateScale: true
+                },
+                legend: {
+                    position: 'bottom'
+                },
+            }
+        }
+    },
+    {
+        id: 'chart_restamount_per_customer',
+        description: 'Utestående per kunde',
+        permissions: ['ui_sales'],
+        width: 4,
+        height: 3,
+        widgetType: 'chart',
+        config: {
+            chartType: 'pie',
+            labels: [],
+            colors: [],
+            dataEndpoint: [
+                '/api/statistics?model=Customer&select=Info.Name as Name,'
+                + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
+                + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
             ],
             valueKey: 'RestAmount',
             labelKey: 'Name',
@@ -55,32 +156,25 @@ export const CHARTS = {
             }
         }
     },
-
-    kpi: {
-        width: 4,
-        height: 3,
-        widgetType  : 'kpi',
-        config: {
-            header: 'Nøkkeltall'
-        }
-    },
-
-    employeesPerJobCode: {
-        width: 4,
+    {
+        id: 'chart_minutes_per_wagetype',
+        description: 'Fordeling pr. timeart',
+        permissions: ['ui_reports'],
+        width: 3,
         height: 3,
         widgetType: 'chart',
         config: {
-            header: 'Ansatte per stillingskode',
             chartType: 'pie',
             labels: [],
             colors: [],
-
             dataEndpoint: [
-                '/api/statistics?model=Employee&select=count(ID) as Count,Employments.JobName as JobName&expand=Employments'
+                '/api/statistics?model=workitem&select=sum(minutes) as Sum,'
+                + 'worktype.Name as Name&expand=worktype'
+                + '&filter=year(date) eq <year>'
             ],
-            labelKey: 'JobName',
-            valueKey: 'Count',
-            maxNumberOfLabels: 7,
+            labelKey: 'Name',
+            valueKey: 'Sum',
+            maxNumberOfLabels: 4,
             useIf: '',
             addDataValueToLabel: false,
             dataset: [],
@@ -90,11 +184,9 @@ export const CHARTS = {
                     animateScale: true
                 },
                 legend: {
-                    position: 'left'
+                    position: 'bottom'
                 },
             }
         }
     },
-
-
-};
+];

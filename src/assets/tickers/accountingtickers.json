@@ -2,6 +2,7 @@
     {
         "Name": "Bilag",
         "Code": "journalentryline_list",
+        "RequiredUIPermissions": ["ui_accounting_journalentry"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
@@ -363,6 +364,7 @@
     {
         "Name": "Fakturamottak",
         "Code": "supplierinvoice_list",
+        "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
@@ -721,6 +723,7 @@
     {
         "Name": "Leverandør",
         "Code": "supplier_list",
+        "RequiredUIPermissions": ["ui_accounting_suppliers"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
@@ -906,6 +909,7 @@
     {
         "Name": "MVA-Koder",
         "Code": "Vatcode_list",
+        "RequiredUIPermissions": ["ui_accounting"],
         "HideCounter": true,
         "Type": "Table",
         "IsTopLevelTicker": true,
@@ -1160,6 +1164,9 @@
         "Name": "Hovedbok",
         "Code": "accounts_list",
         "Type": "Table",
+        "RequiredUIPermissions": [
+            "ui_accounting_accountsettings || ui_accounting_accountquery"
+        ],
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "Account",

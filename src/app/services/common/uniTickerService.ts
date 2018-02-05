@@ -69,7 +69,6 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
                             // get statuses from API and add it to the cache
                             Observable.forkJoin(
                                 this.http.get('assets/tickers/accountingtickers.json').map(x => x.json()),
-                                this.http.get('assets/tickers/demotickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/salestickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/toftickers.json').map(x => x.json()),
                                 this.http.get('assets/tickers/timetickers.json').map(x => x.json()),
@@ -224,8 +223,9 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
                                     return tickers;
                                 })
-                                .subscribe(data => {
-                                    this.tickers = data;
+                                .switchMap(allTickers => this.filterTickersByPermissions(allTickers))
+                                .subscribe(filteredTickers => {
+                                    this.tickers = filteredTickers;
 
                                     resolve();
                                 }, err => reject(err)
@@ -439,7 +439,39 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
         });
     }
 
-    public getGroupedTopLevelTickers(tickers: Array<Ticker>): Array<TickerGroup> {
+    public filterTickersByPermissions(tickers: Ticker[]): Observable<Ticker[]> {
+        if (!tickers || !tickers.length) {
+            return Observable.of([]);
+        }
+
+        return this.uniHttp.authService.authentication$.take(1).map(auth => {
+            const permissions = (auth.user && auth.user['Permissions']) || [];
+            if (!permissions.length) {
+                return tickers;
+            }
+
+            const filtered = tickers.filter(ticker => {
+                if (!ticker.RequiredUIPermissions || !ticker.RequiredUIPermissions.length) {
+                    return true;
+                }
+
+                return ticker.RequiredUIPermissions.every(permission => {
+                    const splitPermisions = permission.split('||');
+                    if (splitPermisions.length > 1) {
+                        // Split permissions are separated by 'or', so check if any of them
+                        // match a user permission (.some(..))
+                        return splitPermisions.some(p => this.authService.hasUIPermission(auth.user, p));
+                    } else {
+                        return this.authService.hasUIPermission(auth.user, permission);
+                    }
+                });
+            });
+
+            return filtered;
+        });
+    }
+
+    public getGroupedTopLevelTickers(tickers: Ticker[]): Array<TickerGroup> {
         let groups: Array<TickerGroup> = [];
 
         for (const ticker of tickers.filter(x => x.IsTopLevelTicker)) {
@@ -956,6 +988,7 @@ export class Ticker {
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public EditToggle?: boolean;
     public MultiRowSelect?: boolean;
+    public RequiredUIPermissions?: string[];
 }
 
 export class TickerFieldFilter {

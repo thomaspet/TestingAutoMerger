@@ -124,10 +124,11 @@ export class UniTicker {
             if (this.ticker.Model) {
                 return this.statisticsService
                     .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    .catch(() => Observable.empty()); // fail silently
             } else if (this.ticker.ApiUrl) {
                 return this.http
-                    .get(this.ticker.ApiUrl);
+                    .get(this.ticker.ApiUrl)
+                    .catch(() => Observable.empty()); // fail silently
             }
         };
     }

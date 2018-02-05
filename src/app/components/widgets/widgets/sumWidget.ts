@@ -9,7 +9,7 @@ import {Router} from '@angular/router';
         <div class="positive-negative-widget"
             [ngClass]="positive ? 'positive' : 'negative'"
             (click)="onClickNavigate()"
-            title="{{ widget.config.description }}">
+            title="{{ widget.description }}">
 
             <span class="title">{{ widget.config.title}}</span>
             <span class="value">{{ displayValue | uninumberformat: 'money' }}</span>

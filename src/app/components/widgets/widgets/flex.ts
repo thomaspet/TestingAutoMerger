@@ -34,14 +34,18 @@ export class UniFlexWidget {
     ) {}
 
     public ngAfterViewInit() {
-        this.timesheetService.initUser().subscribe((timesheet) => {
-            if (timesheet && timesheet.currentRelation) {
-                this.getFlexBalance(timesheet.currentRelation.ID);
-            } else {
-                this.displayValue = '0';
-                this.cdr.markForCheck();
-            }
-        });
+
+        this.timesheetService.initUser().subscribe(
+            (timesheet) => {
+                if (timesheet && timesheet.currentRelation) {
+                    this.getFlexBalance(timesheet.currentRelation.ID);
+                } else {
+                    this.displayValue = '0';
+                    this.cdr.markForCheck();
+                }
+            },
+            err => {/* fail silently */}
+        );
     }
 
     private getFlexBalance(relationID) {

@@ -47,12 +47,13 @@
             Tilbakestill alt
         </button>
 
-        <uni-multilevel-select [placeholder]="'Legg til widget'"
-                               [items]="widgetSelectorItems"
-                               (select)="addWidget($event)"
-                               class="drop-up">
+        <uni-multilevel-select
+            [placeholder]="'Legg til widget'"
+            [items]="widgetSelectorItems"
+            [displayField]="'description'"
+            (select)="addWidget($event)"
+            class="drop-up">
         </uni-multilevel-select>
-
 
         <button (click)="cancelEdit()" class="bad canvas-cancel">
             Avbryt

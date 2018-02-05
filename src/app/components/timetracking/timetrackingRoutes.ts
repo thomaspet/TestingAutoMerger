@@ -19,12 +19,12 @@ export const timetrackingRoutes: Routes = [
     {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'dashboard'
-    },
-    {
-        path: 'dashboard',
         component: TimetrackingDashboard
     },
+    // {
+    //     path: 'dashboard',
+    //     component: TimetrackingDashboard
+    // },
     {
         path: 'workprofiles',
         component: WorkprofileListview

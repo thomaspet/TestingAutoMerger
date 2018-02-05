@@ -1,7 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
-import {WidgetDataService} from '../widgets/widgetDataService';
 
 @Component({
     selector: 'uni-salary',
@@ -11,11 +10,10 @@ import {WidgetDataService} from '../widgets/widgetDataService';
         </uni-widget-canvas>
     `,
 })
-export class UniSalary implements OnDestroy {
+export class UniSalary {
     private widgetLayout: IUniWidget[];
-    private refreshInterval;
 
-    constructor(tabService: TabService, private widgetService: WidgetDataService) {
+    constructor(tabService: TabService) {
         tabService.addTab({
              name: 'Lønn',
              url: '/salary',
@@ -23,225 +21,69 @@ export class UniSalary implements OnDestroy {
              active: true
         });
 
-        this.widgetService.clearCache();
         this.widgetLayout = this.getDefaultLayout();
-        const that = this;
-        // Refresh dashboard every 10 minutes. Minutes here could be user specified?
-        this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
     }
 
-    private refreshOnTimer() {
-        this.widgetService.clearCache();
-        this.widgetLayout = [...this.getDefaultLayout()];
-    }
-
-    public ngOnDestroy() {
-        clearInterval(this.refreshInterval);
-    }
-
-    private getDefaultLayout(): IUniWidget[] {
+    private getDefaultLayout(): any[] {
         return [
             {
-                width: 1,
-                height: 1,
                 x: 0,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Ansatte',
-                    description: 'Ansatte',
-                    icon: 'employee',
-                    link: '/salary/employees'
-                }
+                widgetID: 'shortcut_salary_employees',
             },
 
             {
-                width: 1,
-                height: 1,
                 x: 1,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Lønnsarter',
-                    description: 'Lønnsarter',
-                    icon: 'wagetype',
-                    link: '/salary/wagetypes'
-                }
+                widgetID: 'shortcut_salary_wagetypes',
             },
 
             {
-                width: 1,
-                height: 1,
                 x: 2,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Lønnsavregninger',
-                    description: 'Lønnsavregninger',
-                    icon: 'payrollrun',
-                    link: '/salary/payrollrun'
-                }
+                widgetID: 'shortcut_salary_payrollrun',
             },
 
             {
-                width: 1,
-                height: 1,
                 x: 3,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'A-melding',
-                    description: 'A-melding',
-                    icon: 'amelding',
-                    link: '/salary/amelding'
-                }
+                widgetID: 'shortcut_salary_amelding',
             },
 
             {
-                width: 3,
-                height: 1,
                 x: 4,
                 y: 0,
-                widgetType: 'clock',
-                config: {
-                    dateColor: '#7698bd',
-                    showSeconds: false
-                }
+                widgetID: 'clock',
             },
-
             {
-                width: 4,
-                height: 3,
                 x: 0,
                 y: 4,
-                widgetType: 'chart',
-                config: {
-                    header: 'Ansatte per stillingskode',
-                    chartType: 'pie',
-                    labels: [],
-                    colors: [],
-                    dataEndpoint: [
-                        '/api/statistics?model=Employee&select=count(ID) as Count,'
-                        + 'Employments.JobName as JobName&expand=Employments'
-                    ],
-                    labelKey: 'JobName',
-                    valueKey: 'Count',
-                    maxNumberOfLabels: 7,
-                    useIf: '',
-                    addDataValueToLabel: false,
-                    dataset: [],
-                    options: {
-                        cutoutPercentage: 80,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'bottom'
-                        },
-                    }
-                }
+                widgetID: 'chart_employees_per_employment',
             },
             {
-                width: 8,
-                height: 3,
                 x: 2,
                 y: 1,
-                widgetType: 'transaction', // TODO: enum
-                config: {
-                    dashboard: 'Salary' // Identifyer for which fields to show.. FIX while not dynamic
-                }
+                widgetID: 'transaction_salary',
             },
             {
-                width: 2,
-                height: 3,
                 x: 0,
                 y: 1,
-                widgetType: 'shortcutlist',
-                config: {
-                    header: 'Snarveier',
-                    shortcuts: [
-                        {
-                            label: 'Ansatte',
-                            link: '/salary/employees',
-                            urlToNew: '/salary/employees/0'
-                        },
-                        {
-                            label: 'Lønnsarter',
-                            link: '/salary/wagetypes',
-                            urlToNew: '/salary/wagetypes/0/details'
-                        },
-                        {
-                            label: 'Kategorier',
-                            link: '/salary/employeecategories',
-                            urlToNew: '/salary/employeecategories/0/details'
-                        },
-                        {
-                            label: 'Lønnsavregning',
-                            link: '/salary/payrollrun',
-                            urlToNew: '/salary/payrollrun/0'
-                        },
-                        {
-                            label: 'A-melding',
-                            link: '/salary/amelding',
-                            urlToNew: ''
-                        },
-                        {
-                            label: 'Saldo',
-                            link: '/salary/salarybalances',
-                            urlToNew: '/salary/salarybalances/0/details'
-                        },
-                        {
-                            label: 'Tillegsopplysninger',
-                            link: '/salary/supplements',
-                            urlToNew: ''
-                        }
-                    ]
-                }
+                widgetID: 'shortcut_list_salary',
             },
             {
-                width: 2,
-                height: 2,
                 x: 4,
                 y: 4,
-                widgetType: 'infoshortcut', // TODO: enum
-                config: {
-                    header: 'Oversikt',
-                    text: 'Alle dine data er kun et tastetrykk unna. Kraftig søk med filtreringsmuligheter',
-                    link: '/overview',
-                    externalLink: '',
-                    imageLink: '../../../assets/info_shortcut_ticker_img.jpg',
-                    title: 'Gå til oversikt'
-                }
+                widgetID: 'info_shortcut_overview',
             },
             {
-                width: 2,
-                height: 2,
                 x: 6,
                 y: 4,
-                widgetType: 'infoshortcut', // TODO: enum
-                config: {
-                    header: 'Opplæringsvideoer',
-                    text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
-                    link: '',
-                    externalLink: 'http://app.cimple.no/unimicro/',
-                    imageLink: '../../../assets/info_shortcut_movie_img.jpg',
-                    title: ''
-                }
+                widgetID: 'info_shortcut_videos',
             },
             {
-                width: 2,
-                height: 2,
                 x: 8,
                 y: 4,
-                widgetType: 'infoshortcut', // TODO: enum
-                config: {
-                    header: 'Kundesenteret',
-                    text: 'Besøk vårt kundesenter for tips og triks, nyttige datoer og annen info.',
-                    link: '',
-                    externalLink: 'https://unimicro.atlassian.net/servicedesk/customer/portal/3',
-                    imageLink: '../../../assets/info_shortcut_bell_img.jpg',
-                    title: ''
-                }
+                widgetID: 'info_shortcut_help',
             }
         ];
     }

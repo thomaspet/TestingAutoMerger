@@ -2,6 +2,7 @@
     {
         "Name": "Kunde",
         "Code": "customer_list",
+        "RequiredUIPermissions": ["ui_sales_customer"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Salg",
@@ -83,6 +84,7 @@
         "Name": "Kundedetaljer",
         "Type": "Details",
         "Code": "customer_details",
+        "RequiredUIPermissions": ["ui_sales_customer"],
         "IsTopLevelTicker": false,
         "Group": "Salg",
         "Model": "Customer",

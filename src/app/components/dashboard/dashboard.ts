@@ -1,8 +1,7 @@
-import {Component, ViewChild, OnDestroy} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {YearService} from '../../services/services';
 import {UniWidgetCanvas} from '../widgets/widgetCanvas';
-import {WidgetDataService} from '../widgets/widgetDataService';
 
 import * as Chart from 'chart.js';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -20,339 +19,116 @@ export interface IChartDataSet {
     selector: 'uni-dashboard',
     templateUrl: './dashboard.html'
 })
-export class Dashboard implements OnDestroy  {
+export class Dashboard {
     @ViewChild(UniWidgetCanvas)
     public widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = this.browserStorage.getItem('welcomeHidden');
     private layout: any[] = [];
-    private activeYear: number;
-    private refreshInterval;
 
     constructor(
         private http: UniHttp,
         private yearService: YearService,
         private browserStorage: BrowserStorageService,
-        private widgetService: WidgetDataService
     ) {
         // Avoid compile error. Seems to be something weird with the chart.js typings file
         (<any> Chart).defaults.global.maintainAspectRatio = false;
-        // this.layout = this.initLayout();
-
-        this.yearService.selectedYear$.subscribe(year => {
-            this.activeYear = year;
-            this.widgetService.clearCache();
-            this.layout = this.initLayout();
-            const that = this;
-            // Refresh dashboard every 10 minutes. Minutes here could be user specified?
-            this.refreshInterval = setInterval(() => { that.refreshOnTimer(); }, 1000 * 60 * 10 );
-        });
-    }
-
-    private refreshOnTimer() {
-        this.widgetService.clearCache();
-        this.layout = [...this.initLayout()];
-    }
-
-    public ngOnDestroy() {
-        clearInterval(this.refreshInterval);
+        this.layout = this.initLayout();
     }
 
     public initLayout() {
         return [
             {
-                width: 1,
-                height: 1,
                 x: 0,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Regnskap',
-                    description: 'Regnskap',
-                    icon: 'accounting',
-                    link: '/accounting'
-                }
+                widgetID: 'shortcut_accounting'
             },
             {
-                width: 1,
-                height: 1,
                 x: 1,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Salg',
-                    description: 'Salg',
-                    icon: 'sale',
-                    link: '/sales'
-                }
+                widgetID: 'shortcut_sales'
             },
             {
-                width: 1,
-                height: 1,
                 x: 2,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Lønn',
-                    description: 'Lønn',
-                    icon: 'payroll',
-                    link: '/salary'
-                }
+                widgetID: 'shortcut_salary'
             },
             {
-                width: 1,
-                height: 1,
                 x: 3,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Bank',
-                    description: 'Bank',
-                    icon: 'bank',
-                    link: '/bank'
-                }
+                widgetID: 'shortcut_bank'
             },
             {
-                width: 1,
-                height: 1,
                 x: 4,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Timer',
-                    description: 'Timeføring',
-                    icon: 'hourreg',
-                    link: '/timetracking/dashboard'
-                }
+                widgetID: 'shortcut_timetracking'
             },
             {
-                width: 1,
-                height: 1,
                 x: 5,
                 y: 0,
-                widgetType: 'shortcut',
-                config: {
-                    label: 'Oversikt',
-                    description: 'Oversikt',
-                    icon: 'search',
-                    link: '/overview'
-                }
+                widgetID: 'shortcut_overview'
             },
             {
-                width: 3,
-                height: 1,
                 x: 6,
                 y: 0,
-                widgetType: 'clock',
-                config: {
-                    dateColor: '#7698bd',
-                    showSeconds: false
-                }
+                widgetID: 'clock'
             },
             {
-                width: 2,
-                height: 1,
                 x: 9,
                 y: 0,
-                widgetType: 'companyLogo',
-                config: {}
+                widgetID: 'companylogo',
             },
             {
-                width: 1,
-                height: 1,
                 x: 8,
                 y: 1,
-                widgetType: 'counter', // TODO: enum
-                config: {
-                    label: 'Epost',
-                    description: 'Antall eposter i innboks',
-                    icon: 'letter',
-                    link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: '/api/biz/filetags/IncomingMail/0?action=get-supplierInvoice-inbox-count',
-                    valueKey: null,
-                    amount: 0,
-                    class: 'uni-widget-notification-orange'
-                }
+                widgetID: 'counter_email',
             },
             {
-                width: 1,
-                height: 1,
                 x: 9,
                 y: 1,
-                widgetType: 'counter', // TODO: enum
-                config: {
-                    label: 'EHF',
-                    description: 'Antall EHFer i innboks',
-                    icon: 'ehf',
-                    link: '/accounting/bills?filter=Inbox',
-                    dataEndpoint: '/api/biz/filetags/IncomingEHF/0?action=get-supplierInvoice-inbox-count',
-                    valueKey: null,
-                    amount: 0,
-                    class: 'uni-widget-notification-orange'
-                }
+                widgetID: 'counter_ehf',
             },
             {
-                width: 1,
-                height: 1,
                 x: 10,
                 y: 1,
-                widgetType: 'counter', // TODO: enum
-                config: {
-                    label: 'Tildelte',
-                    description: 'Tildelte faktura',
-                    icon: 'pdf',
-                    link: '/accounting/bills?filter=ForApproval&page=1',
-                    dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as '
-                        + 'count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
-                    valueKey: 'Data[0].count',
-                    amount: 0,
-                    class: 'uni-widget-notification-orange'
-                }
+                widgetID: 'counter_assigned_invoices',
             },
             {
-                width: 1,
-                height: 1,
                 x: 11,
                 y: 1,
-                widgetType: 'counter', // TODO: enum
-                config: {
-                    label: 'Varsler',
-                    description: 'Uleste varlser',
-                    icon: 'notification',
-                    link: '/',
-                    dataEndpoint: '/api/biz/notifications?action=count',
-                    valueKey: 'Count',
-                    class: 'uni-widget-notification-lite-blue'
-                }
+                widgetID: 'counter_notifications',
             },
             {
-                width: 2,
-                height: 1,
                 x: 8,
                 y: 2,
-                widgetType: 'flex', // TODO: enum
-                config: {}
+                widgetID: 'sum_hours',
             },
             {
-                width: 2,
-                height: 1,
                 x: 10,
                 y: 2,
-                widgetType: 'sum',
-                config: {
-                    dataEndpoint: '/api/statistics?skip=0&top=50&model=CustomerInvoice&select=sum(CustomerInvoice.RestAmount) as '
-                    + 'sum&filter=(CustomerInvoice.PaymentDueDate le \'getdate()\' )',
-                    title: 'Forfalte ubetalte faktura',
-                    description: 'Totalsum forfalte faktura',
-                    positive: false,
-                    link: '/sales/invoices?expanded=ticker&selected=null&filter=overdue_invoices'
-                }
+                widgetID: 'sum_overdue_invoices',
             },
             {
-                width: 4,
-                height: 3,
                 x: 0,
                 y: 1,
-                widgetType: 'chart',
-                config: {
-                    header: `Driftsresultater (${this.activeYear})`,
-                    chartType: 'line',
-                    labels: ['Jan', '', '', 'Apr', '', '', 'Jul', '', 'Sep', '', '', 'Dec'],
-                    colors: ['#7293cb'],
-                    backgroundColors: ['transparent'],
-                    dataEndpoint: ['/api/statistics?model=JournalEntryLine&select=month(financialdate),'
-                        + 'sum(amount)&join=journalentryline.accountid eq account.id&filter=year(financialdate) '
-                        + 'eq <year> and account.accountnumber ge 3000 and account.accountnumber le 9999 '
-                        + '&range=monthfinancialdate'
-                    ],
-                    dataKey: ['sumamount'],
-                    multiplyValue: -1,
-                    dataset: [],
-                    fill: 'none',
-                    options: {
-                        showLines: true,
-                        bezierCurve: false
-                    },
-                    title: ['Driftsresultat']
-                }
+                widgetID: 'chart_operating_profits',
             },
             {
-                width: 4,
-                height: 3,
                 x: 4,
                 y: 1,
-                widgetType: 'kpi',
-                config: {
-                    header: `Nøkkeltall (${this.activeYear})`
-                }
+                widgetID: 'kpi',
             },
             {
-                width: 4,
-                height: 3,
                 x: 0,
                 y: 4,
-                widgetType: 'chart',
-                config: {
-                    header: 'Ansatte per stillingskode',
-                    chartType: 'pie',
-                    labels: [],
-                    colors: [],
-                    dataEndpoint: [
-                        '/api/statistics?model=Employee&select=count(ID) as '
-                        + 'Count,Employments.JobName as JobName&expand=Employments'
-                    ],
-                    labelKey: 'JobName',
-                    valueKey: 'Count',
-                    maxNumberOfLabels: 7,
-                    useIf: '',
-                    addDataValueToLabel: false,
-                    dataset: [],
-                    options: {
-                        cutoutPercentage: 80,
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'bottom'
-                        },
-                    }
-                }
+                widgetID: 'chart_employees_per_employment'
             },
 
             {
-                width: 4,
-                height: 3,
                 x: 4,
                 y: 4,
-                widgetType: 'chart',
-                config: {
-                    header: 'Utestående per kunde',
-                    chartType: 'pie',
-                    labels: [],
-                    colors: [],
-                    dataEndpoint: [
-                        '/api/statistics?model=Customer&select=Info.Name as Name,'
-                        + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
-                        + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
-                    ],
-                    valueKey: 'RestAmount',
-                    labelKey: 'Name',
-                    maxNumberOfLabels: 7,
-                    useIf: '',
-                    addDataValueToLabel: false,
-                    dataset: [],
-                    options: {
-                        animation: {
-                            animateScale: true
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
+                widgetID: 'chart_restamount_per_customer',
             }
         ];
-
-
     }
 }

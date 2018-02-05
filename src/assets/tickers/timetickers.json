@@ -2,6 +2,7 @@
     {
         "Name": "Timefører",
         "Code": "worker_list",
+        "RequiredUIPermissions": ["ui_timetracking_workers"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Time",
@@ -35,7 +36,7 @@
                 "Alias": "AccMinutes",
                 "Expand": "Relations.Items",
                 "Field": "sum(casewhen(items.StatusCode eq ''\\,1\\,0))"
-            }            
+            }
         ],
         "Actions": [
             {
@@ -52,6 +53,6 @@
                 "ExecuteWithoutSelection": true
             }
         ]
-    }    
+    }
 
 ]
