@@ -6,6 +6,7 @@ import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
+import {Observable} from 'rxjs/Observable';
 
 
 export interface IViewConfig {
@@ -28,6 +29,7 @@ export interface IViewConfig {
         expand?: string;
         factory?: () => {}
         check?: (item: any) => void
+        checkObs?: (item: any) => Observable<any>
     };
     tableConfig?: UniTableConfig;
     formFields?: Array<any>;

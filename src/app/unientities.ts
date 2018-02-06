@@ -110,6 +110,7 @@ export class Worker extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public EmployeeID: number;
     public ID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -117,6 +118,7 @@ export class Worker extends UniEntity {
     public UserID: number;
     public Info: BusinessRelation;
     public Relations: Array<WorkRelation>;
+    public Employee: Employee;
     public CustomFields: any;
 }
 
