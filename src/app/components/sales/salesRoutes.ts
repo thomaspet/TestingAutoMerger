@@ -48,11 +48,6 @@ export const salesRoutes: Routes = [
         component: QuoteDetails,
         canDeactivate: [CanDeactivateGuard]
     },
-
-    {
-        path: 'invoicesold',
-        component: InvoiceList
-    },
     {
         path: 'invoices',
         component: InvoiceList
