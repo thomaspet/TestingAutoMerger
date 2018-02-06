@@ -107,7 +107,7 @@ const ACCOUNTING_SHORTCUTS = [
         widgetType: 'shortcut',
         config: {
             icon: 'magnifying',
-            link: '/accounting/transquery/details'
+            link: '/accounting/transquery'
         }
     },
     {

@@ -25,8 +25,7 @@ import {CreateCorrectedVatReportForm} from './vatreport/modals/createCorrectedVa
 import {SelectJournalEntryLineModal} from './journalentry/components/selectJournalEntryLineModal';
 import {ReceiptVat} from './vatreport/receipt/receipt';
 import {VatSummaryPerPost} from './vatreport/reportSummary/reportSummary';
-import {TransqueryDetails} from './transquery/details/transqueryDetails';
-import {Transquery} from './transquery/transquery';
+import {TransqueryDetails} from './transquery/transqueryDetails';
 import {JournalEntries} from './journalentry/journalentries/journalentries';
 import {Payments} from './journalentry/payments/payments';
 import {VatReportView} from './vatreport/vatreportview';
@@ -132,7 +131,6 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
         HistoricVatReportModal,
 
         // transquery
-        Transquery,
         TransqueryDetails,
 
         // accounting reports
@@ -197,7 +195,6 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
         HistoricVatReportModal,
 
         // transquery
-        Transquery,
         TransqueryDetails,
 
         // accounting reports

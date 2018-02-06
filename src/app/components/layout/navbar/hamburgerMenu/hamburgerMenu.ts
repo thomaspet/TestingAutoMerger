@@ -262,7 +262,7 @@ export class HamburgerMenu {
                         moduleID: UniModules.VatReport},
                     {componentName: 'Resultat og balanse', componentUrl: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports},
-                    {componentName: 'Søk på bilag', componentUrl: '/accounting/transquery/details',
+                    {componentName: 'Søk på bilag', componentUrl: '/accounting/transquery',
                         moduleID: UniModules.TransqueryDetails, groupHeader: 'Søk'},
                     {componentName: 'Søk på konto', componentUrl: '/accounting/accountquery',
                         moduleID: UniModules.AccountQuery},

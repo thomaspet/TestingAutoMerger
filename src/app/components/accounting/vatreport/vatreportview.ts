@@ -107,7 +107,7 @@ export class VatReportView implements OnInit, OnDestroy {
         }
 
         const journalEntryLink = journalEntryNumber && journalEntryID
-            ? `/#/accounting/transquery/details;JournalEntryNumber=`
+            ? `/#/accounting/transquery;JournalEntryNumber=`
                 + `${journalEntryNumber};`
                 + `journalEntryID=${journalEntryID};`
                 + `Period.AccountYear=${year};`

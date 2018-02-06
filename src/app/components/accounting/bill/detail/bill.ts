@@ -2490,7 +2490,7 @@ export class BillView implements OnInit {
                 { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ? `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
+                    link: jnr ? `#/accounting/transquery;JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,

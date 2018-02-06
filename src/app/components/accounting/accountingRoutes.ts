@@ -2,7 +2,6 @@ import {Routes} from '@angular/router';
 
 import {UniAccounting} from './accounting';
 import {JournalEntry} from './journalentry/journalentry';
-import {Transquery} from './transquery/transquery';
 import {AccountSettings} from './accountSettings/accountSettings';
 import {VatSettings} from './vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
@@ -11,14 +10,12 @@ import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDeta
 
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
-
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
-
 import {PostPost} from './postpost/postpost';
+import {TransqueryDetails} from './transquery/transqueryDetails';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
-import {routes as TransqueryRoutes} from './transquery/transqueryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
@@ -37,8 +34,7 @@ export const accountingRoutes: Routes = [
     },
     {
         path: 'transquery',
-        component: Transquery,
-        children: TransqueryRoutes,
+        component: TransqueryDetails,
         canDeactivate: [CanDeactivateGuard]
     },
     {

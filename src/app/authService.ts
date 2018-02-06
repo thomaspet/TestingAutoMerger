@@ -399,6 +399,8 @@ export class AuthService {
             return part !== '' && isNaN(parseInt(part, 10));
         });
 
+        console.log('ui_' + urlParts.join('_'));
+
         return 'ui_' + urlParts.join('_');
     }
 }

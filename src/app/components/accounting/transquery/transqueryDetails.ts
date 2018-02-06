@@ -1,4 +1,4 @@
-import {IToolbarConfig} from '../../../../components/common/toolbar/toolbar';
+import {IToolbarConfig} from '../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
@@ -8,17 +8,17 @@ import {
     UniTableColumnType,
     ITableFilter,
     ICellClickEvent
-} from '../../../../../framework/ui/unitable/index';
+} from '../../../../framework/ui/unitable/index';
 import {
     TransqueryDetailsCalculationsSummary
-} from '../../../../models/accounting/TransqueryDetailsCalculationsSummary';
+} from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {JournalEntry, Account, FinancialYear} from '../../../../unientities';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {ISummaryConfig} from '../../../common/summary/summary';
+import {JournalEntry, Account, FinancialYear} from '../../../unientities';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
+import {ImageModal} from '../../common/modals/ImageModal';
+import {ISummaryConfig} from '../../common/summary/summary';
 import {
     JournalEntryLineService,
     JournalEntryService,
@@ -28,15 +28,15 @@ import {
     AccountService,
     FinancialYearService,
     BrowserStorageService
-} from '../../../../services/services';
+} from '../../../services/services';
 
 import {
     UniModalService,
     ConfirmActions,
-} from '../../../../../framework/uniModal/barrel';
-import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
+} from '../../../../framework/uniModal/barrel';
+import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
-import {FieldType} from '../../../../../framework/ui/uniform/index';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as _ from 'lodash';
@@ -93,7 +93,7 @@ export class TransqueryDetails implements OnInit {
     ) {
         this.tabService.addTab({
             'name': 'Forespørsel bilag',
-            url: '/accounting/transquery/details',
+            url: '/accounting/transquery',
             moduleID: UniModules.TransqueryDetails,
             active: true
         });
@@ -529,24 +529,24 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
                 .setTemplate(line => line.AccountAccountNumber)
-                .setLinkResolver(row => `/accounting/transquery/details;Account_AccountNumber=${row.AccountAccountNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;Account_AccountNumber=${row.AccountAccountNumber}`)
                 .setWidth('85px')
                 .setFilterOperator('eq'),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                 .setTemplate(line => line.AccountAccountName),
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
-                .setLinkResolver(row => `/accounting/transquery/details;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
                 .setVisible(false)
                 .setWidth('90px')
                 .setFilterable(false),
@@ -643,8 +643,8 @@ export class TransqueryDetails implements OnInit {
                 .setFilterable(false)
                 .setVisible(false)
                 .setTemplate(line => line.JournalEntryJournalEntryAccrualID)
-                .setLinkResolver(row => `/accounting/transquery/details;`
-                    + `JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
+                .setLinkResolver(row => `/accounting/transquery`
+                    + `;JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
                 ),
             new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                 .setTemplate(line => line.Attachments ? PAPERCLIP : '')

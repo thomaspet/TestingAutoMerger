@@ -25,7 +25,7 @@ export const SHORTCUT_LISTS = [
                 },
                 {
                     label: 'Forespørsel bilg',
-                    link: '/accounting/transquery/details',
+                    link: '/accounting/transquery',
                     urlToNew: ''
                 },
                 {

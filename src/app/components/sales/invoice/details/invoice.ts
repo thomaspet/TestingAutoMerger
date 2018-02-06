@@ -1100,7 +1100,7 @@ export class InvoiceDetails {
         if (this.invoice.JournalEntry) {
             toolbarconfig.subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
-                link: `#/accounting/transquery/details;JournalEntryNumber=`
+                link: `#/accounting/transquery;JournalEntryNumber=`
                 + `${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
