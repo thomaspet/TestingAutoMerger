@@ -1,7 +1,7 @@
 ﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {FieldType, UniForm} from '@uni-framework/ui/uniform/index';
+import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
@@ -21,7 +21,8 @@ import {
     Municipal,
     PeriodSeries,
     Phone,
-    VatReportForm
+    VatReportForm,
+    CampaignTemplate
 } from '@uni-entities';
 import {
     AccountService,
@@ -45,7 +46,8 @@ import {
     VatReportFormService,
     VatTypeService,
     UniFilesService,
-    AdminProductService
+    AdminProductService,
+    CampaignTemplateService
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -104,6 +106,7 @@ export class CompanySettingsComponent implements OnInit {
 
     public showImageSection: boolean = false;
     public showReminderSection: boolean = false;
+    public showReportOptionsSection: boolean = false;
     public imageUploadOptions: IUploadConfig;
 
     public addressChanged: any;
@@ -150,6 +153,12 @@ export class CompanySettingsComponent implements OnInit {
 
     private currentYear: number;
 
+    private invoiceTemplate: CampaignTemplate;
+    private orderTemplate: CampaignTemplate;
+    private quoteTemplate: CampaignTemplate;
+
+    public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
@@ -179,7 +188,8 @@ export class CompanySettingsComponent implements OnInit {
         private companySettingsViewService: CompanySettingsViewService,
         private adminProductService: AdminProductService,
         private router: Router,
-        private agreementService: AgreementService
+        private agreementService: AgreementService,
+        private campaignTemplateService: CampaignTemplateService
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -205,7 +215,10 @@ export class CompanySettingsComponent implements OnInit {
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity(null, 'Address'),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
-            this.financialYearService.GetAll(null)
+            this.financialYearService.GetAll(null),
+            this.campaignTemplateService.getInvoiceTemplatetext(),
+            this.campaignTemplateService.getOrderTemplateText(),
+            this.campaignTemplateService.getQuoteTemplateText()
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -221,6 +234,31 @@ export class CompanySettingsComponent implements OnInit {
                 this.accountVisibilityGroups = dataset[10].filter(x => x.CompanyTypes.length === 0);
                 this.accountYears = dataset[11];
                 this.accountYears.forEach(item => item['YearString'] = item.Year.toString());
+
+                this.invoiceTemplate = JSON.parse(dataset[12]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerInvoice',
+                        Template: ''
+                    };
+                this.orderTemplate = JSON.parse(dataset[13]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerOrder',
+                        Template: ''
+                    };
+                this.quoteTemplate = JSON.parse(dataset[14]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerQuote',
+                        Template: ''
+                    };
+
+
+
+                this.reportModel$.next({
+                    company: this.setupCompanySettingsData(dataset[5]),
+                    orderTemplate: this.orderTemplate,
+                    invoiceTemplate: this.invoiceTemplate,
+                    quoteTemplate: this.quoteTemplate
+                })
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -320,13 +358,43 @@ export class CompanySettingsComponent implements OnInit {
     public companySettingsChange(changes: SimpleChanges) {
         this.isDirty = true;
 
+        if (changes['quoteTemplate.Template']) {
+            this.quoteTemplate.Template = changes['quoteTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
+
+        if (changes['orderTemplate.Template']) {
+            this.orderTemplate.Template = changes['orderTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
+
+        if (changes['invoiceTemplate.Template']) {
+            this.invoiceTemplate.Template = changes['invoiceTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
+
 
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
             this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
                 result => {
                     this.router.navigateByUrl('/settings/company');
-            }, err => this.errorService.handle
-        );
+                }, err => this.errorService.handle
+            );
         }
 
         if (changes['CompanyBankAccount']) {
@@ -415,8 +483,11 @@ export class CompanySettingsComponent implements OnInit {
             }, err => this.errorService.handle(err));
         }
     }
+
     public saveSettings(complete) {
-        const company = this.company$.getValue();
+        const company = this.company$.value;
+        const templates = [this.invoiceTemplate, this.orderTemplate, this.quoteTemplate];
+
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
@@ -460,6 +531,16 @@ export class CompanySettingsComponent implements OnInit {
             }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
         }
+
+        templates.forEach(template => {
+            template.ID
+                ? this.campaignTemplateService
+                    .Put(template.ID, template)
+                    .subscribe()
+                : this.campaignTemplateService
+                    .Post(template)
+                    .subscribe();
+        });
 
         this.companySettingsService
             .Put(company.ID, company)
@@ -1275,15 +1356,56 @@ export class CompanySettingsComponent implements OnInit {
         this.companyLogoFields$.next([
             {
                 FieldType: FieldType.DROPDOWN,
-                Label: "Rapportlogo plassering",
-                Property: "LogoAlign",
+                Label: 'Rapportlogo plassering',
+                Property: 'company.LogoAlign',
                 Options: {
                     source: this.logoAlignOptions,
                     valueProperty: 'Alignment',
                     displayProperty: 'Label'
                 },
+                FieldSet: 1,
+                Section: 0
             },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst tilbud',
+                Property: 'quoteTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 2,
+                Section: 0
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst ordre',
+                Property: 'orderTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 3,
+                Section: 0
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst faktura',
+                Property: 'invoiceTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 4,
+                Section: 0
+            }
         ]);
+    }
+
+    private defaultTextValidation(value: string, field: UniFieldLayout): UniFormError | null {
+        if (value && value.length > 160) {
+            return {
+                value: value,
+                errorMessage: 'Maks antall tegn er 160.',
+                field: field,
+                isWarning: false
+            };
+        }
+        return null;
     }
 
     private logoFileChanged(files: Array<any>) {
