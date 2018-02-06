@@ -14,7 +14,6 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniTickerContainer} from '../uniticker/tickerContainer/tickerContainer';
 import {
     UniModalService,
-    UniDownloadPaymentsModal,
     UniSendPaymentModal,
     UniConfirmModalV2,
     ConfirmActions,
@@ -207,14 +206,6 @@ export class BankComponent implements AfterViewInit {
             });
 
             this.actions.push({
-                label: 'Hent autobankfiler',
-                action: (done) => this.downloadBankFiles(done),
-                main: false,
-                disabled: false
-            });
-
-
-            this.actions.push({
                 label: 'Hent bankfiler og bokfør',
                 action: (done, file) => {
                     done('Fil lastet opp');
@@ -235,11 +226,6 @@ export class BankComponent implements AfterViewInit {
                 isUpload: true
             });
         }
-    }
-
-    public downloadBankFiles(done) {
-        this.modalService.open(UniDownloadPaymentsModal, {}).onClose
-            .subscribe(res => done(res));
     }
 
     public downloadPaymentFiles(rows): Promise<any> {
