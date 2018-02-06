@@ -23,6 +23,7 @@ import {Teams} from './teams/teams';
 import {UserSettings} from './userSettings/userSettings';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
+import {UniBankSettings} from './bank/bankSettings';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeAmountModal';
@@ -55,6 +56,7 @@ import {RoleSelector} from './users/roleSelector';
         UserSettings,
         NumberSeries,
         UniTerms,
+        UniBankSettings,
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
@@ -78,6 +80,7 @@ import {RoleSelector} from './users/roleSelector';
         Users,
         UserSettings,
         UniTerms,
+        UniBankSettings,
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         FreeAmountModal,

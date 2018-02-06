@@ -369,6 +369,7 @@ export class HamburgerMenu {
                     {componentName: 'Nummerserier', componentUrl: '/settings/numberseries'},
                     {componentName: 'Team', componentUrl: '/settings/teams'},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn'},
+                    // {componentName: 'Bankinnstillinger', componentUrl: '/settings/banksettings'},
                     {componentName: 'Regler', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds},
                     {componentName: 'Integrasjon', componentUrl: '/settings/webhooks'},
 

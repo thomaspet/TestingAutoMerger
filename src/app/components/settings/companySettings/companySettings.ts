@@ -332,9 +332,9 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['CompanyBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'CompanyBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -344,9 +344,9 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['TaxBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'TaxBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -356,9 +356,9 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['SalaryBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'SalaryBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -366,7 +366,7 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['OrganizationNumber']) {
-            let organizationnumber = changes['OrganizationNumber'].currentValue;
+            const organizationnumber = changes['OrganizationNumber'].currentValue;
             if (organizationnumber === ''
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
@@ -416,7 +416,7 @@ export class CompanySettingsComponent implements OnInit {
         }
     }
     public saveSettings(complete) {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
@@ -481,7 +481,7 @@ export class CompanySettingsComponent implements OnInit {
                         // cant be synced
                         this.uniFilesService.syncUniEconomyCompanySettings();
 
-                        let currentFinancialYear = new FinancialYear();
+                        const currentFinancialYear = new FinancialYear();
                         currentFinancialYear.Year = response.CurrentAccountingYear;
                         // setting currentAccountingYear in dropdown as well, this triggers route change to '/'
                         if (company.CurrentAccountingYear !== this.currentYear) {
@@ -519,7 +519,7 @@ export class CompanySettingsComponent implements OnInit {
         this.companySettingsViewService
             .askUserAboutBrregImport(companySettings)
             .subscribe(result => {
-                let [compSettings, confirmAction] = result;
+                const [compSettings, confirmAction] = result;
 
                 if (confirmAction !== ConfirmActions.ACCEPT) {
                     return;
@@ -532,7 +532,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public updateMunicipalityName() {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         this.municipalService.GetAll(`filter=MunicipalityNo eq '${company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {
                 if (data && data.length > 0) {
@@ -543,8 +543,8 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
-        var defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
+        const fields = this.fields$.getValue();
+        const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
             allowAddValue: false,
             allowDeleteValue: true,
@@ -567,7 +567,7 @@ export class CompanySettingsComponent implements OnInit {
             }
         };
 
-        var phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
+        const phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
             allowAddValue: false,
@@ -588,7 +588,7 @@ export class CompanySettingsComponent implements OnInit {
             },
         };
 
-        var emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
+        const emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
             allowAddValue: false,
@@ -610,7 +610,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.accountGroupSets.unshift(null);
-        let accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');
+        const accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');
         accountGroupSetID.Options = {
             source: this.accountGroupSets,
             valueProperty: 'ID',
@@ -619,7 +619,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.accountVisibilityGroups.unshift(null);
-        let accountVisibilityGroupID: UniFieldLayout = fields.find(x => x.Property === 'AccountVisibilityGroupID');
+        const accountVisibilityGroupID: UniFieldLayout = fields.find(x => x.Property === 'AccountVisibilityGroupID');
         accountVisibilityGroupID.Options = {
             source: this.accountVisibilityGroups,
             valueProperty: 'ID',
@@ -628,7 +628,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.companyTypes.unshift(null);
-        let companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
+        const companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
         companyTypeID.Options = {
             source: this.companyTypes,
             valueProperty: 'ID',
@@ -637,7 +637,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.vatReportForms.unshift(null);
-        let vatReportFormID: UniFieldLayout = fields.find(x => x.Property === 'VatReportFormID');
+        const vatReportFormID: UniFieldLayout = fields.find(x => x.Property === 'VatReportFormID');
         vatReportFormID.Options = {
             source: this.vatReportForms,
             valueProperty: 'ID',
@@ -645,7 +645,7 @@ export class CompanySettingsComponent implements OnInit {
             template: vatReportForm => `${vatReportForm.Name} ${vatReportForm.Description}`
         };
 
-        let baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrencyCodeID');
+        const baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrencyCodeID');
         baseCurrency.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -654,7 +654,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        const currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
         currentAccountYear.Options = {
             source: this.accountYears,
             valueProperty: 'Year',
@@ -662,7 +662,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
+        const officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
             valueProperty: 'MunicipalityNo',
@@ -673,7 +673,7 @@ export class CompanySettingsComponent implements OnInit {
                 + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
-        let periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
+        const periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
         periodSeriesAccountID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '1'),
             valueProperty: 'ID',
@@ -682,7 +682,7 @@ export class CompanySettingsComponent implements OnInit {
             ReadOnly: true
         };
 
-        let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
+        const periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
         periodSeriesVatID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '0'),
             valueProperty: 'ID',
@@ -692,18 +692,18 @@ export class CompanySettingsComponent implements OnInit {
 
         };
 
-        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
+        const companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
         companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccount', 'company');
 
-        let taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
+        const taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
         taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccount', 'tax');
 
-        let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
+        const salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
 
-        let settings = this.company$.getValue();
-        let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = settings.APActivated ? 'Reaktiver EHF' : 'Kjøp EHF fra markedsplassen';
+        const settings = this.company$.getValue();
+        const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
+        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);

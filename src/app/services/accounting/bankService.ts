@@ -38,6 +38,41 @@ export class BankService extends BizHttp<Bank> {
         return super.GetAction(null, `get-iban-from-accountnumber-lookup&bankaccountnumber=${bankAccountNumber}`);
     }
 
+    public getCompanyBankAccount(endpoint: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(endpoint)
+            .send()
+            .map(res => res.json());
+    }
+
+    public postCompanyBankAccount(body) {
+        return this.http
+        .asPOST()
+        .withBody(body)
+        .usingBusinessDomain()
+        .withEndPoint('companybankaccounts')
+        .send();
+    }
+
+    public putCompanyBankAccount(body) {
+        return this.http
+        .asPUT()
+        .withBody(body)
+        .usingBusinessDomain()
+        .withEndPoint('companybankaccounts/' + body.ID)
+        .send();
+    }
+
+    public deleteCompanyBankAccount(id: number) {
+        return this.http
+        .asDELETE()
+        .usingBusinessDomain()
+        .withEndPoint('companybankaccounts/' + id)
+        .send();
+    }
+
     public createAutobankAgreement(agreementDetails: any) {
         return this.http
         .asPOST()

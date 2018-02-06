@@ -70,7 +70,8 @@ export class Settings implements OnInit {
             { name: 'Team', path: 'teams' },
             { name: 'Altinn', path: 'altinn' },
             { name: 'Nummerserier', path: 'numberseries' },
-            { name: 'Betalings- og leveringsbetingelser', path: 'terms' }
+            { name: 'Betalings- og leveringsbetingelser', path: 'terms' },
+            // { name: 'Bankinnstillinger', path: 'banksettings' }
         ];
     }
 

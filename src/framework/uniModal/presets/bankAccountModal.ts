@@ -91,6 +91,13 @@ export class UniBankAccountModal implements IUniModal {
                 .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
                 .subscribe(() => this.close(true));
         }
+        if (this.options.data._ibanAccountSearch) {
+            this.onFormChange({
+                _ibanAccountSearch: {
+                    currentValue: this.options.data._ibanAccountSearch
+                }
+            });
+        }
     }
 
     public close(emitValue?: boolean) {

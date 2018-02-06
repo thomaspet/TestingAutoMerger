@@ -39,4 +39,13 @@ export class BankAccountService extends BizHttp<BankAccount> {
             }
         });
     }
+
+    public deleteBankAccount(ID: number) {
+        return this.http
+            .asDELETE()
+            .withEndPoint('/bankaccounts/' + ID)
+            .usingBusinessDomain()
+            .send()
+            .map(res => res.json());
+    }
 }
