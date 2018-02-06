@@ -12,6 +12,8 @@ import {bureauRoutes} from './components/bureau/bureauRoutes';
 import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
 import {UniAdmin, adminRoutes} from './components/admin/adminModule';
 
+import {SharingsList} from './components/sharings/list/sharingsList';
+
 const routes = [
     {
         path: '',
@@ -37,6 +39,11 @@ const routes = [
         component: UniAdmin,
         children: adminRoutes
     },
+    {
+        path: 'sharings',
+        component: SharingsList
+    },
+
 
     // Lazy loaded modules
     {
