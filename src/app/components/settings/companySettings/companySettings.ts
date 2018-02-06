@@ -151,6 +151,12 @@ export class CompanySettingsComponent implements OnInit {
         {Alignment: 'right', Label: 'Høyre'}
     ];
 
+    private logoHideOptions: {Value: number, Label: string}[] = [
+        {Value: 1, Label: 'Firmanavn'},
+        {Value: 2, Label: 'Logo'},
+        {Value: 3, Label: 'Firmanavn & logo'},
+    ];
+
     private currentYear: number;
 
     private invoiceTemplate: CampaignTemplate;
@@ -269,6 +275,8 @@ export class CompanySettingsComponent implements OnInit {
                         data['_FileFlowEmail'] = company['FileFlowEmail'];
                         data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
                         data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
+                        data.LogoHideField = data.LogoHideField || this.logoHideOptions[2].Value;
+                        data.LogoAlign = data.LogoAlign || this.logoAlignOptions[1].Alignment;
                         this.company$.next(data);
                         this.getFormLayout();
                         this.extendFormConfig();
@@ -1356,8 +1364,20 @@ export class CompanySettingsComponent implements OnInit {
         this.companyLogoFields$.next([
             {
                 FieldType: FieldType.DROPDOWN,
+                Label: 'Vis logo i rapport',
+                Property: 'LogoHideField',
+                Options: {
+                    source: this.logoHideOptions,
+                    valueProperty: 'Value',
+                    displayProperty: 'Label'
+                },
+                Section: 0,
+                FieldSet: 1,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
                 Label: 'Rapportlogo plassering',
-                Property: 'company.LogoAlign',
+                Property: 'LogoAlign',
                 Options: {
                     source: this.logoAlignOptions,
                     valueProperty: 'Alignment',
@@ -1373,7 +1393,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'quoteTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 2,
-                Section: 0
+                Section: 0,
             },
             {
                 FieldType: FieldType.TEXTAREA,
@@ -1391,7 +1411,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'invoiceTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 4,
-                Section: 0
+                Section: 0,
             }
         ]);
     }
