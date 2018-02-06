@@ -396,7 +396,6 @@ export class CompanySettingsComponent implements OnInit {
             });
         }
 
-
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
             this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
                 result => {
@@ -1365,7 +1364,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis logo i rapport',
-                Property: 'LogoHideField',
+                Property: 'company.LogoHideField',
                 Options: {
                     source: this.logoHideOptions,
                     valueProperty: 'Value',
@@ -1377,7 +1376,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Rapportlogo plassering',
-                Property: 'LogoAlign',
+                Property: 'company.LogoAlign',
                 Options: {
                     source: this.logoAlignOptions,
                     valueProperty: 'Alignment',
