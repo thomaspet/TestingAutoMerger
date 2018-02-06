@@ -13,7 +13,6 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
 // routes
-import {routes as ReportRoutes} from './reportsRoutes';
 import {AccountReportFilterForm} from './modals/account/AccountReportFilterModal';
 import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
 import {BalanceGeneralLedgerFilterForm} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
@@ -21,8 +20,9 @@ import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilt
 import {BalanceReportFilterForm} from './modals/balanceList/BalanceReportFilterModal';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {CustomerAccountReportFilterForm} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {CustomerAccountReportFilterModal}
-    from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
+import {
+    CustomerAccountReportFilterModal
+} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
 import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 
@@ -72,8 +72,6 @@ import {
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-
-        ReportRoutes
     ],
     declarations: [
         UniReports,

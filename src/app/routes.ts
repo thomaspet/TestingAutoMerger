@@ -13,6 +13,7 @@ import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimension
 import {UniAdmin, adminRoutes} from './components/admin/adminModule';
 
 import {SharingsList} from './components/sharings/list/sharingsList';
+import {UniReports} from './components/reports/reports';
 
 const routes = [
     {
@@ -42,6 +43,10 @@ const routes = [
     {
         path: 'sharings',
         component: SharingsList
+    },
+    {
+        path: 'reports',
+        component: UniReports
     },
 
 
