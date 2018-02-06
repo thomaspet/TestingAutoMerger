@@ -6,7 +6,6 @@ import {Marketplace} from './marketplace';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
-import {routes as MarketplaceRoutes} from './marketplaceRoutes';
 import {MarketplaceAddOns} from './addons/marketplaceAddOns';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
 import {MarketplaceWebinars} from './webinars/marketplaceWebinars';
@@ -22,7 +21,6 @@ import {OnlyBundlesPipe} from './addons/onlyBundlesPipe';
         AppPipesModule,
         RouterModule,
         LayoutModule,
-        MarketplaceRoutes
     ],
     declarations: [
         Marketplace,
@@ -33,9 +31,5 @@ import {OnlyBundlesPipe} from './addons/onlyBundlesPipe';
         FilterOutBundlesPipe,
         OnlyBundlesPipe
     ],
-    providers: [
-    ],
-    entryComponents: [
-    ]
 })
 export class MarketplaceModule {}

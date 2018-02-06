@@ -38,8 +38,6 @@ import {LinkMenu} from './linkMenu/linkMenu';
 import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 
-import {routes as AppCommonRoutes} from './appCommonRoutes';
-
 @NgModule({
     imports: [
         CommonModule,
@@ -48,7 +46,6 @@ import {routes as AppCommonRoutes} from './appCommonRoutes';
         HttpModule,
         RouterModule,
         UniFrameworkModule,
-        AppCommonRoutes,
     ],
     declarations: [
         PredefinedDescriptionList,

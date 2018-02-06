@@ -8,7 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {ReportsModule} from '../reports/reportsModule';
 
-import {UniDimensions} from './uniDimensions';
 import {DepartmentDetails} from './department/departmentDetails';
 import {DepartmentList} from './department/departmentList';
 
@@ -24,8 +23,6 @@ import {ProjectHourTotals} from './project/hours/hourtotals';
 import {ProjectLite} from './projectLite/projectLite';
 import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
-export * from './uniDimensions';
-export * from './dimensionsRoutes';
 
 @NgModule({
     imports: [
@@ -43,7 +40,6 @@ export * from './dimensionsRoutes';
         ReportsModule,
     ],
     declarations: [
-        UniDimensions,
         DepartmentDetails,
         DepartmentList,
         Project,

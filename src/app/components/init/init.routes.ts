@@ -28,17 +28,3 @@ export const initRoutes = [
         component: Signup
     }
 ];
-
-// const initRoutes: Routes = [
-//     {
-//         path: 'init',
-//         component: UniInit,
-//         children: [{
-//             path: '',
-//             children: childRoutes
-//         }],
-
-//     }
-// ];
-
-export const routes: ModuleWithProviders = RouterModule.forChild(initRoutes);

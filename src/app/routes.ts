@@ -1,19 +1,26 @@
 import {RouterModule} from '@angular/router';
 import {AuthGuard} from './authGuard';
+import {CanDeactivateGuard} from './canDeactivateGuard';
+import {RoutePermissionGuard} from './routePermissionGuard';
 
 import {Dashboard} from './components/dashboard/dashboard';
-import {BureauDashboard} from './components/bureau/bureauDashboard';
 import {UniTickerOverview} from './components/uniticker/overview/overview';
-import {RoutePermissionGuard} from './routePermissionGuard';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
-import {bureauRoutes} from './components/bureau/bureauRoutes';
 
-import {UniDimensions, dimensionsRoutes} from './components/dimensions/dimensionsModule';
-import {UniAdmin, adminRoutes} from './components/admin/adminModule';
+import {aboutRoutes} from './components/about/aboutRoutes';
+import {adminRoutes} from './components/admin/adminRoutes';
+import {assignmentRoutes} from './components/assignments/assignmentsRoutes';
+import {bureauRoutes} from './components/bureau/bureauRoutes';
+import {currencyRoutes} from './components/currency/currencyRoutes';
+import {dimensionsRoutes} from './components/dimensions/dimensionsRoutes';
+import {marketplaceRoutes} from './components/marketplace/marketplaceRoutes';
+import {uniQueryRoutes} from './components/uniquery/uniQueriesRoutes';
 
 import {SharingsList} from './components/sharings/list/sharingsList';
 import {UniReports} from './components/reports/reports';
+import {ContactDetails} from './components/common/contact/contactDetails';
+import {PredefinedDescriptionList} from './components/common/predefinedDescriptions/predefinedDescriptionList';
 
 const routes = [
     {
@@ -22,23 +29,8 @@ const routes = [
         component: Dashboard,
     },
     {
-        path: 'bureau',
-        component: BureauDashboard,
-        children: bureauRoutes
-    },
-    {
-        path: 'dimensions',
-        component: UniDimensions,
-        children: dimensionsRoutes
-    },
-    {
         path: 'overview',
         component: UniTickerOverview
-    },
-    {
-        path: 'admin',
-        component: UniAdmin,
-        children: adminRoutes
     },
     {
         path: 'sharings',
@@ -48,9 +40,28 @@ const routes = [
         path: 'reports',
         component: UniReports
     },
+    {
+        path: 'contacts/:id',
+        component: ContactDetails,
+        canDeactivate: [CanDeactivateGuard],
+    },
+    {
+        path: 'predefined-descriptions',
+        component: PredefinedDescriptionList,
+        canDeactivate: [CanDeactivateGuard],
+    },
 
+    // Non lazy modules
+    ...aboutRoutes,
+    ...adminRoutes,
+    ...assignmentRoutes,
+    ...bureauRoutes,
+    ...currencyRoutes,
+    ...dimensionsRoutes,
+    ...marketplaceRoutes,
+    ...uniQueryRoutes,
 
-    // Lazy loaded modules
+    // Lazy modules
     {
         path: 'accounting',
         loadChildren: './components/accounting/accountingModule#AccountingModule',

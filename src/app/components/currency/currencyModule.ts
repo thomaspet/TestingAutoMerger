@@ -11,9 +11,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
-// routes
-import {routes as CurrencyRoutes} from './currencyRoutes';
-
 // specific imports
 import {CurrencyComponent} from './currencyComponent';
 import {CurrencyOverrides} from './currencyoverrides/currencyoverrides';
@@ -31,8 +28,6 @@ import {CurrencyExchange} from './currencyexchange/currencyexchange';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-
-        CurrencyRoutes
     ],
     declarations: [
         CurrencyComponent,

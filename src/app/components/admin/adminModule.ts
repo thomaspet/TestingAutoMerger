@@ -11,7 +11,6 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
 
-import {UniAdmin} from './admin';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
@@ -22,9 +21,6 @@ import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
-
-export {UniAdmin} from './admin';
-export {adminRoutes} from './adminRoutes';
 
 @NgModule({
     entryComponents: [
@@ -44,7 +40,6 @@ export {adminRoutes} from './adminRoutes';
         UniQueryModule,
     ],
     declarations: [
-        UniAdmin,
         JobList,
         JobDetails,
         JobLog,
@@ -57,7 +52,6 @@ export {adminRoutes} from './adminRoutes';
         SaftImportModal
     ],
     exports: [
-        UniAdmin,
         JobList,
         JobDetails,
         JobLog,

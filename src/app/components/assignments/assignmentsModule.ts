@@ -9,8 +9,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
-import {ROUTES} from './assignmentsRoutes';
-
 import {UniAssignments} from './assignments';
 import {UniTasks} from './tasks/tasks';
 import {UniApprovals} from './approvals/approvals';
@@ -31,8 +29,6 @@ import {WorkApprovalPreview} from './previews/workapprovalpreview';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
-
-        ROUTES
     ],
     declarations: [
         UniAssignments,
