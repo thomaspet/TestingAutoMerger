@@ -1341,7 +1341,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || it.StatusCode === StatusCodeSupplierInvoice.ToPayment) {
                 list.push(
                     {
                         label: 'Krediter',
@@ -1391,6 +1391,7 @@ export class BillView implements OnInit {
             }
         });
     }
+
 
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
         return {
