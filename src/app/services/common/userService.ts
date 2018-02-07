@@ -4,8 +4,6 @@ import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
-const PUBLIC_ROUTES = ['init', 'bureau', 'about', 'assignments', 'tickers', 'uniqueries'];
-
 @Injectable()
 export class UserService extends BizHttp<User> {
     private userObservable: Observable<User>;
@@ -53,56 +51,6 @@ export class UserService extends BizHttp<User> {
             .map(res => res.json());
     }
 
-    /** Synchronous permission lookup. Requires user object being passed as param */
-    public checkAccessToRoute(url: string, user: User): boolean {
-        // Treat empty permissions array as access to everything for now
-        if (!user['Permissions'] || !user['Permissions'].length ) {
-            return true;
-        }
-
-        // First check if the route is a public route
-        const rootRoute = this.getRootRoute(url);
-        if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
-            return true;
-        }
-
-        // If not, check if the user has permission to view the route
-        let permissionKey: string = this.getPermissionKey(url);
-
-        // Check for direct match
-        let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
-
-        // If no direct match: pop route parts one by one and check for
-        // permission to everything under that.
-        // E.g no permission for 'ui_salary_employees_employments
-        // but permission for 'ui_salary_employees' and therefore employments
-        if (!hasPermission) {
-            let permissionParts = permissionKey.split('_');
-            while (permissionParts.length) {
-                permissionParts.pop();
-                if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
-                    hasPermission = true;
-                    break;
-                }
-            }
-        }
-
-        return hasPermission;
-    }
-
-    /** Async permission lookup. Async because it may need to GET current user */
-    public canActivateUrl(url: string): Observable<boolean> {
-        return this.getCurrentUser().map((user: User) => {
-            return this.checkAccessToRoute(url, user);
-        });
-    }
-
-    private getRootRoute(url): string {
-        let routeParts = url.split('/');
-        routeParts = routeParts.filter(part => part !== '');
-
-        return routeParts[0];
-    }
 
     private getPermissionKey(url: string): string {
         if (!url) {
