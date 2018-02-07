@@ -5,8 +5,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {VatReportReference} from '../../../../unientities';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-
-import {VatType, VatCodeGroup, Account, VatPost} from '../../../../unientities';
+import * as moment from 'moment';
+import {VatType, VatCodeGroup, Account, VatPost, LocalDate} from '../../../../unientities';
 import {
     VatTypeService, VatCodeGroupService, AccountService, VatPostService, ErrorService
 } from '../../../../services/services';
@@ -14,6 +14,7 @@ import {
 import {
     UniTable, UniTableColumn, UniTableConfig, UniTableColumnType
 } from '../../../../../framework/ui/unitable/index';
+import { isNullOrUndefined } from 'util';
 
 
 @Component({
@@ -37,6 +38,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     private uniTableConfigVatPostReference: UniTableConfig;
     private uniTableConfigVatTypePercentage: UniTableConfig;
     private deletedVatReportReferences: VatReportReference[] = [];
+    private vatPostsWithPercentage: VatPost[] = [];
 
     constructor(
         private vatTypeService: VatTypeService,
@@ -57,6 +59,14 @@ export class VatTypeDetails implements OnChanges, OnInit {
     public ngOnChanges() {
         this.vatType$.next(this.vatType);
         this.deletedVatReportReferences = [];
+        if (!isNullOrUndefined(this.vatType)) {
+            this.vatType.VatReportReferences.forEach(ref => {
+                const newName = this.vatPostsWithPercentage.find(f => f.ID === ref.VatPostID);
+                if (newName) {
+                    ref.VatPost.Name = newName.Name;
+                }
+            });
+        }
     }
 
     public onChange(event) {
@@ -68,11 +78,14 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
         Observable.forkJoin(
             this.accountService.GetAll('filter=Visible eq true'),
-            this.vatCodeGroupService.GetAll(null)
+            this.vatCodeGroupService.GetAll(null),
+            this.vatPostService. getAllPostsWithPercentage(new LocalDate(moment().toDate()))
             )
             .subscribe(response => {
                 this.accounts = response[0];
                 this.vatcodegroups = response[1];
+                this.vatPostsWithPercentage = response[2];
+
 
                 this.extendFormConfig();
             },
@@ -124,9 +137,9 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
         this.vatcodegroups.unshift(null);
-        let vattype: UniFieldLayout = fields.find(x => x.Property === 'VatCodeGroupID');
+        const vattype: UniFieldLayout = fields.find(x => x.Property === 'VatCodeGroupID');
         vattype.Options =  {
             source: this.vatcodegroups,
             valueProperty: 'ID',
@@ -134,7 +147,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
             debounceTime: 200
         };
 
-        let outgoingAccountID: UniFieldLayout = fields.find(x => x.Property === 'OutgoingAccountID');
+        const outgoingAccountID: UniFieldLayout = fields.find(x => x.Property === 'OutgoingAccountID');
         outgoingAccountID.Options =  {
             source: this.accounts,
             displayProperty: 'AccountNumber',
@@ -143,7 +156,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
             template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : ''
         };
 
-        let incomingAccountID: UniFieldLayout = fields.find(x => x.Property === 'IncomingAccountID');
+        const incomingAccountID: UniFieldLayout = fields.find(x => x.Property === 'IncomingAccountID');
         incomingAccountID.Options =  {
             source: this.accounts,
             displayProperty: 'AccountNumber',
@@ -194,7 +207,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                 AccountID: null,
             })
             .setChangeCallback((event) => {
-                var newRow = event.rowModel;
+                const newRow = event.rowModel;
 
                 if (!newRow.ID) {
                     newRow._createguid = this.vatTypeService.getNewGuid();

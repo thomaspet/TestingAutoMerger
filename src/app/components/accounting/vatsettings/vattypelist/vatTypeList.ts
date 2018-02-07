@@ -71,16 +71,16 @@ export class VatTypeList implements OnInit, AfterViewInit {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        const groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('20%');
-        const codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('10%');
+        const groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('35%');
+        const codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('5%');
         const aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('30%');
         const incomingAccountCol = new UniTableColumn(
             'IncomingAccount.AccountNumber', 'Inng. konto', UniTableColumnType.Text
-        ).setWidth('10%');
+        ).setWidth('8%');
         const outgoingAccountCol = new UniTableColumn(
             'OutgoingAccount.AccountNumber', 'Utg. konto', UniTableColumnType.Text
-        ).setWidth('10%');
+        ).setWidth('8%');
         const percentCol = new UniTableColumn('VatTypePercentages.VatPercent', 'Prosent', UniTableColumnType.Number)
             .setWidth('10%')
             .setDisplayField('VatPercent')
@@ -107,7 +107,7 @@ export class VatTypeList implements OnInit, AfterViewInit {
         // Setup table
         this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, false)
             .setSearchable(true)
-            .setColumns([groupCol, codeCol, aliasCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol])
+            .setColumns([groupCol, codeCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol])
             .setDataMapper((data: Array<VatType>) => {
                 const dataWithPercentage = [];
 

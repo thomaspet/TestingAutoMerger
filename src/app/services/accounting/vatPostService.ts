@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {VatPost} from '../../unientities';
+import {VatPost, LocalDate} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-
+import {Observable} from 'rxjs/Observable';
 @Injectable()
 export class VatPostService extends BizHttp<VatPost> {
 
@@ -16,4 +16,15 @@ export class VatPostService extends BizHttp<VatPost> {
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }
+
+    public getAllPostsWithPercentage(localDate: LocalDate): Observable<VatPost[]> {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + '?action=get-vatposts-with-percentage&date=' + localDate)
+        .send()
+        .map(response => response.json());
+    }
+
+
 }
