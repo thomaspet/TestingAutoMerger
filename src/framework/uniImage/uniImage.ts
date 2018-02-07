@@ -207,6 +207,7 @@ export class UniImage {
     private token: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
+    private lastUrlFailed: string = null;
 
     private uploading: boolean;
     private keyListener: any;
@@ -576,10 +577,16 @@ export class UniImage {
     }
 
     public reauthenticate(runAfterReauth) {
+        // if something failed when loading another image, we should try again
+        if (this.imgUrl2x != this.lastUrlFailed) {
+            this.didTryReAuthenticate = false;
+        }
+
         if (!this.didTryReAuthenticate) {
             // set flag to avoid "authentication loop" if the new authentication
             // also throws an error
             this.didTryReAuthenticate = true;
+            this.lastUrlFailed = this.imgUrl2x;
 
             this.uniFilesService.checkAuthentication()
                 .then(res => {
@@ -634,6 +641,7 @@ export class UniImage {
 
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
+
         this.cdr.markForCheck();
     }
 
@@ -691,7 +699,11 @@ export class UniImage {
                     .send()
                     .subscribe((res) => {
                         this.uploadFile(newFile);
-                    }, err => this.errorService.handle(err));
+                    }, err => {
+                        this.errorService.handle(err);
+                        this.uploading = false;
+                        this.cdr.markForCheck();
+                    });
             } else {
                 this.uploadFile(newFile);
             }
@@ -746,6 +758,8 @@ export class UniImage {
                         this.uploadFile(file);
                     });
                 } else {
+                    this.uploading = false;
+                    this.cdr.markForCheck();
                     this.errorService.handle(err);
                 }
             });
