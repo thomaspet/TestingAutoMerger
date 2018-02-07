@@ -17,7 +17,7 @@ export interface IAuthDetails {
     user: UserDto;
 }
 
-const PUBLIC_ROUTES = [
+const PUBLIC_ROOT_ROUTES = [
     'init',
     'bureau',
     'about',
@@ -27,6 +27,8 @@ const PUBLIC_ROUTES = [
     'sharings',
     'marketplace'
 ];
+
+const PUBLIC_ROUTES = [];
 
 @Injectable()
 export class AuthService {
@@ -335,8 +337,12 @@ export class AuthService {
 
     public canActivateRoute(user: UserDto, url: string): boolean {
         // First check if the route is a public route
+        if (PUBLIC_ROUTES.some(route => route === url)) {
+            return true;
+        }
+
         const rootRoute = this.getRootRoute(url);
-        if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
+        if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
 
