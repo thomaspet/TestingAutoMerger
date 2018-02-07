@@ -59,9 +59,17 @@ export const dimensionsRoutes = [
                         component: ProjectDocument
                     },
                     {
-                        path: '**',
+                        path: 'invoices',
                         component: ProjectQueryList
-                    }
+                    },
+                    {
+                        path: 'orders',
+                        component: ProjectQueryList
+                    },
+                    {
+                        path: 'quotes',
+                        component: ProjectQueryList
+                    },
                 ]
             },
             {
