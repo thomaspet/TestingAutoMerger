@@ -15,11 +15,13 @@ import { BankAccount } from '@uni-entities';
 export interface IAutoBankAgreementDetails {
     Orgnr: string;
     Email: string;
+    Phone: string;
     Bank: string;
     BankAccountID: number;
     BankAccptance: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
+    RequireTwoStage: boolean;
     Password: string;
     BankAccountNumber: number;
 }
@@ -56,6 +58,14 @@ export interface IAutoBankAgreementDetails {
                         (change)="onCheckboxChange()"
                         id="isOutgoingCheckbox" />
                     Utbetalinger
+                </label>
+                <p>Ønsker du to-stegs bekrefelse (med telefon) for å godkjenne en betaling? </p>
+                <label class="checkbox-label" for="RequireTwoStage">
+                    <input type="checkbox"
+                        [(ngModel)]="agreementDetails.RequireTwoStage"
+                        (change)="onCheckboxChange()"
+                        id="RequireTwoStage" />
+                    Ønsker to-stegs bekreftelse
                 </label>
             </article>
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 2" id="step2">
@@ -112,12 +122,14 @@ export class UniAutobankAgreementModal implements IUniModal {
     private busy: boolean = false;
     private agreementDetails: IAutoBankAgreementDetails = {
         Email: '',
+        Phone: '',
         Bank: '',
         Orgnr: '',
         BankAccountID: 0,
         BankAccptance: false,
         IsInbound: false,
         IsOutgoing: false,
+        RequireTwoStage: false,
         Password: '',
         BankAccountNumber: 0
     };
@@ -139,6 +151,7 @@ export class UniAutobankAgreementModal implements IUniModal {
             this.bankAccountService.GetAll(`filter=(BankAccountType ne 'Customer' and BankAccountType ne 'Supplier')`, ['Bank'])
         ).subscribe((res) => {
             this.agreementDetails.Orgnr = res[0].OrganizationNumber;
+            this.agreementDetails.Phone = res[1].PhoneNumber;
             this.agreementDetails.Email = res[1].Email;
             this.accounts = res[2];
             this.formModel$.next(this.agreementDetails);
@@ -195,6 +208,16 @@ export class UniAutobankAgreementModal implements IUniModal {
                 FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 Label: 'Manuel godkjenning',
+            },
+            <any> {
+                FieldSet: 0,
+                FieldSetColumn: 0,
+                EntityType: '',
+                Property: 'Phone',
+                FieldType: FieldType.TEXT,
+                ReadOnly: false,
+                Label: 'Telefon',
+                hidden: !this.agreementDetails.RequireTwoStage
             },
             <any> {
                 FieldSet: 0,
@@ -275,6 +298,10 @@ export class UniAutobankAgreementModal implements IUniModal {
             && this.agreementDetails.Orgnr.length === 9;
         isValid = isValid && this.agreementDetails.Email !== '' && this.agreementDetails.Email.includes('@');
         isValid = isValid && this.validatePassword(this.agreementDetails.Password);
+        if (this.agreementDetails.RequireTwoStage) {
+            const phoneNumber = parseInt(this.agreementDetails.Phone, 10);
+            isValid = isValid && !isNaN(phoneNumber) && phoneNumber > 9999999 && phoneNumber < 100000000;
+        }
         return isValid;
     }
 

@@ -17,7 +17,8 @@ import {
     UniSendPaymentModal,
     UniConfirmModalV2,
     ConfirmActions,
-    UniAutobankAgreementModal
+    UniAutobankAgreementModal,
+    UniAutobankAgreementListModal
 } from '../../../framework/uniModal/barrel';
 import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -51,8 +52,9 @@ import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
                     </ul>
                 </li>
             </ul>
-            <section style="position: absolute; bottom: 20px; width: 14rem; text-align: center; display: none;">
-                <button class="good" (click)="openAutobankAgreementModal()" style="margin-top: 20px;"> Ny autobankavtale </button>
+            <section class="autobank-section">
+                <a (click)="openAgreementsModal()" *ngIf="agreements?.length > 0">Mine avtaler</a>
+                <button class="good" (click)="openAutobankAgreementModal()"> Ny autobankavtale </button>
             </section>
 
             <uni-ticker-container
@@ -324,6 +326,10 @@ export class BankComponent implements AfterViewInit {
 
     private openEditModal() {
         return this.modalService.open(UniPaymentEditModal).onClose;
+    }
+
+    public openAgreementsModal() {
+        this.modalService.open(UniAutobankAgreementListModal, { data: { agreements: this.agreements } });
     }
 
     public openAutobankAgreementModal() {
