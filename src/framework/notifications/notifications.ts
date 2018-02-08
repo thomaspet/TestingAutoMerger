@@ -94,9 +94,10 @@ export class UniNotifications {
         }
 
         this.close();
+        const notificationRoute = this.getNotificationRoute(notification);
 
         if (notification.CompanyKey === this.authService.getCompanyKey()) {
-            this.routeToNotification(notification);
+            this.router.navigateByUrl(notificationRoute);
             return;
         }
 
@@ -118,13 +119,11 @@ export class UniNotifications {
                         `Det ser ut som om du nå mangler tilgang til ${notification.CompanyName},
                         vennligst kontakt selskapets administrator om du ønsker tilgang.`,
                     );
-                    return
+
+                    return;
                 }
 
-                this.authService.setActiveCompany(
-                    company,
-                    this.getNotificationRoute(notification)
-                );
+                this.authService.setActiveCompany(company, notificationRoute);
             }
         });
     }
