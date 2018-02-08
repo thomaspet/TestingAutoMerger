@@ -1368,7 +1368,8 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.logoHideOptions,
                     valueProperty: 'Value',
-                    displayProperty: 'Label'
+                    displayProperty: 'Label',
+                    hideDeleteButton: true,
                 },
                 Section: 0,
                 FieldSet: 1,
@@ -1380,10 +1381,11 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.logoAlignOptions,
                     valueProperty: 'Alignment',
-                    displayProperty: 'Label'
+                    displayProperty: 'Label',
+                    hideDeleteButton: true,
                 },
                 FieldSet: 1,
-                Section: 0
+                Section: 0,
             },
             {
                 FieldType: FieldType.TEXTAREA,
