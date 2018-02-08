@@ -55,7 +55,8 @@ import {
     StatisticsService,
     NumberFormat,
     PredefinedDescriptionService,
-    SupplierService
+    SupplierService,
+    UserService
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -164,6 +165,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private currentRowIndex: number = 0;
     private currentFileIDs = [];
+    private users: any[] = [];
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -184,10 +186,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private journalEntryLineService: JournalEntryLineService,
         private predefinedDescriptionService: PredefinedDescriptionService,
         private modalService: UniModalService,
-        private supplierService: SupplierService
+        private supplierService: SupplierService,
+        private userService: UserService
     ) {}
 
     public ngOnInit() {
+        this.getCreatedByName();
         this.setupJournalEntryTable();
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
@@ -621,6 +625,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Dimensions.ProjectID = project.ID;
         }
         return rowModel;
+    }
+
+    private getCreatedByName() {
+        this.userService.GetAll('').subscribe(users => {
+            users.forEach(user => {
+                const data = {
+                    globalIdentity: user.GlobalIdentity,
+                    displayName: user.DisplayName
+                }
+                this.users.push(data);
+            })
+        });
     }
 
     private setDescriptionProperties(rowModel: JournalEntryData): JournalEntryData {
@@ -1116,6 +1132,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setFilterable(false)
             .setSkipOnEnterKeyNavigation(true);
 
+         const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
+            .setTemplate(line => line.JournalEntryDrafts ? line.JournalEntryDrafts[0].CreatedAt : null)
+            .setWidth('100px')
+            .setVisible(false);
+
+        const createdByCol = new UniTableColumn('CreatedBy', 'Utført av', UniTableColumnType.Text, false)
+            .setTemplate(line => line.JournalEntryDrafts
+                ? this.users.find(f => f.globalIdentity === line.JournalEntryDrafts[0].CreatedBy).displayName
+                : null
+            )
+            .setVisible(false);
+
         const defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
@@ -1169,6 +1197,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 currencyExchangeRate,
                 descriptionCol,
+                createdAtCol,
+                createdByCol,
                 addedPaymentCol,
                 fileCol
             ];
@@ -1220,6 +1250,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 projectCol,
                 departmentCol,
                 descriptionCol,
+                createdAtCol,
+                createdByCol,
                 addedPaymentCol,
                 fileCol
             ];

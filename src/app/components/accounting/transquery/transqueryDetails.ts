@@ -206,6 +206,8 @@ export class TransqueryDetails implements OnInit {
             'SubAccount.AccountNumber,' +
             'SubAccount.AccountName,' +
             'FinancialDate,' +
+            'CreatedAt,' +
+            'User.DisplayName,' +
             'VatDate,' +
             'Description,' +
             'VatType.VatCode,' +
@@ -240,7 +242,7 @@ export class TransqueryDetails implements OnInit {
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
                 + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
         );
-        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
+        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
@@ -637,6 +639,13 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => {
                     return line.ProjectProjectNumber ? line.ProjectProjectNumber + ': ' + line.ProjectName : '';
                 })
+                .setVisible(false),
+            new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
+                .setTemplate(line => line.JournalEntryLineCreatedAt || null)
+                .setWidth('100px')
+                .setVisible(false),
+            new UniTableColumn('CreatedBy', 'Utført av', UniTableColumnType.Text, false)
+                .setTemplate(line => line.UserDisplayName || null)
                 .setVisible(false),
             new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
                 .setWidth('60px')
