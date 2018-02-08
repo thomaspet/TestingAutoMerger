@@ -2,7 +2,7 @@ import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@an
 import {UniModalService} from '@uni-framework/uniModal/modalService';
 import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
-import {ReportDefinitionParameter, ReportDefinition} from '@uni-entities';
+import {ReportDefinitionParameter, ReportDefinition, LocalDate} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
@@ -107,6 +107,10 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                                     hideDeleteButton: true,
                                 };
                             }
+                            break;
+                        case 'Date':
+                            type = FieldType.LOCAL_DATE_PICKER;
+                            p.value = p.Defaultvalue || new LocalDate();
                             break;
                         default:
                             type = FieldType.TEXT;
