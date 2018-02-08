@@ -1390,20 +1390,20 @@ export class CompanySettingsComponent implements OnInit {
             {
                 FieldType: FieldType.TEXTAREA,
                 EntityType: 'CampaignTemplate',
-                Label: 'Fast tekst tilbud',
-                Property: 'quoteTemplate.Template',
+                Label: 'Fast tekst ordre',
+                Property: 'orderTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 2,
-                Section: 0,
+                Section: 0
             },
             {
                 FieldType: FieldType.TEXTAREA,
                 EntityType: 'CampaignTemplate',
-                Label: 'Fast tekst ordre',
-                Property: 'orderTemplate.Template',
+                Label: 'Fast tekst tilbud',
+                Property: 'quoteTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 3,
-                Section: 0
+                Section: 0,
             },
             {
                 FieldType: FieldType.TEXTAREA,
