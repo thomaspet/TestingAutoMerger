@@ -94,19 +94,18 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             break;
                         case 'Dropdown':
                             type = FieldType.DROPDOWN;
+                            let source = p.DefaultValueList ? JSON.parse(p.DefaultValueList) : p.DefaultValueSourceData || [];
                             p.value = p.DefaultValue;
-                            let source = [];
-                            if (p.Name === 'OrderBy') {
-                                source = JSON.parse(p.DefaultValueList);
-                                p.value = source[0].Label;
-                                options = {
-                                    source: source,
-                                    valueProperty: 'Label',
-                                    displayProperty: 'Label',
-                                    searchable: false,
-                                    hideDeleteButton: true,
-                                };
+                            if (source.length > 0) {
+                                p.value = p.Name === 'OrderBy' ? source[0].Label : source[0].Value;
                             }
+                            options = {
+                                source: source,
+                                valueProperty: (p.Name === 'OrderBy') ? 'Label' : 'Value',
+                                displayProperty: 'Label',
+                                searchable: false,
+                                hideDeleteButton: true,
+                            };
                             break;
                         case 'Date':
                             type = FieldType.LOCAL_DATE_PICKER;
@@ -241,6 +240,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         const reportParam: { SourceIndex?: number } = <any>params[i];
                         const dataset: any = reportParam.SourceIndex !== undefined ? results[reportParam.SourceIndex] : undefined;
                         if (dataset && dataset.Success && dataset.Data.length > 0) {
+                            params[i].DefaultValueSourceData = dataset.Data;
                             params[i].value = this.pickValueFromResult(<any>reportParam, dataset.Data[0] );
                         }
                     }
@@ -313,6 +313,7 @@ interface IParameterDto {
     value?: string;
     DefaultValue?: string;
     DefaultValueSource?: string;
+    DefaultValueSourceData?: object;
     DefaultValueList?: string;
     DefaultValueLookupType?: string;
 }
