@@ -69,7 +69,8 @@ export class App {
     }
 
     private hasAcceptedLicense(user: UserDto): boolean {
-        return !!user.License.Agreement.HasAgreededToLicense || user.License.Agreement.AgreementId === 0;
+        return (user && user.License && user.License.Agreement) ?
+            (!!user.License.Agreement.HasAgreededToLicense || user.License.Agreement.AgreementId === 0) : true;
     }
 
     private canAcceptLicense(user: UserDto): boolean {
