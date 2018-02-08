@@ -146,9 +146,9 @@ export class CompanySettingsComponent implements OnInit {
         // {Decimals: 4, Label: '4 desimaler'}
     ];
 
-    private logoAlignOptions: {Alignment: string, Label: string}[] = [
-        {Alignment: 'left', Label: 'Venstre'},
-        {Alignment: 'right', Label: 'Høyre'}
+    private logoAlignOptions: {Alignment: number, Label: string}[] = [
+        {Alignment: 1, Label: 'Venstre'},
+        {Alignment: 2, Label: 'Høyre'}
     ];
 
     private logoHideOptions: {Value: number, Label: string}[] = [
@@ -276,7 +276,7 @@ export class CompanySettingsComponent implements OnInit {
                         data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
                         data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
                         data.LogoHideField = data.LogoHideField || this.logoHideOptions[2].Value;
-                        data.LogoAlign = data.LogoAlign || this.logoAlignOptions[1].Alignment;
+                        data.LogoAlign = data.LogoAlign || this.logoAlignOptions[0].Alignment;
                         this.company$.next(data);
                         this.getFormLayout();
                         this.extendFormConfig();

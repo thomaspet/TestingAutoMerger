@@ -3077,7 +3077,7 @@ export class CompanySettings extends UniEntity {
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
     public ID: number;
-    public LogoAlign: string;
+    public LogoAlign: number;
     public LogoFileID: number;
     public LogoHideField: number;
     public OfficeMunicipalityNo: string;
@@ -4729,6 +4729,7 @@ export class VatPost extends UniEntity {
     public UpdatedBy: string;
     public VatCodeGroupID: number;
     public VatCodeGroup: VatCodeGroup;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -4748,9 +4749,9 @@ export class VatReportReference extends UniEntity {
     public UpdatedBy: string;
     public VatPostID: number;
     public VatTypeID: number;
-    public Account: Account;
-    public VatPost: VatPost;
     public VatType: VatType;
+    public VatPost: VatPost;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -5185,11 +5186,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
-    public VatTypePercentages: Array<VatTypePercentage>;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
