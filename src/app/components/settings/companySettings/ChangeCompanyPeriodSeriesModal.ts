@@ -93,9 +93,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
 
     private getData() {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
-            res => {
-                return res.Year ? this.currentAccountYear = res.Year : res;
-            },
+            res => this.currentAccountYear = res.Year || this.currentAccountYear,
             err => this.errorService.handle(err)
         );
 

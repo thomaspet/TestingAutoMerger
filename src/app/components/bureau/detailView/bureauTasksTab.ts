@@ -31,12 +31,12 @@ const BASE = environment.BASE_URL;
         <section class="text-container">
             <p>
                 Faktura
-                <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[2]}}</a>
+                <a (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[2]}}</a>
             </p>
 
             <p>
                 Timer
-                <a href="#" (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[3]}}</a>
+                <a (click)="navigateToCompanyUrl('/assignments/approvals')">{{viewData[3]}}</a>
             </p>
         </section>
     </section>
@@ -46,12 +46,12 @@ const BASE = environment.BASE_URL;
         <section class="text-container">
             <p>
                 Fakturainnboks
-                <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
+                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
             </p>
 
             <p>
                 Godkjente faktura
-                <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[1]}}</a>
+                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[1]}}</a>
             </p>
         </section>
     </section>

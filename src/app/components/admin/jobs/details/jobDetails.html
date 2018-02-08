@@ -2,15 +2,15 @@
 </uni-toolbar>
 
 <section class="application">
-    
+
     <table class="jobDetailTable">
         <tr>
             <td class="colContent">
                 En jobb er en handling som Uni Economy kan kjøre på dine vegne, enten automatisk på et gitt tidspunkt, eller når noe skjer i systemet.
-                <br/>
-                <br/> Dokumentasjon for hvordan du skriver en jobbkonfigurasjon finner du i
-                <a href="" target="_blank">vårt API-senter </a>, eller du kan
-                <a href="" target="_blank">ta kontakt med en av våre konsulenter</a>, så kan vi hjelpe med oppsett av jobber skreddesydd for din bedrift.
+                <br/><br/>
+                Dokumentasjon for hvordan du skriver en jobbkonfigurasjon finner du i vårt API-senter,
+                eller du kan ta kontakt med en av våre konsulenter,
+                så kan vi hjelpe med oppsett av jobber skreddesydd for din bedrift.
             </td>
             <td class="colSeparator">
             </td>
@@ -37,7 +37,7 @@
                                 </uni-select>
                             </label>
                         </td>
-                        
+
                         <td class="dynamic">
                             <table class="dynamicContainer">
                                 <tr>
@@ -58,7 +58,7 @@
                                 </tr>
                             </table>
                         </td>
-                        
+
                     </tr>
                 </table>
             </td>
@@ -68,8 +68,8 @@
             </td>
         </tr>
     </table>
-    
-    
+
+
     <div>
         <h2>Tidsplan</h2>
         <table class="newScheduleTable">
@@ -87,9 +87,9 @@
                             </td>
                             <td class="unit">
                                 <label>
-                                    <uni-select 
-                                        [config]="scheduleTimeUnitSelectConfig" 
-                                        [items]="scheduleTimeUnits" 
+                                    <uni-select
+                                        [config]="scheduleTimeUnitSelectConfig"
+                                        [items]="scheduleTimeUnits"
                                         (valueChange)="onNewScheduleTimeUnitChanged($event) ">
                                     </uni-select>
                                 </label>

@@ -28,7 +28,7 @@ export const timetrackingRouteMap = {
 };
 
 export const commonRouteMap = {
-    'Approval': '/assignments/approvals/:id',
+    'approval': '/assignments/approvals/:id',
     'task': '/assignments/tasks/:id'
 };
 

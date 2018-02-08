@@ -19,8 +19,8 @@
         </section>
         <section class="more-results-info" *ngIf="fullSearchResult.length > MINIMUMHITS">
             Viser {{searchResult.length}} av {{fullSearchResult.length}} treff
-            <a href="#" *ngIf="!showAllResults" (click)="doShowAllResults()">vis alle</a>
-            <a href="#" *ngIf="showAllResults" (click)="doHideAllResults()">vis noen</a>
+            <a *ngIf="!showAllResults" (click)="doShowAllResults()">vis alle</a>
+            <a *ngIf="showAllResults" (click)="doHideAllResults()">vis noen</a>
         </section>
         <p *ngIf="fullSearchResult.length == 0 && (searchText === '' || !searchText)">
             Begynn å skrive noe i "Navn" under for å søke i Brønnøysundregisteret

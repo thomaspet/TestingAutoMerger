@@ -199,13 +199,16 @@ export class AuthService {
         // without screwing up something in the authentication flow
         const authSubject = new Subject<IAuthDetails>();
 
-        this.verifyAuthentication().subscribe(authDetails => {
+        this.verifyAuthentication().take(1).subscribe(authDetails => {
             this.authentication$.next(authDetails);
-            this.router.navigateByUrl(redirectUrl || '').then(() => {
-                // TODO: Navigation removes spinner..
-                // REVISIT: Does it make a difference if we do this after or just before?
-                this.setLoadIndicatorVisibility(false);
-                authSubject.next(authDetails);
+            setTimeout(() => {
+                this.router.navigateByUrl(redirectUrl || '').then((res) => {
+                    // TODO: Navigation removes spinner..
+                    // REVISIT: Does it make a difference if we do this after or just before?
+                    this.setLoadIndicatorVisibility(false);
+                    authSubject.next(authDetails);
+                });
+
             });
         });
 

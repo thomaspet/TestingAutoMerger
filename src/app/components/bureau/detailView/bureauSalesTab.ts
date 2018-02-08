@@ -31,11 +31,11 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Salgsfaktura i {{accountingYear}} sum og antall</p>
-            <a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
                 {{viewData[0].sumtaxexclusiveamount | unicurrency}} kr ({{viewData[0].countid}})
             </a>
             <p>Forfalte ubetalte faktura</p>
-            <a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
                 {{viewData[1]  | unicurrency}} kr
             </a>
         </section>
@@ -47,7 +47,7 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Ordrereserve</p>
-            <a href="#" (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
                 {{viewData[2] | unicurrency}} kr
             </a>
         </section>
