@@ -410,9 +410,9 @@ export class SupplierDetails implements OnInit {
     }
 
     public extendFormConfig() {
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
 
-        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -420,7 +420,7 @@ export class SupplierDetails implements OnInit {
             debounceTime: 200
         };
 
-        let department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
+        const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
             valueProperty: 'ID',
@@ -430,7 +430,7 @@ export class SupplierDetails implements OnInit {
             debounceTime: 200
         };
 
-        let project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
+        const project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.dropdownData[1],
             valueProperty: 'ID',
@@ -441,7 +441,7 @@ export class SupplierDetails implements OnInit {
         };
 
         // MultiValue
-        let phones: UniFieldLayout = fields.find(x => x.Property === 'Info.Phones');
+        const phones: UniFieldLayout = fields.find(x => x.Property === 'Info.Phones');
 
         phones.Options = {
             entity: Phone,
@@ -532,9 +532,9 @@ export class SupplierDetails implements OnInit {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'supplier';
+                    bankaccount.BusinessRelationID = this.getCurrentSupplier().BusinessRelationID;
                     bankaccount.ID = 0;
                 }
-
                 const modal = this.modalService.open(UniBankAccountModal, {
                     data: bankaccount
                 });

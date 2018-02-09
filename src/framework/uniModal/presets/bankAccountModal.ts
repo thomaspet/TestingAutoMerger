@@ -120,13 +120,11 @@ export class UniBankAccountModal implements IUniModal {
                     if (response !== ConfirmActions.ACCEPT) {
                         return;
                     } else {
-                        this.SaveBankAccount(account);
-                        this.onClose.emit(null);
+                        this.onClose.emit(account);
                     }
                 });
             } else {
-                this.SaveBankAccount(account);
-                this.onClose.emit(null);
+                this.onClose.emit(account);
             }
         } else {
             this.onClose.emit(null);
