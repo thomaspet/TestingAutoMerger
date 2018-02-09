@@ -93,27 +93,15 @@ export class UniSales {
             {
                 x: 10,
                 y: 1,
-                widgetID: 'info_shortcut_overview',
-            },
-            {
-                x: 10,
-                y: 3,
-                widgetID: 'info_shortcut_videos',
-            },
-            {
-                x: 10,
-                y: 5,
-                widgetID: 'info_shortcut_help',
-            },
-            {
-                x: 8,
-                y: 4,
                 widgetID: 'currency',
             },
             {
-                x: 8,
-                y: 5,
+                x: 10,
+                y: 2,
                 widgetID: 'sum_order_reserves',
+            },
+            {
+                widgetID: 'rss',
             },
         ];
     }

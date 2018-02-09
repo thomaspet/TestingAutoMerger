@@ -76,15 +76,8 @@ export class UniSalary {
                 widgetID: 'info_shortcut_overview',
             },
             {
-                x: 6,
-                y: 4,
-                widgetID: 'info_shortcut_videos',
+                widgetID: 'rss',
             },
-            {
-                x: 8,
-                y: 4,
-                widgetID: 'info_shortcut_help',
-            }
         ];
     }
 }

@@ -39,7 +39,8 @@ export interface IUniWidget {
     width: number;
     height: number;
     widgetType: string;
-    config: any;
+    alwaysVisible?: boolean;
+    config?: any;
     _editMode?: boolean;
     _position?: {
         top?: number;
@@ -79,7 +80,7 @@ export class WidgetContainer {
         <ng-template widget-container></ng-template>
         <button class="widget-remove-btn"
                 (click)="removeWidget()"
-                *ngIf="widget?._editMode">
+                *ngIf="widget?._editMode && !widget.alwaysVisible">
             Remove
         </button>
     `

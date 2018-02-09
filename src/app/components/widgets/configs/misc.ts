@@ -28,4 +28,12 @@ export const MISC_WIDGETS = [
             dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
         }
     },
+    {
+        id: 'rss',
+        description: 'Nyheter fra kundesenteret',
+        width: 4,
+        height: 4,
+        alwaysVisible: true,
+        widgetType: 'rss',
+    },
 ];

@@ -107,9 +107,7 @@ export class UniAccounting {
                 widgetID: 'info_shortcut_videos',
             },
             {
-                x: 10,
-                y: 4,
-                widgetID: 'info_shortcut_help',
+                widgetID: 'rss',
             }
         ];
     }

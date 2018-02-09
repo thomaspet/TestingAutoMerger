@@ -128,7 +128,12 @@ export class Dashboard {
                 x: 4,
                 y: 4,
                 widgetID: 'chart_restamount_per_customer',
-            }
+            },
+            {
+                x: 8,
+                y: 3,
+                widgetID: 'rss',
+            },
         ];
     }
 }
