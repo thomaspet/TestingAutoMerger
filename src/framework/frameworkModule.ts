@@ -35,6 +35,8 @@ import {Logger} from './core/logger';
 import {ToastService} from './uniToast/toastService';
 import {UniModalService, MODALS} from './uniModal/barrel';
 
+import {UniTooltipModule} from './ui/tooltip/tooltip.module';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -43,6 +45,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         AppPipesModule,
         UniPipesModule,
         UniSearchModule,
+        UniTooltipModule,
         UniFormModule,
         UniTableModule
     ],
@@ -83,6 +86,7 @@ import {UniModalService, MODALS} from './uniModal/barrel';
         UniSearchModule,
         UniFormModule,
         UniTableModule,
+        UniTooltipModule,
 
         // Components
         UniModal,

@@ -24,13 +24,15 @@ import {LayoutBuilder} from './services/index';
 import {ClickOutsideDirective} from './shared/clickOutside';
 
 import {UniSearchModule} from '../unisearch/index';
+import {UniTooltipModule} from '../tooltip/tooltip.module';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        UniSearchModule
+        UniSearchModule,
+        UniTooltipModule
     ],
     declarations: [
         UniForm,

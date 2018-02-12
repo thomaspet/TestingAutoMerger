@@ -1,9 +1,15 @@
-<label
-    *ngIf="field?.FieldType !== 1">
-            <span [hidden]="!isInput(field?.FieldType)"
-                  [title]="field?.Label">
-                  {{field?.Label | isRequired:field}}
-            </span>
+<label *ngIf="field?.FieldType !== 1">
+    <span [hidden]="!isInput(field?.FieldType)"
+        [title]="field?.Label">
+
+        {{field?.Label | isRequired:field}}
+
+        <uni-tooltip *ngIf="field?.Tooltip"
+            [type]="field.Tooltip.Type"
+            [alignment]="field.Tooltip.Alignment"
+            [text]="field.Tooltip.Text">
+        </uni-tooltip>
+    </span>
     <uni-autocomplete-input #selectedComponent *ngIf="field?.FieldType === 0"
                             [field]="field"
                             [model]="model"
@@ -163,8 +169,8 @@
                         (inputEvent)="onInputHandler($event)"
                         (focusEvent)="onFocusHandler($event)"
     ></uni-search-wrapper>
-    <button class="helpTextToggle" tabindex="-1" type="button" *ngIf="field?.HelpText">Help</button>
-    <aside [id]="asideGuid" class="helpText" *ngIf="field?.HelpText" [innerHTML]="field?.HelpText"></aside>
+
+
     <ng-template ngFor let-error [ngForOf]="errorMessages" let-k="index">
         <small role="alert" [class.bad]="!error?.isWarning" [class.warn]="error?.isWarning">
             {{error | uniformErrorTemplate}}
