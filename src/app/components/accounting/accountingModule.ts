@@ -69,6 +69,7 @@ import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
+import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 
 @NgModule({
     imports: [
@@ -100,6 +101,7 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
 
         NewAccountModal,
         SelectDraftLineModal,
+        DraftLineDescriptionModal,
 
         SupplierList,
         SupplierDetails,
@@ -160,7 +162,8 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
         UniAddFileModal,
         UniNewSupplierModal,
         AccountDetailsReportModal,
-        SelectDraftLineModal
+        SelectDraftLineModal,
+        DraftLineDescriptionModal,
     ],
     exports: [
         AccountSettings,
@@ -183,6 +186,7 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
         Payments,
         BillsView,
         SelectJournalEntryLineModal,
+        DraftLineDescriptionModal,
 
         // vatreport
         CheckListVat,

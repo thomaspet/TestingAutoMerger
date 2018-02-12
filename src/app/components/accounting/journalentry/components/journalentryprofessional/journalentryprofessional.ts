@@ -70,6 +70,7 @@ import {CurrencyCodeService} from '../../../../../services/common/currencyCodeSe
 import {CurrencyService} from '../../../../../services/common/currencyService';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
+import {DraftLineDescriptionModal} from './draftLineDescriptionModal';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _; // lodash
 
@@ -487,7 +488,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.DebitAccountID = account.ID;
 
             if (account.VatTypeID) {
-                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                 rowModel.DebitVatType = vatType;
             } else {
                 rowModel.CreditVatType = null;
@@ -507,7 +508,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.CreditAccountID = account.ID;
 
             if (account.VatTypeID) {
-                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                 rowModel.CreditVatType = vatType;
             } else {
                 rowModel.CreditVatType = null;
@@ -636,9 +637,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 const data = {
                     globalIdentity: user.GlobalIdentity,
                     displayName: user.DisplayName
-                }
+                };
                 this.users.push(data);
-            })
+            });
         });
     }
 
@@ -1182,7 +1183,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             contextMenuItems = [
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    disabled: (item) => (this.disabled || item.StatusCode),
                     label: 'Slett linje'
                 }
             ];
@@ -1215,17 +1216,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             contextMenuItems = [
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    disabled: (item) => item.StatusCode,
                     label: 'Slett linje'
                 },
                 {
                     action: (item: JournalEntryData) => this.openAccrual(item),
-                    disabled: (item) => { return (this.disabled); },
+                    disabled: (item) => this.disabled,
                     label: 'Periodisering'
                 },
                 {
                     action: (item) => this.addPayment(item),
-                    disabled: (item) => { return item.StatusCode ? true : false; },
+                    disabled: (item) => item.StatusCode ? true : false,
                     label: 'Registrer utbetaling',
 
                 },
@@ -2252,20 +2253,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
 
         if (saveAsDraft) {
-            this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id)
-                .subscribe(data => {
-                    completeCallback('Lagret som kladd');
+            this.modalService.open(DraftLineDescriptionModal)
+                .onClose
+                .subscribe((text: string) => {
+                    if (text === null) {
+                        return completeCallback('Lagring avbrutt');
+                    }
+                    this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id, text)
+                        .subscribe(data => {
+                            completeCallback('Lagret som kladd');
 
-                    // Empty list
-                    this.journalEntryLines = new Array<JournalEntryData>();
-                    this.setupJournalEntryNumbers(false);
-                    this.dataChanged.emit(this.journalEntryLines);
-                },
-                err => {
-                    completeCallback('Feil ved lagring av kladd');
-                    this.errorService.handle(err);
-                }
-            );
+                            // Empty list
+                            this.journalEntryLines = new Array<JournalEntryData>();
+                            this.setupJournalEntryNumbers(false);
+                            this.dataChanged.emit(this.journalEntryLines);
+                        },
+                        err => {
+                            completeCallback('Feil ved lagring av kladd');
+                            this.errorService.handle(err);
+                        }
+                    );
+                });
         } else {
             this.journalEntryService.postJournalEntryData(tableData)
                 .subscribe(data => {

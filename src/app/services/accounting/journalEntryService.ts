@@ -138,7 +138,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number): Observable<any> {
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number, text?: string): Observable<any> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
@@ -160,6 +160,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     journalEntryData.map(x => x.JournalEntryDrafts.map(y => lineID.push(y.ID)));
                     journalEntries[0].DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account);
                     journalEntries[0].ID = id;
+                    journalEntries[0].Description = text;
                     journalEntries[0].DraftLines.map((x: JournalEntryLineDraft, i) => x.ID = lineID[i] ? lineID[i] : null);
                     return this.saveDraftLines(journalEntries);
                 });
@@ -174,6 +175,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 draftLines.push(lines);
             }));
             journalEntries[0].DraftLines = draftLines;
+            journalEntries[0].Description = text;
             return this.saveDraftLines(journalEntries);
         }
 

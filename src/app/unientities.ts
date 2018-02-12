@@ -4388,6 +4388,7 @@ export class JournalEntry extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public Description: string;
     public FinancialYearID: number;
     public ID: number;
     public JournalEntryAccrualID: number;
@@ -4924,10 +4925,10 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
-    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -5186,11 +5187,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -6158,6 +6159,8 @@ export class CreateBankIntegrationDTO extends UniEntity {
     public IsInbound: boolean;
     public IsOutgoing: boolean;
     public Password: string;
+    public Phone: string;
+    public RequireTwoStage: boolean;
 }
 
 
