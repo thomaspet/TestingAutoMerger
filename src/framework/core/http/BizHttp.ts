@@ -112,9 +112,6 @@ export class BizHttp<T> {
         } else if (this.defaultExpand) {
             expandStr = this.defaultExpand.join(',');
         }
-        if (!ID) {
-            ID = 'new';
-        }
 
         const hash = this.hashFnv32a(this.relativeURL + ID + expandStr);
         let request = this.getFromCache(hash);
