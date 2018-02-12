@@ -644,7 +644,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.JournalEntryLineCreatedAt || null)
                 .setWidth('100px')
                 .setVisible(false),
-            new UniTableColumn('CreatedBy', 'Utført av', UniTableColumnType.Text, false)
+            new UniTableColumn('User.DisplayName', 'Utført av', UniTableColumnType.Text, false)
                 .setTemplate(line => line.UserDisplayName || null)
                 .setVisible(false),
             new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
