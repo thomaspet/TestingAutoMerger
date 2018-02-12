@@ -2,10 +2,10 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
 import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {ErrorService, BrowserStorageService} from '../../../services/services';
+import {ErrorService, BrowserStorageService, EmploymentService} from '../../../services/services';
 import {safeDec, filterInput, getDeepValue} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
-import {WorkType, WorkItem, LocalDate} from '../../../unientities';
+import {WorkType, WorkItem, LocalDate, Employment} from '../../../unientities';
 import * as moment from 'moment';
 
 interface ICurrent {
@@ -37,6 +37,7 @@ export class WorkEditor {
     private tableConfig: UniTableConfig;
     private timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
+    private employments: Employment[] = [];
     private visibleColumns: Array<string>;
     private defaultRow: any = { Date: new LocalDate() };
 
@@ -56,7 +57,9 @@ export class WorkEditor {
         private timesheetService: TimesheetService,
         private errorService: ErrorService,
         private toast: ToastService,
-        private localStore: BrowserStorageService) {
+        private localStore: BrowserStorageService,
+        private employmentService: EmploymentService
+        ) {
             this.loadUserSettings();
             this.initLookups();
     }
@@ -76,7 +79,22 @@ export class WorkEditor {
     }
 
     private tryInit() {
+        this.initEmployeeIsSetLookups();
         this.tableConfig = this.createTableConfig();
+    }
+
+    private initEmployeeIsSetLookups() {
+        let filter: string = '';
+        if (this.timeSheet && this.timeSheet.currentRelation && this.timeSheet.currentRelation.Worker) {
+            filter = `filter=EmployeeID eq ${this.timeSheet.currentRelation.Worker.EmployeeID}`;
+        }
+        if (filter !== '') {
+            this.employmentService.GetAll(filter)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe( (empls: Employment[]) => {
+                this.employments = empls;
+            });
+        }
     }
 
     private initLookups() {
@@ -90,7 +108,7 @@ export class WorkEditor {
     }
 
     private loadUserSettings() {
-        var map = this.localStore.getItem('workeditor.columns');
+        const map = this.localStore.getItem('workeditor.columns');
         if (map) {
             this.visibleColumns = map.split(',');
         }
@@ -108,8 +126,8 @@ export class WorkEditor {
         if (event.rowModel._originalIndex >= this.timeSheet.items.length) {
             this.keepUpWithUniTable(event.originalIndex);
         }
-        var row = event.rowModel;
-        var index = row['_originalIndex'];
+        const row = event.rowModel;
+        const index = row['_originalIndex'];
         if (index === 0 || !!index ) {
             this.timeSheet.removeRow(index);
         }
@@ -125,31 +143,31 @@ export class WorkEditor {
             this.keepUpWithUniTable(event.originalIndex);
         }
 
-        var rowIndex = event.originalIndex;
-        var newRow = event.rowModel;
-        var change = new ValueItem(event.field, newRow[event.field], rowIndex);
+        const rowIndex = event.originalIndex;
+        const newRow = event.rowModel;
+        const change = new ValueItem(event.field, newRow[event.field], rowIndex);
         change.tag = (event.field === 'Minutes' || event.field === 'MinutesToOrder') ? 'Hours' : null;
 
         // Copycell? : todo: use CopyCell property from event when UniTable supports this
         if (rowIndex > 0) {
-            let rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
-            let cellAboveValue = getDeepValue(rowAbove, event.field);
+            const rowAbove: WorkItem = this.timeSheet.items[rowIndex - 1];
+            const cellAboveValue = getDeepValue(rowAbove, event.field);
             if (change.value === cellAboveValue) {
                 change.isParsed = true;
                 switch (event.field) {
                     case 'StartTime':
                         if (rowAbove.Date === newRow.Date && rowAbove.EndTime) {
                             change.value = rowAbove.EndTime;
-                        };
+                        }
                         break;
                     case 'LunchInMinutes':
                         if (rowAbove.Date === newRow.Date) {
                             change.value = 0;
-                        };
+                        }
                         break;
                     case 'Dimensions.ProjectID':
                     case 'Dimensions.DepartmentID':
-                        let fn = event.field.substr(0, event.field.length - 2);
+                        const fn = event.field.substr(0, event.field.length - 2);
                         change.lookupValue = getDeepValue(rowAbove, fn) || change.lookupValue;
                         break;
                 }
@@ -169,7 +187,7 @@ export class WorkEditor {
 
         if (this.timeSheet.setItemValue(change)) {
             this.valueChanged.emit(change);
-            let xRow = this.timeSheet.items[rowIndex];
+            const xRow = this.timeSheet.items[rowIndex];
             xRow.originalIndex = rowIndex;
             xRow._originalIndex = rowIndex;
             return xRow;
@@ -177,52 +195,81 @@ export class WorkEditor {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cfg = new UniTableConfig('timetracking.workeditor', true, true, 10);
+        const cfg = new UniTableConfig('timetracking.workeditor', true, true, 10);
         cfg.columns = [
-            new UniTableColumn('ID', 'ID', UniTableColumnType.Number).setVisible(false).setWidth('3rem')
+            new UniTableColumn('ID', 'ID', UniTableColumnType.Number)
+                .setVisible(false)
+                .setWidth('3rem')
                 .setEditable(false),
-            new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate).setWidth('5rem'),
-            new UniTableColumn('Day', 'Ukedag', UniTableColumnType.LocalDate).setDisplayField('Date')
-                .setWidth('3rem').setFormat('dddd').setEditable(false).setCls('good'),
-            this.createTimeColumn('StartTime', 'Start').setWidth('2.6rem').setAlignment('center'),
-            this.createTimeColumn('EndTime', 'Slutt').setWidth('2.6rem').setAlignment('center'),
-            this.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.lookupType(x)).setWidth('6rem'),
+
+            new UniTableColumn('Date', 'Dato', UniTableColumnType.LocalDate)
+                .setWidth('5rem'),
+
+            new UniTableColumn('Day', 'Ukedag', UniTableColumnType.LocalDate)
+                .setDisplayField('Date')
+                .setWidth('3rem')
+                .setFormat('dddd')
+                .setEditable(false)
+                .setCls('good'),
+
+            this.createTimeColumn('StartTime', 'Start')
+                .setWidth('2.6rem')
+                .setAlignment('center'),
+
+            this.createTimeColumn('EndTime', 'Slutt')
+                .setWidth('2.6rem')
+                .setAlignment('center'),
+
+            this.createLookupColumn('Worktype', 'Timeart', 'Worktype',
+                x => this.lookupType(x))
+                .setWidth('6rem'),
+
             new UniTableColumn('LunchInMinutes', 'Lunsj', UniTableColumnType.Number)
-                .setWidth('3rem').setAlignment('center'),
+                .setWidth('3rem')
+                .setAlignment('center'),
+
             this.createHourColumn('Minutes', 'Timer')
-                .setWidth('3rem').setAlignment('center').setCls('ctoa'),
+                .setWidth('3rem')
+                .setAlignment('center')
+                .setCls('ctoa'),
 
             new UniTableColumn('Description', 'Beskrivelse')
                 .setWidth('20%')
                 .setMaxLength(500),
 
-            this.createLookupColumn('Dimensions.ProjectID', 'Prosjekt',
-                'Dimensions.Project', x => this.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber' )
+            this.createLookupColumn('Dimensions.ProjectID', 'Prosjekt', 'Dimensions.Project',
+                x => this.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber' )
                 .setWidth('6rem'),
 
-            this.createLookupColumn('Dimensions.DepartmentID', 'Avdeling',
-                'Dimensions.Department',
+            this.createLookupColumn('Dimensions.DepartmentID', 'Avdeling', 'Dimensions.Department',
                 x => this.lookupAny(x, 'departments', 'departmentnumber'), 'DepartmentNumber' )
                 .setWidth('6rem')
                 .setVisible(false),
 
-            this.createHourColumn('MinutesToOrder', 'Timer til ordre').setWidth('6rem')
-                .setVisible(false).setAlignment('center'),
+            this.createHourColumn('MinutesToOrder', 'Timer til ordre')
+                .setWidth('6rem')
+                .setVisible(false)
+                .setAlignment('center'),
 
-            this.createLookupColumn('CustomerOrder', 'Ordre',
-                'CustomerOrder',
+            this.createLookupColumn('CustomerOrder', 'Ordre', 'CustomerOrder',
                 x => this.lookupAny(x, 'orders', 'ordernumber', 'customername'), 'OrderNumber', 'CustomerName' )
                 .setWidth('6rem')
                 .setVisible(false),
 
-            this.createLookupColumn('Customer', 'Kunde',
-                'Customer',
+            this.createLookupColumn('Customer', 'Kunde', 'Customer',
                 x => this.lookupAny(x, 'customers', 'CustomerNumber', 'Info.Name', 'info'),
                 'CustomerNumber', 'Info.Name' )
                 .setWidth('6rem')
                 .setVisible(false),
 
-            new UniTableColumn('Label', 'Merke/etikett').setWidth('6rem').setCls('good')
+            this.createLookupColumn('Employment', 'Arbeidsforhold', 'Employment',
+                x => this.lookupEmployment(x), 'ID', 'JobName')
+                .setWidth('6rem')
+                .setVisible(this.employments.length > 0),
+
+            new UniTableColumn('Label', 'Merke/etikett')
+                .setWidth('6rem')
+                .setCls('good')
                 .setVisible(false)
 
         ];
@@ -247,7 +294,7 @@ export class WorkEditor {
                     event.initValue = '08:00';
                     event.initAsDirty = true;
                 } else {
-                    let rowAbove = this.timeSheet.items[event.rowModel._originalIndex - 1];
+                    const rowAbove = this.timeSheet.items[event.rowModel._originalIndex - 1];
                     let isSameDate = moment(rowAbove.Date).month() === moment(event.rowModel.Date).month();
                     isSameDate = isSameDate && moment(rowAbove.Date).day() === moment(event.rowModel.Date).day();
                     if (rowAbove.EndTime && isSameDate) {
@@ -263,18 +310,18 @@ export class WorkEditor {
                 }
             }
             return event;
-        }
+        };
 
         if (!this.visibleColumns) {
             this.visibleColumns = [];
             cfg.columns.filter( x => x.visible ).forEach( y => this.visibleColumns.push(y.field) );
         } else {
-            var map = this.visibleColumns;
+            const map = this.visibleColumns;
             cfg.columns.forEach( x => x.visible = map.findIndex( y => y === x.field) >= 0 );
         }
 
         // Is lunch-column visible?
-        let lunchCol = cfg.columns.find( x => x.field === 'LunchInMinutes');
+        const lunchCol = cfg.columns.find( x => x.field === 'LunchInMinutes');
         if (lunchCol && this.timeSheet) {
             // If not, lets turn of lunch-calculations
             this.timeSheet.allowLunchCalculations = lunchCol.visible;
@@ -283,22 +330,30 @@ export class WorkEditor {
         return cfg;
     }
 
+    private lookupEmployment(txt: string) {
+        const list = this.employments;
+        const lcaseText = txt.toLowerCase();
+        const sublist = list.filter((item: Employment) => {
+            return (item.ID.toString().startsWith(txt) || item.JobName.toLowerCase().indexOf(lcaseText) >= 0); } );
+        return Observable.from([sublist]);
+    }
+
     public lookupType(txt: string) {
-        var list = this.workTypes;
-        var lcaseText = txt.toLowerCase();
-        var sublist = list.filter((item: WorkType) => {
+        const list = this.workTypes;
+        const lcaseText = txt.toLowerCase();
+        const sublist = list.filter((item: WorkType) => {
             return (item.ID.toString() === txt || item.Name.toLowerCase().indexOf(lcaseText) >= 0); } );
         return Observable.from([sublist]);
     }
 
     public lookupAny(txt: string, route: string = 'projects',
                      visualIdcol: string = 'id', nameCol: string = 'name', expand?: string) {
-        var filter = '', orderBy = nameCol;
-        var filtered = filterInput(txt);
-        var select = 'id,' + nameCol;
+        let filter = '', orderBy = nameCol;
+        const filtered = filterInput(txt);
+        let select = 'id,' + nameCol;
 
         if (filtered.length > 0) {
-            let num = parseInt(filtered);
+            const num = parseInt(filtered, 10);
             if (num > 0) {
                 filter = `startswith(${visualIdcol}, '${num}')`;
                 orderBy = visualIdcol;
@@ -326,7 +381,7 @@ export class WorkEditor {
     private createFmtColumn(name: string, label: string, fmtFunc: (x) => string): UniTableColumn {
         return new UniTableColumn(name, label, UniTableColumnType.Text)
             .setTemplate((item: any) => {
-                var value = item[name];
+                const value = item[name];
                 if (value) {
                     return fmtFunc(value);
                 }

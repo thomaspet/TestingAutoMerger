@@ -66,7 +66,7 @@ export class WorkerService extends BizHttp<Worker> {
 
 
     public getRelationsForUser(id: number): Observable<WorkRelation[]> {
-        var obs = this.getWorkerFromUser(id);
+        const obs = this.getWorkerFromUser(id);
         return obs.switchMap((worker: Worker) => {
             return this.getRelationsForWorker(worker.ID);
         });
@@ -121,9 +121,9 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
-        var route = 'workrelations';
-        var dt = moment();
-        var rel = {
+        const route = 'workrelations';
+        const dt = moment();
+        const rel = {
             WorkerID: workerId,
             CompanyName: this.user.company,
             WorkPercentage: 100,
@@ -140,24 +140,34 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public getIntervalFilterPeriod(fromDate: Date, toDate: Date): string {
-        return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
+        return `date ge '${toIso(fromDate)}' and date le '${toIso(toDate)}'`;
+        // return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
     }
 
     public getIntervalFilter(interval: IFilterInterval | ItemInterval, date: Date): string {
         switch (interval) {
             case IFilterInterval.day:
-                return "date eq '" + toIso(date) + "'";
+                return `date eq '${toIso(date)}'`; // "date eq '" + toIso(date) + "'";
             case IFilterInterval.week:
-                return "date ge '" + toIso(moment(date).startOf('week').toDate()) + "' and date le '" +
-                    toIso(moment(date).endOf('week').toDate()) + "'";
+                // return "date ge '" + toIso(moment(date).startOf('week').toDate()) + "' and date le '" +
+                //     toIso(moment(date).endOf('week').toDate()) + "'";
+                return `date ge '${toIso(moment(date).startOf('week').toDate())}'
+                    and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.twoweeks:
-                return "date ge '" + toIso(moment(date).subtract(1, 'week').startOf('week').toDate()) + "' and date le '" +
-                    toIso(moment(date).endOf('week').toDate()) + "'";
+                // return "date ge '" + toIso(moment(date).subtract(1, 'week').startOf('week').toDate()) + "' and date le '" +
+                //     toIso(moment(date).endOf('week').toDate()) + "'";
+                return `date ge '${toIso(moment(date).subtract(1, 'week').startOf('week').toDate())}'
+                    and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.month:
-                return "date ge '" + toIso(moment(date).startOf('month').toDate()) + "' and date le '" +
-                    toIso(moment(date).endOf('month').toDate()) + "'";
+                // return "date ge '" + toIso(moment(date).startOf('month').toDate()) + "' and date le '" +
+                //     toIso(moment(date).endOf('month').toDate()) + "'";
+                return `date ge '${toIso(moment(date).startOf('month').toDate())}'
+                    and date le '${toIso(moment(date).endOf('month').toDate())}'`;
             case IFilterInterval.year:
-                return "date ge '" + toIso(moment(date).startOf('year').toDate()) + "' and date le '" + toIso(moment(date).endOf('year').toDate()) + "'";
+                // return "date ge '" + toIso(moment(date).startOf('year').toDate())
+                    // + "' and date le '" + toIso(moment(date).endOf('year').toDate()) + "'";
+                return `date ge '${toIso(moment(date).startOf('year').toDate())}'
+                    and date le '${toIso(moment(date).endOf('year').toDate())}'`;
             default:
                 return '';
         }
@@ -204,7 +214,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public getFilterIntervalItems(): Array<IFilter> {
-        let date = new Date();
+        const date = new Date();
         return [
             {
                 name: 'day',
@@ -254,8 +264,8 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     private getLastWorkDay(): Date {
-        var dt = moment();
-        var dayNumber = new Date().getDay();
+        const dt = moment();
+        const dayNumber = new Date().getDay();
         if (dayNumber === 1) {
             dt.add(-3, 'days');
         } else {
@@ -296,13 +306,13 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public getWorkItems(workRelationID: number, intervalFilter: string = ''): Observable<WorkItem[]> {
-        var filter = 'WorkRelationID eq ' + workRelationID;
+        let filter = 'WorkRelationID eq ' + workRelationID;
         if (intervalFilter.length > 0) {
             filter += ' and ( ' + intervalFilter + ' )';
         }
         return this.GET('workitems', { filter: filter, hateoas: 'false',
             expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder'
-                + ',Customer,Customer.Info',
+                + ',Customer,Customer.Info,Employment',
             orderBy: 'StartTime' });
     }
 
@@ -320,11 +330,14 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public query(route: string, ...args: any[]): Observable<any[]> {
-        var params = new URLSearchParams();
-        for (var i = 0; i < args.length; i += 2) {
+        const params = new URLSearchParams();
+        for (let i = 0; i < args.length; i += 2) {
             params.append(args[i], args[i + 1]);
         }
-        return this.queryWithUrlParams(params, route).map(response => response.json());
+        return this.queryWithUrlParams(params, route)
+            .map(response => {
+                return response.json();
+            });
     }
 
     public queryWithUrlParams(
@@ -345,7 +358,7 @@ export class WorkerService extends BizHttp<Worker> {
     }
 
     public saveByID<T>(item: T, baseRoute: string): Observable<T> {
-        var itemX: any = item;
+        const itemX: any = item;
         if (itemX && itemX.ID) {
             return this.PUT(baseRoute + '/' + itemX.ID, undefined, item );
         }

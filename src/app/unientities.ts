@@ -161,6 +161,8 @@ export class WorkItem extends UniEntity {
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
     public CustomFields: any;
+    public EmploymentID: number;
+    public Employment: Employment;
 }
 
 
@@ -240,7 +242,6 @@ export class WorkRelation extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
-    public EmploymentID: number;
     public EndTime: Date;
     public ID: number;
     public IsActive: boolean;
@@ -255,7 +256,6 @@ export class WorkRelation extends UniEntity {
     public WorkProfileID: number;
     public WorkProfile: WorkProfile;
     public Worker: Worker;
-    public Employment: Employment;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -3101,23 +3101,23 @@ export class CompanySettings extends UniEntity {
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public DefaultAddress: Address;
-    public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultPhone: Phone;
+    public DefaultAddress: Address;
+    public BaseCurrencyCode: CurrencyCode;
+    public SalaryBankAccount: BankAccount;
+    public CompanyBankAccount: BankAccount;
+    public DefaultProductInvoiceReminder: Product;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
-    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public DefaultProductInvoiceReminder: Product;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -3512,8 +3512,8 @@ export class Task extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Model: Model;
     public Approvals: Array<Approval>;
+    public Model: Model;
     public User: User;
     public CustomFields: any;
 }
@@ -4749,9 +4749,9 @@ export class VatReportReference extends UniEntity {
     public UpdatedBy: string;
     public VatPostID: number;
     public VatTypeID: number;
-    public VatType: VatType;
-    public VatPost: VatPost;
     public Account: Account;
+    public VatPost: VatPost;
+    public VatType: VatType;
     public CustomFields: any;
 }
 

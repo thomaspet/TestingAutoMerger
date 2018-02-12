@@ -35,7 +35,7 @@ export class TimeSheet {
     }
 
     public clone(): TimeSheet {
-        var tx = new TimeSheet(this.ts);
+        const tx = new TimeSheet(this.ts);
         tx.currentRelation = this.currentRelation;
         tx.allowLunchCalculations = this.allowLunchCalculations;
         return tx;
@@ -56,8 +56,8 @@ export class TimeSheet {
 
     public loadItems(interval?: IFilterInterval | ItemInterval, date?: Date): Observable<number> {
         this.changeMap.clear();
-        var filter = this.ts.workerService.getIntervalFilter(interval, date);
-        var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
+        const filter = this.ts.workerService.getIntervalFilter(interval, date);
+        const obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
         return <Observable<number>>obs.mergeMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
@@ -67,8 +67,8 @@ export class TimeSheet {
 
     public loadItemsByPeriod(fromDate: Date, toDate: Date): Observable<number> {
         this.changeMap.clear();
-        var filter = this.ts.workerService.getIntervalFilterPeriod(fromDate, toDate);
-        var obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
+        const filter = this.ts.workerService.getIntervalFilterPeriod(fromDate, toDate);
+        const obs = this.ts.getWorkItems(this.currentRelation.ID, filter);
         return <Observable<number>>obs.mergeMap((items: WorkItem[]) => {
             this.analyzeItems(items);
             this.items = items;
@@ -81,23 +81,22 @@ export class TimeSheet {
     }
 
     public saveItems(unsavedOnly = true): Observable<WorkItem> {
-        var toSave: Array<WorkItem>;
+        let toSave: Array<WorkItem>;
         if (unsavedOnly) {
             toSave = this.unsavedItems();
         } else {
             toSave = this.items;
         }
-        var toDelete = this.changeMap.getRemovables();
-
+        const toDelete = this.changeMap.getRemovables();
         // Nothing to do ?
         if (toSave && toSave.length === 0 && toDelete && toDelete.length === 0) {
             return Observable.from([new WorkItem()]);
         }
 
-        var obs = this.ts.saveWorkItems(toSave, toDelete);
+        const obs = this.ts.saveWorkItems(toSave, toDelete);
         return obs.map((result: { original: WorkItem, saved: WorkItem}) => {
             if (result.saved) {
-                var item: any = result.original;
+                const item: any = result.original;
                 this.changeMap.remove(item._rowIndex, true);
             } else {
                 this.changeMap.removables.remove(result.original.ID, false);
@@ -114,11 +113,11 @@ export class TimeSheet {
     }
 
     public validate(): { ok: boolean, message?: string, row?: number, fld?: string } {
-        var result = { ok: true, message: undefined, row: undefined, fld: undefined };
-        var item: WorkItem;
-        var list = this.changeMap.getKeys();
-        for (var i = 0; i < list.length; i++) {
-            let rowIndex = list[i];
+        const result = { ok: true, message: undefined, row: undefined, fld: undefined };
+        let item: WorkItem;
+        const list = this.changeMap.getKeys();
+        for (let i = 0; i < list.length; i++) {
+            const rowIndex = list[i];
             item = this.items[rowIndex];
             if (!item || !item.WorkTypeID) {
                 result.ok = false;
@@ -132,10 +131,10 @@ export class TimeSheet {
     }
 
     public setItemValue(change: ValueItem): boolean {
-        var item: WorkItem = this.getRowByIndex(change.rowIndex);
-        var ignore = false;
-        var recalc = false;
-        var reSum = false;
+        const item: WorkItem = this.getRowByIndex(change.rowIndex);
+        let ignore = false;
+        let recalc = false;
+        let reSum = false;
         switch (change.name) {
             case 'Date':
                 change.value = change.isParsed ? change.value : toIso(parseDate(change.value), true, true);
@@ -173,8 +172,8 @@ export class TimeSheet {
                 break;
             case 'Dimensions.ProjectID':
             case 'Dimensions.DepartmentID':
-                let dimFkName = change.name.split('.')[1];
-                let dimType = dimFkName.substr(0, dimFkName.length - 2);
+                const dimFkName = change.name.split('.')[1];
+                const dimType = dimFkName.substr(0, dimFkName.length - 2);
                 if (change.value) {
                     item.Dimensions = item.Dimensions || <any>{}; // new Dimension();
                     Dimension.setValue(item.Dimensions, change.value, dimType);
@@ -212,6 +211,13 @@ export class TimeSheet {
                     ignore = true;
                 }
                 break;
+            case 'Employment':
+                item.EmploymentID = change.value ? change.value.ID : 0;
+                change.value = (!item.EmploymentID) ? null : change.value;
+                break;
+            case 'EmploymentID':
+                item.Employment = change.value ? change.lookupValue || item.Employment : undefined;
+                break;
         }
         if (!ignore) {
             item[change.name] = change.value;
@@ -234,9 +240,9 @@ export class TimeSheet {
 
     public copyValueAbove(colName: string, rowIndex: number) {
         if (rowIndex < 1) {  return; }
-        var src = this.items[rowIndex - 1];
-        var lookupIItem: any;
-        var value = src.hasOwnProperty(colName) ? src[colName] : 0;
+        const src = this.items[rowIndex - 1];
+        let lookupIItem: any;
+        let value = src.hasOwnProperty(colName) ? src[colName] : 0;
         switch (colName) {
             case 'CustomerOrderID':
                 lookupIItem = src.CustomerOrder;
@@ -248,13 +254,16 @@ export class TimeSheet {
                 value = src.Dimensions ? src.Dimensions.ProjectID : value;
                 lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
                 break;
+            case 'EmploymentID':
+                lookupIItem = src.Employment;
+                break;
         }
-        var item = new ValueItem(colName, value, rowIndex, lookupIItem);
+        const item = new ValueItem(colName, value, rowIndex, lookupIItem);
         this.setItemValue(item);
     }
 
     public removeRow(index: number) {
-        var item = this.getRowByIndex(index);
+        const item = this.getRowByIndex(index);
         if (item.ID > 0) {
             this.changeMap.addRemove(item.ID, item);
             this.changeMap.remove(index, true);
@@ -266,8 +275,8 @@ export class TimeSheet {
     }
 
     public ensureRowCount(rows: number) {
-        var n = this.items.length;
-        for (var i = n; i < rows; i++) {
+        const n = this.items.length;
+        for (let i = n; i < rows; i++) {
             this.addRow();
         }
     }
@@ -287,12 +296,12 @@ export class TimeSheet {
 
 
     private analyzeItems(items: Array<any>) {
-        var prevDate = '';
-        var alternate = true;
-        var minuteCount = 0;
+        let prevDate = '';
+        let alternate = true;
+        let minuteCount = 0;
         // look for alternate days + calc total
-        for (var i = 0; i < items.length; i++) {
-            let item = items[i];
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             if (item.Date &&  !this.isSameDate(item.Date, prevDate)) {
                 alternate = !alternate;
                 prevDate = item.Date;
@@ -313,11 +322,11 @@ export class TimeSheet {
     }
 
     private calcMinutes(item: WorkItem): number {
-        var minutes = 0;
-        var lunch = item.LunchInMinutes || 0;
+        let minutes = 0;
+        let lunch = item.LunchInMinutes || 0;
         if (item.StartTime && item.EndTime) {
-            let st = moment(item.StartTime);
-            let et = moment(item.EndTime);
+            const st = moment(item.StartTime);
+            const et = moment(item.EndTime);
             let flip = 0;
             if (et.diff(st, 'minutes') < 0) {
                 flip = (et.minutes() + et.hours() * 60);
@@ -336,12 +345,12 @@ export class TimeSheet {
     }
 
     private containsLunch(item: WorkItem): boolean {
-        var st = moment(item.StartTime);
-        var et = moment(item.EndTime);
-        var sh = st.hours();
-        var sm = st.minutes();
-        var eh = et.hours();
-        var em = et.minutes();
+        const st = moment(item.StartTime);
+        const et = moment(item.EndTime);
+        const sh = st.hours();
+        const sm = st.minutes();
+        const eh = et.hours();
+        const em = et.minutes();
         // between 11:10 and 12:30 ?
         if ( (sh < 11 || (sh === 11 && sm < 10) ) && (eh > 12 || (eh === 12 && em > 30)) ) {
             return true;
@@ -359,7 +368,7 @@ export class TimesheetService {
     constructor(public workerService: WorkerService) {}
 
     public initUser(userid = 0, autoCreate = false): Observable<TimeSheet> {
-        let userIDSource = userid > 0
+        const userIDSource = userid > 0
             ? Observable.of(userid)
             : Observable.fromPromise(this.workerService.getCurrentUserId());
 
@@ -372,54 +381,53 @@ export class TimesheetService {
             if (autoCreate) {
                 relationsSource = this.workerService.getRelationsForUser(userID);
             } else {
-                let route = `workrelations?expand=worker&filter=worker.userid eq ${userID}&hateoas=false`;
+                const route = `workrelations?expand=worker&filter=worker.userid eq ${userID}&hateoas=false`;
                 relationsSource = this.workerService.get<Observable<WorkRelation[]>>(route);
             }
 
             return relationsSource.map((list: WorkRelation[]) => {
-               let first = list[0];
-               let timesheet = this.newTimeSheet(first);
-               this.workRelations = list;
-               return timesheet;
+                const first = list[0];
+                const timesheet = this.newTimeSheet(first);
+                this.workRelations = list;
+                return timesheet;
            });
         });
     }
 
     public initWorker(workerId: number): Observable<TimeSheet> {
         return this.workerService.getRelationsForWorker(workerId).mergeMap((list: WorkRelation[]) => {
-               var first = list[0];
-               var ts = this.newTimeSheet(first);
-               this.workRelations = list;
-               return Observable.of(ts);
+            const first = list[0];
+            const ts = this.newTimeSheet(first);
+            this.workRelations = list;
+            return Observable.of(ts);
         });
     }
 
     public newTimeSheet(workRelation: WorkRelation): TimeSheet {
-        var ts = new TimeSheet(this);
+        const ts = new TimeSheet(this);
         ts.currentRelation = workRelation;
         return ts;
     }
 
     public getWorkItems(workRelationID: number, filter: string): Observable<WorkItem[]> {
-        //  var intervalFilter = this.workerService.getIntervalFilter(interval)
         return this.workerService.getWorkItems(workRelationID, filter);
     }
 
     public saveWorkItems(items: WorkItem[], deletables?: WorkItem[]):
         Observable<{ original: WorkItem, saved: WorkItem }> {
 
-        var obsSave = Observable.from(items).mergeMap((item: WorkItem) => {
-            var originalId = item.ID;
-            item.ID = item.ID < 0 ? 0 : item.ID;
-            this.preSaveWorkItem(item);
-            return this.workerService.saveWorkItem(item).map((savedItem: WorkItem) => {
-                item.ID = originalId;
-                return { original: item, saved: savedItem };
+            const obsSave = Observable.from(items).mergeMap((item: WorkItem) => {
+                const originalId = item.ID;
+                item.ID = item.ID < 0 ? 0 : item.ID;
+                this.preSaveWorkItem(item);
+                return this.workerService.saveWorkItem(item).map((savedItem: WorkItem) => {
+                    item.ID = originalId;
+                    return { original: item, saved: savedItem };
+                });
             });
-        });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).mergeMap( (item: WorkItem) => {
+            const obsDel = Observable.from(deletables).mergeMap( (item: WorkItem) => {
                 return this.workerService.deleteWorkitem(item.ID).map((event) => {
                     return { original: item, saved: null };
                 });
@@ -440,7 +448,7 @@ export class TimesheetService {
     public checkTimeOnItem(item: any) {
         if (item.Date) {
             // ensure item.StartTime and item.EndTime has same date as item.Date
-            var dt = moment(item.Date);
+            const dt = moment(item.Date);
             if (item.StartTime) {
                 item.StartTime = toIso(moment(item.StartTime).year(dt.year())
                     .month(dt.month()).date(dt.date()).toDate(), true);
@@ -453,10 +461,10 @@ export class TimesheetService {
     }
 
     public getFlexBalance(workRelationId: number, details: boolean = false): Observable<WorkBalance> {
-        var params = new URLSearchParams();
+        const params = new URLSearchParams();
         params.append('action', 'calc-flex-balance');
         if (details) { params.append('details', 'true'); }
-        var obs: any = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}` )
+        const obs: any = this.workerService.queryWithUrlParams(params, `workrelations/${workRelationId}` )
             .map((response: any) => response.json());
         return obs;
     }

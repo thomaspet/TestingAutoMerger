@@ -135,7 +135,7 @@ export class AMeldingView implements OnInit {
     private openReport() {
         this.reportDefinitionService
             .getReportByName('Forskuddstrekk og arbeidsgiveravgift')
-            .catch((err,obs) => this.errorService.handleRxCatch(err, obs))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((report) => {
                 report.parameters = [
                     {
@@ -221,15 +221,15 @@ export class AMeldingView implements OnInit {
         if (this.currentAMelding) {
             this._ameldingService.getAMeldingFile(this.currentAMelding.ID)
                 .subscribe(amldfile => {
-                    var a = document.createElement('a');
-                    var dataURI = 'data:text/xml;base64,' + btoa(amldfile);
+                    const a = document.createElement('a');
+                    const dataURI = 'data:text/xml;base64,' + btoa(amldfile);
                     a.href = dataURI;
-                    let prd: string = this.currentPeriod < 10
+                    const prd: string = this.currentPeriod < 10
                         ? '0' + this.currentPeriod.toString()
                         : this.currentPeriod.toString();
                     a['download'] = `amelding_${prd}_${this.currentAMelding.ID}.xml`;
 
-                    var e = document.createEvent('MouseEvents');
+                    const e = document.createEvent('MouseEvents');
                     e.initMouseEvent(
                         'click', true, false, document.defaultView,
                         0, 0, 0, 0, 0, false, false, false, false, 0 , null
@@ -246,15 +246,15 @@ export class AMeldingView implements OnInit {
         if (this.currentAMelding) {
             this._ameldingService.getAmeldingFeedbackFile(this.currentAMelding.ID)
                 .subscribe(feedbackfile => {
-                    var a = document.createElement('a');
-                    var dataURI = 'data:text/xml;base64,' + btoa(feedbackfile);
+                    const a = document.createElement('a');
+                    const dataURI = 'data:text/xml;base64,' + btoa(feedbackfile);
                     a.href = dataURI;
-                    let prd: string = this.currentPeriod < 10
+                    const prd: string = this.currentPeriod < 10
                         ? '0' + this.currentPeriod.toString()
                         : this.currentPeriod.toString();
                     a['download'] = `tilbakemelding_${prd}_${this.currentAMelding.ID}.xml`;
 
-                    var e = document.createEvent('MouseEvents');
+                    const e = document.createEvent('MouseEvents');
                     e.initMouseEvent(
                         'click', true, false, document.defaultView,
                         0, 0, 0, 0, 0, false, false, false, false, 0 , null
@@ -326,7 +326,7 @@ export class AMeldingView implements OnInit {
                 this.totalFtrekkSystem = 0;
 
                 currentSumsInPeriod.forEach(dataElement => {
-                    let sums = dataElement.Sums;
+                    const sums = dataElement.Sums;
                     this.totalAGASystem += dataElement.Sums.calculatedAGA;
                     this.totalFtrekkSystem += sums.tableTax + sums.percentTax + sums.manualTax;
                 });
@@ -365,11 +365,11 @@ export class AMeldingView implements OnInit {
     }
 
     public getStatusTrackConfig() {
-        let statustrack: IStatus[] = [];
-        let activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
+        const statustrack: IStatus[] = [];
+        const activeStatus = this.currentAMelding ? (this.currentAMelding.status ? this.currentAMelding.status : 1) : 0;
         this._ameldingService.internalAmeldingStatus.forEach((amldStatus, indx) => {
             let _state: STATUSTRACK_STATES;
-            let _substatuses: IStatus[] = [];
+            const _substatuses: IStatus[] = [];
             if (amldStatus.Code > activeStatus) {
                 _state = STATUSTRACK_STATES.Future;
             } else if (amldStatus.Code < activeStatus) {
@@ -436,7 +436,7 @@ export class AMeldingView implements OnInit {
             this.currentSumUp = response;
 
             if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-                let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+                const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                 if (statusTextObject) {
                     this.currentSumUp._sumupStatusText = statusTextObject.statusText;
                 } else {
@@ -454,22 +454,22 @@ export class AMeldingView implements OnInit {
         let mottakObject: any;
         if (amelding && amelding.hasOwnProperty('feedBack')) {
             if (amelding.feedBack !== null) {
-                let alleMottak = amelding.feedBack.melding.Mottak;
+                const alleMottak = amelding.feedBack.melding.Mottak;
                 if (alleMottak instanceof Array) {
                     alleMottak.forEach(mottak => {
                         const pr = mottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop());
+                        const period = parseInt(pr.split('-').pop(), 10);
                         if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
                                 mottakObject = this.checkMottattPeriode(mottak, typeData);
                         }
                     });
                 } else {
                     if (alleMottak.hasOwnProperty('kalendermaaned')) {
                         const pr = alleMottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop());
+                        const period = parseInt(pr.split('-').pop(), 10);
                         if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-'))) === amelding.year)) {
+                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
                                 mottakObject = this.checkMottattPeriode(alleMottak, typeData);
                         }
                     }
@@ -488,6 +488,9 @@ export class AMeldingView implements OnInit {
                     break;
                 case 1:
                     anyObject = {statusText: this.findAndSetStatusFromFeedback(mottak.mottattPeriode)};
+                    if (mottak.hasOwnProperty('mottattLeveranse')) {
+                        anyObject = {statusText: this.findAndSetStatusFromFeedback(mottak.mottattLeveranse)};
+                    }
                     break;
 
                 default:
@@ -583,7 +586,7 @@ export class AMeldingView implements OnInit {
 
                 case 3:
                     if (this.currentAMelding.altinnStatus !== 'avvist') {
-                        let statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
+                        const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                         if (statusTextObject) {
                             this.periodStatus = statusTextObject.statusText;
                         }
@@ -606,7 +609,7 @@ export class AMeldingView implements OnInit {
     }
 
     private getAvvikRec(obj) {
-        for (var propname in obj) {
+        for (const propname in obj) {
             if (propname === 'avvik') {
                 if (obj[propname] instanceof Array) {
                     obj[propname].forEach(avvik => {
@@ -616,7 +619,7 @@ export class AMeldingView implements OnInit {
                         this.alleAvvikStatuser.push(avvik);
                     });
                 } else {
-                    let avvik = obj[propname];
+                    const avvik = obj[propname];
                     if (obj.hasOwnProperty('alvorlighetsgrad')) {
                         avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
                     }
@@ -707,7 +710,7 @@ export class AMeldingView implements OnInit {
             }
         }, err => {
             this.errorService.handle(err);
-            let msg = err.status === 500 ? 'Sjekk Altinn innstillinger, ' : '';
+            const msg = err.status === 500 ? 'Sjekk Altinn innstillinger, ' : '';
             done(msg + err.statusText);
         });
     }
