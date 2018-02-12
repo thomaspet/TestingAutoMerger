@@ -318,7 +318,7 @@ export class WageTypeService extends BizHttp<WageType> {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Skatte- og avgiftsregel',
                     FieldSet: 1,
-                    Section: 2
+                    Section: 2,
                 },
                 {
                     EntityType: 'wagetype',
@@ -332,7 +332,10 @@ export class WageTypeService extends BizHttp<WageType> {
                     Property: '_AMeldingHelp',
                     FieldType: FieldType.HYPERLINK,
                     Label: 'Hjelp',
-                    HelpText: 'Hjelp til a-ordningen',
+                    Tooltip: {
+                        Type: 'info',
+                        Text: 'Hjelp til a-ordningen'
+                    },
                     FieldSet: 1,
                     Section: 2,
                     Options: {
@@ -357,7 +360,9 @@ export class WageTypeService extends BizHttp<WageType> {
                         Property: 'FixedSalaryHolidayDeduction',
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Trekk i fastlønn for ferie',
-                        HelpText: 'Kryss av dersom du ønsker trekk (negativ post) på lønnsarten når du på lønnsavregningen har krysset av for Trekk i fastlønn for ferie.',
+                        Tooltip: {
+                            Text: 'Kryss av dersom du ønsker trekk (negativ post) på lønnsarten når du på lønnsavregningen har krysset av for Trekk i fastlønn for ferie.',
+                        },
                         FieldSet: 1,
                         Legend: 'Innstillinger',
                         Section: 0
@@ -367,7 +372,9 @@ export class WageTypeService extends BizHttp<WageType> {
                         Property: 'HideFromPaycheck',
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Skjul på lønnslipp',
-                        HelpText: 'Skjul lønnsarten på lønnsslipp. Bare mulig for lønnsarter som ikke fører til en utbetaling.',
+                        Tooltip: {
+                            Text: 'Skjul lønnsarten på lønnsslipp. Bare mulig for lønnsarter som ikke fører til en utbetaling.',
+                        },
                         FieldSet: 1,
                         Section: 0
                     },
@@ -376,7 +383,9 @@ export class WageTypeService extends BizHttp<WageType> {
                         Property: 'StandardWageTypeFor',
                         FieldType: FieldType.DROPDOWN,
                         LookupField: 'Name',
-                        HelpText: 'Lønnsarter som brukes til spesielle ting, for eksempel skatt, ferie og lignende må settes opp med korrekt type her.',
+                        Tooltip: {
+                            Text: 'Lønnsarter som brukes til spesielle ting, for eksempel skatt, ferie og lignende må settes opp med korrekt type her.',
+                        },
                         Label: 'Systemets lønnsart',
                         FieldSet: 1,
                         Section: 0

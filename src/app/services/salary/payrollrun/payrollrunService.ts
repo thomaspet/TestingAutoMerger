@@ -374,7 +374,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'taxdrawfactor',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Skattetrekk',
-                    HelpText: this.getTaxHelpText(),
+                    Tooltip: {
+                        Text: this.getTaxHelpText(),
+                        Alignment: 'bottom'
+                    },
                     FieldSet: 1,
                     Section: 0,
                     Classes: 'payrollDetails_taxdrawfactor',

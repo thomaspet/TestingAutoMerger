@@ -43,8 +43,10 @@
                         <span *ngIf="summaryItem.HasTaxBasis && isHistoricData">{{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}</span>
                     </td>
                     <td style="width: 20pt;">
-                            <uni-helptext style="margin-top: 6pt; width: 22pt; height:22pt;" *ngIf="summaryItem.VatCodeGroupNo === 'A' && vatReportSummaryFromPreviousPeriods?.length > 0"
-                                [text]="previousPeriodsHelpText"></uni-helptext></td>
+                        <uni-tooltip
+                            *ngIf="summaryItem.VatCodeGroupNo === 'A' && vatReportSummaryFromPreviousPeriods?.length > 0"
+                            [text]="previousPeriodsHelpText">
+                        </uni-tooltip>
                     <td class="currency">
                         <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery;showTaxBasisAmount={{summaryItem.HasTaxBasis}};vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}};vatFromDate={{currentVatReport?.TerminPeriod.FromDate}};vatToDate={{currentVatReport?.TerminPeriod.ToDate}};vatReportID={{currentVatReport?.ID}}">
                             {{summaryItem.SumVatAmount * -1 | unicurrency:2}}

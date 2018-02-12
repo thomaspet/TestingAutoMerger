@@ -99,7 +99,9 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     FieldType: FieldType.TEXT,
                     Label: 'ID fra Altinn',
                     Description: 'Description',
-                    HelpText: 'Tall, Id fås av Altinn ved oppsett av datasystem (minst 6 tegn)',
+                    Tooltip: {
+                        Text: 'Tall, Id fås av Altinn ved oppsett av datasystem (minst 6 tegn)'
+                    },
                     FieldSet: 0,
                     Section: 0,
                     Legend: 'Legend',
@@ -110,7 +112,9 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     Property: 'SystemPw',
                     FieldType: FieldType.PASSWORD,
                     Label: 'Passord',
-                    HelpText: 'Samme passord som ble satt opp i Altinn ved oppsett datasystem',
+                    Tooltip: {
+                        Text: 'Samme passord som ble satt opp i Altinn ved oppsett datasystem'
+                    },
                     FieldSet: 0,
                     Section: 0,
                     hasLineBreak: true
@@ -121,7 +125,9 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Foretrukket språk',
                     Description: '',
-                    HelpText: 'Her kan en velge det foretrukne språket for dette firmaet for Altinn (nynorsk, bokmål, samisk, engelsk)',
+                    Tooltip: {
+                        Text: 'Her kan en velge det foretrukne språket for dette firmaet for Altinn (nynorsk, bokmål, samisk, engelsk)'
+                    },
                     FieldSet: 0,
                     Section: 0,
                     IsLookUp: true,
