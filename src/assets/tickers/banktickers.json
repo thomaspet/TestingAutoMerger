@@ -281,7 +281,22 @@
                         {
                             "Field": "StatusCode",
                             "Operator": "ne",
-                            "Value": "44007"
+                            "Value": "44010"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44012"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44013"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44014"
                         }
                     ]
                 }]
@@ -327,7 +342,7 @@
                 }]
             },
             {
-                "Name": "Alle",
+                "Name": "Avvist",
                 "Code": "payment_list",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
@@ -337,6 +352,51 @@
                             "Field": "IsCustomerPayment",
                             "Operator": "eq",
                             "Value": "false"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44001"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44002"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44004"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44005"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44006"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44007"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44008"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44009"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44011"
                         }
                     ]
                 }]

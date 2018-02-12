@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
@@ -30,7 +30,7 @@ export interface IAutoBankAgreementDetails {
     selector: 'uni-autobank-agreement-modal',
     template: `
         <section role="dialog" class="uni-modal uni-autobank-agreement-modal">
-            <header><h1>Veiviser for ny autobankavtale</h1></header>
+            <header><h1>{{ header }}</h1></header>
 
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps > 0" id="step0">
                 <p>Velkommen til veiviser for ny autobankavtale.</p>
@@ -69,7 +69,7 @@ export interface IAutoBankAgreementDetails {
                 </label>
             </article>
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 2" id="step2">
-                <p>Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
+                <p *ngIf="!editmode">Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -96,17 +96,21 @@ export interface IAutoBankAgreementDetails {
                 eller du kan gå inn under Innstillinger - Bankinstillinger.</p>
             </article>
 
-            <footer>
+            <footer *ngIf="!editmode">
                 <button (click)="move(-1)" *ngIf="steps > 0 && steps !== 4" >Tilbake</button>
                 <button (click)="move(1)" *ngIf="steps !== 4" [disabled]="!canMoveForward">Fortsett</button>
                 <button (click)="sendStartDataToZData()" *ngIf="steps !== 4" [disabled]="steps !== 3" class="good">Fullfør</button>
                 <button (click)="close('cancel')" class="bad">Lukk</button>
             </footer>
+            <footer *ngIf="editmode">
+                <button (click)="saveAfterEdit()" class="good">Lagre</button>
+                <button (click)="close('cancel')" class="bad">Avbryt</button>
+            </footer>
         </section>
     `
 })
 
-export class UniAutobankAgreementModal implements IUniModal {
+export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     @Input()
     public options: IModalOptions = {};
@@ -120,6 +124,7 @@ export class UniAutobankAgreementModal implements IUniModal {
     private showErrorText: boolean = false;
     private accounts: any[] = [];
     private busy: boolean = false;
+    private header = 'Veiviser for ny autobankavtale';
     private agreementDetails: IAutoBankAgreementDetails = {
         Email: '',
         Phone: '',
@@ -138,22 +143,36 @@ export class UniAutobankAgreementModal implements IUniModal {
     private formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    public editmode: boolean = false;
+
     constructor(
         private userService: UserService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private bankAccountService: BankAccountService,
         private bankService: BankService
-    ) {
+    ) { }
+
+    public ngOnInit() {
+        if (this.options && this.options.data) {
+            this.agreementDetails = this.options.data;
+            this.editmode = true;
+            this.steps = 2;
+            this.header = 'Rediger avtale';
+        }
         Observable.forkJoin(
             this.companySettingsService.Get(1),
             this.userService.getCurrentUser(),
             this.bankAccountService.GetAll(`filter=(BankAccountType ne 'Customer' and BankAccountType ne 'Supplier')`, ['Bank'])
         ).subscribe((res) => {
-            this.agreementDetails.Orgnr = res[0].OrganizationNumber;
-            this.agreementDetails.Phone = res[1].PhoneNumber;
-            this.agreementDetails.Email = res[1].Email;
             this.accounts = res[2];
+            // If not agreement is passed in as Input
+            if (!this.editmode) {
+                this.agreementDetails.Orgnr = res[0].OrganizationNumber;
+                this.agreementDetails.Phone = res[1].PhoneNumber;
+                this.agreementDetails.Email = res[1].Email;
+                this.steps = 0;
+            }
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
         }, (err) => {
@@ -189,6 +208,7 @@ export class UniAutobankAgreementModal implements IUniModal {
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 Label: 'Orgnr.',
+                Hidden: this.editmode
             },
             <any> {
                 FieldSet: 0,
@@ -213,11 +233,31 @@ export class UniAutobankAgreementModal implements IUniModal {
                 FieldSet: 0,
                 FieldSetColumn: 0,
                 EntityType: '',
+                Property: 'IsInbound',
+                FieldType: FieldType.CHECKBOX,
+                ReadOnly: false,
+                Label: 'Innkommende',
+                Hidden: !this.editmode
+            },
+            <any> {
+                FieldSet: 0,
+                FieldSetColumn: 0,
+                EntityType: '',
+                Property: 'IsOutgoing',
+                FieldType: FieldType.CHECKBOX,
+                ReadOnly: false,
+                Label: 'Utgående',
+                Hidden: !this.editmode
+            },
+            <any> {
+                FieldSet: 0,
+                FieldSetColumn: 0,
+                EntityType: '',
                 Property: 'Phone',
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
                 Label: 'Telefon',
-                hidden: !this.agreementDetails.RequireTwoStage
+                Hidden: !this.agreementDetails.RequireTwoStage
             },
             <any> {
                 FieldSet: 0,
@@ -235,7 +275,8 @@ export class UniAutobankAgreementModal implements IUniModal {
                 Property: 'Password',
                 FieldType: FieldType.PASSWORD,
                 ReadOnly: false,
-                Label: 'Passord'
+                Label: 'Passord',
+                Hidden: this.editmode
             }
         ];
     }
@@ -313,6 +354,11 @@ export class UniAutobankAgreementModal implements IUniModal {
         numberOfMetCriterias += /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password) ? 1 : 0;
 
         return numberOfMetCriterias >= 3;
+    }
+
+    public saveAfterEdit() {
+        // Save updated agreement details
+        // TODO!
     }
 
 }

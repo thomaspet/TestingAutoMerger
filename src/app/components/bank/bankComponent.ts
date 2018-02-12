@@ -405,7 +405,7 @@ export class BankComponent implements AfterViewInit {
         });
 
         // Create action to generate batch for n paymetns
-        this.paymentService.createPaymentBatch(paymentIDs)
+        this.paymentService.createPaymentBatch(paymentIDs, isManualPayment)
             .subscribe((paymentBatch: PaymentBatch) => {
                 this.toastService.addToast(
                     `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
