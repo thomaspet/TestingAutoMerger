@@ -150,7 +150,7 @@ export class TransqueryDetails implements OnInit {
         if (splitted[0].includes('JournalEntryNumber ')) {
             filters[0] = `JournalEntryNumber eq '${searchValue}'`;
         // If search in unitable filter is text
-        } else if (isNaN(searchValue) && !!searchValue) {
+        } else if (isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
             filters[0] = `contains(Description, '${searchValue}') or contains(Account.AccountName, '${searchValue}')`;
         } else {
             if (filters && filters.length > 0) {

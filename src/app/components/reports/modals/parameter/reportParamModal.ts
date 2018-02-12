@@ -111,6 +111,10 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             type = FieldType.LOCAL_DATE_PICKER;
                             p.value = p.Defaultvalue || new LocalDate();
                             break;
+                        case 'Date':
+                            type = FieldType.LOCAL_DATE_PICKER;
+                            p.value = p.Defaultvalue || new LocalDate();
+                            break;
                         default:
                             type = FieldType.TEXT;
                             break;
@@ -231,13 +235,19 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             const chunkOfQuerys = [];
             let topSourceIndex = -1;
             for (let i = 0; i < params.length; i++) {
-                const par: { DefaultValueSource?: string, SourceIndex?: number} = params[i];
+                const par: any = params[i];
                 if (par.DefaultValueSource) {
                     const qIndex = par.DefaultValueSource.indexOf('?');
                     const query = qIndex >= 0 ? par.DefaultValueSource.substr(qIndex + 1) : par.DefaultValueSource;
                     chunkOfQuerys.push(this.statisticsService.GetAll(`${query}`));
                     topSourceIndex++;
                 }
+
+                // This should be set as standard for reports?
+                if (par.Name === 'System_PeriodAccountYear' || par.Name === 'PeriodAccountYear') {
+                    this.yearService.getActiveYear().subscribe(year => params[i].value = '' + year);
+                }
+
                 par.SourceIndex = topSourceIndex;
             }
             if (chunkOfQuerys.length > 0) {
@@ -245,8 +255,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     for (let i = 0; i < params.length; i++) {
                         const reportParam: { SourceIndex?: number } = <any>params[i];
                         const dataset: any = reportParam.SourceIndex !== undefined ? results[reportParam.SourceIndex] : undefined;
-                        if (dataset && dataset.Success && dataset.Data.length > 0) {
-                            params[i].DefaultValueSourceData = dataset.Data;
+                        // If the value already has been set (if the param field is year), skip it!
+                        if (dataset && dataset.Success && dataset.Data.length > 0 && !params[i].value) {
                             params[i].value = this.pickValueFromResult(<any>reportParam, dataset.Data[0] );
                         }
                     }

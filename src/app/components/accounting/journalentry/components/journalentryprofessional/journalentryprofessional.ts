@@ -618,9 +618,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return newRow;
     }
 
-    private setProjectProperties(rowModel: JournalEntryData): JournalEntryData {
+    private setProjectProperties(rowModel: any): JournalEntryData {
         const project = rowModel['Dimensions.Project'];
         if (project) {
+            if (!rowModel.Dimensions) {
+                rowModel.Dimensions = {};
+            }
             rowModel.Dimensions.Project = project;
             rowModel.Dimensions.ProjectID = project.ID;
         }
@@ -686,9 +689,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
-    private setDepartmentProperties(rowModel: JournalEntryData): JournalEntryData {
+    private setDepartmentProperties(rowModel: any): JournalEntryData {
         const dep = rowModel['Dimensions.Department'];
         if (dep) {
+            if (!rowModel.Dimensions) {
+                rowModel.Dimensions = {};
+            }
             rowModel.Dimensions.Department = dep;
             rowModel.Dimensions.DepartmentID = dep.ID;
         }
