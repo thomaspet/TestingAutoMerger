@@ -89,7 +89,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             break;
                         case 'Boolean':
                             type = FieldType.CHECKBOX;
-                            p.DefaultValue = p.DefaultValue === 'true';
+                            p.DefaultValue = (p.DefaultValue === 'true');
                             p.value = p.DefaultValue;
                             break;
                         case 'Dropdown':
@@ -161,7 +161,13 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
             p.value = model[p.Name];
 
-            if (p.Name === 'OrderBy') {
+            if (p.Name === 'HideAccounts') {
+                if (p.value === true) {
+                    p. value = 1;
+                } else {
+                    p. value = 0;
+                }
+            } else if (p.Name === 'OrderBy') {
                 const source: any[] = JSON.parse(p.DefaultValueList);
                 const selectedSort = source.find(element => element.Label === p.value);
 
