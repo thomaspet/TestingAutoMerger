@@ -23,6 +23,7 @@ import {
 import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
+import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import {
     ErrorService,
     StatisticsService,
@@ -34,6 +35,7 @@ import {
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
+import { RequestMethod } from '@angular/http';
 
 @Component({
     selector: 'uni-bank-component',
@@ -97,8 +99,23 @@ export class BankComponent implements AfterViewInit {
         {
             Code: 'download_payment_file',
             ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows)
+        },
+        {
+            Code: 'reset_payment',
+            ExecuteActionHandler: (selectedRows) => this.resetPayment(selectedRows, false),
+            CheckActionIsDisabled: (selectedRow) => this.checkResetPaymentDisabled(selectedRow)
+        },
+        {
+            Code: 'reset_edit_payment',
+            ExecuteActionHandler: (selectedRows) => this.resetPayment(selectedRows, true),
+            CheckActionIsDisabled: (selectedRow) => this.checkResetPaymentDisabled(selectedRow)
         }
     ];
+
+    public checkResetPaymentDisabled(selectedRow: any): boolean {
+        const enabledForStatuses = [44003, 44010, 44012, 44014];
+        return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
+    }
 
     constructor(
         private uniTickerService: UniTickerService,
@@ -279,6 +296,64 @@ export class BankComponent implements AfterViewInit {
                             this.errorService.handleWithMessage(err, 'Feil ved henting av innbetalingsfil');
                         }
                         );
+                }
+            });
+        });
+    }
+
+    public resetPayment(selectedRows: any, showModal: boolean): Promise<any> {
+        const row = selectedRows[0];
+        return new Promise(() => {
+            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).subscribe((payment: Payment) => {
+                const newPayment = new Payment();
+                newPayment.PaymentDate = new LocalDate();
+                newPayment.DueDate =  payment.DueDate;
+                newPayment.InvoiceNumber = payment.InvoiceNumber;
+                newPayment.Amount = payment.Amount;
+                newPayment.AmountCurrency = payment.AmountCurrency;
+                newPayment.ToBankAccount = payment.ToBankAccount;
+                newPayment.ToBankAccountID = payment.ToBankAccountID;
+                newPayment.FromBankAccount = payment.FromBankAccount;
+                newPayment.FromBankAccountID = payment.FromBankAccountID;
+                newPayment.BusinessRelation = payment.BusinessRelation;
+                newPayment.BusinessRelationID = payment.BusinessRelationID;
+                newPayment.PaymentCodeID = payment.PaymentCodeID;
+                newPayment.Description = payment.Description;
+                newPayment.PaymentID = payment.PaymentID;
+                newPayment.ReconcilePayment = payment.ReconcilePayment;
+                newPayment.AutoJournal = payment.AutoJournal;
+                newPayment.IsCustomerPayment = payment.IsCustomerPayment;
+
+                if (showModal) {
+                    // show addPaymentModel
+                    this.modalService.open(AddPaymentModal, {
+                        data: { model: newPayment },
+                        header: 'Endre betaling',
+                        buttonLabels: {accept: 'Oppdater betaling'}
+                    }).onClose.
+                    subscribe((updatedPaymentInfo: Payment) => {
+                        if (updatedPaymentInfo) {
+                            this.paymentService.ActionWithBody(
+                                null,
+                                updatedPaymentInfo,
+                                'reset-payment',
+                                RequestMethod.Post,
+                                'oldPaymentID=' + payment.ID
+                            ).subscribe(paymentResponse => {
+                                this.tickerContainer.mainTicker.reloadData(); // refresh table
+                            });
+                        }
+                    });
+                } else {
+                    this.paymentService.ActionWithBody(
+                        null,
+                        newPayment,
+                        'reset-payment',
+                        RequestMethod.Post,
+                        'oldPaymentID=' + payment.ID
+                    ).subscribe(paymentResponse => {
+                        this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    });
                 }
             });
         });

@@ -222,6 +222,24 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Legg tilbake til ubetalt",
+                "Code": "reset_payment",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Endre og legg tilbake til ubetalt",
+                "Code": "reset_edit_payment",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "Filters": [
