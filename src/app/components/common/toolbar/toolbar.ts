@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, AfterViewInit} from '@angular/core';
 import {IUniSaveAction, UniSave} from './../../../../framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -61,7 +61,7 @@ export interface IShareAction {
     selector: 'uni-toolbar',
     templateUrl: './toolbar.html'
 })
-export class UniToolbar {
+export class UniToolbar implements OnInit, OnChanges, AfterViewInit {
     @ViewChild('toolbarExtras')
     private extrasElement: ElementRef;
     @ViewChild(UniSave) private save: UniSave;
@@ -151,7 +151,7 @@ export class UniToolbar {
     }
 
     public checkExtrasOverflow() {
-        let extras: HTMLElement = this.extrasElement && this.extrasElement.nativeElement;
+        const extras: HTMLElement = this.extrasElement && this.extrasElement.nativeElement;
         if (extras && extras.scrollHeight > extras.clientHeight) {
             extras.style.position = 'absolute';
             extras.style.top = '0';

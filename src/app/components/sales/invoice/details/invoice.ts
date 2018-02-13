@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
@@ -98,7 +98,7 @@ export enum CollectorStatus {
     selector: 'uni-invoice',
     templateUrl: './invoice.html'
 })
-export class InvoiceDetails {
+export class InvoiceDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -324,7 +324,7 @@ export class InvoiceDetails {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
-                    let invoice = res[0];
+                    const invoice = res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
                     this.paymentTerms = res[3];
@@ -377,7 +377,7 @@ export class InvoiceDetails {
         }
 
         // Possible to receive EHF for this customer?
-        let peppoladdress = this.invoice.Customer.PeppolAddress
+        const peppoladdress = this.invoice.Customer.PeppolAddress
             ? this.invoice.Customer.PeppolAddress
             : '9908:' + this.invoice.Customer.OrgNumber;
         this.ehfService.GetAction(
@@ -489,7 +489,7 @@ export class InvoiceDetails {
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
-        let customerChanged: boolean = this.didCustomerChange(invoice);
+        const customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
             if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
                 this.setPaymentDueDate(invoice);
@@ -520,7 +520,7 @@ export class InvoiceDetails {
                         reject: 'Nei'
                     }
                 }).onClose.subscribe(response => {
-                    let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable
                         .setDefaultProjectAndRefreshItems(invoice.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
@@ -561,7 +561,7 @@ export class InvoiceDetails {
         }
 
         this.getUpdatedCurrencyExchangeRate(invoice).subscribe(res => {
-            let newCurrencyRate = res;
+            const newCurrencyRate = res;
 
             if (!this.currencyExchangeRate) {
                 this.currencyExchangeRate = 1;
@@ -581,7 +581,7 @@ export class InvoiceDetails {
                 let diffBaseCurrency: number;
                 let diffBaseCurrencyPercent: number;
 
-                let haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(
+                const haveUserDefinedPrices = this.invoiceItems && this.invoiceItems.filter(
                     x => x.PriceSetByUser
                 ).length > 0;
 
@@ -605,7 +605,7 @@ export class InvoiceDetails {
                 }
 
                 if (askUserWhatToDo) {
-                    let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+                    const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
                     const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. '
                         + 'Du har overstyrt en eller flere priser, '
                         + 'og dette fører derfor til at totalsum eks. mva '
@@ -772,7 +772,7 @@ export class InvoiceDetails {
         if (!invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === invoice.CurrencyCodeID) {
             return Observable.from([1]);
         } else {
-            let currencyDate: LocalDate = new LocalDate(invoice.InvoiceDate.toString());
+            const currencyDate: LocalDate = new LocalDate(invoice.InvoiceDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
                 invoice.CurrencyCodeID,
@@ -847,7 +847,7 @@ export class InvoiceDetails {
         let subStatux: any = null;
         let statusText = '';
         let statusTimeStamp: Date = null;
-        let subStatuses: StatusTrack[] = [];
+        const subStatuses: StatusTrack[] = [];
 
         switch (colStatus) {
             case CollectorStatus.Reminded: {
@@ -862,8 +862,8 @@ export class InvoiceDetails {
                     .subscribe(brdata => {
                         if (brdata && brdata.length > 0) {
                             brdata.forEach(element => {
-                                let pastDue: boolean = new Date(element['DueDate']) < new Date();
-                                let pastDueText = pastDue ? 'forfalt for' : 'forfall om';
+                                const pastDue: boolean = new Date(element['DueDate']) < new Date();
+                                const pastDueText = pastDue ? 'forfalt for' : 'forfall om';
                                 statusText = `${element['ReminderNumber']}. purring, `
                                     + `${pastDueText} ${moment(new Date(element['DueDate'])).fromNow()}`;
                                 statusTimeStamp = new Date(element['Date']);
@@ -911,13 +911,13 @@ export class InvoiceDetails {
     }
 
     private getStatustrackConfig() {
-        let statustrack: IStatus[] = [];
+        const statustrack: IStatus[] = [];
         let activeStatus = 0;
         if (this.invoice) {
             activeStatus = this.invoice.StatusCode || 1;
         }
 
-        let statuses = [...this.customerInvoiceService.statusTypes];
+        const statuses = [...this.customerInvoiceService.statusTypes];
         const spliceIndex = (activeStatus === StatusCodeCustomerInvoice.PartlyPaid)
             ? statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.Paid)
             : statuses.findIndex(st => st.Code === StatusCodeCustomerInvoice.PartlyPaid);
@@ -963,7 +963,7 @@ export class InvoiceDetails {
             && this.invoice.CollectorStatusCode < 42505
             && !this.invoice.DontSendReminders
         ) {
-            let statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
+            const statusText = this.getCollectorStatusText(this.invoice.CollectorStatusCode);
             if (statusText !== '') {
                 this.getCollectionSubStatus(this.invoice.CollectorStatusCode).then(substatus => {
                     statustrack.push({
@@ -1020,7 +1020,7 @@ export class InvoiceDetails {
     }
 
     private updateTabTitle() {
-        let tabTitle = (this.invoice.InvoiceNumber)
+        const tabTitle = (this.invoice.InvoiceNumber)
             ? 'Fakturanr. ' + this.invoice.InvoiceNumber
             : (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
 
@@ -1046,8 +1046,8 @@ export class InvoiceDetails {
             customerText = `${this.invoice.Customer.CustomerNumber} - ${this.invoice.Customer.Info.Name}`;
         }
 
-        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
-        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+        const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        const selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
 
         let netSumText = '';
 
@@ -1066,9 +1066,9 @@ export class InvoiceDetails {
             }
         }
 
-        let reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
+        const reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
 
-        let toolbarconfig: IToolbarConfig = {
+        const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: [
                 { title: reminderStopText }
@@ -1243,7 +1243,7 @@ export class InvoiceDetails {
         }
 
         return new Promise((resolve, reject) => {
-            let request = (this.invoice.ID > 0)
+            const request = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
 
@@ -1258,7 +1258,7 @@ export class InvoiceDetails {
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
             if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
+                const linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
                 if (linesWithVat.length > 0) {
                     const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
                         + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
@@ -1310,7 +1310,7 @@ export class InvoiceDetails {
                 this.router.navigateByUrl('sales/invoices/' + this.invoice.ID + ';copy=true');
                 resolve(true);
             } else {
-                let config = {
+                const config = {
                     service: this.customerInvoiceService,
                     moduleName: 'Invoice',
                     label: 'Fakturanr'
@@ -1477,7 +1477,7 @@ export class InvoiceDetails {
             : Observable.of(this.invoice);
 
         return savedInvoice.switchMap(invoice => {
-            let model = new SendEmail();
+            const model = new SendEmail();
             model.EntityType = 'CustomerInvoice';
             model.EntityID = this.invoice.ID;
             model.CustomerID = this.invoice.CustomerID;

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 
@@ -78,7 +78,7 @@ declare var _;
     selector: 'order-details',
     templateUrl: './orderDetails.html'
 })
-export class OrderDetails {
+export class OrderDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -200,7 +200,7 @@ export class OrderDetails {
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
             if (orderItems.length) {
                 this.recalcItemSums(orderItems);
-                let dirtyItems = orderItems.filter(x => x._isDirty);
+                const dirtyItems = orderItems.filter(x => x._isDirty);
 
                 if (dirtyItems.length > 0) {
                     if (!this.isDirty) {
@@ -234,7 +234,7 @@ export class OrderDetails {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe(res => {
-                    let order = <CustomerOrder>res[0];
+                    const order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
                     this.paymentTerms = res[3];
@@ -385,7 +385,7 @@ export class OrderDetails {
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
-        let customerChanged: boolean = this.didCustomerChange(order);
+        const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
                 this.setDeliveryDate(order);
@@ -413,7 +413,7 @@ export class OrderDetails {
                         reject: 'Nei'
                     }
                 }).onClose.subscribe(response => {
-                    let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable
                         .setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
@@ -451,7 +451,7 @@ export class OrderDetails {
         if (shouldGetCurrencyRate) {
             this.getUpdatedCurrencyExchangeRate(order)
                 .subscribe(res => {
-                    let newCurrencyRate = res;
+                    const newCurrencyRate = res;
 
                     if (!this.currencyExchangeRate) {
                         this.currencyExchangeRate = 1;
@@ -467,7 +467,7 @@ export class OrderDetails {
                         this.currencyExchangeRate = newCurrencyRate;
                         order.CurrencyExchangeRate = res;
 
-                        let haveUserDefinedPrices = this.orderItems && this.orderItems.filter(
+                        const haveUserDefinedPrices = this.orderItems && this.orderItems.filter(
                             x => x.PriceSetByUser
                         ).length > 0;
 
@@ -493,7 +493,7 @@ export class OrderDetails {
                         }
 
                         if (askUserWhatToDo) {
-                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+                            const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
 
                             const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. Du har '
                                 + 'overstyrt en eller flere priser, og dette fører derfor til at totalsum eks. mva '
@@ -649,7 +649,7 @@ export class OrderDetails {
         if (!order.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === order.CurrencyCodeID) {
             return Observable.from([1]);
         } else {
-            let currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
+            const currencyDate: LocalDate = new LocalDate(order.OrderDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
                 order.CurrencyCodeID,
@@ -690,8 +690,8 @@ export class OrderDetails {
     }
 
     private getStatustrackConfig() {
-        let statustrack: IStatus[] = [];
-        let activeStatus = this.order.StatusCode;
+        const statustrack: IStatus[] = [];
+        const activeStatus = this.order.StatusCode;
 
         this.customerOrderService.statusTypes.forEach((status) => {
             let _state: STATUSTRACK_STATES;
@@ -772,12 +772,12 @@ export class OrderDetails {
             orderText = (this.order.ID) ? 'Ordre (kladd)' : 'Ny ordre';
         }
 
-        let customerText = (this.order.Customer)
+        const customerText = (this.order.Customer)
             ? this.order.Customer.CustomerNumber + ' - ' + this.order.Customer.Info.Name
             : '';
 
-        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
-        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+        const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        const selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
 
         let netSumText = '';
 
@@ -842,7 +842,7 @@ export class OrderDetails {
             : Observable.of(this.order);
 
         return savedOrder.switchMap(order => {
-            let model = new SendEmail();
+            const model = new SendEmail();
             model.EntityType = 'CustomerOrder';
             model.EntityID = this.order.ID;
             model.CustomerID = this.order.CustomerID;
@@ -986,7 +986,7 @@ export class OrderDetails {
                 resolve(true);
                 this.router.navigateByUrl('sales/orders/' + this.order.ID + ';copy=true');
             } else {
-                let config = {
+                const config = {
                     service: this.customerOrderService,
                     moduleName: 'Order',
                     label: 'Ordrenr'
@@ -1050,14 +1050,14 @@ export class OrderDetails {
 
         return new Promise((resolve, reject) => {
             // create observable but dont subscribe - resolve it in the promise
-            var request = ((this.order.ID > 0)
+            const request = ((this.order.ID > 0)
                 ? this.customerOrderService.Put(this.order.ID, this.order)
                 : this.customerOrderService.Post(this.order));
 
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
             if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
+                const linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
                 if (linesWithVat.length > 0) {
 
                     const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '

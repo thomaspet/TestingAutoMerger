@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Input, ViewChild} from '@angular/core';
+import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
@@ -76,7 +76,7 @@ declare var _;
     selector: 'quote-details',
     templateUrl: './quoteDetails.html',
 })
-export class QuoteDetails {
+export class QuoteDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -190,7 +190,7 @@ export class QuoteDetails {
             if (quoteitems.length) {
                 this.recalcItemSums(quoteitems);
 
-                let dirtyItems = quoteitems.filter(x => x['_isDirty']);
+                const dirtyItems = quoteitems.filter(x => x['_isDirty']);
 
                 if (dirtyItems.length > 0) {
                     if (!this.isDirty) {
@@ -229,7 +229,7 @@ export class QuoteDetails {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
-                    let quote = res[0];
+                    const quote = res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
                     this.paymentTerms = res[3];
@@ -432,7 +432,7 @@ export class QuoteDetails {
                         reject: 'Nei'
                     }
                 }).onClose.subscribe(response => {
-                    let replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
+                    const replaceItemsProject: boolean = (response === ConfirmActions.ACCEPT);
                     this.tradeItemTable
                         .setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, replaceItemsProject);
                 });
@@ -474,7 +474,7 @@ export class QuoteDetails {
         if (shouldGetCurrencyRate) {
             this.getUpdatedCurrencyExchangeRate(quote)
                 .subscribe(res => {
-                    let newCurrencyRate = res;
+                    const newCurrencyRate = res;
 
                     if (!this.currencyExchangeRate) {
                         this.currencyExchangeRate = 1;
@@ -491,7 +491,7 @@ export class QuoteDetails {
                         let diffBaseCurrency: number;
                         let diffBaseCurrencyPercent: number;
 
-                        let haveUserDefinedPrices = this.quoteItems && this.quoteItems.filter(
+                        const haveUserDefinedPrices = this.quoteItems && this.quoteItems.filter(
                             x => x.PriceSetByUser
                         ).length > 0;
 
@@ -517,7 +517,7 @@ export class QuoteDetails {
                         }
 
                         if (askUserWhatToDo) {
-                            let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+                            const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
 
                             const modalMessage = 'Endringen førte til at en ny valutakurs ble hentet. '
                                 + 'Du har overstyrt en eller flere priser, '
@@ -640,7 +640,7 @@ export class QuoteDetails {
         if (!quote.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID === quote.CurrencyCodeID) {
             return Observable.from([1]);
         } else {
-            let currencyDate: LocalDate = new LocalDate(quote.QuoteDate.toString());
+            const currencyDate: LocalDate = new LocalDate(quote.QuoteDate.toString());
 
             return this.currencyService.getCurrencyExchangeRate(
                 quote.CurrencyCodeID,
@@ -656,7 +656,7 @@ export class QuoteDetails {
                 resolve(true);
                 this.router.navigateByUrl('sales/quotes/' + this.quote.ID + ';copy=true');
             } else {
-                let config = {
+                const config = {
                     service: this.customerQuoteService,
                     moduleName: 'Quote',
                     label: 'Tilbudsnr'
@@ -725,8 +725,8 @@ export class QuoteDetails {
     }
 
     private getStatustrackConfig() {
-        let statustrack: IStatus[] = [];
-        let activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
+        const statustrack: IStatus[] = [];
+        const activeStatus = this.quote ? (this.quote.StatusCode ? this.quote.StatusCode : 1) : 0;
 
         this.customerQuoteService.getFilteredStatusTypes(this.quote.StatusCode).forEach((status) => {
             let _state: STATUSTRACK_STATES;
@@ -797,12 +797,12 @@ export class QuoteDetails {
             quoteText = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
         }
 
-        let customerText = (this.quote.Customer)
+        const customerText = (this.quote.Customer)
             ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
             : '';
 
-        let baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
-        let selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
+        const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
+        const selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
 
         let netSumText = '';
 
@@ -893,7 +893,7 @@ export class QuoteDetails {
             : Observable.of(this.quote);
 
         return savedQuote.switchMap(order => {
-            let model = new SendEmail();
+            const model = new SendEmail();
             model.EntityType = 'CustomerQuote';
             model.EntityID = this.quote.ID;
             model.CustomerID = this.quote.CustomerID;

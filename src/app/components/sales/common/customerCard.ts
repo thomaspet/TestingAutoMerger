@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer, SellerLink, SharingType, StatusCodeSharing} from '../../../unientities';
 import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
@@ -63,7 +63,7 @@ import * as moment from 'moment';
         </fieldset>
     `
 })
-export class TofCustomerCard {
+export class TofCustomerCard implements AfterViewInit, OnChanges {
     private searchInput: HTMLElement;
 
     @Input() public readonly: boolean;
@@ -162,7 +162,7 @@ export class TofCustomerCard {
             if (customer && this.entityType === 'CustomerInvoice') {
                 // Can customer receive EHF?
                 if (customer.PeppolAddress || customer.OrgNumber) {
-                    let peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
+                    const peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
 
                     if (peppoladdress !== this.lastPeppolAddressChecked) {
                         this.ehfService.GetAction(
@@ -204,11 +204,14 @@ export class TofCustomerCard {
     }
 
     private setSharingBadges() {
-        this.statisticsService.GetAllUnwrapped(`model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`).subscribe(sharings => {
+        this.statisticsService.GetAllUnwrapped(
+            `model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}`
+            + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`
+        ).subscribe(sharings => {
             [SharingType.AP, SharingType.Email, SharingType.Vipps, SharingType.Print].forEach(type => {
                 let cls = '';
                 let title = '';
-                let firstOfType = sharings.find(sharing => sharing.SharingType === type);
+                const firstOfType = sharings.find(sharing => sharing.SharingType === type);
                 if (firstOfType) {
                     cls = this.toBadgeClass(firstOfType.SharingStatusCode);
                     title = this.statusService.getSharingStatusText(firstOfType.SharingStatusCode);
@@ -227,12 +230,12 @@ export class TofCustomerCard {
                         }
                     }
 
-                    let date = moment(firstOfType.SharingUpdatedAt || firstOfType.SharingCreatedAt);
+                    const date = moment(firstOfType.SharingUpdatedAt || firstOfType.SharingCreatedAt);
                     if (date.isValid()) {
                         title += '\n' + date.format('DD.MM.YYYY HH:mm');
                     }
 
-                    switch(type) {
+                    switch (type) {
                         case SharingType.AP:
                             this.ehfClass = cls;
                             this.ehfTitle = title;
@@ -261,7 +264,7 @@ export class TofCustomerCard {
     }
 
     public openCustomerModal(id) {
-        let returnValue = this.modalService.open(CustomerDetailsModal, { data: { ID: id }}).onClose;
+        const returnValue = this.modalService.open(CustomerDetailsModal, { data: { ID: id }}).onClose;
         returnValue.subscribe((res: Customer) => {
             if (res) {
                 this.customerSelected(res);
@@ -296,7 +299,7 @@ export class TofCustomerCard {
             ? customer.Info.DefaultEmail.EmailAddress : this.entity.EmailAddress;
 
         // map sellers to entity
-        let sellers = [];
+        const sellers = [];
         if (this.entity.Sellers.length === 0 && customer.ID > 0) {
             customer.Sellers.forEach((seller: SellerLink) => {
                 sellers.push({
@@ -339,18 +342,18 @@ export class TofCustomerCard {
     private mapAddressesToEntity(customer, addresses) {
         const info = customer.Info || {};
         if (info.InvoiceAddressID) {
-            let invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
+            const invoiceAddress = addresses.find(addr => addr.ID === info.InvoiceAddressID);
             this.addressService.addressToInvoice(this.entity, invoiceAddress);
         } else {
-            let invoiceAddress = addresses.find(addr => addr !== null);
+            const invoiceAddress = addresses.find(addr => addr !== null);
             this.addressService.addressToInvoice(this.entity, invoiceAddress);
         }
 
         if (info.ShippingAddressID) {
-            let shippingAddress = addresses.find(addr => addr.ID === info.ShippingAddressID);
+            const shippingAddress = addresses.find(addr => addr.ID === info.ShippingAddressID);
             this.addressService.addressToShipping(this.entity, shippingAddress);
         } else {
-            let shippingAddress = addresses.find(addr => addr !== null);
+            const shippingAddress = addresses.find(addr => addr !== null);
             this.addressService.addressToShipping(this.entity, shippingAddress);
         }
     }
