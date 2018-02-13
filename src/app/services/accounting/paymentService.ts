@@ -14,13 +14,13 @@ export class PaymentService extends BizHttp<Payment> {
     }
 
 
-    public createPaymentBatch(paymentIDs: Array<number>): Observable<any> {
+    public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {
         super.invalidateCache();
         return this.http
             .asPOST()
             .usingBusinessDomain()
             .withBody(paymentIDs)
-            .withEndPoint(this.relativeURL + '?action=create-payment-batch')
+            .withEndPoint(this.relativeURL + '?action=create-payment-batch&isManual=' + isManual)
             .send()
             .map(response => response.json());
     }
@@ -39,8 +39,25 @@ export class PaymentService extends BizHttp<Payment> {
         } else if (statusCode === 44005) {
             return 'Klar for overføring';
         } else if (statusCode === 44006) {
-            return 'Kvittering innlest';
+            return 'Betalt';
+        } else if (statusCode === 44007) {
+            return 'Overført til meldingssentral';
+        } else if (statusCode === 44008) {
+            return 'I betalingskø ';
+        } else if (statusCode === 44009) {
+            return 'Venter på status fra bank ';
+        } else if (statusCode === 44010) {
+            return 'Avvist av meldingssentral';
+        } else if (statusCode === 44011) {
+            return 'Manuell overføring';
+        } else if (statusCode === 44012) {
+            return 'Avvist';
+        } else if (statusCode === 44013) {
+            return 'Overføring til meldingssentral feilet';
+        } else if (statusCode === 44014) {
+            return 'Kansellert av bruker';
         }
+
         return 'Ukjent status: ' + statusCode;
     }
 }
