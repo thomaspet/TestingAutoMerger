@@ -81,7 +81,10 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     public saveVatType(completeEvent): void {
-        this.vatType.VatReportReferences = this.unitable.getTableData().concat(this.deletedVatReportReferences);
+        // we dont support changing any of these, so remove them before posting
+        this.vatType.VatReportReferences = null;
+        this.vatType.VatTypePercentages = null;
+
         if (this.vatType.ID > 0) {
             this.vatTypeService.Put(this.vatType.ID, this.vatType)
                 .subscribe(
@@ -91,7 +94,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
                             data.ID,
                             [
                                 'VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences',
-                                'VatReportReferences.VatPost', 'VatReportReferences.Account'
+                                'VatReportReferences.VatPost', 'VatReportReferences.Account', 'VatTypePercentages'
                             ]
                         )
                             .subscribe(vatType => {
