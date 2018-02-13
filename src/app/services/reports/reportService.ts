@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {EventEmitter, Injectable} from '@angular/core';
 import {RequestMethod} from '@angular/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -12,6 +12,9 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReportStep} from '@app/components/reports/report-step';
+import {UniModalService} from '@uni-framework/uniModal/modalService';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -20,6 +23,8 @@ export class ReportService extends BizHttp<string> {
     private format: string;
     private sendemail: SendEmail;
     private emailtoast: number;
+    private parentModalIsClosed: boolean;
+    public steps$ = new BehaviorSubject(new ReportStep());
 
     constructor(
         http: UniHttp,
@@ -28,7 +33,8 @@ export class ReportService extends BizHttp<string> {
         private emailService: EmailService,
         private toastService: ToastService,
         private reportDefinitionService: ReportDefinitionService,
-        private authService: AuthService
+        private authService: AuthService,
+        private modalService: UniModalService
     ) {
         super(http);
 
@@ -41,15 +47,15 @@ export class ReportService extends BizHttp<string> {
     // Get report template and datasources
     //
 
-    public getReportTemplate(reportId): Observable<any> {
+    public getReportTemplate(reportId) {
         return this.http.asGET()
-        .usingRootDomain()
-        .withEndPoint(`${this.relativeURL}/${reportId}`)
-        .send()
-        .map(response => response.json());
+            .usingRootDomain()
+            .withEndPoint(`${this.relativeURL}/${reportId}`)
+            .send()
+            .map(response => response.json());
     }
 
-    public getReportData(reportId, properties): Observable<any> {
+    public getReportData(reportId, properties) {
         // Map to object if its a property list
         if (properties instanceof Array) {
             let params = properties;
@@ -60,11 +66,11 @@ export class ReportService extends BizHttp<string> {
         }
 
         return this.http.asPOST()
-        .usingRootDomain()
-        .withEndPoint(`${this.relativeURL}/${reportId}`)
-        .withBody(properties)
-        .send()
-        .map(response => response.json())
+            .usingRootDomain()
+            .withEndPoint(`${this.relativeURL}/${reportId}`)
+            .withBody(properties)
+            .send()
+            .map(response => response.json())
     }
 
     //
@@ -86,7 +92,7 @@ export class ReportService extends BizHttp<string> {
         this.target = target;
         this.sendemail = null;
 
-        this.generateReport(doneHandler);
+        this.generateReport(doneHandler); // startReportProccess()
     }
 
     public generateReportPdf(report: ReportDefinition, doneHandler: (msg: string) => void = null) {
@@ -146,6 +152,103 @@ export class ReportService extends BizHttp<string> {
         ]).subscribe(res => {
             this.onDataFetched(this.report.dataSources, doneHandler);
         });
+    }
+
+    private startSteps() {
+        return new Promise((resolve, reject) => {
+            if (this.parentModalIsClosed) {
+                reject();
+            }
+            this.steps$.next(new ReportStep());
+            setTimeout(() => {
+                resolve(true);
+            }, 100);
+        });
+    }
+
+    private runStep(stepKey: string) {
+        return new Promise((resolve, reject) => {
+            if (this.parentModalIsClosed) {
+                reject();
+            }
+            const steps = this.steps$.getValue().Steps;
+            steps[stepKey] = true;
+            this.steps$.next(new ReportStep(steps));
+            setTimeout(() => {
+                resolve(true);
+            }, 100);
+        });
+    }
+
+    private getData() {
+        return Observable.forkJoin([
+            this.generateReportObservable(),
+            this.getDataSourcesObservable()
+        ]).toPromise();
+    }
+
+    private loadLibraries() {
+        return this.reportGenerator.loadLibraries();
+    }
+
+    private renderReport() {
+        return new Promise((resolve, reject) => {
+            if (this.parentModalIsClosed) {
+                reject();
+            }
+            this.reportGenerator.renderReport(
+                this.report.templateJson,
+                this.report.dataSources,
+                this.report.parameters,
+                resolve
+            );
+        });
+    }
+
+    private renderHtml(report) {
+        return new Promise((resolve, reject) => {
+            if (!report) {
+                reject();
+            }
+            if (this.parentModalIsClosed) {
+                reject();
+            }
+            this.reportGenerator.renderHtml(report, resolve);
+        });
+    }
+
+    public startReportProcess(reportDefinition, target: any, closeEmitter: EventEmitter<boolean>) {
+        this.parentModalIsClosed = false;
+        let report = null;
+        this.format = 'html';
+        this.report = <Report>reportDefinition;
+        this.target = target;
+        this.sendemail = null;
+        const s = closeEmitter.subscribe(() => {
+            this.parentModalIsClosed = true;
+            const styleNode = document.getElementById('StiViewerStyles');
+            styleNode.parentNode.removeChild(styleNode);
+            s.unsubscribe();
+        });
+        return this.startSteps()
+            .then(() => this.runStep('FETCHING_DATA'))
+            .then(() => this.getData())
+            .then(() => this.runStep('DATA_FETCHED'))
+            .then(() => this.runStep('LOADING_LIBRARIES'))
+            .then(() => this.loadLibraries())
+            .then(() => this.runStep('LIBRARIES_LOADED'))
+            .then(() => this.runStep('RENDERING_REPORT'))
+            .then(() => this.renderReport())
+            .then((renderedReport) => report = renderedReport)
+            .then(() => this.runStep('REPORT_RENDERED'))
+            .then(() => this.runStep('RENDERING_HTML'))
+            .then(() => this.renderHtml(report))
+            .then(() => this.runStep('HTML_RENDERED'))
+            .catch(() => {
+                // we don't have to do anything when the process is interrupt
+                // but I put that here to remember that this process
+                // have rejections inside the methods
+            });
     }
 
     private generateReportObservable() {
