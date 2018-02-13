@@ -59,6 +59,7 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {
     ReconciliationListParamsModalComponent
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
+import {UniReportProgressComponent} from '@app/components/reports/modals/preview/uniReportProgress.component';
 
 @NgModule({
     imports: [
@@ -102,6 +103,7 @@ import {
         UniReportParamsModal,
         AnnualSatementReportFilterModalComponent,
         ReconciliationListParamsModalComponent,
+        UniReportProgressComponent
     ],
     entryComponents: [
         BalanceReportFilterForm,

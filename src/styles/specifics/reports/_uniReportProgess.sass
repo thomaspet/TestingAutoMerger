@@ -1,0 +1,32 @@
+uni-report-progress
+    p.uni-progress
+        span
+            position: relative
+            margin-left: pxToRem(20)
+            top: pxToRem(-11)
+
+        progress
+            /* Reset the default appearance */
+            -webkit-appearance: none
+            -moz-appearance: none
+            appearance: none
+
+            width: 80%
+
+            /* Firefox */
+            border: none
+            background: $uni-color-scale8
+            border-radius: pxToRem(3)
+            margin: pxToRem(10) pxToRem(20)
+
+        progress::-webkit-progress-bar
+            background: $uni-color-scale8
+            border-radius: pxToRem(3)
+
+        progress::-webkit-progress-value
+            background-color: $uni-color-c2a
+            border-radius: pxToRem(3)
+
+        progress::-moz-progress-bar
+            background-color: $uni-color-c2a
+            border-radius: pxToRem(3)

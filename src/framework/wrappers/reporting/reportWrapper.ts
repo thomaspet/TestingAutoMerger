@@ -8,30 +8,43 @@ declare var Stimulsoft;
 
 @Injectable()
 export class StimulsoftReportWrapper {
-    private stimulsoftLoaded: boolean;
-
+    private stimulsoftScriptsLoaded: {[key: string]: boolean} = {};
+    private stimulsoftCSSLoaded: boolean = false;
+    private viewer;
     constructor(private errorService: ErrorService) {}
 
-    private loadStimulsoft(): Promise<any> {
-        if (this.stimulsoftLoaded) {
+    private loadStimulsoftCss() {
+        if (this.stimulsoftCSSLoaded) {
+            return;
+        }
+        const fileref = document.createElement('link');
+        fileref.setAttribute('rel', 'stylesheet');
+        fileref.setAttribute('type', 'text/css');
+        fileref.setAttribute('href', 'assets/stimulsoft/stimulsoft.viewer.office2003.css');
+        document.getElementsByTagName('head')[0].appendChild(fileref);
+        this.stimulsoftCSSLoaded = true;
+    }
+
+    private loadStimulsoftScript(scriptName: string) {
+        if (this.stimulsoftScriptsLoaded[scriptName]) {
             return Promise.resolve(true);
         } else {
             return new Promise(resolve => {
                 const script: any = document.createElement('script');
                 script.type = 'text/javascript';
-                script.src = 'assets/stimulsoft.reports.js?v=' + APP_METADATA.APP_VERSION;
+                script.src = 'assets/stimulsoft/stimulsoft.' + scriptName + '.js?v=' + APP_METADATA.APP_VERSION;
 
                 if (script.readyState) { // IE
                     script.onreadystatechange = () => {
                         if (script.readyState === 'loaded' || script.readyState === 'complete') {
                             script.onreadystatechange = null;
-                            this.stimulsoftLoaded = true;
+                            this.stimulsoftScriptsLoaded[scriptName] = true;
                             resolve();
                         }
                     };
                 } else { // Reasonable browsers
                     script.onload = () => {
-                        this.stimulsoftLoaded = true;
+                        this.stimulsoftScriptsLoaded[scriptName] = true;
                         resolve();
                     };
                 }
@@ -40,6 +53,23 @@ export class StimulsoftReportWrapper {
                 document.getElementsByTagName('head')[0].appendChild(script);
             });
         }
+    }
+
+    public loadLibraries() {
+
+        return this.loadStimulsoft()
+            .then(() => this.loadStimulsoftCss())
+            .then(() => this.loadStimulsoftViewer())
+            .then(() => Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE)
+            .then(() => Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('assets/stimulsoft/nb-NO.xml'));
+    }
+
+    private loadStimulsoft(): Promise<any> {
+        return this.loadStimulsoftScript('reports');
+    }
+
+    private loadStimulsoftViewer(): Promise<any> {
+        return this.loadStimulsoftScript('viewer');
     }
 
     private generateReport(template: string, reportData: Object, parameters: Array<any>){
@@ -66,30 +96,57 @@ export class StimulsoftReportWrapper {
         return report;
     }
 
+    public renderReport(template, data, parameters, resolver) {
+        const report = new Stimulsoft.Report.StiReport();
+        report.load(template);
+
+        // remove connections specified in the template file
+        report.dictionary.databases.clear();
+        // add variables based on parameters
+        if (parameters) {
+            for (let i = 0; i < parameters.length; i++) {
+                let reportParam = report.dictionary.variables.getByName(parameters[i].Name);
+                if (reportParam) {
+                    reportParam.value = parameters[i].value;
+                }
+            }
+        }
+
+        const dataset = new Stimulsoft.System.Data.DataSet('Data');
+        dataset.readJson(data);
+        report.regData('Data', 'Data', dataset);
+        report.render();
+        resolver(report);
+    }
+
+    public renderHtml(report, resolver) {
+        let runPromise = false;
+        const options = new Stimulsoft.Viewer.StiViewerOptions();
+        options.toolbar.visible = true;
+        if (!this.viewer) {
+            this.viewer = new Stimulsoft.Viewer.StiViewer(options, 'StiViewer', false);
+        }
+        this.viewer.onShowReport = () => {
+            if (resolver && !runPromise) {
+                resolver(true);
+                runPromise = true;
+            }
+        };
+        this.viewer.report = report;
+        this.viewer.showProcessIndicator();
+        this.viewer.renderHtml('reportContainer');
+
+    }
+
     public showReport(template: string, reportData: Object, parameters: Array<any>, caller: any) {
         if (!template || !reportData || !caller) {
             return;
         }
-
-        this.loadStimulsoft().then(() => {
-             Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
-            let report = this.generateReport(template, reportData, parameters)
-            if (report) {
-                // Create a text writer objects.
-                const textWriter = new Stimulsoft.System.IO.TextWriter();
-                const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
-
-                // Export HTML using text writer.
-                const settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
-                const service = new Stimulsoft.Report.Export.StiHtmlExportService();
-                settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
-
-                service.exportTo(report, htmlTextWriter, settings);
-
-                // Write HTML text to DIV element.
-                caller.report = textWriter.getStringBuilder().toString();
-            }
-        });
+        this.loadStimulsoft().then(() => this.loadStimulsoftViewer().then(() => {
+            Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
+            const report = this.generateReport(template, reportData, parameters);
+            this.renderHtml(report, null);
+        }));
     }
 
     public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string): Promise<string> {

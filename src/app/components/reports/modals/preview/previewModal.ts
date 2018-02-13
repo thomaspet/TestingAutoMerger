@@ -1,4 +1,7 @@
-import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import {
+    Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewEncapsulation,
+    AfterViewInit, ChangeDetectionStrategy
+} from '@angular/core';
 import {IModalOptions, IUniModal} from './../../../../../framework/uniModal/barrel';
 import {ReportFormat} from '../../../../models/reportFormat';
 import {ReportService, Report} from '../../../../services/services';
@@ -9,6 +12,8 @@ interface IDownloadAction {
 }
 
 @Component({
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'uni-preview-modal',
     template: `
         <section class="uni-modal medium"
@@ -17,14 +22,15 @@ interface IDownloadAction {
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
-            <article [attr.aria-busy]="busy">
-                <section id="reportContainer" [innerHtml]="modalConfig?.report | safehtml"></section>
+            <uni-report-progress [reportSteps]="reportService?.steps$ | async"></uni-report-progress>
+            <article>
+                <section id="reportContainer"></section>
             </article>
             <footer>
-                <button class="main-action-button good" (click)="download(actions[0].format)">
+                <button class="main-action-button good" (click)="download(actions[0].format)" [disabled]="actionButtonDisabled">
                     {{actions[0].label}}
                 </button>
-                <button class="action-list-toggle good" (click)="showActionList = !showActionList">
+                <button class="action-list-toggle good" (click)="showActionList = !showActionList" [disabled]="actionButtonDisabled">
                     Flere valg
                 </button>
                 <ul class="download-action-list" [attr.aria-expanded]="showActionList">
@@ -36,7 +42,7 @@ interface IDownloadAction {
         </section>
     `
 })
-export class UniPreviewModal implements IUniModal {
+export class UniPreviewModal implements IUniModal, AfterViewInit {
     @Input()
     public options: IModalOptions = {};
 
@@ -47,9 +53,10 @@ export class UniPreviewModal implements IUniModal {
     private actions: IDownloadAction[];
     private modalConfig: any;
     public busy: boolean = true;
+    public actionButtonDisabled = true;
 
     constructor(
-        private reportService: ReportService,
+        public reportService: ReportService,
         private cdr: ChangeDetectorRef
     ) {
         this.actions = [
@@ -78,18 +85,28 @@ export class UniPreviewModal implements IUniModal {
 
     public ngAfterViewInit() {
         if (this.options.data) {
-            let reportDefinition: Report = this.options.data;
+            const reportDefinition: Report = this.options.data;
 
             this.modalConfig = {
                 title: reportDefinition.Name,
                 report: null,
                 reportDefinition: reportDefinition
             };
-            
-            this.reportService.generateReportHtml(this.options.data, this.modalConfig, () => {
+
+            this.reportService.startReportProcess(
+                reportDefinition,
+                this.modalConfig,
+                this.onClose
+            ).then(() => {
+                this.actionButtonDisabled = false;
                 this.busy = false;
                 this.cdr.markForCheck();
             });
+
+            // this.reportService.generateReportHtml(this.options.data, this.modalConfig, () => {
+            //    this.busy = false;
+            //    this.cdr.markForCheck();
+            // });
         }
     }
 
