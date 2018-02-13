@@ -25,6 +25,7 @@ import {
     SalarySumsService,
     EmployeeTaxCardService
 } from '../../../services/services';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 declare var _;
 const PAYROLL_RUN_KEY = 'payrollRun';
@@ -61,6 +62,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         private router: Router,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
+        private toastService: ToastService,
         private taxCardService: EmployeeTaxCardService
     ) {
         super(router.url, cacheService);
@@ -187,7 +189,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     private getAga() {
         const employee = this.employeeList[this.selectedIndex];
-        if (employee.SubEntity) {
+        if (employee.SubEntity && employee.SubEntity.AgaZone > 0) {
             const obs = !this.agaZone || (employee.SubEntity.AgaZone !== this.agaZone.ID)
                 ? this._agaZoneService
                     .Get(employee.SubEntity.AgaZone)
@@ -198,6 +200,10 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 this.agaZone = agaResponse;
             });
         } else {
+            if (!employee.SubEntity || employee.SubEntity.AgaZone === 0) {
+                this.toastService.addToast('Arbeidsgiveravgift', ToastType.warn, ToastTime.medium, 
+                'Kunne ikke finne sone for arbeidsgiveravgift på den ansatte, sjekk innstillingene');
+            }
             this.agaZone = new AGAZone();
         }
     }
