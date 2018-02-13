@@ -75,6 +75,8 @@ export const billViewLanguage = {
     create_bankaccount_reject: 'Ikke opprett konto',
     create_bankaccount_title: 'Vil du opprette bankkonto',
     create_bankaccount_info: 'Kontonr er ikke registrert på leverandøren',
+    create_bankaccount_bban: 'BBAN',
+    create_bankaccount_iban: 'IBAN',
 
     warning: 'Advarsel',
     fyi: 'Til informasjon',

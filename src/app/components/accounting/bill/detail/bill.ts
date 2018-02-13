@@ -66,7 +66,8 @@ import {
     DepartmentService,
     UserService,
     ValidationService,
-    UniFilesService
+    UniFilesService,
+    BankService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -207,7 +208,8 @@ export class BillView implements OnInit {
         private userService: UserService,
         private commentService: CommentService,
         private validationService: ValidationService,
-        private uniFilesService: UniFilesService
+        private uniFilesService: UniFilesService,
+        private bankService: BankService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -507,9 +509,11 @@ export class BillView implements OnInit {
     private runEHF(file: any) {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
-            .subscribe( (invoice: SupplierInvoice) => {
+            .subscribe((invoice: SupplierInvoice) => {
                 if (invoice.Supplier.Info.DefaultBankAccount) {
-                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => 
+                        b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber
+                    );
                 }
 
                 this.current.next(invoice);
@@ -522,10 +526,25 @@ export class BillView implements OnInit {
     }
 
     private handleEHFResult(invoice: SupplierInvoice) {
-        // Supplier
-        if (!invoice.SupplierID && invoice.Supplier) {
+        // Existing supplier with existing bankaccount
+        let existingBankAccount: BankAccount;
+        if (invoice.Supplier && invoice.Supplier.Info && invoice.Supplier.Info.BankAccounts) {
+            existingBankAccount = invoice.Supplier.Info.BankAccounts.find(b => 
+                b.AccountNumber === invoice.BankAccount.IBAN ||
+                b.IBAN === invoice.BankAccount.AccountNumber
+            );
+        } 
+        
+        if (existingBankAccount)
+        {
+            invoice.BankAccount = existingBankAccount;
+            invoice.BankAccountID = existingBankAccount.ID;
+            this.current.next(invoice);
+        }
+        // New supplier?
+        else if (!invoice.SupplierID && invoice.Supplier) {
             const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
-            const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''}.`
+            const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
                 + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
             this.toast.clear();
 
@@ -548,8 +567,11 @@ export class BillView implements OnInit {
             });
         // Existing supplier and new bankaccount
         } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
+            const bbanoriban = invoice.BankAccount.AccountNumber
+                ? `${lang.create_bankaccount_bban} ${invoice.BankAccount.AccountNumber}`
+                : `${lang.create_bankaccount_iban} ${invoice.BankAccount.IBAN}`;
             const modal = this.modalService.open(UniConfirmModalV2, {
-                header: `${lang.create_bankaccount_title} ${invoice.BankAccount.AccountNumber}?`,
+                header: `${lang.create_bankaccount_title} ${bbanoriban}?`,
                 message: `${lang.create_bankaccount_info} ${invoice.InvoiceReceiverName}`,
                 buttonLabels: {
                     accept: 'Opprett konto',
@@ -559,17 +581,34 @@ export class BillView implements OnInit {
 
             modal.onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.bankAccountService.Post(invoice.BankAccount).subscribe(
-                        res => {
-                            const bill = this.current.getValue();
-                            bill.BankAccountID = res.ID;
-                            this.current.next(bill);
-                        },
-                        err => this.errorService.handle(err)
-                    );
+                    if (!invoice.BankAccount.AccountNumber) { // IBAN only
+                        this.bankService.validateIBANUpsertBank(invoice.BankAccount.IBAN).subscribe(bankaccount => {
+                            invoice.BankAccount.BankID = bankaccount.Bank.ID;
+                            this.saveBankAccount(invoice.Supplier, invoice.BankAccount);
+                        });
+                    } else {
+                        this.saveBankAccount(invoice.Supplier, invoice.BankAccount);
+                    }
                 }
             });
         }
+    }
+
+    private saveBankAccount(supplier: Supplier, bankAccount: BankAccount) {
+        bankAccount.BusinessRelationID = supplier.BusinessRelationID;
+        this.bankAccountService.Post(bankAccount).subscribe(
+            res => {
+                supplier.Info.BankAccounts.push(res);
+
+                const invoice = this.current.getValue();
+                invoice.BankAccount = res;
+                invoice.BankAccountID = res.ID;
+                this.current.next(invoice);
+
+                this.setSupplier(supplier);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private addComment(comment: string) {
