@@ -36,7 +36,9 @@ export class VatTypeList implements OnInit, AfterViewInit {
 
     public ngAfterViewInit() {
         const input = this.elementRef.nativeElement.querySelector('input');
-        input.focus();
+        if (input) {
+            input.focus();
+        }
     }
 
     public onRowSelected (event) {
