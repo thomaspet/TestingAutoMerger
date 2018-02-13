@@ -33,11 +33,12 @@ import * as moment from 'moment';
                 <section class="addressCard" [attr.aria-readonly]="readonly">
                     <span *ngIf="!readonly" class="edit-btn" (click)="openCustomerModal(entity.CustomerID)"></span>
                     <section class="sharing-badges">
+                        <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                         <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
                         <span [attr.title]="emailTitle" [ngClass]="emailClass">EPOST</span>
                         <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                     </section>
-                    <strong>{{entity?.Customer?.Info?.Name}}</strong>
+                    <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
                     <br><span *ngIf="entity?.InvoiceAddressLine1">
                         {{entity?.InvoiceAddressLine1}}
                     </span>
@@ -74,9 +75,11 @@ export class TofCustomerCard {
     private ehfClass: string = 'badge-unavailable';
     private emailClass: string = 'badge-unavailable';
     private vippsClass: string = 'badge-unavailable';
+    private printClass: string = 'badge-unavailable';
     private ehfTitle: string;
     private emailTitle: string;
     private vippsTitle: string;
+    private printTitle: string = 'Sendt til utskrift';
 
     public uniSearchConfig: IUniSearchConfig;
     private customerDueInvoiceData: any;
@@ -202,7 +205,7 @@ export class TofCustomerCard {
 
     private setSharingBadges() {
         this.statisticsService.GetAllUnwrapped(`model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`).subscribe(sharings => {
-            [SharingType.AP, SharingType.Email, SharingType.Vipps].forEach(type => {
+            [SharingType.AP, SharingType.Email, SharingType.Vipps, SharingType.Print].forEach(type => {
                 let cls = '';
                 let title = '';
                 let firstOfType = sharings.find(sharing => sharing.SharingType === type);
@@ -210,7 +213,7 @@ export class TofCustomerCard {
                     cls = this.toBadgeClass(firstOfType.SharingStatusCode);
                     title = this.statusService.getSharingStatusText(firstOfType.SharingStatusCode);
 
-                    if (firstOfType.SharingStatusCode === StatusCodeSharing.Completed) {
+                    if (firstOfType.SharingStatusCode === StatusCodeSharing.Completed && type !== SharingType.Print) {
                         title += ' til ' + firstOfType.SharingTo;
                     }
 
@@ -242,6 +245,9 @@ export class TofCustomerCard {
                             this.vippsClass = cls;
                             this.vippsTitle = title;
                             break;
+                        case SharingType.Print:
+                            this.printClass = cls;
+                            this.printTitle = title;
                     }
                 }
             });
