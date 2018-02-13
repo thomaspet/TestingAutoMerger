@@ -434,6 +434,7 @@ export class JournalEntries {
 
     public onDataCleared() {
 
+        this.currentJournalEntryID = null;
         this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
 
         if (this.currentJournalEntryID || this.currentJournalEntryNumber) {

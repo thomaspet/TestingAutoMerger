@@ -66,7 +66,7 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
         const contextMenuItem: IContextMenuItem[] = [
             {
                 action: (item) => this.deleteLine(item),
-                label: 'Slett linje'
+                label: 'Slett kladd'
             }
         ];
 
