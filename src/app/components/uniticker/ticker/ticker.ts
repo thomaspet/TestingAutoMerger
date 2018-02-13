@@ -38,7 +38,8 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
-import {SharingType, StatusCodeSharing} from '../../../unientities'
+import {EmploymentStatuses} from '../../../models/EmploymentStatuses';
+import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -719,6 +720,18 @@ export class UniTicker {
 
                             if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
                                 col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
+                            }
+
+                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.typeofemployment')) {
+                                col.template = (rowModel) => EmploymentStatuses.employmentTypeToText(rowModel[column.Alias]);
+                            }
+
+                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.remunerationtype')) {
+                                col.template = (rowModel) => EmploymentStatuses.remunerationTypeToText(rowModel[column.Alias]);
+                            }
+
+                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.workinghoursscheme')) {
+                                col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
                             }
                         }
 

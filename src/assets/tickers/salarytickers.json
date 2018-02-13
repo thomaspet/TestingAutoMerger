@@ -135,7 +135,12 @@
         "Group": "Lønn",
         "Model": "Employment",
         "Expand": "",
-        "Columns": [{
+        "Columns": [
+            {
+                "Header": "Nr.",
+                "Field": "ID"
+            },
+            {
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text",
@@ -185,6 +190,40 @@
                 "Field": "MonthRate"
             },
             {
+                "Header": "Arbeidsforhold",
+                "Field": "TypeOfEmployment"
+            },
+            {
+                "Header": "Avlønningstype",
+                "Field": "RemunerationType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Arbeidstid",
+                "Field": "WorkingHoursScheme",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Timer pr uke full stilling",
+                "Field": "HoursPerWeek",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Ansiennitet",
+                "Field": "SeniorityDate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Lønnsjustering",
+                "Field": "LastSalaryChangeDate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sist endret %",
+                "Field": "LastWorkPercentChangeDate",
+                "DefaultHidden": true
+            },
+            {
                 "Field": "EmployeeID",
                 "Type": "dontdisplay"
             }
@@ -207,7 +246,8 @@
         "Group": "Lønn",
         "Model": "Employment",
         "Expand": "",
-        "Columns": [{
+        "Columns": [
+            {
                 "Header": "Stillingskode",
                 "Field": "JobCode",
                 "Type": "text"
