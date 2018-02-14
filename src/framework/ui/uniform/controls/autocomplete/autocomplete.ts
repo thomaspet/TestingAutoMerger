@@ -143,7 +143,9 @@ export class UniAutocompleteInput extends BaseControl {
                     } else {
                         this.selectedIndex = 0;
                     }
-                    this.isExpanded$.next(true);
+                    if (items.length) {
+                        this.isExpanded$.next(true);
+                    }
                 });
             this.items$ = fromControl.merge(fromButton).share();
             let itemsSubscription = this.items$
@@ -262,6 +264,8 @@ export class UniAutocompleteInput extends BaseControl {
 
     private confirmSelection(item) {
         if (!item || item.isHeader) {
+            this.control.setValue(this.initialDisplayValue || '', {emitEvent: false});
+            this.isExpanded$.next(false);
             return;
         }
 

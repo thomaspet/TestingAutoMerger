@@ -2,13 +2,16 @@ import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
 import {
     UniForm,
-    FieldType
+    FieldType,
+    UniFieldLayout
 } from '../../../../framework/ui/uniform/index';
 import {
     UniEntity,
     Payment,
     BankAccount,
-    BusinessRelation
+    BusinessRelation,
+    LocalDate,
+    CompanySettings
 } from '../../../unientities';
 import {
     PaymentService,
@@ -24,6 +27,8 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import { CompanySettingsService } from '@app/services/common/companySettingsService';
 
 declare const _; // lodash
 
@@ -67,6 +72,8 @@ export class AddPaymentModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
     private accountType: string;
+    private companySettingsID: number;
+    private fromBankAccountsList: any;
 
     constructor(
         private paymentService: PaymentService,
@@ -74,7 +81,9 @@ export class AddPaymentModal implements IUniModal {
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
         private bankAccountService: BankAccountService,
-        private uniSearchConfig: UniSearchAccountConfig
+        private uniSearchConfig: UniSearchAccountConfig,
+        private toastService: ToastService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnInit() {
@@ -85,14 +94,24 @@ export class AddPaymentModal implements IUniModal {
                 model: this.options.data.model
             };
 
-            this.model$.next(this.config.model);
-
-            this.setupForm();
+            this.companySettingsService.Get(1).subscribe((companySettings: CompanySettings) => {
+                this.companySettingsID = companySettings.ID;
+                this.model$.next(this.config.model);
+                this.setupForm();
+            });
         }
     }
 
     private setupForm() {
-        this.fields$.next(this.getFields());
+        const model = this.model$.getValue();
+        Observable.forkJoin(
+            this.bankAccountService.GetAll(`filter=CompanySettingsID eq ${this.companySettingsID}`),
+            this.bankAccountService.GetAll(`filter=BusinessRelationID eq ${model.BusinessRelationID || 0}`)
+        ).subscribe(bankAccounts => {
+            this.fromBankAccountsList = bankAccounts[0];
+            this.config.model['ToBankAccountsList'] = bankAccounts[1];
+            this.fields$.next(this.getFields());
+        });
     }
 
     private getDefaultBusinessRelationData() {
@@ -179,49 +198,79 @@ export class AddPaymentModal implements IUniModal {
         };
     }
 
-    private updateBusinessRelation(model: Payment) {
-        if (model.BusinessRelationID) {
-            if (model.ToBankAccount && model.ToBankAccount.BusinessRelationID !== model.BusinessRelationID) {
-                model.ToBankAccount = null;
-                model.ToBankAccountID = null;
-            }
-            this.statisticsService.GetAll(
-                    `model=BusinessRelation`
-                    + `&expand=DefaultBankAccount`
-                    + `&filter=BusinessRelation.ID eq ${model.BusinessRelationID}`
-                    + `&select=BusinessRelation.ID,BusinessRelation.Name,`
-                    + `DefaultBankAccount.ID,DefaultBankAccount.AccountNumber`
-                )
-                .map(data => data.Data ? data.Data : [])
-                .subscribe(data => {
-                    if (data && data.length > 0) {
-                        model.BusinessRelation = new BusinessRelation();
-                        model.BusinessRelation.ID = model.BusinessRelationID;
-                        model.BusinessRelation.Name = data[0].BusinessRelationName;
+    private refreshBankAccount() {
+        let fields = this.fields$.getValue();
+        const model = this.model$.getValue();
+        this.bankAccountService.GetAll(`filter=BusinessRelationID eq ${model.BusinessRelationID}`).subscribe(bankAccounts => {
+            const options = this.getBankAccountsOptions();
+            let toBankAccounts: UniFieldLayout = fields.find(x => x.Property === 'ToBankAccountID');
+            this.config.model['ToBankAccountsList'] = bankAccounts;
+            toBankAccounts.Options = options
+            this.fields$.next(fields);
+        });
+     }
 
-                        if (data[0].DefaultBankAccountID) {
-                            model.ToBankAccountID = data[0].DefaultBankAccountID;
-                            model.ToBankAccount = new BankAccount();
-                            model.ToBankAccount.ID = data[0].DefaultBankAccountID;
-                            model.ToBankAccount.AccountNumber = data[0].DefaultBankAccountAccountNumber;
-                        }
+     updateBusinessRelation(model: Payment) {
+            this.statisticsService.GetAllUnwrapped(
+                `model=BusinessRelation`
+                + `&expand=DefaultBankAccount`
+                + `&filter=BusinessRelation.ID eq ${model.BusinessRelationID}`
+                + `&select=BusinessRelation.ID,BusinessRelation.Name,`
+                + `DefaultBankAccount.ID,DefaultBankAccount.AccountNumber`
+            )
+            .subscribe(data => {
+                if (data && data.length > 0) {
+                    model.BusinessRelation = new BusinessRelation();
+                    model.BusinessRelation.ID = model.BusinessRelationID;
+                    model.BusinessRelation.Name = data[0].BusinessRelationName;
+
+                    if (data[0].DefaultBankAccountID) {
+                        model.ToBankAccountID = data[0].DefaultBankAccountID;
+                        model.ToBankAccount = new BankAccount();
+                        model.ToBankAccount.ID = data[0].DefaultBankAccountID;
+                        model.ToBankAccount.AccountNumber = data[0].DefaultBankAccountAccountNumber;
                     } else {
-                        model.BusinessRelation = null;
+                        model.ToBankAccount = null;
+                        model.ToBankAccountID = null;
                     }
-                    this.config.model = model;
-                    this.model$.next(this.config.model);
-                },
-                err => this.errorService.handle(err)
-            );
-        } else if (model.ToBankAccount) {
-            if (model.ToBankAccount && model.ToBankAccount.BusinessRelationID !== model.BusinessRelationID) {
-                model.ToBankAccount = null;
-                model.ToBankAccountID = null;
+                } else {
+                    model.BusinessRelation = null;
+                    model.ToBankAccount = null;
+                    model.ToBankAccountID = null;
+                }
+                this.config.model = model;
+                this.model$.next(this.config.model);
+                this.refreshBankAccount();
+            },
+            err => this.errorService.handle(err)
+        );
+     }
+
+    private getBankAccountsOptions() {
+        const model = this.model$.getValue();
+        return {
+            listProperty: 'ToBankAccountsList',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeIdInProperty: 'ToBankAccountID',
+            storeResultInProperty: 'ToBankAccount',
+            editor: (bankaccount) => {
+                if (!bankaccount || !bankaccount.ID) {
+                    bankaccount = bankaccount || new BankAccount();
+                    bankaccount.BusinessRelationID = model.BusinessRelationID;
+                    bankaccount.BankAccountType = this.accountType;
+                }
+                bankaccount['_saveBankAccountInModal'] = true;
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount
+                });
+
+                return modal.onClose.take(1).toPromise();
             }
-            this.config.model = model;
-            this.model$.next(this.config.model);
         }
     }
+
+
 
     private getFields() {
         // TODO get it from the API and move these to backend migrations
@@ -238,29 +287,16 @@ export class AddPaymentModal implements IUniModal {
             {
                 EntityType: 'Payment',
                 Property: 'FromBankAccountID',
-                FieldType: FieldType.AUTOCOMPLETE,
+                FieldType: FieldType.DROPDOWN,
                 Label: 'Konto fra',
                 FieldSet: 0,
                 Section: 0,
                 Options: {
-                    getDefaultData: () => this.getDefaultFromBankAccountData(),
-                    displayProperty: 'AccountNumber',
+                    source: this.fromBankAccountsList,
                     valueProperty: 'ID',
-                    debounceTime: 200,
-                    search: (query: string) => {
-                        return this.statisticsService.GetAll(
-                            `model=BankAccount`
-                            + `&select=BankAccount.ID as ID,BankAccount.AccountNumber as AccountNumber`
-                            + `&filter=BankAccount.Deleted eq 'false' and isnull(CompanySettingsID,0)`
-                            + ` ne 0 and contains(AccountNumber,'${query}')`
-                            + `&top=20`
-                        ).map(x => x.Data ? x.Data : []);
-                    },
-                    template: (account: BankAccount) => {
-                        return account && account.ID !== 0 ? `${account.AccountNumber}` : '';
-                    }
-                },
-                LineBreak: true,
+                    displayProperty: 'AccountNumber',
+                    debounceTime: 200
+                }
             },
             {
                 EntityType: 'Payment',
@@ -308,32 +344,12 @@ export class AddPaymentModal implements IUniModal {
             },
             {
                 EntityType: 'Payment',
-                Property: 'ToBankAccount',
-                FieldType: FieldType.UNI_SEARCH,
+                Property: 'ToBankAccountID',
+                FieldType: FieldType.MULTIVALUE,
                 Label: 'Konto til',
                 FieldSet: 0,
                 Section: 0,
-                Placeholder: 'Velg "Betales til" først',
-                Options: {
-                    uniSearchConfig: this.generate(
-                        [],
-                        (currentInputValue) => {
-                            return this.modalService.open(UniBankAccountModal, {
-                                data: {_initValue: currentInputValue}
-                            }).onClose.asObservable()
-                                .switchMap(bankAccount => {
-                                    if (bankAccount) {
-                                        bankAccount.BusinessRelationID = this.model$.value.BusinessRelationID;
-                                        bankAccount.BankAccountType = this.accountType;
-                                        bankAccount.BankID = 0;
-                                        return this.bankAccountService.Post(bankAccount);
-                                    }
-                                    return Observable.of(bankAccount);
-                                })
-                                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                        }
-                    )
-                }
+                Options: this.getBankAccountsOptions()
             },
             {
                 EntityType: 'Payment',
@@ -373,6 +389,25 @@ export class AddPaymentModal implements IUniModal {
 
     public close(action: string) {
         if (action === 'ok') {
+            const data = this.model$.getValue();
+            console.log(data);
+            //validate
+            if (!data['PaymentDate']) {
+                this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler fra Betaligsdato!');
+                return false;
+            } else if (!data['BusinessRelationID']) {
+                this.toastService.addToast('Error', ToastType.bad, 5, 'Betales til er ugyldig!');
+                return false;
+            } else if (!data['FromBankAccountID']) {
+                this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto fra!');
+                return false;
+            } else if (!data['ToBankAccountID']) {
+                this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto til!');
+                return false;
+            } else if (!data['AmountCurrency']) {
+                this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler beløp');
+                return false;
+            }
             this.onClose.emit(this.config.model);
         } else {
             this.onClose.emit(false);

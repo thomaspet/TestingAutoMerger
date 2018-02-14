@@ -56,6 +56,7 @@ import {
     NumberFormat,
     PredefinedDescriptionService,
     SupplierService,
+    CustomerService,
     UserService
 } from '../../../../../services/services';
 import {
@@ -188,6 +189,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private predefinedDescriptionService: PredefinedDescriptionService,
         private modalService: UniModalService,
         private supplierService: SupplierService,
+        private customerService: CustomerService,
         private userService: UserService
     ) {}
 
@@ -1953,13 +1955,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private addPayment(item: JournalEntryData) {
-        let title: string = 'Legg til betaling';
         let payment: Payment = null;
         if (item.JournalEntryPaymentData && item.JournalEntryPaymentData.PaymentData) {
             payment = item.JournalEntryPaymentData.PaymentData;
-            title = 'Endre betaling';
-
-            this.modalService.open(AddPaymentModal, { data: { payment: payment} }).onClose.subscribe((res: any) => {
+            this.modalService.open(AddPaymentModal, { data: { model: payment},
+                header: 'Endre betaling',
+                buttonLabels: {accept: 'Oppdater betaling'}
+                }).onClose.subscribe((res: any) => {
                 if (payment) {
                     item.JournalEntryPaymentData.PaymentData = res;
                     this.table.updateRow(item['_originalIndex'], item);
@@ -1982,22 +1984,31 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         : item.CreditAccount.CustomerID;
 
                     // get businessrelation and default account based on customerid
-                    this.statisticsService.GetAll(
-                        `model=Customer&expand=Info.DefaultBankAccount&filter=Customer.ID eq
-                        ${customerID}&select=DefaultBankAccount.ID as DefaultBankAccountID,
-                        DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name
-                        as BusinessRelationName,Info.ID as BusinessRelationID`)
-                        .map(data => data.Data ? data.Data : [])
-                        .subscribe(brdata => {
-                            if (brdata && brdata.length > 0) {
-                                const br = brdata[0];
-                                payment.BusinessRelationID = br.BusinessRelationID;
-                                payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
+
+                   this.customerService.Get(customerID).subscribe(
+                        custData => {
+                            if (!custData.Info.DefaultBankAccountID) {
+                                const br = new BusinessRelation();
+                                br.ID = custData.Info.ID;
+                                br.Name = custData.Info.Name;
+                                payment.BusinessRelation = br;
+                                payment.BusinessRelationID = custData.Info.ID;
                                 resolve();
+                            } else {
+                                this.statisticsService.GetAllUnwrapped(`model=Customer&expand=Info.DefaultBankAccount&filter=Customer.ID eq
+                                ${customerID}&select=DefaultBankAccount.ID as DefaultBankAccountID,
+                                DefaultBankAccount.AccountNumber as DefaultBankAccountAccountNumber,Info.Name
+                                as BusinessRelationName,Info.ID as BusinessRelationID`)
+                                .subscribe(brdata => {
+                                    if (brdata && brdata.length > 0) {
+                                        const br = brdata[0];
+                                        payment.BusinessRelationID = br.BusinessRelationID;
+                                        payment.BusinessRelation = this.getBusinessRelationDataFromStatisticsSearch(br);
+                                        resolve();
+                                    }
+                                });
                             }
-                        },
-                        err => this.errorService.handle(err)
-                    );
+                    });
                 } else if ((item.DebitAccount && item.DebitAccount.SupplierID)
                     || (item.CreditAccount && item.CreditAccount.SupplierID)) {
                     const supplierID = item.DebitAccount && item.DebitAccount.SupplierID
@@ -2066,8 +2077,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 // passing in InvoiceNumber from journalentry if it has one
                 payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
-
-                this.modalService.open(AddPaymentModal, {data: { payment: payment }}).onClose.subscribe((res) => {
+                this.modalService.open(AddPaymentModal, {data: { model: payment }}).onClose.subscribe((res) => {
                     if (res) {
                         if (!item.JournalEntryPaymentData) {
                             item.JournalEntryPaymentData = {

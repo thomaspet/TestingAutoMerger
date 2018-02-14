@@ -57,6 +57,7 @@ export class UniBankAccountModal implements IUniModal {
     private isBankChanged: boolean = false;
     private busy: boolean = false;
     private hasChanges: boolean = false;
+    private saveBankAccountInModal: boolean = false;
 
     constructor(
         private bankService: BankService,
@@ -74,6 +75,9 @@ export class UniBankAccountModal implements IUniModal {
         if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
             this.validateAccountNumber(accountInfo);
+        }
+        if (accountInfo._saveBankAccountInModal) {
+            this.saveBankAccountInModal = true;
         }
         this.formModel$.next(accountInfo);
         this.formFields$.next(this.getFormFields());
@@ -124,7 +128,11 @@ export class UniBankAccountModal implements IUniModal {
                     }
                 });
             } else {
-                this.onClose.emit(account);
+                if (this.saveBankAccountInModal) {
+                    this.SaveBankAccount(account);
+                } else {
+                    this.onClose.emit(account);
+                }
             }
         } else {
             this.onClose.emit(null);
@@ -140,6 +148,7 @@ export class UniBankAccountModal implements IUniModal {
 
             this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
                 this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+                this.onClose.emit(res);
             });
         } else {
             if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
