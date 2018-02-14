@@ -993,7 +993,7 @@ export class CustomerDetails implements OnInit {
                     EntityType: 'Customer',
                     Property: 'ReminderEmailAddress',
                     FieldType: FieldType.EMAIL,
-                    Label: 'Purre e-post adresse',
+                    Label: 'Purre-e-postadresse',
                     Section: 0,
                     Validations: [this.emailValidation]
                 },
@@ -1021,7 +1021,7 @@ export class CustomerDetails implements OnInit {
                     EntityType: 'Customer',
                     Property: 'Info.DefaultEmail',
                     FieldType: FieldType.MULTIVALUE,
-                    Label: 'E-post adresser',
+                    Label: 'E-postadresser',
                     Section: 0
                 },
                 {

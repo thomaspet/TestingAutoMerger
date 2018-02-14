@@ -1327,7 +1327,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 FieldType: FieldType.BUTTON,
-                Label: 'Endre epost adresse',
+                Label: 'Endre e-postadresse',
                 Property: '_UpdateEmail',
                 Sectionheader: 'Diverse',
                 Section: 1,

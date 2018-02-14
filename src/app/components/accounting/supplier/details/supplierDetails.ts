@@ -856,7 +856,7 @@ export class SupplierDetails implements OnInit {
                     EntityType: 'Supplier',
                     Property: 'Info.Emails',
                     FieldType: FieldType.MULTIVALUE,
-                    Label: 'E-post adresser',
+                    Label: 'E-postadresser',
                 },
                 {
                     FieldSet: 2,

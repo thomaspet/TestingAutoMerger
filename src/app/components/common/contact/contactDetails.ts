@@ -511,7 +511,7 @@ export class ContactDetails {
                     EntityType: 'Contact',
                     Property: 'Info.DefaultEmail',
                     FieldType: FieldType.MULTIVALUE,
-                    Label: 'E-post adresser'
+                    Label: 'E-postadresser'
                 },
                 {
                     EntityType: 'Contact',
