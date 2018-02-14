@@ -161,7 +161,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     journalEntries[0].DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account);
                     journalEntries[0].ID = id;
                     journalEntries[0].Description = text;
-                    journalEntries[0].DraftLines.map((x: JournalEntryLineDraft, i) => x.ID = lineID[i] ? lineID[i] : null);
+                    journalEntries[0].DraftLines.map((x: JournalEntryLineDraft, i) => {
+                        x.ID = lineID[i] ? lineID[i] : 0;
+                        if (!x.ID) {
+                            x._createguid = this.getNewGuid();
+                        }
+                        return x;
+                    });
                     return this.saveDraftLines(journalEntries);
                 });
         }
