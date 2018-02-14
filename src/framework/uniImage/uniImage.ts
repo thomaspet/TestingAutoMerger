@@ -559,6 +559,7 @@ export class UniImage {
                             if (this.currentFileIndex >= 0) { this.loadImage(); }
                             if (!this.singleImage) { this.loadThumbnails(); }
 
+                            this.fileListReady.emit(this.files);
                             this.imageDeleted.emit(current);
                         },
                         err => this.errorService.handle(err)
