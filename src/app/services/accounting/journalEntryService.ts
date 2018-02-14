@@ -155,16 +155,21 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
-                    const lineID = [];
+                    const lineIDs = [];
 
-                    journalEntryData.map(x => x.JournalEntryDrafts.map(y => lineID.push(y.ID)));
-                    journalEntries[0].DraftLines.map((lines: JournalEntryLineDraft) => delete lines.Account);
+                    journalEntryData.forEach(x => x.JournalEntryDrafts ? x.JournalEntryDrafts.forEach(y => lineIDs.push(y.ID)) : x);
+                    journalEntries[0].DraftLines.forEach((lines: JournalEntryLineDraft) => delete lines.Account);
                     journalEntries[0].ID = id;
                     journalEntries[0].Description = text;
-                    journalEntries[0].DraftLines.map((x: JournalEntryLineDraft, i) => {
-                        x.ID = lineID[i] ? lineID[i] : 0;
+                    journalEntries[0].DraftLines.forEach((x: JournalEntryLineDraft, i) => {
+                        x.ID = lineIDs[i] ? lineIDs[i] : 0;
+
                         if (!x.ID) {
                             x._createguid = this.getNewGuid();
+                        }
+
+                        if (!x.Dimensions || !x.Dimensions.ID) {
+                            x.Dimensions = null;
                         }
                         return x;
                     });
