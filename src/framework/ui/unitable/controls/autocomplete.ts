@@ -458,6 +458,7 @@ export class UnitableAutocomplete implements OnInit {
             }
         // F4
         } else if (key === 115) {
+            event.preventDefault();
             this.expand();
         }
     }
