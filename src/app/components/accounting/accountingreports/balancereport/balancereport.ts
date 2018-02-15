@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -11,7 +11,8 @@ import {
 } from '../../../../unientities';
 import {
     ProjectService,
-    DepartmentService
+    DepartmentService,
+    FinancialYearService
 } from '../../../../services/services';
 
 declare var _;
@@ -20,7 +21,7 @@ declare var _;
     selector: 'accounting-balance-report',
     templateUrl: './balancereport.html',
 })
-export class BalanceReport {
+export class BalanceReport implements OnInit {
     public filterVisible: boolean = false;
 
     private periodFilter1: PeriodFilter;
@@ -49,6 +50,7 @@ export class BalanceReport {
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private periodFilterHelper: PeriodFilterHelper,
+        private financialYearService: FinancialYearService
                 ) {
 
         this.tabService.addTab({
@@ -60,8 +62,10 @@ export class BalanceReport {
     }
 
     public ngOnInit() {
+        let financialYear;
+        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
         // get default period filters
-        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null);
+        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, financialYear);
         this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
         this.filter = this.filter$.getValue();
 
@@ -89,19 +93,19 @@ export class BalanceReport {
     }
 
     private getYearComboSelection(curYear): string[]     {
-        if (typeof curYear === 'string') { curYear = parseInt(curYear); }
+        if (typeof curYear === 'string') { curYear = parseInt(curYear, 10); }
         return [
             curYear - 1,
             curYear + 1];
     }
 
     public onYearSelect(year) {
-        let periodFilter1 = _.cloneDeep(this.periodFilter1);
+        const periodFilter1 = _.cloneDeep(this.periodFilter1);
         periodFilter1.year = year.toString();
         periodFilter1.name = this.periodFilterHelper.getFilterName(periodFilter1);
         this.onPeriodFilter1Changed(periodFilter1);
 
-        let periodFilter2 = _.cloneDeep(this.periodFilter2);
+        const periodFilter2 = _.cloneDeep(this.periodFilter2);
         periodFilter2.year = (year - 1).toString();
         periodFilter2.name = this.periodFilterHelper.getFilterName(periodFilter2);
         this.onPeriodFilter2Changed(periodFilter2);
@@ -141,7 +145,7 @@ export class BalanceReport {
 
     private setupFilterForm() {
         // Dimension filters
-        let project = new UniFieldLayout();
+        const project = new UniFieldLayout();
         project.Property = 'ProjectID';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
@@ -157,7 +161,7 @@ export class BalanceReport {
             debounceTime: 200
         };
 
-        let department = new UniFieldLayout();
+        const department = new UniFieldLayout();
         department.Property = 'DepartmentID';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
@@ -173,7 +177,7 @@ export class BalanceReport {
         };
 
         // Numbers
-        let decimals = new UniFieldLayout();
+        const decimals = new UniFieldLayout();
         decimals.Property = 'Decimals';
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
@@ -188,7 +192,7 @@ export class BalanceReport {
             debounceTime: 200
         };
 
-        let showprevyear = new UniFieldLayout();
+        const showprevyear = new UniFieldLayout();
         showprevyear.Property = 'ShowPreviousAccountYear';
         showprevyear.FieldType = FieldType.CHECKBOX;
         showprevyear.Label = 'Vis foregående år';

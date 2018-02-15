@@ -7,7 +7,6 @@ import {AuthService} from '../../../authService';
     selector: 'uni-shortcut',
     template: `
         <div [ngClass]="widget.config.class"
-             [attr.disabled]="disabled"
              class="uni-widget-shortcut-tile uni-widget-tile-content"
              (click)="onClickNavigate()">
 
@@ -21,7 +20,7 @@ import {AuthService} from '../../../authService';
             <a class="uni-shortcut-link"
                 [ngClass]="{ 'letterForIconStyling' : widget?.config?.letterForIcon }">
 
-                {{ widget.config.label }}
+                {{ widget.description }}
             </a>
         </div>
     `,
@@ -29,7 +28,6 @@ import {AuthService} from '../../../authService';
 })
 export class UniShortcutWidget {
     public widget: IUniWidget;
-    private disabled: boolean;
 
     constructor(
         private router: Router,
@@ -44,22 +42,6 @@ export class UniShortcutWidget {
             } else if (this.widget.config.method) {
                 this.widget.config.method();
             }
-        }
-    }
-
-    public ngAfterViewInit() {
-        if (this.widget && this.widget.config && this.widget.config.link) {
-            this.authService.authentication$
-                .asObservable()
-                .take(1)
-                .subscribe(auth => {
-                    this.disabled = !this.authService.canActivateRoute(
-                        auth.user,
-                        this.widget.config.link
-                    );
-
-                    this.cdr.markForCheck();
-                });
         }
     }
 }

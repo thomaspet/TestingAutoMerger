@@ -18,6 +18,7 @@ import {ToastService, ToastType} from '../../../../../../framework/uniToast/toas
 
 import {YearModal, IChangeYear} from './modals/yearModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -68,7 +69,7 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
                         [config]="selectYearConfig"
                         [items]="selectYear"
                         [value]="activeYear"
-                        (valueChange)="yearIsSelected($event)">
+                        (valueChange)="onYearDropdownChange($event)">
                     </uni-select>
                 </p>
 
@@ -105,6 +106,7 @@ export class UniCompanyDropdown {
     constructor(
         private altInnService: AltinnAuthenticationService,
         private router: Router,
+        private tabservice: TabService,
         private authService: AuthService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService,
@@ -292,18 +294,25 @@ export class UniCompanyDropdown {
         }
     }
 
+    public onYearDropdownChange(year: string) {
+        this.tabservice.removeAllTabs();
+        this.router.navigateByUrl('/');
+
+        this.yearIsSelected(year);
+    }
+
     private yearIsSelected(selYear: string): void {
-        let yr = parseInt(selYear);
-        if (yr) {
-            this.yearService.setSelectedYear(yr);
-            let found = this.financialYears.find(val => val.Year === yr);
-            if (found) {
-                this.financialYearService.setActiveYear(found);
+        const year = parseInt(selYear, 10);
+        if (year) {
+            this.yearService.setSelectedYear(year);
+            let financialYear = this.financialYears.find(val => val.Year === year);
+            if (financialYear) {
+                this.financialYearService.setActiveYear(financialYear);
                 this.close();
             } else {
-                let finY = new FinancialYear();
-                finY.Year = yr;
-                this.yearSelected(finY);
+                financialYear = new FinancialYear();
+                financialYear.Year = year;
+                this.yearSelected(financialYear);
             }
         } else {
             this.openYearModal();
@@ -311,7 +320,7 @@ export class UniCompanyDropdown {
     }
 
     private yearSelected(selectedYear: FinancialYear): void {
-        let localStorageYear = this.financialYearService.getYearInLocalStorage();
+        const localStorageYear = this.financialYearService.getYearInLocalStorage();
 
         if (localStorageYear && selectedYear.Year !== localStorageYear.Year) {
             this.financialYearService.setActiveYear(selectedYear);

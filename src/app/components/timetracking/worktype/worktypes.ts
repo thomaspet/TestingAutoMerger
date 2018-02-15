@@ -33,17 +33,25 @@ export class WorktypeListview {
     private createTableConfig(): UniTableConfig {
         const systemTypePipe = new WorkTypeSystemTypePipe();
         const cols = [
-            new UniTableColumn(
-                'ID', 'Nr.', UniTableColumnType.Number
-            ).setWidth('10%').setFilterOperator('startswith'),
-            new UniTableColumn(
-                'Name', 'Navn', UniTableColumnType.Text
-            ).setWidth('40%').setFilterOperator('startswith'),
-            new UniTableColumn('SystemType', 'Type', UniTableColumnType.Text).setFilterOperator('eq')
-                .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  ).setWidth('20%'),
-            new UniTableColumn('Product.PartName', 'Produktnr.', UniTableColumnType.Text).setFilterOperator('startswith'),
-            new UniTableColumn('Price', 'Pris', UniTableColumnType.Text).setFilterOperator('startswith'),
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text).setFilterOperator('startswith')
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
+                .setWidth('5%')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
+                .setWidth('25%')
+                .setFilterOperator('startswith'),
+            new UniTableColumn('SystemType', 'Type', UniTableColumnType.Text)
+                .setFilterOperator('eq')
+                .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  )
+                .setWidth('15%'),
+            new UniTableColumn('Product.PartName', 'Produktnr.', UniTableColumnType.Text)
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Price', 'Pris', UniTableColumnType.Text)
+                .setFilterOperator('startswith'),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setFilterOperator('startswith')
+                .setWidth('20%'),
+            new UniTableColumn('WagetypeNumber', 'Lønnsart', UniTableColumnType.Text)
+                .setFilterOperator('startswith')
         ];
         return new UniTableConfig('timetracking.worktypes.list', false, true)
             .setSearchable(true)

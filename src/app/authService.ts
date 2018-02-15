@@ -17,15 +17,18 @@ export interface IAuthDetails {
     user: UserDto;
 }
 
-const PUBLIC_ROUTES = [
+const PUBLIC_ROOT_ROUTES = [
     'init',
     'bureau',
     'about',
     'assignments',
     'tickers',
     'uniqueries',
-    'sharings'
+    'sharings',
+    'marketplace'
 ];
+
+const PUBLIC_ROUTES = [];
 
 @Injectable()
 export class AuthService {
@@ -196,13 +199,16 @@ export class AuthService {
         // without screwing up something in the authentication flow
         const authSubject = new Subject<IAuthDetails>();
 
-        this.verifyAuthentication().subscribe(authDetails => {
+        this.verifyAuthentication().take(1).subscribe(authDetails => {
             this.authentication$.next(authDetails);
-            this.router.navigateByUrl(redirectUrl || '').then(() => {
-                // TODO: Navigation removes spinner..
-                // REVISIT: Does it make a difference if we do this after or just before?
-                this.setLoadIndicatorVisibility(false);
-                authSubject.next(authDetails);
+            setTimeout(() => {
+                this.router.navigateByUrl(redirectUrl || '').then((res) => {
+                    // TODO: Navigation removes spinner..
+                    // REVISIT: Does it make a difference if we do this after or just before?
+                    this.setLoadIndicatorVisibility(false);
+                    authSubject.next(authDetails);
+                });
+
             });
         });
 
@@ -334,8 +340,12 @@ export class AuthService {
 
     public canActivateRoute(user: UserDto, url: string): boolean {
         // First check if the route is a public route
+        if (PUBLIC_ROUTES.some(route => route === url)) {
+            return true;
+        }
+
         const rootRoute = this.getRootRoute(url);
-        if (!rootRoute || PUBLIC_ROUTES.some(route => route === rootRoute)) {
+        if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
 
@@ -343,28 +353,33 @@ export class AuthService {
             return false;
         }
 
-        // Treat empty permissions array as access to everything for now
-        if (!user['Permissions'] || !user['Permissions'].length) {
+        const permissionKey: string = this.getPermissionKey(url);
+        return this.hasUIPermission(user, permissionKey);
+    }
+
+    public hasUIPermission(user: UserDto, permission: string) {
+        // Treat missing or empty permissions array as access to everything
+        const userPermissions = user['Permissions'] || [];
+        if (!userPermissions.length) {
             return true;
         }
 
-        const permissionKey: string = this.getPermissionKey(url);
+        permission = permission.trim();
 
         // Check for direct match
-        let hasPermission = user['Permissions'].some(permission => permission === permissionKey);
+        let hasPermission = user['Permissions'].some(p => p === permission);
 
-        // If no direct match: pop route parts one by one and check for
-        // permission to everything under that.
-        // E.g no permission for 'ui_salary_employees_employments
-        // but permission for 'ui_salary_employees' and therefore employments
+        // Pop permission parts and check for * access
         if (!hasPermission) {
-            const permissionParts = permissionKey.split('_');
-            while (permissionParts.length) {
-                permissionParts.pop();
-                if (user['Permissions'].some(p => p === permissionParts.join('_'))) {
+            const permissionSplit = permission.split('_');
+
+            while (permissionSplit.length && !hasPermission) {
+                const multiPermision = permissionSplit.join('_') + '_*';
+                if (user['Permissions'].some(p => p === multiPermision)) {
                     hasPermission = true;
-                    break;
                 }
+
+                permissionSplit.pop();
             }
         }
 

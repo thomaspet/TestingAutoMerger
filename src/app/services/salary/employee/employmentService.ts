@@ -6,7 +6,7 @@ import {
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -84,7 +84,21 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldSet: 1,
                     Legend: 'Stillingsinformasjon',
                     Section: 0,
-                    Placeholder: 'Stillingskode'
+                    Placeholder: 'Stillingskode',
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Stillingskode er påkrevd',
+                                isWarning: false
+                            };
+                        }
+                    ]
                 },
                 {
                     EntityType: 'Employment',
@@ -92,7 +106,21 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.TEXT,
                     Label: 'Stillingsnavn',
                     FieldSet: 1,
-                    Section: 0
+                    Section: 0,
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Stillingsnavn er påkrevd',
+                                isWarning: false
+                            };
+                        }
+                    ]
                 },
                 {
                     EntityType: 'Employment',

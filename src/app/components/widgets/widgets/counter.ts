@@ -11,7 +11,7 @@ declare const _;
              [ngClass]="widget.config.class"
              class="uni-widget-notification-tile uni-widget-tile-content"
              (click)="onClickNavigate()"
-             title="{{ widget.config.description }}">
+             title="{{ widget.description }}">
 
             <a class="{{ widget.config.icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
             <h2> {{count}} </h2>

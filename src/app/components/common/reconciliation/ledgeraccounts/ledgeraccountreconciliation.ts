@@ -1,7 +1,9 @@
 import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
-import {StatusCodeJournalEntryLine, LocalDate} from '../../../../unientities';
+import {StatusCodeJournalEntryLine,
+    LocalDate, JournalEntryLinePostPostData,
+    JournalEntryLine, Payment, BusinessRelation, BankAccount, i18nModule, Customer, CompanySettings, Paycheck, PaymentCode} from '../../../../unientities';
 import {
     UniTable,
     UniTableColumn,
@@ -9,6 +11,7 @@ import {
     UniTableColumnType,
     UniTableColumnSortMode
 } from '../../../../../framework/ui/unitable/index';
+import {INumberOptions} from '../../../../../framework/ui/uniform/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
@@ -19,10 +22,17 @@ import {
     JournalEntryLineService,
     PostPostService,
     NumberFormat,
-    JournalEntryService
+    JournalEntryService,
+    PaymentService,
+    CustomerService,
+    BankAccountService,
+    CompanySettingsService
 } from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
+import { JournalEntryData } from '@app/models/models';
+import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
+import { RequestMethod } from '@angular/http';
 declare var _;
 
 class JournalEntryLineCouple {
@@ -97,7 +107,11 @@ export class LedgerAccountReconciliation {
         private sanitizer: DomSanitizer,
         private toastService: ToastService,
         private journalEntryService: JournalEntryService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private paymentService: PaymentService,
+        private customerService: CustomerService,
+        private bankaccountService: BankAccountService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -297,26 +311,59 @@ export class LedgerAccountReconciliation {
     }
 
     public export() {
-        let lines = this.journalEntryLines;
+        this.exportLines(this.journalEntryLines);
+    }
 
-        var list = [];
-        lines.forEach((line) => {
-            var row = {
-                JournalEntryNumber: line.JournalEntryNumber,
-                FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
-                InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
-                DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
-                Amount: line.Amount,
-                RestAmount: line.RestAmount,
-                Description: line.Description,
-                Status: this.journalEntryLineService.getStatusText(line.StatusCode),
-                NumberOfPayments: line.NumberOfPayments,
-                Markings: this.getMarkingsText(line)
-            };
-            list.push(row);
-        });
+    public exportAll(register: string) {
+        this.journalEntryLineService.getJournalEntryLinePostPostData(
+            this.displayPostsOption !== 'MARKED',
+            this.displayPostsOption !== 'OPEN',
+            (register === "customer") ? -1 : null,
+            (register === "supplier") ? -1 : null,
+            (register === "account") ? -1 : null,
+            this.pointInTime)
+            .subscribe((lines: Array<JournalEntryLinePostPostData>) => {
+                this.exportLines(lines);
+            },
+            (err) => this.errorService.handle(err)
+        );
+    }
 
-        exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
+    private exportLines(lines: Array<JournalEntryLinePostPostData>) {
+        let list = [];
+        const moneyFormat: INumberOptions = {
+            thousandSeparator: '',
+            decimalSeparator: ',',
+            decimalLength: 2
+        };
+
+        if (lines && lines.length > 0) {
+            lines.forEach((line: JournalEntryLinePostPostData) => {
+                const row = {
+                    JournalEntryNumber: line.JournalEntryNumber,
+                    FinancialDate: line.FinancialDate ? moment(line.FinancialDate).format().substr(0, 10) : '',
+                    SubAccountNumber: line.SubAccountNumber,
+                    SubAccountName: line.SubAccountName,
+                    InvoiceNumber: line.InvoiceNumber ? line.InvoiceNumber : '',
+                    DueDate: line.DueDate ? moment(line.DueDate).format().substr(0, 10) : '',
+                    Amount: this.numberFormatService.asMoney(line.Amount, moneyFormat),
+                    RestAmount: this.numberFormatService.asMoney(line.RestAmount, moneyFormat),
+                    Description: line.Description,
+                    Status: this.journalEntryLineService.getStatusText(line.StatusCode),
+                    NumberOfPayments: line.NumberOfPayments,
+                    Markings: this.getMarkingsText(line)
+                };
+                list.push(row);
+            });
+
+            exportToFile(arrayToCsv(list, ['JournalEntryNumber']), `OpenPosts.csv`);
+        } else {
+            this.toastService.addToast('Ingen poster',
+                ToastType.warn,
+                ToastTime.medium,
+                'Det er ingen poster å eksportere'
+            );
+        }
     }
 
     public autoMarkJournalEntries() {
@@ -762,7 +809,7 @@ export class LedgerAccountReconciliation {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-        let data = this.journalEntryService.getSessionData(0);
+        const data = this.journalEntryService.getSessionData(0);
 
         // avoid losing changes if user navigates to a new journalentry with unsaved changes
         // without saving or discarding changes first
@@ -789,6 +836,137 @@ export class LedgerAccountReconciliation {
                 ;editmode=true`
             );
         }
+    }
+
+    private handleOverpayment(item: JournalEntryLine) {
+        this.statisticsService.GetAllUnwrapped(
+            `model=Tracelink&filter=DestinationEntityName%20eq%20'Payment'%20`
+            + `and%20SourceEntityName%20eq%20'JournalEntry'%20`
+            + `and%20Journalentry.ID%20eq%20${item.JournalEntryID}%20`
+            + `and%20Payment.Deleted%20eq%20'false'`
+            + `&join=Tracelink.SourceInstanceId%20eq%20JournalEntry.ID%20as%20JournalEntry%20`
+            + `and%20Tracelink.DestinationInstanceId%20eq%20Payment.ID`
+            + `&select=Tracelink.DestinationInstanceId%20as%20PaymentID,`
+            + `Payment.StatusCode as StatusCode`
+        ).subscribe((statisticsData) => {
+            if (statisticsData  && statisticsData.length > 0) {
+                const paymentID = statisticsData.find(x => x.PaymentID)['PaymentID'];
+                const StatusCode = statisticsData.find(x => x.StatusCode)['StatusCode'];
+                if (StatusCode === 44001) { // queued
+                    this.editPayment(paymentID);
+                } else {
+                    this.toastService.addToast(
+                        'Not allowed to edit this payment.',
+                        ToastType.warn, 5,
+                        'Payment has already been sent to the bank.'
+                    );
+                }
+            } else {
+                this.addPayment(item);
+            }
+        }, err => {
+            this.errorService.handle(err);
+            this.busy = false;
+        });
+    }
+
+    private addPayment(item: JournalEntryLine) {
+        this.journalEntryLineService.GetOneByQuery(`filter=JournalEntryID eq ${item.JournalEntryID}`)
+            .switchMap((line) => {
+                if (line.PaymentReferenceID) {
+                    return this.getPaymentByPaymentReferenceID(line.PaymentReferenceID);
+                } else {
+                    return this.getPaymentByCustomerID(this.customerID);
+                }
+            }).switchMap(payment => {
+                return this.companySettingsService.getCompanySettings().map((settings: CompanySettings) => {
+                    const bankAccount = settings.BankAccounts.find(ba => ba.ID === payment.ToBankAccountID) || settings.CompanyBankAccount;
+                    payment.FromBankAccount = bankAccount;
+                    payment.FromBankAccountID = bankAccount.ID;
+                    return payment;
+                });
+            })
+            .subscribe(payment => {
+                const newPayment = new Payment();
+                newPayment.PaymentDate = new LocalDate();
+                newPayment.DueDate =  new LocalDate();
+                newPayment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
+                newPayment.Amount = payment.Amount || Math.abs(item.RestAmount);
+                newPayment.AmountCurrency = payment.AmountCurrency || Math.abs(item.RestAmountCurrency);
+                newPayment.ToBankAccount = payment.ToBankAccount;
+                newPayment.ToBankAccountID = payment.ToBankAccountID;
+                newPayment.FromBankAccount = payment.FromBankAccount;
+                newPayment.FromBankAccountID = payment.FromBankAccountID;
+                newPayment.BusinessRelation = payment.BusinessRelation;
+                newPayment.BusinessRelationID = payment.BusinessRelationID;
+                newPayment.PaymentCodeID = 1;
+                newPayment.Description = item.InvoiceNumber ? 'Tilbakebetaling overbetalt beløp for faktura ' + item.InvoiceNumber + '.' :
+                 'Tilbakebetaling overbetalt beløp.';
+                newPayment.IsCustomerPayment = false;
+                this.modalService.open(AddPaymentModal, {data: { model: newPayment }}).onClose.subscribe((updatedPaymentInfo: Payment) => {
+                    if (updatedPaymentInfo) {
+                        updatedPaymentInfo.AutoJournal = true;
+                        this.paymentService.ActionWithBody(null,
+                            updatedPaymentInfo,
+                            'create-payment-with-tracelink',
+                            RequestMethod.Post,
+                            'journalEntryID=' + item.JournalEntryID
+                        ).subscribe(paymentResponse => {});
+                    }
+                });
+            });
+    }
+
+    private editPayment(paymentID: number) {
+        this.paymentService.Get(paymentID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).switchMap(existingPayment => {
+            return this.modalService.open(AddPaymentModal, {
+                data: { model: existingPayment },
+                header: 'Endre betaling',
+                buttonLabels: {accept: 'Oppdater betaling'}
+            }).onClose;
+        }).subscribe(updatedPayment => {
+            if (updatedPayment) {
+                this.paymentService.Put(paymentID, updatedPayment).subscribe();
+            }
+        });
+    }
+
+    private getPaymentByPaymentReferenceID(id): Observable<Payment> {
+        return this.paymentService.Get(id, ['BusinessRelation']).switchMap(payment => {
+            if (!payment.FromBankAccountID) {
+                payment.ToBankAccountID = null;
+                payment.ToBankAccount = null;
+                return Observable.of(payment);
+            }
+            return this.bankaccountService.Get(payment.FromBankAccountID, ['BusinessRelation']).map(ba => {
+                payment.ToBankAccountID = ba.ID;
+                payment.ToBankAccount = ba;
+                return payment;
+            });
+        });
+    }
+
+    private getPaymentByCustomerID(id): Observable<Payment> {
+        const payment: Payment = new Payment();
+        return this.customerService.Get(id, ['Info', 'Info.DefaultBankAccount']).map(customer => {
+            payment.BusinessRelationID = customer.ID;
+            payment.BusinessRelation = this.getBusinessRelationDataFromCustomerSearch(customer);
+            return payment;
+        });
+    }
+
+    private getBusinessRelationDataFromCustomerSearch(customerData: Customer): BusinessRelation {
+        const br = new BusinessRelation();
+        br.ID = customerData.ID;
+        br.Name = customerData.Info.Name;
+        br.DefaultBankAccountID = customerData.Info.DefaultBankAccountID;
+        br.DefaultBankAccount = customerData.Info.DefaultBankAccount;
+        return br;
+    }
+
+    public addDaysToDates(date: any, days: number) {
+        const result = new Date(date);
+        return new LocalDate(moment(result.setDate(result.getDate() + days)).toDate());
     }
 
     private setupUniTable() {
@@ -868,8 +1046,22 @@ export class LedgerAccountReconciliation {
                     action: (item) => { this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber); },
                     disabled: (item) => false,
                     label: 'Rediger bilag'
+                },
+                {
+                    action: (item) => { this.handleOverpayment(item); },
+                    disabled: (item) => !this.isOverpaid(item, this.customerID),
+                    label: 'Tilbakebetal beløp'
                 }
             ]);
+    }
+
+    private isOverpaid(item, customerID): boolean {
+        if (customerID && item.Amount && item.RestAmount) {
+            if (item.Amount < 0 && item.RestAmount < 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private getCssClasses(model, field) {

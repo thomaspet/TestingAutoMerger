@@ -87,6 +87,7 @@ export class UniTickerContainer {
 
     public ngAfterViewInit() {
         this.route.queryParamMap.subscribe(params => {
+
             const filterCode = params.get('filter');
             if (filterCode && (!this.selectedFilter || this.selectedFilter.Code !== filterCode)) {
                 this.setFilterFromFilterCode(filterCode, 0);
@@ -110,11 +111,12 @@ export class UniTickerContainer {
 
     public updateQueryParams() {
         const url = this.router.url.split('?')[0];
+        const currentParams = this.route.snapshot.queryParamMap;
 
         this.router.navigate([url], {
             queryParams: {
+                code: currentParams.get('code'),
                 filter: this.selectedFilter && this.selectedFilter.Code,
-                rowIndex: this.selectedRow ? this.selectedRow['_originalIndex'] : undefined
             },
             skipLocationChange: false
         });

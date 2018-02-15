@@ -14,10 +14,11 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {UniTickerContainer} from '../uniticker/tickerContainer/tickerContainer';
 import {
     UniModalService,
-    UniDownloadPaymentsModal,
     UniSendPaymentModal,
     UniConfirmModalV2,
-    ConfirmActions
+    ConfirmActions,
+    UniAutobankAgreementModal,
+    UniAutobankAgreementListModal
 } from '../../../framework/uniModal/barrel';
 import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -51,6 +52,10 @@ import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
                     </ul>
                 </li>
             </ul>
+            <section class="autobank-section">
+                <a (click)="openAgreementsModal()" *ngIf="agreements?.length > 0">Mine avtaler</a>
+                <button class="good" (click)="openAutobankAgreementModal()"> Ny autobankavtale </button>
+            </section>
 
             <uni-ticker-container
                 [ticker]="selectedTicker"
@@ -72,6 +77,7 @@ export class BankComponent implements AfterViewInit {
     private actions: IUniSaveAction[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
+    private agreements: any[];
 
     public toolbarconfig: IToolbarConfig = {
         title: '',
@@ -124,6 +130,10 @@ export class BankComponent implements AfterViewInit {
                     return group.Name === 'Bank';
                 });
 
+            // Get autobank agreements to see if options should be shown in the toolbar
+            this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
+                this.agreements = agreements;
+            });
             this.selectTicker(this.tickerGroups[0].Tickers[0].Code);
         });
     }
@@ -177,10 +187,17 @@ export class BankComponent implements AfterViewInit {
             });
 
             this.actions.push({
-                label: 'Send til betaling',
-                action: (done) => this.pay(done),
+                label: 'Manuell betaling',
+                action: (done) => this.pay(done, true),
                 main: this.rows.length > 0,
                 disabled: this.rows.length === 0
+            });
+
+            this.actions.push({
+                label: 'Send til betaling',
+                action: (done) => this.pay(done, false),
+                main: this.rows.length > 0,
+                disabled: this.rows.length === 0 || !this.agreements.length
             });
 
             this.actions.push({
@@ -189,14 +206,6 @@ export class BankComponent implements AfterViewInit {
                 main: false,
                 disabled: this.rows.length === 0
             });
-
-            this.actions.push({
-                label: 'Hent autobankfiler',
-                action: (done) => this.downloadBankFiles(done),
-                main: false,
-                disabled: false
-            });
-
 
             this.actions.push({
                 label: 'Hent bankfiler og bokfør',
@@ -219,11 +228,6 @@ export class BankComponent implements AfterViewInit {
                 isUpload: true
             });
         }
-    }
-
-    public downloadBankFiles(done) {
-        this.modalService.open(UniDownloadPaymentsModal, {}).onClose
-            .subscribe(res => done(res));
     }
 
     public downloadPaymentFiles(rows): Promise<any> {
@@ -324,7 +328,15 @@ export class BankComponent implements AfterViewInit {
         return this.modalService.open(UniPaymentEditModal).onClose;
     }
 
-    private pay(doneHandler: (status: string) => any) {
+    public openAgreementsModal() {
+        this.modalService.open(UniAutobankAgreementListModal, { data: { agreements: this.agreements } });
+    }
+
+    public openAutobankAgreementModal() {
+        this.modalService.open(UniAutobankAgreementModal);
+    }
+
+    private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {
         this.rows = this.tickerContainer.mainTicker.unitable.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
@@ -364,7 +376,7 @@ export class BankComponent implements AfterViewInit {
                         row._isDirty = true;
                         this.tickerContainer.mainTicker.unitable.updateRow(row._originalIndex, row);
                     });
-                    this.payInternal(this.rows, doneHandler);
+                    this.payInternal(this.rows, doneHandler, isManualPayment);
                 } else {
                     doneHandler('Lagring og utbetaling avbrutt');
                 }
@@ -381,19 +393,19 @@ export class BankComponent implements AfterViewInit {
                     doneHandler('Lagring og utbetaling avbrutt');
                     return;
                 }
-                this.payInternal(this.rows, doneHandler);
+                this.payInternal(this.rows, doneHandler, isManualPayment);
             });
         }
     }
 
-    private payInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any) {
+    private payInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any, isManualPayment: boolean) {
         const paymentIDs: number[] = [];
         selectedRows.forEach(x => {
             paymentIDs.push(x.ID);
         });
 
         // Create action to generate batch for n paymetns
-        this.paymentService.createPaymentBatch(paymentIDs)
+        this.paymentService.createPaymentBatch(paymentIDs, isManualPayment)
             .subscribe((paymentBatch: PaymentBatch) => {
                 this.toastService.addToast(
                     `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
@@ -413,35 +425,34 @@ export class BankComponent implements AfterViewInit {
                         );
                         this.updateSaveActions(this.selectedTicker.Code);
 
-                        // Check to see if the customer has Autobank ??
-                        this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
-                            if (agreements.length) {
-                                this.modalService.open(UniSendPaymentModal, {
-                                    data: { PaymentBatchID: updatedPaymentBatch.ID }
-                                }).onClose.subscribe(
-                                    res => {
-                                    doneHandler(res);
-                                    this.tickerContainer.tickerFilters.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                },
-                                err => doneHandler('Feil ved sending av autobank'));
-                            } else {
-                                this.fileService
-                                .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                                .subscribe((blob) => {
-                                    doneHandler('Utbetalingsfil hentet');
+                        // User clicked for manual payment, should download the file
+                        if (isManualPayment) {
+                            this.fileService
+                            .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                            .subscribe((blob) => {
+                                doneHandler('Utbetalingsfil hentet');
 
-                                    // Download file so the user can open it
-                                    saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                    this.tickerContainer.tickerFilters.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                },
-                                err => {
-                                    doneHandler('Feil ved henting av utbetalingsfil');
-                                    this.errorService.handle(err);
-                                });
-                            }
-                        });
+                                // Download file so the user can open it
+                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                                this.tickerContainer.tickerFilters.getFilterCounts();
+                                this.tickerContainer.mainTicker.reloadData();
+                            },
+                            err => {
+                                doneHandler('Feil ved henting av utbetalingsfil');
+                                this.errorService.handle(err);
+                            });
+                        // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
+                        } else if (this.agreements.length) {
+                            this.modalService.open(UniSendPaymentModal, {
+                                data: { PaymentBatchID: updatedPaymentBatch.ID }
+                            }).onClose.subscribe(
+                                res => {
+                                doneHandler(res);
+                                this.tickerContainer.tickerFilters.getFilterCounts();
+                                this.tickerContainer.mainTicker.reloadData();
+                            },
+                            err => doneHandler('Feil ved sending av autobank'));
+                        }
                     } else {
                         this.toastService.addToast(
                             'Fant ikke utbetalingsfil, ingen PaymentFileID definert',

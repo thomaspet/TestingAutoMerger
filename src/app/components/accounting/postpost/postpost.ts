@@ -146,6 +146,10 @@ export class PostPost {
                 action: () => this.exportOpenPosts(),
                 disabled: () => false,
                 label: 'Eksport åpne poster'
+            }, {
+                action: () => this.exportAllOpenPosts(),
+                disabled: () => false,
+                label: 'Eksport alle åpne poster'
             }
         ];
     }
@@ -235,6 +239,12 @@ export class PostPost {
     private exportOpenPosts(): Observable<any> {
         return Observable.of(true).map(() => {
             this.postpost.export();
+        });
+    }
+
+    private exportAllOpenPosts(): Observable<any> {
+        return Observable.of(true).map(() => {
+            this.postpost.exportAll(this.register);
         });
     }
 

@@ -7,7 +7,7 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
 import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice, BrowserStorageService} from '../../../services/services';
+import {Lookupservice, BrowserStorageService, ProjectService, Dimension} from '../../../services/services';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -22,9 +22,11 @@ import {TeamworkReport, Team} from '../components/teamworkreport';
 import {UniFileImport} from '../components/popupfileimport';
 import {UniHttp} from '../../../../framework/core/http/http';
 import * as moment from 'moment';
+import { Project } from '@app/components/dimensions/project/project';
+import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
-    'Dimensions.ProjectID' | 'CustomerOrderID';
+    'Dimensions.ProjectID' | 'CustomerOrderID' | 'EmploymentID';
 
 interface ITab {
     name: string;
@@ -116,6 +118,7 @@ export class TimeEntry {
         { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab }
     ];
     private isEntryTab: boolean = true;
+    private project;
 
     public filters: Array<IFilter>;
 
@@ -131,18 +134,27 @@ export class TimeEntry {
         private localStore: BrowserStorageService,
         private changeDetectorRef: ChangeDetectorRef,
         private http: UniHttp,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private projectService: ProjectService
     ) {
 
         this.loadSettings();
         this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
-        route.queryParams.first().subscribe((item: { workerId; workRelationId; }) => {
-            if (item.workerId) {
-                this.init(item.workerId);
+        route.queryParamMap.subscribe(paramMap => {
+            if (paramMap.has('workerId')) {
+                this.init(+paramMap.get('workerId'));
             } else {
                 this.init();
+            }
+            if (paramMap.has('projectID')) {
+                this.tabService.addTab({
+                    name: view.label,
+                    url: view.url + '?projectID=' + paramMap.get('projectID'),
+                    moduleID: UniModules.Timesheets
+                });
+                this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
             }
         });
 
@@ -168,7 +180,7 @@ export class TimeEntry {
     }
 
     public onWorkrelationChange(event: any) {
-        var id = (event && event.target ? safeInt(event.target.value) : 0);
+        const id = (event && event.target ? safeInt(event.target.value) : 0);
         this.setWorkRelationById(id);
     }
 
@@ -179,7 +191,7 @@ export class TimeEntry {
                 this.updateToolbar();
                 this.loadItems();
                 // Refresh timesheet?
-                let index = this.indexOfTab('timesheet');
+                const index = this.indexOfTab('timesheet');
                 if (index >= 0 && this.tabs[index].isSelected) {
                     this.tabs[index].activate(this.timeSheet, this.currentFilter);
                 }
@@ -250,7 +262,7 @@ export class TimeEntry {
         event.Items.forEach((item: ITimeTrackingTemplate) => {
             this.timeSheet.addItem(this.mapTemplateToWorkItem({}, item));
             if (item && item.Project && item.Project.ID) {
-                let value: ValueItem = {
+                const value: ValueItem = {
                     name: 'Dimensions.ProjectID',
                     value: item.Project,
                     isParsed: false,
@@ -266,13 +278,12 @@ export class TimeEntry {
     }
 
     private mapTemplateToWorkItem(workItem: any, template: ITimeTrackingTemplate) {
-        let types = this.workEditor.getWorkTypes();
+        const types = this.workEditor.getWorkTypes();
         if (this.customDateSelected) {
             workItem.Date = new LocalDate(this.customDateSelected);
         } else {
             workItem.Date = new LocalDate(this.currentFilter.date);
         }
-
         workItem.StartTime = template.StartTime ? parseTime(template.StartTime) : parseTime('8');
         workItem.EndTime = template.EndTime ? parseTime(template.EndTime) : parseTime('8');
         workItem.Minutes = template.Minutes;
@@ -284,7 +295,7 @@ export class TimeEntry {
             workItem.Worktype = types[0];
         }
         workItem.WorkTypeID = workItem.Worktype.ID;
-
+        workItem.EmploymentID = workItem.Employment.ID;
         return workItem;
     }
 
@@ -344,7 +355,7 @@ export class TimeEntry {
     }
 
     private initWorker(workerid?: number, autoCreate = false) {
-        var obs = workerid
+        const obs = workerid
             ? this.timesheetService.initWorker(workerid)
             : this.timesheetService.initUser(undefined, autoCreate);
 
@@ -383,7 +394,7 @@ export class TimeEntry {
     }
 
     private getFlexDataForCurrentMonth() {
-        let endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
+        const endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='
             + moment().startOf('month').startOf('week').format().slice(0, 10)
             + '&todate=' + moment().format().slice(0, 10);
 
@@ -396,18 +407,18 @@ export class TimeEntry {
     private updateToolbar(name?: string, workRelations?: Array<WorkRelation>) {
 
         this.userName = name || this.userName;
-        var contextMenus = this.initialContextMenu.slice();
-        var list = workRelations || this.workRelations;
+        const contextMenus = this.initialContextMenu.slice();
+        const list = workRelations || this.workRelations;
         if (list && list.length > 1) {
             list.forEach(x => {
-                var label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
+                const label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
                 contextMenus.push({ label: label, action: () => this.setWorkRelationById(x.ID) });
             });
         }
 
-        var subTitle = '';
+        let subTitle = '';
         if (this.timeSheet && this.timeSheet.currentRelation) {
-            let ts = this.timeSheet.currentRelation;
+            const ts = this.timeSheet.currentRelation;
             subTitle = `${ts.Description || ''} ${ts.WorkPercentage}%`;
         }
 
@@ -429,8 +440,8 @@ export class TimeEntry {
     private loadItems(date?: Date, toDate?: Date) {
         this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
-            var obs: any;
-            var dt: Date;
+            let obs: any;
+            let dt: Date;
             if (!!toDate) {
                 obs = this.timeSheet.loadItemsByPeriod(date, toDate);
                 dt = date;
@@ -456,7 +467,19 @@ export class TimeEntry {
         }
     }
 
-    public onEditChanged(rowDeleted: boolean) {
+    public onEditChanged(rowDeleted: boolean, event) {
+        if (event) {
+            const row = <WorkItem>this.timeSheet.items[event.rowIndex];
+            if (!row.Dimensions && this.project && this.project.ID) {
+                const value: ValueItem = {
+                    name: 'Dimensions.ProjectID',
+                    value: this.project,
+                    isParsed: false,
+                    rowIndex: event.rowIndex
+                };
+                this.timeSheet.setItemValue(value);
+            }
+        }
         this.flagUnsavedChanged(false, true);
     }
 
@@ -474,8 +497,8 @@ export class TimeEntry {
 
     // Formats flex data and sends it to calendar component
     private prepFlexData(data: any) {
-        let flexDays = [];
-        let flexWeeks = [];
+        const flexDays = [];
+        const flexWeeks = [];
         data.Items.forEach((item) => {
             if (item.IsWeekend) {
                 flexDays.push('');
@@ -508,7 +531,7 @@ export class TimeEntry {
             }
 
             this.busy = true;
-            var counter = 0;
+            let counter = 0;
             this.timeSheet.saveItems().subscribe((item: WorkItem) => {
                 counter++;
             }, (err) => {
@@ -534,12 +557,12 @@ export class TimeEntry {
     }
 
     public export(done?: (msg?: string) => void) {
-        var ts = this.timeSheet;
-        var list = [];
-        var isoPipe = new IsoTimePipe();
+        const ts = this.timeSheet;
+        const list = [];
+        const isoPipe = new IsoTimePipe();
         ts.items.forEach((item: WorkItem) => {
             if (item.Date && item.Minutes) {
-                var row = {
+                const row = {
                     ID: item.ID,
                     Date: moment(item.Date).format().substr(0, 10),
                     StartTime: isoPipe.transform(item.StartTime, 'HH:mm'),
@@ -549,7 +572,9 @@ export class TimeEntry {
                     Minutes: item.Minutes,
                     LunchInMinutes: item.LunchInMinutes || 0,
                     Description: item.Description || '',
-                    Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : ''
+                    Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : '',
+                    EmploymentID: item.EmploymentID,
+                    Employment: item.Employment ? item.Employment.JobName : ''
                     };
                 list.push(row);
             }
@@ -563,10 +588,10 @@ export class TimeEntry {
         this.checkSave().then(() => {
             this.fileImport.open().then( (success) => {
                 if (success) {
-                    let ts = this.timeSheet.clone();
-                    let importedList = this.fileImport.getWorkItems();
+                    const ts = this.timeSheet.clone();
+                    const importedList = this.fileImport.getWorkItems();
                     if (importedList && importedList.length > 0) {
-                        var types = this.workEditor.getWorkTypes();
+                        const types = this.workEditor.getWorkTypes();
                         importedList.forEach( (x, index) => {
                             if (x && x.Worktype && x.Worktype.Name ) {
                                 x.Worktype = types.find( t => t.Name === x.Worktype.Name);
@@ -626,13 +651,13 @@ export class TimeEntry {
     }
 
     public onRequestDaySums(interval: ITimeSpan) {
-        var wid = this.timeSheet.currentRelation.ID;
-        var d1 = moment(interval.fromDate).format('YYYY-MM-DD');
-        var d2 = moment(interval.toDate).format('YYYY-MM-DD');
+        const wid = this.timeSheet.currentRelation.ID;
+        const d1 = moment(interval.fromDate).format('YYYY-MM-DD');
+        const d2 = moment(interval.toDate).format('YYYY-MM-DD');
         if (!wid) {
             return; // Nothing to do here yet..
         }
-        var query = `model=workitem&select=sum(minutes),WorkType.SystemType,Date&filter=workrelationid eq ${wid}`
+        const query = `model=workitem&select=sum(minutes),WorkType.SystemType,Date&filter=workrelationid eq ${wid}`
             + ` and ( not setornull(deleted) ) and ( date ge '${d1}' and date le '${d2}' )`
             + `&join=workitem.worktypeid eq worktype.id&pivot=true`;
         this.timesheetService.workerService.getStatistics(query).subscribe( (result: any) => {
@@ -647,7 +672,7 @@ export class TimeEntry {
     public onNavigateDays(direction: INavDirection) {
         this.checkSave().then((canDeactivate) => {
             if (canDeactivate) {
-                var dt = moment(direction.currentDate);
+                const dt = moment(direction.currentDate);
                 this.busy = true;
                 this.loadItems(dt.add('days', direction.daysInView * (direction.directionLeft ? -1 : 1)).toDate());
             }
@@ -659,7 +684,7 @@ export class TimeEntry {
     }
 
     private validate(): boolean {
-        var result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
+        const result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
         if (!result.ok) {
             this.toast.addToast('Feil', ToastType.bad, 5, result.message );
             if (result !== undefined && result.row >= 0) {
@@ -710,7 +735,7 @@ export class TimeEntry {
     }
 
     private initTabPositions() {
-        var positions = [];
+        const positions = [];
         this.tabs.forEach( (x, i) => positions.push(i) );
         this.tabPositions = positions;
     }
@@ -720,8 +745,8 @@ export class TimeEntry {
             .subscribe( (result: Array<Team>) => {
                 if (result && result.length > 0) {
                     this.teams = result;
-                    let newKey = this.tabs.length;
-                    let newPos = 2;
+                    const newKey = this.tabs.length;
+                    const newPos = 2;
                     this.tabs.push({
                         name: 'approval', label: 'Godkjenning', counter: this.teams.length,
                         activate: (ts: any, filter: any) => {

@@ -497,7 +497,7 @@ export class NumberSeries {
                     }
                 }
             ])
-            .setConditionalRowCls((serie) => serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
                 NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
@@ -572,6 +572,7 @@ export class NumberSeries {
                     }
                 }
             ])
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
                 DisplayName: '',
@@ -642,11 +643,12 @@ export class NumberSeries {
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({
-                        hideNotChosenOption: false,
-                        resource: ['Ja', 'Nei']
+                        resource: [true, false],
+                        itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
                 ])
             .setChangeCallback(event => this.onRowChanged(event))
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
             .setDefaultRowData({
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'Customer'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
@@ -680,11 +682,12 @@ export class NumberSeries {
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({
-                        hideNotChosenOption: false,
-                        resource: ['Ja', 'Nei']
+                        resource: [true, false],
+                        itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
             ])
             .setChangeCallback(event => this.onRowChanged(event))
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
             .setDefaultRowData({
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
             });

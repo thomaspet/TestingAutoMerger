@@ -21,7 +21,22 @@
                 [entityID]="1"
                 [uploadConfig]="imageUploadOptions"
                 [singleImage]="true"
+                (fileListReady)="logoFileChanged($event)"
             ></uni-image>
+        </div>
+    </article>
+
+    <article class="report-options collapsable" [ngClass]="{'-is-open': showReportOptionsSection}">
+        <h4 (click)="showReportOptionsSection = !showReportOptionsSection">Rapportoppsett</h4>
+        <div class="collapsable-content">
+            <uni-form class="companySettings"
+                [config]="config$"
+                [fields]="companyLogoFields$"
+                [model]="reportModel$"
+                (changeEvent)="companySettingsChange($event)"
+                (inputEvent)="onFormInputChange($event)"
+                (readyEvent)="onFormReady()">
+            </uni-form>
         </div>
     </article>
 

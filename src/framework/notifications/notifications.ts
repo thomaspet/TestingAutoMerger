@@ -94,9 +94,10 @@ export class UniNotifications {
         }
 
         this.close();
+        const notificationRoute = this.getNotificationRoute(notification);
 
         if (notification.CompanyKey === this.authService.getCompanyKey()) {
-            this.routeToNotification(notification);
+            this.router.navigateByUrl(notificationRoute);
             return;
         }
 
@@ -115,18 +116,19 @@ export class UniNotifications {
                         'Mistet tilgang',
                         ToastType.warn,
                         ToastTime.long,
-                        `Det ser ut som om du nå mangler tilgang til ${notification.CompanyName}, 
+                        `Det ser ut som om du nå mangler tilgang til ${notification.CompanyName},
                         vennligst kontakt selskapets administrator om du ønsker tilgang.`,
                     );
-                    return
+
+                    return;
                 }
-                this.authService.setActiveCompany(company);
-                this.routeToNotification(notification);
+
+                this.authService.setActiveCompany(company, notificationRoute);
             }
         });
     }
 
-    private routeToNotification(notification: Notification) {
+    private getNotificationRoute(notification: Notification) {
         const entityType = notification.EntityType.toLowerCase();
         let route = '';
 
@@ -148,9 +150,8 @@ export class UniNotifications {
             route = '';
         }
 
-        route = route.replace(/:id/i, notification.EntityID.toString());
-        this.router.navigateByUrl(route);
-    }
+        return route.replace(/:id/i, notification.EntityID.toString());
+     }
 
     public toggleReadStatus(notification: Notification): void {
         if (notification.StatusCode === NotificationStatus.New) {

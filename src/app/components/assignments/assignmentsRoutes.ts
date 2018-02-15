@@ -1,10 +1,9 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule, Routes} from '@angular/router';
+import {Routes} from '@angular/router';
 import {UniAssignments} from './assignments';
 import {UniTasks} from './tasks/tasks';
 import {UniApprovals} from './approvals/approvals';
 
-const tasksRoutes: Routes = [
+export const assignmentRoutes: Routes = [
     {
         path: 'assignments',
         component: UniAssignments,
@@ -31,7 +30,5 @@ const tasksRoutes: Routes = [
                 component: UniApprovals,
             }
         ]
-    }
+    },
 ];
-
-export const ROUTES: ModuleWithProviders = RouterModule.forChild(tasksRoutes);

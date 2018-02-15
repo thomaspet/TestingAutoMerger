@@ -31,7 +31,7 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Sum i {{accountingYear}} (Antall timeføringer)</p>
-            <a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">
+            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">
                 {{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})
             </a>
         </section>
@@ -43,9 +43,9 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Ufakturerte (fakturerbare) timer</p>
-            <a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[1]}}</a>
+            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[1]}}</a>
             <p>Fakturerte timer</p>
-            <a href="#" (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[2]}}</a>
+            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[2]}}</a>
         </section>
     </section>
 </section>`

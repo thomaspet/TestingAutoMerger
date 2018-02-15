@@ -114,8 +114,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             case 'supplierid':
                 helpText = 'Kobles mot leverandør for automatisk remittering av trekk når lønnsutbetaling sendes bank. ' +
                     'Bankkonto og annen betalingsinfo hentes fra leverandør. ' +
-                    'For at remittering skal skje må det være krysset for at trekket skal betales automatisk. ' +
-                    'Firmainnstillinger må også være satt opp med Lag utbetaling av faste trekk (i firmainnstillinger, lønn)';
+                    'For at remittering skal skje må det være krysset for at trekket skal betales automatisk. ';
                 break;
             case 'kid':
                 helpText = 'For trekk som må ha kidnr ved betaling, legges kidnr inn som en fast opplysning her.';

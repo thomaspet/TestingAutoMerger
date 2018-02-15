@@ -16,7 +16,7 @@
         <section *ngIf="showReceipt">
             <p>Bilaget er bokført i ditt regnskap</p>
             <p>
-                <a (click)="close()" href="#/accounting/transquery/details;JournalEntryNumber={{journalNumber}}">
+                <a (click)="close()" href="#/accounting/transquery;JournalEntryNumber={{journalNumber}}">
                     Bilagsnummer: {{journalNumber}}
                 </a>
             </p>

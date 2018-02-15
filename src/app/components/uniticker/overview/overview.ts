@@ -59,14 +59,19 @@ export class UniTickerOverview {
     public ngAfterViewInit() {
         this.uniTickerService.getTickers().then(tickers => {
             this.tickers = tickers;
+
             this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers);
 
-            this.route.params.subscribe((params) => {
+
+            this.route.queryParams.subscribe((params) => {
                 const tickerCode = params['code'];
-                if (tickerCode) {
-                    this.selectTicker(tickerCode);
-                } else {
-                    this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
+
+                if (!this.selectedTicker || this.selectedTicker.Code !== tickerCode) {
+                    if (tickerCode) {
+                        this.selectTicker(tickerCode);
+                    } else {
+                        this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
+                    }
                 }
 
                 switch (tickerCode || this.tickerGroups[0].Tickers[0].Code) {
@@ -93,13 +98,13 @@ export class UniTickerOverview {
             title += ': ' + this.selectedTicker.Name;
         }
 
-        let config: IToolbarConfig = {
+        const config: IToolbarConfig = {
             title: title,
             omitFinalCrumb: true,
             contextmenu: []
         };
 
-        if (this.selectedTicker.Actions) {
+        if (this.selectedTicker && this.selectedTicker.Actions) {
             const newAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
             if (!!newAction) {
                 config.navigation = {
@@ -114,11 +119,19 @@ export class UniTickerOverview {
     }
 
     private navigateToTicker(ticker: Ticker) {
-        this.router.navigateByUrl('/overview/' + ticker.Code);
+        this.router.navigate(['/overview'], {
+            queryParams: { code: ticker.Code },
+            skipLocationChange: false
+        });
     }
 
     private selectTicker(selectedTickerCode: string) {
         this.selectedTicker = this.tickers.find(x => x.Code === selectedTickerCode);
+
+        if (!this.selectedTicker) {
+            this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
+            return;
+        }
 
         this.updateTab();
         this.updateToolbar();

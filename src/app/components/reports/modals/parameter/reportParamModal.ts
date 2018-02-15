@@ -89,24 +89,27 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             break;
                         case 'Boolean':
                             type = FieldType.CHECKBOX;
-                            p.DefaultValue = p.DefaultValue === 'true';
+                            p.DefaultValue = (p.DefaultValue === 'true');
                             p.value = p.DefaultValue;
                             break;
                         case 'Dropdown':
                             type = FieldType.DROPDOWN;
+                            let source = p.DefaultValueList ? JSON.parse(p.DefaultValueList) : p.DefaultValueSourceData || [];
                             p.value = p.DefaultValue;
-                            let source = [];
-                            if (p.Name === 'OrderBy') {
-                                source = JSON.parse(p.DefaultValueList);
-                                p.value = source[0].Label;
-                                options = {
-                                    source: source,
-                                    valueProperty: 'Label',
-                                    displayProperty: 'Label',
-                                    searchable: false,
-                                    hideDeleteButton: true,
-                                };
+                            if (source.length > 0) {
+                                p.value = p.Name === 'OrderBy' ? source[0].Label : source[0].Value;
                             }
+                            options = {
+                                source: source,
+                                valueProperty: (p.Name === 'OrderBy') ? 'Label' : 'Value',
+                                displayProperty: 'Label',
+                                searchable: false,
+                                hideDeleteButton: true,
+                            };
+                            break;
+                        case 'Date':
+                            type = FieldType.LOCAL_DATE_PICKER;
+                            p.value = p.Defaultvalue || new LocalDate();
                             break;
                         case 'Date':
                             type = FieldType.LOCAL_DATE_PICKER;
@@ -162,7 +165,13 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
             p.value = model[p.Name];
 
-            if (p.Name === 'OrderBy') {
+            if (p.Name === 'HideAccounts') {
+                if (p.value === true) {
+                    p. value = 1;
+                } else {
+                    p. value = 0;
+                }
+            } else if (p.Name === 'OrderBy') {
                 const source: any[] = JSON.parse(p.DefaultValueList);
                 const selectedSort = source.find(element => element.Label === p.value);
 
@@ -320,6 +329,7 @@ interface IParameterDto {
     value?: string;
     DefaultValue?: string;
     DefaultValueSource?: string;
+    DefaultValueSourceData?: object;
     DefaultValueList?: string;
     DefaultValueLookupType?: string;
 }

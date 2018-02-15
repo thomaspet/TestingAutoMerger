@@ -1,6 +1,7 @@
 [{
     "Name": "Faktura",
     "Code": "invoice_list",
+    "RequiredUIPermissions": ["ui_sales_invoices"],
     "Type": "Table",
     "IsTopLevelTicker": true,
     "Group": "Salg",
@@ -764,6 +765,7 @@
 {
     "Name": "Tilbud",
     "Code": "quote_list",
+    "RequiredUIPermissions": ["ui_sales_quotes"],
     "Type": "Table",
     "IsTopLevelTicker": true,
     "Group": "Salg",
@@ -1311,6 +1313,7 @@
     "Name": "Ordre",
     "Type": "Table",
     "Code": "order_list",
+    "RequiredUIPermissions": ["ui_sales_orders"],
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",

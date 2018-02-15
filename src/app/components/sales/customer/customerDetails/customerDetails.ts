@@ -3,7 +3,7 @@ import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges, OnInit
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {
     ComponentLayout,
     Customer,
@@ -830,6 +830,19 @@ export class CustomerDetails implements OnInit {
         }, 100);
     }
 
+    private emailValidation(value: any, field: UniFieldLayout): UniFormError | null {
+        const validEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
+        if (!validEmail.test(value)) {
+            return {
+                value: value,
+                errorMessage: `${value} er ikke en gyldig email-adresse.`,
+                field: field,
+                isWarning: false
+            };
+        }
+        return null;
+    }
+
     public onContactChanged(contact: Contact) {
         if (!contact) {
             return;
@@ -974,6 +987,15 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.URL,
                     Label: 'Webadresse',
                     Section: 0
+                },
+                {
+                    FieldSet: 1,
+                    EntityType: 'Customer',
+                    Property: 'ReminderEmailAddress',
+                    FieldType: FieldType.EMAIL,
+                    Label: 'Purre e-post adresse',
+                    Section: 0,
+                    Validations: [this.emailValidation]
                 },
 
                 // Fieldset 2 (Kontaktinformasjon)

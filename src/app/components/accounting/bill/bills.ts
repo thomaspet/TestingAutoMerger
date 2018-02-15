@@ -872,7 +872,7 @@ export class BillsView implements OnInit {
                 .setWidth('8%')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
-                .setLinkResolver(row => `/accounting/transquery/details;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
 
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setWidth('5%')

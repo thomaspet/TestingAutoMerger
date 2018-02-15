@@ -55,7 +55,8 @@ import {
     StatisticsService,
     NumberFormat,
     PredefinedDescriptionService,
-    SupplierService
+    SupplierService,
+    UserService
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -69,6 +70,7 @@ import {CurrencyCodeService} from '../../../../../services/common/currencyCodeSe
 import {CurrencyService} from '../../../../../services/common/currencyService';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
+import {DraftLineDescriptionModal} from './draftLineDescriptionModal';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _; // lodash
 
@@ -164,6 +166,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private currentRowIndex: number = 0;
     private currentFileIDs = [];
+    private users: any[] = [];
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -184,10 +187,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private journalEntryLineService: JournalEntryLineService,
         private predefinedDescriptionService: PredefinedDescriptionService,
         private modalService: UniModalService,
-        private supplierService: SupplierService
+        private supplierService: SupplierService,
+        private userService: UserService
     ) {}
 
     public ngOnInit() {
+        this.getCreatedByName();
         this.setupJournalEntryTable();
         this.selectedNumberSeriesTaskID = NumberSeriesTaskIds.Journal;
     }
@@ -483,7 +488,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.DebitAccountID = account.ID;
 
             if (account.VatTypeID) {
-                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                 rowModel.DebitVatType = vatType;
             } else {
                 rowModel.CreditVatType = null;
@@ -503,7 +508,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.CreditAccountID = account.ID;
 
             if (account.VatTypeID) {
-                let vatType = this.vattypes.find(x => x.ID == account.VatTypeID);
+                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                 rowModel.CreditVatType = vatType;
             } else {
                 rowModel.CreditVatType = null;
@@ -624,6 +629,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Dimensions.ProjectID = project.ID;
         }
         return rowModel;
+    }
+
+    private getCreatedByName() {
+        this.userService.GetAll('').subscribe(users => {
+            users.forEach(user => {
+                const data = {
+                    globalIdentity: user.GlobalIdentity,
+                    displayName: user.DisplayName
+                };
+                this.users.push(data);
+            });
+        });
     }
 
     private setDescriptionProperties(rowModel: JournalEntryData): JournalEntryData {
@@ -1122,6 +1139,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setFilterable(false)
             .setSkipOnEnterKeyNavigation(true);
 
+         const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
+            .setTemplate(line => line.JournalEntryDrafts ? line.JournalEntryDrafts[0].CreatedAt : null)
+            .setWidth('100px')
+            .setVisible(false);
+
+        const createdByCol = new UniTableColumn('CreatedBy', 'Utført av', UniTableColumnType.Text, false)
+            .setTemplate(line => line.JournalEntryDrafts
+                ? this.users.find(f => f.globalIdentity === line.JournalEntryDrafts[0].CreatedBy).displayName
+                : null
+            )
+            .setVisible(false);
+
         const defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
@@ -1154,7 +1183,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             contextMenuItems = [
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    disabled: (item) => (this.disabled || item.StatusCode),
                     label: 'Slett linje'
                 }
             ];
@@ -1175,6 +1204,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 currencyExchangeRate,
                 descriptionCol,
+                createdAtCol,
+                createdByCol,
                 addedPaymentCol,
                 fileCol
             ];
@@ -1185,17 +1216,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             contextMenuItems = [
                 {
                     action: (item) => this.deleteLine(item),
-                    disabled: (item) => { return (this.disabled || item.StatusCode); },
+                    disabled: (item) => item.StatusCode,
                     label: 'Slett linje'
                 },
                 {
                     action: (item: JournalEntryData) => this.openAccrual(item),
-                    disabled: (item) => { return (this.disabled); },
+                    disabled: (item) => this.disabled,
                     label: 'Periodisering'
                 },
                 {
                     action: (item) => this.addPayment(item),
-                    disabled: (item) => { return item.StatusCode ? true : false; },
+                    disabled: (item) => item.StatusCode ? true : false,
                     label: 'Registrer utbetaling',
 
                 },
@@ -1226,6 +1257,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 projectCol,
                 departmentCol,
                 descriptionCol,
+                createdAtCol,
+                createdByCol,
                 addedPaymentCol,
                 fileCol
             ];
@@ -2220,20 +2253,27 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
 
         if (saveAsDraft) {
-            this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id)
-                .subscribe(data => {
-                    completeCallback('Lagret som kladd');
+            this.modalService.open(DraftLineDescriptionModal)
+                .onClose
+                .subscribe((text: string) => {
+                    if (text === null) {
+                        return completeCallback('Lagring avbrutt');
+                    }
+                    this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id, text)
+                        .subscribe(data => {
+                            completeCallback('Lagret som kladd');
 
-                    // Empty list
-                    this.journalEntryLines = new Array<JournalEntryData>();
-                    this.setupJournalEntryNumbers(false);
-                    this.dataChanged.emit(this.journalEntryLines);
-                },
-                err => {
-                    completeCallback('Feil ved lagring av kladd');
-                    this.errorService.handle(err);
-                }
-            );
+                            // Empty list
+                            this.journalEntryLines = new Array<JournalEntryData>();
+                            this.setupJournalEntryNumbers(false);
+                            this.dataChanged.emit(this.journalEntryLines);
+                        },
+                        err => {
+                            completeCallback('Feil ved lagring av kladd');
+                            this.errorService.handle(err);
+                        }
+                    );
+                });
         } else {
             this.journalEntryService.postJournalEntryData(tableData)
                 .subscribe(data => {

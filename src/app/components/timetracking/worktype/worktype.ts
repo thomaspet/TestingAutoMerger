@@ -2,12 +2,12 @@
 import {View} from '../../../models/view/view';
 import {createFormField, ControlTypes, filterInput, debounce} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
-import {WorkType} from '../../../unientities';
+import {WorkType, WageType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
-import {ProductService} from '@app/services/services';
+import {ProductService, WageTypeService} from '@app/services/services';
 import {URLSearchParams} from '@angular/http';
 import {isObject, isString} from 'util';
 
@@ -23,14 +23,28 @@ export class WorktypeDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
     private viewconfig: IViewConfig;
     private productService: ProductService;
+    private wagetypeService: WageTypeService;
+    private wagetypes: WageType[] = [];
 
-    constructor(productservice: ProductService) {
-        this.viewconfig = this.createLayout();
+    constructor(productservice: ProductService, wagetypeservice: WageTypeService) {
         this.productService = productservice;
+        this.wagetypeService = wagetypeservice;
+        this.getWagetypesObs()
+            .catch(err => Observable.of([]))
+            .subscribe((wagetypes: WageType[]) => {
+                this.wagetypes = wagetypes;
+                this.viewconfig = this.createLayout();
+            });
     }
 
     public canDeactivate() {
         return this.genericDetail.canDeactivate();
+    }
+
+    private getWagetypesObs(): Observable<WageType[]> {
+        return this.wagetypes.length > 0
+            ? Observable.of(this.wagetypes)
+            : this.wagetypeService.GetAll('');
     }
 
     private createLayout(): IViewConfig {
@@ -71,7 +85,13 @@ export class WorktypeDetailview {
                      debounceTime: 150,
                      getDefaultData: () => this.getDefaultProduct()
                 }),
-                createFormField('Price', 'Pris', ControlTypes.TextInput, undefined, false, 2, 'Priser')
+                createFormField('Price', 'Pris', ControlTypes.TextInput, undefined, false, 2, 'Priser'),
+                createFormField('WagetypeNumber', 'Lønnsart', ControlTypes.AutocompleteInput, undefined, false, 3, 'Time til lønn', {
+                    source: this.wagetypes,
+                    template: (obj) => obj ? `${obj.WageTypeNumber} - ${obj.WageTypeName}` : '',
+                    valueProperty: 'WageTypeNumber',
+                    debounceTime: 150
+                }),
             ],
         };
         return layout;

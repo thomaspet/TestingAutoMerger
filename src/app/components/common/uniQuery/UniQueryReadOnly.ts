@@ -101,6 +101,7 @@ export class UniQueryReadOnly implements OnChanges {
             this.tableConfig.setExpressionFilterValues(expressionFilterValues);
             this.tableConfig = _.cloneDeep(this.tableConfig);
             this.table.refreshTableData();
+            this.setupTableConfig();
         }
     }
 
@@ -183,13 +184,20 @@ export class UniQueryReadOnly implements OnChanges {
             var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
             if (title === 'Quote') {
                 this.buttonTitle = 'Nytt tilbud';
-                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.projectID}`;
+                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.externalID}`;
             } else if (title === 'Order') {
                 this.buttonTitle = 'Ny ordre';
-                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.projectID}`;
+                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.externalID}`;
             } else if (title === 'Invoice') {
                 this.buttonTitle = 'Ny faktura';
-                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.projectID}`;
+                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.externalID}`;
+            }
+            this.buttonAction = () => this.router.navigateByUrl(navigateURL);
+        } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
+            var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
+            if (title === 'Invoice') {
+                this.buttonTitle = 'Nytt fakturamottak';
+                navigateURL = `/accounting/bills/0;projectID=${this.externalID}`;
             }
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else {

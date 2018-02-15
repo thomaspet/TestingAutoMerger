@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild, ElementRef, EventEmitter} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
-import {FinancialYearService, ErrorService} from '../../../services/services';
+import {YearService, ErrorService} from '../../../services/services';
 import {WidgetDataService} from '../widgetDataService';
 import * as Chart from 'chart.js';
 
@@ -17,7 +17,7 @@ interface IKeyNumberObject {
     selector: 'uni-kpi-widget',
     template: `
         <section class="uni-widget-header">
-            {{ widget.config.header }}
+            {{ widget.description }}
         </section>
 
         <section class="uni-widget-content" [attr.aria-busy]="!(dataLoaded | async)">
@@ -122,41 +122,41 @@ export class UniKPIWidget {
     };
 
     constructor(
-        private financialYearService: FinancialYearService,
         private dataService: WidgetDataService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private yearService: YearService
     ) {}
 
     public ngAfterViewInit() {
-        this.financialYearService.getActiveYear().switchMap((year: number) => {
+        this.yearService.selectedYear$.subscribe(year => {
             const endpoint = '/api/statistics?model=JournalEntryLine'
-                + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
-                + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
-                + 'sum(casewhen(Account.AccountNumber ge 2300 '
-                + 'and Account.AccountNumber le 2999,Amount,0)) as sumkortsiktiggjeld,'
-                + 'sum(casewhen(Account.AccountNumber ge 2000 '
-                + 'and Account.AccountNumber le 2999,Amount,0)) as sumTK,'
-                + 'sum(casewhen(Account.AccountNumber ge 2000 '
-                + 'and Account.AccountNumber le 2099,Amount,0)) as sumEK,'
-                + 'sum(casewhen(Account.AccountNumber ge 3000 '
-                + 'and Account.AccountNumber le 8299 '
-                + 'and Period.AccountYear eq ' + year + ',Amount,0)) as resultat'
-                + '&expand=Account,Period&distinct=false';
+            + '&select=sum(casewhen(Account.AccountNumber ge 1400 '
+            + 'and Account.AccountNumber le 1999,Amount,0)) as sumOmlopsmidler,'
+            + 'sum(casewhen(Account.AccountNumber ge 2300 '
+            + 'and Account.AccountNumber le 2999,Amount,0)) as sumkortsiktiggjeld,'
+            + 'sum(casewhen(Account.AccountNumber ge 2000 '
+            + 'and Account.AccountNumber le 2999,Amount,0)) as sumTK,'
+            + 'sum(casewhen(Account.AccountNumber ge 2000 '
+            + 'and Account.AccountNumber le 2099,Amount,0)) as sumEK,'
+            + 'sum(casewhen(Account.AccountNumber ge 3000 '
+            + 'and Account.AccountNumber le 8299 '
+            + 'and Period.AccountYear eq ' + year + ',Amount,0)) as resultat'
+            + '&expand=Account,Period&distinct=false';
+            this.dataService.getData(endpoint).subscribe(
+                data => {
+                    if (!data || !data.Data) {
+                        return;
+                    }
+                    this.initLiquidityIndicator(data.Data[0]);
+                    this.initProfitabilityIndicator(data.Data[0]);
+                    this.initSolidityIndicator(data.Data[0]);
 
-            return this.dataService.getData(endpoint);
-        }).subscribe(
-            data => {
-                if (!data || !data.Data) {
-                    return;
-                }
-
-                this.initLiquidityIndicator(data.Data[0]);
-                this.initProfitabilityIndicator(data.Data[0]);
-                this.initSolidityIndicator(data.Data[0]);
-
-                this.dataLoaded.emit(true);
-            },
-            err => this.dataLoaded.emit(true)
+                    this.dataLoaded.emit(true);
+                },
+                err => this.dataLoaded.emit(true)
+            );
+        },
+        err => this.dataLoaded.emit(true)
         );
     }
 

@@ -30,9 +30,9 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Godkjente faktura</p>
-            <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[0]}}</a>
+            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[0]}}</a>
             <p>Bokført i {{accountingYear}}</p>
-            <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=Journaled')">{{viewData[1]}}</a>
+            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Journaled')">{{viewData[1]}}</a>
         </section>
     </section>
     <section class="tab-part">
@@ -42,7 +42,7 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Antall bilag bokført i {{accountingYear}}</p>
-            <a href="#" (click)="navigateToCompanyUrl('/accounting/bills?filter=All')">{{viewData[2]}}</a>
+            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=All')">{{viewData[2]}}</a>
         </section>
     </section>
 </section>`

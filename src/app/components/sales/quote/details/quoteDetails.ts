@@ -1021,6 +1021,11 @@ export class QuoteDetails {
     private saveQuote(): Promise<CustomerQuote> {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
 
+        // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
+        if (this.quote.Sellers && this.quote.ID === 0) {
+            this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
+        }
+
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
         } else if (this.quote.DefaultDimensions
@@ -1033,7 +1038,7 @@ export class QuoteDetails {
             this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;
         }
 
-        if(this.quote.DefaultSeller && this.quote.DefaultSeller.ID === null) {
+        if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID === null) {
             this.quote.DefaultSeller = null;
             this.quote.DefaultSellerID = null;
         }
@@ -1045,14 +1050,14 @@ export class QuoteDetails {
 
         return new Promise((resolve, reject) => {
             // create observable but dont subscribe - resolve it in the promise
-            var request = ((this.quote.ID > 0)
+            const request = ((this.quote.ID > 0)
                 ? this.customerQuoteService.Put(this.quote.ID, this.quote)
                 : this.customerQuoteService.Post(this.quote));
 
             // If a currency other than basecurrency is used, and any lines contains VAT,
             // validate that this is correct before resolving the promise
             if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                let linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
+                const linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
                 if (linesWithVat.length > 0) {
                     const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
                         + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;

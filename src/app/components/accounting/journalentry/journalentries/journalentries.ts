@@ -7,6 +7,7 @@ import {
     ErrorService,
     JournalEntryLineService,
     NumberSeriesService,
+    StatisticsService,
 } from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
@@ -59,6 +60,7 @@ export class JournalEntries {
         private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
+        private statisticsService: StatisticsService
     ) {
         this.tabService.addTab({
             name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
@@ -295,24 +297,23 @@ export class JournalEntries {
     }
 
     private getDrafts() {
-        this.journalEntryService.GetAll('filter=JournalEntryNumberNumeric eq null', ['DraftLines'])
-            .subscribe(data => {
-                const lines = data.map((x: JournalEntry) => x.DraftLines[0]);
-                const draftLines = lines.filter((x: JournalEntry) => !!x);
-                const totalAmount = data.map(
-                    (x: JournalEntry) => x.DraftLines.filter((y: JournalEntryLineDraft) => y.Amount > 0).map(z => z.Amount)
-                ).map(x => x.reduce((a, c) => a + c, 0));
-                draftLines.map((x: JournalEntryData, i) => x.Amount = totalAmount[i]);
-
-                this.modalService.open(SelectDraftLineModal, {data: {draftLines: draftLines}})
+        this.statisticsService.GetAll(
+            'model=Journalentry&' +
+            'select=Journalentry.*,user.DisplayName&' +
+            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.id,0) eq 0&' +
+            'join=JournalEntry.CreatedBy eq User.GlobalIdentity and Journalentry.Id eq SupplierInvoice.JournalEntryId'
+        )
+            .subscribe(journalEntries => {
+                this.modalService.open(SelectDraftLineModal, {data: {draftLines: journalEntries.Data}})
                     .onClose
                     .subscribe(selectedLine => {
                         if (!selectedLine) {
                             return;
                         }
+                        this.journalEntryManual.editmode = true;
                         this.journalEntryManual.clear();
-                        this.journalEntryManual.currentJournalEntryID = selectedLine.JournalEntryID;
-                        this.currentJournalEntryID = selectedLine.JournalEntryID;
+                        this.journalEntryManual.currentJournalEntryID = selectedLine.ID;
+                        this.currentJournalEntryID = selectedLine.ID;
                     });
             },
             err => this.errorService.handle(err));
@@ -361,6 +362,8 @@ export class JournalEntries {
             this.journalEntryService.setSessionData(this.journalEntryManual.mode, []);
             this.journalEntryManual.setJournalEntryData([]);
             this.journalEntryManual.clearJournalEntryInfo();
+            this.journalEntryManual.currentJournalEntryID = '';
+            this.currentJournalEntryID = 0;
 
             this.router.navigateByUrl(`/accounting/journalentry/manual`);
         });

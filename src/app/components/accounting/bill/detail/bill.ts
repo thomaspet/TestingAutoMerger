@@ -17,7 +17,8 @@ import {
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
     Project, Department, User, ApprovalStatus, Approval,
     UserRole,
-    TaskStatus
+    TaskStatus,
+    Dimensions
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -242,6 +243,7 @@ export class BillView implements OnInit {
     private initFromRoute() {
         this.route.params.subscribe((params: any) => {
             const id = safeInt(params.id);
+            const projectID = safeInt(params['projectID']);
             if (id === this.currentID) { return; } // no-reload-required
             Observable.forkJoin(
                 this.companySettingsService.Get(1),
@@ -260,7 +262,15 @@ export class BillView implements OnInit {
                     this.newInvoice(true);
                     this.checkPath();
                 }
-
+                if (projectID > 0) {
+                    this.projectService.Get(projectID).subscribe(project => {
+                        const model = this.current.getValue();
+                        model.DefaultDimensions.ProjectID = project.ID;
+                        model.DefaultDimensions.Project = project;
+                        this.current.next(model);
+                        this.expandProjectSection();
+                    });
+                }
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
@@ -498,7 +508,9 @@ export class BillView implements OnInit {
         this.userMsg(lang.ehf_running, null, null, true);
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
             .subscribe( (invoice: SupplierInvoice) => {
-                invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+                if (invoice.Supplier.Info.DefaultBankAccount) {
+                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber);
+                }
 
                 this.current.next(invoice);
                 this.toast.clear();
@@ -1213,7 +1225,7 @@ export class BillView implements OnInit {
         current.SupplierID = null;
         current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         current.CurrencyExchangeRate = 1;
-
+        current.DefaultDimensions = new Dimensions();
         this.current.next(current);
 
         if (this.uniSearchConfig) {
@@ -1329,7 +1341,7 @@ export class BillView implements OnInit {
                 }
             }
 
-            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            if (it.StatusCode === StatusCodeSupplierInvoice.Journaled || it.StatusCode === StatusCodeSupplierInvoice.ToPayment) {
                 list.push(
                     {
                         label: 'Krediter',
@@ -1379,6 +1391,7 @@ export class BillView implements OnInit {
             }
         });
     }
+
 
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
         return {
@@ -1839,15 +1852,24 @@ export class BillView implements OnInit {
                 this.loadActionsFromEntity();
                 this.checkLockStatus();
                 this.fetchHistoryCount(result.SupplierID);
-
                 this.uniSearchConfig.initialItem$.next(result.Supplier);
-
+                if (result.DefaultDimensions && result.DefaultDimensions.ProjectID > 0) {
+                    this.expandProjectSection();
+                }
                 resolve('');
             }, (err) => {
                 this.errorService.handle(err);
                 reject(err);
             });
         });
+    }
+
+    private expandProjectSection() {
+        const formConfig = this.formConfig.getValue();
+        formConfig.sections = {
+            1: {isOpen: true}
+        };
+        this.formConfig.next(formConfig);
     }
 
     public onFormReady() {
@@ -2469,7 +2491,7 @@ export class BillView implements OnInit {
                 { title: doc && doc.Supplier ? `${lang.headliner_supplier} ${doc.Supplier.SupplierNumber}` : '' },
                 {
                     title: jnr ? `(${lang.headliner_journal} ${jnr})` : `(${lang.headliner_journal_not})`,
-                    link: jnr ? `#/accounting/transquery/details;JournalEntryNumber=${jnr}` : undefined
+                    link: jnr ? `#/accounting/transquery;JournalEntryNumber=${jnr}` : undefined
                 }
             ],
             statustrack: stConfig,

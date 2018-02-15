@@ -188,8 +188,6 @@ export class UnitableTypeahead implements OnInit {
     private confirmSelection() {
         const item = this.lookupResults[this.selectedIndex];
 
-        console.log('confirmSelection', item);
-
         if (item) {
             if (this.options.itemValue) {
                 const value = this.options.itemValue(item);

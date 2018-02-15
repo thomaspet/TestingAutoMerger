@@ -262,7 +262,7 @@ export class HamburgerMenu {
                         moduleID: UniModules.VatReport},
                     {componentName: 'Resultat og balanse', componentUrl: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports},
-                    {componentName: 'Søk på bilag', componentUrl: '/accounting/transquery/details',
+                    {componentName: 'Søk på bilag', componentUrl: '/accounting/transquery',
                         moduleID: UniModules.TransqueryDetails, groupHeader: 'Søk'},
                     {componentName: 'Søk på konto', componentUrl: '/accounting/accountquery',
                         moduleID: UniModules.AccountQuery},
@@ -319,7 +319,7 @@ export class HamburgerMenu {
                 componentListHeader: 'Timer',
                 componentListUrl: '/timetracking',
                 componentList: [
-                    {componentName: 'Timemodul', componentUrl: '/timetracking/dashboard',
+                    {componentName: 'Timemodul', componentUrl: '/timetracking',
                         moduleID: UniModules.Timesheets},
                     {componentName: 'Timeregistrering', componentUrl: '/timetracking/timeentry',
                         moduleID: UniModules.Timesheets},
@@ -369,6 +369,7 @@ export class HamburgerMenu {
                     {componentName: 'Nummerserier', componentUrl: '/settings/numberseries'},
                     {componentName: 'Team', componentUrl: '/settings/teams'},
                     {componentName: 'Altinn', componentUrl: '/settings/altinn'},
+                    // {componentName: 'Bankinnstillinger', componentUrl: '/settings/banksettings'},
                     {componentName: 'Regler', componentUrl: '/admin/thresholds', moduleID: UniModules.Thresholds},
                     {componentName: 'Integrasjon', componentUrl: '/settings/webhooks'},
 

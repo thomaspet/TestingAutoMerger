@@ -7,7 +7,7 @@ import {AuthService} from '../../../authService';
     selector: 'uni-info-shortcut',
     template: `
         <section class="uni-widget-header">
-            {{widget.config.header}}
+            {{widget.description}}
         </section>
 
         <a *ngIf="widget?.config?.externalLink" target="_blank" href="{{widget?.config?.externalLink}}"

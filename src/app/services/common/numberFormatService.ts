@@ -8,7 +8,7 @@ const THINSPACE = '\u2009';
 export class NumberFormat {
     public asPercentage(value: number, options: INumberOptions = {}): string {
         options = {
-            thousandSeparator: options.thousandSeparator || THINSPACE,
+            thousandSeparator: typeof options.thousandSeparator === 'string' ? options.thousandSeparator : THINSPACE,
             decimalSeparator: options.decimalSeparator || ',',
             decimalLength: options.decimalLength === undefined ? 0 : options.decimalLength
         };
@@ -18,7 +18,7 @@ export class NumberFormat {
     public asNumber(value: number, options?: INumberOptions): string {
         options = options || {};
         options = {
-            thousandSeparator: options.thousandSeparator || THINSPACE,
+            thousandSeparator: typeof options.thousandSeparator === 'string' ? options.thousandSeparator : THINSPACE,
             decimalSeparator: options.decimalSeparator || ',',
             decimalLength: options.decimalLength === undefined ? 2 : options.decimalLength
         };
@@ -29,7 +29,7 @@ export class NumberFormat {
     public asMoney(value: number, options?: INumberOptions): string {
         options = options || {};
         options = {
-            thousandSeparator: options.thousandSeparator || THINSPACE,
+            thousandSeparator: typeof options.thousandSeparator === 'string' ? options.thousandSeparator : THINSPACE,
             decimalSeparator: options.decimalSeparator || ',',
             decimalLength: options.decimalLength === undefined ? 2 : options.decimalLength
         };

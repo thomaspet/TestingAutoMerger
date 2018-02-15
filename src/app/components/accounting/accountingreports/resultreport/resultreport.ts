@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
@@ -14,7 +14,8 @@ import {
     StatisticsService,
     DimensionTypes,
     ProjectService,
-    DepartmentService
+    DepartmentService,
+    FinancialYearService
 } from '../../../../services/services';
 declare var _;
 
@@ -38,7 +39,7 @@ export class ResultSummaryData {
     selector: 'accounting-result-report',
     templateUrl: './resultreport.html',
 })
-export class ResultReport {
+export class ResultReport implements OnInit {
     public filterVisible: boolean = false;
 
     private periodFilter1: PeriodFilter;
@@ -78,6 +79,7 @@ export class ResultReport {
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private periodFilterHelper: PeriodFilterHelper,
+        private financialYearService: FinancialYearService
     ) {
         this.tabService.addTab({
             name: 'Resultat - oversikt',
@@ -88,8 +90,10 @@ export class ResultReport {
     }
 
     public ngOnInit() {
+        let financialYear;
+        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
         // get default period filters
-        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null);
+        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, financialYear);
         this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
 
         this.yearItems = this.getYearComboSelection(this.periodFilter1.year);
@@ -116,19 +120,19 @@ export class ResultReport {
     }
 
     private getYearComboSelection(curYear): string[]     {
-        if (typeof curYear === 'string') { curYear = parseInt(curYear); }
+        if (typeof curYear === 'string') { curYear = parseInt(curYear, 10); }
         return [
             curYear - 1,
             curYear + 1];
     }
 
     public onYearSelect(year) {
-        let periodFilter1 = _.cloneDeep(this.periodFilter1);
+        const periodFilter1 = _.cloneDeep(this.periodFilter1);
         periodFilter1.year = year.toString();
         periodFilter1.name = this.periodFilterHelper.getFilterName(periodFilter1);
         this.onPeriodFilter1Changed(periodFilter1);
 
-        let periodFilter2 = _.cloneDeep(this.periodFilter2);
+        const periodFilter2 = _.cloneDeep(this.periodFilter2);
         periodFilter2.year = (year - 1).toString();
         periodFilter2.name = this.periodFilterHelper.getFilterName(periodFilter2);
         this.onPeriodFilter2Changed(periodFilter2);
@@ -168,7 +172,7 @@ export class ResultReport {
 
     private setupFilterForm() {
         // Dimension filters
-        let project = new UniFieldLayout();
+        const project = new UniFieldLayout();
         project.Property = 'ProjectID';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
@@ -184,7 +188,7 @@ export class ResultReport {
             debounceTime: 200
         };
 
-        let department = new UniFieldLayout();
+        const department = new UniFieldLayout();
         department.Property = 'DepartmentID';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
@@ -200,7 +204,7 @@ export class ResultReport {
         };
 
         // Numbers
-        let decimals = new UniFieldLayout();
+        const decimals = new UniFieldLayout();
         decimals.Property = 'Decimals';
         decimals.FieldType = FieldType.DROPDOWN;
         decimals.Label = 'Antall desimaler';
@@ -215,14 +219,14 @@ export class ResultReport {
             debounceTime: 200
         };
 
-        let showprevyear = new UniFieldLayout();
+        const showprevyear = new UniFieldLayout();
         showprevyear.Property = 'ShowPreviousAccountYear';
         showprevyear.FieldType = FieldType.CHECKBOX;
         showprevyear.Label = 'Vis foregående år';
         showprevyear.Legend = 'Visning';
         showprevyear.FieldSet = 2;
 
-        let showpercent = new UniFieldLayout();
+        const showpercent = new UniFieldLayout();
         showpercent.Property = 'ShowPercent';
         showpercent.FieldType = FieldType.CHECKBOX;
         showpercent.Label = 'Vis prosent';

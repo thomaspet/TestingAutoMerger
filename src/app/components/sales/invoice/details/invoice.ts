@@ -1100,7 +1100,7 @@ export class InvoiceDetails {
         if (this.invoice.JournalEntry) {
             toolbarconfig.subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
-                link: `#/accounting/transquery/details;JournalEntryNumber=`
+                link: `#/accounting/transquery;JournalEntryNumber=`
                 + `${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
@@ -1429,7 +1429,7 @@ export class InvoiceDetails {
     private saveAsDraft(done) {
         const requiresPageRefresh = !this.invoice.ID;
         if (!this.invoice.StatusCode) {
-            this.invoice.StatusCode = StatusCode.Draft; // TODO: replace with enum from salesEnums.ts!
+            this.invoice.StatusCode = StatusCode.Draft;
         }
 
         this.saveInvoice(done).then((invoice) => {
@@ -1736,10 +1736,10 @@ export class InvoiceDetails {
                     : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
             },
             {
-                title: 'Restbeløp',
+                title: this.itemsSummaryData && this.invoice.RestAmountCurrency < 0 ? 'Overbetalt beløp' : 'Restbeløp',
                 value: !this.itemsSummaryData ?
                     this.numberFormat.asMoney(0)
-                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(this.invoice.RestAmountCurrency)
+                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(Math.abs(this.invoice.RestAmountCurrency))
             },
         ];
     }

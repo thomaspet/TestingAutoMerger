@@ -8,13 +8,13 @@
     <section class="uni-multilevel-dropdown">
         <ul [attr.aria-expanded]="isExpanded">
             <li *ngFor="let item of items"
-                [ngClass]="{'has-sublist': isSublist(item.value)}"
+                [ngClass]="{'has-sublist': item.items}"
                 (click)="onItemClick(item)">
-                {{item.label}}
-                <ul class="uni-multilevel-sublist" *ngIf="isSublist(item.value)">
-                    <li *ngFor="let subItem of item?.value"
+                {{getDisplayValue(item)}}
+                <ul class="uni-multilevel-sublist" *ngIf="item.items">
+                    <li *ngFor="let subItem of item.items"
                         (click)="onItemClick(subItem)">
-                        {{subItem.label}}
+                        {{getDisplayValue(subItem)}}
                     </li>
                 </ul>
 

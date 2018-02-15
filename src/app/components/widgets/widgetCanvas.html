@@ -39,20 +39,23 @@
     </ng-template>
 </section>
 
-<section class="canvas-toolbar" [ngClass]="{'edit-mode': editMode}">
-    <button *ngIf="!editMode" class="edit-toggle" (click)="toggleEditMode()">Endre</button>
+<button *ngIf="!editMode" class="canvas-edit-toggle" (click)="toggleEditMode()">
+    <i class="material-icons">settings</i>
+</button>
 
+<section class="canvas-toolbar" *ngIf="editMode">
     <span *ngIf="editMode">
         <button (click)="hardReset()" class="bad canvas-hard-reset">
             Tilbakestill alt
         </button>
 
-        <uni-multilevel-select [placeholder]="'Legg til widget'"
-                               [items]="widgetSelectorItems"
-                               (select)="addWidget($event)"
-                               class="drop-up">
+        <uni-multilevel-select
+            [placeholder]="'Legg til widget'"
+            [items]="widgetSelectorItems"
+            [displayField]="'description'"
+            (select)="addWidget($event)"
+            class="drop-up">
         </uni-multilevel-select>
-
 
         <button (click)="cancelEdit()" class="bad canvas-cancel">
             Avbryt

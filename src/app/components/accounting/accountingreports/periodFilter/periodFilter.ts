@@ -20,30 +20,26 @@ export class PeriodFilterHelper {
     public getFilter(
         periodNumber: number,
         otherFilter: PeriodFilter,
+        financialYear?: number,
         override: boolean = false
     ): PeriodFilter {
-        let localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
 
-        let filter: PeriodFilter = this.browserStorage.getItem(localStorageKey);
+        const filter: PeriodFilter = new PeriodFilter();
 
-        if (!filter) {
-            filter = new PeriodFilter();
-
-            if (override) {
-                filter.year = otherFilter.year - 1;
-                filter.fromPeriodNo = otherFilter.fromPeriodNo;
-                filter.toPeriodNo = periodNumber;
-            } else if (otherFilter) {
-                // if the otherFilter parameter is specified, set default value for filter according to this
-                filter.year = otherFilter.year - 1;
-                filter.fromPeriodNo = otherFilter.fromPeriodNo;
-                filter.toPeriodNo = otherFilter.toPeriodNo;
-            } else {
-                let today = moment(new Date());
-                filter.year = today.year();
-                filter.fromPeriodNo = 1;
-                filter.toPeriodNo = today.month() + 1;
-            }
+        if (override) {
+            filter.year = otherFilter.year - 1;
+            filter.fromPeriodNo = otherFilter.fromPeriodNo;
+            filter.toPeriodNo = periodNumber;
+        } else if (otherFilter) {
+            // if the otherFilter parameter is specified, set default value for filter according to this
+            filter.year = otherFilter.year - 1;
+            filter.fromPeriodNo = otherFilter.fromPeriodNo;
+            filter.toPeriodNo = otherFilter.toPeriodNo;
+        } else {
+            const today = moment(new Date());
+            filter.year = financialYear || today.year();
+            filter.fromPeriodNo = 1;
+            filter.toPeriodNo = today.month() + 1;
         }
 
         filter.name = this.getFilterName(filter);
@@ -52,7 +48,7 @@ export class PeriodFilterHelper {
     }
 
     public saveFilterSettings(periodNumber: number, periodFilter: PeriodFilter) {
-        let localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
+        const localStorageKey = this.PERIOD_LOCAL_STORAGE_KEY + periodNumber;
         this.browserStorage.setItem(localStorageKey, periodFilter);
     }
 

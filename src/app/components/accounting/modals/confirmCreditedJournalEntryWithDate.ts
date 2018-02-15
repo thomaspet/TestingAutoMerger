@@ -108,13 +108,16 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
                         ? this.options.data.VatDate
                         : moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
 
-                } else if (!x.AccountingLockedDate) {
+                } else if (!x.AccountingLockedDate && x.VatLockedDate) {
                     message = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
                         ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
                         : 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
                         ? this.options.data.VatDate
                         : moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
+                } else {
+                    message = 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.';
+                    date = this.options.data.VatDate;
                 }
             } else {
                 // choose a date 1 day after the locked period if no other date is selected already
@@ -124,7 +127,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
                 } else if (!x.VatLockedDate && x.AccountingLockedDate) {
                     message = 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
-                } else if (!x.AccountingLockedDate) {
+                } else if (!x.AccountingLockedDate && x.VatLockedDate) {
                     message = 'Dato er satt til regnskaps-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
                     date = moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
                 }

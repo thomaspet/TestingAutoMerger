@@ -31,11 +31,9 @@ export class YearService {
         }
 
     public setSelectedYear(year: number): void {
-        if(year !== this.getSavedYear()) {
+        if (year !== this.getSavedYear()) {
             this.browserStorage.setItem(this.ACTIVE_YEAR, year.toString());
             this.selectedYear$.next(year);
-            this.tabservice.removeAllTabs();
-            this.router.navigateByUrl('/');
         }
     }
 

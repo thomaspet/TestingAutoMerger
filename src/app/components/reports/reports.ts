@@ -91,6 +91,7 @@ export class UniReports implements OnInit {
                 keywords: ['Accounting.AccountStatement'] },
             { name: 'Balance', label: 'Saldolister', reports: [], keywords: ['Accounting.Balance'] },
             { name: 'Result', label: 'Resultat', reports: [], keywords: ['Accounting.Result'] },
+            { name: 'Tax', label: 'Merverdiavgift', reports: [], keywords: ['Accounting.Tax'] }
         ] },
         { name: 'Payroll', label: 'Lønn', groups:  [
             { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },

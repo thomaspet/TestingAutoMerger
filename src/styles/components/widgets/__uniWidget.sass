@@ -42,28 +42,40 @@ uni-widget-canvas
             z-index: #{map-get($zindex, base) + 1}
             opacity: 0.8
 
+.canvas-edit-toggle
+    position: fixed
+    bottom: .75rem
+    right: 1rem
+    width: 3rem
+    height: 2rem
+    margin: 0
+    padding: 0
+    background-color: $uni-color-scale4
+    &:hover, &focus
+        background-color: $uni-color-scale3
+
+    i
+        font-size: 22px
+        vertical-align: middle
+        margin-top: -4px
+
+
 .canvas-toolbar
     display: block
     width: 100%
     height: 3rem
-    padding: 0.7rem 2rem
+    padding: 0.5rem 2rem
     box-sizing: border-box
     background-color: $uni-color-scale4
     position: fixed
     bottom: 0
+    left: 0
+    right: 0
 
-    .edit-toggle,
-    .edit-toggle:hover,
-    .edit-toggle:focus
-        @extend %toolbarButton
-        background: unicon-settings(#fff) no-repeat center
-        background-size: 1.2rem auto
-        margin-top: 0.3rem
-        border: none
-        float: right
-
-    button:not(.edit-toggle)
+    button
         box-shadow: darken($uni-color-scale4, 10%) 0px 1px 1px 0px
+        height: 2.2rem
+        line-height: 0
 
     .canvas-save
         float: right
@@ -122,7 +134,7 @@ uni-widget-canvas
     top: 2rem // To account for the tab strip
     left: 0
     right: 0
-    bottom: 3rem // To account for the bottom toolbar
+    bottom: 0
     overflow: auto // To allow scroll
     padding-top: 2rem
     background-size: cover
@@ -408,8 +420,12 @@ uni-rss
 
     .rss-item
         margin-top: 10px
+        margin-bottom: 1.6rem
         color: $uni-color-positive
         text-align: left
+
+        img
+            width: 100%
 
         header
             height: 1.75rem

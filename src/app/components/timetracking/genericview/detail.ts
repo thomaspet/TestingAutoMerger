@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, OnInit, OnChanges} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {Router, ActivatedRoute} from '@angular/router';
@@ -10,6 +10,7 @@ import {getDeepValue, trimLength} from '../../common/utils/utils';
 import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 enum IAction {
     Save = 0,
@@ -46,7 +47,7 @@ export interface IAfterSaveInfo {
     templateUrl: './detail.html'
 
 })
-export class GenericDetailview {
+export class GenericDetailview implements OnInit, OnChanges {
     @Input() public viewconfig: IViewConfig;
     @Input() public hiddenform: boolean;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
@@ -214,26 +215,29 @@ export class GenericDetailview {
         if (id) {
             this.busy = true;
             this.workerService.getByID(id, this.viewconfig.data.route, this.viewconfig.data.expand)
-            .finally(() => this.busy = false)
-            .subscribe((item: any) => {
-                this.ID = item.ID;
-                if (item) {
-                    if (this.viewconfig.data && this.viewconfig.data.check) {
-                        this.viewconfig.data.check(item);
+                .finally(() => this.busy = false)
+                .switchMap(item => this.viewconfig.data.checkObs
+                    ? this.viewconfig.data.checkObs(item)
+                    : Observable.of(item))
+                .subscribe((item: any) => {
+                    this.ID = item.ID;
+                    if (item) {
+                        if (this.viewconfig.data && this.viewconfig.data.check) {
+                            this.viewconfig.data.check(item);
+                        }
+                        this.current$.next(item);
+                        this.enableAction(IAction.Delete);
+                        this.itemChanged.emit(item);
                     }
-                    this.current$.next(item);
-                    this.enableAction(IAction.Delete);
-                    this.itemChanged.emit(item);
-                }
-                if (updateTitle) {
-                    this.updateTitle();
-                }
-                this.flagDirty(false);
-                this.busy = false;
-                this.initToolbar(this.title, this.subTitle);
-            },
+                    if (updateTitle) {
+                        this.updateTitle();
+                    }
+                    this.flagDirty(false);
+                    this.busy = false;
+                    this.initToolbar(this.title, this.subTitle);
+                },
                 err => this.errorService.handle(err)
-            );
+                );
         } else {
             this.ID = 0;
             if (this.viewconfig.data && this.viewconfig.data.factory) {
@@ -264,28 +268,29 @@ export class GenericDetailview {
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
             const tabTitle = trimLength(this.title, 12);
             const url = this.viewconfig.tab.url + '/' + this.ID;
-            this.tabService.addTab({ name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true });
+            this.tabService.addTab({name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true});
         }
     }
 
     private save(done): Promise<boolean> {
         this.busy = true;
         this.ensureEditCompleted();
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this.workerService.saveByID(this.current$.getValue(), this.viewconfig.data.route)
                 .finally(() => this.busy = false)
+                .map(item => this.mapLocalFieldsToNew(this.current$.getValue(), item))
                 .subscribe((item) => {
                     this.current$.next(item);
                     this.ID = item.ID;
                     this.updateTitle();
                     this.flagDirty(false);
 
-                    const details: IAfterSaveInfo = { entity: item, promise: undefined };
+                    const details: IAfterSaveInfo = {entity: item, promise: undefined};
                     this.afterSave.emit(details);
 
                     const postActions = () => {
                         this.itemChanged.emit(this.current$.getValue());
-                        if (done) { done(labels.msg_saved); }
+                        if (done) {done(labels.msg_saved);}
                         this.enableAction(IAction.Delete, true);
                         resolve(true);
                         this.flagDirty(false);
@@ -303,10 +308,19 @@ export class GenericDetailview {
 
                 }, (err) => {
                     this.errorService.handle(err);
-                    if (done) { done(labels.err_save); }
+                    if (done) {done(labels.err_save);}
                     resolve(false);
                 });
-            });
+        });
+    }
+
+    private mapLocalFieldsToNew(currentModel: any, newModel: any): any {
+        const currentItem = this.current$.getValue();
+        Object
+            .keys(currentModel)
+            .filter(key => key.startsWith('_'))
+            .forEach(key => newModel[key] = currentItem[key]);
+        return newModel;
     }
 
     private ensureEditCompleted() {

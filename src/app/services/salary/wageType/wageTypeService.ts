@@ -23,7 +23,7 @@ export class WageTypeService extends BizHttp<WageType> {
         'SpecialAgaRule',
         'taxtype',
         'StandardWageTypeFor'
-    ]
+    ];
     private defaultExpands: any = [
         'SupplementaryInformations'
     ];
@@ -128,7 +128,8 @@ export class WageTypeService extends BizHttp<WageType> {
             return this.http
                 .usingBusinessDomain()
                 .asGET()
-                .withEndPoint(this.relativeURL + `?action=get-rate&wagetypeID=${wageTypeID}&employmentID=${employmentID}&employeeID=${employeeID}`)
+                .withEndPoint(this.relativeURL
+                    + `?action=get-rate&wagetypeID=${wageTypeID}&employmentID=${employmentID}&employeeID=${employeeID}`)
                 .send()
                 .map(response => response.json());
         } else {

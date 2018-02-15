@@ -29,21 +29,21 @@ const FILE_BASE = environment.BASE_URL_FILES;
     <section class="logo" [attr.aria-busy]="!logoUrl">
         <img *ngIf="!!logoUrl" [src]="logoUrl" />
     </section>
-    <a href="#" (click)="navigateToCompanyUrl('/')" class="company_name">
+    <a (click)="navigateToCompanyUrl('/')" class="company_name">
         {{company.Name}}
     </a>
     <section class="highlighted-bar">
         <section>
             <span>Virksomheter</span>
-            <a href="#">{{viewData[2]}}</a>
+            <a>{{viewData[2]}}</a>
         </section>
         <section>
             <span>Org. Nummer</span>
-            <a href="#">{{viewData[0].OrganizationNumber}}</a>
+            <a>{{viewData[0].OrganizationNumber}}</a>
         </section>
         <section>
             <span>Aktive Brukere</span>
-            <a href="#" (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
+            <a (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
         </section>
     </section>
     <section class="info-section">

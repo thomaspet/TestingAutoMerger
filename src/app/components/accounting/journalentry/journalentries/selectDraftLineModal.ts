@@ -5,12 +5,20 @@ import {
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
+    IContextMenuItem,
 } from '../../../../../framework/ui/unitable/index';
+import { JournalEntryService } from '@app/services/services';
 
 @Component({
     selector: 'select-draftline-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 70vw">
+        <section
+            role="dialog"
+            class="uni-modal"
+            style="width: 70vw"
+            (clickOutside)="close()"
+            (keydown.esc)="close()">
+
             <header><h1>Velg bilagskladd</h1></header>
             <article class='modal-content' *ngIf="config">
                 <uni-table
@@ -33,18 +41,10 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private keyListener: any;
     public uniTableConfig: UniTableConfig;
     public config: any = {};
 
-    constructor() {
-        this.keyListener = document.addEventListener('keyup', (event: KeyboardEvent) => {
-            const key = event.which || event.keyCode;
-            if (key) {
-                this.close();
-            }
-        });
-    }
+    constructor(private journalEntryService: JournalEntryService) {}
 
     public ngOnInit() {
         this.config = {
@@ -58,25 +58,34 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
 
     private generateUniTableConfig() {
         const columns = [
-            new UniTableColumn('RegisteredDate', 'Opprettet', UniTableColumnType.LocalDate),
-            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
-            new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
-            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
-            new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text),
+            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.LocalDate),
+            new UniTableColumn('userDisplayName', 'Utført av', UniTableColumnType.Text),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+        ];
+
+        const contextMenuItem: IContextMenuItem[] = [
+            {
+                action: (item) => this.deleteLine(item),
+                label: 'Slett linje'
+            }
         ];
 
         const tableName = 'accounting.journalEntry.selectDraftLineModal';
         this.uniTableConfig = new UniTableConfig(tableName, false, false, 100)
             .setColumns(columns)
+            .setContextMenu(contextMenuItem)
             .setColumnMenuVisible(true);
+    }
+
+    private deleteLine(line) {
+        this.unitable.removeRow(line._originalIndex);
+        this.journalEntryService.Remove(line.ID, line).subscribe();
     }
 
     close(data?: any) {
         if (data) {
             this.onClose.emit(data.rowModel);
         } else {
-            document.removeEventListener('keydown', this.keyListener);
             this.onClose.emit(null);
         }
     }

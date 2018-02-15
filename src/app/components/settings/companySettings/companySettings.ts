@@ -1,10 +1,10 @@
 ﻿import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {FieldType, UniForm} from '@uni-framework/ui/uniform/index';
+import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
@@ -21,7 +21,8 @@ import {
     Municipal,
     PeriodSeries,
     Phone,
-    VatReportForm
+    VatReportForm,
+    CampaignTemplate
 } from '@uni-entities';
 import {
     AccountService,
@@ -45,7 +46,8 @@ import {
     VatReportFormService,
     VatTypeService,
     UniFilesService,
-    AdminProductService
+    AdminProductService,
+    CampaignTemplateService
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -90,7 +92,7 @@ export class CompanySettingsComponent implements OnInit {
         'DefaultSalesAccount'
     ];
 
-    private company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
+    public company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
     private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
@@ -104,6 +106,7 @@ export class CompanySettingsComponent implements OnInit {
 
     public showImageSection: boolean = false;
     public showReminderSection: boolean = false;
+    public showReportOptionsSection: boolean = false;
     public imageUploadOptions: IUploadConfig;
 
     public addressChanged: any;
@@ -120,6 +123,7 @@ export class CompanySettingsComponent implements OnInit {
     public isDirty: boolean = false;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public companyLogoFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     public saveactions: IUniSaveAction[] = [{
         label: 'Lagre',
@@ -142,7 +146,24 @@ export class CompanySettingsComponent implements OnInit {
         // {Decimals: 4, Label: '4 desimaler'}
     ];
 
+    private logoAlignOptions: {Alignment: number, Label: string}[] = [
+        {Alignment: 1, Label: 'Venstre'},
+        {Alignment: 2, Label: 'Høyre'}
+    ];
+
+    private logoHideOptions: {Value: number, Label: string}[] = [
+        {Value: 1, Label: 'Firmanavn'},
+        {Value: 2, Label: 'Logo'},
+        {Value: 3, Label: 'Firmanavn & logo'},
+    ];
+
     private currentYear: number;
+
+    private invoiceTemplate: CampaignTemplate;
+    private orderTemplate: CampaignTemplate;
+    private quoteTemplate: CampaignTemplate;
+
+    public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -173,7 +194,8 @@ export class CompanySettingsComponent implements OnInit {
         private companySettingsViewService: CompanySettingsViewService,
         private adminProductService: AdminProductService,
         private router: Router,
-        private agreementService: AgreementService
+        private agreementService: AgreementService,
+        private campaignTemplateService: CampaignTemplateService
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -199,7 +221,10 @@ export class CompanySettingsComponent implements OnInit {
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity(null, 'Address'),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
-            this.financialYearService.GetAll(null)
+            this.financialYearService.GetAll(null),
+            this.campaignTemplateService.getInvoiceTemplatetext(),
+            this.campaignTemplateService.getOrderTemplateText(),
+            this.campaignTemplateService.getQuoteTemplateText()
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -216,6 +241,31 @@ export class CompanySettingsComponent implements OnInit {
                 this.accountYears = dataset[11];
                 this.accountYears.forEach(item => item['YearString'] = item.Year.toString());
 
+                this.invoiceTemplate = JSON.parse(dataset[12]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerInvoice',
+                        Template: ''
+                    };
+                this.orderTemplate = JSON.parse(dataset[13]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerOrder',
+                        Template: ''
+                    };
+                this.quoteTemplate = JSON.parse(dataset[14]._body)[0]
+                    || <CampaignTemplate>{
+                        EntityName: 'CustomerQuote',
+                        Template: ''
+                    };
+
+
+
+                this.reportModel$.next({
+                    company: this.setupCompanySettingsData(dataset[5]),
+                    orderTemplate: this.orderTemplate,
+                    invoiceTemplate: this.invoiceTemplate,
+                    quoteTemplate: this.quoteTemplate
+                })
+
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
@@ -225,6 +275,8 @@ export class CompanySettingsComponent implements OnInit {
                         data['_FileFlowEmail'] = company['FileFlowEmail'];
                         data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
                         data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
+                        data.LogoHideField = data.LogoHideField || this.logoHideOptions[2].Value;
+                        data.LogoAlign = data.LogoAlign || this.logoAlignOptions[0].Alignment;
                         this.company$.next(data);
                         this.getFormLayout();
                         this.extendFormConfig();
@@ -314,21 +366,50 @@ export class CompanySettingsComponent implements OnInit {
     public companySettingsChange(changes: SimpleChanges) {
         this.isDirty = true;
 
+        if (changes['quoteTemplate.Template']) {
+            this.quoteTemplate.Template = changes['quoteTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
+
+        if (changes['orderTemplate.Template']) {
+            this.orderTemplate.Template = changes['orderTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
+
+        if (changes['invoiceTemplate.Template']) {
+            this.invoiceTemplate.Template = changes['invoiceTemplate.Template'].currentValue;
+            this.reportModel$.next({
+                company: this.company$.value,
+                orderTemplate: this.orderTemplate,
+                invoiceTemplate: this.invoiceTemplate,
+                quoteTemplate: this.quoteTemplate
+            });
+        }
 
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
             this.modalService.open(ChangeCompanySettingsPeriodSeriesModal).onClose.subscribe(
                 result => {
                     this.router.navigateByUrl('/settings/company');
-            }, err => this.errorService.handle
-        );
+                }, err => this.errorService.handle
+            );
         }
 
         if (changes['CompanyBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['CompanyBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'CompanyBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -338,9 +419,9 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['TaxBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['TaxBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'TaxBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -350,9 +431,9 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['SalaryBankAccount']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['SalaryBankAccount'])
                 .catch((ba: BankAccount) => {
-                    let field: UniFieldLayout = this.fields$
+                    const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'SalaryBankAccount');
-                    let list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
                     this.company$.next(this.company$.getValue());
@@ -360,7 +441,7 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['OrganizationNumber']) {
-            let organizationnumber = changes['OrganizationNumber'].currentValue;
+            const organizationnumber = changes['OrganizationNumber'].currentValue;
             if (organizationnumber === ''
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
@@ -409,8 +490,11 @@ export class CompanySettingsComponent implements OnInit {
             }, err => this.errorService.handle(err));
         }
     }
+
     public saveSettings(complete) {
-        let company = this.company$.getValue();
+        const company = this.company$.value;
+        const templates = [this.invoiceTemplate, this.orderTemplate, this.quoteTemplate];
+
         if (company.BankAccounts) {
             company.BankAccounts.forEach(bankaccount => {
                 if (bankaccount.ID === 0 && !bankaccount['_createguid']) {
@@ -455,6 +539,16 @@ export class CompanySettingsComponent implements OnInit {
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
         }
 
+        templates.forEach(template => {
+            template.ID
+                ? this.campaignTemplateService
+                    .Put(template.ID, template)
+                    .subscribe()
+                : this.campaignTemplateService
+                    .Post(template)
+                    .subscribe();
+        });
+
         this.companySettingsService
             .Put(company.ID, company)
             .do((companySettings: CompanySettings) => this.promptUpdateOfSubEntitiesIfNeeded(companySettings))
@@ -475,7 +569,7 @@ export class CompanySettingsComponent implements OnInit {
                         // cant be synced
                         this.uniFilesService.syncUniEconomyCompanySettings();
 
-                        let currentFinancialYear = new FinancialYear();
+                        const currentFinancialYear = new FinancialYear();
                         currentFinancialYear.Year = response.CurrentAccountingYear;
                         // setting currentAccountingYear in dropdown as well, this triggers route change to '/'
                         if (company.CurrentAccountingYear !== this.currentYear) {
@@ -513,7 +607,7 @@ export class CompanySettingsComponent implements OnInit {
         this.companySettingsViewService
             .askUserAboutBrregImport(companySettings)
             .subscribe(result => {
-                let [compSettings, confirmAction] = result;
+                const [compSettings, confirmAction] = result;
 
                 if (confirmAction !== ConfirmActions.ACCEPT) {
                     return;
@@ -526,7 +620,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public updateMunicipalityName() {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         this.municipalService.GetAll(`filter=MunicipalityNo eq '${company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {
                 if (data && data.length > 0) {
@@ -537,8 +631,8 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
-        var defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
+        const fields = this.fields$.getValue();
+        const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
             allowAddValue: false,
             allowDeleteValue: true,
@@ -561,7 +655,7 @@ export class CompanySettingsComponent implements OnInit {
             }
         };
 
-        var phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
+        const phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
             allowAddValue: false,
@@ -582,7 +676,7 @@ export class CompanySettingsComponent implements OnInit {
             },
         };
 
-        var emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
+        const emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
             allowAddValue: false,
@@ -604,7 +698,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.accountGroupSets.unshift(null);
-        let accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');
+        const accountGroupSetID: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupSetID');
         accountGroupSetID.Options = {
             source: this.accountGroupSets,
             valueProperty: 'ID',
@@ -613,7 +707,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.accountVisibilityGroups.unshift(null);
-        let accountVisibilityGroupID: UniFieldLayout = fields.find(x => x.Property === 'AccountVisibilityGroupID');
+        const accountVisibilityGroupID: UniFieldLayout = fields.find(x => x.Property === 'AccountVisibilityGroupID');
         accountVisibilityGroupID.Options = {
             source: this.accountVisibilityGroups,
             valueProperty: 'ID',
@@ -622,7 +716,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.companyTypes.unshift(null);
-        let companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
+        const companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
         companyTypeID.Options = {
             source: this.companyTypes,
             valueProperty: 'ID',
@@ -631,7 +725,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         this.vatReportForms.unshift(null);
-        let vatReportFormID: UniFieldLayout = fields.find(x => x.Property === 'VatReportFormID');
+        const vatReportFormID: UniFieldLayout = fields.find(x => x.Property === 'VatReportFormID');
         vatReportFormID.Options = {
             source: this.vatReportForms,
             valueProperty: 'ID',
@@ -639,7 +733,7 @@ export class CompanySettingsComponent implements OnInit {
             template: vatReportForm => `${vatReportForm.Name} ${vatReportForm.Description}`
         };
 
-        let baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrencyCodeID');
+        const baseCurrency: UniFieldLayout = fields.find(x => x.Property === 'BaseCurrencyCodeID');
         baseCurrency.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -648,7 +742,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
+        const currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
         currentAccountYear.Options = {
             source: this.accountYears,
             valueProperty: 'Year',
@@ -656,7 +750,7 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200
         };
 
-        let officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
+        const officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
             source: this.municipalities,
             valueProperty: 'MunicipalityNo',
@@ -667,7 +761,7 @@ export class CompanySettingsComponent implements OnInit {
                 + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
         };
 
-        let periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
+        const periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');
         periodSeriesAccountID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '1'),
             valueProperty: 'ID',
@@ -676,7 +770,7 @@ export class CompanySettingsComponent implements OnInit {
             ReadOnly: true
         };
 
-        let periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
+        const periodSeriesVatID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesVatID');
         periodSeriesVatID.Options = {
             source: this.periodSeries.filter((value) => value.SeriesType.toString() === '0'),
             valueProperty: 'ID',
@@ -686,18 +780,18 @@ export class CompanySettingsComponent implements OnInit {
 
         };
 
-        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
+        const companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'CompanyBankAccount');
         companyBankAccount.Options = this.getBankAccountOptions('CompanyBankAccount', 'company');
 
-        let taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
+        const taxBankAccount: UniFieldLayout = fields.find(x => x.Property === 'TaxBankAccount');
         taxBankAccount.Options = this.getBankAccountOptions('TaxBankAccount', 'tax');
 
-        let salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
+        const salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
 
-        let settings = this.company$.getValue();
-        let apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = settings.APActivated ? 'Reaktiver EHF' : 'Kjøp EHF fra markedsplassen';
+        const settings = this.company$.getValue();
+        const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
+        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
@@ -1265,6 +1359,92 @@ export class CompanySettingsComponent implements OnInit {
                 Hidden: !this.company$.getValue()['_FileFlowEmail']
             }
         ]);
+
+        this.companyLogoFields$.next([
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Vis logo i rapport',
+                Property: 'company.LogoHideField',
+                Options: {
+                    source: this.logoHideOptions,
+                    valueProperty: 'Value',
+                    displayProperty: 'Label',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Section: 0,
+                FieldSet: 1,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Rapportlogo plassering',
+                Property: 'company.LogoAlign',
+                Options: {
+                    source: this.logoAlignOptions,
+                    valueProperty: 'Alignment',
+                    displayProperty: 'Label',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 1,
+                Section: 0,
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst ordre',
+                Property: 'orderTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 2,
+                Section: 0
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst tilbud',
+                Property: 'quoteTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 3,
+                Section: 0,
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst faktura',
+                Property: 'invoiceTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 4,
+                Section: 0,
+            }
+        ]);
+    }
+
+    private defaultTextValidation(value: string, field: UniFieldLayout): UniFormError | null {
+        if (value && value.length > 160) {
+            return {
+                value: value,
+                errorMessage: 'Maks antall tegn er 160.',
+                field: field,
+                isWarning: false
+            };
+        }
+        return null;
+    }
+
+    private logoFileChanged(files: Array<any>) {
+        let company = this.company$.getValue();
+        if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
+            // update logourl in company object
+            company.LogoFileID = files[files.length - 1].ID;
+            this.company$.next(company);
+
+            // run request to save it without the user clicking save, because otherwise
+            // the LogoFileID and FileEntityLinks will be left in an inconsistent state
+            this.companySettingsService.PostAction(1, 'update-logo', `logoFileId=${company.LogoFileID}`)
+                .subscribe((res) => {
+                    this.toastService.addToast('Logo lagret', ToastType.good, ToastTime.short);
+                }, err => this.errorService.handle(err));
+        }
     }
 
     private activateAP() {

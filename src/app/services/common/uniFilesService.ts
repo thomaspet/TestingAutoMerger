@@ -57,6 +57,20 @@ export class UniFilesService {
         });
     }
 
+    public getFileProcessingStatus(id: string): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return this.http
+            .get(this.uniFilesBaseUrl + '/api/file/filestatus/' + id, options)
+            .map(response => response.json());
+    }
+
     public trainOcrEngine(ocrInterpretation, reauthOnFailure: boolean = true) {
         var options = new RequestOptions({
             headers: new Headers({

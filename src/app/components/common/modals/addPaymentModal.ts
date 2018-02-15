@@ -32,7 +32,7 @@ declare const _; // lodash
     selector: 'add-payment-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>Legg til betaling</h1></header>
+            <header><h1>{{options?.header||'Legg til betaling'}}</h1></header>
 
             <article>
                 <uni-form
@@ -42,7 +42,7 @@ declare const _; // lodash
                 </uni-form>
 
                 <footer>
-                    <button (click)="close('ok')" class="good">Legg til betaling</button>
+                    <button (click)="close('ok')" class="good">{{options?.buttonLabels?.accept||'Legg til betaling'}}</button>
                     <button (click)="close('cancel')" class="bad">Avbryt</button>
                 </footer>
             </article>

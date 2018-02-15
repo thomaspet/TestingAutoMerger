@@ -1,0 +1,129 @@
+.downloadPaymentsModal
+    width: 100%
+
+.uni-autobank-agreement-modal
+    width: 40vw
+
+    .uni-autobank-agreement-modal-body
+        transition: 1s linear
+        min-height: 250px
+
+        h3
+            font-weight: 400
+            letter-spacing: 1px
+            strong
+                letter-spacing: 0px
+                margin-right: 10px
+
+.agreement-table
+    width: 95%
+    text-align: left
+    margin: 10px
+    border-spacing: 0
+    font-size: .9rem
+
+    thead
+        tr
+            th
+                padding-left: .5rem
+    tbody
+        tr
+            line-height: 2.7rem
+
+            td
+                padding-left: .5rem
+                border-bottom: 1px solid $uni-color-scale5
+            &:last-of-type
+                td
+                    border-bottom: none
+
+.text-center-in-table
+    text-align: center
+
+.text-right-in-table
+    text-align: right
+
+.autobank-section
+    position: absolute
+    bottom: 20px
+    display: none
+    width: 14rem
+    text-align: center
+
+    a:hover
+        cursor: pointer
+        color: $uni-color-scale4
+
+    button
+        margin-top: 20px
+
+.checkbox_step
+    .checkbox-label
+        display: block
+        padding-left: 15px
+        text-indent: -15px
+        cursor: pointer
+
+    input[type='checkbox']
+        width: 18px
+        height: 18px
+        padding: 0
+        margin: 0 1rem 0 0
+        vertical-align: bottom
+        cursor: pointer
+        position: relative
+        top: -2px
+
+.agreement-edit,
+    position: absolute
+    bottom: .6rem
+    font-size: 0
+    height: 1.5rem
+    width: 1.5rem
+    padding: 0
+    margin: 0
+    border: none
+    box-shadow: none
+    background: transparent no-repeat center center
+    background-image: unicon-edit($uni-color-scale6)
+    background-size: .9rem
+    cursor: pointer
+
+    &:hover
+        background-image: unicon-edit($uni-color-good)
+
+.agreement-delete,
+    position: absolute
+    bottom: .6rem
+    font-size: 0
+    height: 1.5rem
+    width: 1.5rem
+    padding: 0
+    margin: 0 0 0 1.6rem
+    border: none
+    box-shadow: none
+    background: transparent no-repeat center center
+    background-image: unicon-trash($uni-color-scale6)
+    background-size: .9rem
+    cursor: pointer
+
+    &:hover
+        background-image: unicon-trash($uni-color-bad)
+
+.delete-tag-checkbox
+    display: block
+    padding-left: 15px
+    text-indent: -15px
+    cursor: pointer
+    line-height: 1.4rem
+
+    input[type='checkbox']
+        width: 14px
+        height: 14px
+        padding: 0
+        margin: 0 1rem 0 0
+        vertical-align: bottom
+        cursor: pointer
+        position: relative
+        top: -2px
+

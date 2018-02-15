@@ -13,8 +13,18 @@ import {Observable} from 'rxjs/Observable';
 import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {WIDGET_CONFIGS} from './configs/presetConfigs';
 import {AuthService} from '../../authService';
+import {WidgetDataService} from './widgetDataService';
+
+import {
+    SHORTCUTS,
+    SHORTCUT_LISTS,
+    INFO_SHORTCUTS,
+
+    CHARTS,
+    COUNTERS,
+    MISC_WIDGETS
+} from './configs/index';
 
 import * as $ from 'jquery';
 declare const _;
@@ -34,17 +44,23 @@ interface IGridAnchor {
     y: number;
 }
 
-export interface IWidgetLayout {
+export interface IResponsiveWidgetLayout {
     large: IUniWidget[];
     medium?: IUniWidget[];
     small?: IUniWidget[];
+}
+
+export interface IWidgetReference {
+    x: number;
+    y: number;
+    widgetID: string;
 }
 
 enum LAYOUT_WIDTH {
     large = 12,
     medium = 8,
     small = 4
-};
+}
 
 @Component({
     selector: 'uni-widget-canvas',
@@ -59,13 +75,13 @@ export class UniWidgetCanvas {
     private widgetElements: QueryList<UniWidget>;
 
     @Input()
-    private defaultLayout: IUniWidget[];
-
-    @Input()
     private layoutName: string;
 
-    private layout: IWidgetLayout;
-    private layoutBackup: IWidgetLayout;
+    @Input()
+    private defaultLayout: IWidgetReference[];
+
+    private layout: IResponsiveWidgetLayout;
+    private layoutBackup: IResponsiveWidgetLayout;
     private unsavedChanges: boolean;
     private editMode: boolean;
     private currentSize: string;
@@ -74,22 +90,34 @@ export class UniWidgetCanvas {
 
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
     private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
-
     private gridAnchor: IGridAnchor;
-
     private widgetSelectorItems: any[];
+
+    private refreshInterval: any;
 
     constructor(
         private cdr: ChangeDetectorRef,
         private toastService: ToastService,
         private authService: AuthService,
         private canvasHelper: CanvasHelper,
+        private dataService: WidgetDataService
     ) {
+        // Clear cache on init
+        this.dataService.clearCache();
+
+        // Clear on a 10 min timer
+        this.refreshInterval = setInterval(() => {
+            this.dataService.clearCache();
+            this.refreshWidgets();
+        }, 60000 * 10);
+
         this.widgetMargin = 10;
 
-        this.authService.authentication$.subscribe(change => {
-            if (this.layout) {
-                this.refreshWidgets();
+        this.authService.authentication$.subscribe(auth => {
+            if (auth.user && this.layout) {
+                this.canvasHelper.resetGrid();
+                const layout = this.canvasHelper.getSavedLayout(this.layoutName);
+                this.initializeLayout(layout);
             }
         });
 
@@ -110,14 +138,25 @@ export class UniWidgetCanvas {
 
     public ngOnChanges() {
         if (this.defaultLayout && this.layoutName) {
-            this.layout = this.canvasHelper.getSavedLayout(this.layoutName);
-
-            if (!this.layout) {
-                this.layout = this.buildResponsiveLayout(this.defaultLayout);
-            }
-
-            this.drawLayout();
+            const layout = this.canvasHelper.getSavedLayout(this.layoutName);
+            this.initializeLayout(layout);
         }
+    }
+
+    public ngOnDestroy() {
+        clearInterval(this.refreshInterval);
+    }
+
+    private initializeLayout(layout?: IResponsiveWidgetLayout) {
+        if (!layout) {
+            layout = this.buildResponsiveLayout(this.defaultLayout);
+        }
+
+        // Filter based on permissions
+        this.authService.authentication$.take(1).subscribe(auth => {
+            this.layout = this.canvasHelper.filterLayout(layout, auth.user);
+            this.drawLayout();
+        });
     }
 
     public refreshWidgets() {
@@ -143,7 +182,7 @@ export class UniWidgetCanvas {
 
         this.widgetMargin = window.innerWidth <= 1500 ? 10 : 13;
 
-        if (size !== this.currentSize) {
+        if (this.currentSize !== size) {
             this.currentSize = size;
             this.canvasHelper.activateLayout(this.layout[size], numCols);
         }
@@ -151,6 +190,7 @@ export class UniWidgetCanvas {
         const width = this.canvas.nativeElement.clientWidth;
         this.gridUnitInPx = width / numCols;
 
+        // Position widgets on the canvas
         const unpositioned = [];
         this.layout[size].forEach((w: IUniWidget) => {
             if (w.x >= 0 && w.y >= 0) {
@@ -176,15 +216,10 @@ export class UniWidgetCanvas {
         });
     }
 
-    public addWidget(configPath) {
-        const widget = _.get(WIDGET_CONFIGS, configPath);
-        if (!widget) {
-            return;
-        }
-
-        widget._editMode = this.editMode;
-
+    public addWidget(widget) {
         const position = this.canvasHelper.getNextAvailablePosition(widget);
+        widget.editMode = this.editMode;
+
         if (position) {
             widget.x = position.x;
             widget.y = position.y;
@@ -246,13 +281,11 @@ export class UniWidgetCanvas {
         }
 
         this.canvasHelper.removeLayout(this.layoutName);
-        this.layout = this.buildResponsiveLayout(this.defaultLayout);
-
         this.canvasHelper.resetGrid();
         this.unsavedChanges = false;
-        this.cdr.markForCheck();
-        this.drawLayout();
         this.toggleEditMode();
+
+        this.initializeLayout();
     }
 
     public save() {
@@ -272,13 +305,13 @@ export class UniWidgetCanvas {
             return;
         }
         event.preventDefault();
-        let widgetElement = $(event.srcElement || event.target).closest('uni-widget')[0];
+        const widgetElement = $(event.srcElement || event.target).closest('uni-widget')[0];
 
         const elemBounds = widgetElement.getBoundingClientRect();
         const canvasBounds = this.canvas.nativeElement.getBoundingClientRect();
 
-        let offsetX = event.clientX - elemBounds.left;
-        let offsetY = event.clientY - elemBounds.top;
+        const offsetX = event.clientX - elemBounds.left;
+        const offsetY = event.clientY - elemBounds.top;
 
         this.canvasHelper.releaseGridSpace(widget);
 
@@ -318,7 +351,7 @@ export class UniWidgetCanvas {
 
     public stopDrag(widget: IUniWidget) {
         if (this.gridAnchor && this.gridAnchor.valid) {
-            let collision = this.canvasHelper.findCollision(
+            const collision = this.canvasHelper.findCollision(
                 this.gridAnchor.y,
                 this.gridAnchor.x,
                 widget.height,
@@ -368,7 +401,9 @@ export class UniWidgetCanvas {
         this.unsavedChanges = true;
     }
 
-    private buildResponsiveLayout(widgets: IUniWidget[]): IWidgetLayout {
+    private buildResponsiveLayout(widgetReferences: IWidgetReference[]): IResponsiveWidgetLayout {
+        const widgets = this.canvasHelper.getWidgetsFromReferences(widgetReferences);
+
         return {
             large: this.setWidgetWidths(widgets, LAYOUT_WIDTH.large),
             medium: this.setWidgetWidths(widgets, LAYOUT_WIDTH.medium),
@@ -394,52 +429,25 @@ export class UniWidgetCanvas {
     }
 
     private initWidgetSelector() {
+        const shortcuts = [...SHORTCUTS, ...INFO_SHORTCUTS];
         this.widgetSelectorItems = [
             {
-                label: 'Snarveier',
-                value: [
-                    {label: 'Tilbud', value: 'shortcuts.quotes'},
-                    {label: 'Ordre', value: 'shortcuts.orders'},
-                    {label: 'Fakura', value: 'shortcuts.invoices'},
-                    {label: 'Kunder', value: 'shortcuts.customers'},
-                    {label: 'Timer', value: 'shortcuts.hours'},
-                    {label: 'Regnskap', value: 'shortcuts.accounting'},
-                ]
+                label: 'Tellere',
+                items: COUNTERS
             },
-            // {
-            //     label: 'Tellere',
-            //     value: [
-            //         {label: 'Epost', value: ''},
-            //         {label: 'EHF', value: ''},
-            //         {label: 'PDF', value: ''},
-            //         {label: 'Utlegg', value: ''},
-            //     ]
-            // },
+            {
+                label: 'Snarveier',
+                items: shortcuts
+            },
+            {
+                label: 'Snarvei-lister',
+                items: SHORTCUT_LISTS
+            },
             {
                 label: 'Diagram',
-                value: [
-                    {label: 'Driftsresultater', value: 'charts.operatingProfits'},
-                    {label: 'Nøkkeltall', value: 'charts.kpi'},
-                    {label: 'Utestående per kunde', value: 'charts.outstandingInvoices'},
-                    {label: 'Ansatte per stillingskode', value: 'charts.employeesPerJobCode'},
-                ]
+                items: CHARTS
             },
-            {
-                label: 'Klokke',
-                value: 'clock'
-            },
-            {
-                label: 'Nyheter',
-                value: 'rss'
-            },
-            {
-                label: 'Firmalogo',
-                value: 'companyLogo'
-            },
-            {
-                label: 'Siste endringer',
-                value: 'lastTransactions'
-            }
+            ...MISC_WIDGETS,
         ];
     }
 

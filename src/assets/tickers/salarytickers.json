@@ -1,6 +1,7 @@
 [{
         "Name": "Ansatt",
         "Code": "employee_list",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Lønn",
@@ -77,6 +78,7 @@
     {
         "Name": "Ansatt",
         "Code": "employee_details",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Details",
         "Group": "Lønn",
         "Model": "Employee",
@@ -127,6 +129,7 @@
     {
         "Name": "Arbeidsforhold",
         "Code": "employment_list",
+        "RequiredUIPermissions": ["ui_salary"],
         "IsTopLevelTicker": true,
         "Type": "Table",
         "Group": "Lønn",
@@ -199,6 +202,7 @@
     {
         "Name": "Arbeidsforhold",
         "Code": "employment_details",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Details",
         "Group": "Lønn",
         "Model": "Employment",
@@ -314,6 +318,7 @@
         "Name": "Permisjoner",
         "Type": "Table",
         "Code": "leave_items",
+        "RequiredUIPermissions": ["ui_salary"],
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "EmployeeLeave",
@@ -372,6 +377,7 @@
         "Name": "Lønnsart",
         "Type": "Table",
         "Code": "wagetype_list",
+        "RequiredUIPermissions": ["ui_salary"],
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "WageType",
@@ -457,6 +463,7 @@
         "Name": "Lønnsart",
         "Type": "Details",
         "Code": "wagetype_details",
+        "RequiredUIPermissions": ["ui_salary"],
         "Group": "Lønn",
         "Model": "WageType",
         "Expand": "",
@@ -529,6 +536,7 @@
     {
         "Name": "Lønnsavregning",
         "Code": "payrollrun_list",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Lønn",
@@ -646,6 +654,7 @@
     {
         "Name": "Lønnsavregning",
         "Code": "payrollrun_details",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Details",
         "Group": "Lønn",
         "Model": "PayrollRun",
@@ -690,6 +699,7 @@
     {
         "Name": "Lønnspost",
         "Code": "salarytransaction_list",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Lønn",
@@ -849,6 +859,7 @@
     {
         "Name": "Lønnspost",
         "Code": "salarytransaction_details",
+        "RequiredUIPermissions": ["ui_salary"],
         "Type": "Details",
         "Group": "Lønn",
         "Model": "SalaryTransaction",

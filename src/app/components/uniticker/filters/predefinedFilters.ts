@@ -90,7 +90,7 @@ export class UniTickerPredefinedFilters implements OnChanges {
                         this.cdr.markForCheck();
                     }
                 },
-                err => this.errorService.handle(err)
+                err => {/* fail silently */} // this.errorService.handle(err)
             );
         }
     }

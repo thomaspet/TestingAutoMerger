@@ -14,59 +14,72 @@ import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
 export const dimensionsRoutes = [
     {
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'projects'
-    },
-    {
-        path: 'departments',
-        component: DepartmentList
-    },
-    {
-        path: 'departments/:id',
-        component: DepartmentDetails
-    },
-    {
-        path: 'projects',
-        component: Project,
+        path: 'dimensions',
         children: [
             {
                 path: '',
                 pathMatch: 'full',
-                redirectTo: 'overview'
+                redirectTo: 'projects'
             },
             {
-                path: 'overview',
-                component: ProjectOverview
+                path: 'departments',
+                component: DepartmentList
             },
             {
-                path: 'tasks',
-                component: ProjectTasks
+                path: 'departments/:id',
+                component: DepartmentDetails
             },
             {
-                path: 'hours',
-                component: ProjectHourTotals // ProjectHours
+                path: 'projects',
+                component: Project,
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: 'overview'
+                    },
+                    {
+                        path: 'overview',
+                        component: ProjectOverview
+                    },
+                    {
+                        path: 'tasks',
+                        component: ProjectTasks
+                    },
+                    {
+                        path: 'hours',
+                        component: ProjectHourTotals // ProjectHours
+                    },
+                    {
+                        path: 'editmode',
+                        component: ProjectEditmode
+                    },
+                    {
+                        path: 'documents',
+                        component: ProjectDocument
+                    },
+                    {
+                        path: 'invoices',
+                        component: ProjectQueryList
+                    },
+                    {
+                        path: 'orders',
+                        component: ProjectQueryList
+                    },
+                    {
+                        path: 'quotes',
+                        component: ProjectQueryList
+                    },
+                ]
             },
             {
-                path: 'editmode',
-                component: ProjectEditmode
+                path: 'projectslite',
+                component: ProjectLite
             },
             {
-                path: 'documents',
-                component: ProjectDocument
-            },
-            {
-                path: '**',
-                component: ProjectQueryList
+                path: 'projectslite/:id',
+                component: ProjectLiteDetails
             }
         ]
-    },
-    {
-        path: 'projectslite',
-        component: ProjectLite
-    },
-    {
-        path: 'projectslite/:id',
-        component: ProjectLiteDetails
     }
 ];

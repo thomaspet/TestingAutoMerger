@@ -62,6 +62,16 @@ export interface IUploadConfig {
                         (click)="next()">
                     </a>
                 </section>
+
+                <div *ngIf="uploading && !hideToolbar" class="uploading-progress-info">
+                    <span *ngIf="processingPercentage">
+                        Prosesserer fil, {{processingPercentage}}% ferdig
+                    </span>
+                    <span *ngIf="!processingPercentage">
+                        Laster opp...
+                    </span>
+                </div>
+
                 <picture
                     #imageContainer
                     *ngIf="imgUrl.length"
@@ -112,7 +122,7 @@ export interface IUploadConfig {
             <ul class="uni-thumbnail-list" *ngIf="thumbnils?.length || !readonly"
                 [ngClass]="{'-has-thumbnails': thumbnails?.length}">
 
-                <li *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
+                <li *ngIf="!readonly && !uploadConfig?.isDisabled && !uploading" [attr.aria-busy]="uploading">
                     <label
                         class="uni-image-upload"
                         [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
@@ -128,8 +138,7 @@ export interface IUploadConfig {
                 <li *ngFor="let thumbnail of thumbnails; let idx = index">
                     <img [attr.src]="thumbnail"
                         [attr.alt]="shorten(files[idx]?.Description, 20)"
-                        (click)="thumbnailClicked(idx)"
-                    >
+                        (click)="thumbnailClicked(idx)">
                 </li>
             </ul>
         </article>
@@ -198,6 +207,7 @@ export class UniImage {
     private token: any;
     private activeCompany: any;
     private didTryReAuthenticate: boolean = false;
+    private lastUrlFailed: string = null;
 
     private uploading: boolean;
     private keyListener: any;
@@ -216,6 +226,9 @@ export class UniImage {
     private wordPickerAreaVisible: boolean = false;
     private currentClickedWordStyle: any;
     private currentClickedWord: any;
+
+
+    private processingPercentage: number = null;
 
     private ocrWords: Array<any> = [];
 
@@ -510,9 +523,10 @@ export class UniImage {
                             // because the file was split, go back one page, or the request will
                             // fail because the page does not exist
                             this.currentPage--;
-                            this.loadImage();
 
-                            this.fileListReady.emit(this.files);
+                            // check filestatus and load file/image when Uni Files is done
+                            // processing it
+                            this.checkFileStatusAndLoadImage(splitFileResult.FirstPart.StorageReference);
                         }, err => this.errorService.handle(err));
                     }).catch(err => this.errorService.handle(err));
                 }
@@ -563,10 +577,16 @@ export class UniImage {
     }
 
     public reauthenticate(runAfterReauth) {
+        // if something failed when loading another image, we should try again
+        if (this.imgUrl2x != this.lastUrlFailed) {
+            this.didTryReAuthenticate = false;
+        }
+
         if (!this.didTryReAuthenticate) {
             // set flag to avoid "authentication loop" if the new authentication
             // also throws an error
             this.didTryReAuthenticate = true;
+            this.lastUrlFailed = this.imgUrl2x;
 
             this.uniFilesService.checkAuthentication()
                 .then(res => {
@@ -621,6 +641,7 @@ export class UniImage {
 
         this.imgUrl2x = this.generateImageUrl(file, size * 2);
         this.imgUrl = this.generateImageUrl(file, size);
+
         this.cdr.markForCheck();
     }
 
@@ -678,7 +699,11 @@ export class UniImage {
                     .send()
                     .subscribe((res) => {
                         this.uploadFile(newFile);
-                    }, err => this.errorService.handle(err));
+                    }, err => {
+                        this.errorService.handle(err);
+                        this.uploading = false;
+                        this.cdr.markForCheck();
+                    });
             } else {
                 this.uploadFile(newFile);
             }
@@ -707,23 +732,21 @@ export class UniImage {
                 // collection
                 this.fileService.Get(res.ExternalId)
                     .subscribe(newFile => {
-                        this.uploading = false;
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
-                        this.fileListReady.emit(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.currentPage = 1;
                         this.removeHighlight();
-                        this.loadImage();
 
                         // reset reauth flag after uploading, because sometimes getting new
                         // images will fail right after upload, and we need to retry to get
                         // it if it fails the first time
                         this.didTryReAuthenticate = false;
 
-                        if (!this.singleImage) {
-                            this.loadThumbnails();
-                        }
+                        // check filestatus and load file/image when Uni Files is done
+                        // processing it
+                        this.checkFileStatusAndLoadImage(res.StorageReference);
+
                     }, err => this.errorService.handle(err));
             }, err => {
                 // if an error occurs, try to reauthenticate to unifiles - typically
@@ -735,7 +758,45 @@ export class UniImage {
                         this.uploadFile(file);
                     });
                 } else {
+                    this.uploading = false;
+                    this.cdr.markForCheck();
                     this.errorService.handle(err);
+                }
+            });
+    }
+
+    private checkFileStatusAndLoadImage(fileId: string, attempts: number = 0) {
+        if (!this.processingPercentage) {
+            this.processingPercentage = 0;
+        }
+
+        this.uniFilesService.getFileProcessingStatus(fileId)
+            .subscribe((res) => {
+                if (this.processingPercentage !== res.ProcessedPercentage) {
+                    this.processingPercentage = res.ProcessedPercentage;
+                    this.cdr.markForCheck();
+                }
+
+                // if status is 0 = unknown (e.g. it is an old file, from before the queuehandling
+                // was implemented) or 3 = Finished - or we have tried a
+                if (res.Status === 0 || res.Status === 3 || attempts > 100) {
+                    this.uploading = false;
+                    this.processingPercentage = null;
+
+                    this.loadImage();
+
+                    if (!this.singleImage) {
+                        this.loadThumbnails();
+                    }
+
+                    this.fileListReady.emit(this.files);
+                } else {
+                    // increase wait time by 10 ms for each attempt, starting at 50 ms, making
+                    // the total possible wait time will be approx 1 minute (55 sec + response time)
+                    let timeout = 50 + (10 * attempts);
+                    setTimeout(() => {
+                        this.checkFileStatusAndLoadImage(fileId, attempts++);
+                    }, timeout);
                 }
             });
     }
