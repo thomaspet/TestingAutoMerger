@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {
@@ -18,7 +18,7 @@ declare const _;
     selector: 'invoice-reminders',
     templateUrl: './reminders.html'
 })
-export class InvoiceReminders {
+export class InvoiceReminders implements OnInit {
     @Input()
     private customerInvoice: CustomerInvoice;
 
@@ -60,16 +60,16 @@ export class InvoiceReminders {
 
     private setupReminderTable() {
         // Define columns to use in the table
-        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr.', UniTableColumnType.Text);
-        let remindedDateCol = new UniTableColumn('RemindedDate', 'Purredato', UniTableColumnType.LocalDate);
-        let dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
-        let createdByCol = new UniTableColumn('CreatedBy', 'Opprettet av', UniTableColumnType.Text);
-        let statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Purring nr.', UniTableColumnType.Text);
+        const remindedDateCol = new UniTableColumn('RemindedDate', 'Purredato', UniTableColumnType.LocalDate);
+        const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate);
+        const createdByCol = new UniTableColumn('CreatedBy', 'Opprettet av', UniTableColumnType.Text);
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
             .setTemplate((reminder) => {
                 return this.customerInvoiceReminderService.getStatusText(reminder.StatusCode);
             });
 
-        var feeAmountCol = new UniTableColumn('ReminderFee', 'Gebyr', UniTableColumnType.Number)
+        const feeAmountCol = new UniTableColumn('ReminderFee', 'Gebyr', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';

@@ -137,8 +137,8 @@ export class ReminderSending implements OnInit {
             this.saveactions = [...this.saveactions];
         }
 
-        var rowExists = false;
-        for (var i = 0; i < this.changedReminders.length; i++) {
+        let rowExists = false;
+        for (let i = 0; i < this.changedReminders.length; i++) {
             if (this.changedReminders[i].ID === data.rowModel.ID) {
                 this.changedReminders[i] = data.rowModel;
                 rowExists = true;
@@ -150,8 +150,8 @@ export class ReminderSending implements OnInit {
     }
 
     public saveReminders(done: (msg: string) => void = () => {}) {
-        let requests = [];
-        for (var i = 0; i < this.changedReminders.length; i++) {
+        const requests = [];
+        for (let i = 0; i < this.changedReminders.length; i++) {
 
             if (typeof this.changedReminders[i].DueDate === 'string') {
                 this.changedReminders[i].DueDate = new LocalDate(this.changedReminders[i].DueDate.toString());
@@ -177,7 +177,7 @@ export class ReminderSending implements OnInit {
     }
 
     private deleteReminders(done) {
-        let selected = this.getSelected();
+        const selected = this.getSelected();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen purringer er valgt',
@@ -199,7 +199,7 @@ export class ReminderSending implements OnInit {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                let requests = [];
+                const requests = [];
                 selected.forEach(x => {
                     requests.push(this.reminderService.Remove(x.ID, x));
                 });
@@ -224,7 +224,7 @@ export class ReminderSending implements OnInit {
     }
 
     private sendReminders(done, printonly) {
-        var selected = this.getSelected();
+        const selected = this.getSelected();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -247,7 +247,7 @@ export class ReminderSending implements OnInit {
     }
 
     private sendEmails(done) {
-        var selected = this.getSelectedEmail();
+        const selected = this.getSelectedEmail();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -267,7 +267,7 @@ export class ReminderSending implements OnInit {
     }
 
     public updateToolbar() {
-        let toolbarconfig: IToolbarConfig = {
+        const toolbarconfig: IToolbarConfig = {
             title: 'Purrejobbnr. ' + this.currentRunNumber,
             subheads: [
                 {title: this.currentRunNumberData.CreatedBy},
@@ -300,8 +300,8 @@ export class ReminderSending implements OnInit {
                         + runNumber
                     )
                 ]).subscribe((res) => {
-                    let reminders = res[0];
-                    let extra = res[1][0];
+                    const reminders = res[0];
+                    const extra = res[1][0];
                     this.currentRunNumberData = extra;
 
                     if (reminders.length === 0) {
@@ -310,6 +310,7 @@ export class ReminderSending implements OnInit {
                         this.currentRunNumber = runNumber;
                         this.updateToolbar();
                         this.updateReminderList(reminders);
+                        this.searchParams$.next({RunNumber: runNumber});
                         resolve(true);
                     }
                 }, (err) => {
@@ -337,7 +338,7 @@ export class ReminderSending implements OnInit {
 
     public updateReminderList(reminders) {
         if (this.currentRunNumber === 0) { this.currentRunNumber = reminders[0].RunNumber; }
-        let filter = `RunNumber eq ${this.currentRunNumber}`;
+        const filter = `RunNumber eq ${this.currentRunNumber}`;
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
             .subscribe((remindersAll) => {
                 this.remindersAll = remindersAll.map((r) => {
@@ -352,8 +353,8 @@ export class ReminderSending implements OnInit {
 
     public getSelected() {
         const tables = this.tables.toArray();
-        let emails = tables[0] && tables[0].getSelectedRows() || [];
-        let print = tables[1] && tables[1].getSelectedRows() || [];
+        const emails = tables[0] && tables[0].getSelectedRows() || [];
+        const print = tables[1] && tables[1].getSelectedRows() || [];
 
         return emails.concat(print);
     }
@@ -369,13 +370,13 @@ export class ReminderSending implements OnInit {
     }
 
     public sendEmail(doneHandler?) {
-        var emails = this.getSelectedEmail();
+        const emails = this.getSelectedEmail();
         if (emails.length === 0) { return; }
         this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
             emails.forEach((r) => {
-                let email = new SendEmail();
+                const email = new SendEmail();
                 email.Format = 'pdf';
                 email.EmailAddress = r.EmailAddress;
                 email.EntityType = 'CustomerInvoiceReminder';
@@ -383,21 +384,21 @@ export class ReminderSending implements OnInit {
                 email.Subject = `Purring fakturanr. ${r.InvoiceNumber}`;
                 email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
 
-                let parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
+                const parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
                 this.emailService.sendEmailWithReportAttachment('Purring', email, parameters, doneHandler);
             });
         });
     }
 
     public sendPrint(all) {
-        var prints = all ? this.getSelected() : this.getSelectedPrint();
+        const prints = all ? this.getSelected() : this.getSelectedPrint();
         if (prints.length === 0) { return; }
         this.reminderService.sendAction(prints.map(x => x.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
             this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
                 if (report) {
-                    let filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
+                    const filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
                     report.parameters = [{Name: 'odatafilter', value: filter}];
 
                     this.modalService.open(UniPreviewModal, {
@@ -506,7 +507,7 @@ export class ReminderSending implements OnInit {
     }
 
     public onFormFilterChange(event) {
-        let runnumber: SimpleChange = event.RunNumber;
+        const runnumber: SimpleChange = event.RunNumber;
         this.loadRunNumber(runnumber.currentValue);
     }
 
