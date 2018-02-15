@@ -82,6 +82,9 @@ export class TimetrackingDashboard {
                 x: 4,
                 widgetID: 'info_shortcut_overview',
             },
+            {
+                widgetID: 'rss',
+            },
         ];
     }
 }
