@@ -8,6 +8,8 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
+import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
+import {AdminProduct} from '@app/services/admin/adminProductService';
 import {
     AccountGroup,
     AccountVisibilityGroup,
@@ -163,6 +165,8 @@ export class CompanySettingsComponent implements OnInit {
     private orderTemplate: CampaignTemplate;
     private quoteTemplate: CampaignTemplate;
 
+    private hasBoughtEHF: boolean = false;
+
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor(
@@ -195,7 +199,8 @@ export class CompanySettingsComponent implements OnInit {
         private adminProductService: AdminProductService,
         private router: Router,
         private agreementService: AgreementService,
-        private campaignTemplateService: CampaignTemplateService
+        private campaignTemplateService: CampaignTemplateService,
+        private adminPurchasesService: AdminPurchasesService
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -224,7 +229,8 @@ export class CompanySettingsComponent implements OnInit {
             this.financialYearService.GetAll(null),
             this.campaignTemplateService.getInvoiceTemplatetext(),
             this.campaignTemplateService.getOrderTemplateText(),
-            this.campaignTemplateService.getQuoteTemplateText()
+            this.campaignTemplateService.getQuoteTemplateText(),
+            this.isEHFBought()
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -257,7 +263,7 @@ export class CompanySettingsComponent implements OnInit {
                         Template: ''
                     };
 
-
+                this.hasBoughtEHF = dataset[15];
 
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
@@ -791,7 +797,7 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.company$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = settings.APActivated ? 'Reaktiver' : 'Aktiver';
+        apActivated.Label = this.hasBoughtEHF ? (settings.APActivated ? 'Reaktiver' : 'Aktiver') : 'Til markedsplass';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
@@ -1447,25 +1453,39 @@ export class CompanySettingsComponent implements OnInit {
         }
     }
 
+    private isEHFBought(): Observable<boolean> {
+        return this.adminProductService.FindProductByName('EHF')
+            .switchMap(product => { 
+                return this.adminPurchasesService.GetAll()
+                    .map(purchases => purchases.some(purchase => purchase.productID === product.id));
+        });
+    }
+
     private activateAP() {
-        let settings = this.company$.getValue();
-        if (settings.APActivated) {
-            this.modalService.open(UniActivateAPModal)
-                .onClose.subscribe((status) => {
-                    if (status !== 0) {
-                        this.companySettingsService.Get(1).subscribe(settings => {
-                            let company = this.company$.getValue();
-                            company.BankAccounts = settings.BankAccounts;
-                            company.CompanyBankAccount = settings.CompanyBankAccount;
-                            this.company$.next(company);
-                        });
-                    }
-                }, err => this.errorService.handle(err));
-        } else {
-            this.adminProductService.FindProductByName('EHF').subscribe(p => {
-                this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
+        this.adminProductService.FindProductByName('EHF')
+            .subscribe(product => { 
+                this.adminPurchasesService.GetAll()
+                    .map(purchases => purchases.some(purchase => purchase.productID === product.id))
+                    .subscribe(hasBought => {
+                        hasBought 
+                        ? this.openActivateAPModal()
+                        : this.router.navigateByUrl('/marketplace/add-ons/' + product.id);
+                    });
             });
-        }
+    }
+
+    private openActivateAPModal() {
+        this.modalService.open(UniActivateAPModal)
+            .onClose.subscribe((status) => {
+                if (status !== 0) {
+                    this.companySettingsService.Get(1).subscribe(settings => {
+                        let company = this.company$.getValue();
+                        company.BankAccounts = settings.BankAccounts;
+                        company.CompanyBankAccount = settings.CompanyBankAccount;
+                        this.company$.next(company);
+                    });
+                }
+        }, err => this.errorService.handle(err));
     }
 
     private confirmTermsOCR() {
