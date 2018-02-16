@@ -852,7 +852,7 @@ export class LedgerAccountReconciliation {
             if (statisticsData  && statisticsData.length > 0) {
                 const paymentID = statisticsData.find(x => x.PaymentID)['PaymentID'];
                 const StatusCode = statisticsData.find(x => x.StatusCode)['StatusCode'];
-                if (StatusCode === 44001) { // queued
+                if (StatusCode === 44001) { // created
                     this.editPayment(paymentID);
                 } else {
                     this.toastService.addToast(

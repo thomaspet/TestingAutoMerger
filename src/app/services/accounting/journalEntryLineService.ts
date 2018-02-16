@@ -44,7 +44,7 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         }
 
         if (pointInTime) {
-            querystring += '&pointInTime=' + pointInTime
+            querystring += '&pointInTime=' + pointInTime;
         }
 
         return this.http

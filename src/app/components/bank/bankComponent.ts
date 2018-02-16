@@ -101,6 +101,11 @@ export class BankComponent implements AfterViewInit {
             ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows)
         },
         {
+            Code: 'edit_payment',
+            ExecuteActionHandler: (selectedRows) => this.editPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
+        },
+        {
             Code: 'reset_payment',
             ExecuteActionHandler: (selectedRows) => this.resetPayment(selectedRows, false),
             CheckActionIsDisabled: (selectedRow) => this.checkResetPaymentDisabled(selectedRow)
@@ -109,6 +114,11 @@ export class BankComponent implements AfterViewInit {
             Code: 'reset_edit_payment',
             ExecuteActionHandler: (selectedRows) => this.resetPayment(selectedRows, true),
             CheckActionIsDisabled: (selectedRow) => this.checkResetPaymentDisabled(selectedRow)
+        },
+        {
+            Code: 'remove_payment',
+            ExecuteActionHandler: (selectedRows) => this.removePayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
         }
     ];
 
@@ -301,6 +311,28 @@ export class BankComponent implements AfterViewInit {
         });
     }
 
+    public editPayment(selectedRows: any): Promise<any> {
+        const row = selectedRows[0];
+        return new Promise(() => {
+            this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).subscribe((payment: Payment) => {
+                // show addPaymentModel
+                this.modalService.open(AddPaymentModal, {
+                    data: { model: payment },
+                    header: 'Endre betaling',
+                    buttonLabels: {accept: 'Oppdater betaling'}
+                }).onClose.
+                subscribe((updatedPaymentInfo: Payment) => {
+                    if (updatedPaymentInfo) {
+                        this.paymentService.Put(payment.ID, updatedPaymentInfo)
+                        .subscribe(paymentResponse => {
+                            this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        });
+                    }
+                });
+            });
+        });
+    }
+
     public resetPayment(selectedRows: any, showModal: boolean): Promise<any> {
         const row = selectedRows[0];
         return new Promise(() => {
@@ -353,6 +385,28 @@ export class BankComponent implements AfterViewInit {
                         'oldPaymentID=' + payment.ID
                     ).subscribe(paymentResponse => {
                         this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    });
+                }
+            });
+        });
+    }
+
+    public removePayment(selectedRows: any) {
+        return new Promise(() => {
+        const row = selectedRows[0];
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Slett betaling',
+            message: `Vil du slette betaling${row.Description ? ' ' + row.Description : ''}?`,
+            buttonLabels: {
+                accept: 'Slett betaling',
+                reject: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe((result) => {
+            if (result === ConfirmActions.ACCEPT) {
+                this.paymentService.Remove(row.ID).subscribe(paymentResponse => {
+                    this.tickerContainer.mainTicker.reloadData(); // refresh table
                     });
                 }
             });

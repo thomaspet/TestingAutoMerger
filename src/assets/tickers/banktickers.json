@@ -224,6 +224,15 @@
                 "NeedsActionOverride": true
             },
             {
+                "Name": "Endre betaling",
+                "Code": "edit_payment",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
                 "Name": "Legg tilbake til ubetalt",
                 "Code": "reset_payment",
                 "Type": "action",
@@ -235,6 +244,15 @@
             {
                 "Name": "Endre og legg tilbake til ubetalt",
                 "Code": "reset_edit_payment",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Slett betaling",
+                "Code": "remove_payment",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,

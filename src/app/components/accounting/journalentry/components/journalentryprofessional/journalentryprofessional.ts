@@ -72,6 +72,8 @@ import {CurrencyService} from '../../../../../services/common/currencyService';
 import {SelectJournalEntryLineModal} from '../selectJournalEntryLineModal';
 import {UniMath} from '../../../../../../framework/core/uniMath';
 import {DraftLineDescriptionModal} from './draftLineDescriptionModal';
+import { PaymentService } from '@app/services/accounting/paymentService';
+import { RequestMethod } from '@angular/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _; // lodash
 
@@ -190,7 +192,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private modalService: UniModalService,
         private supplierService: SupplierService,
         private customerService: CustomerService,
-        private userService: UserService
+        private userService: UserService,
+        private paymentService: PaymentService,
     ) {}
 
     public ngOnInit() {
@@ -235,7 +238,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public setJournalEntryData(data) {
-
         // if data is retrieved from the server, some properties needs to be updated to
         // simplify frontend logic
         if (data) {
@@ -1234,9 +1236,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 {
                     action: (item) => this.addPayment(item),
-                    disabled: (item) => item.StatusCode ? true : false,
-                    label: 'Registrer utbetaling',
-
+                    disabled: (item) => !!item.StatusCode && !!item.JournalEntryPaymentData,
+                    label: 'Registrer utbetaling'
                 },
                 {
                     action: (item: JournalEntryData) => this.showAgioDialog(item),
@@ -2093,16 +2094,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             item.JournalEntryPaymentData.PaymentData = res;
                         }
 
-                        // if the item is already booked, just add the payment through the API now
-                        /* if (item.StatusCode) {
-                            this.journalEntryService.LEGGTILBETALING()
-                            DETTE GJØRES MÅ GJØRES I NESTE SPRINT,
-                            TAS SAMTIDIG SOM FUNKSJON FOR Å REGISTRERE MER PÅ ET EKSISTERENDE BILAG
-                            https://github.com/unimicro/AppFramework/issues/2536
+                        // if the item is already booked, just add the payment through the API
+                        if (item.StatusCode) {
+                            this.paymentService.ActionWithBody(null,
+                                res,
+                                'create-payment-with-tracelink',
+                                RequestMethod.Post,
+                                'journalEntryID=' + item.JournalEntryID
+                            ).subscribe(paymentResponse => {
+                                this.toastService.addToast('Betaling',
+                                    ToastType.good, 5, 'Betaling registrert');
+                                this.table.updateRow(item['_originalIndex'], item);
+                                this.rowChanged();
+                            });
+                        } else {
+                            this.table.updateRow(item['_originalIndex'], item);
+                            this.rowChanged();
                         }
-                        */
-                        this.table.updateRow(item['_originalIndex'], item);
-                        this.rowChanged();
                     }
                 });
             });

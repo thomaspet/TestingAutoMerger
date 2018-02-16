@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, Dimensions, FinancialYear, VatDeduction} from '../../unientities';
+import {Account, VatType, Dimensions, FinancialYear, VatDeduction, JournalEntryPaymentData, Payment} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '../../models/models';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
@@ -695,15 +695,25 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<JournalEntryData[]> {
-        return Observable.forkJoin(this.journalEntryLineDraftService.GetAll(
+        return Observable.forkJoin(
+            this.journalEntryLineDraftService.GetAll(
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
             ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project', 'Accrual', 'CurrencyCode']),
-            this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' and EntityID eq ${journalEntryID}&select=FileID`)
-        ).map(responses => {
-            let draftLines: Array<JournalEntryLineDraft> = responses[0];
-            let fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
 
-            let journalEntryDataObjects: Array<JournalEntryData> = [];
+            this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' `
+                + `and EntityID eq ${journalEntryID}&select=FileID`),
+
+            this.statisticsService.GetAll(`model=Tracelink&filter=DestinationEntityName eq 'Payment' `
+                + `and SourceEntityName eq 'JournalEntry' and JournalEntry.ID eq ${journalEntryID}`
+                + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID as SupplierInvoice and `
+                + `Tracelink.DestinationInstanceId eq Payment.ID`
+                + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`)
+        ).map(responses => {
+            const draftLines: Array<JournalEntryLineDraft> = responses[0];
+            const fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
+            const paymentIDs: Array<any> = responses[2].Data ? responses[2].Data : [];
+
+            const journalEntryDataObjects: Array<JournalEntryData> = [];
 
             // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
             // components, because this is the way the user wants to see the data
@@ -742,7 +752,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
 
             // add fileids if any files are connected to the journalentries
-            let fileIdList = [];
+            const fileIdList = [];
             if (fileList) {
                 fileList.forEach(x => {
                     fileIdList.push(x.FileEntityLinkFileID);
@@ -751,6 +761,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             journalEntryDataObjects.forEach(entry => {
                 entry.FileIDs = fileIdList;
+            });
+
+            // Partial payment data will be set loaded, this makes the sure the GUI shows that there is a payment connected to this post.
+            // We set the payment status to check if the payment is still editable.
+            // the complete payment data will be loaded by the addPaymentsModal
+            journalEntryDataObjects.forEach(entry => {
+                if (paymentIDs.length) {
+                    entry.JournalEntryPaymentData = <any> {
+                        ID: paymentIDs[0].PaymentId,
+                        StatusCode: paymentIDs[0].PaymentId
+                    };
+                }
             });
 
             return JSON.parse(JSON.stringify(journalEntryDataObjects));

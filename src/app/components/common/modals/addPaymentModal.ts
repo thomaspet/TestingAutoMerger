@@ -29,6 +29,7 @@ import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
+import { PaymentCodeService } from '@app/services/accounting/paymentCodeService';
 
 declare const _; // lodash
 
@@ -74,6 +75,7 @@ export class AddPaymentModal implements IUniModal {
     private accountType: string;
     private companySettingsID: number;
     private fromBankAccountsList: any;
+    private paymentCodes: any;
 
     constructor(
         private paymentService: PaymentService,
@@ -83,7 +85,8 @@ export class AddPaymentModal implements IUniModal {
         private bankAccountService: BankAccountService,
         private uniSearchConfig: UniSearchAccountConfig,
         private toastService: ToastService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private paymentCodeService: PaymentCodeService,
     ) {}
 
     public ngOnInit() {
@@ -104,12 +107,15 @@ export class AddPaymentModal implements IUniModal {
 
     private setupForm() {
         const model = this.model$.getValue();
+        model.PaymentCodeID = model.PaymentCodeID || 1;
         Observable.forkJoin(
             this.bankAccountService.GetAll(`filter=CompanySettingsID eq ${this.companySettingsID}`),
-            this.bankAccountService.GetAll(`filter=BusinessRelationID eq ${model.BusinessRelationID || 0}`)
-        ).subscribe(bankAccounts => {
-            this.fromBankAccountsList = bankAccounts[0];
-            this.config.model['ToBankAccountsList'] = bankAccounts[1];
+            this.bankAccountService.GetAll(`filter=BusinessRelationID eq ${model.BusinessRelationID || 0}`),
+            this.paymentCodeService.GetAll(null)
+        ).subscribe(data => {
+            this.fromBankAccountsList = data[0];
+            this.config.model['ToBankAccountsList'] = data[1];
+            this.paymentCodes = data[2];
             this.fields$.next(this.getFields());
         });
     }
@@ -205,7 +211,7 @@ export class AddPaymentModal implements IUniModal {
             const options = this.getBankAccountsOptions();
             let toBankAccounts: UniFieldLayout = fields.find(x => x.Property === 'ToBankAccountID');
             this.config.model['ToBankAccountsList'] = bankAccounts;
-            toBankAccounts.Options = options
+            toBankAccounts.Options = options;
             this.fields$.next(fields);
         });
      }
@@ -383,6 +389,20 @@ export class AddPaymentModal implements IUniModal {
                 FieldSet: 0,
                 Section: 0,
                 ReadOnly: true
+            },
+            {
+                EntityType: 'Payment',
+                Property: 'PaymentCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type',
+                FieldSet: 0,
+                Section: 0,
+                Options: {
+                    source: this.paymentCodes,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    debounceTime: 200
+                }
             }
         ];
     }
@@ -390,7 +410,6 @@ export class AddPaymentModal implements IUniModal {
     public close(action: string) {
         if (action === 'ok') {
             const data = this.model$.getValue();
-            console.log(data);
             //validate
             if (!data['PaymentDate']) {
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler fra Betaligsdato!');
