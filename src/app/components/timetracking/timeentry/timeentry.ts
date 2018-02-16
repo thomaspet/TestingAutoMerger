@@ -295,7 +295,6 @@ export class TimeEntry {
             workItem.Worktype = types[0];
         }
         workItem.WorkTypeID = workItem.Worktype.ID;
-        workItem.EmploymentID = workItem.Employment.ID;
         return workItem;
     }
 
