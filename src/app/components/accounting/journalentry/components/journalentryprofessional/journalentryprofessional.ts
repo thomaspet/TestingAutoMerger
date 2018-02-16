@@ -629,6 +629,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
             rowModel.Dimensions.Project = project;
             rowModel.Dimensions.ProjectID = project.ID;
+        } else {
+            rowModel.Dimensions.Project = null;
+            rowModel.Dimensions.ProjectID = null;
         }
         return rowModel;
     }
@@ -700,6 +703,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
             rowModel.Dimensions.Department = dep;
             rowModel.Dimensions.DepartmentID = dep.ID;
+        } else {
+            rowModel.Dimensions.Department = null;
+            rowModel.Dimensions.DeparmentID = null;
         }
         return rowModel;
     }
