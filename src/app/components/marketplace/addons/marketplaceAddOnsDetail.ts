@@ -17,6 +17,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     public product$: Observable<AdminProduct>;
     public suggestedProducts$: Observable<AdminProduct[]>;
     public hasBoughtProduct$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public canActivate$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
         private tabService: TabService,
@@ -91,11 +92,16 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                     }
                     this.router.navigateByUrl('/marketplace');
                 })
-                .do(product =>
+                .do((product: AdminProduct) =>
                     this.adminPurchasesService.GetAll()
                         .map(purchases => purchases.some(purchase => purchase.productID === product.id))
                         .subscribe(
-                            hasBoughtProduct => this.hasBoughtProduct$.next(hasBoughtProduct),
+                            hasBoughtProduct => {
+                                this.hasBoughtProduct$.next(hasBoughtProduct);
+                                if (product.name === 'EHF') {
+                                    this.canActivate$.next(true);
+                                }
+                            },
                             err => this.errorService.handle(err),
                         )
                 );
@@ -126,13 +132,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                         );
 
                         this.hasBoughtProduct$.next(true);
-
-                        switch (product.name) {
-                            case 'EHF':
-                                this.modalService.open(UniActivateAPModal)
-                                    .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
-                                break;
-                        }
+                        this.activate(product);
 
                     } else {
                         this.toastService.addToast(
@@ -141,5 +141,14 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                     }
                 }
             );
+    }
+
+    public activate(product: AdminProduct) {
+        switch (product.name) {
+            case 'EHF':
+                this.modalService.open(UniActivateAPModal)
+                    .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
+                break;
+        }
     }
 }

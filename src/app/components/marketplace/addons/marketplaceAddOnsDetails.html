@@ -9,7 +9,8 @@
         </section>
         <section class="button-section">
             <button *ngIf="!(hasBoughtProduct$ | async)" (click)="buy(product)">Kjøp nå</button>
-            <button *ngIf="(hasBoughtProduct$ | async)" disabled>Har kjøpt</button>
+            <button *ngIf="(hasBoughtProduct$ | async) && !(canActivate$ | async)" disabled>Har kjøpt</button>
+            <button *ngIf="(hasBoughtProduct$ | async) && (canActivate$ | async)" (click)="activate(product)">Aktiver</button>
         </section>
     </section>
     <section class="background add-on-background-image">
