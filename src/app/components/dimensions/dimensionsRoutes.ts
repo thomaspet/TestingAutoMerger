@@ -70,6 +70,10 @@ export const dimensionsRoutes = [
                         path: 'quotes',
                         component: ProjectQueryList
                     },
+                    {
+                        path: 'supplierinvoices',
+                        component: ProjectQueryList
+                    }
                 ]
             },
             {
