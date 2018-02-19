@@ -1,6 +1,12 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import { IModalOptions, IUniModal, UniConfirmModalV2, ConfirmActions, UniAutobankAgreementModal} from '@uni-framework/uniModal/barrel';
-import {UniModalService} from '../modalService';
+import {
+    UniModalService,
+    IModalOptions,
+    IUniModal,
+    UniConfirmModalV2,
+    ConfirmActions
+} from '@uni-framework/uniModal/barrel';
+import {UniAutobankAgreementModal} from './autobankAgreementModal';
 
 @Component({
     selector: 'uni-autobank-agreement-list-modal',

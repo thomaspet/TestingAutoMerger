@@ -24,7 +24,12 @@ import {PaymentRelationsModal, PaymentRelationsTable} from './payments/relationM
 import {CustomerPaymentBatches} from './payments/customerPaymentBatches';
 import {CustomerPaymentBatchDetails} from './payments/customerPaymentBatchDetails';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {UniPaymentEditModal} from './modals/paymentEditModal';
+
+import {
+    UniPaymentEditModal,
+    UniAutobankAgreementListModal,
+    UniAutobankAgreementModal
+} from './modals';
 
 @NgModule({
     imports: [
@@ -52,11 +57,15 @@ import {UniPaymentEditModal} from './modals/paymentEditModal';
         PaymentBatchDetails,
         CustomerPaymentBatches,
         CustomerPaymentBatchDetails,
-        UniPaymentEditModal
+        UniPaymentEditModal,
+        UniAutobankAgreementListModal,
+        UniAutobankAgreementModal
     ],
     entryComponents: [
         PaymentRelationsTable,
-        UniPaymentEditModal
+        UniPaymentEditModal,
+        UniAutobankAgreementListModal,
+        UniAutobankAgreementModal
     ],
     providers: [
         CanDeactivateGuard
@@ -67,5 +76,4 @@ import {UniPaymentEditModal} from './modals/paymentEditModal';
         PaymentBatchDetails
     ]
 })
-export class BankModule {
-}
+export class BankModule {}

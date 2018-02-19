@@ -17,9 +17,11 @@ import {
     UniSendPaymentModal,
     UniConfirmModalV2,
     ConfirmActions,
+} from '../../../framework/uniModal/barrel';
+import {
     UniAutobankAgreementModal,
     UniAutobankAgreementListModal
-} from '../../../framework/uniModal/barrel';
+} from './modals';
 import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
