@@ -1,29 +1,29 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {
     UserService,
     ErrorService,
     CompanySettingsService,
     BankAccountService,
     BankService
-} from '../../../app/services/services';
+} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
-import { BankAccount } from '@uni-entities';
+import {BankAccount} from '@uni-entities';
 
 export interface IAutoBankAgreementDetails {
     Orgnr: string;
     Email: string;
-    Phone: string;
     Bank: string;
+    Phone: string;
     BankAccountID: number;
-    BankAccptance: boolean;
+    BankAcceptance: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
-    RequireTwoStage: boolean;
     Password: string;
     BankAccountNumber: number;
+    _confirmPassword?: string;
 }
 
 @Component({
@@ -38,7 +38,7 @@ export interface IAutoBankAgreementDetails {
                 For å komme i gang med autobank trenger vi informasjon fra dere for å koble opp mot deres bank.
                 </p>
                 <p>
-                    Oppsettet mot de ulike bankene er ulikt og for å sikre best mulig automasjon vil vi kunne trenge ekstra informasjon.
+                    Oppsettet mot de ulike bankene er ulikt, og for å sikre best mulig automasjon vil vi kunne trenge ekstra informasjon.
                     I slike tilfeller vil dere bli kontaktet av Uni Micro AS eller Zdata for å innhente nødvendig informasjon.
                 </p>
             </article>
@@ -59,14 +59,6 @@ export interface IAutoBankAgreementDetails {
                         id="isOutgoingCheckbox" />
                     Utbetalinger
                 </label>
-                <p>Ønsker du to-stegs bekrefelse (med telefon) for å godkjenne en betaling? </p>
-                <label class="checkbox-label" for="RequireTwoStage">
-                    <input type="checkbox"
-                        [(ngModel)]="agreementDetails.RequireTwoStage"
-                        (change)="onCheckboxChange()"
-                        id="RequireTwoStage" />
-                    Ønsker to-stegs bekreftelse
-                </label>
             </article>
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 2" id="step2">
                 <p *ngIf="!editmode">Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
@@ -76,7 +68,7 @@ export interface IAutoBankAgreementDetails {
                     [model]="formModel$"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
-                <span *ngIf="showErrorText" style="font-size: .75rem; color: red; margin-left: 25px;"> {{ errorText }}</span>
+                <span *ngIf="errorText" style="font-size: .75rem; color: red; margin-left: 0.5rem;"> {{ errorText }}</span>
             </article>
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 3" id="step3" [attr.aria-busy]="busy">
                 <p> Se over og sjekk at all informasjon stemmer føre dere velger fortsett
@@ -85,7 +77,7 @@ export interface IAutoBankAgreementDetails {
 
                 <h3> <strong>Orgnr: </strong> {{ agreementDetails.Orgnr }} </h3>
                 <h3> <strong>Bankkonto: </strong> {{ agreementDetails.BankAccountNumber }} - {{ agreementDetails.Bank }} </h3>
-                <h3> <strong>Manuell godkjenning i nettbank:  </strong> {{ agreementDetails.BankAccptance ? 'Ja' : 'Nei' }} </h3>
+                <h3> <strong>Manuell godkjenning i nettbank:  </strong> {{ agreementDetails.BankAcceptance ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Avtale for utgående betaling:  </strong> {{ agreementDetails.IsInbound ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Avtale for innkommende betaling:  </strong> {{ agreementDetails.IsOutgoing ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Epost: </strong> {{ agreementDetails.Email }} </h3>
@@ -97,9 +89,18 @@ export interface IAutoBankAgreementDetails {
             </article>
 
             <footer *ngIf="!editmode">
-                <button (click)="move(-1)" *ngIf="steps > 0 && steps !== 4" >Tilbake</button>
-                <button (click)="move(1)" *ngIf="steps !== 4" [disabled]="!canMoveForward">Fortsett</button>
-                <button (click)="sendStartDataToZData()" *ngIf="steps !== 4" [disabled]="steps !== 3" class="good">Fullfør</button>
+                <button (click)="move(-1)" [disabled]="busy" *ngIf="steps > 0 && steps !== 4">
+                    Tilbake
+                </button>
+
+                <button (click)="move(1)" *ngIf="steps < 3" [disabled]="busy || !canMoveForward">
+                    Fortsett
+                </button>
+
+                <button (click)="sendStartDataToZData()" *ngIf="steps === 3" class="good" [disabled]="busy">
+                    Fullfør
+                </button>
+
                 <button (click)="close('cancel')" class="bad">Lukk</button>
             </footer>
             <footer *ngIf="editmode">
@@ -120,21 +121,19 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     private steps: number = 0;
     private canMoveForward: boolean = true;
-    private errorText: string = 'Ugyldig passord! Passordet må ha minst 3 av 4 av kriteriene: Stor bokstav, liten bokstav, tall og tegn';
-    private showErrorText: boolean = false;
+    private errorText: string;
     private accounts: any[] = [];
     private busy: boolean = false;
     private header = 'Veiviser for ny autobankavtale';
     private agreementDetails: IAutoBankAgreementDetails = {
-        Email: '',
         Phone: '',
+        Email: '',
         Bank: '',
         Orgnr: '',
         BankAccountID: 0,
-        BankAccptance: false,
+        BankAcceptance: true,
         IsInbound: false,
         IsOutgoing: false,
-        RequireTwoStage: false,
         Password: '',
         BankAccountNumber: 0
     };
@@ -197,23 +196,17 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 returnString += !!item.Bank ? ' - ' + item.Bank.Name : '';
                 return returnString;
             },
+            hideDeleteButton: true,
             debounceTime: 200
         };
         return [
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'Orgnr',
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
                 Label: 'Orgnr.',
                 Hidden: this.editmode
             },
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'Bank',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
@@ -221,61 +214,37 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             },
             bankAccountField,
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
-                Property: 'BankAccptance',
-                FieldType: FieldType.CHECKBOX,
-                ReadOnly: false,
-                Label: 'Manuel godkjenning',
-            },
-            <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'IsInbound',
                 FieldType: FieldType.CHECKBOX,
-                ReadOnly: false,
                 Label: 'Innkommende',
                 Hidden: !this.editmode
             },
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'IsOutgoing',
                 FieldType: FieldType.CHECKBOX,
-                ReadOnly: false,
                 Label: 'Utgående',
                 Hidden: !this.editmode
             },
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'Phone',
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
                 Label: 'Telefon',
-                Hidden: !this.agreementDetails.RequireTwoStage
             },
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
-                ReadOnly: false,
                 Label: 'Epost',
             },
             <any> {
-                FieldSet: 0,
-                FieldSetColumn: 0,
-                EntityType: '',
                 Property: 'Password',
                 FieldType: FieldType.PASSWORD,
-                ReadOnly: false,
                 Label: 'Passord',
+                Hidden: this.editmode
+            },
+            <any> {
+                Property: '_confirmPassword',
+                FieldType: FieldType.PASSWORD,
+                Label: 'Bekreft passord',
                 Hidden: this.editmode
             }
         ];
@@ -315,16 +284,22 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         if (event.BankAccountID) {
             const account = this.accounts.filter(item => item.ID === event.BankAccountID.currentValue);
             this.agreementDetails.BankAccountNumber = account[0].AccountNumber || null;
-            if (account.length > 0 && !!account[0].Bank) {
+            if (account.length > 0 && account[0] && account[0].Bank) {
                 this.agreementDetails.Bank = account[0].Bank.Name;
                 this.formModel$.next(this.agreementDetails);
             } else {
                 this.agreementDetails.Bank = '';
                 this.formModel$.next(this.agreementDetails);
             }
-        } else if (event.Password) {
-            this.showErrorText = !this.validatePassword(event.Password.currentValue);
         }
+
+        if (event.Orgnr) {
+            // trim whitespace
+            this.agreementDetails.Orgnr = (this.agreementDetails.Orgnr || '').split(' ').join('');
+            this.formModel$.next(this.agreementDetails);
+        }
+
+        this.agreementDetails = this.formModel$.getValue();
         this.canMoveForward = this.validateForm();
     }
 
@@ -333,27 +308,77 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     }
 
     private validateForm(): boolean {
-        let isValid = this.agreementDetails.Bank !== '';
-        isValid = isValid && this.agreementDetails.Orgnr !== ''
+        this.errorText = '';
+
+        if (!this.agreementDetails.Bank) {
+            return false;
+        }
+
+        // trim whitespace from org.nr
+        const validOrgNr = this.agreementDetails.Orgnr !== ''
             && !isNaN(parseInt(this.agreementDetails.Orgnr, 10))
             && this.agreementDetails.Orgnr.length === 9;
-        isValid = isValid && this.agreementDetails.Email !== '' && this.agreementDetails.Email.includes('@');
-        isValid = isValid && this.validatePassword(this.agreementDetails.Password);
-        if (this.agreementDetails.RequireTwoStage) {
-            const phoneNumber = parseInt(this.agreementDetails.Phone, 10);
-            isValid = isValid && !isNaN(phoneNumber) && phoneNumber > 9999999 && phoneNumber < 100000000;
+
+        if (!validOrgNr) {
+            if (this.agreementDetails.Orgnr) {
+                this.errorText = 'Ugyldig org.nr';
+            }
+
+            return false;
         }
-        return isValid;
+
+        if (!this.agreementDetails.Phone) {
+            return false;
+        }
+
+        if (!this.agreementDetails.Email || !this.agreementDetails.Email.includes('@')) {
+            if (this.agreementDetails.Email) {
+                this.errorText = 'Ugyldig epost';
+            }
+            return false;
+        }
+
+        if (!this.validatePassword(this.agreementDetails)) {
+            // Validate function sets error message
+            return false;
+        }
+
+        return true;
     }
 
-    private validatePassword(password: string): boolean {
+    private validatePassword(agreementDetails: IAutoBankAgreementDetails): boolean {
+        const password = this.agreementDetails.Password;
+        const confirmPassword = this.agreementDetails._confirmPassword;
+
+        if (!password) {
+            return false;
+        }
+
         let numberOfMetCriterias = 0;
         numberOfMetCriterias += /[a-zæøå]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[A-ZÆØÅ]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[\d]/.test(password) ? 1 : 0;
         numberOfMetCriterias += /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password) ? 1 : 0;
 
-        return numberOfMetCriterias >= 3;
+        const passwordValid = numberOfMetCriterias >= 3;
+        let passwordConfirmed: boolean;
+
+        if (passwordValid) {
+            if (password === confirmPassword) {
+                this.errorText = '';
+                passwordConfirmed = true;
+            } else {
+                if (confirmPassword) {
+                    this.errorText = 'Passordene er ikke like';
+                }
+
+                passwordConfirmed = false;
+            }
+        } else {
+            this.errorText = 'Ugyldig passord! Passordet må ha minst 3 av 4 av kriteriene: Stor bokstav, liten bokstav, tall og tegn';
+        }
+
+        return passwordValid && passwordConfirmed;
     }
 
     public saveAfterEdit() {
