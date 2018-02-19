@@ -16,6 +16,7 @@ export interface IAutoBankAgreementDetails {
     Orgnr: string;
     Email: string;
     Bank: string;
+    Phone: string;
     BankAccountID: number;
     BankAcceptance: boolean;
     IsInbound: boolean;
@@ -125,6 +126,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     private busy: boolean = false;
     private header = 'Veiviser for ny autobankavtale';
     private agreementDetails: IAutoBankAgreementDetails = {
+        Phone: '',
         Email: '',
         Bank: '',
         Orgnr: '',
@@ -166,6 +168,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             // If not agreement is passed in as Input
             if (!this.editmode) {
                 this.agreementDetails.Orgnr = res[0].OrganizationNumber;
+                this.agreementDetails.Phone = res[1].PhoneNumber;
                 this.agreementDetails.Email = res[1].Email;
                 this.steps = 0;
             }
@@ -221,6 +224,11 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Utgående',
                 Hidden: !this.editmode
+            },
+            <any> {
+                Property: 'Phone',
+                FieldType: FieldType.TEXT,
+                Label: 'Telefon',
             },
             <any> {
                 Property: 'Email',
@@ -316,6 +324,10 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 this.errorText = 'Ugyldig org.nr';
             }
 
+            return false;
+        }
+
+        if (!this.agreementDetails.Phone) {
             return false;
         }
 
