@@ -31,7 +31,9 @@ import {
     PaymentBatchService,
     FileService,
     UniTickerService,
-    PaymentService
+    PaymentService,
+    AdminProductService,
+    AdminPurchasesService
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -54,7 +56,8 @@ import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
                     </ul>
                 </li>
             </ul>
-            <section class="autobank-section">
+
+            <section class="autobank-section" *ngIf="hasAccessToAutobank">
                 <a (click)="openAgreementsModal()" *ngIf="agreements?.length > 0">Mine avtaler</a>
                 <button class="good" (click)="openAutobankAgreementModal()"> Ny autobankavtale </button>
             </section>
@@ -80,6 +83,7 @@ export class BankComponent implements AfterViewInit {
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];
+    private hasAccessToAutobank: boolean;
 
     public toolbarconfig: IToolbarConfig = {
         title: '',
@@ -114,7 +118,9 @@ export class BankComponent implements AfterViewInit {
         private errorService: ErrorService,
         private toastService: ToastService,
         private fileService: FileService,
-        private paymentService: PaymentService
+        private paymentService: PaymentService,
+        private adminProductService: AdminProductService,
+        private adminPurchasesService: AdminPurchasesService
     ) {
         this.tabService.addTab({
             name: 'Bank',
@@ -122,6 +128,8 @@ export class BankComponent implements AfterViewInit {
             moduleID: UniModules.Bank,
             active: true
         });
+
+        this.checkAutobankAccess();
     }
 
     public ngAfterViewInit() {
@@ -138,6 +146,28 @@ export class BankComponent implements AfterViewInit {
             });
             this.selectTicker(this.tickerGroups[0].Tickers[0].Code);
         });
+    }
+
+    private checkAutobankAccess() {
+        // Replace purchases getAll with filtered request when filtering works..
+        Observable.forkJoin(
+            this.adminProductService.GetAll(),
+            this.adminPurchasesService.GetAll()
+        ).subscribe(
+            res => {
+                const [products, purchases] = res;
+
+                // TODO: fix this check when we know what to look for..
+                const autobank = products && products.find(product => {
+                    return product.name && product.name.toLowerCase() === 'autobank';
+                });
+
+                if (autobank && purchases.some(purchase => purchase.productID === autobank.id)) {
+                    this.hasAccessToAutobank = true;
+                }
+            },
+            err => console.error(err)
+        );
     }
 
     private navigateToTicker(ticker: Ticker) {
