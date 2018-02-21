@@ -987,9 +987,11 @@ export class UniTicker {
     }
 
     private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {
-        if (column.Field === 'ID' || column.Field === 'StatusCode') { return true; }
-        if (userColumnSetup) { return userColumnSetup.visible; }
-        return !column.DefaultHidden;
+        if (column.SelectRequired || column.Field === 'ID' || column.Field === 'StatusCode') {
+            return true;
+        }
+
+        return (userColumnSetup && userColumnSetup.visible) || !column.DefaultHidden;
     }
 
     private setExpand(column: TickerColumn) {

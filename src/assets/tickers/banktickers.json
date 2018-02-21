@@ -154,13 +154,15 @@
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
                 "Width": "15%",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "SelectRequired": true
             },
             {
                 "Header": "Konto til",
                 "Field": "ToBankAccount.AccountNumber",
                 "Width": "15%",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "SelectRequired": true
             },
             {
                 "Header": "KID",
@@ -174,7 +176,8 @@
                 "Header": "Kode",
                 "Field": "PaymentCode.Code",
                 "Width": "15%",
-                "DefaultHidden": false
+                "DefaultHidden": true,
+                "SelectRequired": true
             },
             {
                 "Header": "Type",
@@ -183,7 +186,7 @@
                 "DefaultHidden": false
             },
             {
-                "Header": "Beløp",
+                "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
                 "Width": "10%",
                 "FilterOperator": "contains",
