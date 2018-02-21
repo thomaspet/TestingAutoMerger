@@ -165,7 +165,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
             p.value = model[p.Name];
 
-            if (p.Name === 'HideAccounts') {
+            if (p.Name === 'HideAccounts' || p.Name === 'ShowNetSums') {
                 if (p.value === true) {
                     p. value = 1;
                 } else {
