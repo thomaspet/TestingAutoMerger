@@ -23,6 +23,7 @@ import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
+import {EmpCanActivateGuard} from '@app/components/salary/employee/empGuard';
 
 export const salaryRoutes: Routes = [
     {
@@ -48,7 +49,8 @@ export const salaryRoutes: Routes = [
         path: 'employees/:id',
         component: EmployeeDetails,
         children: EmployeeRoutes,
-        canDeactivate: [CanDeactivateGuard]
+        canDeactivate: [CanDeactivateGuard],
+        canActivate: [EmpCanActivateGuard]
     },
     {
         path: 'payrollrun',

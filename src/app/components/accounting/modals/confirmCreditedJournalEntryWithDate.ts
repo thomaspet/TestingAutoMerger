@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@an
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uniModal/interfaces';
 import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
 import * as moment from 'moment';
+import {LocalDate} from '@uni-entities';
 
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',
@@ -79,7 +80,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     private findNonLockedDate() {
         this.companySettingsService.getCompanySettings().subscribe(x => {
             const today = moment(new Date()).format('YYYY-MM-DD');
-            let date: Date | string, greatestLockedDate: Date | string, message: string;
+            let date: Date | string, greatestLockedDate: Date |LocalDate | string, message: string;
 
             // reformat the dates so its easier to read for the users(used in html)
             this.vatLockedDateReformatted = x.VatLockedDate ? moment(x.VatLockedDate).format('DD-MM-YYYY') : null;

@@ -136,6 +136,7 @@ export class WorkItem extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
+    public EmploymentID: number;
     public EndTime: Date;
     public ID: number;
     public Invoiceable: boolean;
@@ -160,9 +161,8 @@ export class WorkItem extends UniEntity {
     public Customer: Customer;
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
-    public CustomFields: any;
-    public EmploymentID: number;
     public Employment: Employment;
+    public CustomFields: any;
 }
 
 
@@ -3076,6 +3076,7 @@ export class CompanySettings extends UniEntity {
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
+    public HasAutobank: boolean;
     public ID: number;
     public LogoAlign: number;
     public LogoFileID: number;
@@ -3095,29 +3096,31 @@ export class CompanySettings extends UniEntity {
     public SupplierAccountID: number;
     public TaxBankAccountID: number;
     public TaxMandatory: boolean;
+    public TwoStageAutobankEnabled: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UseOcrInterpretation: boolean;
     public UseXtraPaymentOrgXmlTag: boolean;
     public VatLockedDate: LocalDate;
     public VatReportFormID: number;
     public WebAddress: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public DefaultProductInvoiceReminder: Product;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultProductInvoiceReminder: Product;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
@@ -3139,6 +3142,7 @@ export class User extends UniEntity {
     public Email: string;
     public GlobalIdentity: string;
     public ID: number;
+    public IsAutobankAdmin: boolean;
     public LastLogin: Date;
     public PhoneNumber: string;
     public Protected: boolean;
@@ -3512,8 +3516,8 @@ export class Task extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Approvals: Array<Approval>;
     public Model: Model;
+    public Approvals: Array<Approval>;
     public User: User;
     public CustomFields: any;
 }
@@ -4750,9 +4754,9 @@ export class VatReportReference extends UniEntity {
     public UpdatedBy: string;
     public VatPostID: number;
     public VatTypeID: number;
-    public Account: Account;
-    public VatPost: VatPost;
     public VatType: VatType;
+    public VatPost: VatPost;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -4925,10 +4929,10 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -5113,8 +5117,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -5956,6 +5960,7 @@ export class UserDto extends UniEntity {
     public Email: string;
     public GlobalIdentity: string;
     public ID: number;
+    public IsAutobankAdmin: boolean;
     public LastLogin: Date;
     public PhoneNumber: string;
     public Protected: boolean;
@@ -5998,12 +6003,27 @@ export class CompanyLicense extends UniEntity {
     public ContactPerson: string;
     public Key: string;
     public Name: string;
+    public Agency: Agency;
+}
+
+
+export class Agency extends UniEntity {
+    public CompanyKey: string;
+    public Name: string;
 }
 
 
 export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
+}
+
+
+export class CreateBankUserDTO extends UniEntity {
+    public AdminUserId: number;
+    public IsAdmin: boolean;
+    public Password: string;
+    public Phone: string;
 }
 
 
@@ -6161,6 +6181,14 @@ export class CreateBankIntegrationDTO extends UniEntity {
     public Password: string;
     public Phone: string;
     public RequireTwoStage: boolean;
+}
+
+
+export class AutobankUserDTO extends UniEntity {
+    public IsAdmin: boolean;
+    public Password: string;
+    public Phone: string;
+    public UserID: number;
 }
 
 

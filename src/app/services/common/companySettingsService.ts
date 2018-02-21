@@ -28,7 +28,7 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
         ];
     }
 
-    public getCompanySettings(expand?: string[]) {
+    public getCompanySettings(expand?: string[]): Observable<CompanySettings> {
         return super.GetAll('top=1', expand).map(res => res[0]);
     }
 

@@ -42,14 +42,6 @@ const SAVE_TRIGGER_KEY = 'save';
 const NEW_TRIGGER_KEY = 'new';
 const SELECTED_KEY = '_rowSelected';
 
-type DirtyStatuses = {
-    employee?: boolean,
-    employeeTaxCard?: boolean,
-    employments?: boolean,
-    employeeLeave?: boolean,
-    recurringPosts?: boolean,
-    salarybalances?: boolean
-};
 @Component({
     selector: 'uni-employee-details',
     templateUrl: './employeeDetails.html'
@@ -281,7 +273,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     )
                     .take(1)
                     .map((result: [Employee, SubEntity[]]) => {
-                        let [emp, subEntities] = result;
+                        const emp = result[0];
+                        let subEntities = result[1];
 
                         if (!emp.SubEntityID) {
                             if (subEntities && subEntities.length > 1) {

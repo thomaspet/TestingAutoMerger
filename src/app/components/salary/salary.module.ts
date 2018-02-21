@@ -95,6 +95,7 @@ import {AltinnErrorHandlerService} from './sharedServices/altinnErrorHandlerServ
 import {AltinnResponseStatusComponent} from './common/altinn-response-status/altinn-response-status.component';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
 import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
+import {EmpCanActivateGuard} from './employee/empGuard';
 
 @NgModule({
     imports: [
@@ -216,6 +217,7 @@ import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-d
         CategoryViewService,
         SalaryTransViewService,
         AltinnErrorHandlerService,
+        EmpCanActivateGuard
     ],
     exports: [
         UniSalary,

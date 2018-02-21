@@ -1,10 +1,12 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, Operator, EmployeeCategory, Municipal} from '../../../unientities';
+import {Employee, Operator, EmployeeCategory, Municipal, CompanySettings, SubEntity} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import {MunicipalService} from '../../common/municipalsService';
+import {CompanySettingsService} from '../../common/companySettingsService';
+import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {UserService} from '../../common/userService';
@@ -34,12 +36,28 @@ export class EmployeeService extends BizHttp<Employee> {
         http: UniHttp,
         private errorService: ErrorService,
         private userService: UserService,
-        private municipalService: MunicipalService
+        private municipalService: MunicipalService,
+        private companySettingsService: CompanySettingsService,
+        private subEntityService: SubEntityService
     ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
         this.defaultExpand = ['BusinessRelationInfo'];
+    }
+
+    public canAccesssEmployee(id: number): Observable<boolean> {
+        if (!id) {
+            return Observable.of(true);
+        }
+        return Observable
+            .forkJoin(this.companySettingsService.getCompanySettings(), this.subEntityService.GetAll(''))
+            .map((result: [CompanySettings, SubEntity[]]) => {
+                const [companySettings, subEntities] = result;
+                return !!companySettings.OrganizationNumber &&
+                    companySettings.OrganizationNumber !== '-' &&
+                    !!subEntities.length;
+            });
     }
 
     public getEmployeeCategories(employeeID: number): Observable<EmployeeCategory[]> {
