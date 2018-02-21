@@ -4,7 +4,8 @@ import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal
 import {PayrollrunService, ErrorService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {PayrollRun} from '../../../../unientities';
+import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval} from '../../../../unientities';
+import * as moment from 'moment';
 
 @Injectable()
 export class PayrollRunDetailsService {
@@ -53,5 +54,35 @@ export class PayrollRunDetailsService {
                 : `${payrollRun.ID} - ${payrollRun.Description || 'Lønnsavregning'}`,
             onSelect: selected => this.router.navigate(['salary/payrollrun/' + selected.ID])
         };
+    }
+
+    public suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun, activeYear: number) {
+        const fromDate = latest
+            ? new LocalDate(moment(latest.ToDate).clone().add(1, 'days').toDate())
+            : new LocalDate(activeYear + '-01-01'); // first payroll
+
+        payrollRun.FromDate = new LocalDate(fromDate.toLocaleString()).toDate();
+        payrollRun.ToDate = this.getToDate(fromDate, companysalary && companysalary.PaymentInterval);
+    }
+
+    private getToDate(fromDate: LocalDate, paymentInteval: CompanySalaryPaymentInterval): Date {
+        let toDate = new LocalDate(moment(fromDate).clone().subtract(1, 'days').toDate());
+        const fromDateMoment = moment(fromDate).clone();
+        const toDateMoment = moment(toDate).clone();
+
+        switch (paymentInteval) {
+            case CompanySalaryPaymentInterval.Pr14Days:
+                toDate = new LocalDate(toDateMoment.add(14, 'days').toDate());
+                break;
+
+            case CompanySalaryPaymentInterval.Weekly:
+                toDate = new LocalDate(toDateMoment.add(7, 'days').toDate());
+                break;
+            default:
+                toDate = new LocalDate(fromDateMoment.endOf('month').toDate());
+                break;
+        }
+
+        return new LocalDate(toDate.toLocaleString()).toDate();
     }
 }

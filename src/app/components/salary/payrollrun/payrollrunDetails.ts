@@ -627,7 +627,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
                 if (payroll && payroll.ID === 0) {
                     payroll.ID = null;
-                    this.suggestFromToDates(latest, companysalary, payroll);
+                    this.payrollRunDetailsService.suggestFromToDates(latest, companysalary, payroll, this.activeYear);
                 }
 
                 if (payroll) {
@@ -649,64 +649,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private setDefaults(payrollRun: PayrollRun) {
         payrollRun.taxdrawfactor = TaxDrawFactor.Standard;
-    }
-
-    private suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun) {
-        if (!latest) {
-            // First payrollrun for the year
-            let todate: LocalDate;
-            let fromdate: LocalDate = new LocalDate(this.activeYear + '-01-01');
-            payrollRun.FromDate = fromdate.toDate();
-
-            if (companysalary) {
-                switch (companysalary.PaymentInterval) {
-                    case CompanySalaryPaymentInterval.Pr14Days:
-                        todate = new LocalDate(new Date(this.activeYear, 0, 14));
-                        payrollRun.ToDate = todate.toDate();
-                        break;
-
-                    case CompanySalaryPaymentInterval.Weekly:
-                        todate = new LocalDate(new Date(this.activeYear, 0, 7));
-                        payrollRun.ToDate = todate.toDate();
-                        break;
-
-                    default: // Monthly
-                        todate = new LocalDate(new Date(this.activeYear, 0, 31));
-                        payrollRun.ToDate = todate.toDate();
-                        break;
-                }
-            } else {
-                todate = new LocalDate(new Date(this.activeYear, 0, 31));
-                payrollRun.ToDate = todate.toDate();
-            }
-        } else {
-            let lastTodate = moment(latest.ToDate);
-            let lastFromdate = lastTodate.clone();
-            lastFromdate.add(1, 'days');
-
-            payrollRun.FromDate = new LocalDate(lastFromdate.toDate()).toDate();
-            if (companysalary) {
-                switch (companysalary.PaymentInterval) {
-                    case CompanySalaryPaymentInterval.Pr14Days:
-                        lastTodate.add(14, 'days');
-                        payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
-                        break;
-
-                    case CompanySalaryPaymentInterval.Weekly:
-                        lastTodate.add(7, 'days');
-                        payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
-                        break;
-
-                    default:
-                        lastTodate = lastFromdate.clone().endOf('month');
-                        payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
-                        break;
-                }
-            } else {
-                lastTodate = lastFromdate.clone().endOf('month');
-                payrollRun.ToDate = new LocalDate(lastTodate.toLocaleString()).toDate();
-            }
-        }
     }
 
     private getEmployees() {
