@@ -1022,6 +1022,11 @@ export class OrderDetails {
         order.Comment = null;
         delete order['_links'];
 
+        order.Sellers = order.Sellers.map(item => {
+            item.CustomerOrderID = null;
+            return item;
+        });
+
         order.Items = order.Items.map((item: CustomerOrderItem) => {
             item.CustomerOrderID = 0;
             item.ID = 0;
