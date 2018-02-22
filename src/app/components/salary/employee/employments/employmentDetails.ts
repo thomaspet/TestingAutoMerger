@@ -4,6 +4,7 @@ import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {TypeOfEmployment} from '@uni-entities';
 import {
     EmployeeService,
     ErrorService,
@@ -83,6 +84,7 @@ export class EmploymentDetails implements OnChanges {
             }
 
             this.employment$.next(change['employment'].currentValue);
+            this.updateAmeldingTooltips();
         }
 
         if (change['subEntities'] && change['subEntities'].currentValue) {
@@ -165,6 +167,60 @@ export class EmploymentDetails implements OnChanges {
             this.fields$.next(layout.Fields);
             this.formReady = true;
         }, err => this.errorService.handle(err));
+    }
+
+    public updateAmeldingTooltips() {
+        const employment = this.employment$.getValue();
+        const fields: any[] = this.fields$.getValue();
+
+        fields.forEach(field => {
+            if (field.Tooltip && field.Tooltip._isAmeldingValidationTooltip) {
+                field.Tooltip = undefined;
+            }
+        });
+
+        // TypeOfEmployment is always required
+        this.setRequiredTooltip(fields, employment, 'TypeOfEmployment');
+
+        // "Not set" and Pension has no more required fields
+        if (employment.TypeOfEmployment === TypeOfEmployment.notSet
+            || employment.TypeOfEmployment === TypeOfEmployment.PensionOrOtherNonEmployedBenefits
+        ) {
+            this.fields$.next(fields);
+            return;
+        }
+
+        // Ordinary, maritime and frilancer
+        this.setRequiredTooltip(fields, employment, 'StartDate');
+
+        // Ordinary and maritime
+        if (employment.TypeOfEmployment !== TypeOfEmployment.FrilancerContratorFeeRecipient) {
+            this.setRequiredTooltip(fields, employment, 'JobCode');
+            this.setRequiredTooltip(fields, employment, 'HoursPerWeek');
+            this.setRequiredTooltip(fields, employment, 'WorkPercent');
+            this.setRequiredTooltip(fields, employment, 'LastWorkPercentChangeDate');
+            this.setRequiredTooltip(fields, employment, 'LastSalaryChangeDate');
+            this.setRequiredTooltip(fields, employment, 'WorkingHoursScheme');
+        }
+
+        // Only maritime
+        if (employment.TypeOfEmployment === TypeOfEmployment.MaritimeEmployment) {
+            this.setRequiredTooltip(fields, employment, 'RenumerationType');
+        }
+
+        this.fields$.next(fields);
+    }
+
+    private setRequiredTooltip(fields, model, property) {
+        const field = fields.find(f => f.Property === property);
+        if (!_.get(model, property)) {
+            field.Tooltip = {
+                Type: 'warn',
+                Text: 'Dette feltet er påkrevd ved innrapportering av A-melding',
+                // Set flag to avoid clearing other tooltips in updateAmeldingTooltips()
+                _isAmeldingValidationTooltip: true
+            };
+        }
     }
 
     public setSourceOn(searchField: string, source: any) {
