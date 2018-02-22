@@ -13,12 +13,13 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {Observable} from 'rxjs/Observable';
 import { UnitableAutocomplete } from '@uni-framework/ui/unitable/controls/autocomplete';
 import { first } from 'rxjs/operator/first';
-import { CompanyBankAccount } from '@uni-entities';
+import { CompanyBankAccount, BankAccount } from '@uni-entities';
 
 @Component({
     selector: '',
     template: `
         <uni-table
+            [attr.aria-busy]="busy"
             [resource]="data"
             [config]="tableConfig"
             (rowDeleted)="deleteSettings($event.rowModel)">
@@ -39,6 +40,8 @@ export class UniBankSettings {
     private yesno = ['Ja', 'Nei'];
     private accounts;
     private hasUnsavedChanges: boolean = false;
+    private busy: boolean = false;
+    private isClosing: boolean = false;
 
     public saveactions: IUniSaveAction[] = [{
         label: 'Lagre',
@@ -99,33 +102,46 @@ export class UniBankSettings {
                     },
                     lookupFunction: (query) => {
                         return this.bankAccountService.GetAll(
-                            `filter=(startswith(AccountNumber,'${query}'))` +
-                            ` and (BankAccountType ne 'Customer' and BankAccountType ne 'Supplier')&expand=Bank&top=15`
+                            `filter=(startswith(AccountNumber,'${query}'))`
+                            + ` and (BankAccountType ne 'Customer' and BankAccountType ne 'Supplier')`
+                            + `&expand=Bank,Account,Account.CurrencyCode&top=15`
                         ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                     },
                     addNewButtonVisible: true,
                     addNewButtonText: 'Ny konto',
                     addNewButtonCallback: (res) => {
                         this.modalService.open(UniBankAccountModal,
-                            { data: { _ibanAccountSearch : document.getElementsByClassName('uniAutocomplete_input')[0]['value'] } }
+                            { data: {
+                                _ibanAccountSearch : document.getElementsByClassName('uniAutocomplete_input')[0]['value'],
+                                _fromBankSettings: true
+                            } }
                         ).onClose.subscribe((account) => {
                             if (account) {
-                                const row = this.table.getCurrentRow();
-                                row.BankAccount = account;
-                                row.BankAccountID = account.ID;
-                                this.table.updateRow(row._originalIndex, row);
+                                this.bankAccountService.Post<BankAccount>(account).subscribe((savedAccount: any) => {
+                                    this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+
+                                    const row = this.table.getCurrentRow();
+                                    row.BankAccount = savedAccount;
+                                    row.BankAccountID = savedAccount.ID;
+                                    this.table.updateRow(row._originalIndex, row);
+                                }, (err) => { this.toastService.addToast('Kunne ikke lagre konto. Prøv igjen', ToastType.bad); });
                             }
                         });
                     },
                     alwaysShowDropdown: true,
                     showEditOnLine: true,
                     editOnLineCallBack: (acc) => {
+                        acc._fromBankSettings = true;
                         this.modalService.open(UniBankAccountModal, { data: acc }).onClose.subscribe((account) => {
                             if (account) {
-                                const row = this.table.getCurrentRow();
-                                row.BankAccount = account;
-                                row.BankAccountID = account.ID;
-                                this.table.updateRow(row._originalIndex, row);
+                                this.bankAccountService.Put<BankAccount>(account.ID, account).subscribe((savedAccount: any) => {
+                                    this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+
+                                    const row = this.table.getCurrentRow();
+                                    row.BankAccount = savedAccount;
+                                    row.BankAccountID = savedAccount.ID;
+                                    this.table.updateRow(row._originalIndex, row);
+                                }, (err) => { this.toastService.addToast('Kunne ikke oppdatere konto. Prøv igjen', ToastType.bad); });
                             }
                         });
                     },
@@ -227,6 +243,14 @@ export class UniBankSettings {
             } else {
                 row.AccountID = null;
             }
+        } else if (event.field === 'BankAccount') {
+            if (event.rowModel.BankAccount) {
+                row.BankAccountID = event.rowModel.BankAccount.ID;
+                if (event.rowModel.BankAccount.AccountID && event.rowModel.BankAccount.Account) {
+                    row.AccountID = event.rowModel.BankAccount.AccountID;
+                    row.Account = event.rowModel.BankAccount.Account;
+                }
+            }
         } else if (event.field === 'IsSalary' || event.field === 'IsTax' || event.field === 'IsIncomming' || event.field === 'IsOutgoing') {
             this.data = this.table.getTableData();
             this.data = this.data.map((line) => {
@@ -274,11 +298,11 @@ export class UniBankSettings {
                 isMissingAccountID = true;
             }
         });
-
         if (isMissingAccountID) {
             this.toastService.addToast('Kan ikke lagre', ToastType.bad, 5,  'Alle linjer må ha hovedbokskonto');
             event('Ikke lagret, endringer kreves.');
         } else {
+            this.busy = true;
             this.saveOneAccount(0, event);
         }
     }
@@ -287,17 +311,21 @@ export class UniBankSettings {
         if (index >= this.accounts.length) {
             this.hasUnsavedChanges = false;
             this.updateSaveActions();
-            event('Lagring ferdig');
+            if (!this.isClosing) {
+                this.setUpTable();
+                event('Lagring ferdig');
+                this.busy = false;
+            }
             return;
         }
         if (this.accounts[index].ID) {
             this.bankService.putCompanyBankAccount(this.accounts[index]).subscribe((res) => {
                 this.saveOneAccount(++index, event);
-            }, (err) => { this.errorService.handle(err); });
+            }, (err) => { this.errorService.handle(err); this.busy = false; });
         } else {
             this.bankService.postCompanyBankAccount(this.accounts[index]).subscribe((res) => {
                 this.saveOneAccount(++index, event);
-           }, (err) => { this.errorService.handle(err); });
+           }, (err) => { this.errorService.handle(err); this.busy = false; });
         }
     }
 
@@ -319,6 +347,7 @@ export class UniBankSettings {
     }
 
     public canDeactivate(): Observable<boolean> {
+        this.isClosing = true;
         return !this.hasUnsavedChanges
             ? Observable.of(true)
             : this.modalService
@@ -327,6 +356,8 @@ export class UniBankSettings {
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         this.saveSettings(() => {});
+                    } else {
+                        this.isClosing = false;
                     }
                     return result !== ConfirmActions.CANCEL;
                 });

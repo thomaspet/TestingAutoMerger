@@ -71,7 +71,6 @@ export class UniBankAccountModal implements IUniModal {
     public ngOnInit() {
         const accountInfo = this.options.data || {};
         const fields = this.getFormFields();
-
         if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
             this.validateAccountNumber(accountInfo);
@@ -106,9 +105,6 @@ export class UniBankAccountModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         let account: BankAccount;
-
-
-
         if (emitValue) {
             account = this.formModel$.getValue();
             if (this.options.modalConfig
@@ -149,6 +145,11 @@ export class UniBankAccountModal implements IUniModal {
             this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
                 this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
                 this.onClose.emit(res);
+            });
+        // Gets in here if edit button is clicked from BankSettings!
+        } else if (this.options.data._fromBankSettings && account && account.Bank && account.Bank.BIC && account.AccountNumber) {
+            this.bankAccountService.Put<BankAccount>(account.ID, account).subscribe((res: any) => {
+                this.toastService.addToast('Konto oppdatert', ToastType.good, 4);
             });
         } else {
             if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
@@ -254,8 +255,8 @@ export class UniBankAccountModal implements IUniModal {
             let copyPasteFilter = '';
 
             if (searchValue.toString().indexOf(':') > 0) {
-                let accountNumberPart = searchValue.split(':')[0].trim();
-                let accountNamePart =  searchValue.split(':')[1].trim();
+                const accountNumberPart = searchValue.split(':')[0].trim();
+                const accountNamePart =  searchValue.split(':')[1].trim();
 
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' and AccountName eq '${accountNamePart}')`;
             }
@@ -319,7 +320,7 @@ export class UniBankAccountModal implements IUniModal {
                         }
                     },
                     getDefaultData: () => {
-                        let model = this.options && this.options.data || {};
+                        const model = this.options && this.options.data || {};
                         return model.Account
                             ? Observable.of([model.Account])
                             : Observable.of([]);
@@ -327,7 +328,8 @@ export class UniBankAccountModal implements IUniModal {
                     debounceTime: 200,
                     search: (searchValue) => this.accountSearch(searchValue)
                 },
-                Hidden: !this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible,
+                Hidden: (!this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible)
+                    && !this.options.data._fromBankSettings,
             },
             <any> {
                 FieldSet: 2,
