@@ -392,10 +392,20 @@
             {
                 "Header": "Arbeidsforhold",
                 "Field": "Employment.ID",
+                "Type": "text",
                 "Format": "text",
                 "Width": "16rem",
                 "SubFields": [{
                     "Field": "Employment.JobName"
+                }]
+            },
+            {
+                "Header": "Ansatt",
+                "Field": "Employment.Employee.EmployeeNumber",
+                "Type": "text",
+                "Format": "text",
+                "SubFields": [{
+                    "Field": "Employment.Employee.BusinessRelationInfo.Name"
                 }]
             }
         ],

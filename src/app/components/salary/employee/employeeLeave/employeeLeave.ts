@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Employment, EmployeeLeave, Leavetype, LocalDate} from '../../../../unientities';
 import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
-import {UniCacheService, ErrorService} from '../../../../services/services';
+import {UniCacheService, ErrorService, EmployeeLeaveService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -18,20 +18,12 @@ export class EmployeeLeaves extends UniView {
     private tableConfig: UniTableConfig;
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    private leaveTypes: any[] = [
-        //{typeID: Leavetype.Leave, text: 'Permisjon'},
-        {typeID: Leavetype.LayOff, text: 'Permittering'},
-        {typeID: Leavetype.Leave_with_parental_benefit, text: 'Permisjon med foreldrepenger'},
-        {typeID: Leavetype.Military_service_leave, text: 'Permisjon ved militærtjeneste'},
-        {typeID: Leavetype.Educational_leave, text: 'Utdanningspermisjon'},
-        {typeID: Leavetype.Compassionate_leave, text: 'Velferdspermisjon'}
-    ];
-
     constructor(
         router: Router,
         route: ActivatedRoute,
         cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private employeeLeaveService: EmployeeLeaveService
     ) {
         super(router.url, cacheService);
 
@@ -70,13 +62,13 @@ export class EmployeeLeaves extends UniView {
                 if (!dataItem.LeaveType && !dataItem['_isEmpty']) {
                     dataItem.LeaveType = Leavetype.Leave;
                 }
-                const leaveType = this.leaveTypes.find(lt => +lt.typeID === +dataItem.LeaveType);
+                const leaveType = this.employeeLeaveService.getOnlyNewTypes().find(lt => +lt.ID === +dataItem.LeaveType);
                 return leaveType ? leaveType.text : leaveType === undefined && dataItem.ID > 0 ? 'Permisjon' : '';
             })
             .setOptions({
                 itemTemplate: selectedItem => selectedItem.text,
                 lookupFunction: (searchValue) => {
-                    return this.leaveTypes.filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
+                    return this.employeeLeaveService.getOnlyNewTypes().filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
                 },
 
             });
@@ -107,7 +99,7 @@ export class EmployeeLeaves extends UniView {
                     this.mapEmploymentToPermision(row);
                 } else if (this.employments && !row.ID && !row['_isDirty']) {
                     row.Employment = this.employments.find(x => x.Standard);
-                    row['LeaveType'] = this.leaveTypes[0].typeID;
+                    row['LeaveType'] = this.employeeLeaveService.getOnlyNewTypes()[0].ID;
                     row.EmploymentID = row.Employment ? row.Employment.ID : undefined;
                 }
 
@@ -141,7 +133,7 @@ export class EmployeeLeaves extends UniView {
         if (!leavetype) {
             return;
         }
-        rowModel['LeaveType'] = leavetype.typeID;
+        rowModel['LeaveType'] = leavetype.ID;
     }
 
     public rowChanged(event: IRowChangeEvent) {
