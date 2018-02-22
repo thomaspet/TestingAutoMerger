@@ -487,10 +487,14 @@ export class AMeldingView implements OnInit {
                     this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
                     break;
                 case 1:
-                    anyObject = {statusText: this.findAndSetStatusFromFeedback(mottak.mottattPeriode)};
+                    this.periodStatus = '';
+                    this.alleAvvikStatuser = [];
+                    this.getAvvikRec(mottak.mottattPeriode);
                     if (mottak.hasOwnProperty('mottattLeveranse')) {
-                        anyObject = {statusText: this.findAndSetStatusFromFeedback(mottak.mottattLeveranse)};
+                        this.getAvvikRec(mottak.mottattLeveranse);
                     }
+                    this.setStatusFromAvvik();
+                    anyObject = {statusText: this.periodStatus};
                     break;
 
                 default:
@@ -514,26 +518,21 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    private findAndSetStatusFromFeedback(mottattPeriode): string {
-        let statusText = '';
+    private setStatusFromAvvik() {
         let statusSet: boolean = false;
-        this.alleAvvikStatuser = [];
-
-        this.getAvvikRec(mottattPeriode);
 
         this.alleAvvikStatuser.forEach(avvik => {
             if (!statusSet) {
                 switch (avvik.alvorlighetsgrad) {
                     case 'oeyeblikkelig':
-                        statusText = 'Mottatt med øyeblikkelig';
+                        this.periodStatus = 'Mottatt med øyeblikkelig';
                         statusSet = true;
                         break;
                     case 'retningslinje':
-                        statusText = 'Mottatt med retningslinje';
+                        this.periodStatus = 'Mottatt med retningslinje';
                         break;
                     case 'avvisning':
-                        statusText = 'Avvisning';
-
+                        this.periodStatus = 'Avvisning';
                         break;
 
                     default:
@@ -542,11 +541,9 @@ export class AMeldingView implements OnInit {
             }
         });
 
-        if (statusText === '') {
-            statusText = 'Mottatt';
+        if (this.periodStatus === '') {
+            this.periodStatus = 'Mottatt';
         }
-
-        return statusText;
     }
 
     private getAMeldingForPeriod() {
@@ -587,9 +584,6 @@ export class AMeldingView implements OnInit {
                 case 3:
                     if (this.currentAMelding.altinnStatus !== 'avvist') {
                         const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-                        if (statusTextObject) {
-                            this.periodStatus = statusTextObject.statusText;
-                        }
                     } else {
                         this.periodStatus = 'Avvist';
                     }
