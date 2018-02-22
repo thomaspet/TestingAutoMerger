@@ -1028,6 +1028,7 @@ export class TickerColumn {
     public DisplayField?: string;
     public Expand?: string;
     public SelectRequired?: boolean;
+    public Alignment?: string;
 }
 
 export interface ITickerColumnOverride {

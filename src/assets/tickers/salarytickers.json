@@ -10,7 +10,8 @@
         "Columns": [{
                 "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
-                "Width": "5rem"
+                "Width": "5rem",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
@@ -26,7 +27,8 @@
             },
             {
                 "Header": "Fødselsdato",
-                "Field": "BirthDate"
+                "Field": "BirthDate",
+                "Alignment": "right"
             },
             {
                 "Header": "Kontonr.",
@@ -138,7 +140,8 @@
         "Columns": [
             {
                 "Header": "Nr.",
-                "Field": "ID"
+                "Field": "ID",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Stillingskode",
@@ -175,11 +178,13 @@
             },
             {
                 "Header": "StartDato",
-                "Field": "StartDate"
+                "Field": "StartDate",
+                "Alignment": "right"
             },
             {
                 "Header": "SluttDato",
-                "Field": "EndDate"
+                "Field": "EndDate",
+                "Alignment": "right"
             },
             {
                 "Header": "Virksomhet",
@@ -211,17 +216,20 @@
             {
                 "Header": "Ansiennitet",
                 "Field": "SeniorityDate",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "Alignment": "right"
             },
             {
                 "Header": "Lønnsjustering",
                 "Field": "LastSalaryChangeDate",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "Alignment": "right"
             },
             {
                 "Header": "Sist endret %",
                 "Field": "LastWorkPercentChangeDate",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "Alignment": "right"
             },
             {
                 "Field": "EmployeeID",
@@ -364,23 +372,27 @@
         "Model": "EmployeeLeave",
         "Expand": "",
         "Filters": [],
-        "Columns": [{
+        "Columns": [
+            {
                 "Header": "Kommentar",
                 "Field": "Description"
             },
             {
                 "Header": "Startdato",
                 "Field": "FromDate",
-                "Width": "8rem"
+                "Width": "8rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Tildato",
                 "Field": "ToDate",
-                "Width": "8rem"
+                "Width": "8rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Prosent",
                 "Field": "LeavePercent",
+                "Type": "percent",
                 "Format": "percent",
                 "Width": "8rem"
             },
@@ -404,10 +416,11 @@
                 "Field": "Employment.Employee.EmployeeNumber",
                 "Type": "text",
                 "Format": "text",
+                "FilterOperator": "startswith",
                 "SubFields": [{
                     "Field": "Employment.Employee.BusinessRelationInfo.Name"
                 }]
-            }
+             }
         ],
         "ParentFilter": {
             "Field": "EmploymentID",
@@ -438,7 +451,8 @@
                 "Header": "Nr.",
                 "Field": "WageTypeNumber",
                 "Format": "text",
-                "Width": "5rem"
+                "Width": "5rem",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Navn",
@@ -452,7 +466,9 @@
             {
                 "Header": "Hovedbokskonto",
                 "Field": "AccountNumber",
+                "Type": "text",
                 "Format": "text",
+                "Alignment": "right",
                 "Width": "8.5rem"
             },
             {
@@ -464,7 +480,9 @@
                 "Header": "År",
                 "Field": "ValidYear",
                 "Format": "text",
-                "Width": "5rem"
+                "Type": "text",
+                "Width": "5rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Motkonto kredit",
@@ -597,7 +615,8 @@
                 "Field": "ID",
                 "Width": "8rem",
                 "Type": "link",
-                "LinkNavigationProperty": "ID"
+                "LinkNavigationProperty": "ID",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Beskrivelse",
@@ -609,19 +628,22 @@
                 "Header": "Utbetalingsdato",
                 "Field": "PayDate",
                 "Type": "localdate",
-                "Width": "8rem"
+                "Width": "8rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Fra dato",
                 "Field": "FromDate",
                 "Type": "localdate",
-                "Width": "8rem"
+                "Width": "8rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Til dato",
                 "Field": "ToDate",
                 "Type": "localdate",
-                "Width": "8rem"
+                "Width": "8rem",
+                "Alignment": "right"
             },
             {
                 "Header": "Fritekst",
@@ -755,6 +777,7 @@
         "Group": "Lønn",
         "Model": "SalaryTransaction",
         "Expand": "",
+        "OrderBy": "PayrollRunID desc",
         "Filters": [
             {
                 "Name": "Alle",
@@ -811,7 +834,8 @@
             },
             {
                 "Header": "Lønnsavregning",
-                "Field": "PayrollRunID"
+                "Field": "PayrollRunID",
+                "FilterOperator": "startswith"
             },
             {
                 "Header": "Ansattnr.",
@@ -833,16 +857,19 @@
             {
                 "Header": "Fra dato",
                 "Field": "FromDate",
+                "Type": "date",
                 "Width": "6rem"
             },
             {
                 "Header": "Til dato",
                 "Field": "ToDate",
+                "Type": "date",
                 "Width": "6rem"
             },
             {
                 "Header": "Konto",
                 "Field": "Account",
+                "Type": "text",
                 "Width": "5rem"
             },
             {
@@ -853,7 +880,8 @@
             {
                 "Header": "Sum",
                 "Field": "Sum",
-                "Type": "money"
+                "Type": "money",
+                "SumColumn": true
             },
             {
                 "Header": "Inntektstype",

@@ -814,6 +814,10 @@ export class UniTicker {
                             }
                         }
 
+                        if (column.Alignment) {
+                            col.setAlignment(column.Alignment);
+                        }
+
                         if (column.DefaultHidden) {
                             col.setVisible(false);
                         }
