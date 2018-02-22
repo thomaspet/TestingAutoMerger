@@ -1027,6 +1027,7 @@ export class TickerColumn {
     public ReadOnlyCases?: {Key: string, Value: any}[];
     public DisplayField?: string;
     public Expand?: string;
+    public SelectRequired?: boolean;
 }
 
 export interface ITickerColumnOverride {
