@@ -141,33 +141,24 @@ export class WorkerService extends BizHttp<Worker> {
 
     public getIntervalFilterPeriod(fromDate: Date, toDate: Date): string {
         return `date ge '${toIso(fromDate)}' and date le '${toIso(toDate)}'`;
-        // return "date ge '" + toIso(fromDate) + "' and date le '" + toIso(toDate) + "'";
     }
 
     public getIntervalFilter(interval: IFilterInterval | ItemInterval, date: Date): string {
         switch (interval) {
             case IFilterInterval.day:
-                return `date eq '${toIso(date)}'`; // "date eq '" + toIso(date) + "'";
+                return `date eq '${toIso(date)}'`;
             case IFilterInterval.week:
-                // return "date ge '" + toIso(moment(date).startOf('week').toDate()) + "' and date le '" +
-                //     toIso(moment(date).endOf('week').toDate()) + "'";
-                return `date ge '${toIso(moment(date).startOf('week').toDate())}'
-                    and date le '${toIso(moment(date).endOf('week').toDate())}'`;
+                return `date ge '${toIso(moment(date).startOf('week').toDate())}'` +
+                    `and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.twoweeks:
-                // return "date ge '" + toIso(moment(date).subtract(1, 'week').startOf('week').toDate()) + "' and date le '" +
-                //     toIso(moment(date).endOf('week').toDate()) + "'";
-                return `date ge '${toIso(moment(date).subtract(1, 'week').startOf('week').toDate())}'
-                    and date le '${toIso(moment(date).endOf('week').toDate())}'`;
+                return `date ge '${toIso(moment(date).subtract(1, 'week').startOf('week').toDate())}'` +
+                    `and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.month:
-                // return "date ge '" + toIso(moment(date).startOf('month').toDate()) + "' and date le '" +
-                //     toIso(moment(date).endOf('month').toDate()) + "'";
-                return `date ge '${toIso(moment(date).startOf('month').toDate())}'
-                    and date le '${toIso(moment(date).endOf('month').toDate())}'`;
+                return `date ge '${toIso(moment(date).startOf('month').toDate())}'` +
+                    `and date le '${toIso(moment(date).endOf('month').toDate())}'`;
             case IFilterInterval.year:
-                // return "date ge '" + toIso(moment(date).startOf('year').toDate())
-                    // + "' and date le '" + toIso(moment(date).endOf('year').toDate()) + "'";
-                return `date ge '${toIso(moment(date).startOf('year').toDate())}'
-                    and date le '${toIso(moment(date).endOf('year').toDate())}'`;
+                return `date ge '${toIso(moment(date).startOf('year').toDate())}'` +
+                    `and date le '${toIso(moment(date).endOf('year').toDate())}'`;
             default:
                 return '';
         }
