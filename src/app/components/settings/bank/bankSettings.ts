@@ -245,10 +245,26 @@ export class UniBankSettings {
             }
         } else if (event.field === 'BankAccount') {
             if (event.rowModel.BankAccount) {
-                row.BankAccountID = event.rowModel.BankAccount.ID;
-                if (event.rowModel.BankAccount.AccountID && event.rowModel.BankAccount.Account) {
-                    row.AccountID = event.rowModel.BankAccount.AccountID;
-                    row.Account = event.rowModel.BankAccount.Account;
+                allRows.forEach(element => {
+                    if (row && row.BankAccount && row.BankAccount.ID === element.BankAccountID) {
+                        isDuplicate = true;
+                        this.toastService.addToast(
+                            'Kontonummer allerede i bruk',
+                            ToastType.warn,
+                            10,
+                            'Et kontonummer kan kun brukes en gang. Vennligst velg et annet.'
+                        );
+                    }
+                });
+                if (isDuplicate) {
+                    row.BankAccount = null;
+                    row.BankAccountID = null;
+                } else {
+                    row.BankAccountID = event.rowModel.BankAccount.ID;
+                    if (event.rowModel.BankAccount.AccountID && event.rowModel.BankAccount.Account) {
+                        row.AccountID = event.rowModel.BankAccount.AccountID;
+                        row.Account = event.rowModel.BankAccount.Account;
+                    }
                 }
             }
         } else if (event.field === 'IsSalary' || event.field === 'IsTax' || event.field === 'IsIncomming' || event.field === 'IsOutgoing') {

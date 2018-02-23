@@ -65,10 +65,10 @@ export const settingsRoutes: Routes = [{
             component: UniTerms,
             canDeactivate: [CanDeactivateGuard]
         },
-        {
-            path: 'banksettings',
-            component: UniBankSettings,
-            canDeactivate: [CanDeactivateGuard]
-        }
+        // {
+        //     path: 'banksettings',
+        //     component: UniBankSettings,
+        //     canDeactivate: [CanDeactivateGuard]
+        // }
     ]
 }];
