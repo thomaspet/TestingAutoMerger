@@ -309,9 +309,9 @@ amdefine@>=0.0.4:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/amdefine/-/amdefine-1.0.1.tgz#4a5282ac164729e93619bcfd3ad151f817ce91f5"
 
-angular-tree-component@^5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/angular-tree-component/-/angular-tree-component-5.2.1.tgz#75101be1f3fb72a75aeb472ddc2bca439ccc2716"
+angular-tree-component@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/angular-tree-component/-/angular-tree-component-7.0.1.tgz#fc8d0e72d8c34b87131a3ba2bd32ad20945689ac"
   dependencies:
     lodash "4.17.4"
     mobx ">=3"

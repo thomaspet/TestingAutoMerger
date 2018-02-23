@@ -5,21 +5,29 @@
     [contextmenu]="contextMenuItems">
 </uni-toolbar>
 
-<uni-tabs [routes]="childRoutes" [queryParamsHandling]="'preserve'" class="horizontal_nav"></uni-tabs>
-
 <section class="product-groups application">
-    <nav>
-        <span *ngIf="!nodes.length">Ingen grupper, lag din første.</span>
+
+    <section class="tree-view-container">
+        <header>Grupper</header>
+        <button class="good add-root-group" [disabled]="selectedGroup && !selectedGroup.ID" (click)="createGroup()">
+            Ny hovedgruppe
+        </button>
 
         <div class="treeContainer">
-            <tree-root #tree
+            <tree-root #tree *ngIf="nodes"
                 [nodes]="nodes"
-                [options]="treeoptions"
-                (moveNode)="nodeMoved($event)"
-                (activate)="nodeActive($event)">
+                [options]="treeoptions">
              </tree-root>
         </div>
-    </nav>
+    </section>
+
+    <group-details
+        *ngIf="selectedGroup"
+        [(group)]="selectedGroup"
+        (createChildGroup)="createGroup(selectedGroup)"
+        (deleteGroup)="deleteGroup()">
+    </group-details>
+
 </section>
 
-<router-outlet></router-outlet>
+

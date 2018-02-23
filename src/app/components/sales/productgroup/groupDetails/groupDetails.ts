@@ -1,35 +1,30 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {ProductCategory} from '../../../../unientities';
-import {
-    ProductCategoryService,
-    ErrorService,
-    StatisticsService
-} from '../../../../services/services';
-import {
-    UniTableColumn,
-    UniTableColumnType,
-    UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
-import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
-import {UniSearchProductConfig} from '../../../../services/common/uniSearchConfig/uniSearchProductConfig';
+import {ProductCategoryService, ErrorService, StatisticsService} from '@app/services/services';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
+import {UniSearchProductConfig} from '@app/services/common/uniSearchConfig/uniSearchProductConfig';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-declare const _; // lodash
+import * as _ from 'lodash';
 
 @Component({
     selector: 'group-details',
     templateUrl: './groupDetails.html'
 })
 export class GroupDetails implements OnInit {
-    @ViewChild(UniForm)
-    public form: UniForm;
+    @Input() public group: ProductCategory;
+    @Output() public groupChange: EventEmitter<ProductCategory> = new EventEmitter(false);
+
+    @Output() public createChildGroup: EventEmitter<any> = new EventEmitter(false);
+    @Output() public deleteGroup: EventEmitter<any> = new EventEmitter(false);
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public group$: BehaviorSubject<ProductCategory> = new BehaviorSubject(new ProductCategory());
+    public model$: BehaviorSubject<ProductCategory> = new BehaviorSubject(new ProductCategory());
 
-    public productsConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     public products$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     public uniSearchConfig: IUniSearchConfig;
@@ -38,67 +33,60 @@ export class GroupDetails implements OnInit {
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
-        private uniSearchProductConfig: UniSearchProductConfig
+        private uniSearchProductConfig: UniSearchProductConfig,
     ) {
         this.uniSearchConfig = this.uniSearchProductConfig.generateProductsConfig();
     }
 
     public ngOnInit() {
-        this.fields$.next(this.getComponentFields());
-
-        this.productCategoryService.currentProductGroup.subscribe(
-            (productGroup) => {
-                if (productGroup) {
-                    this.group$.next(productGroup);
-                    this.setRelatedProducts(productGroup);
-                } else {
-                    this.products$.next([]);
-                    this.group$.next(new ProductCategory);
-                    this.productCategoryService.currentProductGroup.next(this.group$.value);
-                }
-            });
-
-        this.setupTable();
+        this.fields$.next(this.getFormFields());
+        this.tableConfig = this.getTableConfig();
     }
 
-    public change(changes: any) {
-        this.productCategoryService.currentProductGroup.next(this.group$.value);
-        this.productCategoryService.isDirty = true;
+    public ngOnChanges() {
+        if (this.group) {
+            this.model$.next(this.group);
+            this.getProductsInGroup(this.group);
+        }
     }
 
-    public setRelatedProducts(group) {
+    public onFormChange(changes: any) {
+        this.group = this.model$.getValue();
+        this.group['_isDirty'] = true;
+        this.groupChange.emit(this.group);
+    }
+
+    public getProductsInGroup(group) {
         if (!group.ID) {
             return;
         }
-        this.statisticsService.GetAllUnwrapped(`model=Product&select=PartName,Name,CostPrice,PriceExVat,`
+
+        this.statisticsService.GetAllUnwrapped(
+            `model=Product&select=PartName,Name,CostPrice,PriceExVat,`
             + `Unit&join=Product.ID eq ProductCategoryLink.ProductID&filter=`
-            + `ProductCategoryLink.ProductCategoryID eq ${group.ID}`)
-            .subscribe(products => {
-                this.products$.next(products);
-            });
+            + `ProductCategoryLink.ProductCategoryID eq ${group.ID}`
+        ).subscribe(products => {
+            this.products$.next(products);
+        });
     }
 
-    public selectItem(event: any) {
-        let productGroup = this.productCategoryService.currentProductGroup.value;
-
-        if (event.ID && productGroup) {
-            return this.productCategoryService.saveCategoryTag(event.ID, productGroup)
-            .subscribe(res => {
-                this.productCategoryService.currentProductGroup.subscribe(group => this.setRelatedProducts(group));
+    public onProductAdded(event: any) {
+        if (event.ID && this.group) {
+            this.productCategoryService.saveCategoryTag(event.ID, this.group).subscribe(res => {
+                this.getProductsInGroup(this.group);
             });
         }
-        return;
     }
 
-    private getComponentFields(): UniFieldLayout[] {
+    private getFormFields(): Partial<UniFieldLayout>[] {
         return [
-            <any>{
+            {
                 FieldType: FieldType.TEXT,
                 Label: 'Gruppenavn',
                 Property: 'Name',
                 Placeholder: 'Navn på produktgruppen'
             },
-            <any>{
+            {
                 FieldType: FieldType.TEXTAREA,
                 Label: 'Beskrivelse',
                 Property: 'Description',
@@ -107,16 +95,16 @@ export class GroupDetails implements OnInit {
         ];
     }
 
-    private setupTable() {
-        let numberCol = new UniTableColumn('ProductPartName', 'Produktnr', UniTableColumnType.Text);
-        let nameCol = new UniTableColumn('ProductName', 'Navn', UniTableColumnType.Text);
-        let unitCol = new UniTableColumn('ProductUnit', 'Enhet', UniTableColumnType.Text).setWidth('4rem');
-        let costpriceCol = new UniTableColumn('ProductCostPrice', 'Innpris eks.mva', UniTableColumnType.Money);
-        let priceexvatCol = new UniTableColumn('ProductPriceExVat', 'Utpris eks.mva', UniTableColumnType.Money);
+    private getTableConfig(): UniTableConfig {
+        const numberCol = new UniTableColumn('ProductPartName', 'Produktnr', UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('ProductName', 'Navn', UniTableColumnType.Text);
+        const unitCol = new UniTableColumn('ProductUnit', 'Enhet', UniTableColumnType.Text).setWidth('4rem');
+        const costpriceCol = new UniTableColumn('ProductCostPrice', 'Innpris eks.mva', UniTableColumnType.Money);
+        const priceexvatCol = new UniTableColumn('ProductPriceExVat', 'Utpris eks.mva', UniTableColumnType.Money);
 
-        let tableName = 'sales.productgroups.products';
-        this.productsConfig = new UniTableConfig(tableName, false, false, 15)
+        const tableName = 'sales.productgroups.products';
+        return new UniTableConfig(tableName, false, false, 15)
             .setColumns([numberCol, nameCol, unitCol, costpriceCol, priceexvatCol])
-            .setSearchable(true);
+            .setSearchable(false);
     }
 }

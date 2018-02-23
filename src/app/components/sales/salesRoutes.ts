@@ -25,7 +25,7 @@ import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
-import {ProductGroups} from './productgroup/productgroups';
+import {ProductGroups, GroupDetails} from './productgroup/productgroups';
 import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
 
 export const salesRoutes: Routes = [
@@ -83,7 +83,11 @@ export const salesRoutes: Routes = [
     {
         path: 'productgroups',
         component: ProductGroups,
-        children: ProductGroupRoutes,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'productgroups/:id',
+        component: ProductGroups,
         canDeactivate: [CanDeactivateGuard]
     },
     {

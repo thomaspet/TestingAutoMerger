@@ -1,26 +1,39 @@
-<fieldset class="uniForm">
-    <legend>Gruppedetaljer</legend>
-    <aside>
+<section class="product-group-details">
+    <section class="details-section">
+        <header>Gruppedetaljer</header>
+
         <uni-form
             [config]="config$"
             [fields]="fields$"
-            [model]="group$"
-            (changeEvent)="change($event)">
+            [model]="model$"
+            (changeEvent)="onFormChange($event)">
         </uni-form>
-    </aside>
-</fieldset>
 
-<fieldset class="uniTable" *ngIf="this.productCategoryService?.currentProductGroup?.value?.Name">
-    <legend>Produkter i gruppe</legend>
-    <aside>
-        <div class="uniSearchDiv">
+        <button class="bad" (click)="deleteGroup.next()">Slett gruppe</button>
+        <button class="good" [disabled]="group?._isDirty" (click)="createChildGroup.next()">
+            Legg til undergruppe
+        </button>
+        <small *ngIf="group?.ID === 0">Gruppen må lagres før undergrupper kan opprettes</small>
+
+        <br>
+
+    </section>
+
+
+    <section class="details-section">
+        <header>Produkter i gruppe</header>
+
+        <section class="add-product">
             <label for="unisearch">Legg til produkt</label>
-            <uni-search [config]="uniSearchConfig" (changeEvent)="selectItem($event)"></uni-search>
-        </div>
+            <uni-search
+                [config]="uniSearchConfig"
+                (changeEvent)="onProductAdded($event)">
+            </uni-search>
+        </section>
 
         <uni-table
             [resource]="products$ | async"
-            [config]="productsConfig">
+            [config]="tableConfig">
         </uni-table>
-    </aside>
-</fieldset>
+    </section>
+</section>

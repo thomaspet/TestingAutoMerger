@@ -1,21 +1,70 @@
 product-groups
-    section.product-groups
-        nav
-            border: 0.05rem solid black
-            float: left
-            min-width: 18rem
-            max-width: 18rem
-            overflow: auto
+    .product-groups
+        display: flex
+        flex-direction: row
+
+        .tree-view-container
+            flex: 0 1 25rem
             height: 75vh
+            background: #fff
+            border: 1px solid $uni-color-scale9
 
-            div.treeContainer
-                margin: 1rem
+            .treeContainer
+                height: calc(100% - 6rem)
+                margin-top: .75rem
+                margin-left: 1rem
 
-        .toggle-children
-            width: 1.4rem
-            height: 1.4rem
-            background: url('/assets/folder-64x64.png') center/100% no-repeat
+        group-details
+            flex: 1 0 calc(100% - 25rem)
+            height: 75vh
+            margin-left: 1rem
 
-        .toggle-children-wrapper-expanded .toggle-children
-            background: url('/assets/folder-open-64x64.png') center/100% no-repeat
-            transform: none
+        header
+            background: $uni-color-legend
+            height: 2rem
+            line-height: 2rem
+            font-size: 1.1rem
+            font-weight: 300
+            padding: .15rem 1rem
+
+    .add-root-group
+        height: 2rem
+        line-height: 0
+        border-radius: 0
+        margin-top: .75rem
+        margin-bottom: .25rem
+
+group-details .details-section
+    margin-bottom: 1rem
+    background: #fff
+    border: 1px solid $uni-color-scale9
+    min-height: 15rem
+
+    uni-form
+        display: block
+        margin: 1rem
+        uni-field
+            margin: 0
+
+    button
+        width: 11rem
+        height: 2.25rem
+        line-height: 0
+        border-radius: 0
+        height: 2rem
+        margin-bottom: 2rem
+
+        &.bad
+            margin-right: 0
+            margin-left: 1.25rem
+        &.good
+            margin-left: .5rem
+
+
+    .add-product
+        width: 20rem
+        height: 3rem
+        padding: 1rem
+
+    uni-table
+        padding: 1rem

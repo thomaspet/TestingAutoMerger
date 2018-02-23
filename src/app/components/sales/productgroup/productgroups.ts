@@ -1,4 +1,4 @@
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -14,6 +14,8 @@ import {
     StatisticsService
 } from '../../../services/services';
 
+export * from './groupDetails/groupDetails';
+
 declare const _; // lodash
 
 @Component({
@@ -21,33 +23,48 @@ declare const _; // lodash
     templateUrl: './productgroups.html'
 })
 
-export class ProductGroups implements OnInit {
+export class ProductGroups {
     @ViewChild('tree') private treeComponent: TreeComponent;
 
-    private nodes: any[] = [];
+    private nodes: any[];
     private groups: ProductCategory[] = [];
-    private parentId: number;
     private activeProductGroupID: any = '';
 
     private toolbarconfig: IToolbarConfig;
     private commentsConfig: ICommentsConfig;
     private contextMenuItems: any;
-    private childRoutes: IUniTabsRoute[];
 
-    public saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveProductGroup(completeEvent),
-             main: true,
-             disabled: false
-         }
-    ];
+    private idParam: number;
+    private selectedGroup: ProductCategory;
+
+    private init: number;
+
+    public saveactions: IUniSaveAction[] = [{
+        label: 'Lagre',
+        action: (completeEvent) => {
+            this.saveProductGroup().subscribe(success => {
+                completeEvent('');
+                this.router.navigateByUrl('/sales/productgroups/' + this.selectedGroup.ID);
+            });
+        },
+        main: true,
+        disabled: false
+    }];
 
     public treeoptions: any = {
-        // allowDrag: true, // TODO activate later when functionality is available
         displayField: 'Name',
         childrenField: '_children',
-        idField: 'ID'
+        idField: 'ID',
+        actionMapping: {
+            mouse: {
+                click: (tree, node, $event) => {
+                    const group = node.data;
+                    if (group) {
+                        this.router.navigateByUrl('/sales/productgroups/' + group.ID);
+                    }
+                }
+            }
+        }
     };
 
     constructor(
@@ -57,215 +74,213 @@ export class ProductGroups implements OnInit {
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private cdr: ChangeDetectorRef
     ) {
-        this.addTab();
-        this.setupToolbar();
+        this.toolbarconfig = {
+            title: 'Produktgruppe',
+            subheads: [],
+        };
 
-        this.childRoutes = [
-            { name: 'Gruppedetaljer', path: 'groupDetails' },
-        ];
+        this.updateTabInfo();
 
         this.contextMenuItems = [{
             label: 'Slett',
-            disabled: () => !this.activeProductGroupID,
-            action: () => this.deleteProductGroup(this.activeProductGroupID)
+            disabled: () => !this.selectedGroup,
+            action: () => this.deleteGroup()
         }];
-    }
 
-    public ngOnInit() {
-        this.loadGroups();
+        this.loadGroups().subscribe(success => {
+            this.route.paramMap.subscribe(paramMap => {
+                this.idParam = parseInt(paramMap.get('id'), 10);
+                this.updateTabInfo();
 
-        this.route.queryParams.subscribe(params => {
-            this.activeProductGroupID = +params['productGroupID'];
-            if (this.activeProductGroupID > 0) {
-                this.productCategoryService.Get(this.activeProductGroupID).subscribe((group) => {
-                    setTimeout(() => {
-                        let currentNode = this.treeComponent.treeModel.getNodeById(this.activeProductGroupID);
+                // Focus and set selected group
+                setTimeout(() => {
+                    const node = this.idParam >= 0
+                        ? this.treeComponent.treeModel.getNodeById(this.idParam)
+                        : this.treeComponent.treeModel.getFirstRoot();
 
-                        this.productCategoryService.currentProductGroup.next(group);
+                    if (node && node.data) {
+                        this.selectedGroup = node.data;
+                        node.setActiveAndVisible();
 
-                        this.toolbarconfig.title = group.Name;
-                        this.toolbarconfig.subheads = [];
-
-                        this.commentsConfig = {
-                            entityType: 'ProductCategory',
-                            entityID: group.ID
-                        };
-
-                        if (currentNode) {
-                            if (currentNode.parent.data.Name) {
-                                this.setSubheadTitle(currentNode.parent.data.Name);
-                            }
-
-                            if (currentNode.isActive) {
-                                return;
-                            }
-                            return currentNode.ensureVisible().toggleActivated();
+                        if (!this.idParam) {
+                            this.router.navigateByUrl('/sales/productgroups/' + node.data.ID);
                         }
-                    });
+                    }
                 });
-                return;
-            } else if (this.activeProductGroupID === 0) {
-                this.clearInfo();
-                if (this.parentId) {
-                    let currentNode = this.treeComponent.treeModel.getNodeById(this.parentId);
-
-                    this.setSubheadTitle(currentNode.data.Name);
-                }
-                return;
-            }
-            return this.clearInfo();
+            });
         });
     }
 
-    private addTab() {
+    public canDeactivate() {
+        if (!this.selectedGroup || !this.selectedGroup['_isDirty']) {
+            return Observable.of(true);
+        }
+
+        return this.modalService.openUnsavedChangesModal().onClose.switchMap(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                return this.saveProductGroup();
+            } else if (response === ConfirmActions.REJECT) {
+                this.selectedGroup = undefined;
+                this.idParam = undefined;
+                this.nodes = this.createTree(_.cloneDeep(this.groups));
+                this.treeComponent.treeModel.nodes = this.nodes;
+                this.treeComponent.treeModel.update();
+
+                return Observable.of(true);
+            } else {
+                return Observable.of(false);
+            }
+        });
+    }
+
+    private updateTabInfo() {
+        let url = '/sales/productgroups';
+        if (this.idParam) {
+            url += '/' + this.idParam;
+        }
+
         this.tabService.addTab({
-            url: '/sales/productgroups/groupDetails',
+            url: url,
             name: 'Produktgrupper',
             active: true,
             moduleID: UniModules.ProductGroup
         });
     }
 
-    private deleteProductGroup(id: number) {
-        this.productCategoryService.Remove(id, null).subscribe(res => {
-            this.loadGroups();
-            this.router.navigateByUrl('/sales/productgroups/groupDetails');
-        });
-    }
-
-    private clearInfo() {
-        this.treeComponent.treeModel.setFocusedNode(null);
-        this.toolbarconfig.title = 'Ny produktgruppe';
-        this.toolbarconfig.subheads = [];
-        this.commentsConfig = null;
-        this.productCategoryService.setNew();
-        this.productCategoryService.currentProductGroup.next(null);
-    }
-
-    public nodeActive(event: any) {
-        let node = event.node;
-
-        this.parentId = node.parent.data.ID;
-        this.setQueryParamAndNavigate(node.data.ID);
-    }
-
-    public setQueryParamAndNavigate(id: number) {
-        let url = this.router.url.split('?')[0];
-
-        if (this.activeProductGroupID === id) {
+    private createGroup(parentGroup?: ProductCategory) {
+        if (!this.treeComponent) {
             return;
         }
-        this.router.navigate([url], {
-            queryParams: {
-                productGroupID: id
-            },
-            skipLocationChange: false
+
+        const guid = this.productCategoryService.getNewGuid();
+        const newGroup: any = {
+            ID: 0,
+            ParentID: parentGroup && parentGroup.ID || 0,
+            Name: 'Ny produktgruppe',
+            _isDirty: true,
+            _createguid: guid,
+            _guid: guid,
+            _children: []
+        };
+
+        if (parentGroup) {
+            const node = this.treeComponent.treeModel.getNodeById(parentGroup.ID);
+            if (!node.data['_children']) {
+                node.data['_children'] = [];
+            }
+
+            node.data['_children'].push(newGroup);
+        } else {
+            this.nodes.push(newGroup);
+            this.treeComponent.nodes = this.nodes;
+        }
+
+        const navigationPromise = this.idParam
+            ? this.router.navigateByUrl('/sales/productgroups/0')
+            : Promise.resolve(true);
+
+        navigationPromise.then(() => {
+            this.selectedGroup = newGroup;
+            this.treeComponent.treeModel.update();
+
+            setTimeout(() => {
+                const newNode = this.treeComponent.treeModel.getNodeById(0);
+                if (newNode) {
+                    newNode.setActiveAndVisible();
+                }
+            });
         });
     }
 
-    private setupToolbar() {
-        this.toolbarconfig = {
-            title: 'Produktgruppe',
-            subheads: [],
-            navigation: {
-                add: () => this.addProductGroup()
-            }
-        };
-    }
+    private deleteGroup() {
+        if (!this.selectedGroup) {
+            return;
+        }
 
-    private setSubheadTitle(name: string) {
-        if (name) {
-            this.toolbarconfig.subheads = [{title: 'i gruppen ' + name}];
+        if (this.selectedGroup.ID) {
+            this.productCategoryService.Remove(this.selectedGroup.ID, null)
+                .switchMap(res => this.loadGroups())
+                .subscribe(
+                    success => {
+                        this.selectedGroup = undefined;
+                        this.idParam = undefined;
+                        this.router.navigateByUrl('/sales/productgroups');
+                    },
+                    err => this.errorService.handle(err)
+                );
+        } else {
+            this.selectedGroup = undefined;
+            this.idParam = undefined;
+            this.router.navigateByUrl('/sales/productgroups');
+
+            this.nodes = this.createTree(_.cloneDeep(this.groups));
+            this.treeComponent.treeModel.update();
         }
     }
 
-    private addProductGroup() {
-        this.parentId = this.productCategoryService.currentProductGroup.value.ID;
-        this.router.navigateByUrl('/sales/productgroups/groupDetails?productGroupID=0');
-    }
-
-    public canDeactivate(): Observable<boolean> {
-        return !this.productCategoryService.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal()
-                .onClose
-                .map(result => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        this.saveProductGroup(() => {});
-                    }
-
-                    return result !== ConfirmActions.CANCEL;
-                });
-    }
-
-    private treeStructureToNodes(tree, root = null): any {
-        if (root === null) { root = tree.find(x => x.ParentID === 0); }
-
-        if (root !== null) {
-            var children = tree.filter(x => x.ParentID === root.ID);
-            if (children !== null) {
-                root['_children'] = [];
-                children.forEach(x => {
-                    x['_children'] = this.treeStructureToNodes(tree, x);
-                    root['_children'].push(x);
-                });
+    private createTree(
+        groups: ProductCategory[],
+        parent: Partial<ProductCategory> = {ID: 0},
+        tree = []
+    ) {
+        const children = _.filter(groups, child => child.ParentID === parent.ID);
+        if (!_.isEmpty(children)) {
+            if (parent.ID) {
+                parent['_children'] = children;
+            } else {
+                tree = children;
             }
-            return children;
+
+            _.each(children, (child) => this.createTree(groups, child));
         }
-        return [];
+
+        return tree;
     }
 
     public loadGroups() {
-        this.productCategoryService.GetAll('orderby=Lft asc').subscribe(groups => {
-            this.groups = groups;
-            let root = groups.find(x => x.ParentID === 0);
-            this.parentId = root.ID;
-            this.nodes = this.treeStructureToNodes(groups);
-        }, err => this.errorService.handle(err));
+        return this.productCategoryService.GetAll(null)
+            .catch(err => {
+                this.errorService.handle(err);
+                return Observable.of([]);
+            })
+            .switchMap(groups => {
+                if (groups && groups.length) {
+                    this.groups = groups.map(group => {
+                        if (!group.Name) {
+                            group.Name = 'Mangler navn';
+                        }
+
+                        group['_guid'] = this.productCategoryService.getNewGuid();
+                        return group;
+                    });
+
+                    this.nodes = this.createTree(_.cloneDeep(this.groups));
+                } else {
+                    this.groups = [];
+                    this.nodes = [];
+                }
+
+                return Observable.of(true);
+            });
     }
 
-    private saveProductGroup(completeEvent) {
-        let productgroup = this.productCategoryService.currentProductGroup.value;
-
-        if (!productgroup || !this.productCategoryService.isDirty || !productgroup.Name) {
-            return completeEvent('Feil oppsto ved lagring');
+    private saveProductGroup(): Observable<boolean> {
+        const group = this.selectedGroup;
+        if (!group || !group['_isDirty']) {
+            return Observable.of(true);
         }
 
-        if (productgroup.ID > 0) {
-            this.productCategoryService.Put(productgroup.ID, productgroup).subscribe(
-                (group) => {
-                    this.productCategoryService.isDirty = false;
-                    completeEvent('Produktgruppe lagret');
-                    this.loadGroups();
-                    this.setupToolbar();
-                    this.clearInfo();
-                },
-                (err) => {
-                    completeEvent('Feil oppsto ved lagring');
-                    this.errorService.handle(err);
-                }
-            );
-        } else {
-            productgroup.ParentID = 1;
-            if (this.parentId && this.parentId !== 1) {
-                productgroup.ParentID = this.parentId;
-            }
-            this.productCategoryService.Post(productgroup)
-                .subscribe(
-                    (newGroup) => {
-                        this.productCategoryService.isDirty = false;
-                        completeEvent('Produktgruppe lagret');
-                        this.loadGroups();
-                        this.clearInfo();
-                    },
-                    (err) => {
-                        completeEvent('Feil oppsto ved lagring');
-                        this.errorService.handle(err);
-                    }
-                );
-        }
+        const saveRequest = this.selectedGroup.ID > 0
+            ? this.productCategoryService.Put(group.ID, group)
+            : this.productCategoryService.Post(group);
+
+        return saveRequest.switchMap(savedGroup => {
+            this.selectedGroup.ID = savedGroup.ID;
+            this.selectedGroup['_isDirty'] = false;
+            return this.loadGroups();
+        });
     }
 }

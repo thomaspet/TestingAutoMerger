@@ -28,7 +28,9 @@ const PUBLIC_ROOT_ROUTES = [
     'marketplace'
 ];
 
-const PUBLIC_ROUTES = [];
+const PUBLIC_ROUTES = [
+    '/sales/productgroups/groupDetails'
+];
 
 @Injectable()
 export class AuthService {

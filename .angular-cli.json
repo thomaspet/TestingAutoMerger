@@ -19,7 +19,8 @@
       "testTsconfig": "tsconfig.spec.json",
       "prefix": "uni",
       "styles": [
-        "styles.sass"
+        "styles.sass",
+        "../node_modules/angular-tree-component/dist/angular-tree-component.css"
       ],
       "scripts": [
         "raygun-setup.js"
