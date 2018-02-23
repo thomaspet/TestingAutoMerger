@@ -289,6 +289,7 @@ export class JournalEntries {
                         url += `;journalEntryID=${res[0].JournalEntryID}`;
                     }
 
+                    this.editmode = false;
                     this.router.navigateByUrl(url);
                 },
                 err => this.errorService.handle(err)
@@ -310,7 +311,7 @@ export class JournalEntries {
                         if (!selectedLine) {
                             return;
                         }
-                        this.journalEntryManual.editmode = true;
+                        this.editmode = true;
                         this.journalEntryManual.clear();
                         this.journalEntryManual.currentJournalEntryID = selectedLine.ID;
                         this.currentJournalEntryID = selectedLine.ID;
@@ -345,7 +346,7 @@ export class JournalEntries {
                         url += `;journalEntryNumber=${res[0].JournalEntryNumber}`;
                         url += `;journalEntryID=${res[0].JournalEntryID}`;
                     }
-
+                    this.editmode = false;
                     this.router.navigateByUrl(url);
                 },
                 err => this.errorService.handle(err)

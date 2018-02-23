@@ -2281,7 +2281,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 .onClose
                 .subscribe((text: string) => {
                     if (text === null) {
-                        return completeCallback('Lagring avbrutt');
+                        return completeCallback('');
                     }
                     this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id, text)
                         .subscribe(data => {

@@ -97,7 +97,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getSessionData(mode: number): Array<JournalEntryData> {
-        let previousSessionData = this.storageService.getSessionItemFromCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`);
+        const previousSessionData = this.storageService.getSessionItemFromCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`);
 
         if (previousSessionData) {
             return previousSessionData;
@@ -114,7 +114,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return this.http
             .asGET()
             .usingEmptyDomain()
-            .withEndPoint('/api/statistics?model=journalentryline&select=journalentrynumber,journalentrynumbernumeric&orderby=journalentrynumbernumeric%20desc&top=1')
+            .withEndPoint(
+                '/api/statistics?model=journalentryline' +
+                '&select=journalentrynumber,journalentrynumbernumeric' +
+                '&orderby=journalentrynumbernumeric%20desc&top=1'
+            )
             .send()
             .map(response => response.json());
     }
@@ -138,7 +142,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number, text?: string): Observable<any> {
+    public postJournalEntryData(
+        journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number, text?: string
+    ): Observable<any> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
@@ -162,7 +168,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     journalEntries[0].ID = id;
                     journalEntries[0].Description = text;
                     journalEntries[0].DraftLines.forEach((x: JournalEntryLineDraft, i) => {
-                        x.ID = lineIDs[i] ? lineIDs[i] : 0;
+                        x.ID = lineIDs[i] || 0;
 
                         if (!x.ID) {
                             x._createguid = this.getNewGuid();
@@ -227,19 +233,19 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
     private createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
         let previousJournalEntryNo: string = null;
-        let journalEntries: Array<JournalEntryExtended> = [];
+        const journalEntries: Array<JournalEntryExtended> = [];
 
         let je: JournalEntryExtended;
 
         // create new journalentries and journalentrylines for the inputdata
-        let sortedJournalEntryData =
+        const sortedJournalEntryData =
             data.sort((a, b) => a.JournalEntryID - b.JournalEntryID)
                 .sort((a, b) => a.JournalEntryNo.localeCompare(b.JournalEntryNo));
 
         sortedJournalEntryData.forEach(line => {
             if (line.JournalEntryID && line.JournalEntryID > 0) {
                 if (!je || (je && je.ID && je.ID.toString() !== line.JournalEntryID.toString())) {
-                    let journalEntry = journalEntries.find(x => x.ID.toString() === line.JournalEntryID.toString());
+                    const journalEntry = journalEntries.find(x => x.ID.toString() === line.JournalEntryID.toString());
                     if (journalEntry) {
                         // we have already got this journalentry in our collection, so use that
                         je = journalEntry;
@@ -247,7 +253,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         // we have set a journalentryid, but it has not been used yet - so
                         // look in the existingJournalEntries retrieved from the server and
                         // set some extra properties on that
-                        let existingJournalEntry =
+                        const existingJournalEntry =
                             existingJournalEntries.find(
                                 x => x.ID ? x.ID.toString() : x.JournalEntryID.toString() === line.JournalEntryID.toString()
                             );
@@ -285,7 +291,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             // For each line, create a journalentrylinedraft for debit and credit. These are used
             // to perform the actual booking
-            let draftLines = this.createJournalEntryDraftLines(line, je);
+            const draftLines = this.createJournalEntryDraftLines(line, je);
 
             draftLines.forEach(draftLine => {
                 je.DraftLines.push(draftLine);
@@ -296,19 +302,19 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     private createJournalEntryDraftLines(journalEntryData: JournalEntryData, je: JournalEntryExtended): Array<JournalEntryLineDraft> {
-        let lines = new Array<JournalEntryLineDraft>();
+        const lines = new Array<JournalEntryLineDraft>();
 
-        let hasDebitAccount: boolean = journalEntryData.DebitAccountID ? true : false;
-        let hasCreditAccount: boolean = journalEntryData.CreditAccountID ? true : false;
+        const hasDebitAccount: boolean = journalEntryData.DebitAccountID ? true : false;
+        const hasCreditAccount: boolean = journalEntryData.CreditAccountID ? true : false;
 
-        let amount: number = journalEntryData.Amount;
-        let amountCurrency: number = journalEntryData.AmountCurrency;
+        const amount: number = journalEntryData.Amount;
+        const amountCurrency: number = journalEntryData.AmountCurrency;
 
         if (hasDebitAccount) {
-            let debitAccount = journalEntryData.DebitAccount;
-            let debitVatType = journalEntryData.DebitVatTypeID ? journalEntryData.DebitVatType : null;
+            const debitAccount = journalEntryData.DebitAccount;
+            const debitVatType = journalEntryData.DebitVatTypeID ? journalEntryData.DebitVatType : null;
 
-            let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
+            const draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
 
             draftLine.Account = debitAccount;
             draftLine.AccountID = debitAccount.ID;
@@ -352,10 +358,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         if (hasCreditAccount) {
-            let creditAccount = journalEntryData.CreditAccount;
-            let creditVatType = journalEntryData.CreditVatType;
+            const creditAccount = journalEntryData.CreditAccount;
+            const creditVatType = journalEntryData.CreditVatType;
 
-            let draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
+            const draftLine: JournalEntryLineDraft = new JournalEntryLineDraft();
 
             draftLine.Account = creditAccount;
             draftLine.AccountID = creditAccount.ID;
@@ -415,8 +421,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         .usingStatisticsDomain()
         .withEndPoint('?model=JournalEntryLine&select=count(id)'
         + '&filter=subaccount.supplierID eq '
-        + supplierID + " and InvoiceNumber eq '"
-        + invoiceNumber + "' and StatusCode ne 31004&expand=subaccount")
+        + supplierID + ' and InvoiceNumber eq "'
+        + invoiceNumber + '" and StatusCode ne 31004&expand=subaccount')
         .send()
         .map(response => response.json());
     }
@@ -434,15 +440,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         currentFinancialYear: FinancialYear,
         financialYears: Array<FinancialYear>,
         companySettings: CompanySettings): Promise<ValidationResult> {
-        let result: ValidationResult = new ValidationResult();
+        const result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
         return new Promise((resolve, reject) => {
 
-            let dblPaymentsInvoiceNo: Array<string> = [];
+            const dblPaymentsInvoiceNo: Array<string> = [];
             journalDataEntries.forEach(row => {
                 if (row.InvoiceNumber) {
-                    let duplicatePayments = journalDataEntries.filter(entry =>
+                    const duplicatePayments = journalDataEntries.filter(entry =>
                         entry.InvoiceNumber === row.InvoiceNumber && entry.InvoiceNumber
                         && ((entry.DebitAccount && entry.DebitAccount.UsePostPost)
                         || (entry.CreditAccount && entry.CreditAccount.UsePostPost))
@@ -457,14 +463,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
 
             if (dblPaymentsInvoiceNo.length > 0) {
-                let invPaymValidation = new ValidationMessage();
+                const invPaymValidation = new ValidationMessage();
                 let subMsg: string = '';
                 dblPaymentsInvoiceNo.forEach(invoiceNo => {
                     subMsg += invoiceNo + ', ';
                 });
 
                 invPaymValidation.Level = ValidationLevel.Warning;
-                let subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
+                const subNoMsg = dblPaymentsInvoiceNo.length > 1 ? 'numrene ' : 'nr ';
 
                 invPaymValidation.Message =
                     'Faktura' + subNoMsg + subMsg.substring(0, subMsg.length - 2) + ' har flere betalinger.';
@@ -473,16 +479,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
 
-            let invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
+            const invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
 
             if (invalidRows.length > 0) {
-                let message = new ValidationMessage();
+                const message = new ValidationMessage();
                 message.Level = ValidationLevel.Error;
                 message.Message = 'Dato, beløp og enten debet eller kreditkonto må fylles ut på alle radene';
                 result.Messages.push(message);
             }
 
-            let rowsWithInvalidAccounts =
+            const rowsWithInvalidAccounts =
                 journalDataEntries.filter(x =>
                     (x.DebitAccount && (x.DebitAccount.Locked || x.DebitAccount.LockManualPosts))
                     || (x.CreditAccount && (x.CreditAccount.Locked || x.CreditAccount.LockManualPosts))
@@ -501,7 +507,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                     // only notify once about each locked account
                     if (!result.Messages.find(x => x.Message === errorMsg)) {
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
                         message.Message = errorMsg;
                         result.Messages.push(message);
@@ -510,36 +516,40 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
             if (companySettings && companySettings.AccountingLockedDate) {
-                let invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
+                const invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
                     && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
 
                 if (invalidDates.length > 0) {
-                    let message = new ValidationMessage();
+                    const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
-                    message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')}, ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                    message.Message = `Regnskapet er låst til ${moment(companySettings.AccountingLockedDate).format('L')},` +
+                        ` ${invalidDates.length} linje${invalidDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
                     result.Messages.push(message);
                 }
             }
             if (companySettings && companySettings.VatLockedDate) {
 
-                let invalidVatDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
-                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate)));
+                const invalidVatDates = journalDataEntries.filter(
+                    x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                );
 
                 if (invalidVatDates.length > 0) {
-                    let message = new ValidationMessage();
+                    const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
-                    message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')}, ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
+                    message.Message = `MVA er låst til ${moment(companySettings.VatLockedDate).format('L')},` +
+                        ` ${invalidVatDates.length} linje${invalidVatDates.length > 1 ? 'r' : ''} har dato tidligere enn dette`;
                     result.Messages.push(message);
                 }
             }
 
-            let sortedJournalEntries = journalDataEntries
+            const sortedJournalEntries = journalDataEntries
                 .concat()
                 .sort((a, b) => {
                     if (a.JournalEntryNo > b.JournalEntryNo) {
                         return 1;
                     } else if (a.JournalEntryNo < b.JournalEntryNo) {
-                        return -1
+                        return -1;
                     }
                     return 0;
                 });
@@ -553,7 +563,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 if (lastJournalEntryNo !== entry.JournalEntryNo) {
                     const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
                     if (diff !== 0) {
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
                         message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse.`
                             + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
@@ -567,15 +577,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
 
                 if (entry.JournalEntryDataAccrual) {
-                    let isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
+                    const isDebitResultAccount = (entry.DebitAccount && entry.DebitAccount.TopLevelAccountGroup
                         && entry.DebitAccount.TopLevelAccountGroup.GroupNumber >= 3);
-                    let isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
+                    const isCreditResultAccount = (entry.CreditAccount && entry.CreditAccount.TopLevelAccountGroup
                         && entry.CreditAccount.TopLevelAccountGroup.GroupNumber >= 3);
 
                     if ((isDebitResultAccount && isCreditResultAccount) ||
                         (!isDebitResultAccount && !isCreditResultAccount)) {
 
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
                         if (isDebitResultAccount) {
                             message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
@@ -589,18 +599,23 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 let financialYearEntry: FinancialYear;
 
                 if (entry.FinancialDate) {
-                    financialYearEntry = financialYears.find(x => moment(entry.FinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(entry.FinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
+                    financialYearEntry = financialYears.find(x =>
+                            moment(entry.FinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day')
+                            && moment(entry.FinancialDate).isSameOrBefore(moment(x.ValidTo), 'day')
+                    );
 
                     if (!financialYearEntry) {
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
-                        message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår (${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
+                        message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
+                            `(${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
                         result.Messages.push(message);
                     } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(currentFinancialYear.ValidTo, 'day')
                         || moment(entry.FinancialDate).isBefore(currentFinancialYear.ValidFrom, 'day')) {
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
-                        message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ${currentFinancialYear.Year} (${moment(entry.FinancialDate).format('DD.MM.YYYY')})`;
+                        message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ` +
+                            `${currentFinancialYear.Year} (${moment(entry.FinancialDate).format('DD.MM.YYYY')})`;
                         result.Messages.push(message);
                     }
                 }
@@ -609,12 +624,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     // Find the financialyear for the lastJournalEntryFinancialDate.FinancialDate and log an
                     // error if they are not equal. Note that the year of the date might be different without
                     // causing an error, e.g. if the financialyear is defined from 01.07.XXXX to 30.06.XXXX+1
-                    let financialYearLastEntry = financialYears.find(x => moment(lastJournalEntryFinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day') && moment(lastJournalEntryFinancialDate).isSameOrBefore(moment(x.ValidTo), 'day'));
+                    const financialYearLastEntry = financialYears.find(x =>
+                        moment(lastJournalEntryFinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day')
+                        && moment(lastJournalEntryFinancialDate).isSameOrBefore(moment(x.ValidTo), 'day')
+                    );
 
                     if (financialYearLastEntry !== financialYearEntry) {
-                        let message = new ValidationMessage();
+                        const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
-                        message.Message = `Bilag ${lastJournalEntryNo} er fordelt over flere regnskapsår - dette er ikke lov. Vennligst velg samme år, eller endre bilagsnr på linjene som har forskjellig år`;
+                        message.Message = `Bilag ${lastJournalEntryNo} er fordelt over flere regnskapsår - dette er ikke lov.` +
+                            ` Vennligst velg samme år, eller endre bilagsnr på linjene som har forskjellig år`;
                         result.Messages.push(message);
                     }
                 }
@@ -636,15 +655,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
             if (diff !== 0) {
-                let message = new ValidationMessage();
+                const message = new ValidationMessage();
                 message.Level = ValidationLevel.Error;
                 message.Message = `Bilag ${lastJournalEntryNo}
                 går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
                 result.Messages.push(message);
             }
             // FORKJOIN CHECKS
-            let obs = [];
-            let indexes = [];
+            const obs = [];
+            const indexes = [];
             sortedJournalEntries.forEach((entry, ind) => {
                 if (entry.InvoiceNumber &&
                     entry.CreditAccount &&
@@ -659,7 +678,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 Observable.forkJoin(obs).subscribe((data) => {
                     data.forEach((res: any, i) => {
                         if (res && res.Data && res.Data[0].countid > 0) {
-                            let warning = new ValidationMessage();
+                            const warning = new ValidationMessage();
                             warning.Level = ValidationLevel.Warning;
                             warning.Message = 'Bilagslinje med fakturanr. '
                             + sortedJournalEntries[indexes[i]].InvoiceNumber + ' og leverandør '
@@ -872,14 +891,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber + '&creditDate=' + date)
+            .withEndPoint(
+                this.relativeURL + '?action=credit-journal-entry&journalEntryNumber=' + journalEntryNumber + '&creditDate=' + date
+            )
             .send()
             .map(response => response.json());
     }
 
-    public getAccountBalanceInfo(journalDataEntries: Array<JournalEntryData>, previousList: Array<AccountBalanceInfo>, currentFinancialYear: FinancialYear): Observable<any> {
+    public getAccountBalanceInfo(
+        journalDataEntries: Array<JournalEntryData>, previousList: Array<AccountBalanceInfo>, currentFinancialYear: FinancialYear
+    ): Observable<any> {
 
-        let distinctAccountIDs: Array<number> = [];
+        const distinctAccountIDs: Array<number> = [];
 
         journalDataEntries.forEach(row => {
             if (row.DebitAccountID && distinctAccountIDs.indexOf(row.DebitAccountID) === -1) {
@@ -890,7 +913,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
         });
 
-        let distinctNewAccountIDs: Array<number> =
+        const distinctNewAccountIDs: Array<number> =
             distinctAccountIDs.filter(id => !previousList.find(abi => abi.accountID === id));
 
         if (distinctNewAccountIDs.length === 0) {
@@ -907,18 +930,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         filter = `(${filter}) ` +
-                `and (( isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 and Period.AccountYear le ${currentFinancialYear.Year}) or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
+                `and (( isnull(TopLevelAccountGroup.GroupNumber\,0) le 2 and Period.AccountYear le ${currentFinancialYear.Year}) ` +
+                `or (TopLevelAccountGroup.GroupNumber ge 3 and Period.AccountYear eq ${currentFinancialYear.Year} ))`;
 
-        return this.statisticsService.GetAll(`model=JournalEntryLine` +
+        return this.statisticsService.GetAll(
+            `model=JournalEntryLine` +
             `&expand=Account.TopLevelAccountGroup,SubAccount,Period` +
             `&filter=${filter}` +
-            `&select=sum(JournalEntryLine.AmountCurrency) as SumAmountCurrency,JournalEntryLine.AccountID as AccountID,JournalEntryLine.SubAccountID as SubAccountID`)
+            `&select=sum(JournalEntryLine.AmountCurrency) as SumAmountCurrency,JournalEntryLine.AccountID as AccountID,` +
+            `JournalEntryLine.SubAccountID as SubAccountID`
+        )
             .map(data => {
-                let accountBalances: Array<AccountBalanceInfo> = previousList;
+                const accountBalances: Array<AccountBalanceInfo> = previousList;
 
                 if (data.Data) {
                     data.Data.forEach(row => {
-                        let accountBalance: AccountBalanceInfo = new AccountBalanceInfo();
+                        const accountBalance: AccountBalanceInfo = new AccountBalanceInfo();
                         accountBalance.accountID = row.SubAccountID ? row.SubAccountID : row.AccountID;
                         accountBalance.balance = row.SumAmountCurrency;
 
@@ -930,8 +957,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
     }
 
-    public calculateJournalEntryAccountSummaryLocal(journalDataEntries: Array<JournalEntryData>, accountBalances: Array<AccountBalanceInfo>, vatdeductions: Array<VatDeduction>, currentLine: JournalEntryData): JournalEntryAccountCalculationSummary {
-        let sum: JournalEntryAccountCalculationSummary = {
+    public calculateJournalEntryAccountSummaryLocal(
+        journalDataEntries: Array<JournalEntryData>,
+        accountBalances: Array<AccountBalanceInfo>,
+        vatdeductions: Array<VatDeduction>,
+        currentLine: JournalEntryData
+    ): JournalEntryAccountCalculationSummary {
+        const sum: JournalEntryAccountCalculationSummary = {
             debitAccount: currentLine ? currentLine.DebitAccount : null,
             debitOriginalBalance: 0,
             debitNetChange: 0,
@@ -951,7 +983,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             deductionPercent: 0
         };
 
-        let accountsToCheck: Array<number> = [];
+        const accountsToCheck: Array<number> = [];
 
         if (!currentLine) {
             return sum;
@@ -961,13 +993,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         // get opening balance for the debit / credit account, and set the currentline net change
         if (currentLine.DebitAccount) {
-            let originalBalance = accountBalances.find(x => x.accountID === sum.debitAccount.ID);
+            const originalBalance = accountBalances.find(x => x.accountID === sum.debitAccount.ID);
             sum.debitOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
             if (currentLine.DebitVatTypeID) {
                 sum.debitNetChangeCurrentLine += currentLine.NetAmount;
 
-                var lineCalc =
+                const lineCalc =
                     this.calculateJournalEntryData(
                         currentLine.DebitAccount,
                         currentLine.DebitVatType,
@@ -986,13 +1018,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         if (currentLine.CreditAccount) {
-            let originalBalance = accountBalances.find(x => x.accountID === sum.creditAccount.ID);
+            const originalBalance = accountBalances.find(x => x.accountID === sum.creditAccount.ID);
             sum.creditOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
             if (currentLine.CreditVatTypeID) {
                 sum.creditNetChangeCurrentLine += currentLine.NetAmount * -1;
 
-                var lineCalc =
+                const lineCalc =
                     this.calculateJournalEntryData(
                         currentLine.CreditAccount,
                         currentLine.CreditVatType,
@@ -1088,7 +1120,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return 0;
         }
 
-        let validdeduction =
+        const validdeduction =
             vatdeductions.find(x => moment(date).isSameOrAfter(moment(x.ValidFrom))
                 && (!x.ValidTo || moment(date).isBefore(moment(x.ValidTo)))
             );
@@ -1096,8 +1128,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return validdeduction ? validdeduction.DeductionPercent : 0;
     }
 
-    public calculateJournalEntrySummaryLocal(journalDataEntries: Array<JournalEntryData>, vatdeductions: Array<VatDeduction>): JournalEntrySimpleCalculationSummary {
-        let sum: JournalEntrySimpleCalculationSummary = {
+    public calculateJournalEntrySummaryLocal(
+        journalDataEntries: Array<JournalEntryData>, vatdeductions: Array<VatDeduction>
+    ): JournalEntrySimpleCalculationSummary {
+        const sum: JournalEntrySimpleCalculationSummary = {
             IncomingVat: 0,
             OutgoingVat: 0,
             SumCredit: 0,
@@ -1112,14 +1146,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (journalDataEntries) {
             journalDataEntries.forEach(entry => {
-                let debitData = this.calculateJournalEntryData(
+                const debitData = this.calculateJournalEntryData(
                     entry.DebitAccount,
                     entry.DebitVatType,
                     entry.AmountCurrency,
                     null,
                     entry
                 );
-                let creditData =  this.calculateJournalEntryData(
+                const creditData =  this.calculateJournalEntryData(
                     entry.CreditAccount,
                     entry.CreditVatType,
                     entry.AmountCurrency * -1,
@@ -1143,9 +1177,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     sum.SumDebet += creditData.amountNet;
                 }
 
-                let incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
+                const incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
                 sum.IncomingVat += incomingVat;
-                let outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
+                const outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
                 sum.OutgoingVat += outgoingVat;
 
                 if (incomingVat > 0) {
@@ -1169,9 +1203,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return sum;
     }
 
-    public calculateJournalEntryData(account: Account, vattype: VatType, grossAmountCurrency: number, netAmountCurrency: number, journalEntryData: JournalEntryData): JournalEntryLineCalculation {
+    public calculateJournalEntryData(
+        account: Account, vattype: VatType, grossAmountCurrency: number, netAmountCurrency: number, journalEntryData: JournalEntryData
+    ): JournalEntryLineCalculation {
         // grossAmountCurrency == med moms, netAmout == uten moms
-        let res: JournalEntryLineCalculation = {
+        const res: JournalEntryLineCalculation = {
             amountGross: 0,
             amountGrossCurrency: 0,
             amountNet: 0,
@@ -1187,7 +1223,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         let incomingVatAmountCurrency = 0;
         let outgoingVatAmountCurrency = 0;
-        let taxBasisAmountCurrency = 0;
+        const taxBasisAmountCurrency = 0;
         if (account) {
             if (vattype && !vattype.DirectJournalEntryOnly) {
                 let deductionpercent =
@@ -1204,7 +1240,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                 this.setCorrectVatPercent(vattype, journalEntryData);
 
-                let vatPercent = vattype.VatPercent;
+                const vatPercent = vattype.VatPercent;
 
                 if (grossAmountCurrency) {
                     res.amountGrossCurrency = grossAmountCurrency;
@@ -1220,9 +1256,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                                 : res.amountGrossCurrency * deductionpercent / 100 / (1 + vatPercent / 100);
 
                         if (deductionpercent !== 100) {
-                            res.amountNetCurrency += vattype.ReversedTaxDutyVat ?
-                                res.amountGrossCurrency * (100 - deductionpercent) / 100 + (res.amountGrossCurrency * vatPercent / 100) * ((100 - deductionpercent) / 100)
-                                            : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vatPercent / 100;
+                            res.amountNetCurrency += vattype.ReversedTaxDutyVat
+                                ? res.amountGrossCurrency * (100 - deductionpercent) / 100
+                                    + (res.amountGrossCurrency * vatPercent / 100) * ((100 - deductionpercent) / 100)
+                                : res.amountGrossCurrency - res.amountNetCurrency - res.amountNetCurrency * vatPercent / 100;
                         }
                     }
                 } else if (netAmountCurrency) {
@@ -1232,7 +1269,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         res.amountGrossCurrency = res.amountNetCurrency;
                     } else {
                         if (deductionpercent > 0 && deductionpercent < 100) {
-                            console.error('calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported');
+                            console.error(
+                                'calculateJournalEntryData called for netAmountCurrency with deduction percent set, this is not supported'
+                            );
                         }
 
                         res.amountGrossCurrency = vattype.ReversedTaxDutyVat ?
@@ -1243,7 +1282,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     }
                 }
 
-                let taxBasisAmount =
+                const taxBasisAmount =
                     vattype.ReversedTaxDutyVat ?
                             res.amountGrossCurrency
                             : res.amountGrossCurrency / (1 + vatPercent / 100);
@@ -1297,7 +1336,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // find the correct vatpercentage based on the either vatdate, financialdate or current date,
         // in that order. VatPercent may change between years, so this needs to be checked each time,
         // because changing dates, account, or vattypes may change what vatpercent to use
-        let vatDate =
+        const vatDate =
             journalEntryData.VatDate ?
                 moment(journalEntryData.VatDate) :
                 journalEntryData.FinancialDate ?
@@ -1305,12 +1344,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     moment(Date());
 
         if (vattype && vattype.VatTypePercentages) {
-            let validPercentageForVatType =
+            const validPercentageForVatType =
                 vattype.VatTypePercentages.find(y =>
                         (moment(y.ValidFrom) <= vatDate && y.ValidTo && moment(y.ValidTo) >= vatDate)
                         || (moment(y.ValidFrom) <= vatDate && !y.ValidTo));
 
-            let vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
+            const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
 
             // set the correct percentage on the VatType also, this is done to reflect it properly in
             // the UI if changing a date leads to using a different vatpercent
@@ -1329,13 +1368,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public findJournalNumbersFromLines(journalEntryLines: Array<JournalEntryData>, nextJournalNumber: string = '') {
-        var first, last, year;
+        let first, last, year;
 
         if (journalEntryLines && journalEntryLines.length) {
             journalEntryLines.forEach((l: JournalEntryData, i) => {
                 if (l.JournalEntryNo) {
-                    var parts = l.JournalEntryNo.split('-');
-                    var no = parseInt(parts[0]);
+                    const parts = l.JournalEntryNo.split('-');
+                    const no = parseInt(parts[0], 10);
                     if (!first || no < first) {
                         first = no;
                     }
@@ -1343,7 +1382,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         last = no;
                     }
                     if (i === 0 && parts.length > 1) {
-                        year = parseInt(parts[1]);
+                        year = parseInt(parts[1], 10);
                     }
                 }
             });
@@ -1352,11 +1391,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 return null;
             }
         } else if (nextJournalNumber && nextJournalNumber.length) {
-            var parts = nextJournalNumber.split('-');
-            first = parseInt(parts[0]);
+            const parts = nextJournalNumber.split('-');
+            first = parseInt(parts[0], 10);
             last = first;
             if (parts.length > 1) {
-                year = parseInt(parts[1]);
+                year = parseInt(parts[1], 10);
             }
         }
 
@@ -1371,16 +1410,28 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getPreviousJournalEntry(journalEntryYear, journalEntryNumber): Observable<any> {
-        let filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric lt ${journalEntryNumber}` : '';
+        const filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric lt ${journalEntryNumber}` : '';
 
-        return this.statisticsService.GetAll(`model=JournalEntry&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric&orderby=JournalEntryNumberNumeric desc&top=1&expand=FinancialYear&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`)
+        return this.statisticsService.GetAll(
+            `model=JournalEntry` +
+            `&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric` +
+            `&orderby=JournalEntryNumberNumeric desc` +
+            `&top=1&expand=FinancialYear` +
+            `&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`
+        )
             .map(data => data.Data);
     }
 
     public getNextJournalEntry(journalEntryYear, journalEntryNumber): Observable<any> {
-        let filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric gt ${journalEntryNumber}` : '';
+        const filterNumber = journalEntryNumber ? `and JournalEntryNumberNumeric gt ${journalEntryNumber}` : '';
 
-        return this.statisticsService.GetAll(`model=JournalEntry&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric&orderby=JournalEntryNumberNumeric asc&top=1&expand=FinancialYear&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`)
+        return this.statisticsService.GetAll(
+            `model=JournalEntry` +
+            `&select=ID,JournalEntryNumber as JournalEntryNumber,JournalEntryNumberNumeric` +
+            `&orderby=JournalEntryNumberNumeric asc` +
+            `&top=1&expand=FinancialYear` +
+            `&filter=FinancialYear.Year eq ${journalEntryYear} and isnull(JournalEntryNumberNumeric,0) ne 0 ${filterNumber}`
+        )
             .map(data => data.Data);
     }
 }
