@@ -19,6 +19,9 @@
     </nav>
 
     <main class= "splitview_detail">
+        <section class="sharing-badges" *ngIf="selectedUser?.BankIntegrationUserName" >
+            <span class="badge-available">Bankbruker</span>
+        </section>
         <uni-form
             [config]="formConfig$"
             [fields]="formFields$"

@@ -8,6 +8,10 @@ import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from '../../
 import {RoleService, ErrorService, UserService} from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
+import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 
 @Component({
@@ -47,7 +51,9 @@ export class Users {
         private roleService: RoleService,
         private userService: UserService,
         private errorService: ErrorService,
+        private modalService: UniModalService,
         private browserStorage: BrowserStorageService,
+        private toast: ToastService
     ) {
         this.initTableConfigs();
         this.initFormConfigs();
@@ -147,6 +153,11 @@ export class Users {
                 disabled: (user: User) => {
                     return user.StatusCode !== 110001 && user.StatusCode !== 110000;
                 }
+            },
+            {
+                label: 'Register som bankbruker',
+                action: (user: User) => this.registerBankUser(user),
+                disabled: (user: User) => !!user.BankIntegrationUserName
             }
         ];
 
@@ -186,6 +197,8 @@ export class Users {
 
                     if (focusFirst) {
                         setTimeout(() => this.tables.last.focusRow(0));
+                    } else {
+                        setTimeout(() => this.tables.last.focusRow(this.selectedIndex));
                     }
                 },
                 err => this.errorService.handle(err)
@@ -288,6 +301,27 @@ export class Users {
                 Section: 0
             }
          ]);
-      }
+    }
+
+    private registerBankUser(user: User) {
+        const modal = this.modalService.open(UniRegisterBankUserModal);
+        modal.onClose.subscribe(bankData => {
+            if (bankData && bankData.Password) {
+                this.askForAdminPassoword(user, bankData);
+            }
+        });
+    }
+
+    private askForAdminPassoword(user, bankData) {
+        const modal = this.modalService.open(UniAdminPasswordModal, { data: {
+            user: user,
+            bankData: bankData
+        }});
+        modal.onClose.subscribe(result => {
+            if (result === true) {
+                this.getUsers(false);
+            }
+        });
+    }
 }
 

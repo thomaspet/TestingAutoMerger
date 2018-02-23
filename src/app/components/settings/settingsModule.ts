@@ -31,6 +31,8 @@ import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
 import {RoleSelector} from './users/roleSelector';
+import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
+import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 
 @NgModule({
     imports: [
@@ -61,12 +63,16 @@ import {RoleSelector} from './users/roleSelector';
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
         WebHookSettings,
-        RoleSelector
+        RoleSelector,
+        UniRegisterBankUserModal,
+        UniAdminPasswordModal
     ],
     entryComponents: [
         GrantModal,
         FreeAmountModal,
-        ChangeCompanySettingsPeriodSeriesModal
+        ChangeCompanySettingsPeriodSeriesModal,
+        UniRegisterBankUserModal,
+        UniAdminPasswordModal
     ],
     exports: [
         RouterModule,
