@@ -398,7 +398,7 @@ export class PostPost {
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,` +
                              `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
+                             `filter=Account.UsePostPost eq 1 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
