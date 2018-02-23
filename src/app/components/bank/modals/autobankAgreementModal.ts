@@ -11,6 +11,8 @@ import {
 } from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {BankAccount} from '@uni-entities';
+import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {UniAgreementWarningModal} from '@app/components/bank/modals/agreement-warning.modal';
 
 export interface IAutoBankAgreementDetails {
     Orgnr: string;
@@ -28,8 +30,20 @@ export interface IAutoBankAgreementDetails {
 
 @Component({
     selector: 'uni-autobank-agreement-modal',
+    styles: [`
+        .step2 {
+            width: 90vw !important;
+        }
+        object {
+            width: 100% !important;
+            min-height: 35vw;
+        }
+        #step1 {
+            text-align: center;
+        }`
+    ],
     template: `
-        <section role="dialog" class="uni-modal uni-autobank-agreement-modal">
+        <section role="dialog" class="uni-modal uni-autobank-agreement-modal" [class.step2]="steps === 1">
             <header><h1>{{ header }}</h1></header>
 
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps > 0" id="step0">
@@ -42,7 +56,19 @@ export interface IAutoBankAgreementDetails {
                     I slike tilfeller vil dere bli kontaktet av Uni Micro AS eller Zdata for å innhente nødvendig informasjon.
                 </p>
             </article>
-            <article class="uni-autobank-agreement-modal-body checkbox_step" [hidden]="steps !== 1" id="step1">
+            <article [hidden]="steps !== 1" class="uni-autobank-agreement-modal-body checkbox_step" id="step1">
+                <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf">
+                    <embed src="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf" />
+                </object>
+                <br>
+                <label class="checkbox-label" for="agreementCheckbox">
+                    <input type="checkbox"
+                           [(ngModel)]="haveReadAgreement"
+                            id="agreementCheckbox"/>
+                    Godta vilkår og avtaler
+                </label>
+            </article>
+            <article class="uni-autobank-agreement-modal-body checkbox_step" [hidden]="steps !== 2" id="step2">
                 <p>Kryss av for om du ønsker autobankavtale for utbetalinger, innbetallinger, eller begge: </p>
                 <label class="checkbox-label" for="isIncommingCheckbox">
                     <input type="checkbox"
@@ -60,7 +86,7 @@ export interface IAutoBankAgreementDetails {
                     Utbetalinger
                 </label>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 2" id="step2">
+            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 3" id="step3">
                 <p *ngIf="!editmode">Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
                 <uni-form
                     [config]="formConfig$"
@@ -70,7 +96,7 @@ export interface IAutoBankAgreementDetails {
                 </uni-form>
                 <span *ngIf="errorText" style="font-size: .75rem; color: red; margin-left: 0.5rem;"> {{ errorText }}</span>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 3" id="step3" [attr.aria-busy]="busy">
+            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 4" id="step4" [attr.aria-busy]="busy">
                 <p> Se over og sjekk at all informasjon stemmer føre dere velger fortsett
                     <strong>(NB! Informasjon sendes automatisk til din bank)</strong>
                 </p>
@@ -82,22 +108,22 @@ export interface IAutoBankAgreementDetails {
                 <h3> <strong>Avtale for innkommende betaling:  </strong> {{ agreementDetails.IsOutgoing ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Epost: </strong> {{ agreementDetails.Email }} </h3>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 4" id="step4">
+            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 5" id="step5">
                 <p>Du har nå fullført din del av opprettelse av autobankavtale. Nå setter vi opp alt med banken.</p>
                 <p>Status kan du sjekke forløpende ved å trykke på linken over knappen "Ny autobankavtale" i bankbilde,
                 eller du kan gå inn under Innstillinger - Bankinstillinger.</p>
             </article>
 
             <footer *ngIf="!editmode">
-                <button (click)="move(-1)" [disabled]="busy" *ngIf="steps > 0 && steps !== 4">
+                <button (click)="move(-1)" [disabled]="busy" *ngIf="steps > 0 && steps !== 5">
                     Tilbake
                 </button>
 
-                <button (click)="move(1)" *ngIf="steps < 3" [disabled]="busy || !canMoveForward">
+                <button (click)="move(1)" *ngIf="steps < 4" [disabled]="busy || !canMoveForward">
                     Fortsett
                 </button>
 
-                <button (click)="sendStartDataToZData()" *ngIf="steps === 3" class="good" [disabled]="busy">
+                <button (click)="sendStartDataToZData()" *ngIf="steps === 4" class="good" [disabled]="busy">
                     Fullfør
                 </button>
 
@@ -120,7 +146,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private steps: number = 0;
-    private canMoveForward: boolean = true;
+    private canMoveForward: boolean = false;
     private errorText: string;
     private accounts: any[] = [];
     private busy: boolean = false;
@@ -142,6 +168,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     private formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    public haveReadAgreement = false;
+
     public editmode: boolean = false;
 
     constructor(
@@ -149,7 +177,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private bankAccountService: BankAccountService,
-        private bankService: BankService
+        private bankService: BankService,
+        private modalService: UniModalService
     ) { }
 
     public ngOnInit() {
@@ -159,6 +188,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.steps = 2;
             this.header = 'Rediger avtale';
         }
+        this.canMoveForward = false;
         Observable.forkJoin(
             this.companySettingsService.Get(1),
             this.userService.getCurrentUser(),
@@ -174,9 +204,11 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             }
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
+            this.canMoveForward = true;
         }, (err) => {
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
+            this.canMoveForward = true;
         });
     }
 
@@ -251,15 +283,23 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     }
 
     public move(direction: number) {
+        if (this.steps === 1 && !this.haveReadAgreement) {
+            const modal = this.modalService.open(UniAgreementWarningModal);
+            return;
+        }
         this.steps += direction;
-        this.canMoveForward = this.steps !== 1 ;
+        if (this.steps === 1) {
+            this.canMoveForward = true;
+        }
+        this.canMoveForward = this.steps !== 2 ;
 
         // Form step
-        if (this.steps === 1) {
+        if (this.steps === 2) {
+
             this.canMoveForward = this.agreementDetails.IsInbound || this.agreementDetails.IsOutgoing;
-        } else if (this.steps === 2) {
-            this.canMoveForward = this.validateForm();
         } else if (this.steps === 3) {
+            this.canMoveForward = this.validateForm();
+        } else if (this.steps === 4) {
             this.canMoveForward = false;
         }
     }

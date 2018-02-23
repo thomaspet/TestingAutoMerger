@@ -30,6 +30,7 @@ import {
     UniAutobankAgreementListModal,
     UniAutobankAgreementModal
 } from './modals';
+import {UniAgreementWarningModal} from '@app/components/bank/modals/agreement-warning.modal';
 
 @NgModule({
     imports: [
@@ -59,13 +60,15 @@ import {
         CustomerPaymentBatchDetails,
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal
+        UniAutobankAgreementModal,
+        UniAgreementWarningModal
     ],
     entryComponents: [
         PaymentRelationsTable,
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal
+        UniAutobankAgreementModal,
+        UniAgreementWarningModal
     ],
     providers: [
         CanDeactivateGuard
