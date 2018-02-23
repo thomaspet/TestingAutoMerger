@@ -5,7 +5,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {ErrorService, BrowserStorageService, EmploymentService} from '../../../services/services';
 import {safeDec, filterInput, getDeepValue} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
-import {WorkType, WorkItem, LocalDate, Employment} from '../../../unientities';
+import {WorkType, WorkItem, LocalDate} from '../../../unientities';
 import * as moment from 'moment';
 
 interface ICurrent {
@@ -37,7 +37,6 @@ export class WorkEditor {
     private tableConfig: UniTableConfig;
     private timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
-    private employments: Employment[] = [];
     private visibleColumns: Array<string>;
     private defaultRow: any = { Date: new LocalDate() };
 
@@ -79,22 +78,7 @@ export class WorkEditor {
     }
 
     private tryInit() {
-        this.initEmployeeIsSetLookups();
         this.tableConfig = this.createTableConfig();
-    }
-
-    private initEmployeeIsSetLookups() {
-        let filter: string = '';
-        if (this.timeSheet && this.timeSheet.currentRelation && this.timeSheet.currentRelation.Worker) {
-            filter = `filter=EmployeeID eq ${this.timeSheet.currentRelation.Worker.EmployeeID}`;
-        }
-        if (filter !== '') {
-            this.employmentService.GetAll(filter)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe( (empls: Employment[]) => {
-                this.employments = empls;
-            });
-        }
     }
 
     private initLookups() {
@@ -262,11 +246,6 @@ export class WorkEditor {
                 .setWidth('6rem')
                 .setVisible(false),
 
-            this.createLookupColumn('Employment', 'Arbeidsforhold', 'Employment',
-                x => this.lookupEmployment(x), 'ID', 'JobName')
-                .setWidth('6rem')
-                .setVisible(this.employments.length > 0),
-
             new UniTableColumn('Label', 'Merke/etikett')
                 .setWidth('6rem')
                 .setCls('good')
@@ -328,14 +307,6 @@ export class WorkEditor {
         }
 
         return cfg;
-    }
-
-    private lookupEmployment(txt: string) {
-        const list = this.employments;
-        const lcaseText = txt.toLowerCase();
-        const sublist = list.filter((item: Employment) => {
-            return (item.ID.toString().startsWith(txt) || item.JobName.toLowerCase().indexOf(lcaseText) >= 0); } );
-        return Observable.from([sublist]);
     }
 
     public lookupType(txt: string) {

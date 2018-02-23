@@ -303,7 +303,7 @@ export class WorkerService extends BizHttp<Worker> {
         }
         return this.GET('workitems', { filter: filter, hateoas: 'false',
             expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder'
-                + ',Customer,Customer.Info,Employment',
+                + ',Customer,Customer.Info',
             orderBy: 'StartTime' });
     }
 

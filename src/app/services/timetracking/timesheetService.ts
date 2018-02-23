@@ -211,13 +211,6 @@ export class TimeSheet {
                     ignore = true;
                 }
                 break;
-            case 'Employment':
-                item.EmploymentID = change.value ? change.value.ID : 0;
-                change.value = (!item.EmploymentID) ? null : change.value;
-                break;
-            case 'EmploymentID':
-                item.Employment = change.value ? change.lookupValue || item.Employment : undefined;
-                break;
         }
         if (!ignore) {
             item[change.name] = change.value;
@@ -253,9 +246,6 @@ export class TimeSheet {
             case 'Dimensions.ProjectID':
                 value = src.Dimensions ? src.Dimensions.ProjectID : value;
                 lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
-                break;
-            case 'EmploymentID':
-                lookupIItem = src.Employment;
                 break;
         }
         const item = new ValueItem(colName, value, rowIndex, lookupIItem);

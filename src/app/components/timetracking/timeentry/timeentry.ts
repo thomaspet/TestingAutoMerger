@@ -26,7 +26,7 @@ import { Project } from '@app/components/dimensions/project/project';
 import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
-    'Dimensions.ProjectID' | 'CustomerOrderID' | 'EmploymentID';
+    'Dimensions.ProjectID' | 'CustomerOrderID';
 
 interface ITab {
     name: string;
@@ -571,9 +571,7 @@ export class TimeEntry {
                     Minutes: item.Minutes,
                     LunchInMinutes: item.LunchInMinutes || 0,
                     Description: item.Description || '',
-                    Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : '',
-                    EmploymentID: item.EmploymentID,
-                    Employment: item.Employment ? item.Employment.JobName : ''
+                    Project: item.Dimensions && item.Dimensions.Project ? item.Dimensions.Project.Name : ''
                     };
                 list.push(row);
             }
