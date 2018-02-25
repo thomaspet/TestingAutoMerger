@@ -24,7 +24,7 @@ const fields = [{
                 width: 100%;
             }
         `
-    ]
+    ],
     template: `
         <section role="dialog" class="uni-modal">
             <header><h1>Admin passord</h1></header>
