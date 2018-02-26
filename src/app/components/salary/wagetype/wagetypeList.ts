@@ -43,6 +43,7 @@ export class WagetypeList implements OnInit {
     }
 
     public ngOnInit() {
+        this._wageTypeService.invalidateCache();
         this.busy = true;
         this.wageTypes$ =
         this._wageTypeService
