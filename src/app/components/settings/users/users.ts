@@ -190,16 +190,18 @@ export class Users {
                 (response) => {
                     this.users = response.map(user => {
                         user._statusText = this.getStatusCodeText(user.StatusCode);
-
                         return user;
-
                     });
 
-                    if (focusFirst) {
-                        setTimeout(() => this.tables.last.focusRow(0));
-                    } else {
-                        setTimeout(() => this.tables.last.focusRow(this.selectedIndex));
-                    }
+                    setTimeout(() => {
+                        if (this.tables) {
+                            if (focusFirst) {
+                                this.tables.last.focusRow(0);
+                            } else {
+                                this.tables.last.focusRow(this.selectedIndex);
+                            }
+                        }
+                    });
                 },
                 err => this.errorService.handle(err)
             );
