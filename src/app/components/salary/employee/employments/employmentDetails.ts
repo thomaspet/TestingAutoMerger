@@ -205,7 +205,7 @@ export class EmploymentDetails implements OnChanges {
 
         // Only maritime
         if (employment.TypeOfEmployment === TypeOfEmployment.MaritimeEmployment) {
-            this.setRequiredTooltip(fields, employment, 'RenumerationType');
+            this.setRequiredTooltip(fields, employment, 'RemunerationType');
         }
 
         this.fields$.next(fields);
@@ -213,7 +213,7 @@ export class EmploymentDetails implements OnChanges {
 
     private setRequiredTooltip(fields, model, property) {
         const field = fields.find(f => f.Property === property);
-        if (!_.get(model, property)) {
+        if (field && !_.get(model, property)) {
             field.Tooltip = {
                 Type: 'warn',
                 Text: 'Dette feltet er påkrevd ved innrapportering av A-melding',
