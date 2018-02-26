@@ -374,8 +374,18 @@
         "Filters": [],
         "Columns": [
             {
-                "Header": "Kommentar",
-                "Field": "Description"
+                "Header": "Nr.",
+                "Field": "ID"
+            },
+            {
+                "Header": "Ansatt",
+                "Field": "Employment.Employee.EmployeeNumber",
+                "Type": "text",
+                "Format": "text",
+                "FilterOperator": "startswith",
+                "SubFields": [{
+                    "Field": "Employment.Employee.BusinessRelationInfo.Name"
+                }]
             },
             {
                 "Header": "Startdato",
@@ -412,15 +422,9 @@
                 }]
             },
             {
-                "Header": "Ansatt",
-                "Field": "Employment.Employee.EmployeeNumber",
-                "Type": "text",
-                "Format": "text",
-                "FilterOperator": "startswith",
-                "SubFields": [{
-                    "Field": "Employment.Employee.BusinessRelationInfo.Name"
-                }]
-             }
+                "Header": "Kommentar",
+                "Field": "Description"
+            }
         ],
         "ParentFilter": {
             "Field": "EmploymentID",
@@ -610,6 +614,7 @@
         "Group": "Lønn",
         "Model": "PayrollRun",
         "Expand": "",
+        "OrderBy": "ID desc",
         "Columns": [{
                 "Header": "Nr.",
                 "Field": "ID",
