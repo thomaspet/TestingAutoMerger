@@ -3,11 +3,11 @@ export const environment = {
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
+    BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
-    ADMIN_SERVER_URL: 'https://dev-elsa.azurewebsites.net',
+    UNI_JOB_SERVER_URL: 'https://dev-jobserver.unieconomy.no/api/',
+    ADMIN_SERVER_URL: 'https://dev-admin.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -29,7 +29,7 @@ export const environment = {
     RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',
 
     SITE_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
-    
+
     STIMULSOFT_LICENSE: '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlQ9nKHW5xxs/tCjGsgWb6rWj7uUX3wCSckA495fAQHHkM8hO'
         + '+uFiXxRz+4NUYE2gKuBss/plBZutOtsinTBHyJQeXyv4BUK1Zn6BNv/nahgb+IyNQTTIuPeptIs83z6auntAOO0Y2+'
         + '0Fqi3RR8tP9UxKLcxqIvqgaBZc0zSHe1oho22a0Jw5J7c39OasrRo34cWAnnwAzV9PVCJdn3ZOuq2g9/8vUPXMJ4d5'

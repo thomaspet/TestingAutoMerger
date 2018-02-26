@@ -5,9 +5,9 @@ export const environment = {
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://test-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://test-unifiles.unieconomy.no/',
-    UNI_PUSH_ADAPTER_URL: null,
-    UNI_JOB_SERVER_URL: 'https://testapi-unijobserver.azurewebsites.net/api/',
-    ADMIN_SERVER_URL: 'https://test-elsa.azurewebsites.net',
+    UNI_PUSH_ADAPTER_URL: 'https://test-unipushadapter.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://test-unijobserver.unieconomy.no/api/',
+    ADMIN_SERVER_URL: 'https://test-admin.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -29,7 +29,7 @@ export const environment = {
     RAYGUN_API_KEY: 'o/sDy5tQZkTH2vkbPj+SZA==',
 
     SITE_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
-    
+
     STIMULSOFT_LICENSE: '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlQ9nKHW5xxs/tCjGsgWb6rWj7uUX3wCSckA495fAQHHkM8hO'
         + '+uFiXxRz+4NUYE2gKuBss/plBZutOtsinTBHyJQeXyv4BUK1Zn6BNv/nahgb+IyNQTTIuPeptIs83z6auntAOO0Y2+'
         + '0Fqi3RR8tP9UxKLcxqIvqgaBZc0zSHe1oho22a0Jw5J7c39OasrRo34cWAnnwAzV9PVCJdn3ZOuq2g9/8vUPXMJ4d5'
