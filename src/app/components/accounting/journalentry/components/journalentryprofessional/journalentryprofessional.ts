@@ -2084,6 +2084,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 // passing in InvoiceNumber from journalentry if it has one
                 payment.InvoiceNumber = item.InvoiceNumber ? item.InvoiceNumber : '';
+                payment.AutoJournal = true;
                 this.modalService.open(AddPaymentModal, {data: { model: payment }}).onClose.subscribe((res) => {
                     if (res) {
                         if (!item.JournalEntryPaymentData) {

@@ -823,17 +823,17 @@ export class LedgerAccountReconciliation {
                     if (result === ConfirmActions.REJECT) {
                         this.journalEntryService.setSessionData(0, []);
                         this.router.navigateByUrl(
-                            `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
-                            ;journalEntryID=${journalEntryID}
-                            ;editmode=true`
+                            `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}`
+                            + `;journalEntryID=${journalEntryID}`
+                            + `;editmode=true`
                         );
                     }
                 });
         } else {
             this.router.navigateByUrl(
-                `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}
-                ;journalEntryID=${journalEntryID}
-                ;editmode=true`
+                `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber}`
+                + `;journalEntryID=${journalEntryID}`
+                + `;editmode=true`
             );
         }
     }
@@ -903,9 +903,9 @@ export class LedgerAccountReconciliation {
                 newPayment.Description = item.InvoiceNumber ? 'Tilbakebetaling overbetalt beløp for faktura ' + item.InvoiceNumber + '.' :
                  'Tilbakebetaling overbetalt beløp.';
                 newPayment.IsCustomerPayment = false;
+                newPayment.AutoJournal = true;
                 this.modalService.open(AddPaymentModal, {data: { model: newPayment }}).onClose.subscribe((updatedPaymentInfo: Payment) => {
                     if (updatedPaymentInfo) {
-                        updatedPaymentInfo.AutoJournal = true;
                         this.paymentService.ActionWithBody(null,
                             updatedPaymentInfo,
                             'create-payment-with-tracelink',

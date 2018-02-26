@@ -37,6 +37,7 @@ import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDesc
 import {LinkMenu} from './linkMenu/linkMenu';
 import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
+import {BookPaymentManualModal} from './modals/bookPaymentManual';
 
 @NgModule({
     imports: [
@@ -92,6 +93,7 @@ import {BrowserWarning} from './browserWarning/browserWarning';
         LinkMenu,
         UniInfo,
         BrowserWarning,
+        BookPaymentManualModal
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -99,7 +101,8 @@ import {BrowserWarning} from './browserWarning/browserWarning';
         ReminderSettings,
         AddPaymentModal,
         AccrualModal,
-        ImageModal
+        ImageModal,
+        BookPaymentManualModal
     ],
     exports: [
         PredefinedDescriptionList,

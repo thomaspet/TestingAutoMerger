@@ -33,6 +33,7 @@ import {
     FileService,
     UniTickerService,
     PaymentService,
+    JournalEntryService,
     AdminProductService,
     AdminPurchasesService
 } from '../../services/services';
@@ -40,6 +41,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import * as moment from 'moment';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { RequestMethod } from '@angular/http';
+import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 
 @Component({
     selector: 'uni-bank-component',
@@ -125,11 +127,22 @@ export class BankComponent implements AfterViewInit {
             Code: 'remove_payment',
             ExecuteActionHandler: (selectedRows) => this.removePayment(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
+        },
+        {
+            Code: 'book_manual',
+            ExecuteActionHandler: (selectedRows) => this.bookManual(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => this.checkBookPaymentDisabled(selectedRow)
         }
     ];
 
     public checkResetPaymentDisabled(selectedRow: any): boolean {
         const enabledForStatuses = [44003, 44010, 44012, 44014];
+        return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
+    }
+
+    public checkBookPaymentDisabled(selectedRow: any): boolean {
+        // incase payment is rejected and done manualy in a bankprogram you can still book the payment
+        const enabledForStatuses = [44003, 44006, 44010, 44012, 44014];
         return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
     }
 
@@ -146,6 +159,7 @@ export class BankComponent implements AfterViewInit {
         private toastService: ToastService,
         private fileService: FileService,
         private paymentService: PaymentService,
+        private journalEntryService: JournalEntryService,
         private adminProductService: AdminProductService,
         private adminPurchasesService: AdminPurchasesService
     ) {
@@ -439,6 +453,25 @@ export class BankComponent implements AfterViewInit {
             if (result === ConfirmActions.ACCEPT) {
                 this.paymentService.Remove(row.ID).subscribe(paymentResponse => {
                     this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    });
+                }
+            });
+        });
+    }
+
+    public bookManual(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            const modal = this.modalService.open(BookPaymentManualModal, {
+                data: {model: row}
+            });
+
+            modal.onClose.subscribe((result) => {
+
+                if (result) {
+                    this.journalEntryService.bookJournalEntryAgainstPayment(result, row.ID)
+                    .subscribe(() => {
+                        this.tickerContainer.mainTicker.reloadData(); // refresh table
                     });
                 }
             });

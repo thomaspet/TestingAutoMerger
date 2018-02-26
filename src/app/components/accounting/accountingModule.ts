@@ -163,7 +163,7 @@ import {DraftLineDescriptionModal} from './journalentry/components/journalentryp
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
-        DraftLineDescriptionModal,
+        DraftLineDescriptionModal
     ],
     exports: [
         AccountSettings,

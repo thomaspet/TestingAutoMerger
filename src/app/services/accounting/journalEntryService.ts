@@ -142,6 +142,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+
+    public bookJournalEntryAgainstPayment(journalEntryID: number, paymentID: number): Observable<any> {
+        return this.http
+        .asPOST()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=book-journal-entry-against-payment`
+        + `&journalEntryID=${journalEntryID}`
+        + `&paymentID=${paymentID}`)
+        .send()
+        .map(response => response.json());
+    }
+
     public postJournalEntryData(
         journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number, text?: string
     ): Observable<any> {
