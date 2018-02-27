@@ -343,6 +343,10 @@ export class BillsView implements OnInit {
         }
     }
 
+    public onFileSplitCompleted() {
+        this.refreshList(this.currentFilter);
+    }
+
     public onImageClicked(file: any) {
         const data = {
             entity: 'SupplierInvoice',

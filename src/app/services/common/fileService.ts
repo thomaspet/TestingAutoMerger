@@ -75,6 +75,18 @@ export class FileService extends BizHttp<File> {
             .map(response => response.json());
     }
 
+    public splitFileMultiple(oldFileID: number, newFileIds: Array<number>) {
+        let newFileIdsString = newFileIds.join(',');
+
+        return this.http
+            .asPOST()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files?action=split-file-multiple&oldFileID=${oldFileID}&newFileIds=${newFileIdsString}`)
+            .send()
+            .map(response => response.json());
+    }
+
     public create(file: File) {
         return this.http
             .asPOST()

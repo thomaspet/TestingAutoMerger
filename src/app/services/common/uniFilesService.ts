@@ -57,6 +57,32 @@ export class UniFilesService {
         });
     }
 
+    public forceFullLoad(id: string): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return this.http
+            .get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, options);
+    }
+
+    public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return this.http
+            .get(this.uniFilesBaseUrl + `/api/file/rotate-page/${id}/${page}/${rotateClockwise}`, options);
+    }
+
     public getFileProcessingStatus(id: string): Observable<any> {
         var options = new RequestOptions({
             headers: new Headers({
@@ -90,13 +116,37 @@ export class UniFilesService {
                 },
                 err => {
                     // if error occurred, try to reauth and retry once
-                    if (reauthOnFailure) {
+                    if (err.status === 401 && reauthOnFailure) {
                         this.authService.authenticateUniFiles()
                             .then(() => {
                                 this.trainOcrEngine(ocrInterpretation, false);
                             });
                     }
                 });
+    }
+
+    public splitFileMultiple(fileStorageReference, fromPages: Array<number>, reauthOnFailure: boolean): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        let pages = fromPages.join(',');
+
+        return this.http.post(
+            this.uniFilesBaseUrl + `/api/file/split-multiple?id=${fileStorageReference}&fromPages=${pages}`,
+            null, options
+        ).catch(err => {
+            if (err.status === 401 && reauthOnFailure) {
+                return Observable.fromPromise(this.authService.authenticateUniFiles())
+                    .switchMap(() => this.splitFileMultiple(fileStorageReference, fromPages, false))
+            } else {
+                return Observable.throw(err);
+            }
+        }).map(response => response.json());
     }
 
     public splitFile(fileStorageReference, fromPage, reauthOnFailure: boolean): Promise<any> {
@@ -120,7 +170,7 @@ export class UniFilesService {
                     },
                     err => {
                         // if error occurred, try to reauth and retry once
-                        if (reauthOnFailure) {
+                        if (err.status === 401 && reauthOnFailure) {
                             this.authService.authenticateUniFiles()
                                 .then(() => {
                                     this.splitFile(fileStorageReference, fromPage, false)
@@ -139,6 +189,3 @@ export class UniFilesService {
         });
     }
 }
-
-
-

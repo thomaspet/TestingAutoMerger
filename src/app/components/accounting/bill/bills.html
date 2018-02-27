@@ -59,12 +59,12 @@
         <!--Article container for the preview -->
         <article class="preview_container" id="preview_container_id" [attr.aria-busy]="loadingPreview">
             <uni-image
-
-                [readonly]="true"
+                [splitFileDialogAllowed]="true"
                 [uploadWithoutEntity]="true"
                 [fileIDs]="fileID"
                 (imageClicked)="onImageClicked($event)"
-                (fileListReady)="onFileListReady($event)">
+                (fileListReady)="onFileListReady($event)"
+                (fileSplitCompleted)="onFileSplitCompleted()">
             </uni-image>
         </article>
     </article>

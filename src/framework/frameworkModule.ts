@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
+import {FileSplitModal} from './fileSplit/FileSplitModal';
 import {UniDocumentList} from './documents/list';
 import {UniDocumentUploader} from './documents/uploader';
 import {UniSave} from './save/save';
@@ -58,6 +59,7 @@ import {UniTooltipModule} from './ui/tooltip/tooltip.module';
         UniSave,
         UniUploadFileSaveAction,
         UniImage,
+        FileSplitModal,
         UniToast,
         UniToastList,
         UniNotifications,
@@ -69,6 +71,7 @@ import {UniTooltipModule} from './ui/tooltip/tooltip.module';
         ...MODALS
     ],
     entryComponents: [
+        FileSplitModal,
         ...MODALS
     ],
     providers: [

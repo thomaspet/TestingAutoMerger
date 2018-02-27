@@ -19,7 +19,7 @@ import {ErrorService, FileService, UniFilesService} from '../../app/services/ser
 import {UniModalService, ConfirmActions} from '../uniModal/barrel';
 import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
-
+import {FileSplitModal} from '../fileSplit/FileSplitModal';
 export enum UniImageSize {
     small = 150,
     medium = 700,
@@ -49,7 +49,12 @@ export interface IUploadConfig {
                     </a>
 
                     <a class="split" (click)="splitFile()"
-                        *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 0">
+                        *ngIf="splitAllowed && !readonly && files[currentFileIndex] && currentPage > 1 && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
+                        <i class="material-icons">call_split</i>
+                    </a>
+
+                    <a class="split" (click)="splitFileDialog()"
+                        *ngIf="splitFileDialogAllowed && !readonly && files[currentFileIndex] && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
                         <i class="material-icons">call_split</i>
                     </a>
 
@@ -168,6 +173,9 @@ export class UniImage {
     public splitAllowed: boolean;
 
     @Input()
+    public splitFileDialogAllowed: boolean;
+
+    @Input()
     public hideToolbar: boolean;
 
     @Input()
@@ -199,6 +207,9 @@ export class UniImage {
 
     @Output()
     public useWord: EventEmitter<any> = new EventEmitter<any>();
+
+    @Output()
+    public fileSplitCompleted: EventEmitter<any> = new EventEmitter<any>();
 
     public imageIsLoading: boolean = true;
 
@@ -498,6 +509,17 @@ export class UniImage {
                 'Sjekk om du har blokkering for ny fane/vindu i nettleseren din.'
             );
         }
+    }
+
+    private splitFileDialog() {
+        this.modalService.open(FileSplitModal, {
+                data: this.getCurrentFile()
+            })
+            .onClose.subscribe(res => {
+                if (res === 'ok') {
+                    this.fileSplitCompleted.emit();
+                }
+            });
     }
 
     private splitFile() {
