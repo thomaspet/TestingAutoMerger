@@ -133,7 +133,7 @@ export const SHORTCUT_LISTS = [
                     urlToNew: '/salary/salarybalances/0/details'
                 },
                 {
-                    label: 'Tillegsopplysninger',
+                    label: 'Tilleggsopplysninger',
                     link: '/salary/supplements',
                     urlToNew: ''
                 }
