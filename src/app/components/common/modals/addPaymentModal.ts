@@ -427,6 +427,7 @@ export class AddPaymentModal implements IUniModal {
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler beløp');
                 return false;
             }
+            data.Amount = data.AmountCurrency * (data.CurrencyExchangeRate ? data.CurrencyExchangeRate : 1);
             this.onClose.emit(this.config.model);
         } else {
             this.onClose.emit(false);

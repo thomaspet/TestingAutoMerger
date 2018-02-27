@@ -60,7 +60,7 @@ import * as moment from 'moment';
             </article>
 
             <footer>
-                <button (click)="save()" class="good">Lagre</button>
+                <button (click)="saveAndClose()" class="good">Lagre</button>
                 <button (click)="close()" class="bad">Avbryt</button>
             </footer>
         </section>
@@ -389,10 +389,13 @@ export class UniPaymentEditModal implements IUniModal {
 
             confirmModal.onClose.subscribe((response) => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.save(() => {}, () => {
-                        this.paymentCodeFilterValue = newValue;
-                        this.loadData();
-                    });
+                    this.save().subscribe(
+                        succes => {
+                            this.paymentCodeFilterValue = newValue;
+                            this.loadData();
+                        },
+                        error => this.toastService.addToast('Lagring feilet', ToastType.bad)
+                    );
                 } else if (response === ConfirmActions.REJECT) {
                     this.paymentCodeFilterValue = newValue;
                     this.loadData();
@@ -430,12 +433,11 @@ export class UniPaymentEditModal implements IUniModal {
         });
     }
 
-    private save(doneHandler: (status: string) => any, nextAction: () => any) {
-
-        let tableData = this.table.getTableData();
+    private save(): Observable<any> {
+        const tableData = this.table.getTableData();
 
         // Find dirty elements
-        let dirtyRows = [];
+        const dirtyRows = [];
         tableData.forEach(x => {
             if (x._isDirty) {
                 dirtyRows.push(x);
@@ -443,27 +445,25 @@ export class UniPaymentEditModal implements IUniModal {
         });
 
         // Set up observables (requests)
-        let requests = [];
+        const requests = [];
 
         dirtyRows.forEach(x => {
             requests.push(this.paymentService.Put(x.ID, x));
         });
 
-        if (requests.length > 0) {
-            Observable.forkJoin(requests)
-                .subscribe(resp => {
-                    this.close(true);
-                }, (err) => {
-                    doneHandler('Feil ved lagring av data');
-                    this.errorService.handle(err);
-                });
-        } else {
-            if (!nextAction) {
-                doneHandler('Ingen endringer funnet');
-            } else {
-                nextAction();
-            }
-        }
+        return requests.length > 0
+            ? Observable.forkJoin(requests)
+            : Observable.of(true);
+
+    }
+
+    public saveAndClose() {
+        setTimeout(() => {
+            this.save().subscribe(
+                success => this.close(true),
+                error => this.toastService.addToast('Lagring feilet', ToastType.bad)
+            );
+        });
     }
 
     private calculateAmount(rowModel: Payment): Payment {

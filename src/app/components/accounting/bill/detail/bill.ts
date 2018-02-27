@@ -511,7 +511,7 @@ export class BillView implements OnInit {
         this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
             .subscribe((invoice: SupplierInvoice) => {
                 if (invoice.Supplier.Info.DefaultBankAccount) {
-                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b => 
+                    invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b =>
                         b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber
                     );
                 }
@@ -529,12 +529,12 @@ export class BillView implements OnInit {
         // Existing supplier with existing bankaccount
         let existingBankAccount: BankAccount;
         if (invoice.Supplier && invoice.Supplier.Info && invoice.Supplier.Info.BankAccounts) {
-            existingBankAccount = invoice.Supplier.Info.BankAccounts.find(b => 
+            existingBankAccount = invoice.Supplier.Info.BankAccounts.find(b =>
                 b.AccountNumber === invoice.BankAccount.IBAN ||
                 b.IBAN === invoice.BankAccount.AccountNumber
             );
-        } 
-        
+        }
+
         if (existingBankAccount)
         {
             invoice.BankAccount = existingBankAccount;
