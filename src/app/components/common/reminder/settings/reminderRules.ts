@@ -114,6 +114,11 @@ export class ReminderRules implements AfterViewInit {
                 FieldType: FieldType.NUMERIC,
             },
             <any> {
+                Property: 'CreditDays',
+                Label: 'Dager til forfall',
+                FieldType: FieldType.NUMERIC,
+            },
+            <any> {
                 Property: 'Description',
                 Label: 'Beskrivelse',
                 FieldType: FieldType.TEXTAREA,
