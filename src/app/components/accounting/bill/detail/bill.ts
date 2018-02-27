@@ -535,14 +535,11 @@ export class BillView implements OnInit {
             );
         }
 
-        if (existingBankAccount)
-        {
+        if (existingBankAccount) {
             invoice.BankAccount = existingBankAccount;
             invoice.BankAccountID = existingBankAccount.ID;
             this.current.next(invoice);
-        }
-        // New supplier?
-        else if (!invoice.SupplierID && invoice.Supplier) {
+        } else if (!invoice.SupplierID && invoice.Supplier) { // New supplier?
             const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
             const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
                 + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
@@ -1084,7 +1081,7 @@ export class BillView implements OnInit {
         if (!model) { return; }
 
 
-        if(change['DefaultDimensions.ProjectID'] || change['DefaultDimensions.DepartmentID']) {
+        if (change['DefaultDimensions.ProjectID'] || change['DefaultDimensions.DepartmentID']) {
             this.current.next(model);
         }
 
@@ -1933,9 +1930,11 @@ export class BillView implements OnInit {
                     return;
 
                 case StatusCodeSupplierInvoice.ToPayment:
-                    this.uniForm.readMode();
-                    this.uniForm.field('BankAccountID').editMode();
-                    this.uniForm.field('PaymentID').editMode();
+                    if (this.currentJournalEntryNumber) {
+                        this.uniForm.readMode();
+                        this.uniForm.field('BankAccountID').editMode();
+                        this.uniForm.field('PaymentID').editMode();
+                    }
                     return;
 
                 case StatusCodeSupplierInvoice.Journaled:
@@ -2509,6 +2508,14 @@ export class BillView implements OnInit {
             const task: Task = <any>( document ? <any>document['_task'] : undefined );
             return task;
         }
+    }
+
+    private get currentJournalEntryNumber(): string {
+        const doc: SupplierInvoice = this.current.getValue();
+        if (doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber) {
+            return doc.JournalEntry.JournalEntryNumber;
+        }
+        return '';
     }
 
     private setupToolbar() {

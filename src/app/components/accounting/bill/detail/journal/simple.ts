@@ -230,6 +230,14 @@ export class BillSimpleJournalEntryView implements OnInit {
         }
     }
 
+    private get currentJournalEntryNumber(): string {
+        const doc = this.current;
+        if (doc && doc.JournalEntry && doc.JournalEntry.JournalEntryNumber) {
+            return doc.JournalEntry.JournalEntryNumber;
+        }
+        return '';
+    }
+
     private analyzeEntries(invoice: SupplierInvoice) {
 
         if (!invoice) { return; }
@@ -237,7 +245,7 @@ export class BillSimpleJournalEntryView implements OnInit {
         const entry = invoice && invoice.JournalEntry ? invoice.JournalEntry : null;
         const lines = entry && entry.DraftLines ? entry.DraftLines : [];
 
-        this.isReadOnly = this.current ? this.current.StatusCode >= StatusCodeSupplierInvoice.Journaled : false;
+        this.isReadOnly = this.current ? (!!this.currentJournalEntryNumber) : false;
 
         if (lines.length === 0) {
             // Old entries from previous invoice ?
