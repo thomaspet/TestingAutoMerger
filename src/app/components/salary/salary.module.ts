@@ -95,6 +95,7 @@ import {AltinnErrorHandlerService} from './sharedServices/altinnErrorHandlerServ
 import {AltinnResponseStatusComponent} from './common/altinn-response-status/altinn-response-status.component';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
 import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
+import {TimeTransferComponent} from './payrollrun/modals/time-transfer/time-transfer.component';
 import {EmpCanActivateGuard} from './employee/empGuard';
 
 @NgModule({
@@ -153,6 +154,7 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         PaycheckSending,
         PaycheckSenderModal,
         PayrollRunPoster,
+        TimeTransferComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -190,7 +192,7 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         AltinnResponseStatusComponent,
         ReconciliationResponseModalComponent,
         AltinnOverviewComponent,
-        AltinnOverviewDetailsComponent
+        AltinnOverviewDetailsComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -207,6 +209,7 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         SalaryBalanceLineModal,
         ReconciliationModalComponent,
         ReconciliationResponseModalComponent,
+        TimeTransferComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -259,6 +262,7 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         PaycheckSending,
         PaycheckSenderModal,
         PayrollRunPoster,
+        TimeTransferComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,

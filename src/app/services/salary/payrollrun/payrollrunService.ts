@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Tracelink, Payment, LocalDate
+    Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
@@ -18,7 +18,7 @@ import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 enum StatusCodePayment {
     Queued = 44001,
-    TransferredToBank = 44002, //Note: NOT in Use yet
+    TransferredToBank = 44002, // Note: NOT in Use yet
     Failed = 44003,
     Completed = 44004,
     ReadyForTransfer = 44005,
@@ -90,25 +90,35 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'latestperiod', `currYear=${yr}`);
     }
 
+    public getTimeToTransfer(id: number, todate?: LocalDate): Observable<WorkItemToSalary> {
+        return super.GetAction(id, 'time-to-salary-selection', todate ? `toDate=${todate}` : '');
+    }
+
+    public createTimeTransactions(payrun: number, timeList: number[]) {
+        super.invalidateCache();
+        this.salaryTransactionService.invalidateCache();
+        return super.ActionWithBody(payrun, timeList, 'work-items-to-transes');
+    }
+
     public getPrevious(ID: number) {
-        let year = this.getYear();
+        const year = this.getYear();
         return super.GetAll(`filter=ID lt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getNext(ID: number) {
-        let year = this.getYear();
+        const year = this.getYear();
         return super.GetAll(`filter=ID gt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID ASC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getLatest() {
-        let year = this.getYear();
+        const year = this.getYear();
         return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
 
-    public getEarliestOpenRun(setYear: number = undefined): Observable<PayrollRun> {
+    public getEarliestOpenRun(setYear?: number): Observable<PayrollRun> {
         return Observable
             .of(setYear)
             .switchMap(year => year
@@ -121,14 +131,14 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .map(result => result[0]);
     }
 
-    public getLatestSettledRun(year: number = undefined): Observable<PayrollRun> {
+    public getLatestSettledRun(year?: number): Observable<PayrollRun> {
         return super.GetAll(`filter=StatusCode ge 1 ${year
             ? 'and year(PayDate) eq ' + year
             : ''}&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
     }
 
-    public getEarliestOpenRunOrLatestSettled(setYear: number = undefined): Observable<PayrollRun> {
+    public getEarliestOpenRunOrLatestSettled(setYear?: number): Observable<PayrollRun> {
         let currYear = setYear;
         return Observable
             .of(setYear)
@@ -143,7 +153,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getYear(): number {
-        let financialYear = this.browserStorage.getItem('activeFinancialYear');
+        const financialYear = this.browserStorage.getItem('activeFinancialYear');
         return financialYear && financialYear.Year ? financialYear.Year : undefined;
     }
 
@@ -185,7 +195,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (id && category) {
             this.invalidateCache();
-            let saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
+            const saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
             return saveObs
                 .usingBusinessDomain()
                 .withEndPoint(this.relativeURL + '/' + id + '/category/' + category.ID)
@@ -199,7 +209,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public savePayrollTag(runID, category: EmployeeCategory): Observable<ITag> {
         return this.saveCategoryOnRun(runID, category)
             .filter(cat => !!cat)
-            .map(cat => {return {title: cat.Name, linkID: cat.ID};});
+            .map(cat => {
+                return { title: cat.Name, linkID: cat.ID};
+            });
     }
 
     public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
@@ -244,10 +256,12 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             }
         }
     }
+
     public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {
         return this.getPaymentsOnPayrollRun(payrollRun.ID)
             .map(payments => this.markPaymentStatus(payrollRun, payments));
     }
+
     public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
         return this.yearService
             .selectedYear$
@@ -271,6 +285,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             })
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
+
     public setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
@@ -292,7 +307,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         }
     }
 
-    private markPaymentStatus(payrollRun: PayrollRun, payments: Payment[] = undefined): PayrollRun {
+    private markPaymentStatus(payrollRun: PayrollRun, payments?: Payment[]): PayrollRun {
         payments = payments || payrollRun['Payments'] || [];
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
@@ -324,10 +339,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     private getTaxHelpText() {
-        let halfTax = 'Halv skatt(desember): Vil gi halv skatt på lønnsavregninger med månedslønn' +
+        const halfTax = 'Halv skatt(desember): Vil gi halv skatt på lønnsavregninger med månedslønn' +
             ' og ikke skatt på lønnsavregninger med 14-dagerslønn.' +
             ' Eventuelle unntak fra dette håndteres ut fra oppgitt skattekort.';
-        let noTax = 'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
+            const noTax = 'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
             ' Det er kun poster du taster manuelt som vil bli tatt med.' +
             ' Dette valget bør derfor kun benyttes for historikk og eventuelle korreksjoner.';
         return halfTax + `<br><br>` + noTax;

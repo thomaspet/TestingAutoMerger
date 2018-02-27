@@ -4,7 +4,7 @@ export enum ConfirmActions {
     ACCEPT,
     REJECT,
     CANCEL
-};
+}
 
 export interface IModalOptions {
     data?: any;

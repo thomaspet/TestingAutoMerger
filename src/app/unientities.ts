@@ -161,6 +161,7 @@ export class WorkItem extends UniEntity {
     public Customer: Customer;
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
+    public WorkItemGroup: WorkItemGroup;
     public Employment: Employment;
     public CustomFields: any;
 }
@@ -254,8 +255,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -5191,11 +5192,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -5504,9 +5505,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5868,6 +5869,14 @@ export class PostingSummary extends UniEntity {
     public SubEntity: SubEntity;
     public PayrollRun: PayrollRun;
     public PostList: Array<JournalEntryLine>;
+}
+
+
+export class WorkItemToSalary extends UniEntity {
+    public PayrollRunID: number;
+    public Rate: number;
+    public WageType: WageType;
+    public WorkItems: Array<WorkItem>;
 }
 
 

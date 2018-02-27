@@ -65,8 +65,8 @@ export class SalaryServicesModule {
                 VacationpayLineService,
                 EmployeeTaxCardService,
                 SalarySumsService,
-        		SalarybalanceService,
-        		SalaryBalanceLineService,
+                SalarybalanceService,
+                SalaryBalanceLineService,
                 SupplementService,
                 SalaryTransactionSuggestedValuesService,
                 AnnualStatementService

@@ -12,6 +12,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './modals/controlModal';
 import {PostingSummaryModal} from './modals/postingSummaryModal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
+import {TimeTransferComponent} from './modals/time-transfer/time-transfer.component';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -145,7 +146,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     }
                 })
                 .do((payrollRun: PayrollRun) => {
-                    let oldValue = this.payrollrun$.getValue();
+                    const oldValue = this.payrollrun$.getValue();
                     if (!oldValue
                         || (oldValue.StatusCode !== payrollRun.StatusCode || oldValue.ID !== payrollRun.ID)) {
                         this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
@@ -263,9 +264,20 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             },
             {
+                label: 'Overfør timer til lønn',
+                action: () => {
+                    this.openTimeTransferModal();
+                },
+                disabled: (rowModel) => {
+                    return this.payrollrun$.getValue() && this.payrollrunID
+                        ? this.payrollrun$.getValue().StatusCode > 0
+                        : false;
+                }
+            },
+            {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    let payrollrun = this.payrollrun$.getValue();
+                    const payrollrun = this.payrollrun$.getValue();
                     if (payrollrun) {
                         if (!payrollrun.StatusCode) {
                             this._toastService.addToast(
@@ -323,7 +335,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         this.router.events.subscribe((event: any) => {
             if (event instanceof NavigationEnd) {
-                let routeList = event.url.split('/');
+                const routeList = event.url.split('/');
                 let location = routeList.pop();
                 if (!isNaN(+location)) {
                     location = routeList.pop();
@@ -414,10 +426,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public toggleDetailsView(setValue?: boolean): void {
-        let payrollRun = this.payrollrun$.getValue();
+        const payrollRun = this.payrollrun$.getValue();
         if (this.detailsActive && (!payrollRun.Description || !payrollRun.ID)) {
-            let titles: string[] = [];
-            let messages: string[] = [];
+            const titles: string[] = [];
+            const messages: string[] = [];
 
             if (!payrollRun.Description) {
                 titles.push('Beskrivelse mangler');
@@ -466,7 +478,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             this.selectionList.focusRow();
         }
 
-        let _toolbarconfig = this.toolbarconfig,
+        const _toolbarconfig = this.toolbarconfig,
             _subhead = _toolbarconfig.subheads[_toolbarconfig.subheads.length - 1];
         if (this.detailsActive) {
             _subhead.classname = 'entityDetails_toggle -is-active';
@@ -558,7 +570,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private getSalaryTransactionsObservable(): Observable<SalaryTransaction[]> {
-        let salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
+        const salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID}`;
         return this.payrollrunID
             ? Observable
                 .forkJoin(
@@ -577,7 +589,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.getProjectsObservable(),
                 this.getDepartmentsObservable())
                 .map((response: [SalaryTransaction[], Project[], Department[]]) => {
-                    let [transes, projects, departments] = response;
+                    const [transes, projects, departments] = response;
                     return transes.map(trans => {
 
                         if (trans.DimensionsID) {
@@ -589,7 +601,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         }
                         trans['_FileIDs'] = trans['Files'].map(x => x.ID);
 
-                        let account = new Account();
+                        const account = new Account();
                         account.AccountNumber = trans.Account;
                         trans['_Account'] = account;
 
@@ -619,10 +631,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this._companySalaryService.getCompanySalary(),
                 this.yearService.getActiveYear()
             ).subscribe((dataSet: any) => {
-                let [payroll, last, salaries, activeYear] = dataSet;
+                const [payroll, last, salaries, activeYear] = dataSet;
                 this.setDefaults(payroll);
-                let latest: PayrollRun = last;
-                let companysalary: CompanySalary = salaries;
+                const latest: PayrollRun = last;
+                const companysalary: CompanySalary = salaries;
                 this.activeYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {
@@ -687,12 +699,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private checkDirty() {
-        let saveActions = _.cloneDeep(this.saveActions);
+        const saveActions = _.cloneDeep(this.saveActions);
         if (saveActions && saveActions.length
             && this.payrollrun$.getValue() && !this.payrollrun$.getValue().StatusCode
         ) {
-            let saveButton = saveActions.find(x => x.label === 'Lagre');
-            let calculateButton = saveActions.find(x => x.label === 'Avregn');
+            const saveButton = saveActions.find(x => x.label === 'Lagre');
+            const calculateButton = saveActions.find(x => x.label === 'Avregn');
             if (super.isDirty() || (this.payrollrun$.getValue() && !this.payrollrun$.getValue().Description)) {
                 saveButton.disabled = false;
                 saveButton.main = true;
@@ -709,9 +721,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     public getStatustrackConfig() {
-        let statuses: string[] = ['Opprettet', 'Avregnet', 'Bokført'];
-        let statustrack: IStatus[] = [];
-        let activeIndex = statuses.indexOf(this.payStatus);
+        const statuses: string[] = ['Opprettet', 'Avregnet', 'Bokført'];
+        const statustrack: IStatus[] = [];
+        const activeIndex = statuses.indexOf(this.payStatus);
 
         statuses.forEach((status, i) => {
             let _state: STATUSTRACK_STATES;
@@ -734,9 +746,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private toggleReadOnlyOnCategories(transes: SalaryTransaction[], run: PayrollRun) {
         transes = transes || [];
-        let anyEditableTranses = transes
+        const anyEditableTranses = transes
             .some(trans => !trans.IsRecurringPost && !trans.SalaryBalanceID);
-        let runIsCalculated = run && run.StatusCode >= 1;
+            const runIsCalculated = run && run.StatusCode >= 1;
         this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
 
         if (runIsCalculated) {
@@ -804,6 +816,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         data: run
                     })
                     .onClose)
+            .subscribe(needUpdate => {
+                if (needUpdate) {
+                    this.getPayrollRun();
+                    this.getSalaryTransactions();
+                }
+            });
+    }
+
+    public openTimeTransferModal() {
+        this.payrollrun$
+            .asObservable()
+            .take(1)
+            .switchMap(run =>
+                this.modalService
+                    .open(TimeTransferComponent, {
+                        data: run
+                    })
+                .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
                     this.getPayrollRun();
@@ -988,7 +1018,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .filter(() => Object
                 .keys(changes)
                 .some(key => {
-                    let change = changes[key];
+                    const change = changes[key];
                     return change.previousValue !== change.currentValue;
                 }))
             .map(payrollRun => {
