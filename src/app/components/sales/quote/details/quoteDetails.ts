@@ -684,6 +684,11 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         quote.Comment = null;
         delete quote['_links'];
 
+        quote.Sellers = quote.Sellers.map(item => {
+            item.CustomerQuoteID = null;
+            return item;
+        });
+
         quote.Items = quote.Items.map((item: CustomerQuoteItem) => {
             item.CustomerQuoteID = 0;
             item.ID = 0;
