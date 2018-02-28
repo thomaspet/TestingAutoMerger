@@ -22,6 +22,8 @@ export class SalaryTransViewService {
         onSupplementsClose: (trans: SalaryTransaction) => any,
         isReadOnly: () => boolean): UniTableColumn {
         return new UniTableColumn('Supplements', 'T', UniTableColumnType.Text, false)
+            .setWidth(40)
+            .setResizeable(false)
             .setCls('icon-column')
             .setOnCellClick((rowModel: SalaryTransaction) => {
                 if (!rowModel.Supplements || !rowModel.Supplements.length) {
@@ -50,12 +52,10 @@ export class SalaryTransViewService {
 
                 return {
                     type: type,
-                    text: text,
-                    alignment: 'center'
+                    text: text
                 };
-            })
-            .setWidth('2.5rem');
-    }
+            });
+        }
 
     private isOnlyAmountField(row: SalaryTransaction) {
         const supplement = row.Supplements[0];

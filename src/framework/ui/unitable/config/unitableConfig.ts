@@ -31,6 +31,7 @@ export interface IUniTableConfig {
     pageable?: boolean;
     pageSize?: number;
     multiRowSelect?: boolean;
+    multiRowSelectDefaultValue?: boolean;
     columnMenuVisible?: boolean;
     advancedColumnMenu?: boolean;
     changeCallback?: (event: IRowChangeEvent) => any | Promise<any>;
@@ -118,7 +119,7 @@ export class UniTableConfig implements IUniTableConfig {
         this.editable = (editable !== undefined) ? editable : true;
         this.pageable = (pageable !== undefined) ? pageable : true;
         this.columnMenuVisible = false;
-        this.pageSize = pageSize || 25;
+        this.pageSize = pageSize || 20;
         this.autoAddNewRow = true;
         this.allowGroupFilter = false;
         this.sortable = true;
@@ -129,12 +130,7 @@ export class UniTableConfig implements IUniTableConfig {
         this.contextMenu = {items: [], disableOnReadonlyRows: false, showDropdownOnSingleItem: true};
         this.columns = [];
         this.expressionFilterValues = [];
-        this.isRowReadOnly = (rowModel) => {
-            return false;
-        };
-        this.conditionalRowCls = () => {
-            return '';
-        };
+
         this.copyFromCellAbove = true;
         this.headerVisible = true;
     }
@@ -176,7 +172,7 @@ export class UniTableConfig implements IUniTableConfig {
     }
 
     public setPageSize(pageSize: number) {
-        this.pageSize = pageSize;
+        this.pageSize = pageSize || 20;
         return this;
     }
 

@@ -1362,95 +1362,93 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 let saveCount = 0;
                 let hasErrors = false;
 
-                recurringPosts
-                    .forEach((post, index) => {
-                        if (post['_isDirty'] || post.Deleted) {
-                            changeCount++;
+                recurringPosts.forEach((post, index) => {
+                    if (!post['_isEmpty'] && post['_isDirty'] || post.Deleted) {
+                        changeCount++;
 
-                            post.IsRecurringPost = true;
-                            post.EmployeeID = this.employee.ID;
-                            post.EmployeeNumber = this.employee.EmployeeNumber;
+                        post.IsRecurringPost = true;
+                        post.EmployeeID = this.employee.ID;
+                        post.EmployeeNumber = this.employee.EmployeeNumber;
 
-                            if (post.Supplements) {
-                                post.Supplements
-                                    .filter(x => !x.ID)
-                                    .forEach((supplement: SalaryTransactionSupplement) => {
-                                        supplement['_createguid'] = this.salaryTransService.getNewGuid();
-                                    });
-                            }
-
-                            if (post.Dimensions && !post.DimensionsID) {
-                                if (Object.keys(post.Dimensions)
-                                    .filter(x => x.indexOf('ID') > -1)
-                                    .some(key => post.Dimensions[key])) {
-                                    post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
-                                } else {
-                                    post.Dimensions = null;
-                                }
-
-                            }
-                            const source = (post.ID > 0)
-                                ? this.salaryTransService.Put(post.ID, post)
-                                : this.salaryTransService.Post(post);
-
-                            const newObs: Observable<SalaryTransaction> = <Observable<SalaryTransaction>>source
-                                .switchMap(trans => {
-                                    return Observable.forkJoin(
-                                        Observable.of(trans),
-                                        this.getProjectsObservable(),
-                                        this.getDepartmentsObservable(),
-                                        this.getDimension(trans),
-                                        this.getWageTypesObservable());
-                                })
-                                .map((
-                                    response: [SalaryTransaction, Project[], Department[], Dimensions, WageType[]]
-                                ) => {
-                                    const [trans, projects, departments, dimensions, wageTypes] = response;
-                                    trans.Dimensions = dimensions;
-                                    if (trans.Dimensions) {
-                                        trans['_Project'] = projects
-                                            .find(x => x.ID === trans.Dimensions.ProjectID);
-                                        trans['_Department'] = departments
-                                            .find(x => x.ID === trans.Dimensions.DepartmentID);
-                                    }
-                                    trans['_WageType'] = wageTypes.find(wt => wt.ID === trans.WageTypeID);
-                                    return <SalaryTransaction>trans;
-                                })
-                                .finally(() => {
-                                    saveCount++;
-                                    if (saveCount === changeCount) {
-                                        this.saveStatus.completeCount++;
-                                        if (hasErrors) {
-                                            this.saveStatus.hasErrors = true;
-                                        }
-                                        if (updatePosts) {
-                                            super.updateState(RECURRING_POSTS_KEY,
-                                                recurringPosts.filter(x => !x.Deleted),
-                                                recurringPosts.some(trans => trans['_isDirty']));
-                                        }
-
-                                        this.checkForSaveDone(done);
-                                    }
-                                })
-                                .catch((err, obs) => {
-                                    hasErrors = true;
-                                    recurringPosts[index].Deleted = false;
-                                    const toastHeader =
-                                        `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
-                                    const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
-                                    this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
-                                    this.errorService.handle(err);
-                                    return Observable.empty();
-                                })
-                                .map(
-                                (res: SalaryTransaction) => {
-                                    recurringPosts[index] = res;
-                                    return res;
+                        if (post.Supplements) {
+                            post.Supplements
+                                .filter(x => !x.ID)
+                                .forEach((supplement: SalaryTransactionSupplement) => {
+                                    supplement['_createguid'] = this.salaryTransService.getNewGuid();
                                 });
-
-                            obsList.push(newObs);
                         }
-                    });
+
+                        if (post.Dimensions && !post.DimensionsID) {
+                            if (Object.keys(post.Dimensions)
+                                .filter(x => x.indexOf('ID') > -1)
+                                .some(key => post.Dimensions[key])) {
+                                post.Dimensions['_createguid'] = this.salaryTransService.getNewGuid();
+                            } else {
+                                post.Dimensions = null;
+                            }
+
+                        }
+                        const source = (post.ID > 0)
+                            ? this.salaryTransService.Put(post.ID, post)
+                            : this.salaryTransService.Post(post);
+
+                        const newObs: Observable<SalaryTransaction> = <Observable<SalaryTransaction>>source
+                            .switchMap(trans => {
+                                return Observable.forkJoin(
+                                    Observable.of(trans),
+                                    this.getProjectsObservable(),
+                                    this.getDepartmentsObservable(),
+                                    this.getDimension(trans),
+                                    this.getWageTypesObservable());
+                            })
+                            .map((
+                                response: [SalaryTransaction, Project[], Department[], Dimensions, WageType[]]
+                            ) => {
+                                const [trans, projects, departments, dimensions, wageTypes] = response;
+                                trans.Dimensions = dimensions;
+                                if (trans.Dimensions) {
+                                    trans['_Project'] = projects
+                                        .find(x => x.ID === trans.Dimensions.ProjectID);
+                                    trans['_Department'] = departments
+                                        .find(x => x.ID === trans.Dimensions.DepartmentID);
+                                }
+                                trans['_WageType'] = wageTypes.find(wt => wt.ID === trans.WageTypeID);
+                                return <SalaryTransaction>trans;
+                            })
+                            .finally(() => {
+                                saveCount++;
+                                if (saveCount === changeCount) {
+                                    this.saveStatus.completeCount++;
+                                    if (hasErrors) {
+                                        this.saveStatus.hasErrors = true;
+                                    }
+                                    if (updatePosts) {
+                                        super.updateState(RECURRING_POSTS_KEY,
+                                            recurringPosts.filter(x => !x.Deleted),
+                                            recurringPosts.some(trans => trans['_isDirty']));
+                                    }
+
+                                    this.checkForSaveDone(done);
+                                }
+                            })
+                            .catch((err, obs) => {
+                                hasErrors = true;
+                                recurringPosts[index].Deleted = false;
+                                const toastHeader =
+                                    `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+                                const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+                                this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+                                this.errorService.handle(err);
+                                return Observable.empty();
+                            })
+                            .map((res: SalaryTransaction) => {
+                                recurringPosts[index] = res;
+                                return res;
+                            });
+
+                        obsList.push(newObs);
+                    }
+                });
                 return Observable.forkJoin(obsList);
             });
     }

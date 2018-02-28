@@ -12,15 +12,14 @@ export enum UniTableColumnType {
     Number = 2,
     DateTime = 3,
     Lookup = 4,
-    Custom = 5,
-    Select = 6,
-    Money = 7,
-    Percent = 8,
-    LocalDate = 9,
-    Boolean = 10,
-    UniSearch = 11,
-    Typeahead = 12,
-    Link = 13
+    Select = 5,
+    Money = 6,
+    Percent = 7,
+    LocalDate = 8,
+    Boolean = 9,
+    UniSearch = 10,
+    Typeahead = 11,
+    Link = 12
 }
 
 export enum UniTableColumnSortMode {
@@ -39,7 +38,7 @@ export interface INumberFormat {
 export interface IColumnTooltip {
     text: string;
     type: 'good'|'warn'|'bad';
-    alignment?: 'left'|'right'|'center';
+    alignment?: 'left'|'right';
 }
 
 export interface IUniTableColumn {
@@ -62,10 +61,10 @@ export interface IUniTableColumn {
     format?: string;
     numberFormat?: INumberFormat;
     alignment?: string;
-    width?: string;
+    width?: number|string;
     filterable: boolean;
     filterOperator?: string;
-    selectConfig?: {options: Array<any>, dislayField: string, valueField: string};
+    selectConfig?: {options: Array<any>, displayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
     jumpToColumn?: string;
@@ -74,6 +73,7 @@ export interface IUniTableColumn {
     tooltipResolver?: (rowModel) => IColumnTooltip;
     linkResolver?: (rowModel) => string;
     maxLength?: number;
+    resizeable?: boolean;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -100,18 +100,19 @@ export class UniTableColumn implements IUniTableColumn {
     public alignment: string;
     public options: any;
     public editor: any;
-    public width: string;
+    public width: number|string;
     public sortMode: UniTableColumnSortMode;
     public isSumColumn: boolean;
 
     public filterable: boolean;
     public filterOperator: string;
-    public selectConfig: {options: Array<any>, dislayField: string, valueField: string};
+    public selectConfig: {options: Array<any>, displayField: string, valueField: string};
 
     public skipOnEnterKeyNavigation: boolean;
     public jumpToColumn: string;
     public onCellClick: (rowModel) => void;
     public maxLength: number;
+    public resizeable: boolean = true;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -133,16 +134,13 @@ export class UniTableColumn implements IUniTableColumn {
         this.skipOnEnterKeyNavigation = false;
         this.sortMode = UniTableColumnSortMode.Normal;
 
-        this.conditionalCls = () => {
-            return '';
-        };
         this.cls = '';
         this.headerCls = '';
 
         this.setType(type || UniTableColumnType.Text);
 
         if (type === UniTableColumnType.Number || type === UniTableColumnType.Money || type === UniTableColumnType.Percent) {
-            this.alignment = 'right';
+            this.setAlignment('right');
             this.numberFormat = {
                 thousandSeparator: ' ',
                 decimalSeparator: ',',
@@ -164,8 +162,13 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setWidth(width: string) {
+    public setWidth(width: number|string) {
         this.width = width;
+        return this;
+    }
+
+    public setResizeable(resizeable: boolean) {
+        this.resizeable = resizeable;
         return this;
     }
 
@@ -227,17 +230,22 @@ export class UniTableColumn implements IUniTableColumn {
     }
 
     public setConditionalCls(conditionalCls: (rowModel: any) => string) {
-        this.conditionalCls = conditionalCls;
+        // Hack for making column work with both uni-table and ag-grid
+        this.conditionalCls = (param) => {
+            const row = param.data ? param.data : param;
+            return ' ' + conditionalCls(row) + this.cls;
+        };
+
         return this;
     }
 
     public setCls(cls: string) {
-        this.cls = cls;
+        this.cls += ' ' + cls;
         return this;
     }
 
     public setHeaderCls(headerCls: string) {
-        this.headerCls = headerCls;
+        this.headerCls += ' ' + headerCls;
         return this;
     }
 
@@ -253,6 +261,8 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setLinkResolver(linkResolver: (rowModel) => string) {
         this.linkResolver = linkResolver;
+        this.setAlignment('center');
+        this.cls += ' link-cell';
         return this;
     }
 
@@ -276,8 +286,13 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setAlignment(alignment: string) {
+    public setAlignment(alignment: 'left'|'right'|'center') {
         this.alignment = alignment;
+
+        // ngx datatable
+        this.headerCls += ' align-' + alignment;
+        this.cls += ' align-' + alignment;
+
         return this;
     }
 

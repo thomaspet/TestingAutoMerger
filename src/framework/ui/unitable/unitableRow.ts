@@ -38,7 +38,7 @@ export interface IRowModelChangeEvent {
         <td #rowColumn *ngFor="let column of columns"
             bind-hidden="!column.get('visible')"
             bind-class="column.get('cls')"
-            [ngClass]="column.get('conditionalCls')(rowModel.toJS())"
+            [ngClass]="column.get('conditionalCls') && column.get('conditionalCls')(rowModel.toJS())"
             [ngStyle]="{'text-align': column.get('alignment') || 'left'}"
             (focus)="onCellFocus($event, column)"
             (click)="onCellClick($event, column)"

@@ -10,7 +10,7 @@ export interface ISummaryConfig {
         <dl class="unisummary">
             <ng-template ngFor let-summary [ngForOf]="configs">
                 <dt>{{summary.title}}</dt>
-                <dd>{{summary.value}}
+                <dd>{{summary.value || ''}}
                     <small *ngIf="summary.description">{{summary.description}}</small>
                 </dd>
             </ng-template>

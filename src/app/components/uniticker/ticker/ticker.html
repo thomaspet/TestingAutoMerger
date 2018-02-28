@@ -30,18 +30,11 @@
 
     <section class="ticker-data">
         <section class="data-container">
-            <uni-table
-                *ngIf="ticker.Type === 'table'"
+            <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
-                [attr.aria-busy]="busy"
-                (rowSelected)="onRowSelected($event)"
-                (editModeChange)="editModeChanged($event)"
-                (rowSelectionChanged)="onRowSelectionChanged($event)"
-                (filtersChange)="onFilterChange($event)"
-                (dataLoaded)="onTableReady()"
-                (columnsChange)="onColumnsChange($event)">
-            </uni-table>
+                (rowSelectionChange)="onRowSelected($event)">
+            </ag-grid-wrapper>
 
             <div *ngIf="ticker.Type !== 'table'">
                 <uni-ticker-detail-view

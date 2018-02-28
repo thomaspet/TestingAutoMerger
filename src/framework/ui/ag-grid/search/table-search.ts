@@ -7,14 +7,15 @@ import {
     ViewChild,
     ElementRef,
     HostListener,
+    AfterViewInit,
     ChangeDetectorRef
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {UniTableColumnType} from '../config/unitableColumn';
-import {ITableFilter} from '../unitable';
+import {UniTableColumnType} from '../../unitable/config/unitableColumn';
+import {ITableFilter, UniTableColumn} from '../../unitable';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
-import {UniTableUtils, ISavedFilter} from '../unitableUtils';
-import {IUniTableConfig} from '../config/unitableConfig';
+import {UniTableUtils, ISavedFilter} from '../../unitable/unitableUtils';
+import {IUniTableConfig} from '../../unitable/config/unitableConfig';
 
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
@@ -28,7 +29,7 @@ interface IUniTableSearchOperator {
 }
 
 @Component({
-    selector: 'unitable-search',
+    selector: 'table-search',
     template: `
         <input class="unitableSearch_input"
             type="search"
@@ -59,8 +60,8 @@ interface IUniTableSearchOperator {
 
                     <!-- Column select -->
                     <select [(ngModel)]="filter.field" placeholder="Ikke valgt" (ngModelChange)="filterFieldChange(filter)">
-                        <option *ngFor="let col of filterableColumns" [value]="col.get('displayField') || col.get('field')">
-                            {{col.get('header')}}
+                        <option *ngFor="let col of filterableColumns" [value]="col.displayField || col.field">
+                            {{col.header}}
                         </option>
                     </select>
 
@@ -119,11 +120,11 @@ interface IUniTableSearchOperator {
 })
 // REVISIT: Saving filters needs a serious revisit
 // Last minute release stuff..
-export class UniTableSearch implements OnChanges {
+export class TableSearch implements OnChanges, AfterViewInit {
     @ViewChild('savedSearchesElem') private savedSearchesElement: ElementRef;
     @ViewChild('advancedSearchElem') private advancedSearchElement: ElementRef;
 
-    @Input() public columns: Immutable.List<any>;
+    @Input() public columns: UniTableColumn[];
     @Input() public tableConfig: IUniTableConfig;
     @Input() public configFilters: ITableFilter[];
 
@@ -134,7 +135,7 @@ export class UniTableSearch implements OnChanges {
     public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
 
     public allowGroupFilter: boolean;
-    private filterableColumns: Immutable.List<any>;
+    private filterableColumns: UniTableColumn[];
 
     private basicSearchControl: FormControl = new FormControl('');
 
@@ -157,7 +158,7 @@ export class UniTableSearch implements OnChanges {
             'operator': 'contains',
             'accepts': [
                 UniTableColumnType.Text,
-                UniTableColumnType.Number
+                UniTableColumnType.Number,
             ]
         },
         {
@@ -166,7 +167,7 @@ export class UniTableSearch implements OnChanges {
             'accepts': [
                 UniTableColumnType.Text,
                 UniTableColumnType.Number,
-                UniTableColumnType.Lookup
+                UniTableColumnType.Lookup,
             ]
         },
         {
@@ -175,7 +176,7 @@ export class UniTableSearch implements OnChanges {
             'accepts': [
                 UniTableColumnType.Text,
                 UniTableColumnType.Number,
-                UniTableColumnType.Lookup
+                UniTableColumnType.Lookup,
             ]
         },
         {
@@ -184,7 +185,7 @@ export class UniTableSearch implements OnChanges {
             'accepts': [
                 UniTableColumnType.Text,
                 UniTableColumnType.Number,
-                UniTableColumnType.Lookup
+                UniTableColumnType.Lookup,
             ]
         },
         {
@@ -193,7 +194,7 @@ export class UniTableSearch implements OnChanges {
             'accepts': [
                 UniTableColumnType.Text,
                 UniTableColumnType.Number,
-                UniTableColumnType.Lookup
+                UniTableColumnType.Lookup,
             ]
         },
         {
@@ -257,22 +258,7 @@ export class UniTableSearch implements OnChanges {
         }
 
         if (changes['columns'] && this.columns) {
-            let cols = this.columns.filter(x => x.get('sumFunction') == null || x.get('sumFunction') === '').toList();
-
-            if (this.configFilters && this.configFilters.length > 0) {
-                let filtersWithoutColumns = this.configFilters.filter(x => !cols.find(y => y.get('field') === x.field));
-
-                filtersWithoutColumns.forEach(f => {
-                    cols = cols.push(
-                        Immutable.fromJS({
-                            header: f.field,
-                            field: f.field
-                        })
-                    );
-                });
-            }
-
-            this.filterableColumns = cols;
+            this.filterableColumns = this.columns.filter(col => !col.sumFunction);
         }
 
         if (changes['tableConfig'] && this.tableConfig) {
@@ -284,6 +270,7 @@ export class UniTableSearch implements OnChanges {
                 this.basicSearchFilters = [];
                 this.activeSearchName = undefined;
                 this.newSearchName = '';
+                this.basicSearchControl.setValue('', {emitEvent: false});
             }
 
             this.tableName = this.tableConfig.configStoreKey;
@@ -318,7 +305,6 @@ export class UniTableSearch implements OnChanges {
 
     public toggleAdvancedSearch() {
         // Allow clickOutside check to finish first
-        console.log('toggle');
         setTimeout(() => {
             this.advancedSearchVisible = !this.advancedSearchVisible;
             this.savedSearchesVisible = false;
@@ -327,17 +313,12 @@ export class UniTableSearch implements OnChanges {
     }
 
     public toggleSavedSearchesList() {
-        // Allow clickOutside check to finish first
-        // setTimeout(() => {
-            if (!this.savedSearches.length) {
-                return;
-            }
+        if (!this.savedSearches.length) {
+            return;
+        }
 
-            console.log('toggle');
-
-            this.savedSearchesVisible = !this.savedSearchesVisible;
-            this.cdr.markForCheck();
-        // });
+        this.savedSearchesVisible = !this.savedSearchesVisible;
+        this.cdr.markForCheck();
     }
 
     public saveSearch() {
@@ -345,7 +326,7 @@ export class UniTableSearch implements OnChanges {
             return;
         }
 
-        let filters = this.advancedSearchFilters.filter(f => !!f.field && !!f.operator && !!f.value);
+        const filters = this.advancedSearchFilters.filter(f => !!f.field && !!f.operator && !!f.value);
 
         if (!this.advancedSearchFilters || !this.advancedSearchFilters.length) {
             this.newSearchName = '';
@@ -354,7 +335,7 @@ export class UniTableSearch implements OnChanges {
 
         // If a filter with this name has already been saved
         // update it. If not push a new one to savedFilters
-        let existingFilterIndex = this.savedSearches.findIndex(f => f.name === this.newSearchName);
+        const existingFilterIndex = this.savedSearches.findIndex(f => f.name === this.newSearchName);
         if (existingFilterIndex >= 0) {
             this.savedSearches[existingFilterIndex].filters = filters;
         } else {
@@ -426,10 +407,10 @@ export class UniTableSearch implements OnChanges {
     public filterFieldChange(filter: ITableFilter) {
         // some columns are use selects instead of text, e.g. statuscodes, so
         // for those filters, add some options
-        let column = this.columns.find(c => c.get('field') === filter.field);
+        const column = this.columns.find(c => c.field === filter.field);
 
-        if (column && column.get('selectConfig') && column.get('selectConfig').options) {
-            filter.selectConfig = column.get('selectConfig');
+        if (column && column.selectConfig && column.selectConfig.options) {
+            filter.selectConfig = column.selectConfig;
             filter.operator = 'eq';
         } else {
             filter.selectConfig = null;
@@ -439,20 +420,20 @@ export class UniTableSearch implements OnChanges {
     }
 
     private buildBasicSearchFilter(value) {
-        var filters = [];
+        const filters = [];
 
         this.columns.forEach((column) => {
-            let type = column.get('type');
+            const type = column.type;
 
-            if (column.get('filterable')
+            if (column.filterable
                 && !(type === UniTableColumnType.Number && isNaN(value))
                 && !(type === UniTableColumnType.Money && isNaN(value))
                 && !(type === UniTableColumnType.Percent && isNaN(value))
                 && !(type === UniTableColumnType.DateTime && !Date.parse(value))
             ) {
                 filters.push({
-                    field: column.get('displayField') || column.get('field'),
-                    operator: column.get('filterOperator'),
+                    field: column.displayField || column.field,
+                    operator: column.filterOperator,
                     value: value,
                     group: ''
                 });
@@ -477,18 +458,18 @@ export class UniTableSearch implements OnChanges {
     }
 
     private getAdvancedFilters() {
-        var filters = [];
+        const filters = [];
         this.advancedSearchFilters.forEach((filter) => {
 
             filter.searchValue = filter.value.toString();
 
-            let cols = this.columns.filter(c => c.get('field') === filter.field);
+            const cols = this.columns.filter(c => c.field === filter.field);
 
             cols.forEach(col => {
-                if (col.get('type') === UniTableColumnType.DateTime || col.get('type') === UniTableColumnType.LocalDate) {
+                if (col.type === UniTableColumnType.DateTime || col.type === UniTableColumnType.LocalDate) {
                     if (filter.value.toString().includes('.')) {
 
-                        let dateParts = filter.value.toString().split('.', 3);
+                        const dateParts = filter.value.toString().split('.', 3);
                         if (dateParts.length === 3) {
                             filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
                         }

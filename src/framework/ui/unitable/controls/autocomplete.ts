@@ -338,7 +338,6 @@ export class UnitableAutocomplete implements OnInit {
 
         // user is adding a value throug a promise
         if (this.addValuePromise) {
-            this.addValuePromise.then(item => console.log(item));
             return this.addValuePromise;
         }
 
@@ -348,7 +347,6 @@ export class UnitableAutocomplete implements OnInit {
                 return Observable.of(this.findExactMatch(res, this.inputControl.value)[0]);
             });
         }
-        console.log(this.selectedIndex);
         return (this.selectedIndex >= 0)
             ? this.lookupResults[this.selectedIndex]
             : undefined;

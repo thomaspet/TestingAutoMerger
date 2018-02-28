@@ -1047,7 +1047,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
         if (payrollRun.ID) {
             payrollRun.transactions = _.cloneDeep(this.salaryTransactions
-                .filter(x => x['_isDirty'] || x.Deleted));
+                .filter(x => !x['_isEmpty'] && (x['_isDirty'] || x.Deleted)));
             payrollRun.transactions.map((trans: SalaryTransaction) => {
                 if (!trans.Deleted) {
                     if (!trans.ID) {

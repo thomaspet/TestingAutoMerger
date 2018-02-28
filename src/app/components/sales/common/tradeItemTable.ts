@@ -4,12 +4,12 @@ import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
     IRowChangeEvent
-} from '../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     VatType,
     CompanySettings,
@@ -29,20 +29,21 @@ import {
     CompanySettingsService
 } from '../../../services/services';
 import * as moment from 'moment';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-tradeitem-table',
     template: `
-        <uni-table *ngIf="settings"
-            [resource]="tableData"
+        <ag-grid-wrapper *ngIf="settings"
+            [(resource)]="items"
             [config]="tableConfig"
-            (rowChanged)="onRowChange($event)"
-            (rowDeleted)="onRowDeleted($event.rowModel)">
-        </uni-table>
+            (rowChange)="onRowChange($event)"
+            (rowDelete)="itemsChange.next(items)">
+        </ag-grid-wrapper>
     `
 })
 export class TradeItemTable {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;
@@ -57,7 +58,6 @@ export class TradeItemTable {
     @Input() public vatTypes: VatType[];
     private foreignVatType: VatType;
     private tableConfig: UniTableConfig;
-    private tableData: any[];
     private settings: CompanySettings;
     private defaultProject: Project;
 
@@ -87,7 +87,6 @@ export class TradeItemTable {
 
     public ngOnChanges(changes) {
         if (changes['items'] && this.items) {
-            this.tableData = this.items.filter(item => !item.Deleted);
             this.updateVatPercentsAndItems();
         }
 
@@ -109,7 +108,7 @@ export class TradeItemTable {
     }
 
     public blurTable() {
-        this.table.blur();
+        this.table.finishEdit();
     }
 
     public focusFirstRow() {
@@ -175,7 +174,6 @@ export class TradeItemTable {
                 });
 
                 if (didAnythingReallyChange) {
-                    this.tableData = this.items.filter(item => !item.Deleted);
                     this.itemsChange.emit(this.items);
                 }
             }
@@ -192,15 +190,17 @@ export class TradeItemTable {
         }
     }
 
-    public setDefaultProjectAndRefreshItems(projectID: number, replaceItemsProject: boolean) {
+    public setDefaultProjectAndRefreshItems(projectID: number, updateTableData: boolean) {
         if (this.projects) {
             this.defaultProject = this.projects.find(project => project.ID === projectID);
         }
+
         this.defaultTradeItem.Dimensions.ProjectID = projectID;
         this.defaultTradeItem.Dimensions.Project = this.defaultProject;
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
-        if (replaceItemsProject) {
-            this.tableData = this.items.map(item => {
+
+        if (updateTableData) {
+            this.items = this.items.map(item => {
                 item.Dimensions = item.Dimensions || new Dimensions();
                 item.Dimensions.ProjectID = projectID;
                 item.Dimensions.Project = this.defaultProject;
@@ -216,6 +216,7 @@ export class TradeItemTable {
         // Columns
         const productCol = new UniTableColumn('Product', 'Varenr', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
+            .setJumpToColumn('Unit')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
                 lookupFunction: (query: string) => {
@@ -448,11 +449,7 @@ export class TradeItemTable {
                     this.vatDate
                 );
 
-
-
-
                 updatedRow['_isDirty'] = true;
-
 
                 if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
                     let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;
@@ -476,27 +473,26 @@ export class TradeItemTable {
             })
             .setInsertRowHandler((index) => {
                 this.items.splice(index, 0, this.getEmptyRow());
+                this.items = _.cloneDeep(this.items); // trigger change detection
                 this.itemsChange.emit(this.items);
-
-                this.tableData = this.items.filter(row => !row.Deleted); // trigger change detection
             });
     }
 
     public onRowChange(event: IRowChangeEvent) {
-        let updatedRow = event.rowModel;
-        let updatedIndex = event.originalIndex;
+        const updatedRow = event.rowModel;
+        const updatedIndex = event.originalIndex;
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
         if (updatedRow.ItemText && updatedRow.ItemText.length > 250) {
             // Split the text into parts of 250 characters
-            let stringParts = updatedRow.ItemText.match(/.{1,250}/g);
+            const stringParts = updatedRow.ItemText.match(/.{1,250}/g);
 
             updatedRow.ItemText = stringParts.shift();
 
             // Add the remaining string parts to new rows below
             stringParts.forEach((text, extraRowCounter) => {
-                let newRow = this.getEmptyRow();
+                const newRow = this.getEmptyRow();
                 newRow.ItemText = text;
 
                 const insertIndex = updatedIndex + extraRowCounter + 1;
@@ -504,19 +500,16 @@ export class TradeItemTable {
             });
 
             this.items[updatedIndex] = updatedRow;
-
-            // Trigger change in table
-            this.tableData = this.items.filter(row => !row.Deleted);
+            this.items = _.cloneDeep(this.items); // trigger change detection
         }
 
-        // Emit change event
         this.itemsChange.next(this.items);
     }
 
     private getEmptyRow() {
-        // Object.assign to make sure the row is a copy, not a reference
-        let row: any = Object.assign({}, this.defaultTradeItem);
-        row['_isEmpty'] = false; // avoid unitable filtering it out
+        // Clone to make sure the row is a copy, not a reference
+        const row: any = _.cloneDeep(this.defaultTradeItem);
+        row['_isEmpty'] = false;
         row['_createguid'] = this.productService.getNewGuid();
         row.Dimensions = null;
 
@@ -524,22 +517,6 @@ export class TradeItemTable {
     }
 
     public onRowDeleted(row) {
-        let deleteIndex = this.items.findIndex(item => {
-            if (row.ID) {
-                return item.ID === row.ID;
-            } else if (row['_createguid']) {
-                return item['_createguid'] === row['_createguid'];
-            }
-        });
-
-        if (deleteIndex >= 0) {
-            if (this.items[deleteIndex].ID) {
-                this.items[deleteIndex].Deleted = true;
-            } else {
-                this.items.splice(deleteIndex, 1);
-            }
-        }
-
         this.itemsChange.next(this.items);
     }
 

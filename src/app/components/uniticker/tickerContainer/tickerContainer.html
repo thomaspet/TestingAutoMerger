@@ -8,14 +8,13 @@
     (filterSelected)="onFilterSelected($event)">
 </uni-ticker-predefined-filters>
 
-<section *ngIf="ticker" class="ticker-container">
+<section *ngIf="ticker" class="ticker-container"
+    [ngClass]="{'detail-visible': showSubTickers && ticker?.SubTickers?.length}">
 
     <uni-ticker
         [ticker]="ticker"
         [selectedFilter]="selectedFilter"
         [expressionFilters]="expressionFilters"
-        [class.expanded]="expanded === 'ticker' "
-        [class.nofilter]="!showFilters"
         [actionOverrides]="actionOverrides"
         [columnOverrides]="columnOverrides"
         [unitableSearchVisible]="true"
@@ -30,7 +29,6 @@
         [parentModel]="selectedRow"
         [parentTicker]="ticker"
         [subTickers]="ticker.SubTickers"
-        [ngClass]="{'expanded': showSubTickers}"
         [actionOverrides]="actionOverrides"
         [columnOverrides]="columnOverrides">
     </uni-sub-ticker-container>

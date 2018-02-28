@@ -38,6 +38,8 @@
     "@ngrx/core": "^1.2.0",
     "@ngrx/effects": "^4.1.1",
     "@ngrx/store": "^4.1.1",
+    "ag-grid": "^16.0.1",
+    "ag-grid-angular": "^16.0.0",
     "angular-tree-component": "^7.0.1",
     "chart.js": "^2.1.6",
     "core-js": "^2.4.1",

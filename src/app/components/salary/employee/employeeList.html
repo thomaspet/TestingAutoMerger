@@ -1,5 +1,12 @@
-<uni-toolbar [config]="{title: 'Ansatte', omitFinalCrumb: true}"></uni-toolbar>
-<section class="application" [attr.aria-busy] = "busy">
-    <button (click)="newEmployee()" class="new-button">Ny ansatt</button>
-    <uni-table [config]="employeeTableConfig" [resource]="employees$ | async" (rowSelected)="rowSelected($event)"></uni-table>
+<uni-toolbar
+    [config]="{title: 'Ansatte', omitFinalCrumb: true}"
+    [saveactions]="toolbarActions">
+</uni-toolbar>
+
+<section class="application">
+    <ag-grid-wrapper class="selection-list"
+        [resource]="employees$ | async"
+        [config]="employeeTableConfig"
+        (rowSelectionChange)="employeeSelected($event)">
+    </ag-grid-wrapper>
 </section>

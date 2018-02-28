@@ -16,6 +16,13 @@ export class EmployeeList {
     private employees$: Observable<Employee>;
     private busy: boolean;
 
+    private toolbarActions = [{
+        label: 'Ny ansatt',
+        action: this.newEmployee.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private router: Router,
         private tabService: TabService,
@@ -33,9 +40,10 @@ export class EmployeeList {
                 .finally(() => this.busy = false)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-        const idCol = new UniTableColumn('EmployeeNumber', 'Nr', UniTableColumnType.Number).setWidth('5rem');
+        const idCol = new UniTableColumn('EmployeeNumber', 'Nr').setWidth(150);
 
-        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text)
+            .setWidth(300);
 
         const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Link)
             .setLinkResolver(employee => {
@@ -53,7 +61,7 @@ export class EmployeeList {
 
         const subEntityCol = new UniTableColumn(
             'SubEntity.BusinessRelationInfo.Name', 'Virksomhet', UniTableColumnType.Text
-        );
+        ).setWidth(350);
 
         this.employeeTableConfig = new UniTableConfig('salary.employee.employeeList', false)
             .setColumns([idCol, nameCol, emailCol, birthDateCol, subEntityCol])
@@ -64,8 +72,8 @@ export class EmployeeList {
         );
     }
 
-    public rowSelected(event) {
-        this.router.navigate(['/salary/employees/', event.rowModel.ID]);
+    public employeeSelected(employee: Employee) {
+        this.router.navigate(['/salary/employees/', employee.ID]);
     }
 
     public newEmployee() {

@@ -27,6 +27,7 @@ import {
     UniTableColumnType,
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableUtils} from '../../../../framework/ui/unitable/unitableUtils';
 import {StatisticsService, StatusService, EmployeeLeaveService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -46,7 +47,7 @@ import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
-export var SharingTypeText = [
+export const SharingTypeText = [
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
@@ -75,6 +76,7 @@ export class UniTicker {
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
     @ViewChild(UniTable) public unitable: UniTable;
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
     private model: any;
 
@@ -136,6 +138,10 @@ export class UniTicker {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
+        if (this.ticker && this.selectedFilter) {
+
+        }
+
         if (changes['ticker']) {
             // if ticker was changed, check that the selectedFilter is
             if (this.selectedFilter) {
@@ -159,6 +165,14 @@ export class UniTicker {
 
                 this.selectedFilter.IsActive = true;
             }
+
+            // if (this.table) {
+            //     this.table.refreshTableData();
+            // }
+        }
+
+        if (changes['parentModel'] && this.parentModel && this.table) {
+            this.table.refreshTableData();
         }
 
         // if we depend on parent filters or some other parameters, check that we are able to
@@ -385,8 +399,8 @@ export class UniTicker {
             this.ticker.Actions ? this.ticker.Actions : [];
     }
 
-    private onRowSelected(rowSelectEvent) {
-        this.selectedRow = rowSelectEvent.rowModel;
+    private onRowSelected(row) {
+        this.selectedRow = row; //rowSelectEvent.rowModel;
         this.selectedRow._editable = this.tableConfig.editable;
         this.rowSelected.emit(this.selectedRow);
     }
@@ -407,6 +421,7 @@ export class UniTicker {
             let params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
+                    // .GetAllUnwrapped(params.toString())
                     .GetAllByUrlSearchParams(params)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             } else if (this.ticker.ApiUrl) {
@@ -556,8 +571,8 @@ export class UniTicker {
     }
 
     public reloadData() {
-        if (this.unitable) {
-            this.unitable.refreshTableData();
+        if (this.table) {
+            this.table.refreshTableData();
         } else {
             this.loadDetailTickerData();
         }
@@ -575,7 +590,9 @@ export class UniTicker {
     }
 
     private sharingTypeToText(type: SharingType): string {
-        return SharingTypeText.find(sharingType => sharingType.ID === type).Title || '';
+        const sharingType = SharingTypeText.find(st => st.ID === type);
+        return (sharingType && sharingType.Title) || '';
+        // return SharingTypeText.find(sharingType => sharingType.ID === type).Title || '';
     }
 
     private getFilterText() {
@@ -784,14 +801,14 @@ export class UniTicker {
                                     col.setAlignment('right');
                                     break;
                                 case 'NumberPositiveNegative':
-                                    col.setConditionalCls(row => row[column.Alias] >= 0 ?
+                                    col.setConditionalCls(row => +row[column.Alias || column.Field] >= 0 ?
                                         'number-good'
                                         : 'number-bad'
                                     );
                                     break;
                                 case 'DatePassed':
                                     col.setConditionalCls(row => {
-                                        return moment(row[column.Alias]).isBefore(moment())
+                                        return moment(row[column.Alias || column.Field]).isBefore(moment())
                                             ? 'date-bad'
                                             : 'date-good';
                                     });
@@ -834,7 +851,7 @@ export class UniTicker {
                             if (statusCodes && statusCodes.length > 0) {
                                 col.selectConfig = {
                                     options: statusCodes,
-                                    dislayField: 'name',
+                                    displayField: 'name',
                                     valueField: 'statusCode'
                                 };
                             }
@@ -962,7 +979,7 @@ export class UniTicker {
                 }
 
                 // Setup table
-                this.tableConfig = new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 20)
+                this.tableConfig = new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 19)
                     .setColumns(columns)
                     .setEntityType(this.ticker.Model)
                     .setAllowGroupFilter(true)

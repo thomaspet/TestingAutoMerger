@@ -1,8 +1,8 @@
 <section [attr.aria-busy]="busy" class="detail_tables">
-    <uni-table class="maintable salaryTransTable"
+    <ag-grid-wrapper class="maintable salaryTransTable"
         [resource]="filteredTranses"
         [config]="salarytransEmployeeTableConfig"
         (rowChanged)="rowChanged($event)"
         (cellClick)="onCellClick($event)">
-    </uni-table>
+    </ag-grid-wrapper>
 </section>

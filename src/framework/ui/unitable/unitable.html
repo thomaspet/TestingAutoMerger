@@ -35,8 +35,8 @@
     <tbody #tbody>
         <tr unitable-row
             *ngFor="let row of getPageData()"
-            [ngClass]="config.conditionalRowCls(row.toJS())"
-            [attr.aria-readonly]="config?.isRowReadOnly(row.toJS())"
+            [ngClass]="config.conditionalRowCls && config.conditionalRowCls(row.toJS())"
+            [attr.aria-readonly]="config.isRowReadOnly && config.isRowReadOnly(row.toJS())"
             [attr.aria-selected]="(config.multiRowSelect && row.get('_rowSelected')) || (!config.multiRowSelect && row == lastFocusedRowModel)"
             [columns]="tableColumns"
             [rowModel]="row"

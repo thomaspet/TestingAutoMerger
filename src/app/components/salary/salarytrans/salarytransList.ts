@@ -2,13 +2,13 @@ import {Component, Input, OnChanges, EventEmitter, Output, ViewChild} from '@ang
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {
-    UniTable,
     UniTableColumnType,
     UniTableColumn,
     UniTableConfig,
     IDeleteButton,
     ICellClickEvent
-} from '../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
@@ -32,26 +32,25 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 })
 
 export class SalaryTransactionEmployeeList extends UniView implements OnChanges {
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(UniForm) public uniform: UniForm;
+
+    @Input() private employee: Employee;
+
+    @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
+
     private salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
 
     public config: any = {};
-
-    @ViewChild(UniForm) public uniform: UniForm;
-
     private employeeID: number;
-    @Input() private employee: Employee;
 
     private payrollRun: PayrollRun;
     private payrollRunID: number;
-
-    @Output() public nextEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
-    @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
-
-    @ViewChild(UniTable) public table: UniTable;
 
     private busy: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -324,6 +323,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol
             ])
+            .setAutoAddNewRow(true)
             .setColumnMenuVisible(true)
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
@@ -364,11 +364,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
 
                 if (rateObservable) {
-                    var subscription = rateObservable.subscribe(rate => {
+                    rateObservable.take(1).subscribe(rate => {
                         row['Rate'] = rate;
                         this.calcItem(row);
                         this.updateSalaryChanged(row, true);
-                        subscription.unsubscribe();
                     });
                 } else {
                     this.updateSalaryChanged(row);

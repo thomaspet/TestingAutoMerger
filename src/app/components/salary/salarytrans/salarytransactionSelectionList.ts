@@ -1,10 +1,12 @@
 import {Component, ViewChild, Output, EventEmitter, AfterViewInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {
-    UniTable, UniTableConfig, UniTableColumnType,
+    UniTableConfig,
+    UniTableColumnType,
     UniTableColumn
-} from '../../../../framework/ui/unitable/index';
-import {UniHttp} from '../../../../framework/core/http/http';
+} from '@uni-framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniHttp} from '@uni-framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
     PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel, TaxCard
@@ -47,7 +49,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public busy: boolean;
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @ViewChild(SalaryTransactionEmployeeList) private transList: SalaryTransactionEmployeeList;
     @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
@@ -140,7 +142,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 if (error) {
                     return {
                         type: 'bad',
-                        text: error
+                        text: error,
                     };
                 }
             });
@@ -179,12 +181,12 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
 
 
-    public rowSelected(event) {
-        this.selectedIndex = event.rowModel['_originalIndex'];
+    public rowSelected(row) {
+        this.selectedIndex = row['_originalIndex'];
         this.getAga();
         this.setSums(null);
         this.setSummarySource();
-        this.linkMenu$.next(this.generateLinkMenu(this.payrollRun, event.rowModel));
+        this.linkMenu$.next(this.generateLinkMenu(this.payrollRun, row));
     }
 
     private getAga() {

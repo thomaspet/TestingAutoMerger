@@ -248,6 +248,11 @@
         "OrderBy": "ID DESC",
         "Columns": [
             {
+                "DefaultHidden": true,
+                "Header": "ID",
+                "Field": "ID"
+            },
+            {
                 "Header": "Dato",
                 "Field": "CreatedAt",
                 "Width": "130px",

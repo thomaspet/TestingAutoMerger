@@ -1,6 +1,11 @@
 <section class="splitview">
     <nav class="splitview_list">
-        <uni-table [config]="salarytransSelectionTableConfig" [resource]="employeeList" (rowSelected)="rowSelected($event)"></uni-table>
+        <ag-grid-wrapper
+            [config]="salarytransSelectionTableConfig"
+            [resource]="employeeList"
+            (rowSelectionChange)="rowSelected($event)"
+            (dataLoaded)="focusRow(0)">
+        </ag-grid-wrapper>
     </nav>
     <main class="splitview_detail">
         <header class="detail_header" *ngIf="employeeList && employeeList.length">

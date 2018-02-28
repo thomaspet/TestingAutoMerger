@@ -333,12 +333,13 @@ uni-table .uni-datepicker
     position: absolute
     min-width: pxToRem(450)
     box-sizing: border-box
-    border: 1px solid $uni-color-positive
+    border: 1px solid $uni-color-scale9
     border-radius: .25rem
     z-index: 399
-    background-color: rgba(255, 255, 255, 1)
+    background-color: #fff
     padding: .5rem 1rem
     visibility: hidden
+
     &[aria-expanded]:not([aria-expanded=false])
         visibility: visible
     &[aria-upwards]:not([aria-upwards=false])
@@ -355,38 +356,25 @@ uni-table .uni-datepicker
         margin: 0 0 .5rem 0
 
     table
-        width: 500px
         table-layout: fixed
-        thead
-            tr
-                background-color: transparent
-                &:hover
-                    cursor: default
-                    background-color: transparent
-            th
-                background-color: transparent
-                &:first-of-type
-                    border-left: none
-                &:last-of-type
-                    border-right: none
-                &:hover
-                    cursor: default
+        width: 500px
+        border-left: none
+        border-collapse: separate
+        border-spacing: 0
 
-        tbody
-            tr
-                background-color: transparent
-                &:hover
-                     background-color: #E2E6F0
-                &:last-of-type
-                    td
-                        border-bottom: none
-                td
-                    overflow: hidden
-                    border-bottom: 0.0625rem solid #E2E6F0
-                    &:first-of-type
-                        border-left: none
-                    &:last-of-type
-                        border-right: none
+        th, td
+            padding: 3px 10px
+            border-bottom: 1px solid $uni-color-scale9
+            border-right: 1px solid $uni-color-scale9
+            &:last-of-type
+                border-right: none
+
+        th
+            font-weight: 600
+
+        tr[aria-selected=true]
+            background: #d4dfee
+            outline: none
 
 .result_table_container
     width: 100%

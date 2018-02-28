@@ -1,0 +1,12 @@
+<span class="table-editor"
+    (keydown)="onKeyDown($event)"
+    [ngStyle]="{
+        visibility: editorVisible ? 'visible' : 'hidden',
+        top: position?.top + 'px',
+        left: position?.left + 'px',
+        width: position?.width + 'px',
+        height: position?.height + 'px'
+    }">
+
+    <span #editorContainer></span>
+</span>

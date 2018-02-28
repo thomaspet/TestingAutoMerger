@@ -980,43 +980,31 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         return statustrack;
     }
 
-    private refreshInvoice(invoice: CustomerInvoice): Promise<boolean> {
-        return new Promise((resolve) => {
-            const orderObservable = !!invoice
-                ? Observable.of(invoice)
-                : this.customerInvoiceService.Get(this.invoiceID, this.expandOptions);
+    private refreshInvoice(invoice: CustomerInvoice): void {
+        this.isDirty = false;
 
-            orderObservable.subscribe(res => {
-                if (!invoice) { invoice = res; }
+        this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
+        this.readonly = !!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.invoiceItems = invoice.Items.sort(
+            function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+        );
 
-                this.isDirty = false;
+        this.currentCustomer = invoice.Customer;
+        this.currentPaymentTerm = invoice.PaymentTerms;
+        this.currentDeliveryTerm = invoice.DeliveryTerms;
 
-                this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-                this.readonly = invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
-                this.invoiceItems = invoice.Items.sort(
-                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
-                );
+        invoice.DefaultSeller = invoice.DefaultSeller;
+        this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
-                this.currentCustomer = invoice.Customer;
-                this.currentPaymentTerm = invoice.PaymentTerms;
-                this.currentDeliveryTerm = invoice.DeliveryTerms;
+        this.currentInvoiceDate = invoice.InvoiceDate;
 
-                invoice.DefaultSeller = invoice.DefaultSeller;
-                this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
-
-                this.currentInvoiceDate = invoice.InvoiceDate;
-
-                this.invoice = _.cloneDeep(invoice);
-                this.updateCurrency(invoice, true);
-                this.recalcDebouncer.next(invoice.Items);
-                this.updateTabTitle();
-                this.updateToolbar();
-                this.updateSaveActions();
-                this.ehfReadyUpdateSaveActions();
-
-                resolve(true);
-            });
-        });
+        this.invoice = _.cloneDeep(invoice);
+        this.updateCurrency(invoice, true);
+        this.recalcDebouncer.next(invoice.Items);
+        this.updateTabTitle();
+        this.updateToolbar();
+        this.updateSaveActions();
+        this.ehfReadyUpdateSaveActions();
     }
 
     private updateTabTitle() {

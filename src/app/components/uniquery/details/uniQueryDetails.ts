@@ -179,7 +179,7 @@ export class UniQueryDetails {
                            if (statusCodes && statusCodes.length > 0) {
                                f.selectConfig = {
                                    options: statusCodes,
-                                   dislayField: 'name',
+                                   displayField: 'name',
                                    valueField: 'statusCode'
                                };
                            }
@@ -494,7 +494,7 @@ export class UniQueryDetails {
                 if (statusCodes && statusCodes.length > 0) {
                     newCol.selectConfig = {
                         options: statusCodes,
-                        dislayField: 'name',
+                        displayField: 'name',
                         valueField: 'statusCode'
                     };
                 }
@@ -602,7 +602,7 @@ export class UniQueryDetails {
                 f.Alias = field.alias;
                 f.Header = field.header;
                 f.SumFunction = field.sumFunction;
-                f.Width = field.width;
+                f.Width = field.width.toString();
                 f.Index = field.index;
                 f.FieldType = field.type;
 
@@ -728,7 +728,7 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
             if (statusCodes && statusCodes.length > 0) {
                 newCol.selectConfig = {
                     options: statusCodes,
-                    dislayField: 'name',
+                    displayField: 'name',
                     valueField: 'statusCode'
                 };
             }

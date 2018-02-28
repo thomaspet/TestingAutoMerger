@@ -1,3 +1,18 @@
+.ticker-container
+    uni-ticker
+        width: 100%
+        margin-right: 1rem
+
+    uni-sub-ticker-container
+        margin-top: 3.2rem
+
+    &.detail-visible
+        uni-ticker
+            width: 55%
+        uni-sub-ticker-container
+            width: 45%
+
+
 uni-ticker-container
     width: 100%
     position: relative
@@ -31,14 +46,6 @@ uni-ticker-container
             .ticker-filter-count
                 font-size: 1.15rem
                 color: $uni-color-c2a
-
-    uni-ticker
-        margin-right: 1rem
-        flex: 1 1 15rem
-
-uni-sub-ticker-container
-    flex: 0 1 45%
-    margin-top: 3.2rem
 
 uni-ticker-wrapper
     position: absolute

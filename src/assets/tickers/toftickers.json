@@ -15,7 +15,7 @@
             "Field": "InvoiceNumber",
             "Alias": "InvoiceNumber",
             "Placeholder": "Kladd",
-            "Width": "6rem",
+            "Width": 100,
             "Type": "link",
             "FilterOperator": "startswith"
         },
@@ -25,33 +25,34 @@
             "Type": "Link",
             "LinkNavigationProperty": "Customer.ID",
             "ExternalModel": "Customer",
-            "Width": "6rem",
+            "Width": 100,
             "FilterOperator": "startswith"
         },
         {
             "Header": "Kundenavn",
             "Field": "Customer.Info.Name",
             "ExternalModel": "Customer",
-            "FilterOperator": "contains"
+            "FilterOperator": "contains",
+            "Width": 300
         },
         {
             "Header": "Fakturadato",
             "Field": "InvoiceDate",
             "FilterOperator": "gt",
-            "Width": "100px"
+            "Width": 100
         },
         {
             "Header": "Forfallsdato",
             "Field": "PaymentDueDate",
             "Format": "DatePassed",
             "FilterOperator": "gt",
-            "Width": "100px"
+            "Width": 100
         },
         {
             "Header": "Leveringsdato",
             "Field": "DeliveryDate",
             "FilterOperator": "gt",
-            "Width": "100px",
+            "Width": 100,
             "DefaultHidden": true
         },
         {
@@ -169,7 +170,7 @@
             "Header": "Deling",
             "Field": "sum(casewhen(isnull(Sharing.EntityType,'') eq 'CustomerInvoice',1,0))",
             "Alias": "SharingInvoiceCount",
-            "width": "125px"
+            "width": "40px"
         }
     ],
     "ParentFilter": {

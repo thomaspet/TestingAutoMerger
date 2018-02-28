@@ -8,187 +8,191 @@ uni-checkbox-input label,
 uni-radio-input label
     width: 100%
 
-input[type=checkbox],
-input[type=radio]
-    @extend %visuallyHidden
-
-    &:focus + label,
-    & + label:focus
-        outline: none
-
-        &:before
-            background: $uni-color-scale9
-
-        &:after
-            border-color: $uni-color-negative
-
-    & + label
-        user-select: none
-        box-sizing: border-box
-        position: relative
-        white-space: nowrap
-        display: block
-        width: 17rem
-        padding-right: 2.5rem
-        padding-top: .2rem
-        overflow: hidden
-        text-overflow: ellipsis
+uni-checkbox-input,
+uni-radio-input
 
 
-        &:before
-            display: block
-            content: ''
-            border: pxToRem(1) solid $uni-color-scale7
-            height: 1rem
-            width: 1rem
-            margin-left: .3rem
-            box-sizing: border-box
-            position: absolute
-            top: .5rem
-            left: calc(#{$labelLength} - .3rem)
-            border-radius: .2rem
-            background: #fff
+    input[type=checkbox],
+    input[type=radio]
+        @extend %visuallyHidden
 
-        &.success:before
-            border-color: $uni-color-good
+        &:focus + label,
+        & + label:focus
+            outline: none
 
-        &.warning:before
-            border-color: $uni-color-warn
-
-        &.error:before
-            border-color: $uni-color-bad
-
-        &:after
-            display: block
-            content: ''
-            border-right: .2rem solid transparent
-            border-bottom: .2rem solid transparent
-            position: absolute
-            top: .52rem
-            left: calc(#{$labelLength} + .3rem)
-            height: .5rem
-            width: .2rem
-            transform: rotate(45deg)
-
-        &:hover,
-        &:focus
             &:before
                 background: $uni-color-scale9
 
             &:after
                 border-color: $uni-color-negative
 
-    &:checked + label
+        & + label
+            user-select: none
+            box-sizing: border-box
+            position: relative
+            white-space: nowrap
+            display: block
+            width: 17rem
+            padding-right: 2.5rem
+            padding-top: .2rem
+            overflow: hidden
+            text-overflow: ellipsis
 
-        &:before
-            border-color: $uni-color-c2a
-            background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%)
 
-        &:after
-            opacity: 1
-            border-color: $uni-color-negative
+            &:before
+                display: block
+                content: ''
+                border: pxToRem(1) solid $uni-color-scale7
+                height: 1rem
+                width: 1rem
+                margin-left: .3rem
+                box-sizing: border-box
+                position: absolute
+                top: .5rem
+                left: calc(#{$labelLength} - .3rem)
+                border-radius: .2rem
+                background: #fff
 
-        &.success:before
-            border-color: $uni-color-good
-            background: linear-gradient(to top, $uni-color-good 0, lighten($uni-color-good, 10%) 100%)
+            &.success:before
+                border-color: $uni-color-good
 
-        &.warning:before
-            border-color: $uni-color-warn
-            background: linear-gradient(to top, $uni-color-warn 0, lighten($uni-color-warn, 10%) 100%)
+            &.warning:before
+                border-color: $uni-color-warn
 
-        &.error:before
-            border-color: $uni-color-bad
-            background: linear-gradient(to top, $uni-color-bad 0, lighten($uni-color-bad, 10%) 100%)
+            &.error:before
+                border-color: $uni-color-bad
 
-    &[disabled] + label,
-    &[readonly] + label
-        cursor-events: none
-
-        &:before
-            background: $uni-color-scale7
-            border-color: $uni-color-scale3
-
-        &:hover:before,
-        &:focus:before
-            background: $uni-color-scale7
-
-    &[required] + label:before
-        box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9
-
-    & + label.toggle
-        width: 20rem
-
-        &:before
-            width: 3rem
-            height: 1.5rem
-            border-radius: 99rem
-            border-color: transparent
-            background: $radioBack
-            content: 'Av'
-            text-align: right
-            color: $uni-color-positive
-            line-height: 1.2rem
-            font-size: .9rem
-            padding: 0 .5rem
-            top: 0
-
-        &:after
-            width: 1rem
-            height: 1rem
-            top: .1rem
-            left: calc(#{$labelLength} + .2rem)
-            border-radius: 99rem
-            background-color: $uni-color-toolbar
-            transition: all .3s ease
-            transform: rotate(0deg)
-            border-color: transparent
-
-        &:hover,
-        &:focus
             &:after
-                background: $uni-color-scale3
+                display: block
+                content: ''
+                border-right: .2rem solid transparent
+                border-bottom: .2rem solid transparent
+                position: absolute
+                top: .52rem
+                left: calc(#{$labelLength} + .3rem)
+                height: .5rem
+                width: .2rem
+                transform: rotate(45deg)
 
-    &[disabled]:not([disabled=false]) + label.toggle:hover:after,
-    &[readonly]:not([readonly=false]) + label.toggle:hover:after
-        background: $uni-color-scale8
+            &:hover,
+            &:focus
+                &:before
+                    background: $uni-color-scale9
 
-    &[disabled]:not([disabled=false]) + label.toggle:before,
-    &[readonly]:not([readonly=false]) + label.toggle:before,
-    &[disabled]:not([disabled=false]) + label.toggle:after,
-    &[readonly]:not([readonly=false]) + label.toggle:after
-        filter: grayscale(30%)
-        opacity: .4
+                &:after
+                    border-color: $uni-color-negative
 
-    &:checked + label.toggle
+        &:checked + label
+
+            &:before
+                border-color: $uni-color-c2a
+                background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%)
+
+            &:after
+                opacity: 1
+                border-color: $uni-color-negative
+
+            &.success:before
+                border-color: $uni-color-good
+                background: linear-gradient(to top, $uni-color-good 0, lighten($uni-color-good, 10%) 100%)
+
+            &.warning:before
+                border-color: $uni-color-warn
+                background: linear-gradient(to top, $uni-color-warn 0, lighten($uni-color-warn, 10%) 100%)
+
+            &.error:before
+                border-color: $uni-color-bad
+                background: linear-gradient(to top, $uni-color-bad 0, lighten($uni-color-bad, 10%) 100%)
+
+        &[disabled] + label,
+        &[readonly] + label
+            cursor-events: none
+
+            &:before
+                background: $uni-color-scale7
+                border-color: $uni-color-scale3
+
+            &:hover:before,
+            &:focus:before
+                background: $uni-color-scale7
+
+        &[required] + label:before
+            box-shadow: 0 0 0 1px $uni-color-negative, 0 0 0 2px $uni-color-scale9
+
+        & + label.toggle
+            width: 20rem
+
+            &:before
+                width: 3rem
+                height: 1.5rem
+                border-radius: 99rem
+                border-color: transparent
+                background: $radioBack
+                content: 'Av'
+                text-align: right
+                color: $uni-color-positive
+                line-height: 1.2rem
+                font-size: .9rem
+                padding: 0 .5rem
+                top: 0
+
+            &:after
+                width: 1rem
+                height: 1rem
+                top: .1rem
+                left: calc(#{$labelLength} + .2rem)
+                border-radius: 99rem
+                background-color: $uni-color-toolbar
+                transition: all .3s ease
+                transform: rotate(0deg)
+                border-color: transparent
+
+            &:hover,
+            &:focus
+                &:after
+                    background: $uni-color-scale3
+
+        &[disabled]:not([disabled=false]) + label.toggle:hover:after,
+        &[readonly]:not([readonly=false]) + label.toggle:hover:after
+            background: $uni-color-scale8
+
+        &[disabled]:not([disabled=false]) + label.toggle:before,
+        &[readonly]:not([readonly=false]) + label.toggle:before,
+        &[disabled]:not([disabled=false]) + label.toggle:after,
+        &[readonly]:not([readonly=false]) + label.toggle:after
+            filter: grayscale(30%)
+            opacity: .4
+
+        &:checked + label.toggle
+            &:before
+                content: 'På'
+                text-align: left
+                border-color: transparent
+                background: $radioBack
+
+            &:after
+                left: calc(#{$labelLength} + 1.6rem)
+                border-color: transparent
+
+
+    input[type=radio] + label
+
         &:before
-            content: 'På'
-            text-align: left
-            border-color: transparent
+            border-radius: 99rem
             background: $radioBack
+            border-color: $radioBack
 
         &:after
-            left: calc(#{$labelLength} + 1.6rem)
-            border-color: transparent
+            opacity: 0
 
 
-input[type=radio] + label
+    input[type=radio]:checked + label
+        &:before
+            background: $uni-color-toolbar
+            border-color: $radioBack
 
-    &:before
-        border-radius: 99rem
-        background: $radioBack
-        border-color: $radioBack
-
-    &:after
-        opacity: 0
-
-
-input[type=radio]:checked + label
-    &:before
-        background: $uni-color-toolbar
-        border-color: $radioBack
-
-    &:after
-        opacity: 0
+        &:after
+            opacity: 0
 
 uni-checkbox-input,
 .uni-checkbox-input

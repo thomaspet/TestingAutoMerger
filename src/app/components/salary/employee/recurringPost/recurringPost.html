@@ -3,5 +3,17 @@
     <small *ngIf="unsavedEmployments$ | async">
         Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>
-    <uni-table class="salaryTransTable" [resource]="filteredPosts" [config]="tableConfig" (rowDeleted)="onRowDeleted($event)"></uni-table>
+
+    <!-- <uni-table class="salaryTransTable"
+        [resource]="filteredPosts"
+        [config]="tableConfig"
+        (rowDeleted)="onRowDeleted($event)">
+    </uni-table> -->
+
+    <ag-grid-wrapper
+        [(resource)]="recurringPosts"
+        [config]="tableConfig"
+        (rowDelete)="onRowDeleted()"
+    ></ag-grid-wrapper>
+
 </article>

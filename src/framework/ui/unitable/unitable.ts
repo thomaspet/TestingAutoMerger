@@ -219,7 +219,7 @@ export class UniTable implements OnChanges {
     // Event hooks
     private openEditor(cell: HTMLTableElement, column, rowModel) {
         this.currentRowModel = rowModel;
-        let rowReadonly = this.config.isRowReadOnly(rowModel.toJS());
+        const rowReadonly = this.config.isRowReadOnly && this.config.isRowReadOnly(rowModel.toJS());
         let columnEditable = column.get('editable') !== false;
 
         if (typeof column.get('editable') === 'function') {

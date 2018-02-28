@@ -15,40 +15,42 @@ export class TradeItemHelper  {
     constructor(private guidService: GuidService) {}
 
     public prepareItemsForSave(items) {
-        return items.map((item, index) => {
-            item.SortIndex = index + 1;
+        return items
+            .filter(item => !item['_isEmpty'])
+            .map((item, index) => {
+                item.SortIndex = index + 1;
 
-            if (item.Dimensions && !item.Dimensions.ID) {
-                item.Dimensions['_createguid'] = this.guidService.guid();
-            }
+                if (item.Dimensions && !item.Dimensions.ID) {
+                    item.Dimensions['_createguid'] = this.guidService.guid();
+                }
 
-            // ID is enough
-            item.VatType = null;
-            item.Product = null;
-            item.Account = null;
+                // ID is enough
+                item.VatType = null;
+                item.Product = null;
+                item.Account = null;
 
-            // Copy paste from old function..
-            if (!item.ProductID) {
-                item.AccountID = null;
-                item.Comment = null;
-                item.PriceExVat = 0;
-                item.PriceExVatCurrency = 0;
-                item.PriceIncVat = 0;
-                item.Discount = 0;
-                item.DiscountCurrency = 0;
-                item.NumberOfItems = 0;
-                item.SumTotalExVat = 0;
-                item.SumTotalExVatCurrency = 0;
-                item.SumTotalIncVat = 0;
-                item.SumTotalIncVatCurrency = 0;
-                item.SumVat = 0;
-                item.SumVatCurrency = 0;
-                item.Unit = null;
-                item.VatTypeID = null;
-            }
+                // Copy paste from old function..
+                if (!item.ProductID) {
+                    item.AccountID = null;
+                    item.Comment = null;
+                    item.PriceExVat = 0;
+                    item.PriceExVatCurrency = 0;
+                    item.PriceIncVat = 0;
+                    item.Discount = 0;
+                    item.DiscountCurrency = 0;
+                    item.NumberOfItems = 0;
+                    item.SumTotalExVat = 0;
+                    item.SumTotalExVatCurrency = 0;
+                    item.SumTotalIncVat = 0;
+                    item.SumTotalIncVatCurrency = 0;
+                    item.SumVat = 0;
+                    item.SumVatCurrency = 0;
+                    item.Unit = null;
+                    item.VatTypeID = null;
+                }
 
-            return item;
-        });
+                return item;
+            });
     }
 
     public getDefaultTradeItemData(mainEntity) {
@@ -85,7 +87,7 @@ export class TradeItemHelper  {
         event, currencyCodeID: number, currencyExchangeRate: number,
         companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate
     ) {
-        var newRow = event.rowModel;
+        const newRow = event.rowModel;
 
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
@@ -120,7 +122,7 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'VatType') {
-            this.mapVatTypeToQuoteItem(newRow);
+            newRow.VatTypeID = !!newRow.VatType ? newRow.VatType.ID : null;
         }
 
         if (newRow.VatTypeID && !newRow.VatType) {
@@ -137,15 +139,21 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'Dimensions.Project') {
-            this.mapProjectToItem(newRow);
+            newRow.Dimensions.ProjectID = !!newRow.Dimensions.Project
+                ? newRow.Dimensions.Project.ID
+                : null;
         }
 
         if (event.field === 'Dimensions.ProjectTask') {
-            this.mapProjectTaskToItem(newRow);
+            newRow.Dimensions.ProjectTaskID = !!newRow.Dimensions.ProjectTask
+                ? newRow.Dimensions.ProjectTask.ID
+                : null;
         }
 
         if (event.field === 'Dimensions.Department') {
-            this.mapDepartmentToItem(newRow);
+            newRow.Dimensions.DepartmentID = !!newRow.Dimensions.Department
+                ? newRow.Dimensions.Department.ID
+                : null;
         }
 
         if (event.field === 'PriceExVatCurrency') {
@@ -169,72 +177,10 @@ export class TradeItemHelper  {
         return newRow;
     }
 
-    public mapProjectTaskToItem(rowModel) {
-        let projectTask: ProjectTask = Object.assign({}, rowModel['Dimensions.ProjectTask']);
-        delete rowModel['Dimensions.ProjectTask'];
 
-        // Make sure we have a dimensions object to add stuff to
-        if (!rowModel.Dimensions) {
-            rowModel.Dimensions = {ID: 0};
-        }
-
-        rowModel.Dimensions.ProjectTaskID = projectTask ? projectTask.ID : null;
-        // Need to set this because unitable is bad with objects. Anders should fix this.
-        rowModel.Dimensions.ProjectTask = projectTask ? projectTask : null;
-    }
-
-    public mapProjectToItem(rowModel) {
-        let project: Project = rowModel['Dimensions.Project'];
-
-        if (!project) {
-            if (!rowModel.Dimensions) {
-                rowModel.Dimensions = {ID: 0};
-            }
-
-            rowModel.Dimensions.ProjectID = null;
-            rowModel.Dimensions.Project = null;
-        } else {
-            if (!rowModel.Dimensions) {
-                rowModel.Dimensions = {ID: 0};
-            }
-
-            rowModel.Dimensions.ProjectID = project.ID;
-            rowModel.Dimensions.Project = project;
-        }
-    }
-
-    public mapDepartmentToItem(rowModel) {
-        let dep: Department = rowModel['Dimensions.Department'];
-
-        if (!dep) {
-            if (!rowModel.Dimensions) {
-                rowModel.Dimensions = {ID: 0};
-            }
-
-            rowModel.Dimensions.DepartmentID = null;
-            rowModel.Dimensions.Department = null;
-        } else {
-            if (!rowModel.Dimensions) {
-                rowModel.Dimensions = {ID: 0};
-            }
-
-            rowModel.Dimensions.DepartmentID = dep.ID;
-            rowModel.Dimensions.Department = dep;
-        }
-    }
-
-    public mapVatTypeToQuoteItem(rowModel) {
-        let vatType = rowModel['VatType'];
-
-        if (!vatType) {
-            rowModel.VatTypeID = null;
-        } else {
-            rowModel.VatTypeID = vatType.ID;
-        }
-    }
 
     public mapAccountToQuoteItem(rowModel, overrideWithVatType: VatType) {
-        let account = rowModel['Account'];
+        const account = rowModel['Account'];
 
         if (!account) {
             rowModel.AccountID = null;
@@ -251,7 +197,7 @@ export class TradeItemHelper  {
     }
 
     public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>) {
-        let product = rowModel['Product'];
+        const product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
         rowModel.Account = product.Account;
@@ -306,8 +252,8 @@ export class TradeItemHelper  {
     }
 
     public calculatePriceIncVat(rowModel) {
-        let vatPercent = rowModel.VatPercent || 0;
-        let priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
+        const vatPercent = rowModel.VatPercent || 0;
+        const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
         rowModel['PriceIncVatCurrency'] = this.round((priceExVatCurrency * (100 + vatPercent)) / 100, 4);
     }
 
@@ -324,8 +270,8 @@ export class TradeItemHelper  {
         rowModel.SumTotalIncVat = (rowModel.NumberOfItems * rowModel.PriceIncVat) - discountIncVat;
         rowModel.SumVat = (rowModel.SumTotalIncVat - rowModel.SumTotalExVat) || 0;
 
-        let discountExVatCurrency = discountExVat / currencyExchangeRate;
-        let discountIncVatCurrency = discountIncVat / currencyExchangeRate;
+        const discountExVatCurrency = discountExVat / currencyExchangeRate;
+        const discountIncVatCurrency = discountIncVat / currencyExchangeRate;
         rowModel.DiscountCurrency = discountExVatCurrency || 0;
         rowModel.SumTotalExVatCurrency = ((
             rowModel.NumberOfItems
@@ -340,7 +286,7 @@ export class TradeItemHelper  {
     }
 
     public calculateTradeItemSummaryLocal(items: Array<any>, decimals: number): TradeHeaderCalculationSummary {
-        let sum: TradeHeaderCalculationSummary = new TradeHeaderCalculationSummary();
+        const sum: TradeHeaderCalculationSummary = new TradeHeaderCalculationSummary();
         sum.SumTotalExVat = 0;
         sum.SumTotalIncVat = 0;
         sum.SumVat = 0;
@@ -357,40 +303,21 @@ export class TradeItemHelper  {
         sum.SumDiscountCurrency = 0;
         sum.DecimalRoundingCurrency = 0;
 
-        items.forEach((x) => {
-                x.DiscountPercent = x.DiscountPercent ? x.DiscountPercent : 0;
-                x.NumberOfItems = x.NumberOfItems ? x.NumberOfItems : 0;
-                x.CalculateGrossPriceBasedOnNetPrice =
-                    x.CalculateGrossPriceBasedOnNetPrice ? x.CalculateGrossPriceBasedOnNetPrice : false;
-
-                x.PriceIncVatCurrency = x.PriceIncVatCurrency ? x.PriceIncVatCurrency : 0;
-                x.PriceExVatCurrency = x.PriceExVatCurrency ? x.PriceExVatCurrency : 0;
-                x.DiscountCurrency = x.DiscountCurrency ? x.DiscountCurrency : 0;
-                x.SumTotalExVatCurrency = x.SumTotalExVatCurrency ? x.SumTotalExVatCurrency : 0;
-                x.SumTotalIncVatCurrency = x.SumTotalIncVatCurrency ? x.SumTotalIncVatCurrency : 0;
-
-                x.PriceIncVat = x.PriceIncVat ? x.PriceIncVat : 0;
-                x.PriceExVat = x.PriceExVat ? x.PriceExVat : 0;
-                x.Discount = x.Discount ? x.Discount : 0;
-                x.SumTotalExVat = x.SumTotalExVat ? x.SumTotalExVat : 0;
-                x.SumTotalIncVat = x.SumTotalIncVat ? x.SumTotalIncVat : 0;
-            });
-
         if (items) {
             items.forEach((item) => {
-                sum.SumDiscount += item.Discount;
-                sum.SumTotalExVat += item.SumTotalExVat;
-                sum.SumTotalIncVat += item.SumTotalIncVat;
-                sum.SumVat += item.SumVat;
-                sum.SumVatBasis += item.SumVat !== 0 ? item.SumTotalExVat : 0;
-                sum.SumNoVatBasis += item.SumVat === 0 ? item.SumTotalExVat : 0;
+                sum.SumDiscount += item.Discount || 0;
+                sum.SumTotalExVat += item.SumTotalExVat || 0;
+                sum.SumTotalIncVat += item.SumTotalIncVat || 0;
+                sum.SumVat += item.SumVat || 0;
+                sum.SumVatBasis += item.SumVat !== 0 ? (item.SumTotalExVat || 0) : 0;
+                sum.SumNoVatBasis += item.SumVat === 0 ? (item.SumTotalExVat || 0) : 0;
 
-                sum.SumDiscountCurrency += item.DiscountCurrency;
-                sum.SumTotalExVatCurrency += item.SumTotalExVatCurrency;
-                sum.SumTotalIncVatCurrency += item.SumTotalIncVatCurrency;
-                sum.SumVatCurrency += item.SumVatCurrency;
-                sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? item.SumTotalExVatCurrency : 0;
-                sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? item.SumTotalExVatCurrency : 0;
+                sum.SumDiscountCurrency += item.DiscountCurrency || 0;
+                sum.SumTotalExVatCurrency += item.SumTotalExVatCurrency || 0;
+                sum.SumTotalIncVatCurrency += item.SumTotalIncVatCurrency || 0;
+                sum.SumVatCurrency += item.SumVatCurrency || 0;
+                sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? (item.SumTotalExVatCurrency || 0) : 0;
+                sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? (item.SumTotalExVatCurrency || 0) : 0;
             });
 
             let roundedAmount = this.round(sum.SumTotalIncVat, decimals);

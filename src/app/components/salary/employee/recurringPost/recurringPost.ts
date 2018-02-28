@@ -8,8 +8,7 @@ import {SalaryTransViewService} from '../../sharedServices/salaryTransViewServic
 import {
     UniTableColumn,
     UniTableColumnType,
-    UniTableConfig,
-    UniTable
+    UniTableConfig
 } from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
@@ -18,6 +17,7 @@ import {
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 
 @Component({
@@ -25,17 +25,17 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     templateUrl: './recurringPost.html'
 })
 export class RecurringPost extends UniView {
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+
     private employeeID: number;
     private tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
-    private filteredPosts: SalaryTransaction[];
     private employments: Employment[] = [];
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private refresh: boolean;
-    @ViewChild(UniTable) private uniTable: UniTable;
 
     constructor(
         public router: Router,
@@ -82,7 +82,6 @@ export class RecurringPost extends UniView {
                     || this.refresh
                     || !posts.some(x => x['_isDirty'] || x.Deleted)) {
                     this.recurringPosts = posts;
-                    this.filteredPosts = this.recurringPosts.filter(post => !post.Deleted);
                     this.refresh = false;
                 }
 
@@ -101,25 +100,9 @@ export class RecurringPost extends UniView {
         });
     }
 
-    public onRowDeleted(event) {
-        if (event.rowModel['_isEmpty']) {
-            return;
-        }
-
-        let deletedIndex = this.recurringPosts.findIndex(
-            x => x['_originalIndex'] === event.rowModel['_originalIndex']
-        );
-        let hasDirtyRow: boolean = true;
-
-        if (this.recurringPosts[deletedIndex].ID) {
-            this.recurringPosts[deletedIndex].Deleted = true;
-            this.recurringPosts[deletedIndex]['_originalIndex'] = null;
-        } else {
-            this.recurringPosts.splice(deletedIndex, 1);
-            // Check if there are other rows in the array that are dirty
-            hasDirtyRow = this.recurringPosts.some(post => post['_isDirty'] || post['Deleted']);
-        }
-
+    public onRowDeleted() {
+        console.log(this.recurringPosts);
+        const hasDirtyRow = this.recurringPosts.some(post => post['_isDirty'] || post.Deleted);
         this.refresh = true;
         super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);
     }
@@ -263,13 +246,14 @@ export class RecurringPost extends UniView {
 
         this.tableConfig = new UniTableConfig('salary.employee.recurringPost', this.employeeID ? true : false)
             .setDeleteButton(true)
+            .setColumnMenuVisible(true)
+            .setAutoAddNewRow(true)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
                     this.salaryTransViewService
                         .openSupplements(row, (trans) => this.onSupplementsClose(trans), false);
                 }
             }])
-            .setColumnMenuVisible(true)
             .setColumns([
                 wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
@@ -330,7 +314,7 @@ export class RecurringPost extends UniView {
             this.recurringPosts.push(row);
         }
         if (updateTable) {
-            this.uniTable.updateRow(row['_originalIndex'], row);
+            this.table.updateRow(row['_originalIndex'], row);
         }
         super.updateState('recurringPosts', this.recurringPosts, true);
     }

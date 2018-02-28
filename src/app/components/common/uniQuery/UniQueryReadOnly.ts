@@ -140,7 +140,7 @@ export class UniQueryReadOnly implements OnChanges {
                                 if (statusCodes && statusCodes.length > 0) {
                                     f.selectConfig = {
                                         options: statusCodes,
-                                        dislayField: 'name',
+                                        displayField: 'name',
                                         valueField: 'statusCode'
                                     };
                                 }

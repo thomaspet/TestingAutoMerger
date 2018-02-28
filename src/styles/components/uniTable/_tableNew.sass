@@ -1,0 +1,504 @@
+$table-border-style: 1px solid $uni-color-scale9
+
+ag-grid-angular
+    width: 100%
+    height: 100%
+
+.uni-ag-wrapper
+    display: block
+    position: relative
+
+    .table-contextmenu
+        margin-top: 0
+
+// Borders
+.ag-header
+    border: $table-border-style
+    border-right: none
+    .ag-pinned-right-header
+        border-left: $table-border-style
+        border-right: $table-border-style
+
+.ag-body
+    .ag-pinned-right-cols-container .ag-cell
+        border-left: $table-border-style
+        border-right: $table-border-style
+
+    .ag-body-container .ag-cell:first-of-type
+        border-left: $table-border-style
+
+    .ag-pinned-right-cols-container .ag-cell
+        border-left: $table-border-style
+        border-right: $table-border-style
+
+ag-grid-wrapper:not(.selection-list)
+    .ag-header
+        border-left: none
+
+    .ag-body .ag-cell,
+    .ag-header-container .ag-header-cell
+        border-left: $table-border-style
+
+
+ag-grid-wrapper.selection-list
+    .ag-header:hover // resize guide on hover
+        .ag-header-cell:not(:first-of-type)
+            border-left: $table-border-style
+
+.ag-row
+    border-bottom: $table-border-style
+
+// Header & cell styling
+.ag-header
+    background: #ebeef5
+
+    // .ag-header-cell-text
+    //     color: $uni-color-scale5
+
+.ag-cell
+    line-height: 35px
+.ag-header-cell
+    line-height: 35px // 40px
+
+.ag-cell, .ag-header-cell
+    padding: 0 10px
+
+    &:focus
+        outline: none
+
+    .ag-header-cell-resize
+        position: absolute
+        right: -1px
+        width: 10px
+
+    &.col-menu, &.row-menu
+        padding: 0
+        cursor: pointer
+        text-align: center
+        color: $uni-color-scale5
+
+    &.col-menu i.material-icons
+        line-height: 35px // 40px
+        margin-left: -2px
+        font-size: 20px
+
+    &.row-menu i.material-icons
+        line-height: 35px
+
+    &.row-menu .row-menu-container
+        display: block
+        height: 35px
+        width: 100%
+
+        i.material-icons
+            width: 39px
+            box-sizing: border-box
+            &:not(:first-of-type)
+                border-left: $table-border-style
+
+.ag-cell
+    span[role=link]
+        display: block
+        cursor: pointer
+        margin: 5px 0
+        padding: 0 5px
+        line-height: 25px // row height - margin
+        text-decoration: underline
+        color: $uni-color-c2a !important // #0082c0 !important
+        &:hover
+            background: darken(#d4dfee, 5%)
+
+    &.number-good
+        color: #0082c0 !important
+    &.number-bad, &.date-bad
+        color: $uni-color-bad !important
+
+.align-left
+    text-align: left !important
+.align-right
+    text-align: right !important
+.align-center
+    text-align: center !important
+
+// Row styling
+
+.ag-row
+    &.ag-row-even
+        background: #fff
+
+    &.ag-row-odd
+        background: mix(#fff, $uni-color-scale9, 85%) // #f8f9fd
+
+    &.ag-row-hover,
+    &.ag-row-selected
+        background: #d4dfee
+
+.ag-icon-checkbox-unchecked,
+.ag-icon-checkbox-checked
+    background: none !important
+    @extend %checkboxStyle
+
+.ag-icon-checkbox-checked
+    &:before
+        border-color: $uni-color-c2a !important
+        background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
+
+    &:after
+        opacity: 1 !important
+        border-color: $uni-color-negative !important
+
+.header-checkbox
+    @extend %checkboxStyle
+    &.checked
+        &:before
+            border-color: $uni-color-c2a !important
+            background: linear-gradient(to top, $uni-color-c2a 0, lighten($uni-color-c2a, 10%) 100%) !important
+
+        &:after
+            opacity: 1 !important
+            border-color: $uni-color-negative !important
+
+%checkboxStyle
+    width: 1rem !important
+    height: 34px !important
+    margin-top: 1px
+    box-sizing: border-box
+    user-select: none
+    box-sizing: border-box
+    position: relative
+    white-space: nowrap
+    display: block
+    overflow: hidden
+    text-overflow: ellipsis
+
+    &:focus
+        outline: none
+        &:before
+            background: $uni-color-scale9
+        &:after
+            border-color: $uni-color-negative
+
+    &:before
+        display: block
+        content: ''
+        border: pxToRem(1) solid $uni-color-scale7
+        height: 1rem
+        width: 1rem
+        margin-left: .3rem
+        box-sizing: border-box
+        position: absolute
+        top: .5rem
+        left: -.3rem
+        border-radius: .2rem
+        background: #fff
+
+    &:after
+        display: block
+        content: ''
+        border-right: .2rem solid transparent
+        border-bottom: .2rem solid transparent
+        position: absolute
+        top: .52rem
+        left: .3rem
+        height: .5rem
+        width: .2rem
+        transform: rotate(45deg)
+
+    &:hover,
+    &:focus
+        &:before
+            background: $uni-color-scale9
+
+        &:after
+            border-color: $uni-color-negative
+
+// Sum row
+.ag-floating-bottom
+    border: none
+
+    .ag-row, .ag-row-hover, .ag-row-focus
+        background: none
+        border: none !important
+    .row-menu
+        display: none
+    .ag-cell
+        border: none
+        font-weight: 600
+
+// Tooltip
+.table-tooltip
+    display: block
+    width: 2rem
+    height: 100%
+    float: right
+
+    &.left
+        float: left
+
+    &.good
+        background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
+    &.warn
+        background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
+    &.bad
+        background: unicon-warning($uni-color-bad) no-repeat center
+        background-size: 1rem
+
+    &.good, &.warn
+        background-size: .4rem
+        border-radius: 50%
+        height: 1.1rem
+        width: 1.1rem
+        margin: .45rem 0
+
+// EDITOR
+ag-grid-wrapper
+    .table-editor
+        position: absolute
+        z-index: #{map-get($zindex, toolbar) - 1}
+
+        input, button
+            height: 35px !important
+            width: 100%
+
+// END AG GRID
+
+
+// CHECKBOX
+// datatable-header-cell
+//     span
+//         cursor: pointer
+//         user-select: none
+
+//     input[type=checkbox]
+//         height: 1.35rem
+
+// datatable-body-cell input[type=checkbox]
+//     height: 1.5rem
+
+
+// // FONT SIZE | LINE HEIGHT
+// .ngx-datatable
+//     .datatable-header-cell,
+//     .datatable-body-cell
+//         font-size: 14px !important
+//         line-height: 8px !important
+
+//     .material-icons
+//         line-height: 8px !important
+
+// // SORT ICONS
+// .sortable .sort-btn
+//     font-family: 'Material Icons'
+
+//     &.datatable-icon-down:after
+//         content: 'keyboard_arrow_down'
+//     &.datatable-icon-up:after
+//         content: 'keyboard_arrow_up'
+
+
+// // ROW COLORS
+// .datatable-header,
+// .datatable-header .datatable-row-right,
+// .datatable-header .datatable-header-inner
+//     background-color: #ebeef5 !important
+
+// .datatable-row-even .datatable-row-group
+//     background-color: #fff !important
+
+// .datatable-row-odd .datatable-row-group
+//     background-color: #f8f9fD !important
+
+// .datatable-body-row:hover, .datatable-body-row.active
+//     background-color: #d4dfee !important
+//     .datatable-row-group
+//         background-color: #d4dfee !important //mix($uni-color-toolbar, $uni-color-negative, 30%) !important
+
+// // CELL COLORS
+// .datatable-body-row
+//     .number-good
+//         color: #0082c0 !important
+//     .date-good
+//         color: $uni-color-good !important
+//     .number-bad, .date-bad
+//         color: $uni-color-bad !important
+
+// // BORDERS
+// .datatable-row-wrapper
+//     border-top: 1px solid $uni-color-scale9
+//     &:first-of-type
+//         border-top: none
+
+// .table-wrapper
+//     position: relative
+//     border: 1px solid $uni-color-scale9
+
+// .ngx-datatable.material
+//     box-shadow: none !important
+
+// .datatable-header-cell, .datatable-body-cell
+//     border-right: 1px solid $uni-color-scale9
+
+// .group-header-row .datatable-body-cell
+//     border-right: none
+
+
+// // COLUMN MENU | CONTEXT MENU
+// .header-menu-column
+//     padding: .9rem 0 .9rem 6px !important
+//     i.material-icons
+//         color: rgba(0, 0, 0, 0.54) !important
+//         cursor: pointer
+
+// .row-menu-column
+//     padding: 5px 10px !important
+//     text-align: center !important
+//     .row-menu-container
+//         display: block
+//         height: 25px
+//         line-height: 25px
+//         user-select: none
+//         .material-icons
+//             color: rgba(0, 0, 0, 0.54) !important
+//             cursor: pointer
+//             vertical-align: middle
+//             width: 40px
+//             float: left
+//             &:not(:first-of-type)
+//                 border-left: $table-border-style
+
+// // GROUPING
+// .group-toggle
+//     vertical-align: top
+
+// .group-header-row,
+//     background: #eee !important
+//     .datatable-row-group
+//         background-color: transparent !important
+
+//     .datatable-body-cell
+//         font-weight: bold !important
+
+
+
+// LINKS
+// .datatable-body-cell.link-cell
+//     padding: 0 !important
+//     span[role=link]
+//         display: block
+//         margin: 5px 10px
+//         line-height: 25px
+//         text-decoration: underline
+//         color: $uni-color-c2a !important
+//         &:hover
+//             background: darken(#d4dfee, 5%)
+
+
+// // MISC
+// .datatable-body-row
+//     cursor: pointer
+
+// .datatable-row-right
+//     background-image: none !important
+
+// table-search
+//     display: inline-block
+
+// .table-groupBy-select
+//     display: inline-block
+//     width: 10rem
+//     height: 2rem
+//     float: right
+
+// .align-left
+//     text-align: left !important
+// .align-right
+//     text-align: right !important
+// .align-center
+//     text-align: center !important
+//     padding: .9rem 0 !important
+
+
+// $table-footer-height: 2rem
+// $table-header-height: 2rem
+// $table-border-color: $uni-color-scale9
+
+// $row-background-even: $uni-color-negative
+// $row-background-odd: mix($uni-color-scale9, $uni-color-negative, 30%)
+
+// uni-table-new
+//     display: block
+//     *
+//         box-sizing: border-box
+
+
+// .table-new
+//     display: block
+//     width: 100%
+//     height: 75vh // should be 100% of available space?
+//     background: #fff
+//     border: 1px solid $table-border-color
+
+//     input[type=checkbox]
+//         clip: auto
+//         height: auto
+//         margin: auto
+//         overflow: visible
+//         position: static
+//         width: auto
+//         height: 100%
+
+//     .table-header
+//         display: flex
+//         width: 100%
+//         background: mix($uni-color-scale9, $uni-color-negative, 60%)
+//         color: $uni-color-positive
+//         font-weight: 600
+//         height: $table-header-height
+//         line-height: $table-header-height
+//         border-bottom: 1px solid $table-border-color
+
+//     .table-menu-cell
+//         padding: 0
+//         width: 2rem
+//         text-align: center
+//         cursor: pointer
+//         &:hover
+//             background: $uni-color-scale9
+//         .material-icons
+//             color: $uni-color-scale5
+//             line-height: unset
+
+//     .table-header-cell,
+//     .table-data-cell
+//         position: relative
+//         display: inline-block
+//         padding: 0 1rem
+//         white-space: nowrap
+//         overflow: hidden
+//         text-overflow: ellipsis
+//         &:not(:last-of-type)
+//             border-right: 1px solid $table-border-color
+
+//         &.xs
+//             width: 2rem
+//             padding: 0
+
+//     .table-body
+//         display: flex
+//         flex-flow: column nowrap
+//         height: calc(100% - #{$table-header-height} - #{$table-footer-height})
+
+//         .table-row
+//             display: flex
+//             border-bottom: 1px solid $table-border-color
+
+//             &:nth-of-type(even)
+//                 background: $row-background-odd
+
+//     .table-footer
+//         display: flex
+//         width: 100%
+//         height: $table-footer-height
+//         background: #fff
+//         border-top: 1px solid $table-border-color
+

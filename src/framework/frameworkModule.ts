@@ -37,6 +37,7 @@ import {ToastService} from './uniToast/toastService';
 import {UniModalService, MODALS} from './uniModal/barrel';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
+import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 
 @NgModule({
     imports: [
@@ -48,7 +49,8 @@ import {UniTooltipModule} from './ui/tooltip/tooltip.module';
         UniSearchModule,
         UniTooltipModule,
         UniFormModule,
-        UniTableModule
+        UniTableModule,
+        AgGridWrapperModule
     ],
     declarations: [
         UniComponentLoader,
@@ -90,6 +92,7 @@ import {UniTooltipModule} from './ui/tooltip/tooltip.module';
         UniFormModule,
         UniTableModule,
         UniTooltipModule,
+        AgGridWrapperModule,
 
         // Components
         UniModal,
