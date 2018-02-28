@@ -23,6 +23,7 @@ import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingType
 import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
+import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 
 @Component({
     selector: 'amelding-view',
@@ -187,7 +188,6 @@ export class AMeldingView implements OnInit {
         if (this.currentPeriod !== 1) {
             if (this.currentPeriod > 1) {
                 this.currentPeriod -= 1;
-                this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
             this.clearAMelding();
@@ -199,7 +199,6 @@ export class AMeldingView implements OnInit {
         if (this.currentPeriod !== 12) {
             if (this.currentPeriod < 12) {
                 this.currentPeriod += 1;
-                this.getSumsInPeriod();
                 this.currentMonth = moment.months()[this.currentPeriod - 1];
             }
             this.clearAMelding();
@@ -210,7 +209,6 @@ export class AMeldingView implements OnInit {
     public gotoPeriod(period: number) {
         if (!isNaN(period) && (period >= 1 && period <= 12)) {
             this.currentPeriod = period;
-            this.getSumsInPeriod();
             this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.clearAMelding();
             this.getAMeldingForPeriod();
@@ -291,7 +289,7 @@ export class AMeldingView implements OnInit {
         .finally(() => this.initialized = true)
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
-            this.getDataFromFeedback(this.currentAMelding, 0);
+            this.getSumsInPeriod();
             this.getSumUpForAmelding();
             this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
             if (this.currentAMelding.sent) {
@@ -316,11 +314,11 @@ export class AMeldingView implements OnInit {
         .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
             .subscribe((currentSumsInPeriod) => {
                 this.currentSumsInPeriod = currentSumsInPeriod;
-
                 this.totalAGAFeedback = 0;
                 this.totalFtrekkFeedback = 0;
                 this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
                 this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
+                this.getDataFromFeedback(this.currentAMelding, 0);
 
                 this.totalAGASystem = 0;
                 this.totalFtrekkSystem = 0;
@@ -431,6 +429,9 @@ export class AMeldingView implements OnInit {
     }
 
     private getSumUpForAmelding() {
+        if (!!this.currentAMelding && this.currentAMelding.ID === 0) {
+            return;
+        }
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
@@ -509,10 +510,8 @@ export class AMeldingView implements OnInit {
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
         if (mottattPeriode && mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
-
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
             this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
-
             this.totalFtrekkFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
             this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
         }
@@ -561,6 +560,7 @@ export class AMeldingView implements OnInit {
                         this.setHelptext();
                         this.updateToolbar();
                         this.updateSaveActions();
+                        this.getSumsInPeriod();
                     }
                 }, err => this.errorService.handle(err));
     }
@@ -668,7 +668,7 @@ export class AMeldingView implements OnInit {
         this.actions.push({
             label: 'Hent tilbakemelding',
             action: (done) => {
-                if (this.currentAMelding) {
+                if (this.currentAMelding && this.currentAMelding.ID > 0) {
                     this.getFeedback(done);
                 }
             },
@@ -681,15 +681,22 @@ export class AMeldingView implements OnInit {
         this.modalService
             .open(AltinnAuthenticationModal)
             .onClose
+            .do((result: AltinnAuthenticationData) => {
+                if (result === undefined) {
+                    done('Avbrutt, tilbakemelding ikke hentet');
+                    return;
+                }
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .filter(auth => !!auth)
             .switchMap(authData => this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData))
             .subscribe((response: AmeldingData) => {
                 if (response) {
-                    this.setAMelding(response);
+                    this.getAMeldingForPeriod();
                     this.showView = 'receipt';
                     done('Tilbakemelding hentet');
                 }
-            }, err => this.errorService.handle(err));
+            });
     }
 
     private sendAmelding(done) {

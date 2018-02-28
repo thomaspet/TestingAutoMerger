@@ -41,25 +41,51 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         let helpText: string = '';
         switch (name.toLowerCase()) {
             case 'summary':
-                helpText = 'Her vises status for aktuell valgt a-melding.  Merk at det kan være sendt flere a-meldinger for samme periode.  Denne vises kun valgt a-melding.  Oppsummering her vises innhold i a-melding sendt fra systemet og ikke tilbakemelding.';
+                helpText = `Her vises status for aktuell valgt a-melding.
+                            Merk at det kan være sendt flere a-meldinger for samme periode.
+                            Denne viser kun valgt a-melding.
+                            Oppsummering viser innhold i a-melding sendt fra systemet, ikke tilbakemelding.`;
                 break;
             case 'aga':
                 helpText = 'Her vises aga beregnet av systemet fordelt på virksomheter og spesifisering for pensjon og refusjon fra nav.';
                 break;
             case 'receipt':
-                helpText = 'Her vises oppsummert innholdet for alle tilbakemeldinger for gjeldende periode.  Inneholder tilbakemeldingen avvik vil det vises her.  Inneholder tilbakemeldingen flere perioder vises det også her.  I listen vises en id for hver a-melding og status for a-meldingene, om de er erstattet, slettet osv.';
+                helpText = `Her vises oppsummert innholdet for alle tilbakemeldinger for gjeldende periode.
+                            Inneholder tilbakemeldingen avvik vil det vises her.
+                            Inneholder tilbakemeldingen flere perioder vises det også her.
+                            I listen vises en id for hver a-melding og status for a-meldingene, om de er erstattet, slettet osv.`;
                 break;
             case 'period':
-                helpText = 'Her vises både beløp frå a-melding sendt fra systemet og tilbakemelding.  Er det sendt flere a-meldinger så vises det i listen.  Merk at summen som vises her er for 1 periode, og at ved terminbetaling må en slå sammen 2 perioder.  Rapport for terminperioder med summerte beløp finnes under rapporter.  Der finnes også kontonummer og kidnr.';
+                helpText = `Her vises både beløp fra a-melding sendt fra systemet og tilbakemelding.
+                            Er det sendt flere a-meldinger så vises det i listen.
+                            Merk at summen som vises her er for 1 periode, og at ved terminbetaling må en slå sammen 2 perioder.
+                            Rapport for terminperioder med summerte beløp finnes under rapporter.
+                            Der finnes også kontonummer og kidnr.`;
                 break;
             case 'generate':
-                helpText = 'For å få fram data i dette bildet må du generere a-melding.  Du kan generere så mange a-meldinger du vil før du sender inn til altinn. Generer a-melding for å kontrollere dataene dine.  Genereres ny a-melding uten å ha sendt inn, så skrives det over det du har fra før.  Det er alltid siste a-melding som er generert som sendes ved innsending til altinn.  Har du sendt inn a-melding og vil genrere en ny så går det fint an.  Den nye a-meldingen vil da bli merket med 2-tall eller høyere alt etter hvor mange ganger a-meldingen er sendt inn.  Valg for generering av ny a-melding etter innsending finnes i den grønne knappen, bruk pil for å finne andre valg enn det som systemet foreslår.';
+                helpText = `For å få fram data i dette bildet må du generere a-melding.
+                            Du kan generere så mange a-meldinger du vil før du sender inn til altinn.
+                            Generer a-melding for å kontrollere dataene dine.
+                            Genereres ny a-melding uten å ha sendt inn, så erstattes den du har fra før.
+                            Det er alltid siste a-melding som er generert som sendes ved innsending til altinn.
+                            Har du sendt inn a-melding og vil generere en ny så går det fint.
+                            Den nye a-meldingen vil da bli merket med 2-tall eller høyere,
+                            alt etter hvor mange ganger a-meldingen er sendt inn.
+                            Valg for generering av ny a-melding etter innsending finnes i den grønne knappen,
+                            bruk pil for å finne andre valg enn det som systemet foreslår.`;
                 break;
             case 'send':
-                helpText = 'Viser info om aktuell a-melding.  Merk at denne statusen vises for den a-meldingen som er aktiv i bildet.  En velger hvilken a-melding en vil vise i statusbar der det står et lite tall, 2 eller høyere.  Finnes det ikke tall i statusbaren så er det kun sendt 1 a-melding for perioden.';
+                helpText = `Viser info om aktuell a-melding.
+                            Merk at denne statusen vises for den a-meldingen som er aktiv i bildet.
+                            En velger hvilken a-melding en vil vise i statusbar der det står et lite tall, 2 eller høyere.
+                            Finnes det ikke tall i statusbaren så er det kun sendt 1 a-melding for perioden.`;
                 break;
             case 'getreceipt':
-                helpText = 'Er a-melding sendt inn og denne fortsatt er rød, må tilbakemelding hentes.  Innholdet i tilbakemeldingen vises under valget Tilbakemelding og Periodeoppsummering.  Systemet vil også oppdatere feltene for aga og forskuddstrekk i Statusbaren når a-melding er hentet.  Husk å kontroller at tilbakemelding har status "Mottatt" og at det ikke er differanser på aga og forskuddstrekk fra system.';
+                helpText = `Er a-melding sendt inn og denne fortsatt er rød, må tilbakemelding hentes.
+                            Innholdet i tilbakemeldingen vises under valget Tilbakemelding og Periodeoppsummering.
+                            Systemet vil også oppdatere feltene for aga og forskuddstrekk i Statusbaren når a-melding er hentet.
+                            Husk å kontroller at tilbakemelding har status "Mottatt",
+                            og at det ikke er differanser på aga og forskuddstrekk fra system.`;
                 break;
             default:
                 break;
