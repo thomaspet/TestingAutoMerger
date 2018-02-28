@@ -97,6 +97,22 @@ export class UniFilesService {
             .map(response => response.json());
     }
 
+    public getOcrStatistics(): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return this.http
+            .get(this.uniFilesBaseUrl + '/api/client/get-ocr-stats', options)
+            .map(response => response.json());
+    }
+
+
+
     public trainOcrEngine(ocrInterpretation, reauthOnFailure: boolean = true) {
         var options = new RequestOptions({
             headers: new Headers({
