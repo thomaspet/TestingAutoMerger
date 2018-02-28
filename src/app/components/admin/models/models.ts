@@ -150,11 +150,11 @@ export class UniModels {
     private initTableConfigs() {
         this.modelsTable = new UniTableConfig('admin.models.modelsTable', false, true, 15)
             .setSearchable(true)
-            .setColumns([new UniTableColumn('Name')]);
+            .setColumns([new UniTableColumn('Name', 'Modeller')]);
 
         this.fieldsTable = new UniTableConfig('admin.models.fieldsTable', true)
             .setColumns([
-                new UniTableColumn('Name', 'Navn', UniTableColumnType.Text, false),
+                new UniTableColumn('Name', 'Felt', UniTableColumnType.Text, false),
                 new UniTableColumn('Label', 'Label'),
                 new UniTableColumn('Description', 'Beskrivelse'),
                 new UniTableColumn('HelpText', 'Hjelpetekst')

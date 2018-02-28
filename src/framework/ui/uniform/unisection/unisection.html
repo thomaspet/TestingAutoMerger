@@ -20,24 +20,24 @@
         </ng-template>
         <!-- Fieldset -->
         <ng-template ngFor let-fieldset [ngForOf]="groupedFields | fieldsetIndexes" let-i="index">
-            <fieldset>
+            <fieldset [ngClass]="{'small': (groupedFields | fieldsetIndexes).length > 1}">
                 <legend>{{groupedFields | getLegend:fieldset}}</legend>
                 <section class="fieldset-column-container">
                     <ng-template ngFor let-column [ngForOf]="groupedFields | columnIndexes:fieldset" let-j="index2">
                         <section class="fieldset-column">
                             <ng-template ngFor let-item [ngForOf]="groupedFields | byFieldset:fieldset:column" let-k="index3">
-                                <uni-field *ngIf="!item?.Hidden"
-                                           [field]="item"
-                                           [model]="model"
-                                           [formConfig]="formConfig"
-                                           (readyEvent)="onReadyHandler($event)"
-                                           (changeEvent)="onChangeHandler($event)"
-                                           (inputEvent)="onInputHandler($event)"
-                                           (focusEvent)="onFocusHandler($event)"
-                                           (moveForwardEvent)="onMoveForward($event)"
-                                           (moveBackwardEvent)="onMoveBackward($event)"
-                                           (errorEvent)="onError($event)"
-                                >
+                                <uni-field
+                                    *ngIf="!item?.Hidden"
+                                    [field]="item"
+                                    [model]="model"
+                                    [formConfig]="formConfig"
+                                    (readyEvent)="onReadyHandler($event)"
+                                    (changeEvent)="onChangeHandler($event)"
+                                    (inputEvent)="onInputHandler($event)"
+                                    (focusEvent)="onFocusHandler($event)"
+                                    (moveForwardEvent)="onMoveForward($event)"
+                                    (moveBackwardEvent)="onMoveBackward($event)"
+                                    (errorEvent)="onError($event)">
                                 </uni-field>
                                 <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>
                             </ng-template>

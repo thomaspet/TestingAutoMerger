@@ -1,24 +1,38 @@
-﻿.invite_users_form
-  label
-    display: inline-block
-    margin-right: .5rem
+﻿uni-users
+    .invite_users_form
+        input
+            min-width: 15rem
+        button
+            margin-left: .5rem
+            height: 2rem
+            line-height: 0
+            min-width: 6rem
 
-  button
-    margin-left: 0
+        @include media(1400px)
+            margin-left: 7.25%
+
+    .splitview
+        margin: 1rem auto
+
+    .splitview_detail
+        margin-top: 3.15rem
+        uni-role-selector
+            display: block
+            width: 20rem
+            height: 2rem
+            margin: 2rem 0 1rem
 
 .sharing-badges
-  float: right
-  bottom: pxToRem(5)
-  right: pxToRem(5)
+    float: right
+    margin-left: 1rem
 
 .sharing-badges > span
-  width: pxToRem(45)
-  color: white
-  border: pxToRem(1) solid $uni-color-scale9
-  border-radius: pxToRem(3)
-  font-size: .8rem
-  text-align: center
-  padding: pxToRem(4)
+    width: pxToRem(45)
+    color: white
+    border: pxToRem(1) solid $uni-color-scale9
+    font-size: .8rem
+    text-align: center
+    padding: pxToRem(4)
 
 .badge-available
-  background-color: $uni-color-positive
+    background-color: $uni-color-positive

@@ -174,7 +174,7 @@ export class Users {
         this.roleTableConfig = new UniTableConfig('settings.users.roles', false, true, 15)
             .setDeleteButton(true)
             .setColumns([
-                new UniTableColumn('SharedRoleName')
+                new UniTableColumn('SharedRoleName', 'Roller')
 
            ]);
      }

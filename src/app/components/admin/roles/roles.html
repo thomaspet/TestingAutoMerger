@@ -3,32 +3,43 @@
 </uni-toolbar>
 
 <section class="application">
-    <section class="splitview">
+    <section class="splitview" *ngIf="roles?.length">
         <nav class="splitview_list">
-            <uni-table *ngIf="roles?.length"
-                        [config]="rolesTableConfig"
-                        [resource]="roles"
-                        (rowSelected)="onRowSelected($event)">
+            <uni-table
+                [config]="rolesTableConfig"
+                [resource]="roles"
+                (rowSelected)="onRowSelected($event)">
             </uni-table>
         </nav>
 
         <main class="splitview_detail">
-            <uni-form
-                      [config]="formConfig$"
-                      [fields]="formFields$"
-                      [model]="formModel$"
-                      (changeEvent)="onFormChange($event)">
-            </uni-form>
+            <fieldset>
+                <legend>Rolledetaljer</legend>
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="formFields$"
+                    [model]="formModel$"
+                    (changeEvent)="onFormChange($event)">
+                </uni-form>
+            </fieldset>
 
-            <uni-permission-selector *ngIf="permissions"
-                [permissions]="permissions"
-                (permissionSelected)="onPermissionAdded($event)">
-            </uni-permission-selector>
+            <fieldset>
+                <legend>Rettigheter</legend>
 
-            <uni-table [config]="permissionsTableConfig"
-                       [resource]="displayRolePermisssions"
-                       (rowDeleted)="onPermissionDeleted($event)">
-            </uni-table>
+                <uni-permission-selector
+                    *ngIf="permissions"
+                    style="display: block; width: 20rem;"
+                    [permissions]="permissions"
+                    (permissionSelected)="onPermissionAdded($event)">
+                </uni-permission-selector>
+
+                <uni-table
+                    style="margin-top: 1rem;"
+                    [config]="permissionsTableConfig"
+                    [resource]="displayRolePermisssions"
+                    (rowDeleted)="onPermissionDeleted($event)">
+                </uni-table>
+            </fieldset>
         </main>
     </section>
 </section>

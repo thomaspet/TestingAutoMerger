@@ -760,7 +760,8 @@ export class NumberSeries {
         this.hasUnsavedChanges = true;
     }
 
-    public updateTable() {
+    public toggleAllYears() {
+        this.allYears = !this.allYears;
         this.setCurrent(this.currentSerie);
     }
 

@@ -11,12 +11,5 @@
     input[type=search].unitableSearch_input
         display: inline-block
 
-    uni-table table:not(.editable-table) tr[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]), uni-table table:not(.editable-table) tr:focus:not([aria-readonly=true])
-        background-color: $uni-color-legend
-        color: $uni-color-positive
-
-        td
-            border-color: transparent
-
     @include media(small)
         width: 100%

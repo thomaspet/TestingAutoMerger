@@ -28,6 +28,9 @@
 .timeentry_toolbar button
     margin-left: 0
     margin-right: pxToRem(7)
+    height: 2rem
+    line-height: 0
+    min-width: 8rem
 
 .timeentry_toolbar
     width: 100%
@@ -103,6 +106,9 @@
     border-collapse: collapse
     cursor: pointer
     margin-top: 1rem
+vacation .timeentriesTable
+    margin-top: 0
+
 
 .timeentriesTable th
     text-align: left
@@ -463,15 +469,16 @@ uni-file-import input
 
 .vacation_section
     .splitview_list
-        max-width: 40%
         min-width: 40%
-
-        table
-            width: 40%
-            thead
-                th
-                    &:first-of-type
-                        width: 50%
-
     .splitview_detail
-        max-width: 60%
+        min-width: 60%
+
+    .vacation-buttons
+        button
+            margin: 0 .5rem 0 0
+            height: 2rem
+            line-height: 0
+            min-width: 8rem
+
+        @include media(1400px)
+            margin-left: 7.25%

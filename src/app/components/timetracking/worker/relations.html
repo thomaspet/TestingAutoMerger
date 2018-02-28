@@ -10,16 +10,16 @@
                     <button [hidden]="!(currentRelation && currentRelation.ID)" class="bad" (click)="onDelete()">Slett oppsett</button>
                     &nbsp;&nbsp;
                     <button [hidden]="!(currentRelation && currentRelation.ID)" class="secondary-button" (click)="onRegisterHours()">Rediger timer</button>
-                </td>                
-                <td>                    
                 </td>
-                <td>                    
+                <td>
                 </td>
-            </tr></table>            
-            
+                <td>
+                </td>
+            </tr></table>
+
 
             <section class="splitview">
-                <nav class="splitview_list">          
+                <nav class="splitview_list">
 
                     <table class="timeentriesTable">
                         <thead><tr>
@@ -40,15 +40,18 @@
                 </nav>
 
                 <main class="splitview_detail">
-                    <uni-form
+                    <fieldset>
+                        <legend>Detaljer</legend>
+                        <uni-form
                             [config]="formConfig$"
                             [fields]="fields$"
                             [model]="model$"
                             (changeEvent)="onChange($event)"
                             (readyEvent)="onReady($event)">
-                    </uni-form>                    
+                        </uni-form>
+                    </fieldset>
                 </main>
-                
+
             </section>
 
         </div>

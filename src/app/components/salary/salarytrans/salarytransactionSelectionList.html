@@ -8,26 +8,24 @@
         </ag-grid-wrapper>
     </nav>
     <main class="splitview_detail">
-        <header class="detail_header" *ngIf="employeeList && employeeList.length">
-            <section *ngIf="employeeList[selectedIndex] && agaZone" [attr.aria-busy]="busy" class="detail_header_info">
-                <h1>{{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
-                    Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
-                    <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
-                </h1>
-            </section>
+        <fieldset *ngIf="employeeList?.length">
+            <legend *ngIf="employeeList[selectedIndex] && agaZone">
+                {{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
+                Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
+                <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
 
-            <nav class="detail_header_navigation" *ngIf="employeeList.length">
-                <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
-                <a (click)="goToNextEmployee()" class="next">Neste</a>
-            </nav>
+                <nav class="detail_header_navigation" *ngIf="employeeList.length">
+                    <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
+                    <a (click)="goToNextEmployee()" class="next">Neste</a>
+                </nav>
+            </legend>
+
             <link-menu [menu]="linkMenu$ | async"></link-menu>
-        </header>
-
-        <section class="content">
             <salary-transactions-employee *ngIf="selectedIndex !== undefined" [employee]="employeeList[selectedIndex]"></salary-transactions-employee>
             <section class="detail_tables" *ngIf="employeeList && employeeList[selectedIndex]">
                 <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
             </section>
-        </section>
+
+        </fieldset>
     </main>
 </section>

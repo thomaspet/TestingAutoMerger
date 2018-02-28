@@ -1,23 +1,10 @@
 vat-settings
     .splitview_list
         min-width: 66%
-        max-width: 66%
-
-        @include media(small)
-            width: 100%
 
     .splitview_detail
-        max-width: 33%
         min-width: 33%
-
-vattype-details
-    fieldset
-        width: 100%
-        margin-top: .25rem
-
-        label span
-                width: 10rem
-
-        label span+*
-            width: calc(100% - 10rem)
-
+        margin-top: 3.15rem
+        @include labelLength(10rem)
+        .collapsable
+            margin-left: 0

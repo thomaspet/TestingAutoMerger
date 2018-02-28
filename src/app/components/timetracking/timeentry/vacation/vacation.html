@@ -1,17 +1,10 @@
 ﻿<section class="vacation_section">
-
-    <table class='timeentry_toolbar'><tr>
-        <td>
-            <button class="good" (click)="onAddNew()">Ny ferie</button>
-            <button [disabled]="!hasUnsavedChanges" class="good" (click)="onSave()">Lagre endringer</button>
-            <button [hidden]="!items.length" class="bad" (click)="onDelete()">Slett ferie</button>
-            <button [hidden]="!hasUnsavedChanges" class="secondary-button" (click)="onReset()">Avbryt</button>
-        </td>                
-        <td>                    
-        </td>
-        <td>                    
-        </td>
-    </tr></table>            
+    <section class="vacation-buttons">
+        <button class="good" (click)="onAddNew()">Ny ferie</button>
+        <button [disabled]="!hasUnsavedChanges" class="good" (click)="onSave()">Lagre endringer</button>
+        <button [disabled]="!hasUnsavedChanges" class="secondary-button" (click)="onReset()">Avbryt</button>
+        <button [disabled]="!items.length" class="bad" (click)="onDelete()">Slett ferie</button>
+    </section>
 
     <section class="splitview" [attr.aria-busy]="busy">
         <nav class="splitview_list">
@@ -35,12 +28,15 @@
         </nav>
 
         <main class="splitview_detail">
-            <uni-form [config]="formConfig$"
-                      [layout]="layout$"
-                      [model]="current$"
-                      (changeEvent)="onChange($event)"
-                      (readyEvent)="onReady($event)">
-            </uni-form>
+            <fieldset>
+                <legend>Feriedetaljer</legend>
+                <uni-form [config]="formConfig$"
+                    [layout]="layout$"
+                    [model]="current$"
+                    (changeEvent)="onChange($event)"
+                    (readyEvent)="onReady($event)">
+                </uni-form>
+            </fieldset>
         </main>
 
     </section>

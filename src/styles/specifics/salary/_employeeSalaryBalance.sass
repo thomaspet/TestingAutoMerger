@@ -11,45 +11,6 @@ employee-salarybalance
     .splitview_detail
         margin-top: 3.2rem
         margin-left: .5rem
-        padding-top: .75rem
 
-        salarybalance-details
-            display: flex
-            flex-direction: row
-
-            salary-balance-summary
-                .salaryBalanceSummaryTable
-                    max-width: 100%
-
-            fieldset
-                &:first-of-type
-                    float: left
-
-                aside:not(.helpText)
-                    width: 100%
-                    max-width: 100%
-                    margin: 0
-
-            @include media(pxToRem(900px))
-                flex-direction: column
-                padding: 0
-                fieldset
-                    float: none
-                    width: 100%
-                    max-width: 100%
-
-            legend
-                width: 100%
-                padding-left: 1rem
-                margin-bottom: 0
-                background: $uni-color-toolbar
-                color: $uni-color-negative
-
-
-            uni-field
-                max-width: 100%
-
-            uni-form,
-            article.collapsable
-                display: block
-                margin: 0 .25rem
+        salary-balance-summary .salaryBalanceSummaryTable
+            max-width: 100%

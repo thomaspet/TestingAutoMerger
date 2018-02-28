@@ -10,9 +10,9 @@
 </aside>
 
 <section>
-    <genericdetail [hiddenform]="!tabs[0].isSelected" 
+    <genericdetail [hiddenform]="!tabs[0].isSelected"
                    [viewconfig]="viewconfig"
-                   (itemChanged)="onItemChanged($event)" 
+                   (itemChanged)="onItemChanged($event)"
                    (afterSave)="afterWorkerSaved($event)">
     </genericdetail>
 
@@ -24,4 +24,3 @@
     <workbalances [workerid]="currentId"></workbalances>
 </section>
 
-    

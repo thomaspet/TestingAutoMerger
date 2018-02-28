@@ -1,7 +1,26 @@
 .splitview_detail
-    border: pxToRem(1) solid $uni-color-legend
-    padding: 1rem
+    border: none
+    padding: 0 .5rem .5rem
+    margin-top: 0
     align-self: stretch
     max-width: calc(100% - 15rem)
     min-width: 66%
-    background-color: $uni-color-legend
+    background: none
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+
+    fieldset
+        flex: 1 0 100%
+        width: 100%
+        max-width: none
+        &.small
+            width: 49%
+            flex: 1 0 49%
+            &:first-of-type
+                float: left
+
+            @include media(1100px)
+                flex: 1 0 100%
+                width: 100%
+                float: none

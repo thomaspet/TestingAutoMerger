@@ -1411,6 +1411,17 @@ export class CompanySettingsComponent implements OnInit {
                     searchable: false,
                 },
                 FieldSet: 1,
+                Legend: 'Logo',
+                Section: 0,
+            },
+            {
+                FieldType: FieldType.TEXTAREA,
+                EntityType: 'CampaignTemplate',
+                Label: 'Fast tekst tilbud',
+                Property: 'quoteTemplate.Template',
+                Validations: [this.defaultTextValidation],
+                FieldSet: 2,
+                Legend: 'Tilbud',
                 Section: 0,
             },
             {
@@ -1419,17 +1430,9 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Fast tekst ordre',
                 Property: 'orderTemplate.Template',
                 Validations: [this.defaultTextValidation],
-                FieldSet: 2,
-                Section: 0
-            },
-            {
-                FieldType: FieldType.TEXTAREA,
-                EntityType: 'CampaignTemplate',
-                Label: 'Fast tekst tilbud',
-                Property: 'quoteTemplate.Template',
-                Validations: [this.defaultTextValidation],
                 FieldSet: 3,
-                Section: 0,
+                Legend: 'Ordre',
+                Section: 0
             },
             {
                 FieldType: FieldType.TEXTAREA,
@@ -1438,6 +1441,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'invoiceTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 4,
+                Legend: 'Faktura',
                 Section: 0,
             }
         ]);

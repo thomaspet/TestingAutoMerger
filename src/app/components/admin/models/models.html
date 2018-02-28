@@ -6,24 +6,31 @@
 <section class="application">
     <section class="splitview">
         <nav class="splitview_list">
-            <uni-table *ngIf="models?.length"
-                        [config]="modelsTable"
-                        [resource]="models"
-                        (rowSelected)="onRowSelected($event)"
-                        (rowChanged)="onRowChanged($event)">
+            <uni-table
+                *ngIf="models?.length"
+                [config]="modelsTable"
+                [resource]="models"
+                (rowSelected)="onRowSelected($event)"
+                (rowChanged)="onRowChanged($event)">
             </uni-table>
         </nav>
 
         <main class="splitview_detail" *ngIf="selectedModel">
-            <uni-form class=""
+            <fieldset>
+                <legend>Modell detaljer</legend>
+                <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
                     (changeEvent)="onFormChange($event)">
-            </uni-form>
-            <uni-table [config]="fieldsTable"
+                </uni-form>
+
+                <uni-table
+                    style="margin-top: 1rem;"
+                    [config]="fieldsTable"
                     [resource]="selectedModel?.Fields || []">
-            </uni-table>
+                </uni-table>
+            </fieldset>
         </main>
     </section>
 </section>

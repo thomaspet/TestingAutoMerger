@@ -51,22 +51,11 @@ uni-assignments *
                 border-bottom-right-radius: .2rem
                 border-left: none
 
-        .show-completed-toggle
+        .uni-checkbox
             display: inline-block
-            margin-left: .5rem
-
-            input[type=checkbox]+label.toggle
-                padding-top: .5rem
-                padding-left: 3.8rem
-
-                &:before
-                    margin-left: -2rem
-                    margin-top: .5rem
-
-                &:after
-                    margin-left: -2.3rem
-                    margin-top: .55rem
-
+            line-height: 1.8rem
+            margin-left: 2rem
+            @include labelLength(6rem)
 
     ul
         display: block

@@ -9,18 +9,22 @@
     </nav>
 
     <main class="splitview_detail">
-        <table [attr.aria-busy]="busy" class='button-toolbar'><tr>
-            <td>
-                <input *ngIf="currentSerie.ID == 'JournalEntry'" id="allYears" type="checkbox" [(ngModel)]="allYears" (change)="updateTable()" /> <label *ngIf="currentSerie.ID == 'JournalEntry'" for="allYears"> Vis alle regnskapsår</label>
-            </td>
-            <td></td><td></td>
-        </tr></table>
+        <fieldset>
+            <legend>{{currentSerie?.Name}}</legend>
 
-        <uni-table
-            [config]="listTableConfig"
-            [resource]="current"
-            (rowSelectionChanged)="onRowSelectionChange($event)">
-        </uni-table>
+            <section class="uni-checkbox">
+                <input type="checkbox" class="toggle" [checked]="allYears" />
+                <label (click)="toggleAllYears()" class="toggle" tabindex="-1">
+                    Vis alle regnskapsår
+                </label>
+            </section>
+
+            <uni-table
+                [config]="listTableConfig"
+                [resource]="current"
+                (rowSelectionChanged)="onRowSelectionChange($event)">
+            </uni-table>
+        </fieldset>
     </main>
 
 </section>

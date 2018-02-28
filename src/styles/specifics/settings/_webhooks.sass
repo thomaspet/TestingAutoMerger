@@ -36,23 +36,19 @@
     width: 50%
     padding-left: 0
 
-.toggleWebHook
-    @extend label.toggle
-    width: 100% !important
-
 .embeddedWebHookTable button.delete-webhook
     width: 30%
     margin: 0 0 0 0
     padding: 0 0 0 0
     background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-    background-size: 0.9rem    
+    background-size: 0.9rem
     box-shadow: none
     height: 1em
-  
-.embeddedWebHookTable tr:hover button.delete-webhook
-    background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
-    background-size: 0.8rem  
-    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
+
+    &:hover
+        background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
+        background-size: 0.8rem
+        box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
 
 button.new-webhook
     @extend .good

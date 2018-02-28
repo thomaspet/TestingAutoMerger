@@ -61,9 +61,11 @@ uni-field.visuallyHideLabel label > span
 
 uni-button-input
     min-width: 100%
-
     button
-        margin: 0 0 .5rem #{$labelLength}
+        margin: 0 0 .5rem #{$labelLength} !important
+        height: 2rem
+        line-height: 0
+        min-width: 8rem
 
 uni-form form
     @extend %formWidth
@@ -79,6 +81,9 @@ uni-form form
         &+label
             width: calc(#{$newLength} + 2rem)
 
+            &.toggle
+                width: calc(#{$newLength} + 3.2rem)
+
             &:before
                 left: calc(#{$newLength} - .3rem)
 
@@ -87,7 +92,11 @@ uni-form form
 
 
         &+label.toggle:after
-            left: calc(#{$newLength} + .2rem)
+            left: calc(#{$newLength} + .14rem)
 
         &:checked+label.toggle:after
-            left: calc(#{$newLength} + 1.9rem)
+            left: calc(#{$newLength} + 1.8rem)
+
+    uni-button-input
+        button
+            margin: 0 0 .5rem #{$newLength} !important

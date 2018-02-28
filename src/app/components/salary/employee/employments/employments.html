@@ -8,7 +8,7 @@
         </button>
         <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
     </nav>
-    <main class="splitview_detail salary_splitview_details" *ngIf="employments">
+    <main class="splitview_detail" *ngIf="employments">
         <employment-details [employment]="selectedEmployment$ | async"
                             [subEntities]="subEntities"
                             [projects]="projects"

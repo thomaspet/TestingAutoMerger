@@ -9,33 +9,29 @@
     </nav>
 
     <main class="splitview_detail">
+        <fieldset>
+            <legend>{{current?.Name || 'Nytt team'}}</legend>
 
-       <table [attr.aria-busy]="busy" class='button-toolbar'><tr>
-            <td>
-            <button class="good" (click)="onAddNew()">Nytt team</button>
-            <button [hidden]="!(current?.ID)" class="bad" (click)="onDelete()">Slett team</button>
-            </td>
-            <td></td><td></td>
-       </tr></table>
+            <uni-form
+                [config]="formConfig$"
+                [fields]="formFields$"
+                [model]="formModel$"
+                (changeEvent)="onFormChange($event)"
+                (inputEvent)="onFormInput($event)">
+            </uni-form>
 
-       <uni-form
-            [config]="formConfig$"
-            [fields]="formFields$"
-            [model]="formModel$"
-            (changeEvent)="onFormChange($event)"
-            (inputEvent)="onFormInput($event)"
-            >
-       </uni-form>
+            <button class="good" (click)="onAddNew()" [disabled]="!current?.ID">
+                Nytt team
+            </button>
+            <button [disabled]="!current?.ID" class="bad" (click)="onDelete()">Slett team</button>
 
-       <uni-table
-            [config]="positionTableConfig"
-            [resource]="current?.Positions"
-            (rowDeleted)="onPositionDeleted($event)">
-       </uni-table>
-
-
+            <uni-table
+                [config]="positionTableConfig"
+                [resource]="current?.Positions"
+                (rowDeleted)="onPositionDeleted($event)">
+            </uni-table>
+        </fieldset>
     </main>
-
 </section>
 
 <uni-save class="fixed-position" [actions]="saveactions"></uni-save>

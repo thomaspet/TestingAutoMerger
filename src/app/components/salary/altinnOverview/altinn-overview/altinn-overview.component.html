@@ -3,13 +3,14 @@
     <nav class="splitview_list">
         <uni-table [resource]="receipts$ | async" [config]="config$ | async" (rowSelected)="updateSelected($event)"></uni-table>
     </nav>
-    <main class="splitview_detail salary_splitview_details">
-        <header class="detail_header">
-            <section class="detail_header_info">
-                    <h1>Detaljer</h1>
-            </section>
-        </header>
-        <button (click)="updateReceipt()" [attr.aria-busy]="busy">Oppdater</button>
-        <uni-altinn-overview-details [receipt]="selectedReceipt$ | async"></uni-altinn-overview-details>
+    <main class="splitview_detail">
+        <fieldset>
+            <legend>Detaljer</legend>
+
+            <button (click)="updateReceipt()" [attr.aria-busy]="busy">Oppdater</button>
+            <uni-altinn-overview-details
+                [receipt]="selectedReceipt$ | async">
+            </uni-altinn-overview-details>
+        </fieldset>
     </main>
 </section>

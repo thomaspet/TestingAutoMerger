@@ -4,13 +4,13 @@ uni-checkbox-input
     min-width: 100% // Overrides uni-field label>span+* which is set by `width`
 
 uni-checkbox-input label,
-.uni-checkbox-input label,
+.uni-checkbox label,
 uni-radio-input label
     width: 100%
 
 uni-checkbox-input,
-uni-radio-input
-
+uni-radio-input,
+.uni-checkbox
 
     input[type=checkbox],
     input[type=radio]
@@ -123,24 +123,25 @@ uni-radio-input
             width: 20rem
 
             &:before
-                width: 3rem
+                width: 3.2rem
                 height: 1.5rem
+                // margin-top: .2rem
                 border-radius: 99rem
                 border-color: transparent
                 background: $radioBack
                 content: 'Av'
                 text-align: right
                 color: $uni-color-positive
-                line-height: 1.2rem
+                line-height: 1.3rem
                 font-size: .9rem
                 padding: 0 .5rem
-                top: 0
+                top: .2rem
 
             &:after
                 width: 1rem
                 height: 1rem
-                top: .1rem
-                left: calc(#{$labelLength} + .2rem)
+                top: .38rem
+                left: calc(#{$labelLength} + .14rem)
                 border-radius: 99rem
                 background-color: $uni-color-toolbar
                 transition: all .3s ease
@@ -171,7 +172,7 @@ uni-radio-input
                 background: $radioBack
 
             &:after
-                left: calc(#{$labelLength} + 1.6rem)
+                left: calc(#{$labelLength} + 1.8rem)
                 border-color: transparent
 
 
@@ -195,7 +196,7 @@ uni-radio-input
             opacity: 0
 
 uni-checkbox-input,
-.uni-checkbox-input
+.uni-checkbox
     display: block
 
 uni-checkboxgroup-input,

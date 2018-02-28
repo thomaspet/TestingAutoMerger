@@ -1,33 +1,11 @@
 account-settings
     .splitview_list
-        min-width: 66%
-        max-width: 66%
-
-        @media (max-width: pxToRem(1400px))
-            top: 3rem
-            width: 100%
-            z-index: 10
-            background: white
-            position: sticky
+        min-width: 60%
 
     .splitview_detail
-        max-width: 33%
-        min-width: 33%
-        margin-top: 2.5rem
-
-        @media (max-width: pxToRem(1400px))
-            z-index: 5
-            overflow: auto
-
-account-details
-    fieldset
+        min-width: 40%
+        margin-top: 4.1rem
         @include labelLength(11rem)
-        width: 100%
-        margin-top: .25rem
-
-    @media only screen and (min-width: pxToRem(1400px))
-        uni-form fieldset:nth-child(odd), uni-form fieldset:nth-of-type(even)
-            min-width: 100%
 
 account-list
     .is-locked, .is-unlocked, .is-visible, .is-hidden
@@ -43,12 +21,3 @@ account-list
         background: unicon-hidden($uni-color-positive) no-repeat center center
         background-size: 1rem
 
-.accountList .menuDropDown
-    float: right
-    width: 10rem
-    padding-top: 0.5rem
-
-.accountList .showhide
-    background: transparent unicon-plus($uni-color-positive) no-repeat
-    background-size: 0.8rem
-    background-position: 0.3rem 0.4rem

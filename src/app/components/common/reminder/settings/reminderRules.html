@@ -5,14 +5,17 @@
             [config]="rulesTableConfig"
             (rowSelected)="onRowSelected($event)">
         </uni-table>
-        <button (click)="onNewRule()">Ny regel</button>
+        <button class="add-rule" (click)="onNewRule()">Ny regel</button>
     </nav>
     <main class="splitview_detail">
-        <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="rule$"
-            (changeEvent)="onRuleChange($event)">
-        </uni-form>
+        <fieldset>
+            <legend>Innstillinger</legend>
+            <uni-form
+                [config]="config$"
+                [fields]="fields$"
+                [model]="rule$"
+                (changeEvent)="onRuleChange($event)">
+            </uni-form>
+        </fieldset>
     </main>
 </section>

@@ -3,7 +3,7 @@ import {UniFieldLayout} from '@uni-framework/ui/uniform';
 
 @Pipe({
     name: 'fieldsetIndexes',
-    pure: false
+    pure: true
 })
 export class FieldsetIndexesPipe implements PipeTransform {
     public transform(fields: UniFieldLayout[]): number[] {

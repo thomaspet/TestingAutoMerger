@@ -4,10 +4,12 @@
 
 
 <section class="application">
-    <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
-    <label class="reminder_stop_filter" for="purrestopp">
-        Vis faktura med purrestopp
-    </label>
+    <section class="uni-checkbox">
+        <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
+        <label class="reminder_stop_filter" for="purrestopp">
+            Vis faktura med purrestopp
+        </label>
+    </section>
 
     <uni-table [resource]="reminderList"
                [config]="reminderTable"

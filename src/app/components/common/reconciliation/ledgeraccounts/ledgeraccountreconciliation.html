@@ -1,6 +1,5 @@
 <section *ngIf="journalEntryLines" [attr.aria-busy]="busy">
     <section class="floating-header">
-        <h2>{{displayPostsOptionHeaders[displayPostsOption]}}</h2>
         <section class="action-buttons" *ngIf="!hideHeader">
             <!--<button class="c2a" (click)="showHideMarkedEntries()">{{showMarkedEntries ? "Vis åpne" : "Vis alle" }}</button>-->
             <select [value]="displayPostsOption" (change)="showHideEntries($event.target.value)">

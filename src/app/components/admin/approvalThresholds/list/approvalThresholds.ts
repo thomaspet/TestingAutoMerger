@@ -39,12 +39,11 @@ export class ApprovalThresholds implements OnInit {
             url: '/admin/thresholds',
             moduleID: UniModules.Thresholds,
             active: true
-
         });
 
         this.toolbarConfig = {
-                title: 'Konfigurer grenseverdier til godkjenninger',
-                omitFinalCrumb: false
+            title: 'Grenseverdier for godkjenning',
+            hideBreadcrumbs: true
         };
 
         this.initTableConfig();
@@ -62,7 +61,7 @@ export class ApprovalThresholds implements OnInit {
     private initTableConfig() {
         this.transitionTableConfig = new UniTableConfig('admin.approvalThreshholds', false, true, 15)
             .setSearchable(true)
-            .setColumns([new UniTableColumn('Label')]);
+            .setColumns([new UniTableColumn('Label', 'Handling')]);
     }
 
     public onRowSelected(event) {

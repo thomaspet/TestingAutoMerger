@@ -6,6 +6,9 @@
     @include unigrid(4, 2, 2, 1)
 
 settings
+    uni-field
+        @include labelLength(15rem)
+
     external-search
         .application
             margin-left: pxToRem(0)
@@ -32,10 +35,3 @@ settings
 
     .poster_overview
         margin-bottom: 1.5rem
-
-    fieldset
-        margin: 0
-
-.report-options .companySettings
-    legend
-        height: 0
