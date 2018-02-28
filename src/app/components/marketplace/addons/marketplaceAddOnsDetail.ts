@@ -126,7 +126,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     }
 
     public buy(product: AdminProduct) {
-        this.activate(product).then(() => {
+        this.activateProduct(product).then(() => {
             this.adminProductService
                 .PurchaseProduct(product)
                 .subscribe(
@@ -150,21 +150,31 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         });
     }
 
-    public activate(product: AdminProduct): Promise<any> {
+    public activate(product: AdminProduct) {
+        this.activateProduct(product).then(() => {
+            this.toastService.addToast(
+                `Produkt: ${product.label} aktivert`, ToastType.good, ToastTime.short
+            );
+        }).catch(err =>{
+            // the activation was aborted, most likely the user didnt accept the terms for the service,
+            // or something went wrong when accepting the terms
+        });
+    }
+
+    public activateProduct(product: AdminProduct): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (product.name) {
                 case 'EHF':
                     this.modalService.open(UniActivateAPModal)
-                        .onClose
-                            .subscribe((response) =>
+                        .onClose.subscribe((response) =>
                             {
                                 // if the modal is closed without the activation status indicating that the
                                 // EHF/AP is activated, dont purchase the product
                                 if (response === ActivationEnum.ACTIVATED || response === ActivationEnum.CONFIRMATION) {
                                     this.canActivate$.next(false);
+                                } else {
+                                    reject();
                                 }
-
-                                resolve();
                             }
                             , err => {
                                 this.errorService.handle(err)
@@ -194,7 +204,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                                         reject();
                                     });
                             } else {
-                                resolve();
+                                reject();
                             }
                         });
                     });
