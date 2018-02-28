@@ -136,7 +136,6 @@ export class WorkItem extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DimensionsID: number;
-    public EmploymentID: number;
     public EndTime: Date;
     public ID: number;
     public Invoiceable: boolean;
@@ -162,7 +161,6 @@ export class WorkItem extends UniEntity {
     public CustomerOrder: CustomerOrder;
     public Dimensions: Dimensions;
     public WorkItemGroup: WorkItemGroup;
-    public Employment: Employment;
     public CustomFields: any;
 }
 
@@ -255,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -429,6 +427,28 @@ export class CampaignTemplate extends UniEntity {
     public ID: number;
     public StatusCode: number;
     public Template: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class TOFCurrencySettings extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'TOFCurrencySettings';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdateCurrencyAmountsOnInvoicedateChange: boolean;
+    public UpdateCurrencyAmountsOnOrderdateChange: boolean;
+    public UpdateCurrencyAmountsOnOrderToInvoice: boolean;
+    public UpdateCurrencyAmountsOnQuotedateChange: boolean;
+    public UpdateCurrencyAmountsOnQuoteToInvoice: boolean;
+    public UpdateCurrencyAmountsOnQuoteToOrder: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -743,6 +763,7 @@ export class CustomerInvoice extends UniEntity {
     public TaxExclusiveAmountCurrency: number;
     public TaxInclusiveAmount: number;
     public TaxInclusiveAmountCurrency: number;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatTotalsAmount: number;
@@ -875,6 +896,8 @@ export class CustomerOrder extends UniEntity {
     public TaxExclusiveAmountCurrency: number;
     public TaxInclusiveAmount: number;
     public TaxInclusiveAmountCurrency: number;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public UpdateCurrencyOnToInvoice: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatTotalsAmount: number;
@@ -1004,6 +1027,9 @@ export class CustomerQuote extends UniEntity {
     public TaxExclusiveAmountCurrency: number;
     public TaxInclusiveAmount: number;
     public TaxInclusiveAmountCurrency: number;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public UpdateCurrencyOnToInvoice: boolean;
+    public UpdateCurrencyOnToOrder: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ValidUntilDate: LocalDate;
@@ -3074,6 +3100,7 @@ export class CompanySettings extends UniEntity {
     public DefaultPhoneID: number;
     public DefaultProductInvoiceReminderID: number;
     public DefaultSalesAccountID: number;
+    public DefaultTOFCurrencySettingsID: number;
     public Deleted: boolean;
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
@@ -3126,7 +3153,7 @@ export class CompanySettings extends UniEntity {
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
     public AcceptableDelta4CustomerPaymentAccount: Account;
-    public UseOcrInterpretation: Boolean;
+    public DefaultTOFCurrencySettings: TOFCurrencySettings;
     public CustomFields: any;
 }
 
@@ -5119,8 +5146,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -5193,11 +5220,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -5506,9 +5533,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -5877,6 +5904,7 @@ export class WorkItemToSalary extends UniEntity {
     public PayrollRunID: number;
     public Rate: number;
     public WageType: WageType;
+    public Employment: Employment;
     public WorkItems: Array<WorkItem>;
 }
 
@@ -6030,6 +6058,7 @@ export class ContractLicenseType extends UniEntity {
 
 
 export class CreateBankUserDTO extends UniEntity {
+    public AdminPassword: string;
     public AdminUserId: number;
     public IsAdmin: boolean;
     public Password: string;
@@ -6040,6 +6069,11 @@ export class CreateBankUserDTO extends UniEntity {
 export class SplitFileResult extends UniEntity {
     public FirstPart: File;
     public SecondPart: File;
+}
+
+
+export class SplitFileMultipeResult extends UniEntity {
+    public Parts: Array<File>;
 }
 
 
