@@ -94,4 +94,14 @@ export class AdminProductService {
             .map(() => true)
             .catch(() => Observable.of(false));
     }
+
+    public UnpurchaseProduct(product: AdminProduct): Observable<boolean> {
+        return this.uniHttp
+            .asDELETE()
+            .usingAdminDomain()
+            .withEndPoint(`/api/purchases/${product.id}`)
+            .send()
+            .map(() => true)
+            .catch(() => Observable.of(false));
+    }
 }

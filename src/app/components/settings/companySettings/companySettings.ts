@@ -797,7 +797,7 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.company$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.hasBoughtEHF ? (settings.APActivated ? 'Reaktiver' : 'Aktiver') : 'Til markedsplass';
+        apActivated.Label = this.hasBoughtEHF ? (settings.APActivated ? 'Reaktiver EHF' : 'Aktiver EHF') : 'Til markedsplass';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
 
         this.fields$.next(fields);
@@ -840,13 +840,15 @@ export class CompanySettingsComponent implements OnInit {
                 const data = this.company$.getValue();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
                 const fields = this.fields$.getValue();
-                fields.find(f => f.Property === '_APActivatedOCR').Label = 'Deaktiver OCR';
+                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Deaktiver epostmottak';
                 fields.find(f => f.Property === '_FileFlowEmail').Hidden = false;
                 fields.find(f => f.Property === '_UpdateEmail').Hidden = false;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = false;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = false;
+
                 this.fields$.next(fields);
                 this.company$.next(data);
+
                 setTimeout(() => {
                      this.form.field('_UpdateEmail').readMode();
                 }, 100); // temp solution
@@ -867,21 +869,22 @@ export class CompanySettingsComponent implements OnInit {
 
     private disableInvoiceEmail() {
         this.companyService.Action(this.authService.activeCompany.ID, 'disable-email')
-        .subscribe(
-        company => {
-            const data = this.company$.getValue();
-            const fields = this.fields$.getValue();
-            data['_FileFlowEmail'] = '';
-            data['_FileFlowOrgnrEmail'] = '';
-            data['_FileFlowOrgnrEmailCheckbox'] = false;
-            fields.find(f => f.Property === '_APActivatedOCR').Label = 'Aktiver OCR';
-            fields.find(f => f.Property === '_FileFlowEmail').Hidden = true;
-            fields.find(f => f.Property === '_UpdateEmail').Hidden = true;
-            fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = true;
-            fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = true;
-            this.fields$.next(fields);
-            this.company$.next(data);
-        }, err => this.errorService.handle(err));
+            .subscribe(company => {
+                const data = this.company$.getValue();
+                const fields = this.fields$.getValue();
+                data['_FileFlowEmail'] = '';
+                data['_FileFlowOrgnrEmail'] = '';
+                data['_FileFlowOrgnrEmailCheckbox'] = false;
+                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Aktiver epostmottak';
+                fields.find(f => f.Property === '_FileFlowEmail').Hidden = true;
+                fields.find(f => f.Property === '_UpdateEmail').Hidden = true;
+                fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = true;
+                fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = true;
+                this.fields$.next(fields);
+                this.company$.next(data);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private generateOrgnrInvoiceEmail() {
@@ -1308,18 +1311,31 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Inkluder pdf av faktura',
                 FieldSet: 7,
                 Section: 1,
-                Legend: 'Elektronisk Faktura'
+                Legend: 'Elektronisk Faktura',
+                Hidden: !this.company$.getValue()['APActivated']
             },
             {
-                Property: '_APActivatedOCR',
+                Property: 'UseOcrInterpretation',
                 FieldType: FieldType.BUTTON,
-                Label: this.company$.getValue()['_FileFlowEmail'] ? 'Deaktiver OCR' : 'Aktiver OCR',
+                Label: this.company$.getValue()['UseOcrInterpretation'] ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
-                Legend: 'OCR Faktura',
+                Legend: 'OCR tolkning',
                 Options: {
                     click: () => this.confirmTermsOCR()
+                 }
+            },
+            {
+                Property: '_FileFlowEmailActivated',
+                FieldType: FieldType.BUTTON,
+                Label: this.company$.getValue()['_FileFlowEmail'] ? 'Deaktiver epostmottak' : 'Aktiver epostmottak',
+                Sectionheader: 'Diverse',
+                Section: 1,
+                FieldSet: 7,
+                Legend: 'Epost mottak',
+                Options: {
+                    click: () => this.activateEmail()
                  }
             },
             {
@@ -1457,7 +1473,7 @@ export class CompanySettingsComponent implements OnInit {
 
     private isEHFBought(): Observable<boolean> {
         return this.adminProductService.FindProductByName('EHF')
-            .switchMap(product => { 
+            .switchMap(product => {
                 return this.adminPurchasesService.GetAll()
                     .map(purchases => purchases.some(purchase => purchase.productID === product.id));
         });
@@ -1465,11 +1481,11 @@ export class CompanySettingsComponent implements OnInit {
 
     private activateAP() {
         this.adminProductService.FindProductByName('EHF')
-            .subscribe(product => { 
+            .subscribe(product => {
                 this.adminPurchasesService.GetAll()
                     .map(purchases => purchases.some(purchase => purchase.productID === product.id))
                     .subscribe(hasBought => {
-                        hasBought 
+                        hasBought
                         ? this.openActivateAPModal()
                         : this.router.navigateByUrl('/marketplace/add-ons/' + product.id);
                     });
@@ -1492,22 +1508,30 @@ export class CompanySettingsComponent implements OnInit {
 
     private confirmTermsOCR() {
         const data = this.company$.getValue();
-        if (!data['_FileFlowEmail']) {
-            this.agreementService.Current('OCR').subscribe(message => {
-                this.modalService.confirm({
-                    header: 'Betingelser',
-                    message: message,
-                    class: 'medium',
-                    buttonLabels: {
-                        accept: 'Aksepter',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.generateInvoiceEmail();
-                    }
-                });
+
+        if (!data['UseOcrInterpretation']) {
+            this.adminProductService.FindProductByName('OCR-SCAN').subscribe(p => {
+                this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
             });
+        } else {
+            // deactivate the OCR agreement in UE
+            this.companySettingsService.PostAction(1, 'reject-ocr-agreement')
+                .subscribe(acceptResp => {
+                    data['UseOcrInterpretation'] = false;
+                    this.company$.next(data);
+
+                    const fields = this.fields$.getValue();
+                    fields.find(f => f.Property === 'UseOcrInterpretation').Label = 'Aktiver OCR-tolkning';
+                    this.fields$.next(fields);
+                },
+                err => this.errorService.handle(err));
+        }
+    }
+
+    private activateEmail() {
+        const data = this.company$.getValue();
+        if (!data['_FileFlowEmail']) {
+            this.generateInvoiceEmail();
         } else {
             this.disableInvoiceEmail();
         }

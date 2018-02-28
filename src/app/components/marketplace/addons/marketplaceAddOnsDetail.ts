@@ -3,9 +3,12 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AdminProductService, AdminProduct} from '../../../services/admin/adminProductService';
 import {Observable} from 'rxjs/Observable';
+import {CompanySettingsService} from '../../../services/common/companySettingsService';
+import {AgreementService} from '../../../services/common/agreementService';
 import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {UniModalService, UniActivateAPModal} from '@uni-framework/uniModal/barrel';
+import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -27,7 +30,9 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private route: ActivatedRoute,
         private router: Router,
         private toastService: ToastService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private agreementService: AgreementService,
+        private companySettingsService: CompanySettingsService
     ) {}
 
     public mapHeaderBackmapHeaderBackgroundClass(product) {
@@ -95,10 +100,11 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                 .do((product: AdminProduct) =>
                     this.adminPurchasesService.GetAll()
                         .map(purchases => purchases.some(purchase => purchase.productID === product.id))
-                        .subscribe(
-                            hasBoughtProduct => {
+                        .subscribe(hasBoughtProduct => {
                                 this.hasBoughtProduct$.next(hasBoughtProduct);
                                 if (product.name === 'EHF') {
+                                    this.canActivate$.next(true);
+                                } else if (product.name === 'OCR-SCAN') {
                                     this.canActivate$.next(true);
                                 }
                             },
@@ -112,8 +118,6 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                 .map(products => products.filter(product => !product.isBundle))
                 .map(products => this.adminProductService.maxChar(products, 120))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-
-
         });
     }
 
@@ -122,33 +126,82 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     }
 
     public buy(product: AdminProduct) {
-        this.adminProductService
-            .PurchaseProduct(product)
-            .subscribe(
-                result => {
-                    if (result) {
-                        this.toastService.addToast(
-                            `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
-                        );
+        this.activate(product).then(() => {
+            this.adminProductService
+                .PurchaseProduct(product)
+                .subscribe(
+                    result => {
+                        if (result) {
+                            this.toastService.addToast(
+                                `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
+                            );
 
-                        this.hasBoughtProduct$.next(true);
-                        this.activate(product);
-
-                    } else {
-                        this.toastService.addToast(
-                            `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
-                        );
+                            this.hasBoughtProduct$.next(true);
+                        } else {
+                            this.toastService.addToast(
+                                `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
+                            );
+                        }
                     }
-                }
-            );
+                , err => this.errorService.handle(err));
+        }).catch(err => {
+            // the purchase was aborted, most likely the user didnt accept the terms for the service,
+            // or something went wrong when accepting the terms
+        });
     }
 
-    public activate(product: AdminProduct) {
-        switch (product.name) {
-            case 'EHF':
-                this.modalService.open(UniActivateAPModal)
-                    .onClose.subscribe((status) => {}, err => this.errorService.handle(err));
-                break;
-        }
-    }
+    public activate(product: AdminProduct): Promise<any> {
+        return new Promise((resolve, reject) => {
+            switch (product.name) {
+                case 'EHF':
+                    this.modalService.open(UniActivateAPModal)
+                        .onClose
+                            .subscribe((response) =>
+                            {
+                                // if the modal is closed without the activation status indicating that the
+                                // EHF/AP is activated, dont purchase the product
+                                if (response === ActivationEnum.ACTIVATED || response === ActivationEnum.CONFIRMATION) {
+                                    this.canActivate$.next(false);
+                                }
+
+                                resolve();
+                            }
+                            , err => {
+                                this.errorService.handle(err)
+                                reject();
+                            }
+                        );
+                    break;
+                case 'OCR-SCAN':
+                    this.agreementService.Current('OCR').subscribe(message => {
+                        this.modalService.confirm({
+                            header: 'Betingelser',
+                            message: message,
+                            class: 'medium',
+                            buttonLabels: {
+                                accept: 'Aksepter',
+                                cancel: 'Avbryt'
+                            }
+                        }).onClose.subscribe(response => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.companySettingsService.PostAction(1, 'accept-ocr-agreement')
+                                    .subscribe(acceptResp => {
+                                        this.canActivate$.next(false);
+                                        resolve();
+                                    },
+                                    err => {
+                                        this.errorService.handle(err);
+                                        reject();
+                                    });
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+                    break;
+                default:
+                    resolve();
+            }
+        });
+     }
 }

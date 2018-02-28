@@ -3125,6 +3125,7 @@ export class CompanySettings extends UniEntity {
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
     public AcceptableDelta4CustomerPaymentAccount: Account;
+    public UseOcrInterpretation: Boolean;
     public CustomFields: any;
 }
 

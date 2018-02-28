@@ -174,7 +174,7 @@ export class BillView implements OnInit {
         },
         {
             label: lang.converter,
-            action: (done) => { this.runConverter(this.files); done(); },
+            action: (done) => { this.runConverter(this.files, true); done(); },
             main: false,
             disabled: false
         },
@@ -489,7 +489,61 @@ export class BillView implements OnInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>) {
+    private runConverter(files: Array<any>, force: boolean) {
+
+        if (this.companySettings.UseOcrInterpretation) {
+            // user has accepted license/agreement for ocr
+            this.runOcrOrEHF(files);
+        } else {
+            // check for undefined or null, because this is a "tristate", so null != false here,
+            // false means that the user has rejected the agreement, while null means he/she has
+            // neither accepted or rejected it yet
+            if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
+                // user has not accepted license/agreement for ocr
+                this.uniFilesService.getOcrStatistics()
+                    .subscribe(res => {
+                        let countUsed = res.CountOcrDataUsed;
+
+                        if (countUsed <= 10) {
+                            // allow running OCR the first 10 times for free
+                            this.runOcrOrEHF(files);
+                        } else {
+                            this.companySettingsService.PostAction(1, 'ocr-trial-used')
+                                .subscribe(res => {
+                                    // this is set through the ocr-trial-used, but set it in the local object as well to
+                                    // avoid displaying the same message multiple times
+                                    this.companySettings.UseOcrInterpretation = false;
+
+                                    const modal = this.modalService.open(UniConfirmModalV2, {
+                                        header: 'OCR tolkning er ikke aktivert',
+                                        message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning) 10 ganger gratis. ' +
+                                            'For å bruke tjenesten videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
+                                        buttonLabels: {
+                                            accept: 'Ok',
+                                            cancel: 'Avbryt'
+                                        }
+                                    });
+                                }, err => this.errorService.handle(err)
+                            );
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
+            } else if (force) {
+                // user has deactivated license/agreement for ocr
+                const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'OCR tolkning er deaktivert',
+                    message: 'Vennligst aktiver OCR tolkning under firmainnstillinger i menyen for å benytte OCR tolkning av fakturaer',
+                    buttonLabels: {
+                        accept: 'Ok',
+                        cancel: 'Avbryt'
+                    }
+                });
+            }
+        }
+    }
+
+    private runOcrOrEHF(files: Array<any>) {
         if (files && files.length > 0) {
             const file = this.uniImage.getCurrentFile() || files[0];
             if (this.isOCR(file)) {
@@ -660,7 +714,7 @@ export class BillView implements OnInit {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
-                this.runConverter(files);
+                this.runConverter(files, false);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
