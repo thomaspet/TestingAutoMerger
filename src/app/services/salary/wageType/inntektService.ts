@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {code} from '../../../unientities';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class InntektService extends BizHttp<code> {
@@ -10,13 +11,14 @@ export class InntektService extends BizHttp<code> {
         super(http);
     }
 
-    public getSalaryValidValue(type: string = '') {
+    public getSalaryValidValue(type: string = ''): Observable<code[]> {
+        type = type.trim();
         let url = `salaryvalidvalues?action=getall`;
-        
+
         if (type) {
             url = url + `&type=${type}`;
         }
-        
+
         return this.http
             .asGET()
             .usingBusinessDomain()
@@ -25,7 +27,7 @@ export class InntektService extends BizHttp<code> {
             .map(response => response.json());
     }
 
-    public getSalaryValidValueTypes() {
+    public getSalaryValidValueTypes(): Observable<string> {
         return this.http
             .asGET()
             .usingBusinessDomain()

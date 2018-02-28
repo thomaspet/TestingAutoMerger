@@ -19,7 +19,7 @@ export class WageTypeViewService {
     ) { }
 
     public deleteWageType(wagetype: WageType): void {
-        let id = wagetype.ID;
+        const id = wagetype.ID;
         this.modalService
             .confirm({
                 header: 'Sletting av lønnsart',
