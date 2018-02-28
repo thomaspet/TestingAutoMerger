@@ -935,7 +935,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public sendPaymentList() {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
             .subscribe((response: boolean) => {
-                this.router.navigateByUrl('/bank/payments');
+                this.router.navigateByUrl('/bank');
             },
             (err) => {
                 this.errorService.handle(err);
