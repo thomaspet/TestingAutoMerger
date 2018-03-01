@@ -47,7 +47,7 @@ const BASE = environment.BASE_URL;
         </section>
         <section class="text-container">
             <p>Ordrereserve</p>
-            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+            <a (click)="navigateToCompanyUrl('/sales/orders')">
                 {{viewData[2] | unicurrency}} kr
             </a>
         </section>
