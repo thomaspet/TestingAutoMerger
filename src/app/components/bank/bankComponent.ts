@@ -53,7 +53,7 @@ import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymen
                     {{group.Name}}
                     <ul>
                         <li *ngFor="let ticker of group.Tickers"
-                            (click)="selectTicker(ticker.Code)"
+                            (click)="navigateToTicker(ticker)"
                             [attr.aria-selected]="ticker.Code === selectedTicker?.Code">
                             {{ticker.Name}}
                         </li>
@@ -69,7 +69,6 @@ import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymen
             <uni-ticker-container
                 [ticker]="selectedTicker"
                 [actionOverrides]="actionOverrides"
-                (urlParamsChange)="onTickerParamsChange($event)"
                 (rowSelectionChange)="onRowSelectionChanged($event)">
             </uni-ticker-container>
         </section>
@@ -163,13 +162,7 @@ export class BankComponent implements AfterViewInit {
         private adminProductService: AdminProductService,
         private adminPurchasesService: AdminPurchasesService
     ) {
-        this.tabService.addTab({
-            name: 'Bank',
-            url: '/bank',
-            moduleID: UniModules.Bank,
-            active: true
-        });
-
+        this.updateTab();
         this.checkAutobankAccess();
     }
 
@@ -185,7 +178,48 @@ export class BankComponent implements AfterViewInit {
             this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
                 this.agreements = agreements;
             });
-            this.selectTicker(this.tickerGroups[0].Tickers[0].Code);
+
+            this.route.queryParams.subscribe(params => {
+                const tickerCode = params && params['code'];
+                const ticker = tickerCode && this.tickerGroups[0].Tickers.find(t => t.Code === tickerCode);
+
+                if (!ticker) {
+                    this.navigateToTicker(this.tickerGroups[0].Tickers[0]);
+                    return;
+                }
+
+                if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code) {
+                    this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
+
+                    this.updateTab();
+                    this.selectedTicker = ticker;
+                    this.updateSaveActions(tickerCode);
+                    this.toolbarconfig.title = this.selectedTicker.Name;
+                    this.cdr.markForCheck();
+                }
+            });
+        });
+    }
+
+    private updateTab() {
+        let url = '/bank';
+        const queryParams = window.location.href.split('?')[1];
+        if (queryParams) {
+            url += '?' + queryParams;
+        }
+
+        this.tabService.addTab({
+            name: 'Bank',
+            url: url,
+            moduleID: UniModules.Bank,
+            active: true
+        });
+    }
+
+    public navigateToTicker(ticker: Ticker) {
+        this.router.navigate(['/bank'], {
+            queryParams: { code: ticker.Code },
+            skipLocationChange: false
         });
     }
 
@@ -209,28 +243,6 @@ export class BankComponent implements AfterViewInit {
             },
             err => console.error(err)
         );
-    }
-
-    private navigateToTicker(ticker: Ticker) {
-        this.router.navigateByUrl('/bank/' + ticker.Code);
-    }
-
-    private selectTicker(selectedTickerCode: string) {
-        this.selectedTicker = this.tickers.find(x => x.Code === selectedTickerCode);
-
-        // Update toolbar when changing ticker
-        this.updateSaveActions(selectedTickerCode);
-        this.toolbarconfig.title = this.selectedTicker.Name;
-
-        this.cdr.markForCheck();
-    }
-
-    public onTickerParamsChange(event) {
-        this.canEdit = !event.params.filter || event.params.filter === 'not_payed';
-        this.rows = [];
-        if (this.selectedTicker) {
-            this.updateSaveActions(this.selectedTicker.Code);
-        }
     }
 
     public onRowSelectionChanged(selectedRows) {
