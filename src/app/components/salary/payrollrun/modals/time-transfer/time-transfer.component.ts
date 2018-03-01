@@ -154,7 +154,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
             .setMultiRowSelect(true)
             .setAutoAddNewRow(false)
             .setIsRowReadOnly((row: WorkItemToSalary) => {
-                return !!row.PayrollRunID;
+                return !row.PayrollRunID;
             });
     }
 
