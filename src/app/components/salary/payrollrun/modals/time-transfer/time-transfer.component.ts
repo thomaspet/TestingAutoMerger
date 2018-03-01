@@ -152,7 +152,10 @@ export class TimeTransferComponent implements OnInit, IUniModal {
             ])
             .setPageable(false)
             .setMultiRowSelect(true)
-            .setAutoAddNewRow(false);
+            .setAutoAddNewRow(false)
+            .setIsRowReadOnly((row: WorkItemToSalary) => {
+                return !!row.PayrollRunID;
+            });
     }
 
     private createTimeTransactions() {
@@ -193,6 +196,17 @@ export class TimeTransferComponent implements OnInit, IUniModal {
         return selectedIDs;
     }
 
+    private resetRowSelection() {
+        this.table
+            .getSelectedRows()
+            .forEach(row => {
+                if (row.PayrollRunID === 0) {
+                    row['_rowSelected'] = false;
+                    this.table.updateRow(row['_originalIndex'], row);
+                }
+            });
+    }
+
     //#region uniform
     public uniformChange(value: SimpleChanges) {
         if (value['ToDate']) {
@@ -206,6 +220,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     }
 
     public onRowSelectionChange(event) {
+        this.resetRowSelection();
         this.createTransesIsActive = this.table.getSelectedRows().length;
         this.saveactions = this.setSaveactions();
     }
