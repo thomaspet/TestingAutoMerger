@@ -20,7 +20,7 @@
         [unitableSearchVisible]="true"
         (rowSelected)="onRowSelected($event)"
         (editModeToggled)="editModeChanged($event)"
-        (rowSelectionChanged)="onRowSelectionChanged($event)">
+        (rowSelectionChange)="rowSelectionChange.emit($event)">
     </uni-ticker>
 
     <uni-sub-ticker-container

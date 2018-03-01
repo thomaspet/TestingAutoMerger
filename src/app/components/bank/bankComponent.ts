@@ -70,7 +70,7 @@ import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymen
                 [ticker]="selectedTicker"
                 [actionOverrides]="actionOverrides"
                 (urlParamsChange)="onTickerParamsChange($event)"
-                (rowSelectionChanged)="onRowSelectionChanged($event)">
+                (rowSelectionChange)="onRowSelectionChanged($event)">
             </uni-ticker-container>
         </section>
     `,
@@ -233,8 +233,8 @@ export class BankComponent implements AfterViewInit {
         }
     }
 
-    public onRowSelectionChanged(row) {
-        this.rows = this.tickerContainer.mainTicker.unitable.getSelectedRows();
+    public onRowSelectionChanged(selectedRows) {
+        this.rows = selectedRows;
         this.updateSaveActions(this.selectedTicker.Code);
     }
 
@@ -247,7 +247,7 @@ export class BankComponent implements AfterViewInit {
                 label: 'Rediger',
                 action: (done) => {
                     this.openEditModal().subscribe((res: boolean) => {
-                        done(res ? 'Endringer lagret.' : 'Ingenting endret.');
+                        done(res ? 'Endringer lagret.' : '');
                         if (res) {
                             // Refresh the data in the table.. Down down goes the rabbithole!
                             // Should have taken the blue pill...

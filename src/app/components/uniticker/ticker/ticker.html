@@ -33,7 +33,7 @@
             <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
-                (rowSelectionChange)="onRowSelected($event)">
+                (rowSelectionChange)="onRowSelectionChange($event)">
             </ag-grid-wrapper>
 
             <div *ngIf="ticker.Type !== 'table'">

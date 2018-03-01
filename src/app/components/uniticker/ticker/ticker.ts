@@ -71,7 +71,7 @@ export class UniTicker {
     @Input() public unitableSearchVisible: boolean;
 
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
-    @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
+    @Output() public rowSelectionChange: EventEmitter<any> = new EventEmitter();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
@@ -399,10 +399,14 @@ export class UniTicker {
             this.ticker.Actions ? this.ticker.Actions : [];
     }
 
-    private onRowSelected(row) {
-        this.selectedRow = row; //rowSelectEvent.rowModel;
-        this.selectedRow._editable = this.tableConfig.editable;
-        this.rowSelected.emit(this.selectedRow);
+    private onRowSelectionChange(selection) {
+        if (Array.isArray(selection)) {
+            this.rowSelectionChange.emit(selection);
+        } else {
+            this.selectedRow = selection;
+            this.selectedRow._editable = this.tableConfig.editable;
+            this.rowSelected.emit(this.selectedRow);
+        }
     }
 
     private onFilterChange(filterChangeEvent) {
@@ -1015,10 +1019,6 @@ export class UniTicker {
                             .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
                     });
         });
-    }
-
-    public onRowSelectionChanged(event) {
-        this.rowSelectionChanged.emit(event);
     }
 
     private isMultiRowSelect(): boolean {

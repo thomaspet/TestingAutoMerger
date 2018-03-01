@@ -37,7 +37,7 @@ export class UniTickerContainer {
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
     @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
-    @Output() public rowSelectionChanged: EventEmitter<any> = new EventEmitter();
+    @Output() public rowSelectionChange: EventEmitter<any[]> = new EventEmitter();
 
     public showSubTickers: boolean;
     public selectedFilter: TickerFilter;
@@ -125,10 +125,6 @@ export class UniTickerContainer {
     public onRowSelected(row) {
         this.selectedRow = row;
         this.showSubTickers = !row._editable;
-    }
-
-    public onRowSelectionChanged(row) {
-        this.rowSelectionChanged.emit(row);
     }
 
     public editModeChanged(event) {
