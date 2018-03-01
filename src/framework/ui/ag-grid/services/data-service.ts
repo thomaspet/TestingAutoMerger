@@ -26,6 +26,8 @@ export class TableDataService {
     public advancedSearchFilters: ITableFilter[];
     public filterString: string;
 
+    public columnSumResolver: (params: URLSearchParams) => Observable<{[field: string]: number}>;
+
     // Only maintained for local data grids!
     private originalData: any[];
     private viewData: any[];
@@ -61,14 +63,13 @@ export class TableDataService {
             this.gridApi.setDatasource(this.getRemoteDatasource(resource));
         }
 
-        // Sum row
-        this.sumRow$.next(undefined);
-        const sumColumns = this.config.columns.filter(col => col.isSumColumn);
-        if (sumColumns.length) {
-            if (Array.isArray(resource)) {
+        // Get columns sums if working with local data.
+        // Remote data column sums is handled in dataSource
+        if (Array.isArray(resource)) {
+            this.sumRow$.next(undefined);
+            const sumColumns = this.config.columns.filter(col => col.isSumColumn);
+            if (sumColumns.length) {
                 this.getLocalDataColumnSums(sumColumns, resource);
-            } else {
-                this.getRemoteDataColumnSums(sumColumns);
             }
         }
     }
@@ -141,6 +142,28 @@ export class TableDataService {
                         params.failCallback();
                     }
                 );
+
+                if (params.startRow === 0) {
+                    this.sumRow$.next(undefined);
+                    if (this.columnSumResolver) {
+                        this.columnSumResolver(urlParams)
+                            .catch(err => {
+                                console.log('ERROR IN TABLE columnSumResolver', err);
+                                this.sumRow$.next(undefined);
+                                return Observable.empty();
+                            })
+                            .subscribe(sums => {
+                                if (sums) {
+                                    sums['_isSumRow'] = true;
+                                }
+
+                                this.sumRow$.next([sums]);
+                            });
+                    } else {
+                        const sumColumns = this.config.columns.filter(col => col.isSumColumn);
+                        this.getRemoteDataColumnSums(sumColumns);
+                    }
+                }
             }
         };
     }
@@ -154,6 +177,15 @@ export class TableDataService {
                 this.viewData = this.filterLocalData(this.originalData);
                 this.gridApi.setRowData(this.viewData);
                 this.localDataChange$.next(this.originalData);
+
+                // Re-calculate sum row if we have sum columns
+                setTimeout(() => {
+                    const sumColumns = this.config.columns.filter(col => col.isSumColumn);
+                    if (sumColumns.length) {
+                        const visibleData = [];
+                        this.getLocalDataColumnSums(sumColumns, this.originalData);
+                    }
+                });
             }
         }
     }
@@ -401,19 +433,6 @@ export class TableDataService {
         if (refreshTableData) {
             this.refreshData();
         }
-
-        // Re-calculate sum row if we have sum columns
-        setTimeout(() => {
-            const sumColumns = this.config.columns.filter(col => col.isSumColumn);
-            if (sumColumns.length) {
-                if (this.hasRemoteLookup) {
-                    this.getRemoteDataColumnSums(sumColumns);
-                } else {
-                    const visibleData = [];
-                    this.getLocalDataColumnSums(sumColumns, this.originalData);
-                }
-            }
-        });
     }
 
     public removeFilter(field: string): void {

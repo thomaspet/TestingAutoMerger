@@ -84,8 +84,9 @@ export class UniTicker {
     private headers: string;
     private defaultExpand: string;
     private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     private prefetchDataLoaded: boolean = false;
+    private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
+    private columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
     private selectedRow: any = null;
     private canShowTicker: boolean = true;
@@ -135,13 +136,32 @@ export class UniTicker {
                     .catch(() => Observable.empty()); // fail silently
             }
         };
+
+        this.columnSumResolver = (urlParams) => {
+            if (!this.ticker || !this.ticker.Columns) {
+                return;
+            }
+
+            const tickerParams = this.getSearchParams(urlParams);
+            const sumParams = new URLSearchParams();
+            sumParams.set('model', tickerParams.get('model'));
+            sumParams.set('expand', tickerParams.get('expand'));
+            sumParams.set('filter', tickerParams.get('filter'));
+
+            // Build sum selects based on ticker columns with SumColumn = true
+            const sumColumns = this.ticker.Columns.filter(col => col.SumColumn);
+            const selects = sumColumns.map(sumCol => {
+                return `sum(${sumCol.SelectableFieldName}) as ${sumCol.DisplayField || sumCol.Alias || sumCol.Field}`;
+            });
+
+            sumParams.set('select', selects.join(','));
+            return this.statisticsService.GetAllByUrlSearchParams(sumParams)
+                .map(res => res.json())
+                .map(res => (res.Data && res.Data[0]) || []);
+        };
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (this.ticker && this.selectedFilter) {
-
-        }
-
         if (changes['ticker']) {
             // if ticker was changed, check that the selectedFilter is
             if (this.selectedFilter) {
@@ -165,10 +185,6 @@ export class UniTicker {
 
                 this.selectedFilter.IsActive = true;
             }
-
-            // if (this.table) {
-            //     this.table.refreshTableData();
-            // }
         }
 
         if (changes['parentModel'] && this.parentModel && this.table) {

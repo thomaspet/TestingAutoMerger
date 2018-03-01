@@ -32,6 +32,7 @@
         <section class="data-container">
             <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
                 [resource]="lookupFunction"
+                [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
                 (rowSelectionChange)="onRowSelectionChange($event)">
             </ag-grid-wrapper>

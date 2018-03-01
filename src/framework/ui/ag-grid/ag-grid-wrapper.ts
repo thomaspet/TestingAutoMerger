@@ -53,6 +53,7 @@ export class AgGridWrapper {
     @ViewChild(TableEditor) public editor: TableEditor;
 
     @Input() public config: UniTableConfig;
+    @Input() public columnSumResolver: (params: URLSearchParams) => Observable<{[field: string]: number}>;
 
     @Input() public resource: any[] | ((params: URLSearchParams) => Observable<any>);
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
@@ -105,6 +106,10 @@ export class AgGridWrapper {
         if (changes['config'] && this.config) {
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
+        }
+
+        if (changes['columnSumResolver'] && this.columnSumResolver) {
+            this.dataService.columnSumResolver = this.columnSumResolver;
         }
 
         if (this.config && this.resource && (changes['config'] || changes['resource'])) {
