@@ -25,12 +25,11 @@ const PUBLIC_ROOT_ROUTES = [
     'tickers',
     'uniqueries',
     'sharings',
-    'marketplace'
+    'marketplace',
+    'predefined-descriptions'
 ];
 
-const PUBLIC_ROUTES = [
-    '/sales/productgroups/groupDetails'
-];
+const PUBLIC_ROUTES = [];
 
 @Injectable()
 export class AuthService {
