@@ -8,7 +8,7 @@ import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';
 import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UserService} from '../../common/userService';
 
 @Injectable()
@@ -273,7 +273,25 @@ export class EmployeeService extends BizHttp<Employee> {
                     Section: 0,
                     Options: {
                         mask: '000000 00000'
-                    }
+                    },
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!value) {
+                                return;
+                            }
+
+                            if (!isNaN(+value)) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Fødselsnummer skal bare inneholde tall',
+                                isWarning: false
+                            };
+                        }
+                    ]
                 },
                 {
                     EntityType: 'Employee',
