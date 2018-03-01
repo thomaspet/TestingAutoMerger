@@ -98,14 +98,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             if (
                 event.which === KeyCodes.ENTER
             ) {
-                switch (this.formState) {
-                    case LoginState.Pin:
-                    this.submitPin();
-                    break;
-                    case LoginState.UsernameAndPasswordAndPinType:
-                    this.submitUsernameAndPasswordAndPinType();
-                    break;
-                }
+                setTimeout(() => this.submit(this.formState));
             }
         });
         this.handleAuthentication()
@@ -238,20 +231,31 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             }
 
             return this.userSubmittedPin
-                    .subscribe(() => {
-                        resolve(this.userLoginData$.getValue());
-                    }, err => this.errorService.handle(err));
-            });
+                .subscribe(() => {
+                    resolve(this.userLoginData$.getValue());
+                }, err => this.errorService.handle(err));
+        });
+    }
+
+    private submit(formState: LoginState) {
+        switch (formState) {
+            case LoginState.Pin:
+                this.submitPin();
+                break;
+            case LoginState.UsernameAndPasswordAndPinType:
+                this.submitUsernameAndPasswordAndPinType();
+                break;
+        }
     }
 
     public submitUsernameAndPasswordAndPinType() {
         this.busy = true;
-        this.userSubmittedUsernameAndPasswordAndPinType.emit(this.userLoginData$.getValue());
+        setTimeout(() => this.userSubmittedUsernameAndPasswordAndPinType.emit(this.userLoginData$.getValue()));
     }
 
     public submitPin() {
         this.busy = true;
-        this.userSubmittedPin.emit(this.userLoginData$.getValue());
+        setTimeout(() => this.userSubmittedPin.emit(this.userLoginData$.getValue()));
     }
 
     public close() {
