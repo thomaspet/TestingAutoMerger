@@ -120,7 +120,7 @@ export class AgGridWrapper {
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
-                this.tableHeight = 75 + (this.config.pageSize * 35) + 'px';
+                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
 
             if (this.agGridApi) {
@@ -167,7 +167,7 @@ export class AgGridWrapper {
     private onDataLoaded(api: GridApi) {
         if (this.domLayout !== 'autoHeight') {
             const displayCount = Math.min(this.dataService.loadedRowCount, this.config.pageSize);
-            this.tableHeight = 75 + (displayCount * 35) + 'px';
+            this.tableHeight = 80 + (displayCount * 35) + 'px';
             api.doLayout();
             setTimeout(() => api.sizeColumnsToFit());
         }
