@@ -164,6 +164,11 @@ export class Users {
                         a user without roles as bank user causes them to lose most
                         of the permissions required to make the system work..
 
+                        If the user we set as bank user does not have any roles we
+                        try to give them the administrator role. If that fails we
+                        toast a message saying the user needs to have a role and
+                        terminate the process.
+
                         This should be handled on backend obviously, but frontend is
                         easier to quickfix in prod.
                     */
