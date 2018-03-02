@@ -203,7 +203,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             });
         } else {
             if (!employee.SubEntity || employee.SubEntity.AgaZone === 0) {
-                this.toastService.addToast('Arbeidsgiveravgift', ToastType.warn, ToastTime.medium, 
+                this.toastService.addToast('Arbeidsgiveravgift', ToastType.warn, ToastTime.medium,
                 'Kunne ikke finne sone for arbeidsgiveravgift på den ansatte, sjekk innstillingene');
             }
             this.agaZone = new AGAZone();
@@ -282,7 +282,9 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     }
 
     public setEditable(isEditable: boolean) {
-        this.transList.setEditable(isEditable);
+        if (this.transList) {
+            this.transList.setEditable(isEditable);
+        }
     }
 
     private createNewDrawLink(employeeID: number) {

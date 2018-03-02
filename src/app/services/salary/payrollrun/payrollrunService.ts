@@ -492,6 +492,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Section: 0,
                     LineBreak: true,
                     Classes: 'payrollDetails_freeText',
+                    Options: {
+                        rows: 4
+                    }
                 },
             ]
         }]);
