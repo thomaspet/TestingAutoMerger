@@ -86,21 +86,15 @@ export class AmeldingSummaryView implements OnChanges {
 
                                 if (arbeidsforhold.permisjon) {
                                     arbeidsforhold.permisjon.forEach(permisjon => {
-                                        const startdatePeriod = parseInt(permisjon.startdato.split('-', 2)[1], 10);
-                                        const enddatePeriod = permisjon.sluttdato
-                                            ? parseInt(permisjon.sluttdato.split('-', 2)[1], 10)
-                                            : undefined;
-                                        if (startdatePeriod === period || enddatePeriod === period) {
-                                            this.employeeleaves.push({
-                                                permisjonsId: permisjon.permisjonsId,
-                                                employeenumber: employeeNumber,
-                                                employeename: employeeName,
-                                                startdato: permisjon.startdato,
-                                                sluttdato: permisjon.sluttdato,
-                                                permisjonsprosent: permisjon.permisjonsprosent,
-                                                beskrivelse: permisjon.beskrivelse
-                                            });
-                                        }
+                                        this.employeeleaves.push({
+                                            permisjonsId: permisjon.permisjonsId,
+                                            employeenumber: employeeNumber,
+                                            employeename: employeeName,
+                                            startdato: permisjon.startdato,
+                                            sluttdato: permisjon.sluttdato,
+                                            permisjonsprosent: permisjon.permisjonsprosent,
+                                            beskrivelse: permisjon.beskrivelse
+                                        });
                                     });
                                 }
                             });
