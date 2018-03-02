@@ -12,6 +12,7 @@ import {UniModalService} from '@uni-framework/uniModal/modalService';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import { Observable } from 'rxjs/Observable';
 
 
 @Component({
@@ -29,7 +30,7 @@ export class Users {
     private errorMessage: string;
 
     // Users table
-    private roles: UserRole[];
+    private roles: Role[];
     private users: User[] = [];
     private userRoles: UserRole[] = [];
 
@@ -75,16 +76,12 @@ export class Users {
 
     }
 
-    private saveUserRole(userRole) {
-        this.http.asPOST()
+    private saveUserRole(userRole): Observable<any> {
+        return this.http.asPOST()
             .usingBusinessDomain()
             .withEndPoint('userroles')
             .withBody(userRole)
-            .send()
-            .subscribe(
-                res => this.getUserRoles(),
-                err => this.errorService.handle(err)
-            );
+            .send();
     }
 
     private getUserRoles() {
@@ -121,7 +118,10 @@ export class Users {
             UserID: this.selectedUser.ID
         };
 
-        this.saveUserRole(userRole);
+        this.saveUserRole(userRole).subscribe(
+            res => this.getUserRoles(),
+            err => this.errorService.handle(err)
+        );
     }
 
     public onRoleDeleted(event) {
@@ -156,7 +156,51 @@ export class Users {
             },
             {
                 label: 'Register som bankbruker',
-                action: (user: User) => this.registerBankUser(user),
+                action: (user: User) => {
+                    /*
+                        Anders 02.03.2018
+
+                        This is a frontend hack to prevent an issue where setting
+                        a user without roles as bank user causes them to lose most
+                        of the permissions required to make the system work..
+
+                        This should be handled on backend obviously, but frontend is
+                        easier to quickfix in prod.
+                    */
+                    const rolesOnUser = (this.userRoles || []).filter(userRole => userRole.UserID === user.ID);
+
+                    if (!rolesOnUser || !rolesOnUser.length) {
+                        const adminRole = this.roles.find(role => role.Name.toLowerCase() === 'administrator');
+                        if (adminRole) {
+                            const adminUserRole: Partial<UserRole> = {
+                                SharedRoleId: adminRole.ID,
+                                SharedRoleName: adminRole.Name,
+                                UserID: user.ID
+                            };
+
+                            this.saveUserRole(adminUserRole).subscribe(
+                                res => {
+                                    this.registerBankUser(user);
+                                },
+                                err => {
+                                    this.toast.addToast(
+                                        'Brukeren mangler rolle',
+                                        ToastType.bad, 0,
+                                        'Bankbrukere må ha en eksisterende rolle knyttet til seg (f.eks administrator)'
+                                    );
+                                }
+                            );
+                        } else {
+                            this.toast.addToast(
+                                'Brukeren mangler rolle',
+                                ToastType.bad, 0,
+                                'Bankbrukere må ha en eksisterende rolle knyttet til seg (f.eks administrator)'
+                            );
+                        }
+                    } else {
+                        this.registerBankUser(user);
+                    }
+                },
                 disabled: (user: User) => !!user.BankIntegrationUserName
             }
         ];
