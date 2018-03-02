@@ -430,43 +430,46 @@ export class AgGridWrapper {
             this.selectionMode = 'multiple';
         }
 
-        const menuColumn: ColDef = {
-            headerComponent: CellRenderer.getColMenu(this.onColMenuClick.bind(this)),
-            width: 40,
-            pinned: 'right',
-            headerClass: 'col-menu',
-            cellClass: 'row-menu',
-            suppressSizeToFit: true,
-            suppressResize: true,
-            suppressMovable: true
-        };
+        if (this.config.columnMenuVisible || this.config.deleteButton) {
+            const menuColumn: ColDef = {
+                headerComponent: CellRenderer.getColMenu(this.onColMenuClick.bind(this)),
+                width: 40,
+                pinned: 'right',
+                headerClass: 'col-menu',
+                cellClass: 'row-menu',
+                suppressSizeToFit: true,
+                suppressResize: true,
+                suppressMovable: true
+            };
 
-        if (this.config.deleteButton
-            || (this.config.contextMenu && this.config.contextMenu.items.length)
-        ) {
-            let contextMenuHandler, deleteButtonHandler;
-            if (this.config.contextMenu && this.config.contextMenu.items && this.config.contextMenu.items.length) {
-                contextMenuHandler = this.onContextMenuClick.bind(this);
+            if (this.config.deleteButton
+                || (this.config.contextMenu && this.config.contextMenu.items.length)
+            ) {
+                let contextMenuHandler, deleteButtonHandler;
+                if (this.config.contextMenu && this.config.contextMenu.items && this.config.contextMenu.items.length) {
+                    contextMenuHandler = this.onContextMenuClick.bind(this);
+                }
+
+                if (this.config.deleteButton) {
+                    deleteButtonHandler = this.onDeleteRow.bind(this);
+                }
+
+                if (contextMenuHandler || deleteButtonHandler) {
+                    menuColumn.cellRenderer = CellRenderer.getRowMenu(
+                        contextMenuHandler,
+                        deleteButtonHandler
+                    );
+                }
+
+                // If both icons are visible we need to increase the width
+                if (contextMenuHandler && deleteButtonHandler) {
+                    menuColumn.width = 80;
+                }
             }
 
-            if (this.config.deleteButton) {
-                deleteButtonHandler = this.onDeleteRow.bind(this);
-            }
-
-            if (contextMenuHandler || deleteButtonHandler) {
-                menuColumn.cellRenderer = CellRenderer.getRowMenu(
-                    contextMenuHandler,
-                    deleteButtonHandler
-                );
-            }
-
-            // If both icons are visible we need to increase the width
-            if (contextMenuHandler && deleteButtonHandler) {
-                menuColumn.width = 80;
-            }
+            colDefs.push(menuColumn);
         }
 
-        colDefs.push(menuColumn);
         return colDefs;
     }
 

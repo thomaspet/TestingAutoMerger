@@ -25,7 +25,10 @@
     </table-contextmenu>
 
     <ag-grid-angular #agGrid
-        [ngClass]="{'editable': config?.editable}"
+        [ngClass]="{
+            'editable': config?.editable,
+            'col-menu-hidden': config && !config.columnMenuVisible
+        }"
         [columnDefs]="agColDefs"
         [pinnedBottomRowData]="dataService?.sumRow$ | async"
 
