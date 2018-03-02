@@ -21,7 +21,6 @@ import {
     ITickerColumnOverride
 } from '../../../services/common/uniTickerService';
 import {
-    UniTable,
     UniTableColumn,
     IContextMenuItem,
     UniTableColumnType,
@@ -75,7 +74,6 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(UniTable) public unitable: UniTable;
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
     private model: any;
@@ -453,8 +451,8 @@ export class UniTicker {
 
     public onExecuteAction(action: TickerAction) {
         let selectedRows = [];
-        if (this.unitable) {
-            selectedRows = this.unitable.getSelectedRows();
+        if (this.table) {
+            selectedRows = this.table.getSelectedRows();
         }
 
         if (!action.Type || action.Type === '') {

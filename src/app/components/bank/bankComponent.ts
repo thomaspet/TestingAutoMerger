@@ -543,7 +543,7 @@ export class BankComponent implements AfterViewInit {
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {
-        this.rows = this.tickerContainer.mainTicker.unitable.getSelectedRows();
+        this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -580,7 +580,7 @@ export class BankComponent implements AfterViewInit {
                     rowsWithOldDates.map(row => {
                         row.PaymentDate = new LocalDate(new Date());
                         row._isDirty = true;
-                        this.tickerContainer.mainTicker.unitable.updateRow(row._originalIndex, row);
+                        this.tickerContainer.mainTicker.table.updateRow(row._originalIndex, row);
                     });
                     this.payInternal(this.rows, doneHandler, isManualPayment);
                 } else {
@@ -706,7 +706,7 @@ export class BankComponent implements AfterViewInit {
     }
 
     private deleteSelected(doneHandler: (status: string) => any) {
-        this.rows = this.tickerContainer.mainTicker.unitable.getSelectedRows();
+        this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
                 'Ingen rader',
