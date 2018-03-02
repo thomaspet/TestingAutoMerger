@@ -1341,6 +1341,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         invoice.Comment = null;
         delete invoice['_links'];
 
+        invoice.Sellers = invoice.Sellers.map(item => {
+            item.CustomerInvoiceID = null;
+            return item;
+        });
+
         invoice.Items = invoice.Items.map((item: CustomerInvoiceItem) => {
             item.CustomerInvoiceID = 0;
             item.ID = 0;

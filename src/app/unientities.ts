@@ -1195,6 +1195,7 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DefaultBankAccount: BankAccount;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
@@ -1205,7 +1206,6 @@ export class BusinessRelation extends UniEntity {
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
-    public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
 
@@ -1620,9 +1620,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
-    public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
+    public Employee: Employee;
     public CustomFields: any;
 }
 

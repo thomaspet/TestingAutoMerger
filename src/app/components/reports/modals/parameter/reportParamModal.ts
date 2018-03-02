@@ -89,12 +89,12 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             break;
                         case 'Boolean':
                             type = FieldType.CHECKBOX;
-                            p.DefaultValue = (p.DefaultValue === 'true');
+                            p.DefaultValue = (p.DefaultValue === 'true' || p.DefaultValue === '1');
                             p.value = p.DefaultValue;
                             break;
                         case 'Dropdown':
                             type = FieldType.DROPDOWN;
-                            let source = p.DefaultValueList ? JSON.parse(p.DefaultValueList) : p.DefaultValueSourceData || [];
+                            const source = p.DefaultValueList ? JSON.parse(p.DefaultValueList) : p.DefaultValueSourceData || [];
                             p.value = p.DefaultValue;
                             if (source.length > 0) {
                                 p.value = p.Name === 'OrderBy' ? source[0].Label : source[0].Value;
@@ -165,7 +165,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
             p.value = model[p.Name];
 
-            if (p.Name === 'HideAccounts' || p.Name === 'ShowNetSums') {
+            if (p.Type === 'Boolean') {
                 if (p.value === true) {
                     p. value = 1;
                 } else {
