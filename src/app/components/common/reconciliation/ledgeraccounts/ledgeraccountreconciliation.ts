@@ -3,7 +3,8 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
 import {StatusCodeJournalEntryLine,
     LocalDate, JournalEntryLinePostPostData,
-    JournalEntryLine, Payment, BusinessRelation, BankAccount, i18nModule, Customer, CompanySettings, Paycheck, PaymentCode} from '../../../../unientities';
+    JournalEntryLine, Payment, BusinessRelation,
+    BankAccount, i18nModule, Customer, CompanySettings, Paycheck, PaymentCode} from '../../../../unientities';
 import {
     UniTable,
     UniTableColumn,
@@ -33,12 +34,9 @@ import * as moment from 'moment';
 import { JournalEntryData } from '@app/models/models';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { RequestMethod } from '@angular/http';
+import { JournalEntryLineCouple } from '@app/services/accounting/postPostService';
 declare var _;
 
-class JournalEntryLineCouple {
-    public JournalEntryLineId1: number; // tslint:disable-line
-    public JournalEntryLineId2: number; // tslint:disable-line
-}
 
 @Component({
     selector: 'ledger-account-reconciliation',
@@ -72,6 +70,7 @@ export class LedgerAccountReconciliation {
     @ViewChild(UniTable)
     private table: UniTable;
 
+    public canAutoMark: boolean = false;
     private showMarkedEntries: boolean = false;
     private uniTableConfig: UniTableConfig;
     private journalEntryLines: Array<any> = [];
@@ -133,6 +132,7 @@ export class LedgerAccountReconciliation {
     }
 
     private loadData() {
+        this.canAutoMark = false;
         if (this.customerID || this.supplierID || this.accountID) {
             this.busy = true;
             this.setupUniTable();
@@ -147,7 +147,7 @@ export class LedgerAccountReconciliation {
         this.summaryData.SumOpen = 0;
 
         setTimeout(() => {
-            let posts = this.table.getTableData();
+            const posts = this.table.getTableData();
 
             posts.forEach(x => {
                 if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
@@ -164,15 +164,15 @@ export class LedgerAccountReconciliation {
 
     public onRowSelected(data) {
         if (data) {
-            let rowModel = data.rowModel;
+            const rowModel = data.rowModel;
             if (!rowModel.Markings) {
                 rowModel.Markings = [];
             }
 
-            let isSelected = rowModel._rowSelected;
+            const isSelected = rowModel._rowSelected;
 
             if (isSelected) {
-                let currentMarkingsWithDifferentCurrencyCode =
+                const currentMarkingsWithDifferentCurrencyCode =
                     this.currentMarkingSession.filter(x => x.CurrencyCodeID !== rowModel.CurrencyCodeID);
 
                 if (currentMarkingsWithDifferentCurrencyCode.length > 0) {
@@ -197,12 +197,12 @@ export class LedgerAccountReconciliation {
 
                 currentSessionSum += rowModel.RestAmount;
 
-                let sumPositive = _.sumBy(this.currentMarkingSession
+                const sumPositive = _.sumBy(this.currentMarkingSession
                     .filter(x => x.RestAmount > 0), x => x.RestAmount);
-                let sumNegative = _.sumBy(this.currentMarkingSession
+                const sumNegative = _.sumBy(this.currentMarkingSession
                     .filter(x => x.RestAmount < 0), x => x.RestAmount);
-                let countPositive = this.currentMarkingSession.filter(x => x.RestAmount > 0).length;
-                let countNegative = this.currentMarkingSession.filter(x => x.RestAmount < 0).length;
+                const countPositive = this.currentMarkingSession.filter(x => x.RestAmount > 0).length;
+                const countNegative = this.currentMarkingSession.filter(x => x.RestAmount < 0).length;
 
                 let didSwitchAfterLastSelection: boolean = false;
 
@@ -219,10 +219,10 @@ export class LedgerAccountReconciliation {
                     // row is already marked, dont do anything else here - the user is probably going
                     // to unmark a marked line. Let's help the user by selecting related rows for him
                     if (rowModel.Markings && rowModel.Markings.length > 0) {
-                        let tableData = this.table.getTableData();
+                        const tableData = this.table.getTableData();
 
                         rowModel.Markings.forEach(line => {
-                            let otherRow = tableData.find(x => x.ID === line.ID);
+                            const otherRow = tableData.find(x => x.ID === line.ID);
 
                             if (otherRow && !otherRow._rowSelected) {
                                 otherRow._rowSelected = true;
@@ -317,9 +317,9 @@ export class LedgerAccountReconciliation {
         this.journalEntryLineService.getJournalEntryLinePostPostData(
             this.displayPostsOption !== 'MARKED',
             this.displayPostsOption !== 'OPEN',
-            (register === "customer") ? -1 : null,
-            (register === "supplier") ? -1 : null,
-            (register === "account") ? -1 : null,
+            (register === 'customer') ? -1 : null,
+            (register === 'supplier') ? -1 : null,
+            (register === 'account') ? -1 : null,
             this.pointInTime)
             .subscribe((lines: Array<JournalEntryLinePostPostData>) => {
                 this.exportLines(lines);
@@ -329,7 +329,7 @@ export class LedgerAccountReconciliation {
     }
 
     private exportLines(lines: Array<JournalEntryLinePostPostData>) {
-        let list = [];
+        const list = [];
         const moneyFormat: INumberOptions = {
             thousandSeparator: '',
             decimalSeparator: ',',
@@ -375,53 +375,26 @@ export class LedgerAccountReconciliation {
             return;
         }
 
-        let tableData = this.table.getTableData();
+        const tableData = this.table.getTableData();
 
-        // iterate not marked rows to see if any matches are found
-        // for each item, check first if an exact match is found
-        tableData.forEach(row => {
-
-            if (row.StatusCode !== StatusCodeJournalEntryLine.Marked && row.RestAmount !== 0) {
-                for (let i = 0; i < tableData.length; i++) {
-                    let otherRow = tableData[i];
-                    if (otherRow.StatusCode !== StatusCodeJournalEntryLine.Marked
-                        && ((otherRow.RestAmount < 0 && row.RestAmount > 0)
-                            || (otherRow.RestAmount > 0 && row.RestAmount < 0))
-                        && Math.abs(otherRow.RestAmount) === Math.abs(row.RestAmount)) {
-
-                        this.addToCurrentMarkingSession(otherRow);
-                        this.addToCurrentMarkingSession(row);
-                        this.closeMarkingSession();
-                        break;
-                    }
+        this.canAutoMark = false;
+       
+        this.postPostService.automark(tableData)
+            .subscribe( result => {
+                if (result.length > 0) {
+                    this.allMarkingSessions = result;
+                    this.journalEntryLines = tableData;
+                    setTimeout(() => {
+                        this.calculateSums();
+                    });
+                    this.isDirty = true;
                 }
-            }
         });
-
-        // iterate rows one more time to get an approximate match
-        // for each item, if no exact matches has been found
-        /*tableData.forEach(row => {
-            if (row.StatusCode !== StatusCodeJournalEntryLine.Marked && row.RestAmount !== 0) {
-                tableData.forEach(otherRow => {
-                    if (otherRow.StatusCode !== StatusCodeJournalEntryLine.Marked
-                        && otherRow.RestAmount !== 0
-                        && ((otherRow.RestAmount < 0 && row.RestAmount > 0)
-                                || (otherRow.RestAmount > 0 && row.RestAmount < 0))
-                        && Math.abs(row.RestAmount + otherRow.RestAmount) < 10) {
-
-                        row._isLikelyMatch = true;
-                        this.table.updateRow(row._originalIndex, row);
-                    }
-                });
-            }
-        });*/
-
 
     }
 
     private addToCurrentMarkingSession(model) {
         this.currentMarkingSession.push(model);
-
         // run calculation of SumChecked before we try to find matches
         setTimeout(() => {
             this.setLikelyMatchCandidates();
@@ -429,7 +402,7 @@ export class LedgerAccountReconciliation {
     }
 
     private setLikelyMatchCandidates() {
-        let tableData = this.table.getTableData();
+        const tableData = this.table.getTableData();
 
         tableData.forEach(row => {
             if (row._isLikelyMatch) {
@@ -458,12 +431,12 @@ export class LedgerAccountReconciliation {
             this.allMarkingSessions.find(x => x.JournalEntryLineId1 === rowModel.ID
             || x.JournalEntryLineId2 === rowModel.ID)
         ) {
-            let affectedMarkings = this.allMarkingSessions.filter(
+            const affectedMarkings = this.allMarkingSessions.filter(
                 x => x.JournalEntryLineId1 === rowModel.ID || x.JournalEntryLineId2 === rowModel.ID
             );
 
             // update unitable to remove bindings
-            let tableData = this.table.getTableData();
+            const tableData = this.table.getTableData();
 
             affectedMarkings.forEach(marking => {
                 tableData.forEach(row => {
@@ -531,23 +504,23 @@ export class LedgerAccountReconciliation {
         }
 
         // find largest amount, either negative or positive
-        let sortedSessionList = this.currentMarkingSession.slice().sort((x, y) => x.RestAmount - y.RestAmount);
+        const sortedSessionList = this.currentMarkingSession.slice().sort((x, y) => x.RestAmount - y.RestAmount);
 
-        let smallestRestAmountLine = sortedSessionList[0];
-        let largestRestAmountLine = sortedSessionList[sortedSessionList.length - 1];
+        const smallestRestAmountLine = sortedSessionList[0];
+        const largestRestAmountLine = sortedSessionList[sortedSessionList.length - 1];
 
-        let baseLine = Math.abs(smallestRestAmountLine.RestAmount) > Math.abs(largestRestAmountLine.RestAmount) ?
+        const baseLine = Math.abs(smallestRestAmountLine.RestAmount) > Math.abs(largestRestAmountLine.RestAmount) ?
                             smallestRestAmountLine : largestRestAmountLine;
 
         if (!baseLine.Markings) {
             baseLine.Markings = [];
         }
 
-        let originalBaseRestAmount = baseLine.RestAmount;
+        const originalBaseRestAmount = baseLine.RestAmount;
         let baseRestAmount = baseLine.RestAmount;
 
         if (this.currentMarkingSession.length === 1) {
-            let newMarking: JournalEntryLineCouple = {
+            const newMarking: JournalEntryLineCouple = {
                 JournalEntryLineId1: this.currentMarkingSession[0],
                 JournalEntryLineId2: this.currentMarkingSession[0]
             };
@@ -561,7 +534,7 @@ export class LedgerAccountReconciliation {
 
                 if (x.ID !== baseLine.ID) {
                     if (baseLine.RestAmount !== 0) {
-                        let newMarking: JournalEntryLineCouple = {
+                        const newMarking: JournalEntryLineCouple = {
                             JournalEntryLineId1: baseLine.ID,
                             JournalEntryLineId2: x.ID
                         };
@@ -719,7 +692,7 @@ export class LedgerAccountReconciliation {
                     // get selected rows after local rows has been updated
                     // - this is done to get items that needs to be unlocked through the api
                     selectedRows = this.table.getSelectedRows();
-                    let journalEntryIDs: Array<number> = [];
+                    const journalEntryIDs: Array<number> = [];
 
                     selectedRows.forEach(row => {
                         if (row.StatusCode !== StatusCodeJournalEntryLine.Open) {
@@ -752,16 +725,24 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    public abortMarking() {
+    public abortMarking(ask = true, reload = true) {
+        if (!ask) {
+            this.clearMarkings(reload);
+            return;
+        }
         this.canDiscardChanges().subscribe(canDeactivate => {
             if (canDeactivate) {
-                this.allMarkingSessions = [];
-                this.currentMarkingSession = [];
-                this.currentSelectedRows = [];
-                this.isDirty = false;
-                this.loadData();
+                this.clearMarkings(reload);
             }
         });
+    }
+
+    private clearMarkings(reload = true) {
+        this.allMarkingSessions = [];
+        this.currentMarkingSession = [];
+        this.currentSelectedRows = [];
+        this.isDirty = false;
+        if (reload) {this.loadData(); }
     }
 
     public reconciliateJournalEntries() {
@@ -969,7 +950,6 @@ export class LedgerAccountReconciliation {
     }
 
     private setupUniTable() {
-
         this.journalEntryLineService.getJournalEntryLinePostPostData(
             this.displayPostsOption !== 'MARKED',
             this.displayPostsOption !== 'OPEN',
@@ -979,6 +959,7 @@ export class LedgerAccountReconciliation {
             this.pointInTime)
             .subscribe(data => {
                 this.journalEntryLines = data;
+                this.canAutoMark = data && data.length > 1 && this.displayPostsOption === 'OPEN';
                 setTimeout(() => {
                     this.calculateSums();
                     this.busy = false;
@@ -987,7 +968,7 @@ export class LedgerAccountReconciliation {
             (err) => this.errorService.handle(err)
         );
 
-        let columns = [
+        const columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text)
                 .setWidth('7rem'),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)

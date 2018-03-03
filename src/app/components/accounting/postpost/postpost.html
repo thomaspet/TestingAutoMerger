@@ -26,6 +26,7 @@
                         (changeEvent)="onPointInTimeChanged($event)">
                 </localdate-picker-input>
             </label>
+
             <uni-table
                     [config]="accountsTableConfig"
                     [resource]="(accounts$ | async)"
@@ -35,6 +36,7 @@
         </nav>
 
         <main class="splitview_detail">
+            <div class="toolbar"><button title="Ctrl + A" class="good" [disabled]="!(postpost?.canAutoMark)" (click)="autoMark()">Automerking</button></div>
             <ledger-account-reconciliation
                 [customerID]="(customer$ | async)?.ID"
                 [supplierID]="(supplier$ | async)?.ID"

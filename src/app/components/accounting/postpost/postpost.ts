@@ -1,4 +1,4 @@
-import {ViewChild, Component} from '@angular/core';
+import {ViewChild, Component, HostListener} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
@@ -43,7 +43,14 @@ export class PostPost {
     private table: UniTable;
 
     @ViewChild(LedgerAccountReconciliation)
-    private postpost: LedgerAccountReconciliation;
+    public postpost: LedgerAccountReconciliation;
+
+    @HostListener('keydown', ['$event']) onKeyDown(event: KeyboardEvent) {
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 65) {
+            event.preventDefault();
+            this.autoMark();
+        }
+      }
 
     // Save
     private shareActions: IShareAction[];
@@ -122,14 +129,14 @@ export class PostPost {
                 if (result === ConfirmActions.ACCEPT) {
                     this.postpost.reconciliateJournalEntries();
                 } else if (result === ConfirmActions.REJECT) {
-                    this.postpost.isDirty = false;
+                    this.postpost.abortMarking(false, false);
                 }
 
                 return result !== ConfirmActions.CANCEL;
             });
     }
 
-    public focusRow(index = undefined) {
+    public focusRow(index?: number) {
         if (this.table) {
             this.table.focusRow(index === undefined ? this.selectedIndex : index);
         }
@@ -189,6 +196,12 @@ export class PostPost {
         ];
     }
 
+    public autoMark() {
+        if (this.postpost.canAutoMark) {
+            this.automark(msg => {});
+        }
+    }
+
     private autolock(done: (message: string) => void) {
         this.autolocking = !this.autolocking;
         this.setupSaveActions();
@@ -222,9 +235,9 @@ export class PostPost {
 
     private exportAccounts(): Observable<any> {
         return Observable.of(this.accounts$.getValue()).map((accounts) => {
-            var list = [];
+            const list = [];
             accounts.forEach((account) => {
-                var row = {
+                const row = {
                     AccountNumber: account.AccountNumber,
                     AccountName: account.AccountName,
                     SumAmount: account.SumAmount.toFixed(2)
@@ -281,7 +294,7 @@ export class PostPost {
     }
 
     public nextAccount() {
-        let accounts = this.accounts$.getValue();
+        const accounts = this.accounts$.getValue();
         if (this.selectedIndex >= accounts.length - 1) {
             this.selectedIndex = accounts.length - 1;
             this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere kontoer etter denne');
@@ -311,7 +324,7 @@ export class PostPost {
             this.canceled = false;
 
             if (allowed) {
-                let account = event.rowModel;
+                const account = event.rowModel;
                 this.selectedIndex = account._originalIndex;
                 switch (this.register) {
                     case 'customer':
@@ -350,7 +363,7 @@ export class PostPost {
     }
 
     private getDateFilter(): string {
-        let date = this.pointInTime$.getValue();
+        const date = this.pointInTime$.getValue();
         return date ? `and FinancialDate le '${date}'` : '';
     }
 
@@ -398,7 +411,8 @@ export class PostPost {
                              `select=Account.ID as ID,Account.AccountNumber as AccountNumber,` +
                              `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
+                             `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
+                             ` ${this.getDateFilter()}&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -443,7 +457,7 @@ export class PostPost {
     public onFiltersChange(filter) {
         setTimeout(() => {
             if (filter !== '') {
-                let row = this.table.getTableData()[0];
+                const row = this.table.getTableData()[0];
                 if (this.table.getRowCount() === 1 && row._originalIndex !== this.selectedIndex) {
                     this.selectedIndex = row._originalIndex;
                     this.table.focusRow(this.selectedIndex);
