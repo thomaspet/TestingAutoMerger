@@ -510,52 +510,52 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         let formattedFieldValue = fieldValue;
 
-        // let columnType = column.Type;
+        const columnType = column.Type;
 
-        // switch (column.Type) {
-        //     case 'number':
-        //     case 'money':
-        //     case 'percent':
-        //         fieldValue = fieldValue || 0;
-        // }
+        switch (column.Type) {
+            case 'number':
+            case 'money':
+            case 'percent':
+                fieldValue = fieldValue || 0;
+        }
 
-        // if (fieldValue !== '') {
-        //     switch (columnType) {
-        //         case 'number':
-        //             formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
-        //             break;
-        //         case 'money':
-        //             formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
-        //             break;
-        //         case 'percent':
-        //             formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
-        //             break;
-        //         case 'date':
-        //         case 'datetime':
-        //         case 'localdate':
-        //             formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
-        //             break;
-        //     }
-        // }
+        if (fieldValue !== '') {
+            switch (columnType) {
+                case 'number':
+                    formattedFieldValue = this.numberFormatService.asNumber(fieldValue);
+                    break;
+                case 'money':
+                    formattedFieldValue = this.numberFormatService.asMoney(fieldValue);
+                    break;
+                case 'percent':
+                    formattedFieldValue = this.numberFormatService.asPercentage(fieldValue);
+                    break;
+                case 'date':
+                case 'datetime':
+                case 'localdate':
+                    formattedFieldValue = moment(fieldValue).format('DD.MM.YYYY');
+                    break;
+            }
+        }
 
-        // if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
-        //     let model = this.modelService.getModel(data[column.Alias]);
-        //     let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
-        //     formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
-        // }
+        if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
+            const model = this.modelService.getModel(data[column.Alias]);
+            const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+            formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+        }
 
-        // if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-        //     formattedFieldValue = this.statusCodeToText(data[column.Alias]);
-        // }
+        if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+            formattedFieldValue = this.statusCodeToText(data[column.Alias]);
+        }
 
-        // if (column.SubFields && column.SubFields.length > 0) {
-        //     column.SubFields.forEach(sf => {
-        //         let subFieldValue = this.getFieldValue(sf, data, ticker, columnOverrides);
-        //         if (subFieldValue && subFieldValue !== '') {
-        //             formattedFieldValue += ' - ' + subFieldValue;
-        //         }
-        //     });
-        // }
+        if (column.SubFields && column.SubFields.length > 0) {
+            column.SubFields.forEach(sf => {
+                const subFieldValue = this.getFieldValue(sf, data, ticker, columnOverrides);
+                if (subFieldValue && subFieldValue !== '') {
+                    formattedFieldValue += ' - ' + subFieldValue;
+                }
+            });
+        }
 
         return formattedFieldValue;
     }
