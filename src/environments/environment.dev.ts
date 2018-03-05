@@ -5,7 +5,7 @@ export const environment = {
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://dev-jobserver.unieconomy.no/api/',
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ADMIN_SERVER_URL: 'https://dev-admin.unieconomy.no',
 
     API_DOMAINS: {
