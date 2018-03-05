@@ -11,7 +11,7 @@ import {
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
-    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate
+    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Valuetype
 } from '../../../unientities';
 import {
     AccountService, ReportDefinitionService, UniCacheService,
@@ -428,9 +428,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
 
         if (wagetype.SupplementaryInformations) {
-
             wagetype.SupplementaryInformations.forEach((supplement: WageTypeSupplement) => {
-                let transSupplement = new SalaryTransactionSupplement();
+                const transSupplement = new SalaryTransactionSupplement();
                 transSupplement.WageTypeSupplementID = supplement.ID;
                 transSupplement.WageTypeSupplement = supplement;
                 supplements.push(transSupplement);

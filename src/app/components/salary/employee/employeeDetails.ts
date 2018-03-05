@@ -24,7 +24,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, SupplementService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
@@ -167,7 +167,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private employeeDetailsService: EmployeeDetailsService,
         private salarybalanceService: SalarybalanceService,
         private salaryBalanceViewService: SalaryBalanceViewService,
-        private salaryBalanceLineService: SalaryBalanceLineService
+        private salaryBalanceLineService: SalaryBalanceLineService,
+        private supplementService: SupplementService
     ) {
         super(router.url, cacheService);
 
@@ -1451,6 +1452,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 });
                 return Observable.forkJoin(obsList);
             });
+    }
+
+    private reportRecurringPostError(post: SalaryTransaction, err: any, hasErrors: boolean) {
+        hasErrors = true;
+        post.Deleted = false;
+        const toastHeader =
+            `Feil ved lagring av faste poster linje ${post['_originalIndex'] + 1}`;
+        const toastBody = (err.json().Messages) ? err.json().Messages[0].Message : '';
+        this.toastService.addToast(toastHeader, ToastType.bad, 0, toastBody);
+        this.errorService.handle(err);
+        return Observable.empty();
     }
 
     private getDimension(post: SalaryTransaction): Observable<Dimensions> {

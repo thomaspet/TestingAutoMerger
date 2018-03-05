@@ -1,13 +1,27 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype} from '../../../unientities';
+import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype, SalaryTransaction, WageType} from '../../../unientities';
 import * as moment from 'moment';
+import {Observable} from 'rxjs/Observable';
+import {ErrorService} from '../../common/errorService';
+import {WageTypeService} from '../wagetype/wageTypeService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+
+export enum SalaryTransactionSupplementValidationCodes {
+    TransDoesntExist = 116101,
+    DoesNotMatchWageType = 116102
+}
 
 @Injectable()
 export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
 
-    constructor(protected http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private errorService: ErrorService,
+        private wageTypeService: WageTypeService,
+        private toastService: ToastService
+    ) {
         super(http);
         this.entityType = SalaryTransactionSupplement.EntityType;
         this.relativeURL = SalaryTransactionSupplement.RelativeUrl;
@@ -63,5 +77,24 @@ export class SupplementService extends BizHttp<SalaryTransactionSupplement> {
             && !supp.ValueDate2
             && !supp.ValueMoney || supp.ValueMoney === 0
             && !supp.ValueString;
+    }
+
+    public supplementsCleanUpToast() {
+        this.toastService
+            .addToast(
+                'Rettet tilleggsopplysninger',
+                ToastType.warn,
+                ToastTime.long,
+                'Tilleggsopplysninger på en eller flere lønnsposter matchet ikke tilleggsopplysninger på tilhørende lønnsart. ' +
+                'Vi har gått gjennom opplysningene og ryddet for deg.');
+    }
+
+    public checkForChangedSupplements(obj: any) {
+        const validationErrors = this.errorService.extractValidationMessages(obj);
+        if (!validationErrors.some(x => x.ComplexValidationRule
+            && x.ComplexValidationRule.ValidationCode === SalaryTransactionSupplementValidationCodes.DoesNotMatchWageType)) {
+            return;
+        }
+        this.supplementsCleanUpToast();
     }
 }

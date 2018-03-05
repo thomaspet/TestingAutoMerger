@@ -21,4 +21,8 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
     public createVacationPayments(ID: number) {
         return super.PutAction(ID, 'createvacationpay');
     }
+
+    public save(trans: SalaryTransaction): Observable<SalaryTransaction> {
+        return trans.ID ? super.Put(trans.ID, trans) : super.Post(trans);
+    }
 }

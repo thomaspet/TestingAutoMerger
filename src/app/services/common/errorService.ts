@@ -3,6 +3,7 @@ import {Logger} from '../../../framework/core/logger';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import {ObservableInput} from 'rxjs/Observable';
+import {ComplexValidationRule, EntityValidationRule} from '../../unientities';
 
 @Injectable()
 export class ErrorService {
@@ -13,12 +14,12 @@ export class ErrorService {
 
     public handle(error: any) {
         this.handleWithMessage(error, null);
-    };
+    }
 
     public handleRxCatch(err: any, caught: Observable<any>): ObservableInput<any> {
         this.handleWithMessage(err, null);
         return Observable.empty();
-    };
+    }
 
     public handleWithMessage(error: any, toastMsg: string) {
         const message = this.extractMessage(error);
@@ -99,6 +100,72 @@ export class ErrorService {
         }
 
         return findValue(error);
+    }
+
+    public extractComplexValidationRules(error: any): ComplexValidationRule[] {
+        const complexValidationRuleKey = 'ComplexValidationRule';
+        return this.extractValidationMessages(this.getErrorBody(error))
+            .filter(message => !!message[complexValidationRuleKey])
+            .map(message => message[complexValidationRuleKey]);
+    }
+
+    public extractValidationMessages(obj: any) {
+        return [
+            ...this.extractValidationMessagesRecursively(obj),
+            ...obj.Messages || [],
+            obj.Message,
+            obj.message
+        ].filter(x => !!x);
+    }
+
+    private extractValidationMessagesRecursively(obj: any): any[] {
+        const validationErrorKey = '_validationResults';
+
+        if (!obj) {
+            return [];
+        }
+
+        return Object
+            .keys(obj)
+            .map(key => {
+                const value = obj[key];
+                if (!value) {
+                    return [];
+                }
+                if (key === validationErrorKey) {
+                    return Object
+                        .keys(value)
+                        .map(k => <any[]>value[k])
+                        .reduce((acc, curr) => [...acc, ...curr], []);
+                }
+
+                if (Array.isArray(value)) {
+                    return value
+                        .map(element => this.extractValidationMessagesRecursively(element))
+                        .reduce((acc, curr) => [...acc, ...curr], []);
+                }
+
+                if (typeof value === 'object') {
+                    return this.extractValidationMessagesRecursively(value);
+                }
+
+                return [];
+            })
+            .reduce((acc, curr) => [...acc, ...curr], []);
+    }
+
+    private getErrorBody(err: any) {
+        let errBody;
+        if (this.isHttpResponse(err)) {
+            try {
+                errBody = err.json();
+            } catch (e) {
+                errBody = err.text();
+            }
+        } else {
+            errBody = err;
+        }
+        return errBody;
     }
 
     public addErrorToast(message: string) {

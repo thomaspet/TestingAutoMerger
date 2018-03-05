@@ -29,7 +29,7 @@ import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     YearService, ErrorService, EmployeeCategoryService, FileService,
-    JournalEntryService, PayrollRunPaymentStatus
+    JournalEntryService, PayrollRunPaymentStatus, SupplementService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -110,7 +110,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private fileService: FileService,
         private journalEntryService: JournalEntryService,
         private modalService: UniModalService,
-        private payrollRunDetailsService: PayrollRunDetailsService
+        private payrollRunDetailsService: PayrollRunDetailsService,
+        private supplementService: SupplementService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -668,7 +669,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             ? this.payrollrunService
                 .getEmployeesOnPayroll(this.payrollrunID,
                     ['Employments.Dimensions', 'BusinessRelationInfo',
-                    'SubEntity.BusinessRelationInfo', 'BusinessRelationInfo.BankAccounts']
+                        'SubEntity.BusinessRelationInfo', 'BusinessRelationInfo.BankAccounts']
                 ).subscribe((employees: Employee[]) => {
                     this.updateTax(employees);
                     this.updateState('employees', employees, false);
@@ -984,7 +985,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         super.getStateSubject(PAYROLL_RUN_KEY)
             .asObservable()
             .take(1)
-            .switchMap(run => this.savePayrollrun(run))
+            .switchMap(run => this.savePayrollrun(run, done))
             .do(() => this._salaryTransactionService.invalidateCache())
             .filter(() => updateView)
             .switchMap((payrollRun: PayrollRun) => {
@@ -1040,7 +1041,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
-    public savePayrollrun(payrollRun: PayrollRun): Observable<PayrollRun> {
+    public savePayrollrun(payrollRun: PayrollRun, done: (message: string) => void = null): Observable<PayrollRun> {
         if (!payrollRun.ID) {
             payrollRun.ID = 0;
         }
@@ -1076,7 +1077,17 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             });
         }
 
-        return this.payrollrunService.savePayrollRun(payrollRun);
+        return this.payrollrunService
+            .savePayrollRun(payrollRun)
+            .do(ret => this.supplementService.checkForChangedSupplements(ret))
+            .catch((err, obs) => this.handleError(err, obs, done));
+    }
+
+    private handleError(err, obs, done: (message: string) => void = null) {
+        if (done) {
+            done('Feil ved lagring');
+        }
+        return this.errorService.handleRxCatch(err, obs);
     }
 
     public updatePayrollRun() {
