@@ -13,8 +13,7 @@ import { InvoiceHourService } from './invoice-hours.service';
 @Component({
     selector: 'workitem-transfer-wizard-products',
     template: `<uni-table [attr.aria-busy]="busy" *ngIf="initialized" [resource]="dataLookup" [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)"
-        (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
+        (rowSelected)="onRowSelected($event)">
     </uni-table>`
 })
 export class WorkitemTransferWizardProducts implements OnInit {
@@ -42,7 +41,8 @@ export class WorkitemTransferWizardProducts implements OnInit {
     }
 
     public get selectedItems() {
-        return this.uniTable.getTableData();
+        const all = this.uniTable.getTableData();
+        return all.filter( x => x._rowSelected);
     }
 
     public refresh() {
@@ -59,7 +59,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
     public canProceed(): { ok: boolean, msg?: string } {
         const list = <Array<any>>this.selectedItems;
         if (list && list.length > 0) {
-            if (list.findIndex( x => !x.ProductID) >= 0) {
+            if (list.findIndex( x => x._rowSelected && !x.ProductID   ) >= 0) {
                 return { ok: false, msg: 'Du må angi produkt/pris for alle timearter som skal overføres.' };
             }
             return { ok: true };
@@ -93,6 +93,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
             .setColumns(cols)
             .setEditable(true)
             .setAutoAddNewRow(false)
+            .setMultiRowSelect(true)
             .setSortable(true)
             .setChangeCallback( changeEvent => this.onEditChange(changeEvent) )
             .setDataMapper((data) => {
@@ -100,6 +101,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
                 const rows = (data && data.Success && data.Data) ? data.Data : [];
                 rows.forEach(row => {
                     row.SumMinutes = row.SumMinutes ? row.SumMinutes / 60 : 0;
+                    row._rowSelected = !!row.PartName;
                 });
                 return rows;
             });

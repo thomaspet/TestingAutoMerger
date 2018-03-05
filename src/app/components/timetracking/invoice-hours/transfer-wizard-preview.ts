@@ -117,23 +117,20 @@ export class WorkitemTransferWizardPreview implements OnInit {
 
                 const workType = options.selectedProducts.find( x => x.WorktypeID === row.WorktypeID );
                 const item = new WorkOrderItem();
-                if (workType) {
+                if (workType && workType._rowSelected) {
                     item.ItemText = this.buildItemText(row, workType, options);
                     item.ProductID = workType.ProductID;
                     item.Unit = workType.Unit;
                     item.PriceExVat = workType.PriceExVat;
                     item.VatTypeID = workType.VatTypeID;
-                } else {
-                    item.ItemText = row.Description;
+                    item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
+                    item.ItemSource = new WorkItemSource();
+                    item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
+                    if (options.source === WizardSource.ProjectHours) {
+                        item.setProject(row.GroupValue);
+                    }
+                    order.addItem(item, true, row.Date);
                 }
-                item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
-                item.ItemSource = new WorkItemSource();
-                item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
-                if (options.source === WizardSource.ProjectHours) {
-                    item.setProject(row.GroupValue);
-                }
-
-                order.addItem(item, true, row.Date);
 
                 // To prevent js-locking we process only BATCH_SIZE rows at the time
                 if (i - startIndex > BATCH_SIZE) {
