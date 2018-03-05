@@ -146,7 +146,7 @@
             {
                 "Header": "Stillingskode",
                 "Field": "JobCode",
-                "Type": "text",
+                "Alignment": "right",
                 "Width": "7rem"
             },
             {
@@ -863,18 +863,21 @@
                 "Header": "Fra dato",
                 "Field": "FromDate",
                 "Type": "date",
+                "Alignment": "right",
                 "Width": "6rem"
             },
             {
                 "Header": "Til dato",
                 "Field": "ToDate",
                 "Type": "date",
+                "Alignment": "right",
                 "Width": "6rem"
             },
             {
                 "Header": "Konto",
                 "Field": "Account",
                 "Type": "text",
+                "Alignment": "right",
                 "Width": "5rem"
             },
             {
