@@ -3,11 +3,11 @@ export const environment = {
 
     BASE_URL_INIT: 'http://localhost:29077',
     BASE_URL: 'http://localhost:29077/',
-    BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
-    BASE_URL_FILES: 'https://unifiles.azurewebsites.net/',
-    UNI_PUSH_ADAPTER_URL: 'https://devapi-unipushadapter.azurewebsites.net',
-    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.azurewebsites.net/api/',
-    ADMIN_SERVER_URL: 'https://dev-elsa.azurewebsites.net',
+    BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
+    UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
+    ADMIN_SERVER_URL: 'https://dev-admin.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',

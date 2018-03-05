@@ -149,16 +149,16 @@ export class WorkerService extends BizHttp<Worker> {
                 return `date eq '${toIso(date)}'`;
             case IFilterInterval.week:
                 return `date ge '${toIso(moment(date).startOf('week').toDate())}'` +
-                    `and date le '${toIso(moment(date).endOf('week').toDate())}'`;
+                    ` and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.twoweeks:
                 return `date ge '${toIso(moment(date).subtract(1, 'week').startOf('week').toDate())}'` +
-                    `and date le '${toIso(moment(date).endOf('week').toDate())}'`;
+                    ` and date le '${toIso(moment(date).endOf('week').toDate())}'`;
             case IFilterInterval.month:
                 return `date ge '${toIso(moment(date).startOf('month').toDate())}'` +
-                    `and date le '${toIso(moment(date).endOf('month').toDate())}'`;
+                    ` and date le '${toIso(moment(date).endOf('month').toDate())}'`;
             case IFilterInterval.year:
                 return `date ge '${toIso(moment(date).startOf('year').toDate())}'` +
-                    `and date le '${toIso(moment(date).endOf('year').toDate())}'`;
+                    ` and date le '${toIso(moment(date).endOf('year').toDate())}'`;
             default:
                 return '';
         }

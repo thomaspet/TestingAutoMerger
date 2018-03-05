@@ -8,10 +8,11 @@ interface IStatSource {
     name: string;
     pivotColName: string;
     label: string;
-    join: string;
+    join?: string;
     filter?: string;
     isSelected?: boolean;
     pivotResultColName?: string;
+    expand?: string;
 }
 
 @Component({
@@ -49,10 +50,10 @@ export class RegtimeTotals {
     private initSources(ts: TimeSheet) {
         this.sources = [
             {
-                name: 'workers', label: 'Personer',
-                pivotColName: 'BusinessRelation.Name', isSelected: false, pivotResultColName: 'BusinessRelationName',
-                join: 'workitem.worktypeid eq worktype.id and workitem.workrelationid eq workrelation.id '
-                    + 'and workrelation.workerid eq worker.id and worker.businessrelationid eq businessrelation.id',
+                name: 'customers', label: 'Kunder (dine)',
+                pivotColName: 'Info.Name', isSelected: false, pivotResultColName: 'InfoName',
+                expand: 'worktype,customer.info',
+                filter: 'customerid gt 0 and workrelationid eq ' + ts.currentRelation.ID
             }, {
                 name: 'orders', label: 'Ordre (dine)',
                 pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName',
@@ -90,7 +91,7 @@ export class RegtimeTotals {
     }
 
     private onFilterClick(filter: IFilter) {
-        var f: IFilter;
+        let f: IFilter;
         this.filters.forEach((value: any) => {
             if (value.name === filter.name) {
                 f = value;
@@ -104,7 +105,7 @@ export class RegtimeTotals {
     }
 
     public onSourceClick(src: IStatSource) {
-        var f: IStatSource;
+        let f: IStatSource;
         this.sources.forEach((value: any) => {
             if (value.name === src.name) {
                 f = value;
@@ -119,13 +120,13 @@ export class RegtimeTotals {
 
 
     private showData(items: Array<any>) {
-        var cols: ICol[] = [];
+        const cols: ICol[] = [];
 
         // Extract keys (since it has been pivoted with values as columnnames)
         if (items && items.length > 0) {
-            for (var key in items[0]) {
+            for (const key in items[0]) {
                 if (items[0].hasOwnProperty(key)) {
-                    let col = new Column(key, key, ColumnType.Integer);
+                    const col = new Column(key, key, ColumnType.Integer);
                     switch (key) {
                         case this.currentSource.pivotResultColName:
                             break;
@@ -138,13 +139,13 @@ export class RegtimeTotals {
         }
 
         // Make sums
-        var lineSum: any = {};
-        for (var i = 0; i < items.length; i++) {
+        const lineSum: any = {};
+        for (let i = 0; i < items.length; i++) {
             let sum = 0;
-            for (var c = 0; c < cols.length; c++) {
-                let col = cols[c];
-                let value = items[i][col.name];
-                let itemSum = value ? parseInt(value) : 0;
+            for (let c = 0; c < cols.length; c++) {
+                const col = cols[c];
+                const value = items[i][col.name];
+                const itemSum = value ? parseInt(value, 10) : 0;
                 sum += itemSum;
                 lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;
             }
@@ -161,18 +162,19 @@ export class RegtimeTotals {
     }
 
     private queryTotals() {
-        var src = this.currentSource;
+        const src = this.currentSource;
         if (!src.pivotResultColName) {
             src.pivotResultColName = src.pivotColName.replace('.', '_');
         }
         this.busy = true;
-        var query = 'model=workitem';
-        var filter = this.workerService.getIntervalFilter(this.currentFilter.interval, new Date());
+        let query = 'model=workitem';
+        const filter = this.workerService.getIntervalFilter(this.currentFilter.interval, new Date());
         query += this.createArg('select', 'sum(minutes),WorkType.Name,' + src.pivotColName);
-        query += this.createArg('filter', 'deleted eq \'false\'' + (filter ? ' and ( ' +  filter + ' )' : ''));
-        if (src.filter) { query += ' and ( ' + src.filter + ' )'; }
+        query += this.createArg('filter', filter);
+        if (src.filter) { query += (filter ? ' and ' : '') + '( ' + src.filter + ' )'; }
         query += this.createArg('pivot', 'true');
-        query += this.createArg('join', src.join);
+        query += src.join ? this.createArg('join', src.join) : '';
+        query += src.expand ? this.createArg('expand', src.expand) : '';
         this.workerService.getStatistics(query).subscribe((result) => {
             this.busy = false;
             if (result) {
