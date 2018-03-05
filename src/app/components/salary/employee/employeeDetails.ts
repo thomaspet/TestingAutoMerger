@@ -427,7 +427,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                             },
                             false);
                     }
-                    if (childRoute === 'employments') {
+                    if (childRoute.startsWith('employments')) {
                         if (!this.employments) {
                             this.getEmployments();
                             this.getProjects();

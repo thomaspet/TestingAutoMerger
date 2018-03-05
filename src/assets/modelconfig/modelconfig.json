@@ -274,7 +274,7 @@
         {
             "Name": "Employment",
             "Translated": "Arbeidsforhold",
-            "Url": "salary/employees/:employmentemployeeid/employments;EmploymentID=:id"
+            "Url": "salary/employees/:employmentemployeeid/employments?EmploymentID=:id"
         },
         {
             "Name": "EmployeeLeave",

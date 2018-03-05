@@ -74,20 +74,36 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
                 super.getStateSubject('employments')
                     .subscribe((employments: Employment[]) => {
                         this.cachedEmployments.next(employments);
-                        this.refreshEmployments(employments);
                     });
             });
 
-        this.route.params
+        this.route
+            .queryParams
             .subscribe((paramsChange) => {
                 this.cachedEmployments
                     .asObservable()
+                    .do(employments => {
+                        if (this.employments.some(x => x.EmployeeID === this.employeeID)) {
+                            return;
+                        }
+                        const id = +paramsChange['EmploymentID'] || 0;
+                        if (!id) {
+                            return;
+                        }
+                        const empIndex = employments.findIndex(x => x.ID === id);
+                        if (!empIndex || empIndex < 0) {
+                            return;
+                        }
+                        this.selectedIndex = empIndex;
+                    })
+                    .do(employments => this.refreshEmployments(employments))
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .subscribe(employments => {
                         this.employments = employments || [];
                         this.employments$.next(this.employments);
                         if (employments && !employments.length && this.employeeID) {
                             this.newEmployment();
+                            return;
                         }
                     });
         });
