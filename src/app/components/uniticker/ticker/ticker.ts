@@ -27,7 +27,7 @@ import {
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {UniTableUtils} from '../../../../framework/ui/unitable/unitableUtils';
+import {TableUtils} from '@uni-framework/ui/ag-grid/services/table-utils';
 import {StatisticsService, StatusService, EmployeeLeaveService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -112,7 +112,7 @@ export class UniTicker {
         private storageService: BrowserStorageService,
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
-        private utils: UniTableUtils,
+        private tableUtils: TableUtils,
         private employeeLeaveService: EmployeeLeaveService
     ) {
         this.statusService
@@ -140,19 +140,23 @@ export class UniTicker {
                 return;
             }
 
+            // Build sum selects based on ticker columns with SumColumn = true
+            const sumColumns = this.ticker.Columns.filter(col => col.SumColumn);
+            if (!sumColumns || !sumColumns.length) {
+                return Observable.of(undefined);
+            }
+
+            const selects = sumColumns.map(sumCol => {
+                return `sum(${sumCol.SelectableFieldName}) as ${sumCol.DisplayField || sumCol.Alias || sumCol.Field}`;
+            });
+
             const tickerParams = this.getSearchParams(urlParams);
             const sumParams = new URLSearchParams();
             sumParams.set('model', tickerParams.get('model'));
             sumParams.set('expand', tickerParams.get('expand'));
             sumParams.set('filter', tickerParams.get('filter'));
-
-            // Build sum selects based on ticker columns with SumColumn = true
-            const sumColumns = this.ticker.Columns.filter(col => col.SumColumn);
-            const selects = sumColumns.map(sumCol => {
-                return `sum(${sumCol.SelectableFieldName}) as ${sumCol.DisplayField || sumCol.Alias || sumCol.Field}`;
-            });
-
             sumParams.set('select', selects.join(','));
+
             return this.statisticsService.GetAllByUrlSearchParams(sumParams)
                 .map(res => res.json())
                 .map(res => (res.Data && res.Data[0]) || []);
@@ -434,19 +438,6 @@ export class UniTicker {
     private onColumnsChange(columnsChangeEvent) {
         this.ticker.Expand = this.defaultExpand;
         this.setupTableConfig();
-
-        this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = this.getSearchParams(urlParams);
-            if (this.ticker.Model) {
-                return this.statisticsService
-                    // .GetAllUnwrapped(params.toString())
-                    .GetAllByUrlSearchParams(params)
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-            } else if (this.ticker.ApiUrl) {
-                return this.http
-                    .get(this.ticker.ApiUrl);
-            }
-        };
     }
 
     public onExecuteAction(action: TickerAction) {
@@ -658,8 +649,7 @@ export class UniTicker {
                 // Define columns to use in the table
                 let columns: UniTableColumn[] = [];
                 let selects: string[] = [];
-                const customColumnSetup = this.utils.getColumnSetup(configStoreKey) || [];
-
+                const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
                 this.headers = '';
 
                 for (let i = 0; i < this.ticker.Columns.length; i++) {

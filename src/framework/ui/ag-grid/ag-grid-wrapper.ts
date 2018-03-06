@@ -12,7 +12,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 
 import {UniTableConfig} from '../unitable/config/unitableConfig';
-import {UniTableColumn} from '../unitable/config/unitableColumn';
+import {UniTableColumn, IUniTableColumn} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uniModal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
@@ -58,6 +58,7 @@ export class AgGridWrapper {
     @Input() public resource: any[] | ((params: URLSearchParams) => Observable<any>);
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
 
+    @Output() public columnsChange: EventEmitter<UniTableColumn[]> = new EventEmitter(false);
     @Output() public rowChange: EventEmitter<IRowChangeEvent> = new EventEmitter(false); // TODO: typeme!
     @Output() public rowDelete: EventEmitter<any> = new EventEmitter(false);
     @Output() public rowSelectionChange: EventEmitter<any|any[]> = new EventEmitter(false);
@@ -314,7 +315,7 @@ export class AgGridWrapper {
 
         this.modalService.open(ColumnMenuNew, {
             data: {
-                columns: this.config.columns,
+                columns: this.columns,
                 tableConfig: this.config
             }
         }).onClose.subscribe(res => {
@@ -329,6 +330,7 @@ export class AgGridWrapper {
                 }
 
                 this.columns = columns;
+                this.columnsChange.emit(this.columns);
                 this.agColDefs = this.getAgColDefs(columns);
                 this.cdr.markForCheck();
                 setTimeout(() => {

@@ -35,6 +35,10 @@ export class TableUtils {
         }
     }
 
+    public getColumnSetupMap(configKey: string): UniTableColumn[] {
+        return this.columnSetupMap && this.columnSetupMap[configKey];
+    }
+
     public getTableColumns(tableConfig: UniTableConfig): UniTableColumn[] {
         const defaultColumns = _.cloneDeep(tableConfig.columns);
         const key = tableConfig.configStoreKey;

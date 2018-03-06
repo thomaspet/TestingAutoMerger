@@ -34,6 +34,7 @@
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
+                (columnsChange)="onColumnsChange($event)"
                 (rowSelectionChange)="onRowSelectionChange($event)">
             </ag-grid-wrapper>
 
