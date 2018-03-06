@@ -40,9 +40,12 @@ ag-grid-wrapper:not(.selection-list)
         border-left: $table-border-style
 
 ag-grid-wrapper.selection-list
-    .ag-header:hover // resize guide on hover
+    .ag-header:hover // show resize guides on hover
         .ag-header-cell:not(:first-of-type)
             border-left: $table-border-style
+
+    .ag-row
+        cursor: pointer
 
 ag-grid-angular.col-menu-hidden
     .ag-header
