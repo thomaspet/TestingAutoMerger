@@ -66,6 +66,7 @@ export class UniSearchEmployeeConfig {
             externalLookupFn: query =>
                 this.integrationServerCaller
                     .businessRelationSearch(query, MAX_RESULTS)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .map(results =>
                         results.map(result =>
                             this.mapExternalSearchToCustomStatisticsObj(result)

@@ -146,7 +146,7 @@ export class PersonalDetails extends UniView {
             .filter(() => Object
                 .keys(changes)
                 .some(key => {
-                    let change = changes[key];
+                    const change = changes[key];
                     return change.previousValue !== change.currentValue;
                 }))
             .map(employee => {
@@ -158,7 +158,7 @@ export class PersonalDetails extends UniView {
                 }
 
                 if (changes['_EmployeeSearchResult']) {
-                    let searchResult = changes['_EmployeeSearchResult'].currentValue;
+                    const searchResult = changes['_EmployeeSearchResult'].currentValue;
                     if (searchResult) {
                         employee = searchResult;
                         this.showHideNameProperties(true, employee);
@@ -171,11 +171,11 @@ export class PersonalDetails extends UniView {
 
                 return employee;
             })
-            .subscribe(employee => super.updateState('employee', employee, true));
+            .subscribe(employee => super.updateState(EMPLOYEE_KEY, employee, true));
     }
 
     public showHideNameProperties(
-        doUpdateFocus: boolean = false, employee: Employee = undefined, fields: any[] = undefined
+        doUpdateFocus: boolean = false, employee?: Employee, fields?: any[]
     ) {
         let refresh = !fields;
         fields = fields || this.fields$.getValue();
