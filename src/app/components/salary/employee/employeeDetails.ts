@@ -29,7 +29,7 @@ import {
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
-declare var _;
+import * as _ from 'lodash';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
@@ -1082,83 +1082,87 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private saveEmployee(): Observable<Employee> {
-        const brInfo = this.employee.BusinessRelationInfo;
 
         // If employee is untouched and exists in backend we dont have to save it again
         if (!super.isDirty(EMPLOYEE_KEY) && this.employee.ID > 0) {
             return Observable.of(this.employee);
         }
 
-        if (brInfo.DefaultBankAccount
-            && (!brInfo.DefaultBankAccount.AccountNumber
-                || brInfo.DefaultBankAccount.AccountNumber === '')
-        ) {
-            brInfo.DefaultBankAccount = null;
-            brInfo.DefaultBankAccountID = null;
-        }
-
-        if (brInfo.DefaultBankAccount !== null
-            && brInfo.DefaultBankAccount !== undefined
-            && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
-            brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
-        }
-
-        if (brInfo.BankAccounts) {
-            brInfo.BankAccounts.forEach(bankaccount => {
-                if (bankaccount.ID === 0 || !bankaccount.ID) {
-                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+        return this.getState(Employee)
+            .map(emp => _.cloneDeep(emp))
+            .map((emp: Employee) => {
+                const brInfo = emp.BusinessRelationInfo;
+                if (brInfo.DefaultBankAccount
+                    && (!brInfo.DefaultBankAccount.AccountNumber
+                        || brInfo.DefaultBankAccount.AccountNumber === '')
+                ) {
+                    brInfo.DefaultBankAccount = null;
+                    brInfo.DefaultBankAccountID = null;
                 }
-            });
 
-            if (brInfo.DefaultBankAccount) {
-                brInfo.BankAccounts = brInfo.BankAccounts.filter(x => x !== brInfo.DefaultBankAccount);
-            }
-        }
-
-        if (brInfo.DefaultBankAccount) {
-            brInfo.DefaultBankAccount.BankAccountType = EMPLOYEE_KEY;
-        }
-
-        if (brInfo.Emails) {
-            brInfo.Emails.forEach((email) => {
-                if (!email.ID) {
-                    email['_createguid'] = this.employeeService.getNewGuid();
+                if (brInfo.DefaultBankAccount !== null
+                    && brInfo.DefaultBankAccount !== undefined
+                    && (!brInfo.DefaultBankAccount.ID || brInfo.DefaultBankAccount.ID === 0)) {
+                    brInfo.DefaultBankAccount['_createguid'] = this.employeeService.getNewGuid();
                 }
-            });
-        }
-        if (brInfo.Phones) {
-            brInfo.Phones.forEach((phone) => {
-                if (!phone.ID) {
-                    phone['_createguid'] = this.employeeService.getNewGuid();
+
+                if (brInfo.BankAccounts) {
+                    brInfo.BankAccounts.forEach(bankaccount => {
+                        if (bankaccount.ID === 0 || !bankaccount.ID) {
+                            bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                        }
+                    });
+
+                    if (brInfo.DefaultBankAccount) {
+                        brInfo.BankAccounts = brInfo.BankAccounts.filter(x => x !== brInfo.DefaultBankAccount);
+                    }
                 }
-            });
-        }
 
-        if (brInfo.Addresses) {
-            brInfo.Addresses.forEach((address) => {
-                if (!address.ID) {
-                    address['_createguid'] = this.employeeService.getNewGuid();
+                if (brInfo.DefaultBankAccount) {
+                    brInfo.DefaultBankAccount.BankAccountType = EMPLOYEE_KEY;
                 }
-            });
-        }
 
-        if (brInfo.InvoiceAddress && brInfo.InvoiceAddress['_createguid']) {
-            brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
-        }
+                if (brInfo.Emails) {
+                    brInfo.Emails.forEach((email) => {
+                        if (!email.ID) {
+                            email['_createguid'] = this.employeeService.getNewGuid();
+                        }
+                    });
+                }
+                if (brInfo.Phones) {
+                    brInfo.Phones.forEach((phone) => {
+                        if (!phone.ID) {
+                            phone['_createguid'] = this.employeeService.getNewGuid();
+                        }
+                    });
+                }
 
-        if (brInfo.DefaultPhone && brInfo.DefaultPhone['_createguid']) {
-            brInfo.Phones = brInfo.Phones.filter(phone => phone !== brInfo.DefaultPhone);
-        }
+                if (brInfo.Addresses) {
+                    brInfo.Addresses.forEach((address) => {
+                        if (!address.ID) {
+                            address['_createguid'] = this.employeeService.getNewGuid();
+                        }
+                    });
+                }
 
-        if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
-            brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
-        }
+                if (brInfo.InvoiceAddress && brInfo.InvoiceAddress['_createguid']) {
+                    brInfo.Addresses = brInfo.Addresses.filter(address => address !== brInfo.InvoiceAddress);
+                }
 
-        this.employee['_EmployeeSearchResult'] = undefined;
+                if (brInfo.DefaultPhone && brInfo.DefaultPhone['_createguid']) {
+                    brInfo.Phones = brInfo.Phones.filter(phone => phone !== brInfo.DefaultPhone);
+                }
 
-        return (this.employee.ID > 0)
-            ? this.employeeService.Put(this.employee.ID, this.employee)
-            : this.employeeService.Post(this.employee);
+                if (brInfo.DefaultEmail && brInfo.DefaultEmail['_createguid']) {
+                    brInfo.Emails = brInfo.Emails.filter(email => email !== brInfo.DefaultEmail);
+                }
+                emp.BusinessRelationInfo = brInfo;
+                emp['_EmployeeSearchResult'] = undefined;
+                return emp;
+            })
+            .switchMap(emp => !!emp.ID
+                ? this.employeeService.Put(emp.ID, emp)
+                : this.employeeService.Post(emp));
     }
 
     private saveTax(done: (message: string) => void, updateTaxCard: boolean = true) {
