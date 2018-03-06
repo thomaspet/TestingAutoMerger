@@ -290,7 +290,6 @@ export class AgGridWrapper {
         let url = column.linkResolver(row);
 
         if (url && url.length) {
-            event.stopPropagation();
             if (url.includes('mailto:')) {
                 window.location.href = url;
             } else if (url.includes('http') || url.includes('www')) {
