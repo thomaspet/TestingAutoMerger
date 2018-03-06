@@ -314,7 +314,7 @@ export class AgGridWrapper {
 
         this.modalService.open(ColumnMenuNew, {
             data: {
-                columns: this.columns,
+                columns: this.config.columns,
                 tableConfig: this.config
             }
         }).onClose.subscribe(res => {
@@ -431,15 +431,17 @@ export class AgGridWrapper {
 
         if (this.config.columnMenuVisible || this.config.deleteButton) {
             const menuColumn: ColDef = {
-                headerComponent: CellRenderer.getColMenu(this.onColMenuClick.bind(this)),
+                headerComponent: CellRenderer.getColMenu(),
                 width: 40,
                 pinned: 'right',
                 headerClass: 'col-menu',
                 cellClass: 'row-menu',
                 suppressSizeToFit: true,
                 suppressResize: true,
-                suppressMovable: true
+                suppressMovable: true,
             };
+
+            menuColumn['_onClick'] = this.onColMenuClick.bind(this);
 
             if (this.config.deleteButton
                 || (this.config.contextMenu && this.config.contextMenu.items.length)

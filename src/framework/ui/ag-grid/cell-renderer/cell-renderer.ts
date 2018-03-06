@@ -2,8 +2,7 @@ import {ICellRendererParams} from 'ag-grid';
 import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
 export class CellRenderer {
-    static getColMenu(onClick: () => void) {
-        HeaderMenuRenderer.onClick = onClick;
+    static getColMenu() {
         return HeaderMenuRenderer;
     }
 
@@ -107,17 +106,19 @@ export class CellRenderer {
 }
 
 export class HeaderMenuRenderer {
-    static onClick: () => void;
+    onClick: () => void;
     element: HTMLElement;
 
     init(params) {
+        this.onClick = params.column.colDef['_onClick'];
+
         const el = document.createElement('i');
         el.classList.add('material-icons');
         el.title = 'Kolonnemeny';
         el.textContent = 'settings';
         el.onclick = (event: MouseEvent) => {
             event.stopPropagation();
-            HeaderMenuRenderer.onClick();
+            this.onClick();
         };
 
         this.element = el;
