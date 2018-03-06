@@ -41,7 +41,7 @@
             <legend>Fritekst</legend>
             <label>
                 <span>Kommentar</span>
-                <input [formControl]="commentControl" (change)="onDataChange()" />
+                <input type="text" [formControl]="commentControl" (change)="onDataChange()" />
             </label>
             <label>
                 <span>Fritekst</span>
@@ -73,7 +73,7 @@
                     </span>
                     <span *ngIf="entityName == 'CustomerQuote'">
                         Du må lagre tilbud som kladd eller registrere tilbud før du kan legge til dokumenter.
-                    </span>                    
+                    </span>
                 </p>
             </label>
             <uni-attachments *ngIf="data?.ID"
