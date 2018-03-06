@@ -23,6 +23,18 @@
                         <th>Navn</th>
                         <td colspan="3">{{periodeavvik.navn}}</td>
                     </tr>
+                    <tr *ngIf="periodeavvik.ansattnummer">
+                        <th>Ansattnummer</th>
+                        <td>{{periodeavvik.ansattnummer}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.foedselsdato">
+                        <th>Fødselsdato</th>
+                        <td>{{periodeavvik.foedselsdato}}</td>
+                    </tr>
+                    <tr *ngIf="periodeavvik.ansattnavn">
+                        <th>Ansattnavn</th>
+                        <td>{{periodeavvik.ansattnavn}}</td>
+                    </tr>
                     <tr *ngIf="periodeavvik.arbeidsforholdId">
                         <th>ArbeidsforholdID</th>
                         <td>{{periodeavvik.arbeidsforholdId}}</td>

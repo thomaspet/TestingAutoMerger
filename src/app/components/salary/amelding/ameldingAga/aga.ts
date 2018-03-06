@@ -22,17 +22,17 @@ export class AmeldingAgaView {
     }
 
     private setupTableConfig() {
-        let typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text);
-        let zoneCol = new UniTableColumn('zoneName', 'Sone', UniTableColumnType.Text);
-        let sectorCol = new UniTableColumn('sectorName', 'Beregningskode', UniTableColumnType.Text);
-        let amountCol = new UniTableColumn('baseAmount', 'Grunnlag', UniTableColumnType.Money)
+        const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text);
+        const zoneCol = new UniTableColumn('zoneName', 'Sone', UniTableColumnType.Text);
+        const sectorCol = new UniTableColumn('sectorName', 'Beregningskode', UniTableColumnType.Text);
+        const amountCol = new UniTableColumn('baseAmount', 'Grunnlag', UniTableColumnType.Money)
             .setWidth('6rem')
             .setCls('column-align-right');
-        let rateCol = new UniTableColumn('rate', 'Sats', UniTableColumnType.Money)
+        const rateCol = new UniTableColumn('rate', 'Sats', UniTableColumnType.Money)
             .setWidth('4rem')
             .setCls('column-align-right');
 
         this.agaTableConfig = new UniTableConfig('salary.amelding.ameldingAga', false, true, 30)
-        .setColumns([typeCol, zoneCol, sectorCol, amountCol, rateCol]);
+            .setColumns([typeCol, zoneCol, sectorCol, amountCol, rateCol]);
     }
 }

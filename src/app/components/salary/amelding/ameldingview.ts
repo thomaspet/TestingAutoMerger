@@ -519,7 +519,6 @@ export class AMeldingView implements OnInit {
 
     private setStatusFromAvvik() {
         let statusSet: boolean = false;
-
         this.alleAvvikStatuser.forEach(avvik => {
             if (!statusSet) {
                 switch (avvik.alvorlighetsgrad) {
@@ -547,12 +546,12 @@ export class AMeldingView implements OnInit {
 
     private getAMeldingForPeriod() {
 
-        this.periodStatus = 'Ingen A-meldinger i perioden';
+        this.periodStatus = 'Henter status...';
 
         this.spinner(this._ameldingService
             .getAMeldingForPeriod(this.currentPeriod, this.activeYear))
                 .subscribe((ameldinger: AmeldingData[]) => {
-                    this.aMeldingerInPeriod = ameldinger;
+                    this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID);
                     if (this.aMeldingerInPeriod.length > 0) {
                         this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                     } else {
@@ -561,37 +560,59 @@ export class AMeldingView implements OnInit {
                         this.updateToolbar();
                         this.updateSaveActions();
                         this.getSumsInPeriod();
+                        this.periodStatus = 'Ingen a-meldinger i perioden';
                     }
                 }, err => this.errorService.handle(err));
     }
 
     private setStatusForPeriod() {
+        if (this.aMeldingerInPeriod.length > 0 && this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].altinnStatus !== null) {
+            this.periodStatus = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].altinnStatus;
+            return;
+        }
+        if (this.aMeldingerInPeriod.length === 1) {
+            this.setPeriodStatusFromAmeldingStatus(this.currentAMelding);
+        } else {
+            this.getLastSentAmeldingWithFeedback();
+        }
+    }
 
-        // Only the last (highest ID) amelding for the period can set this status
-        if (this.currentAMelding.ID === this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-
-            switch (this.currentAMelding.status) {
-                case 0:
-                case 1:
-                case null:
-                    this.periodStatus = 'Ikke innsendt';
-                    break;
-
-                case 2:
-                    this.periodStatus = 'Tilbakemelding må hentes';
-                    break;
-
-                case 3:
-                    if (this.currentAMelding.altinnStatus !== 'avvist') {
-                        const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-                    } else {
-                        this.periodStatus = 'Avvist';
-                    }
-                    break;
-
-                default:
-                    break;
+    private getLastSentAmeldingWithFeedback() {
+        for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
+            const amelding = this.aMeldingerInPeriod[i];
+            if (amelding.status !== null) {
+                if (amelding.ID !== this.currentAMelding.ID) {
+                    this._ameldingService
+                        .getAMeldingWithFeedback(amelding.ID)
+                        .subscribe((amldWithFeedback: AmeldingData) => {
+                            this.setPeriodStatusFromAmeldingStatus(amldWithFeedback);
+                        });
+                } else {
+                    this.setPeriodStatusFromAmeldingStatus(this.currentAMelding);
+                }
+                return;
             }
+        }
+    }
+
+    private setPeriodStatusFromAmeldingStatus(amelding: AmeldingData) {
+        switch (amelding.status) {
+            case 0:
+            case 1:
+            case null:
+                this.periodStatus = 'Ikke innsendt';
+                break;
+
+            case 2:
+                this.periodStatus = 'Tilbakemelding må hentes';
+                break;
+
+            case 3:
+                const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
+                break;
+
+            default:
+                break;
         }
     }
 
@@ -654,7 +675,7 @@ export class AMeldingView implements OnInit {
                 };
                 this.openAmeldingTypeModal(done);
             },
-            disabled: false,
+            disabled: this.currentAMelding && (this.currentAMelding.status === null || this.currentAMelding.status === 2),
             main: this.currentAMelding === undefined
         });
 
