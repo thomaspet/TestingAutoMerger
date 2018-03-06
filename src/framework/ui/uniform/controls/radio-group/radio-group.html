@@ -10,6 +10,6 @@
         [name]="field?.Property"
         (focus)="focusHandler()"
     />
-    <label (click)="checkIt(item)">{{getLabel(item)}}</label>
+    <label (click)="checkIt(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
 </ng-template>
 <ng-content></ng-content>
