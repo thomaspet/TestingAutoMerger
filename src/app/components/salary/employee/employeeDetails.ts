@@ -266,29 +266,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
             if (!this.employeeID) {
                 this.cacheService.clearPageCache(this.cacheKey);
-
-                Observable
-                    .combineLatest(
-                    super.getStateSubject(EMPLOYEE_KEY),
-                    super.getStateSubject(SUB_ENTITIES_KEY)
-                    )
-                    .take(1)
-                    .map((result: [Employee, SubEntity[]]) => {
-                        const emp = result[0];
-                        let subEntities = result[1];
-
-                        if (!emp.SubEntityID) {
-                            if (subEntities && subEntities.length > 1) {
-                                subEntities = subEntities.filter(sub => sub.SuperiorOrganizationID);
-                            }
-                            if (subEntities && subEntities.length === 1) {
-                                emp.SubEntityID = subEntities[0].ID;
-                            }
-                        }
-
-                        return emp;
-                    })
-                    .subscribe(emp => super.updateState(EMPLOYEE_KEY, emp, super.isDirty(EMPLOYEE_KEY)));
             }
 
             this.employments = undefined;
@@ -302,6 +279,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             // (Re)subscribe to state var updates
             super.getStateSubject(EMPLOYEE_KEY)
                 .do(employee => this.updateTabStrip(employee))
+                .do(emp => this.fillInnSubEntityOnEmp(emp))
                 .subscribe((employee) => {
                     this.employee = employee;
                     this.posterEmployee.employee = employee;
@@ -465,6 +443,22 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     }
                 }
             }));
+    }
+
+    private fillInnSubEntityOnEmp(employee: Employee): void {
+        if (employee.SubEntityID) {
+            return;
+        }
+        this.getState(SubEntity)
+            .take(1)
+            .do(subEntities => {
+                if (!subEntities || subEntities.length > 1) {
+                    return;
+                }
+                employee.SubEntityID = subEntities[0].ID;
+                this.updateStateWithType(Employee, employee, super.isDirty(EMPLOYEE_KEY));
+            })
+            .subscribe();
     }
 
     private updateTabStrip(employee: Employee) {
@@ -893,7 +887,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getSubEntities() {
         this.getSubEntitiesObservable().subscribe((response: SubEntity[]) => {
-            super.updateState('subEntities', response, false);
+            super.updateState(SUB_ENTITIES_KEY, response, false);
         }, err => this.errorService.handle(err));
     }
 
@@ -986,6 +980,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 return super.getStateSubject(SALARYBALANCES_KEY).take(1);
             case Employee:
                 return super.getStateSubject(EMPLOYEE_KEY).take(1);
+            case SubEntity:
+                return super.getStateSubject(SUB_ENTITIES_KEY).take(1);
         }
     }
 
@@ -993,6 +989,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         switch (type) {
             case SalaryBalance:
                 super.updateState(SALARYBALANCES_KEY, model, isDirty);
+                break;
+            case Employee:
+                super.updateState(EMPLOYEE_KEY, model, isDirty);
                 break;
         }
     }
