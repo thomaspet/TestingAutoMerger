@@ -70,7 +70,7 @@ export class BureauDashboard {
     ) {
 
         this.toolbarConfig = {
-            title: 'Mine selskaper',
+            title: '',
         };
 
         this.saveActions = [{
@@ -86,6 +86,10 @@ export class BureauDashboard {
         this.currentSortField = userPreferences.sortField;
         this.companyTags = userPreferences.tagsForCompany || {};
         this.allTags = this.generateAllTags(this.companyTags);
+        this.authService.authentication$
+            .asObservable()
+            .map(auth => auth.user.License.Company.Agency.Name)
+            .subscribe(name => this.toolbarConfig.title = 'Mine selskaper' + (name ? ` - ${name}` : '') );
 
         this.searchControl.valueChanges.subscribe((searchValue: string) => {
             this.filterCompanies(searchValue);
