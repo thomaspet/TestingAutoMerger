@@ -12,7 +12,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 
 import {UniTableConfig} from '../unitable/config/unitableConfig';
-import {UniTableColumn, IUniTableColumn} from '../unitable/config/unitableColumn';
+import {UniTableColumn, IUniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uniModal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
@@ -216,8 +216,14 @@ export class AgGridWrapper {
             this.editor.activate(event.rowIndex, colIndex);
         }
 
+        const column: UniTableColumn = event.colDef['_uniTableColumn'];
+
+        if (column.onCellClick) {
+            column.onCellClick(event.data);
+        }
+
         this.cellClick.emit({
-            column: event.colDef['_uniTableColumn'],
+            column: column,
             row: event.data
         });
     }
@@ -384,9 +390,9 @@ export class AgGridWrapper {
                 hide: !col.visible,
                 headerClass: col.headerCls,
                 cellClass: col.conditionalCls || col.cls,
-                valueGetter: (params) => {
-                    return this.tableUtils.getColumnValue(params.data, col);
-                }
+                headerTooltip: col.header,
+                tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
+                valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
             };
 
             agCol['_uniTableColumn'] = col;
@@ -410,6 +416,10 @@ export class AgGridWrapper {
 
             if (col.width >= 0) {
                 agCol.width = +col.width;
+            }
+
+            if (!col.width || col.width >= 64) {
+                agCol.minWidth = 64;
             }
 
             agCol.colId = col.field;

@@ -295,7 +295,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
         let fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
             .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
-            .setWidth('2rem')
+            .setWidth(32)
+            .setResizeable(false)
             .setSkipOnEnterKeyNavigation(true);
 
         let supplementCol = this.salaryTransViewService
