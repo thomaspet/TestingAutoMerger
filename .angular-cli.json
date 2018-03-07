@@ -10,7 +10,8 @@
       "assets": [
         "assets",
         "favicon.png",
-        "robots.txt"
+        "robots.txt",
+        "security.txt"
       ],
       "index": "index.html",
       "main": "main.ts",
