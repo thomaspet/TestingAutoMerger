@@ -7,7 +7,6 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {UserService} from '../../services/common/userService';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {UniNewCompanyModal} from './newCompanyModal';
-import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
 import {Subscription} from 'rxjs/Subscription';
@@ -24,7 +23,7 @@ enum KPI_STATUS {
     StatusUnknown = 0,
     StatusInProgress = 1,
     StatusError = 2,
-    StatusReady = 3
+    StatusReady = 3,
 }
 
 export type AllTagsType = {
@@ -152,7 +151,7 @@ export class BureauDashboard {
         } catch (e) {}
     }
 
-    private filterCompanies(filterString): void {
+    private filterCompanies(filterString: string): void {
         if (filterString && filterString.length) {
             this.filteredCompanies = this.companies.filter(company => {
                 const companyName = (company.Name && company.Name.toLowerCase()) || '';
@@ -173,12 +172,12 @@ export class BureauDashboard {
         });
     }
 
-    public getKpiCount(company, kpiName): string {
+    public getKpiCount(company: KpiCompany, kpiName: string): string {
         const kpi = company.Kpi.find(k => k.Name === kpiName);
         if (kpi) {
             switch (kpi.ValueStatus) {
                 case KPI_STATUS.StatusReady:
-                    return kpi.Counter !== 0 ? kpi.Counter : '';
+                    return kpi.Counter !== 0 ? String(kpi.Counter) : '';
                 case KPI_STATUS.StatusError:
                     return 'Feil';
                 case KPI_STATUS.StatusInProgress:
@@ -190,7 +189,7 @@ export class BureauDashboard {
         return '';
     }
 
-    public startCompanyCreation(doneCallback) {
+    public startCompanyCreation(doneCallback: (string)=>void) {
         this.uniModalService.open(UniNewCompanyModal).onClose.subscribe(modalResult => {
             if (!modalResult || !modalResult.CompanyName) {
                 doneCallback('Oppretting av selskap avbrutt');
@@ -231,7 +230,7 @@ export class BureauDashboard {
             .send();
     }
 
-    public sortBy(key, toggleDirection?: boolean) {
+    public sortBy(key: string, toggleDirection?: boolean) {
         if (!key || !key.length) {
             return;
         }
@@ -256,7 +255,7 @@ export class BureauDashboard {
         });
     }
 
-    public getSortArrow(key) {
+    public getSortArrow(key: string) {
         if (this.currentSortField === key) {
             return this.sortIsDesc ? '▼' : '▲';
         }
@@ -304,7 +303,7 @@ export class BureauDashboard {
         return preferences || <BureauPreferences>{};
     }
 
-    public openContextMenu(event, company: KpiCompany) {
+    public openContextMenu(event: any, company: KpiCompany) {
         event.preventDefault();
         event.stopPropagation();
         this.contextMenuCompany = company;
