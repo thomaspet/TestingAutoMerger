@@ -84,7 +84,7 @@ if (window.ENV === 'production') {
 
 
         // COMMON MODULES
-        LayoutModule,
+        LayoutModule.forRoot(),
         AppCommonModule,
         WidgetModule,
         UniQueryModule,

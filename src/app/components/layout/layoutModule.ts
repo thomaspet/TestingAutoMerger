@@ -1,5 +1,5 @@
+import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AppPipesModule} from '../../pipes/appPipesModule';
-import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
@@ -15,6 +15,7 @@ import {UniTabs} from './uniTabs/uniTabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/userinfo/companyDropdown/modals/yearModal';
 import {UniHelpText} from './helpText/helpText';
+import {NavbarLinkService} from './navbar/navbar-link-service';
 
 @NgModule({
     imports: [
@@ -57,4 +58,11 @@ import {UniHelpText} from './helpText/helpText';
         UniHelpText
     ]
 })
-export class LayoutModule {}
+export class LayoutModule {
+    static forRoot(): ModuleWithProviders {
+        return {
+            ngModule: LayoutModule,
+            providers: [NavbarLinkService]
+        };
+    }
+}

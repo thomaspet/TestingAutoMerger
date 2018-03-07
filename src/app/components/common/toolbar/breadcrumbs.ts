@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {HamburgerMenu} from '../../layout/navbar/hamburgerMenu/hamburgerMenu';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
 
 @Component({
     selector: 'uni-breadcrumbs',
@@ -17,7 +18,10 @@ export class UniBreadcrumbs {
     private moduleID: UniModules;
     private crumbs: any[] = [];
 
-    constructor(private tabService: TabService) {}
+    constructor(
+        private tabService: TabService,
+        private navbarLinkService: NavbarLinkService
+    ) {}
 
     public ngOnChanges() {
         this.tabService.activeTab$.subscribe((activeTab) => {
@@ -29,31 +33,36 @@ export class UniBreadcrumbs {
     }
 
     private buildBreadcrumbs() {
-        let crumbs = [];
-        let parentApp = HamburgerMenu.getParentApp(this.moduleID);
+        this.navbarLinkService.linkSections$.subscribe(linkSections => {
+            const moduleID = (this.moduleID || '').toString();
+            const moduleIndex = +moduleID.substring(0, moduleID.length - 2) - 1;
 
-        if (!parentApp) {
-            return;
-        }
+            const parentApp = linkSections[moduleIndex];
+            const crumbs: {title: string, url: string}[] = [];
 
-        crumbs.push({
-            title: parentApp.componentListName,
-            url: '/#' + parentApp.componentListUrl
-        });
+            if (!parentApp) {
+                return;
+            }
 
-        if (!this.omitFinalCrumb) {
-            let finalComponent = parentApp.componentList.find((component) => {
-                return component.moduleID === this.moduleID;
+            crumbs.push({
+                title: parentApp.componentListName,
+                url: '/#' + parentApp.componentListUrl
             });
 
-            if (finalComponent) {
-                crumbs.push({
-                    title: finalComponent.componentName,
-                    url: '/#' + finalComponent.componentUrl
+            if (!this.omitFinalCrumb) {
+                const finalComponent = parentApp.componentList.find((component) => {
+                    return component.moduleID === this.moduleID;
                 });
-            }
-        }
 
-        this.crumbs = crumbs;
+                if (finalComponent) {
+                    crumbs.push({
+                        title: finalComponent.componentName,
+                        url: '/#' + finalComponent.componentUrl
+                    });
+                }
+            }
+
+            this.crumbs = crumbs;
+        });
     }
 }

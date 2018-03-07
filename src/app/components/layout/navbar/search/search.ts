@@ -2,7 +2,7 @@
 import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {HamburgerMenu} from '../hamburgerMenu/hamburgerMenu';
+import {NavbarLinkService} from '../navbar-link-service';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../../../services/services';
 import 'rxjs/add/observable/fromEvent';
@@ -62,11 +62,13 @@ export class NavbarSearch implements AfterViewInit {
         private http: UniHttp,
         public router: Router,
         private cdr: ChangeDetectorRef,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        navbarLinkService: NavbarLinkService
     ) {
-        const componentSections = HamburgerMenu.getAvailableComponents();
-        componentSections.forEach((section) => {
-            this.componentLookupSource.push(...section.componentList);
+        navbarLinkService.linkSections$.subscribe(linkSections => {
+            linkSections.forEach(section => {
+                this.componentLookupSource.push(...section.componentList);
+            });
         });
     }
 
