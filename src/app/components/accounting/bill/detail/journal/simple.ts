@@ -604,15 +604,17 @@ export class BillSimpleJournalEntryView implements OnInit {
     }
 
     private initYear() {
-        const fc = this.financialYearService.getYearInLocalStorage();
-        if (fc) {
-            this.financialYears = [fc];
-            this.financialYearID = fc.ID;
-        } else {
-            this.financialYearService.GetAll(null).subscribe((response) => {
-                this.financialYears = response;
-            }, err => this.errorService.handle(err));
-        }
+        this.financialYearService.getActiveFinancialYear()
+            .subscribe( fc => {
+                if (fc) {
+                    this.financialYears = [fc];
+                    this.financialYearID = fc.ID;
+                } else {
+                    this.financialYearService.GetAll(null).subscribe((response) => {
+                        this.financialYears = response;
+                    }, err => this.errorService.handle(err));
+                }
+        });
     }
 
     private checkJournalYear(entry: JournalEntry) {
