@@ -52,6 +52,8 @@ export class PostPost {
         }
       }
 
+    // tslint:disable:member-ordering
+
     // Save
     private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[];
