@@ -9,6 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {KeyCodes} from '../../app/services/common/keyCodes';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uniModal/barrel';
 
 @Component({
     selector: 'file-split-modal',
@@ -19,23 +20,37 @@ import {KeyCodes} from '../../app/services/common/keyCodes';
             (keyup)="onKey($event)">
 
             <header><h1>Del opp fil</h1></header>
-            <article class="image-split-modal-body">
+            <article class="image-split-modal-body" [attr.aria-busy]="isSplitting">
                 <div class="parts">
                     <div *ngIf="processingPercentage" class="images_loading">
                         Prosesserer fil, {{processingPercentage}}% ferdig...
                     </div>
 
-                    <strong *ngIf="thumbnails.length > 0">Foreslått oppdeling:</strong>
-                    <p *ngIf="thumbnails.length > 0">Klikk på første side i hvert dokument</p>
-
+                    <strong *ngIf="thumbnails.length > 0">Oppdeling:</strong>
                     <ul>
-                        <li *ngFor="let part of parts">Dokument {{part.partNo}}: Side {{part.pageFrom}} til {{part.pageTo}}</li>
+                        <li *ngFor="let part of parts">
+                            Dokument {{part.partNo}}: Sider: {{getPagesFromPart(part)}}
+                            <a (click)="removePart(part)">Tilbakestill</a>
+                        </li>
                     </ul>
 
-                    <p *ngIf="parts.length > 0">
-                        Kontroller at oppdelingen blir riktig i listen over. Hvis du har valgt en side ved en
-                        feil kan du klikke en gang til på samme fil for å angre oppdelingen.
-                        Du kan også bruke piltastene og mellomromtasten for å markere hvor filene skal deles.
+                    <strong *ngIf="currentPart">Markerte sider:</strong>
+                    <ul *ngIf="currentPart">
+                        <li>
+                            Dokument {{currentPart.partNo}}: Sider: {{getPagesFromPart(currentPart)}}
+                            <a (click)="clearCurrentPart()" *ngIf="currentPart.Pages.length > 0">Nullstill</a>
+                        </li>
+                    </ul>
+
+                    <button (click)="createNewPartFromSelected()" *ngIf="currentPart && currentPart.Pages.length > 0">
+                        Legg til oppdeling
+                    </button>
+
+                    <p *ngIf="thumbnails.length > 0">
+                        Kontroller at oppdelingen blir riktig i listen over. <br/>
+                        Du kan også bruke piltastene og mellomromtasten for å velge sider. Holde inne shifttasten mens du navigerer med
+                        piltastene for å markere flere sider.<br/>
+                        Ctrl + Enter kan brukes for å opprette ny filinndeling med de valgte sidene, eller bruk knappen over.
                     </p>
                 </div>
                 <div class="images">
@@ -49,7 +64,9 @@ import {KeyCodes} from '../../app/services/common/keyCodes';
                                 (load)="finishedLoadingThumbnail(currentThumbnail)"
                                 [attr.alt]="currentThumbnail.page"
                                 [class.loading]="!currentThumbnail._isloaded"
-                                width="400" />
+                                [class.rotate90]="currentThumbnail._rotation === 90"
+                                [class.rotate180]="currentThumbnail._rotation === 180"
+                                [class.rotate270]="currentThumbnail._rotation === 270" />
                             <div class="commands" *ngIf="currentThumbnail">
                                 <span class="pageno">Side {{currentThumbnail.page}}</span>
                                 <a (click)="rotateLeft($event)" title="Roter venstre"><i class="material-icons">undo</i></a>
@@ -60,7 +77,7 @@ import {KeyCodes} from '../../app/services/common/keyCodes';
                     <div class="image_thumbnails" #thumbnailcontainer>
                         <li *ngFor="let thumbnail of visibleThumbnails; let idx = index"
                             [class]="thumbnail.class"
-                            (click)="thumbnailClicked(thumbnail.page)"
+                            (click)="thumbnailClicked(thumbnail.page, $event)"
                             (focus)="thumbnailFocused(thumbnail, idx)"
                             tabindex="0">
                             <div class="thumbnail">
@@ -68,11 +85,16 @@ import {KeyCodes} from '../../app/services/common/keyCodes';
                                     (load)="finishedLoadingThumbnail(thumbnail)"
                                     [attr.alt]="thumbnail.page"
                                     [class.loading]="!thumbnail._isloaded"
-                                    width="150" />
+                                    [class.rotate90]="thumbnail._rotation === 90"
+                                    [class.rotate180]="thumbnail._rotation === 180"
+                                    [class.rotate270]="thumbnail._rotation === 270" />
                                 <div class="pageno">Side {{thumbnail.page}}</div>
                             </div>
                         </li>
                         <button (click)="showMorePages()" *ngIf="thumbnails.length > maxVisibleImages">Vis flere</button>
+                        <span *ngIf="thumbnails.length > 0 && visibleThumbnails.length === 0">
+                            Ingen flere bilder å velge
+                        </span>
                     </div>
                 </div>
             </article>
@@ -98,8 +120,10 @@ export class FileSplitModal implements IUniModal {
     public file: File;
     private thumbnails: ThumbnailData[] = [];
     private visibleThumbnails: ThumbnailData[] = [];
+    private currentPart: SplitPart = {partNo: 1, Pages: []};
     private parts: SplitPart[] = [];
     private baseUrl: string = environment.BASE_URL_FILES;
+    private previousThumbnail: ThumbnailData;
     private currentThumbnail: ThumbnailData;
     private currentThumbnailIndex: number;
 
@@ -116,7 +140,8 @@ export class FileSplitModal implements IUniModal {
         private authService: AuthService,
         private uniFilesService: UniFilesService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         this.authService.authentication$.subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
@@ -168,16 +193,9 @@ export class FileSplitModal implements IUniModal {
                     this.processingPercentage = null;
 
                     this.thumbnails = this.generatePageUrls(this.file, 400);
-                    this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
+                    this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages);
 
                     this.focusOnFirstThumbnail();
-
-                    if (!this.parts
-                        || this.parts.length === 0
-                        || this.parts[this.parts.length - 1].pageTo !== this.file.Pages) {
-                        this.parts.push({pageFrom: 1, pageTo: this.file.Pages, partNo: 1});
-                        this.thumbnails[0].class = 'first-in-part';
-                    }
 
                     this.cdr.markForCheck();
                 } else {
@@ -193,7 +211,7 @@ export class FileSplitModal implements IUniModal {
 
                             newThumbnails.forEach(thumb => this.thumbnails.push(thumb));
 
-                            this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
+                            this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages);
                             this.cdr.markForCheck();
                         }
                     }
@@ -239,7 +257,7 @@ export class FileSplitModal implements IUniModal {
         if(this.currentThumbnailIndex !== null && this.currentThumbnailIndex !== undefined) {
             if (this.thumbnailContainer && this.thumbnailContainer.nativeElement) {
                let element = this.thumbnailContainer.nativeElement.getElementsByTagName("li");
-                if (element && element.length > this.currentThumbnailIndex) {
+                if (element && element.length > this.currentThumbnailIndex + 1) {
                     this.currentThumbnailIndex = this.currentThumbnailIndex + 1;
                     element[this.currentThumbnailIndex].focus();
                     this.cdr.markForCheck();
@@ -266,7 +284,7 @@ export class FileSplitModal implements IUniModal {
 
         for(let i = 0; i < file.Pages && (!maxPageNo || i < maxPageNo); i++) {
             let url = `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${i+1}`;
-            pageUrls.push({page: i+1, url: encodeURI(url), class: '', _isloaded: false});
+            pageUrls.push({page: i+1, url: encodeURI(url), class: '', _isloaded: false, _isPartOfBatch: false, _rotation: 0});
         }
 
         return pageUrls;
@@ -274,8 +292,8 @@ export class FileSplitModal implements IUniModal {
 
     private clear() {
         this.parts = [];
-        this.parts.push({pageFrom: 1, pageTo: this.file.Pages, partNo: 1});
-        this.visibleThumbnails.forEach(thumb => thumb.class = thumb.page === 1 ? 'first-in-part' : '');
+        this.currentPart = {partNo: 1, Pages: []};
+        this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
     }
 
     private finishedLoadingThumbnail(thumbnail) {
@@ -289,6 +307,15 @@ export class FileSplitModal implements IUniModal {
         } else if (event.keyCode === KeyCodes.RIGHT_ARROW) {
             if (event.ctrlKey) {
                 this.rotateRight(event);
+            } else if (event.shiftKey) {
+                // if holding shift, select the currentPage before moving if it
+                // is not already selected
+                if (!this.currentPart.Pages.find(x => x === this.currentThumbnail.page)) {
+                    this.thumbnailClicked(this.currentThumbnail.page);
+                }
+                // also mark the item to the right
+                this.focusOnNextThumbnail();
+                this.thumbnailClicked(this.currentThumbnail.page);
             } else {
                 this.focusOnNextThumbnail();
             }
@@ -300,88 +327,159 @@ export class FileSplitModal implements IUniModal {
                 this.focusOnPreviousThumbnail();
             }
             event.preventDefault();
+        } else if (event.keyCode === KeyCodes.ENTER) {
+
+            if (event.ctrlKey) {
+                // add the current page to the part if it is not already selected
+                if (!this.currentPart.Pages.find(x => x === this.currentThumbnail.page)) {
+                    this.thumbnailClicked(this.currentThumbnail.page);
+                }
+
+                // create new part with the selected parts
+                this.createNewPartFromSelected();
+            } else {
+                this.thumbnailClicked(this.currentThumbnail.page);
+            }
         }
+    }
+
+    private createNewPartFromSelected() {
+        if (this.currentPart.Pages.length > 0) {
+            // mark each page as part of a batch
+            this.currentPart.Pages.forEach(page => {
+                let thumb = this.thumbnails.find(x => x.page === page);
+                if (thumb) {
+                    thumb._isPartOfBatch = true;
+                }
+            });
+
+            this.parts.push(this.currentPart);
+
+            // filter out pages in a part, because those should not be possible to reselect
+            this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
+
+            // consider adding a new part automatically if more pages exists that are not selected
+            if (this.visibleThumbnails.length > 0) {
+                this.currentPart = { partNo: this.parts.length + 1, Pages: [] };
+            } else {
+                this.currentPart = null;
+            }
+
+            // reset focus when a part has been added because the image list
+            // is refreshed (images in the new part is removed)
+            this.currentThumbnail = null;
+            this.hasFocusedOnFirstThumbnail = false;
+            this.focusOnFirstThumbnail();
+        } else {
+            this.toastService.addToast(
+                'Velg en eller flere sider',
+                ToastType.warn,
+                ToastTime.medium,
+                'Du må velge en eller flere filer som skal være med i det nye dokumentet'
+            );
+        }
+    }
+
+    private removePart(part: SplitPart) {
+        this.parts = this.parts.filter(x => x.partNo !== part.partNo);
+
+        // reorder partNo when deleting a part, in case e.g. 3 parts exist, and part 2 is removed
+        let newPartNo = 1;
+        this.parts.forEach(part => {
+            part.partNo = newPartNo;
+            newPartNo++;
+        });
+
+        // reset partno for the current part as well - or create a new part if non exists
+        if (!this.currentPart) {
+            this.currentPart = { partNo: this.parts.length + 1, Pages: [] };
+        } else {
+            this.currentPart.partNo = this.parts.length + 1;
+        }
+
+        // mark the pages in the part as not part of a part anymore
+        part.Pages.forEach(page => {
+            let thumb = this.thumbnails.find(x => x.page === page);
+            if (thumb) {
+                thumb.class = '';
+                thumb._isPartOfBatch = false;
+            }
+        });
+
+        // update image list because new images will be available for selection now
+        this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
+
+        // reset focus when a part has been removed because the image list
+        // is refreshed (images in the new part is removed)
+        this.hasFocusedOnFirstThumbnail = false;
+        this.focusOnFirstThumbnail();
+    }
+
+    private clearCurrentPart() {
+        this.currentPart.Pages.forEach(page => {
+            let thumb = this.thumbnails.find(x => x.page === page);
+            if (thumb) {
+                thumb.class = '';
+            }
+        });
+
+        this.currentPart.Pages = [];
     }
 
     private rotateLeft(event) {
-        this.uniFilesService.rotate(this.file.StorageReference, this.currentThumbnail.page, false)
-            .subscribe(res => {
-                if (this.currentThumbnail.url.indexOf('&t=') !== -1) {
-                    this.currentThumbnail.url = this.currentThumbnail.url.substring(0, this.currentThumbnail.url.indexOf('&t='));
-                }
-                this.currentThumbnail.url += '&t=' + Date.now();
-                this.cdr.markForCheck();
 
-                // reset focus on thumbnail after rotating
-                this.focusOnCurrentThumbnail();
-            }, err => this.errorService.handle(err)
-        );
+        // do rotations locally and keep track of rotation for later usage
+        this.currentThumbnail._rotation =
+            this.currentThumbnail._rotation > 0 ?
+                this.currentThumbnail._rotation - 90 :
+                270;
     }
 
     private rotateRight(event) {
-        this.uniFilesService.rotate(this.file.StorageReference, this.currentThumbnail.page, true)
-            .subscribe(res => {
-                if (this.currentThumbnail.url.indexOf('&t=') !== -1) {
-                    this.currentThumbnail.url = this.currentThumbnail.url.substring(0, this.currentThumbnail.url.indexOf('&t='));
-                }
-                this.currentThumbnail.url += '&t=' + Date.now();
-                this.cdr.markForCheck();
 
-                // reset focus on thumbnail after rotating
-                this.focusOnCurrentThumbnail();
-            }, err => this.errorService.handle(err)
-        );
+        // do rotations locally and keep track of rotation for later usage
+        this.currentThumbnail._rotation =
+            this.currentThumbnail._rotation < 270 ?
+                this.currentThumbnail._rotation + 90 :
+                0;
     }
 
     private thumbnailFocused(thumbnail, index) {
+        this.previousThumbnail = this.currentThumbnail;
+
         this.currentThumbnail = thumbnail;
         this.currentThumbnailIndex = index;
+
+        if (this.currentThumbnail.page === this.maxVisibleImages && this.file.Pages > this.maxVisibleImages) {
+            this.showMorePages();
+        }
     }
 
-    private thumbnailClicked(page: number) {
-        if (this.parts.length === 0) {
-            this.parts.push({pageFrom: 1, pageTo: page - 1, partNo: 1});
-            if (this.file.Pages >= page) {
-                this.parts.push({pageFrom: page, pageTo: this.file.Pages, partNo: null});
-            }
-        } else {
+    private thumbnailClicked(page: number, event = null) {
+        if (event && event.shiftKey && this.previousThumbnail) {
+            // mark all pages between previousThumbnail and the new one
+            var low = this.previousThumbnail.page > this.currentThumbnail.page ? this.currentThumbnail.page : this.previousThumbnail.page;
+            var high = this.previousThumbnail.page < this.currentThumbnail.page ? this.currentThumbnail.page : this.previousThumbnail.page;
 
-            let partWithPageNoInBetween = this.parts.find(x => x.pageFrom < page && x.pageTo > page);
-
-            if (partWithPageNoInBetween) {
-                this.parts.push({pageFrom: page, pageTo: partWithPageNoInBetween.pageTo, partNo: null});
-                partWithPageNoInBetween.pageTo = page - 1;
-            } else if (this.parts.find(x => x.pageFrom === page) && page > 1) {
-                let partWithPageAsFrom = this.parts.find(x => x.pageFrom === page);
-
-                // exists larger part? merge with the current part
-                let previousPart = this.parts.find(x => x.pageTo === page - 1);
-                if (previousPart) {
-                    previousPart.pageTo = partWithPageAsFrom.pageTo;
+            for(let i = low; i <= high; i++) {
+                if (!this.currentPart.Pages.find(x => x === i)) {
+                    this.currentPart.Pages.push(i);
                 }
-
-                this.parts = this.parts.filter(x => x !== partWithPageAsFrom);
-            } else if (this.parts.find(x => x.pageTo === page) && page > 1) {
-                let partWithPageAsTo = this.parts.find(x => x.pageTo === page);
-                partWithPageAsTo.pageTo = page - 1;
-                this.parts.push({pageFrom: page, pageTo: page, partNo: 0});
+            }
+            this.currentPart.Pages = this.currentPart.Pages.sort((a, b) => a - b);
+            //this.cdr.markForCheck();
+        } else {
+            if (!this.currentPart.Pages.find(x => x === page)) {
+                this.currentPart.Pages.push(page);
+                this.currentPart.Pages = this.currentPart.Pages.sort((a, b) => a - b);
+            } else {
+                this.currentPart.Pages = this.currentPart.Pages.filter(x => x !== page);
             }
         }
-
-        let parts = this.parts.sort((x, y) => x.pageFrom - y.pageFrom);
-        for(let i = 0; i < parts.length; i++) {
-            parts[i].partNo = i + 1;
-        }
-
-        this.parts = parts;
 
         this.visibleThumbnails.forEach(thumb => {
-            if (this.parts.find(y => y.pageFrom === thumb.page) && this.parts.find(y => y.pageTo === thumb.page)) {
-                thumb.class = 'first-in-part last-in-part';
-            } else if (this.parts.find(y => y.pageFrom === thumb.page)) {
-                thumb.class = 'first-in-part';
-            } else if (this.parts.find(y => y.pageTo === thumb.page)) {
-                thumb.class = 'last-in-part';
+            if (this.currentPart.Pages.find(y => y === thumb.page)) {
+                thumb.class = 'is-selected';
             } else {
                 thumb.class = '';
             }
@@ -393,33 +491,46 @@ export class FileSplitModal implements IUniModal {
         // https://codepen.io/wernight/pen/YyvNoW
         this.maxVisibleImages += 25;
 
-        this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
+        this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
+    }
 
-        this.visibleThumbnails.forEach(thumb => {
-            if (this.parts.find(y => y.pageFrom === thumb.page) && this.parts.find(y => y.pageTo === thumb.page)) {
-                thumb.class = 'first-in-part last-in-part';
-            } else if (this.parts.find(y => y.pageFrom === thumb.page)) {
-                thumb.class = 'first-in-part';
-            } else if (this.parts.find(y => y.pageTo === thumb.page)) {
-                thumb.class = 'last-in-part';
-            }
-        });
+    private getPagesFromPart(part: SplitPart) {
+        if (part.Pages && part.Pages.length > 0)
+            return part.Pages.join(', ');
+
+        return 'Ingen valgt';
     }
 
     public splitFile() {
-        if (this.parts.length <= 1) {
+        if (this.currentPart.Pages.length > 0) {
+            this.createNewPartFromSelected()
+        }
+
+        let thumbnailsNotInPart = this.thumbnails.filter(x => !x._isPartOfBatch);
+
+        if ((this.parts.length === 1 && thumbnailsNotInPart.length === 0) || (this.parts.length === 0)) {
             this.toastService.addToast(
                 'Velg hvordan filen skal deles opp',
                 ToastType.bad,
                 ToastTime.medium,
-                'Du må klikke på flere sider for å velge hvordan filen skal deles opp'
+                'Filen inneholder nå kun én del, og oppdeling vil derfor ikke ha noen effekt - du må dele opp filen i flere deler før du trykker på Del opp fil'
             );
 
             return;
         }
 
-        let partFromPages = [];
-        this.parts.forEach(part => partFromPages.push(part.pageFrom));
+        if (thumbnailsNotInPart.length > 0) {
+            // some images has not been selected in any part, add all remaining to a
+            // new part before calling split - this will be a new document containing
+            // all pages not selected in any parts yet
+            this.currentPart = {partNo: this.parts.length + 1, Pages: []};
+
+            thumbnailsNotInPart.forEach(thumb => {
+                this.currentPart.Pages.push(thumb.page);
+            });
+
+            this.createNewPartFromSelected();
+        }
 
         this.toastService.addToast(
             'Deler opp fil...',
@@ -430,7 +541,14 @@ export class FileSplitModal implements IUniModal {
 
         this.isSplitting = true;
 
-        this.uniFilesService.splitFileMultiple(this.file.StorageReference, partFromPages, true)
+        let rotations = [];
+        this.thumbnails.forEach(thumb => {
+            if (thumb._rotation && thumb._rotation !== 0) {
+                rotations.push({Page: thumb.page, Rotation: thumb._rotation});
+            }
+        });
+
+        this.uniFilesService.splitFileMultiple(this.file.StorageReference, this.parts, rotations, true)
             .subscribe(res => {
                 // get the UE ids based on the result from UniFiles
                 let ueFileIds = [];
@@ -462,7 +580,20 @@ export class FileSplitModal implements IUniModal {
     }
 
     public close() {
-        this.onClose.emit('cancel');
+        if (this.parts.length > 0 || (this.currentPart && this.currentPart.Pages.length > 0)) {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Du har ikke delt opp enda',
+                message: 'Du har markert at du vil dele opp filen, men har ikke trykke på Del opp fil - endringene er derfor ikke lagret. Vil du fortsette likevel?'
+            });
+
+            modal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.onClose.emit('cancel');
+                }
+            });
+        } else {
+            this.onClose.emit('cancel');
+        }
     }
 }
 
@@ -471,10 +602,11 @@ export interface ThumbnailData {
     page: number;
     class: string;
     _isloaded: boolean;
+    _isPartOfBatch: boolean;
+    _rotation: number;
 }
 
 export interface SplitPart {
     partNo: number;
-    pageFrom: number;
-    pageTo: number;
+    Pages: Array<number>;
 }

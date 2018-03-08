@@ -9,7 +9,7 @@ export const environment = {
   BASE_URL_INIT: '',
   BASE_URL: '',
   BASE_URL_INTEGRATION: 'https://devintegrations-unieconomy.azurewebsites.net/',
-  BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
+  BASE_URL_FILES: 'http://localhost:52393/',
   UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
   UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
   ADMIN_SERVER_URL: 'https://dev-elsa.azurewebsites.net',

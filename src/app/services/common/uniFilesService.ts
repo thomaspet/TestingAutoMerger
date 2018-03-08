@@ -57,7 +57,7 @@ export class UniFilesService {
         });
     }
 
-    public forceFullLoad(id: string): Observable<any> {
+    public forceFullLoad(id: string, reauthOnFailure: boolean = true): Observable<any> {
         var options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
@@ -66,8 +66,15 @@ export class UniFilesService {
             })
         });
 
-        return this.http
-            .get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, options);
+        return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, options)
+            .catch(err => {
+            if (err.status === 401 && reauthOnFailure) {
+                return Observable.fromPromise(this.authService.authenticateUniFiles())
+                    .switchMap(() => this.forceFullLoad(id, false))
+            } else {
+                return Observable.throw(err);
+            }
+        });
     }
 
     public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
@@ -141,24 +148,29 @@ export class UniFilesService {
                 });
     }
 
-    public splitFileMultiple(fileStorageReference, fromPages: Array<number>, reauthOnFailure: boolean): Observable<any> {
+    public splitFileMultiple(fileStorageReference, batches: Array<IFileSplitMultipleBatch>, rotations: Array<IFileRotation>, reauthOnFailure: boolean): Observable<any> {
         var options = new RequestOptions({
             headers: new Headers({
+                'Content-Type': 'application/json',
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
                 'Key': this.activeCompany.Key
             })
         });
 
-        let pages = fromPages.join(',');
+        let splitData = {
+            Batches: batches,
+            Rotations: rotations
+        };
 
         return this.http.post(
-            this.uniFilesBaseUrl + `/api/file/split-multiple?id=${fileStorageReference}&fromPages=${pages}`,
-            null, options
+            this.uniFilesBaseUrl + `/api/file/split-multiple?id=${fileStorageReference}`,
+            JSON.stringify(splitData),
+            options
         ).catch(err => {
             if (err.status === 401 && reauthOnFailure) {
                 return Observable.fromPromise(this.authService.authenticateUniFiles())
-                    .switchMap(() => this.splitFileMultiple(fileStorageReference, fromPages, false))
+                    .switchMap(() => this.splitFileMultiple(fileStorageReference, batches, rotations, false))
             } else {
                 return Observable.throw(err);
             }
@@ -204,4 +216,13 @@ export class UniFilesService {
                     });
         });
     }
+}
+
+export interface IFileSplitMultipleBatch {
+    Pages: Array<number>;
+}
+
+export interface IFileRotation {
+    Page: number;
+    Rotation: number;
 }
