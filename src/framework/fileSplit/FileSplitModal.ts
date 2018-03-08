@@ -513,7 +513,7 @@ export class FileSplitModal implements IUniModal {
     }
 
     public splitFile() {
-        if (this.currentPart.Pages.length > 0) {
+        if (this.currentPart && this.currentPart.Pages.length > 0) {
             this.createNewPartFromSelected()
         }
 
