@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdminProductService, AdminProduct} from '../../../services/admin/adminProductService';
+import {AdminProductService, AdminProduct, ProductStatusCode} from '../../../services/admin/adminProductService';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {AgreementService} from '../../../services/common/agreementService';
@@ -11,6 +11,13 @@ import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framewor
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+interface BuyButtonConfig{
+    text: string,
+    cssClass: string,
+    action: (AdminProduct) => void,
+    isDisabled: boolean,
+};
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -148,6 +155,38 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
             // the purchase was aborted, most likely the user didnt accept the terms for the service,
             // or something went wrong when accepting the terms
         });
+    }
+
+    public generateBuyButtonConfig(product: AdminProduct, hasBoughtProduct: boolean, canActivate: boolean): BuyButtonConfig {
+        if (product.productStatus !== ProductStatusCode.Active) {
+            return {
+                text: "Kontakt oss",
+                cssClass: "",
+                action: (a: AdminProduct) => window.location.href = 'https://www.unimicro.no/kontakt',
+                isDisabled: false,
+            }
+        } else if (hasBoughtProduct && canActivate) {
+            return {
+                text: "Aktiver",
+                cssClass: "",
+                action: (a: AdminProduct) => this.activate(a),
+                isDisabled: false,
+            }
+        } else if (hasBoughtProduct && !canActivate) {
+            return {
+                text: "Har kjøpt",
+                cssClass: "",
+                action: (a: AdminProduct) => null,
+                isDisabled: true,
+            }
+        } else {
+            return {
+                text: "Kjøp nå",
+                cssClass: "",
+                action: (a: AdminProduct) => this.buy(a),
+                isDisabled: false,
+            }
+        }
     }
 
     public activate(product: AdminProduct) {
