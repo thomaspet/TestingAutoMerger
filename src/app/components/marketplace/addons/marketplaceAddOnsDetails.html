@@ -8,9 +8,12 @@
             <span>{{product.label}}</span>
         </section>
         <section class="button-section">
-            <button *ngIf="!(hasBoughtProduct$ | async)" (click)="buy(product)">Kjøp nå</button>
-            <button *ngIf="(hasBoughtProduct$ | async) && !(canActivate$ | async)" disabled>Har kjøpt</button>
-            <button *ngIf="(hasBoughtProduct$ | async) && (canActivate$ | async)" (click)="activate(product)">Aktiver</button>
+            <button *ngIf="generateBuyButtonConfig(product, (hasBoughtProduct$ | async), (canActivate$ | async)) as buyButtonConfig"
+                    (click)="buyButtonConfig.action(product)"
+                    [disabled]="buyButtonConfig.isDisabled"
+                    [ngClass]="buyButtonConfig.cssClass">
+                {{buyButtonConfig.text}}
+            </button>
         </section>
     </section>
     <section class="background add-on-background-image">
