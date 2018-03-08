@@ -294,6 +294,16 @@ export class FileSplitModal implements IUniModal {
         this.parts = [];
         this.currentPart = {partNo: 1, Pages: []};
         this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
+
+        this.visibleThumbnails.forEach(thumb => {
+            thumb._isPartOfBatch = false;
+            thumb.class = '';
+        });
+
+        // reset focus when a part has been removed because the image list
+        // is refreshed (images in the new part is removed)
+        this.hasFocusedOnFirstThumbnail = false;
+        this.focusOnFirstThumbnail();
     }
 
     private finishedLoadingThumbnail(thumbnail) {
@@ -462,12 +472,13 @@ export class FileSplitModal implements IUniModal {
             var high = this.previousThumbnail.page < this.currentThumbnail.page ? this.currentThumbnail.page : this.previousThumbnail.page;
 
             for(let i = low; i <= high; i++) {
-                if (!this.currentPart.Pages.find(x => x === i)) {
+
+                if (!this.currentPart.Pages.find(x => x === i) && !this.thumbnails.find(x => x.page === i)._isPartOfBatch) {
                     this.currentPart.Pages.push(i);
                 }
             }
+
             this.currentPart.Pages = this.currentPart.Pages.sort((a, b) => a - b);
-            //this.cdr.markForCheck();
         } else {
             if (!this.currentPart.Pages.find(x => x === page)) {
                 this.currentPart.Pages.push(page);
