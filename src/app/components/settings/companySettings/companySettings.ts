@@ -8,8 +8,6 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
-import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
-import {AdminProduct} from '@app/services/admin/adminProductService';
 import {
     AccountGroup,
     AccountVisibilityGroup,
@@ -48,7 +46,8 @@ import {
     VatReportFormService,
     VatTypeService,
     UniFilesService,
-    AdminProductService,
+    ElsaProductService,
+    ElsaPurchasesService,
     CampaignTemplateService
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
@@ -196,11 +195,11 @@ export class CompanySettingsComponent implements OnInit {
         private uniFilesService: UniFilesService,
         private subEntitySettingsService: SubEntitySettingsService,
         private companySettingsViewService: CompanySettingsViewService,
-        private adminProductService: AdminProductService,
+        private elsaProductService: ElsaProductService,
         private router: Router,
         private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
-        private adminPurchasesService: AdminPurchasesService
+        private elsaPurchasesService: ElsaPurchasesService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -1476,17 +1475,17 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private isEHFBought(): Observable<boolean> {
-        return this.adminProductService.FindProductByName('EHF')
+        return this.elsaProductService.FindProductByName('EHF')
             .switchMap(product => {
-                return this.adminPurchasesService.GetAll()
+                return this.elsaPurchasesService.GetAll()
                     .map(purchases => purchases.some(purchase => purchase.productID === product.id));
         });
     }
 
     private activateAP() {
-        this.adminProductService.FindProductByName('EHF')
+        this.elsaProductService.FindProductByName('EHF')
             .subscribe(product => {
-                this.adminPurchasesService.GetAll()
+                this.elsaPurchasesService.GetAll()
                     .map(purchases => purchases.some(purchase => purchase.productID === product.id))
                     .subscribe(hasBought => {
                         hasBought
@@ -1514,7 +1513,7 @@ export class CompanySettingsComponent implements OnInit {
         const data = this.company$.getValue();
 
         if (!data['UseOcrInterpretation']) {
-            this.adminProductService.FindProductByName('OCR-SCAN').subscribe(p => {
+            this.elsaProductService.FindProductByName('OCR-SCAN').subscribe(p => {
                 this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
             });
         } else {

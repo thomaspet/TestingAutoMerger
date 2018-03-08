@@ -34,8 +34,8 @@ import {
     UniTickerService,
     PaymentService,
     JournalEntryService,
-    AdminProductService,
-    AdminPurchasesService
+    ElsaProductService,
+    ElsaPurchasesService
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -159,8 +159,8 @@ export class BankComponent implements AfterViewInit {
         private fileService: FileService,
         private paymentService: PaymentService,
         private journalEntryService: JournalEntryService,
-        private adminProductService: AdminProductService,
-        private adminPurchasesService: AdminPurchasesService
+        private elsaProductService: ElsaProductService,
+        private elsaPurchasesService: ElsaPurchasesService
     ) {
         this.updateTab();
         this.checkAutobankAccess();
@@ -226,8 +226,8 @@ export class BankComponent implements AfterViewInit {
     private checkAutobankAccess() {
         // Replace purchases getAll with filtered request when filtering works..
         Observable.forkJoin(
-            this.adminProductService.GetAll(),
-            this.adminPurchasesService.GetAll()
+            this.elsaProductService.GetAll(),
+            this.elsaPurchasesService.GetAll()
         ).subscribe(
             res => {
                 const [products, purchases] = res;

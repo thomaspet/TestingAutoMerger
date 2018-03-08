@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {AdminProductService, AdminProduct, ProductStatusCode} from '../../../services/admin/adminProductService';
+import {ElsaProductService, ElsaProduct, ElsaProductStatusCode, ElsaPurchasesService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {AgreementService} from '../../../services/common/agreementService';
@@ -9,13 +9,12 @@ import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uniModal/barrel';
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
-import {AdminPurchasesService} from '@app/services/admin/adminPurchasesService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 interface BuyButtonConfig{
     text: string,
     cssClass: string,
-    action: (AdminProduct) => void,
+    action: (product: ElsaProduct) => void,
     isDisabled: boolean,
 };
 
@@ -24,16 +23,16 @@ interface BuyButtonConfig{
     templateUrl: './marketplaceAddOnsDetails.html'
 })
 export class MarketplaceAddOnsDetails implements AfterViewInit {
-    public product$: Observable<AdminProduct>;
-    public suggestedProducts$: Observable<AdminProduct[]>;
+    public product$: Observable<ElsaProduct>;
+    public suggestedProducts$: Observable<ElsaProduct[]>;
     public hasBoughtProduct$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public canActivate$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
         private tabService: TabService,
         private errorService: ErrorService,
-        private adminProductService: AdminProductService,
-        private adminPurchasesService: AdminPurchasesService,
+        private elsaProductService: ElsaProductService,
+        private elsaPurchasesService: ElsaPurchasesService,
         private route: ActivatedRoute,
         private router: Router,
         private toastService: ToastService,
@@ -84,7 +83,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                 active: true
             });
 
-            this.product$ = this.adminProductService
+            this.product$ = this.elsaProductService
                 .GetAll()
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .map(products => {
@@ -104,8 +103,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                     }
                     this.router.navigateByUrl('/marketplace');
                 })
-                .do((product: AdminProduct) =>
-                    this.adminPurchasesService.GetAll()
+                .do((product: ElsaProduct) =>
+                    this.elsaPurchasesService.GetAll()
                         .map(purchases => purchases.some(purchase => purchase.productID === product.id))
                         .subscribe(hasBoughtProduct => {
                                 this.hasBoughtProduct$.next(hasBoughtProduct);
@@ -119,11 +118,11 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                         )
                 );
 
-            this.suggestedProducts$ = this.adminProductService
+            this.suggestedProducts$ = this.elsaProductService
                 .GetAll()
                 .map(products => products.filter(product => product.id !== productID))
                 .map(products => products.filter(product => !product.isBundle))
-                .map(products => this.adminProductService.maxChar(products, 120))
+                .map(products => this.elsaProductService.maxChar(products, 120))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         });
     }
@@ -132,9 +131,9 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         this.router.navigateByUrl(url);
     }
 
-    public buy(product: AdminProduct) {
+    public buy(product: ElsaProduct) {
         this.activateProduct(product).then(() => {
-            this.adminProductService
+            this.elsaProductService
                 .PurchaseProduct(product)
                 .subscribe(
                     result => {
@@ -157,39 +156,39 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         });
     }
 
-    public generateBuyButtonConfig(product: AdminProduct, hasBoughtProduct: boolean, canActivate: boolean): BuyButtonConfig {
-        if (product.productStatus !== ProductStatusCode.Active) {
+    public generateBuyButtonConfig(product: ElsaProduct, hasBoughtProduct: boolean, canActivate: boolean): BuyButtonConfig {
+        if (product.productStatus !== ElsaProductStatusCode.Active) {
             return {
                 text: "Kontakt oss",
                 cssClass: "",
-                action: (a: AdminProduct) => window.location.href = 'https://www.unimicro.no/kontakt',
+                action: (a: ElsaProduct) => window.location.href = 'https://www.unimicro.no/kontakt',
                 isDisabled: false,
             }
         } else if (hasBoughtProduct && canActivate) {
             return {
                 text: "Aktiver",
                 cssClass: "",
-                action: (a: AdminProduct) => this.activate(a),
+                action: (a: ElsaProduct) => this.activate(a),
                 isDisabled: false,
             }
         } else if (hasBoughtProduct && !canActivate) {
             return {
                 text: "Har kjøpt",
                 cssClass: "",
-                action: (a: AdminProduct) => null,
+                action: (a: ElsaProduct) => null,
                 isDisabled: true,
             }
         } else {
             return {
                 text: "Kjøp nå",
                 cssClass: "",
-                action: (a: AdminProduct) => this.buy(a),
+                action: (a: ElsaProduct) => this.buy(a),
                 isDisabled: false,
             }
         }
     }
 
-    public activate(product: AdminProduct) {
+    public activate(product: ElsaProduct) {
         this.activateProduct(product).then(() => {
             this.toastService.addToast(
                 `Produkt: ${product.label} aktivert`, ToastType.good, ToastTime.short
@@ -200,7 +199,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         });
     }
 
-    public activateProduct(product: AdminProduct): Promise<any> {
+    public activateProduct(product: ElsaProduct): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (product.name) {
                 case 'EHF':

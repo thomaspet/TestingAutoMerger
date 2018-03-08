@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
-export interface AdminProduct {
+export interface ElsaProduct {
     id: number
     imageReference: string
     iconReference: string
@@ -16,12 +16,12 @@ export interface AdminProduct {
     isMonthly: boolean
     listOfRoles: string
     isBundle: boolean
-    productStatus: ProductStatusCode
+    productStatus: ElsaProductStatusCode
     parentProductNames: string
-    subProducts: AdminProduct[]
+    subProducts: ElsaProduct[]
 }
 
-export enum ProductStatusCode {
+export enum ElsaProductStatusCode {
     Active = 0,
     Beta = 1,
     Deprecated = 2,
@@ -29,10 +29,10 @@ export enum ProductStatusCode {
 }
 
 @Injectable()
-export class AdminProductService {
+export class ElsaProductService {
     constructor(private uniHttp: UniHttp) {}
 
-    public Get(id: number): Observable<AdminProduct> {
+    public Get(id: number): Observable<ElsaProduct> {
         return this.uniHttp
             .asGET()
             .usingAdminDomain()
@@ -40,7 +40,7 @@ export class AdminProductService {
             .send();
     }
 
-    public GetAll(): Observable<AdminProduct[]> {
+    public GetAll(): Observable<ElsaProduct[]> {
         return this.uniHttp
             .asGET()
             .usingAdminDomain()
@@ -50,7 +50,7 @@ export class AdminProductService {
             .map(this.convertSubProductsToArray);
     }
 
-    public FindProductByName(name: string): Observable<AdminProduct> {
+    public FindProductByName(name: string): Observable<ElsaProduct> {
         return this.uniHttp
             .asGET()
             .usingAdminDomain()
@@ -62,7 +62,7 @@ export class AdminProductService {
             });
     }
 
-    private convertSubProductsToArray(products: AdminProduct[]): AdminProduct[] {
+    private convertSubProductsToArray(products: ElsaProduct[]): ElsaProduct[] {
         const mainProducts = products.filter(product => !product.parentProductNames);
         let subProducts = products.filter(product => !!product.parentProductNames);
         mainProducts.map(mainProduct => {
@@ -76,7 +76,7 @@ export class AdminProductService {
         return mainProducts;
     }
 
-    public maxChar(products: AdminProduct[], maxLength: number): AdminProduct[] {
+    public maxChar(products: ElsaProduct[], maxLength: number): ElsaProduct[] {
         for (let product of products) {
             if (product.description && product.description.length > maxLength) {
                 product.description = product.description.substr(0, maxLength - 3) + '...';
@@ -85,7 +85,7 @@ export class AdminProductService {
         return products;
     }
 
-    public PurchaseProduct(product: AdminProduct): Observable<boolean> {
+    public PurchaseProduct(product: ElsaProduct): Observable<boolean> {
         return this.uniHttp
             .asPOST()
             .usingAdminDomain()
@@ -95,7 +95,7 @@ export class AdminProductService {
             .catch(() => Observable.of(false));
     }
 
-    public UnpurchaseProduct(product: AdminProduct): Observable<boolean> {
+    public UnpurchaseProduct(product: ElsaProduct): Observable<boolean> {
         return this.uniHttp
             .asDELETE()
             .usingAdminDomain()

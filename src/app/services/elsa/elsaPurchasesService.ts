@@ -16,7 +16,7 @@ export interface AdminPurchase {
 }
 
 @Injectable()
-export class AdminPurchasesService {
+export class ElsaPurchasesService {
     constructor(private uniHttp: UniHttp) {}
 
     public Get(id: number): Observable<AdminPurchase> {

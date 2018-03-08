@@ -1,10 +1,8 @@
 import {Component, AfterViewInit} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Router} from '@angular/router';
-import {AdminProductService, AdminProduct} from '../../../services/admin/adminProductService';
-import {ErrorService} from '../../../services/common/errorService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {ElsaProductService, ElsaProduct, ErrorService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
-
 
 
 @Component({
@@ -12,11 +10,11 @@ import {Observable} from 'rxjs/Observable';
     templateUrl: './marketplaceAddOns.html'
 })
 export class MarketplaceAddOns implements AfterViewInit {
-    public products$: Observable<AdminProduct[]>;
+    public products$: Observable<ElsaProduct[]>;
 
     constructor(
         tabService: TabService,
-        private adminProductService: AdminProductService,
+        private elsaProductService: ElsaProductService,
         private errorService: ErrorService,
         private router: Router
     ) {
@@ -26,9 +24,9 @@ export class MarketplaceAddOns implements AfterViewInit {
     }
 
     public ngAfterViewInit() {
-        this.products$ = this.adminProductService
+        this.products$ = this.elsaProductService
             .GetAll()
-            .map(products => this.adminProductService.maxChar(products, 100))
+            .map(products => this.elsaProductService.maxChar(products, 100))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 

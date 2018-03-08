@@ -51,6 +51,7 @@ import {RoutePermissionGuard} from './routePermissionGuard';
 import {AboutModule} from './components/about/aboutModule';
 import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
+import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
 // Set moment locale
 // TODO: Allow users to change this during runtime
@@ -79,6 +80,7 @@ if (window.ENV === 'production') {
         TimeTrackingServicesModule.forRoot(),
         AdminServicesModule.forRoot(),
         AssignmentServicesModule.forRoot(),
+        ElsaServicesModule.forRoot(),
 
         APP_ROUTES,
 

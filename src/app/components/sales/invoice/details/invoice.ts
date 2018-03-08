@@ -45,7 +45,7 @@ import {
     SellerService,
     SellerLinkService,
     VatTypeService,
-    AdminProductService
+    ElsaProductService
 } from '../../../../services/services';
 
 import {
@@ -207,7 +207,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private sellerService: SellerService,
         private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
-        private adminProductService: AdminProductService
+        private elsaProductService: ElsaProductService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -421,7 +421,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 }
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.adminProductService.FindProductByName('EHF').subscribe(p => {
+                    this.elsaProductService.FindProductByName('EHF').subscribe(p => {
                         this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
                     });
                 }

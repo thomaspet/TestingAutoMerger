@@ -6,3 +6,4 @@ export * from './reportServicesModule';
 export * from './timetrackingServicesModule';
 export * from './adminServicesModule';
 export * from './assignmentServicesModule';
+export * from './elsaServicesModule';
