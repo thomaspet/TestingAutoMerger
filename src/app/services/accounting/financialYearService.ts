@@ -28,7 +28,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
 
         this.lastSelectedFinancialYear$.subscribe(financialYear => {
             if (financialYear) {
-                this.browserStorage.setItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, financialYear);
+                this.browserStorage.setItemOnCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, financialYear);
             }
         });
     }
@@ -39,7 +39,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
 
     public getYearInLocalStorage(): FinancialYear {
         try {
-            const local = this.browserStorage.getItem(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
+            const local = this.browserStorage.getItemFromCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
             const year = new FinancialYear();
             Object.assign(year, local);
             return year;
@@ -53,7 +53,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public getActiveFinancialYear(): Observable<FinancialYear> {
-        let cached = this.getYearInLocalStorage();
+        const cached = this.getYearInLocalStorage();
         if (cached) {
             return Observable.of(cached);
         } else {
@@ -61,7 +61,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
                 this.companySettingsService.Get(1),
                 this.GetAll(null))
                 .map((res: [CompanySettings, FinancialYear[]]) => {
-                    let [companySettings, financialYears] = res;
+                    const [companySettings, financialYears] = res;
                     const fromCompanySettings = financialYears.find((year) => {
                         return year.Year === companySettings.CurrentAccountingYear;
                     });
