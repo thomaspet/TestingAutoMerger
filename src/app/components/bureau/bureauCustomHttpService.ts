@@ -41,7 +41,7 @@ export class BureauCustomHttpService {
     }
 
     private getCompanyYear(): string {
-        const year = this.browserStorage.getItem('activeFinancialYear');
+        const year = this.browserStorage.getItemFromCompany('activeFinancialYear');
         if (year) {
             return year.Year;
         }

@@ -153,7 +153,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getYear(): number {
-        const financialYear = this.browserStorage.getItem('activeFinancialYear');
+        const financialYear = this.browserStorage.getItemFromCompany('activeFinancialYear');
         return financialYear && financialYear.Year ? financialYear.Year : undefined;
     }
 

@@ -205,7 +205,7 @@ export class UniHttp {
     public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
         const token = this.authService.getToken();
         const companyKey = this.authService.getCompanyKey();
-        let year = this.browserStorage.getItem('activeFinancialYear');
+        let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
         year = year || this.browserStorage.getItem('ActiveYear');
 
         if (token) {
