@@ -13,7 +13,7 @@ import * as jwt_decode from 'jwt-decode';
 
 export interface IAuthDetails {
     token: string;
-    activeCompany: any;
+    activeCompany: Company;
     user: UserDto;
 }
 

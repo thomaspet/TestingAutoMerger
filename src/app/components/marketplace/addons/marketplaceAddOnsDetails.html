@@ -1,19 +1,14 @@
 <section class="marketplace-add-ons-details" [attr.aria-busy]="false" *ngIf="product$ | async as product">
-    <section class="buy-section">
-        <section class="icon-section">
-            <img src="{{product.iconReference}}" />
-        </section>
-        <section class="text-section">
-            <span>UniEconomy</span>
-            <span>{{product.label}}</span>
-        </section>
-        <section class="button-section">
-            <button *ngIf="generateBuyButtonConfig(product, (hasBoughtProduct$ | async), (canActivate$ | async)) as buyButtonConfig"
-                    (click)="buyButtonConfig.action(product)"
-                    [disabled]="buyButtonConfig.isDisabled"
-                    [ngClass]="buyButtonConfig.cssClass">
-                {{buyButtonConfig.text}}
-            </button>
+    <section class="title-section">
+        <section class="inner-title-section">
+            <section class="icon-section">
+                <img *ngIf="product.iconReference" src="{{product.iconReference}}" />
+                <img *ngIf="!product.iconReference" src="//public-files.unieconomy.no/files/marketplace/sale_icon.png" />
+            </section>
+            <section class="text-section">
+                <span>UniEconomy</span>
+                <span>{{product.label}}</span>
+            </section>
         </section>
     </section>
     <section class="background add-on-background-image">
@@ -21,26 +16,38 @@
     <section class="header">
         <section class="background add-on-details-background-image {{product?._backgroundClass}}"></section>
         <section class="inner-container">
-            <img [src]="product._laptopImage" />
-            <section>
+            <section class="product-info">
                 <h1>{{product.label}}</h1>
                 <p>{{product.description}}</p>
+                <img [src]="product._laptopImage" />
             </section>
-        </section>
-    </section>
-    <h1 class="price-containers-header">Pris</h1>
-    <section class="price-containers">
-        <section class="price-container">
-            <section class="price-header">
-                <span *ngIf="product.isPerUser">{{'per bruker'}}</span>
-                <span *ngIf="!product.isPerUser">{{'per firma'}}</span>
-            </section>
-            <section class="price-body">
-                <h3>{{product.price}}kr</h3>
-                <ul>
-                    <li *ngIf="product.isPerTransaction">{{'pr transaksjon'}}</li>
-                    <li *ngIf="product.isMonthly">{{'pr måned'}}</li>
-                </ul>
+            <section class="price-container">
+                <section class="price-header">
+                    <span *ngIf="product.isPerUser && !(hasBoughtProduct$ | async)">pr. bruker</span>
+                    <span *ngIf="!product.isPerUser && !(hasBoughtProduct$ | async)">pr. firma</span>
+                </section>
+                <section *ngIf="!(hasBoughtProduct$ | async)" class="price-body">
+                    <h3>{{product.price}} kr</h3>
+                    <ul>
+                        <li *ngIf="product.isPerTransaction">pr. transaksjon</li>
+                        <li *ngIf="product.isMonthly">pr. måned</li>
+                    </ul>
+                </section>
+                <section *ngIf="!(hasBoughtProduct$ | async)"class="buy-button-section">
+                    <button (click)="buy(product)">Kjøp nå</button>
+                </section>
+                <section *ngIf="(hasBoughtProduct$ | async)" class="has-bought-section">
+                    <section class="has-bought-header">Du har allerede kjøpt {{product.label}}</section>
+                    <section *ngIf="!(canActivate$ | async)" class="checkmark_thingy">
+                        Abonnert <i class="material-icons">check circle</i>
+                    </section>
+                    <section *ngIf="(canActivate$ | async)" class="checkmark_thingy" (click)="activate(product)">
+                        Aktiver <i class="material-icons">circle</i>
+                    </section>
+                    <section class="number_of_users"><a href="#/settings/company">
+                        {{numberOfUsersForProduct$ | async}} brukere</a>
+                    </section>
+                </section>
             </section>
         </section>
     </section>

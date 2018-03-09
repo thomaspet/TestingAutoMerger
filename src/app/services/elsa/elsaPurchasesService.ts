@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 
-export interface AdminPurchase {
+export interface ElsaPurchase {
     id: number;
     contract?: null;
     contractID: number;
@@ -19,7 +19,7 @@ export interface AdminPurchase {
 export class ElsaPurchasesService {
     constructor(private uniHttp: UniHttp) {}
 
-    public Get(id: number): Observable<AdminPurchase> {
+    public Get(id: number): Observable<ElsaPurchase> {
         return this.uniHttp
             .asGET()
             .usingAdminDomain()
@@ -28,7 +28,7 @@ export class ElsaPurchasesService {
             .map(response => response.json());
     }
 
-    public GetAll(): Observable<AdminPurchase[]> {
+    public GetAll(): Observable<ElsaPurchase[]> {
         return this.uniHttp
             .asGET()
             .usingAdminDomain()

@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ElsaProductService, ElsaProduct, ElsaProductStatusCode, ElsaPurchasesService} from '@app/services/services';
+import {ElsaProductService, ElsaProduct, ElsaPurchasesService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {AgreementService} from '../../../services/common/agreementService';
@@ -10,13 +10,8 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uniModal/barrel';
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-
-interface BuyButtonConfig{
-    text: string,
-    cssClass: string,
-    action: (product: ElsaProduct) => void,
-    isDisabled: boolean,
-};
+import {AdminCompanyLicensesService} from '@app/services/admin/adminCompanyLicensesService';
+import {AuthService, IAuthDetails} from '@app/authService';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -27,12 +22,15 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     public suggestedProducts$: Observable<ElsaProduct[]>;
     public hasBoughtProduct$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public canActivate$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public numberOfUsersForProduct$: BehaviorSubject<number> = new BehaviorSubject(0);
 
     constructor(
         private tabService: TabService,
         private errorService: ErrorService,
         private elsaProductService: ElsaProductService,
         private elsaPurchasesService: ElsaPurchasesService,
+        private adminCompanyLicensesService: AdminCompanyLicensesService,
+        private authService: AuthService,
         private route: ActivatedRoute,
         private router: Router,
         private toastService: ToastService,
@@ -116,6 +114,15 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                             },
                             err => this.errorService.handle(err),
                         )
+                )
+                .do((product: ElsaProduct) =>
+                    this.authService.authentication$.first().subscribe((auth: IAuthDetails) =>
+                        this.adminCompanyLicensesService.PurchasesForUserLicense(auth.activeCompany.Key)
+                            .map(purchasesForUser => purchasesForUser
+                                .reduce((counter, purchase) => purchase.productID === product.id ? counter + 1 : counter, 0)
+                            )
+                            .subscribe(sum => this.numberOfUsersForProduct$.next(sum))
+                    )
                 );
 
             this.suggestedProducts$ = this.elsaProductService
@@ -132,7 +139,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     }
 
     public buy(product: ElsaProduct) {
-        this.activateProduct(product).then(() => {
+        this.showActivateModal(product).then(() => {
             this.elsaProductService
                 .PurchaseProduct(product)
                 .subscribe(
@@ -156,50 +163,18 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         });
     }
 
-    public generateBuyButtonConfig(product: ElsaProduct, hasBoughtProduct: boolean, canActivate: boolean): BuyButtonConfig {
-        if (product.productStatus !== ElsaProductStatusCode.Active) {
-            return {
-                text: "Kontakt oss",
-                cssClass: "",
-                action: (a: ElsaProduct) => window.location.href = 'https://www.unimicro.no/kontakt',
-                isDisabled: false,
-            }
-        } else if (hasBoughtProduct && canActivate) {
-            return {
-                text: "Aktiver",
-                cssClass: "",
-                action: (a: ElsaProduct) => this.activate(a),
-                isDisabled: false,
-            }
-        } else if (hasBoughtProduct && !canActivate) {
-            return {
-                text: "Har kjøpt",
-                cssClass: "",
-                action: (a: ElsaProduct) => null,
-                isDisabled: true,
-            }
-        } else {
-            return {
-                text: "Kjøp nå",
-                cssClass: "",
-                action: (a: ElsaProduct) => this.buy(a),
-                isDisabled: false,
-            }
-        }
-    }
-
     public activate(product: ElsaProduct) {
-        this.activateProduct(product).then(() => {
+        this.showActivateModal(product).then(() => {
             this.toastService.addToast(
                 `Produkt: ${product.label} aktivert`, ToastType.good, ToastTime.short
             );
         }).catch(err =>{
-            // the activation was aborted, most likely the user didnt accept the terms for the service,
+            // the activation was aborted, most likely the user didn't accept the terms for the service,
             // or something went wrong when accepting the terms
         });
     }
 
-    public activateProduct(product: ElsaProduct): Promise<any> {
+    private showActivateModal(product: ElsaProduct): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (product.name) {
                 case 'EHF':
@@ -207,7 +182,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                         .onClose.subscribe((response) =>
                             {
                                 // if the modal is closed without the activation status indicating that the
-                                // EHF/AP is activated, dont purchase the product
+                                // EHF/AP is activated, don't purchase the product
                                 if (response === ActivationEnum.ACTIVATED || response === ActivationEnum.CONFIRMATION) {
                                     this.canActivate$.next(false);
                                 } else {

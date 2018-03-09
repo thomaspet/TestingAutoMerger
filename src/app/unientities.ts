@@ -1195,7 +1195,6 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DefaultBankAccount: BankAccount;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
@@ -1206,6 +1205,7 @@ export class BusinessRelation extends UniEntity {
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
 
@@ -4332,6 +4332,7 @@ export class BankIntegrationAgreement extends UniEntity {
     public BankAccountID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DefaultAgreement: boolean;
     public Deleted: boolean;
     public Email: string;
     public ID: number;
@@ -5220,11 +5221,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 

@@ -1,11 +1,10 @@
-uni-marketplace
-
-    uni-marketplace-add-ons .add-on-background-image
+uni-marketplace-add-ons
+    .add-on-background-image
         background: url('assets/marketplace/modules/header_moduler.png') no-repeat center center
         background-size: cover
         background-position: 0 0
 
-    uni-marketplace-add-ons .add-on-details-background-image
+    .add-on-details-background-image
         background: url('assets/marketplace/modules/header_moduler.png') no-repeat center center
         background-size: cover
         background-position: 0 0
@@ -13,6 +12,7 @@ uni-marketplace
     .marketplace-add-ons
         p
             color: $uni-color-positive
+
     .package-deal-container
         display: flex
         flex-direction: column
@@ -46,77 +46,62 @@ uni-marketplace
             text-shadow: none
             border: 0.01rem solid
 
-    .app-containers-heading
-        display: block
-        width: 100%
+
+    .header
+        padding-bottom: 9rem
         background-color: white
-        padding-top: 7rem
-        padding-bottom: 18rem
-        text-align: center
-        margin: 0
-        font-weight: bold
-        color: $uni-color-positive
 
-    .app-containers
-        width: 80%
-        padding-bottom: 4rem
-        padding-left: 10%
-        padding-right: 10%
-        display: flex
-        flex-direction: row
-        flex-wrap: wrap
-        justify-content: center
-        align-items: stretch
-        background-color: #f8f9fD
-
-    .app-container
-        margin-top: -7.5rem
-        margin-left: 1rem
-        margin-right: 1rem
-        margin-bottom: 10rem
-        width: 16rem
-        order: 0
-        flex: 0 1 auto
-        align-self: auto
-        cursor: pointer
-
-    .other-modules .app-container
-        margin-top: 4.5rem
-
-    .app-header
-        img
-            width: 70%
-    .other-modules .app-header
-        text-align: center
-
-    .app-body
-        h3
-            padding: 0.7rem 1rem
-            margin: 0
-            color: $uni-color-positive
-            font-weight: 600
-            font-size: 1.5rem
-            text-align: left
-
-        p
-            text-align: left
-            margin: 0
-            padding: 0 1rem
-            font-size: medium
-            line-height: 110%
-            color: $uni-color-positive
-
-    .other-modules .app-body
-        h3
-            color: white
+        .add-on-background-image
             text-align: center
-
-    .app-footer
-        text-align: left
-
+        h1
+            padding-top: 3rem
+        h1,h2
+            margin: 0
+            color: white
+            font-weight: 400
+            font-size: 2rem
+        p
+            color: $uni-color-c2a
         a
-            display: block
-            color: $uni-color-link
-            font-weight: bold
-            text-decoration: none
-            padding: 0.7rem 1rem
+            color: $uni-color-warn
+        button
+            color: white
+
+        & > img
+            max-height: 100%
+            max-width: 100%
+
+        .background
+            width: 100%
+            height: 27rem
+
+        .inner-container
+            display: flex
+            flex-direction: row
+            flex-wrap: nowrap
+            justify-content: space-between
+            align-content: space-between
+            align-items: center
+            width: 76rem
+            margin: -15rem auto 1.3rem
+            background: white
+
+            h1,h2
+                font-weight: bold
+                line-height: 2rem
+                color: $uni-color-positive
+            h2
+                padding-bottom: 1rem
+                font-size: 1.8rem
+
+            p
+                font-size: 1.2rem
+                margin: 0
+                color: $uni-color-positive
+
+            img
+                width: 50%
+                padding: 5rem 1rem 2rem 3rem
+
+            section
+                padding: 3rem
