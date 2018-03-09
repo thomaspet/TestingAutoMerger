@@ -37,7 +37,7 @@ enum LoginState {
                 </footer>
             </div>
             <div *ngIf="formState === LOGIN_STATE_ENUM.Pin" [attr.aria-busy]="busy">
-                <article>
+                <article *ngIf="!messageStatusIsError">
                     <uni-form
                         [config]="emptyConfig$"
                         [fields]="pinFormFields$"
@@ -45,7 +45,7 @@ enum LoginState {
                     ></uni-form>
                 </article>
                 <footer>
-                    <button (click)="submitPin()" class="good">OK</button>
+                    <button *ngIf="!messageStatusIsError" (click)="submitPin()" class="good">OK</button>
                     <button (click)="close()">Avbryt</button>
                 </footer>
             </div>
@@ -67,12 +67,13 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     public busy: boolean = true;
     public userMessage: string;
+    public messageStatusIsError: boolean;
     public emptyConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public formState: LoginState = LoginState.UsernameAndPasswordAndPinType;
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
         = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
-
+    private errorStatuses: string[] = ['invalidcredentials', 'userlockedout'];
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
@@ -208,6 +209,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                         .subscribe(messageobj => {
                             this.busy = false;
                             this.userMessage = messageobj.Message;
+                            this.messageStatusIsError = this.messageStatus(messageobj);
                             userLoginData.pin = '';
                             userLoginData.validTo = messageobj.ValidTo;
                             userLoginData.validFrom = messageobj.ValidFrom;
@@ -235,6 +237,11 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                     resolve(this.userLoginData$.getValue());
                 }, err => this.errorService.handle(err));
         });
+    }
+
+    private messageStatus(messageObj): boolean {
+        const indx = this.errorStatuses.findIndex(stat => stat.toLowerCase() === messageObj.Status.toLowerCase());
+        return indx >= 0 ? true : false;
     }
 
     private submit(formState: LoginState) {

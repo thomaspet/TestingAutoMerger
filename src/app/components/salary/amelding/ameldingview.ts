@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -538,7 +538,6 @@ export class AMeldingView implements OnInit {
                 }
             }
         });
-
         if (this.periodStatus === '') {
             this.periodStatus = 'Mottatt';
         }
@@ -566,10 +565,6 @@ export class AMeldingView implements OnInit {
     }
 
     private setStatusForPeriod() {
-        if (this.aMeldingerInPeriod.length > 0 && this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].altinnStatus !== null) {
-            this.periodStatus = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].altinnStatus;
-            return;
-        }
         if (this.aMeldingerInPeriod.length === 1) {
             this.setPeriodStatusFromAmeldingStatus(this.currentAMelding);
         } else {
@@ -578,6 +573,17 @@ export class AMeldingView implements OnInit {
     }
 
     private getLastSentAmeldingWithFeedback() {
+        // 1. if any with status 'mottatt' thats the period-status we want
+        const ameld: AmeldingData = this.aMeldingerInPeriod.find(a => a.altinnStatus === 'mottatt');
+        if (!!ameld && ameld.altinnStatus === 'mottatt') {
+            this._ameldingService
+                .getAMeldingWithFeedback(ameld.ID)
+                .subscribe((amld: AmeldingData) => {
+                    this.setPeriodStatusFromAmeldingStatus(amld);
+                });
+            return;
+        }
+        // 2. if none with status 'mottatt' then find the last one with status
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
             const amelding = this.aMeldingerInPeriod[i];
             if (amelding.status !== null) {
@@ -711,13 +717,25 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .filter(auth => !!auth)
             .switchMap(authData => this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData))
+            .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
                     this.getAMeldingForPeriod();
                     this.showView = 'receipt';
                     done('Tilbakemelding hentet');
+                } else {
+                    done('Feilet ved henting av tilbakemelding');
                 }
             });
+    }
+
+    private handleError(err, obs, done: (message: string) => void = null) {
+        if (done) {
+            done('Feilet ved henting av tilbakemelding');
+        }
+        this._toastService.addToast(`Feilet ved henting av tilbakemelding \n\n ${err}`, ToastType.warn, ToastTime.long);
+
+        return this.errorService.handleRxCatch(err, obs);
     }
 
     private sendAmelding(done) {
