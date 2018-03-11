@@ -1199,7 +1199,7 @@ export class BillView implements OnInit {
                     }, err => this.errorService.handle(err)
                     );
             }
-
+    
             this.updateJournalEntryManualFinancialDate(model, true);
         }
 
@@ -1231,6 +1231,7 @@ export class BillView implements OnInit {
         }
 
         if (change['TaxInclusiveAmountCurrency']) {
+            this.updateJournalEntryAmountsWhenCurrencyChanges(model);
             this.updateSummary(this.journalEntryManual.getJournalEntryData());
         }
 
@@ -2379,12 +2380,16 @@ export class BillView implements OnInit {
                 drafts[1]["_createGuid"] = this.journalEntryService.getNewGuid();
             }
 
+            let supplierDescription = 
+                (current.Supplier ? current.Supplier.SupplierNumber : '') +
+                (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
+
             // Debit
             drafts[0].AccountID = line.DebitAccountID;
             drafts[0].Account = null;
             drafts[0].Amount = line.Amount;
             drafts[0].AmountCurrency = line.AmountCurrency;
-            drafts[0].Description = line.Description ? line.Description : `${current.Supplier.SupplierNumber} - ${current.Supplier.Info.Name} - fakturanr. ${current.InvoiceNumber || 0}`;
+            drafts[0].Description = line.Description ? line.Description : `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`;
             drafts[0].VatTypeID = line.DebitVatTypeID;
             drafts[0].VatPercent = line.DebitVatType.VatPercent;
 
