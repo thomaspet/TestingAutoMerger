@@ -38,6 +38,7 @@ import {LinkMenu} from './linkMenu/linkMenu';
 import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
+import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 
 @NgModule({
     imports: [
@@ -93,7 +94,8 @@ import {BookPaymentManualModal} from './modals/bookPaymentManual';
         LinkMenu,
         UniInfo,
         BrowserWarning,
-        BookPaymentManualModal
+        BookPaymentManualModal,
+        VacationPaySettingsModal
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -102,7 +104,8 @@ import {BookPaymentManualModal} from './modals/bookPaymentManual';
         AddPaymentModal,
         AccrualModal,
         ImageModal,
-        BookPaymentManualModal
+        BookPaymentManualModal,
+        VacationPaySettingsModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -131,6 +134,7 @@ import {BookPaymentManualModal} from './modals/bookPaymentManual';
 
         ReminderSettings,
         UniReminderSettingsModal,
+        VacationPaySettingsModal,
 
         ContactDetails,
         Contacts,

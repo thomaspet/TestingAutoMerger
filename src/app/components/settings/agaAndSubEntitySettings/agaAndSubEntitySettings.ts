@@ -23,6 +23,7 @@ import {
     AgaZoneService,
     ErrorService
 } from '../../../services/services';
+import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 declare var _;
 
 @Component({
@@ -323,6 +324,19 @@ export class AgaAndSubEntitySettings implements OnInit {
             displayProperty: 'name'
         };
 
+        const vacationSettingsBtn = new UniFieldLayout();
+        vacationSettingsBtn.Label = 'Innstillinger feriepenger';
+        vacationSettingsBtn.EntityType = 'mainOrganization';
+        vacationSettingsBtn.Property = '_VacationSettingsBtn';
+        vacationSettingsBtn.FieldType = FieldType.BUTTON;
+        vacationSettingsBtn.Section = 2;
+        vacationSettingsBtn.FieldSet = 2;
+        vacationSettingsBtn.Options = {
+            click: (event) => {
+                this.openVacationSettingsModal();
+            }
+        };
+
         this.fields$.next([
             mainOrgName,
             mainOrgOrg,
@@ -341,7 +355,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             mainAccountCostAgaVacation,
             interrimRemit,
             paymentInterval,
-            postTax
+            postTax,
+            vacationSettingsBtn
         ]);
     }
 
@@ -351,6 +366,10 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public openFreeamountModal() {
         this.modalService.open(FreeAmountModal);
+    }
+
+    public openVacationSettingsModal() {
+        this.modalService.open(VacationPaySettingsModal);
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {

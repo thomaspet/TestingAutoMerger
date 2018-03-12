@@ -39,7 +39,6 @@ import {EmployeeTax} from './employee/employeeTax/employeeTax';
 import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
 
 import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
-import {VacationPaySettingsModal} from './payrollrun/modals/vacationpay/vacationPaySettingsModal';
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
@@ -146,7 +145,6 @@ import {EmpCanActivateGuard} from './employee/empGuard';
 
         // Payrollrun
         VacationPayModal,
-        VacationPaySettingsModal,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
@@ -198,7 +196,6 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         TaxCardModal,
         TaxResponseModal,
         VacationPayModal,
-        VacationPaySettingsModal,
         ControlModal,
         PostingSummaryModal,
         SalarytransFilterContent,
@@ -254,7 +251,6 @@ import {EmpCanActivateGuard} from './employee/empGuard';
 
         // Payrollrun
         VacationPayModal,
-        VacationPaySettingsModal,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
