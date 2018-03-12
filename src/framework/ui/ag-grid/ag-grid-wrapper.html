@@ -40,6 +40,7 @@
         [enableServerSideSorting]="true"
 
         [suppressNoRowsOverlay]="true"
+        [suppressDragLeaveHidesColumns]="true"
         [headerHeight]="35"
         [rowHeight]="35"
 
@@ -51,6 +52,7 @@
         [rowSelection]="selectionMode"
         [suppressRowClickSelection]="selectionMode === 'multiple'"
         (selectionChanged)="onSelectionChange($event)"
-        (cellClicked)="onCellClick($event)">
+        (cellClicked)="onCellClick($event)"
+        (columnMoved)="columnMoveDebouncer$.next($event)">
     </ag-grid-angular>
 </section>

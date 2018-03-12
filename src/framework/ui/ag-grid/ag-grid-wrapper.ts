@@ -34,7 +34,8 @@ import {
     IDatasource,
     IGetRowsParams,
     GridSizeChangedEvent,
-    ColumnResizedEvent
+    ColumnResizedEvent,
+    ColumnMovedEvent
 } from 'ag-grid';
 
 import {Observable} from 'rxjs/Observable';
@@ -78,6 +79,7 @@ export class AgGridWrapper {
 
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
+    private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
     // Used for keyboard navigation inside filter box
     private focusIndex: number;
@@ -97,6 +99,10 @@ export class AgGridWrapper {
             .subscribe((event: SelectionChangedEvent) => {
                 this.rowSelectionChange.emit(event.api.getSelectedRows());
             });
+
+        this.columnMoveDebouncer$
+            .debounceTime(1000)
+            .subscribe((event: ColumnMovedEvent) => this.onColumnMove(event));
     }
 
     public ngOnDestroy() {
@@ -203,6 +209,22 @@ export class AgGridWrapper {
             }
         } else {
             this.resizeInProgress = event.column.getColId();
+        }
+    }
+
+    public onColumnMove(event: ColumnMovedEvent) {
+        console.log('huh?', event);
+        if (!this.config || !this.config.configStoreKey) {
+            return;
+        }
+
+        const colDef = event.column.getColDef();
+        const column = colDef && colDef['_uniTableColumn'];
+        const index = column && this.columns.findIndex(col => col.field === column.field);
+        if (index >= 0) {
+            const col = this.columns.splice(index, 1)[0];
+            this.columns.splice(event.toIndex, 0, col);
+            this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
         }
     }
 
