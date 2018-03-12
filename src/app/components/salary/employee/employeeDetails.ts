@@ -5,7 +5,7 @@ import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, OperationType, Operator
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -1520,6 +1520,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                                 leave.Deleted = false;
                                 hasErrors = true;
                                 saveCount++;
+                                const rules = this.errorService.extractEntityValidationRules(err);
+                                if (rules.find(x => x.PropertyName === 'EmploymentID' && x.Operator === Operator.Required)) {
+                                    leave['_isDirty'] = false;
+                                    super.updateState(EMPLOYEE_LEAVE_KEY, employeeLeave, false);
+                                }
                                 return this.errorService.handleRxCatch(err, obs);
                             })
                             .do((res: EmployeeLeave) => {

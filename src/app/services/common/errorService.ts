@@ -109,6 +109,12 @@ export class ErrorService {
             .map(message => message[complexValidationRuleKey]);
     }
 
+    public extractEntityValidationRules(error: any): EntityValidationRule[] {
+        return this.extractValidationMessages(this.getErrorBody(error))
+            .filter(message => !!message[EntityValidationRule.EntityType])
+            .map(message => message[EntityValidationRule.EntityType]);
+    }
+
     public extractValidationMessages(obj: any) {
         return [
             ...this.extractValidationMessagesRecursively(obj),
