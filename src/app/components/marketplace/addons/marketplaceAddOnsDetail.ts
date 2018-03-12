@@ -101,6 +101,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                     }
                     this.router.navigateByUrl('/marketplace');
                 })
+                .filter(product => !!product)
                 .do((product: ElsaProduct) =>
                     this.elsaPurchasesService.GetAll()
                         .map(purchases => purchases.some(purchase => purchase.productID === product.id))
@@ -115,15 +116,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
                             err => this.errorService.handle(err),
                         )
                 )
-                .do((product: ElsaProduct) =>
-                    this.authService.authentication$.first().subscribe((auth: IAuthDetails) =>
-                        this.adminCompanyLicensesService.PurchasesForUserLicense(auth.activeCompany.Key)
-                            .map(purchasesForUser => purchasesForUser
-                                .reduce((counter, purchase) => purchase.productID === product.id ? counter + 1 : counter, 0)
-                            )
-                            .subscribe(sum => this.numberOfUsersForProduct$.next(sum))
-                    )
-                );
+                .do((product: ElsaProduct) => this.updateNumberOfUsersForProduct(product.id));
 
             this.suggestedProducts$ = this.elsaProductService
                 .GetAll()
@@ -142,6 +135,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         this.showActivateModal(product).then(() => {
             this.elsaProductService
                 .PurchaseProduct(product)
+                .do(() => this.updateNumberOfUsersForProduct(product.id))
                 .subscribe(
                     result => {
                         if (result) {
@@ -172,6 +166,16 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
             // the activation was aborted, most likely the user didn't accept the terms for the service,
             // or something went wrong when accepting the terms
         });
+    }
+
+    private updateNumberOfUsersForProduct(productId: number) {
+        this.authService.authentication$.first().subscribe((auth: IAuthDetails) =>
+            this.adminCompanyLicensesService.PurchasesForUserLicense(auth.activeCompany.Key)
+                .map(purchasesForUser => purchasesForUser
+                    .reduce((counter, purchase) => purchase.productID === productId ? counter + 1 : counter, 0)
+                )
+                .subscribe(sum => this.numberOfUsersForProduct$.next(sum))
+        )
     }
 
     private showActivateModal(product: ElsaProduct): Promise<any> {
