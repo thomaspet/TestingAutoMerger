@@ -60,6 +60,8 @@ import {TermsService} from './common/termsService';
 import {UniFilesService} from './common/uniFilesService';
 import {ValidationService} from './common/validationService';
 import {VideoMappingService} from './common/videoMappingService';
+import {DimensionSettingsService} from './common/dimensionSettingsService';
+import {CustomDimensionService} from './common/customDimensionService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -92,7 +94,7 @@ export * from './common/pageStateService';
 export * from './common/fileService';
 export * from './common/EHFService';
 export * from './common/agaZoneService';
-export * from './common/agaSumService'
+export * from './common/agaSumService';
 export * from './common/municipalsService';
 export * from '../../framework/core/browserStorageService';
 export * from './common/cacheService';
@@ -121,6 +123,8 @@ export * from './common/uniSearchConfig/uniSearchCustomerConfig';
 export * from './common/uniSearchConfig/uniSearchEmployeeConfig';
 export * from './common/uniSearchConfig/uniSearchSupplierConfig';
 export * from './common/uniSearchConfig/uniSearchProductConfig';
+export * from './common/dimensionSettingsService';
+export * from './common/customDimensionService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -188,7 +192,9 @@ export class CommonServicesModule {
                 TermsService,
                 UniFilesService,
                 ValidationService,
-                VideoMappingService
+                VideoMappingService,
+                DimensionSettingsService,
+                CustomDimensionService
             ]
         };
     }

@@ -11,6 +11,7 @@ import {Settings} from './settings';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
+import {UniDimensionSettings} from './dimension/dimension';
 
 export const settingsRoutes: Routes = [{
     path: '',
@@ -63,6 +64,11 @@ export const settingsRoutes: Routes = [{
         {
             path: 'terms',
             component: UniTerms,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'dimension',
+            component: UniDimensionSettings,
             canDeactivate: [CanDeactivateGuard]
         },
         // {

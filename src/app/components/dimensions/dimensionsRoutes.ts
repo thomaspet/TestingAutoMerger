@@ -12,6 +12,9 @@ import {ProjectHourTotals} from './project/hours/hourtotals';
 import {ProjectLite} from './projectLite/projectLite';
 import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
+import {UniCustomDimensionList} from './custom/customDimensionList';
+import {UniCustomDimension} from './custom/customDimension';
+
 export const dimensionsRoutes = [
     {
         path: 'dimensions',
@@ -28,6 +31,14 @@ export const dimensionsRoutes = [
             {
                 path: 'departments/:id',
                 component: DepartmentDetails
+            },
+            {
+                path: 'customdimensionlist/:id',
+                component: UniCustomDimensionList
+            },
+            {
+                path: 'customdimension/:id',
+                component: UniCustomDimension
             },
             {
                 path: 'projects',

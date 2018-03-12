@@ -3376,6 +3376,24 @@ export class Dimensions extends UniEntity {
     public CustomFields: any;
 }
 
+export class DimensionSettings extends UniEntity {
+    public static RelativeUrl = 'dimensionsettings';
+    public static EntityType = 'DimensionSettings';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public Dimension: string;
+    public Label: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Project: Project;
+    public CustomFields: any;
+}
+
 
 export class Responsible extends UniEntity {
     public static RelativeUrl = 'responsibles';

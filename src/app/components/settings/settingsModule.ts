@@ -24,6 +24,8 @@ import {UserSettings} from './userSettings/userSettings';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
+import {UniDimensionSettings} from './dimension/dimension';
+import {UniDimensionModal} from './dimension/dimensionModal';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeAmountModal';
@@ -59,20 +61,23 @@ import {UniAdminPasswordModal} from '@app/components/settings/users/admin-passwo
         NumberSeries,
         UniTerms,
         UniBankSettings,
+        UniDimensionSettings,
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
         WebHookSettings,
         RoleSelector,
         UniRegisterBankUserModal,
-        UniAdminPasswordModal
+        UniAdminPasswordModal,
+        UniDimensionModal
     ],
     entryComponents: [
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
         UniRegisterBankUserModal,
-        UniAdminPasswordModal
+        UniAdminPasswordModal,
+        UniDimensionModal
     ],
     exports: [
         RouterModule,

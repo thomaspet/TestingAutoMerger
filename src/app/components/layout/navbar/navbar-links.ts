@@ -185,6 +185,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 moduleID: UniModules.CurrencyExchange
             },
             {
+                componentName: 'Betaling',
+                componentUrl: '/accounting/journalentry/payments',
+                moduleID: UniModules.Payments
+            },
+            {
                 componentName: 'Prosjekt LITE',
                 componentUrl: '/dimensions/projectslite',
                 moduleID: UniModules.Projects, groupHeader: 'Dimensjoner'
@@ -193,11 +198,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 componentName: 'Avdeling',
                 componentUrl: '/dimensions/departments',
                 moduleID: UniModules.Departments
-            },
-            {
-                componentName: 'Betaling',
-                componentUrl: '/accounting/journalentry/payments',
-                moduleID: UniModules.Payments
             }
         ]
     },

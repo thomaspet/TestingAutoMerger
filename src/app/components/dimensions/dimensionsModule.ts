@@ -23,6 +23,9 @@ import {ProjectHourTotals} from './project/hours/hourtotals';
 import {ProjectLite} from './projectLite/projectLite';
 import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
+import {UniCustomDimension} from './custom/customDimension';
+import {UniCustomDimensionList} from './custom/customDimensionList';
+
 
 @NgModule({
     imports: [
@@ -51,7 +54,9 @@ import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
         ProjectHours,
         ProjectHourTotals,
         ProjectLite,
-        ProjectLiteDetails
+        ProjectLiteDetails,
+        UniCustomDimension,
+        UniCustomDimensionList
     ]
 })
 export class DimensionsModule {}

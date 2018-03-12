@@ -1,0 +1,13 @@
+<section class="application">
+
+    <h2>Egendefinerte dimensjoner</h2>
+
+    <uni-table
+        [attr.aria-busy]="busy"
+        [resource]="data"
+        [config]="tableConfig">
+    </uni-table>
+
+    <button (click)="addNewDimension()" class="good" style="float: right; margin: 0;" *ngIf="data?.length < 6">Ny dimensjon</button>
+
+</section>
