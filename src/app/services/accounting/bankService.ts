@@ -78,8 +78,18 @@ export class BankService extends BizHttp<Bank> {
         .asPOST()
         .withBody(agreementDetails)
         .usingBusinessDomain()
-        .withEndPoint('/bank-agreements?action=create-integration')
+        .withEndPoint('bank-agreements?action=create-integration')
         .send()
         .map(res => res.json());
+    }
+
+    public updateAutobankAgreement(id: any, password: string) {
+        return this.http
+            .asPUT()
+            .withBody(password)
+            .usingBusinessDomain()
+            .withEndPoint(`bank-agreements/${id}?action=update-status`)
+            .send()
+            .map(res => res.json());
     }
 }

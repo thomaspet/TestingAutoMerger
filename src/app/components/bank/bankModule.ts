@@ -20,6 +20,7 @@ import {
     UniAutobankAgreementModal,
     UniAgreementWarningModal
 } from './modals';
+import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 
 @NgModule({
     imports: [
@@ -41,13 +42,15 @@ import {
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
         UniAutobankAgreementModal,
-        UniAgreementWarningModal
+        UniAgreementWarningModal,
+        UniBankUserPasswordModal
     ],
     entryComponents: [
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
         UniAutobankAgreementModal,
-        UniAgreementWarningModal
+        UniAgreementWarningModal,
+        UniBankUserPasswordModal
     ],
     providers: [
         CanDeactivateGuard

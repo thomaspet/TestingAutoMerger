@@ -7,9 +7,12 @@ import {
     ConfirmActions
 } from '@uni-framework/uniModal/barrel';
 import {UniAutobankAgreementModal} from './autobankAgreementModal';
+import {BankService} from '@app/services/accounting/bankService';
+import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 
 @Component({
     selector: 'uni-autobank-agreement-list-modal',
+    styles: [`.material-icons { line-height: 2; cursor: pointer}`],
     template: `
         <section role="dialog" class="uni-modal" style="width: 70vw;">
             <header><h1>Mine autobankavtaler</h1></header>
@@ -35,9 +38,10 @@ import {UniAutobankAgreementModal} from './autobankAgreementModal';
                             <td class="text-center-in-table"> {{ agreement.IsOutgoing ? 'Ja' : 'Nei'  }} </td>
                             <td class="text-center-in-table"> {{ agreement.IsInbound ? 'Ja' : 'Nei'  }} </td>
                             <td class="text-right-in-table"> {{ getStatusText(agreement.StatusCode) }} </td>
-                            <td class="text-right-in-table" style="position: relative; display: none;">
-                                <span class="agreement-edit" (click)="editAgreements(agreement)" title="Rediger avtale"> </span>
-                                <span class="agreement-delete" (click)="deleteAgreements(agreement)" title="Slett avtale"> </span>
+                            <td class="text-right-in-table" [attr.aria-busy]="busy">
+                                <i class="material-icons" (click)="refreshStatus(agreement)">refresh</i>
+                                <!-- <span class="agreement-edit" (click)="editAgreements(agreement)" title="Rediger avtale"> </span>
+                                <span class="agreement-delete" (click)="deleteAgreements(agreement)" title="Slett avtale"> </span> -->
                             </td>
                         </tr>
                     </tbody>
@@ -60,8 +64,12 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public agreements: any[];
+    public busy = false;
 
-    constructor(private modalService: UniModalService) { }
+    constructor(
+        private modalService: UniModalService,
+        private bankService: BankService
+    ) { }
 
     public ngOnInit() {
         if (this.options &&  this.options.data) {
@@ -125,5 +133,23 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
 
     public close() {
         this.onClose.emit();
+    }
+
+    public refreshStatus(agreement) {
+        this.modalService.open(UniBankUserPasswordModal).onClose.subscribe(password => {
+            if (!password) {
+                return;
+            } else {
+                this.busy = true;
+                this.bankService.updateAutobankAgreement(agreement.ID, password)
+                    .finally(() => {
+                        this.busy = false;
+                        this.onClose.emit();
+                    })
+                    .subscribe(x => {
+                        agreement.StatusCode = x.StatusCode;
+                    });
+            }
+        });
     }
 }
