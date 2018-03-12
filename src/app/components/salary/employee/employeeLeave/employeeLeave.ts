@@ -73,7 +73,7 @@ export class EmployeeLeaves extends UniView {
 
             });
 
-        const employmentIDCol = new UniTableColumn('Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
+        const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 let employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
                 return employment
@@ -95,7 +95,7 @@ export class EmployeeLeaves extends UniView {
             ])
             .setChangeCallback((event) => {
                 let row: EmployeeLeave = event.rowModel;
-                if (event.field === 'Employment') {
+                if (event.field === '_Employment') {
                     this.mapEmploymentToPermision(row);
                 } else if (this.employments && !row.ID && !row['_isDirty']) {
                     row.Employment = this.employments.find(x => x.Standard);
@@ -124,7 +124,7 @@ export class EmployeeLeaves extends UniView {
     }
 
     private mapEmploymentToPermision(rowModel) {
-        let employment = rowModel['Employment'];
+        let employment = rowModel['_Employment'];
         rowModel['EmploymentID'] = employment ? employment.ID : 0;
     }
 
