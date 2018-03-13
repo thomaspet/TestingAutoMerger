@@ -3,7 +3,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm} from '../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../../common/utils/utils';
@@ -148,6 +148,16 @@ export class GenericDetailview implements OnInit, OnChanges {
         return new Promise((resolve, reject) => {
             this.workerService.getStatistics(params)
                 .finally( () => this.busy = false )
+                .do(() => {
+                    this.fields$
+                        .getValue()
+                        .forEach((field: UniFieldLayout) => {
+                            if (field.FieldType !== FieldType.AUTOCOMPLETE) {
+                                return;
+                            }
+                            this.form.updateField(field.Property, field);
+                    });
+                })
                 .subscribe((data) => {
                 const items = data.Data;
                 if (items && items.length > 0) {
@@ -276,7 +286,8 @@ export class GenericDetailview implements OnInit, OnChanges {
         this.busy = true;
         this.ensureEditCompleted();
         return new Promise((resolve, reject) => {
-            this.workerService.saveByID(this.current$.getValue(), this.viewconfig.data.route)
+            this.workerService
+                .saveByID(this.current$.getValue(), this.viewconfig.data.route)
                 .finally(() => this.busy = false)
                 .map(item => this.mapLocalFieldsToNew(this.current$.getValue(), item))
                 .subscribe((item) => {
