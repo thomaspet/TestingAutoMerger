@@ -99,7 +99,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
     @Input() public defaultRowData: JournalEntryData;
-    @Input() public amount: number = 0;
     @Input() public amountCurrency: number = 0;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
@@ -507,7 +506,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }, 0);
 
         rowModel.AmountCurrency = this.amountCurrency - sumAmountCurrency;
-        rowModel.Amount = this.amount - sumAmount;
+        rowModel.Amount = UniMath.round(rowModel.AmountCurrency * (rowModel.CurrencyExchangeRate || 1)) - sumAmount;
         return rowModel;
     }
 

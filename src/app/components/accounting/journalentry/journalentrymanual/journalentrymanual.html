@@ -17,7 +17,6 @@
             [currentFinancialYear]="currentFinancialYear"
             [vatDeductions]="vatDeductions"
             [defaultRowData]="defaultRowData"
-            [amount]="amount"
             [amountCurrency]="amountCurrency"
             [vattypes]="vatTypes"
             [selectedNumberSeries]="selectedNumberSeries">
@@ -83,7 +82,7 @@
             </table>
         </section>
 
-         <section class="openposts_container">
+         <section class="openposts_container" *ngIf="mode !== 2">
              <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
              <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
                  Ingen åpne poster funnet for valgt rad
