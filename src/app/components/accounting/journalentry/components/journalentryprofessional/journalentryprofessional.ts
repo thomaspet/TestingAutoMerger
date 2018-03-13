@@ -269,6 +269,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.journalEntryLines = data;
+
+        // If SupplierInvoice don't set focus on table
+        if (this.mode === JournalEntryMode.SupplierInvoice) { return; }
+
         setTimeout(() => {
             if (this.table) {
                 this.table.blur();
@@ -502,7 +506,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return sum + (line.AmountCurrency || 0);
         }, 0);
         let sumAmount = lines.reduce((sum, line) => {
-            return sum + (line.Amount || 0); 
+            return sum + (line.Amount || 0);
         }, 0);
 
         rowModel.AmountCurrency = this.amountCurrency - sumAmountCurrency;
@@ -939,7 +943,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false)
             .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
-        const debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
+        const debitAccountCol = new UniTableColumn('DebitAccount', this.mode !== JournalEntryMode.SupplierInvoice ? 'Debet' : 'Konto', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
