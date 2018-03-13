@@ -2021,13 +2021,22 @@ export class BillView implements OnInit {
     }
 
     public onJournalEntryManualChange(lines) {
+        let changes = false;
         this.updateSummary(lines);
         lines.map(line => {
             if (line.CreditAccountID !== this.defaultRowData.CreditAccountID) {
+                changes = true;
                 line.CreditAccount = this.defaultRowData.CreditAccount;
                 line.CreditAccountID = this.defaultRowData.CreditAccountID;
             }
+            if (!line.Description) {
+                line.Description = this.createLineDescription();
+                changes = line.Description != '';
+            }
         });
+        if (changes) {
+            this.journalEntryManual.setJournalEntryData(lines);                    
+        }
     }
 
     private expandProjectSection() {
@@ -2063,7 +2072,7 @@ export class BillView implements OnInit {
         this.accountService.GetAll(`filter=SupplierID eq ${invoice.SupplierID}&top=1`).map(x => x[0]).subscribe(supplierAccount => {
             this.defaultRowData.CreditAccount = supplierAccount;
             this.defaultRowData.CreditAccountID = supplierAccount.ID;
-
+            
             // update existing lines
             if (updatelines) {
                 let lines = this.journalEntryManual.getJournalEntryData();
@@ -2357,6 +2366,19 @@ export class BillView implements OnInit {
         }
     }
 
+    private createLineDescription() {
+        const current = this.current.getValue();
+        if (!current.Supplier && !current.InvoiceNumber) { return ''; }
+
+        let supplierDescription = 
+            (current.Supplier ? current.Supplier.SupplierNumber : '') +
+            (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
+
+        return current.InvoiceNumber
+            ? `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`
+            : supplierDescription;       
+    }
+
     private preSave(): boolean {
 
         let changesMade = false;
@@ -2380,16 +2402,12 @@ export class BillView implements OnInit {
                 drafts[1]["_createGuid"] = this.journalEntryService.getNewGuid();
             }
 
-            let supplierDescription = 
-                (current.Supplier ? current.Supplier.SupplierNumber : '') +
-                (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
-
             // Debit
             drafts[0].AccountID = line.DebitAccountID;
             drafts[0].Account = null;
             drafts[0].Amount = line.Amount;
             drafts[0].AmountCurrency = line.AmountCurrency;
-            drafts[0].Description = line.Description ? line.Description : `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`;
+            drafts[0].Description = line.Description ? line.Description : this.createLineDescription();
             drafts[0].VatTypeID = line.DebitVatTypeID;
             drafts[0].VatPercent = line.DebitVatType.VatPercent;
 

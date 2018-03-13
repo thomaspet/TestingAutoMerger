@@ -35,7 +35,6 @@
                 [journalEntryID]="(current | async)?.JournalEntryID"
                 [runAsSubComponent]="true"
                 [defaultRowData]="defaultRowData"
-                [amount]="(current | async)?.TaxInclusiveAmount"
                 [amountCurrency]="(current | async)?.TaxInclusiveAmountCurrency"
                 (dataChanged)="onJournalEntryManualChange($event)">
             </journal-entry-manual>
