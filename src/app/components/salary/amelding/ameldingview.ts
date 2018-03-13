@@ -681,7 +681,7 @@ export class AMeldingView implements OnInit {
                 };
                 this.openAmeldingTypeModal(done);
             },
-            disabled: this.currentAMelding && (this.currentAMelding.status === null || this.currentAMelding.status === 2),
+            disabled: this.currentAMelding && this.currentAMelding.status === 2,
             main: this.currentAMelding === undefined
         });
 
