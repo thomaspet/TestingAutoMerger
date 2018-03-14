@@ -34,8 +34,6 @@ import {
     UniTickerService,
     PaymentService,
     JournalEntryService,
-    AdminProductService,
-    AdminPurchasesService,
     CustomerInvoiceService,
     ElsaProductService,
     ElsaPurchasesService
@@ -168,8 +166,6 @@ export class BankComponent implements AfterViewInit {
         private fileService: FileService,
         private paymentService: PaymentService,
         private journalEntryService: JournalEntryService,
-        private adminProductService: AdminProductService,
-        private adminPurchasesService: AdminPurchasesService,
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
         private elsaPurchasesService: ElsaPurchasesService
