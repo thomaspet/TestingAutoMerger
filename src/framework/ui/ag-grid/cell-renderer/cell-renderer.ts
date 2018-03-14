@@ -138,9 +138,10 @@ export class HeaderCheckbox {
         const el = document.createElement('label');
         el.classList.add('header-checkbox');
 
-        let checked = false;
         el.onclick = () => {
+            let checked = el.classList.contains('checked');
             checked = !checked;
+
             if (checked) {
                 el.classList.add('checked');
                 params.api.forEachNode((node) => {
