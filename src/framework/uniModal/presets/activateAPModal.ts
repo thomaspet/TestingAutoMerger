@@ -13,10 +13,10 @@ import {
     ErrorService,
     BankAccountService
 } from '../../../../src/app/services/services';
-import {UniBankAccountModal} from '@uni-framework/uniModal/barrel';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {UniBankAccountModal} from '@uni-framework/uniModal/presets/bankAccountModal';
 
 @Component({
     selector: 'uni-activate-ap-modal',
