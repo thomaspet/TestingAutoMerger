@@ -98,6 +98,26 @@
                 }]
             },
             {
+                "Name": "Innbetalt ingen match",
+                "Code": "incomming_without_match",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "true"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "44018"
+                        }
+                    ]
+                }]
+            },
+            {
                 "Name": "Innbetalt og bokført",
                 "Code": "incomming_and_journaled",
                 "UseAllCriterias": true,
@@ -122,6 +142,15 @@
             {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_file",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Valg faktura manuelt",
+                "Code": "select_invoice",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,

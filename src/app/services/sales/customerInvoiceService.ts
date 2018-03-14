@@ -363,6 +363,16 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .map(response => response.json());
     }
 
+    public matchInvoicesManual(customerInvoiceIDs: number[], paymentID: number): Observable<any> {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(customerInvoiceIDs)
+            .withEndPoint(this.relativeURL + '?action=match-invoices-manual&paymentID=' + paymentID)
+            .send()
+            .map(response => response.json());
+    }
+
     public createCreditNoteFromInvoice(currentInvoiceID: number): Observable<any> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     }

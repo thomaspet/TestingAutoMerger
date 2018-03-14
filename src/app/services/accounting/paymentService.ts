@@ -56,6 +56,8 @@ export class PaymentService extends BizHttp<Payment> {
             return 'Overføring til meldingssentral feilet';
         } else if (statusCode === 44014) {
             return 'Kansellert av bruker';
+        } else if (statusCode === 44018) {
+            return 'Ingen match';
         }
 
         return 'Ukjent status: ' + statusCode;
