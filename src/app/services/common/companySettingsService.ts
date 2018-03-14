@@ -32,7 +32,7 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
         return super.GetAll('top=1', expand).map(res => res[0]);
     }
 
-    public getFilledInCompanySettingsFromBrreg(orgNumber: string) {
+    public getFilledInCompanySettingsFromBrreg(orgNumber: string): Observable<CompanySettings> {
         return super.GetAction(null, 'fill-in-from-brreg', `orgNumber=${orgNumber}`);
     }
 

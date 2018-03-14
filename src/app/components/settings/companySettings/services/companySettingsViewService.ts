@@ -26,6 +26,17 @@ export class CompanySettingsViewService {
                 : Observable.forkJoin(Observable.of(companySettings), Observable.of(ConfirmActions.REJECT)));
     }
 
+    public informUserAboutBrregSubEntityImport(companySettings: CompanySettings) {
+        this.modalService
+            .confirm({
+                header: 'brreg',
+                message: `Vi importerer virksomheter knytt til orgnummer: ${companySettings.OrganizationNumber} ved lagring`,
+                buttonLabels: {
+                    accept: 'Ok'
+                }
+            });
+    }
+
     private promptUserAboutBrregImport(
         companySettings: CompanySettings,
         brreg: CompanySettings): Observable<[CompanySettings, ConfirmActions]> {
@@ -47,13 +58,13 @@ export class CompanySettingsViewService {
                     return companySettings;
                 }
 
-                this.subEntitySettingsService.getSubEntitiesFromBrregAndSaveAll(brreg.OrganizationNumber);
                 return this.companySettingsService.fillInCompanySettings(companySettings, brreg);
             })
             .switchMap(comp => Observable.forkJoin(Observable.of(comp), Observable.of(confirmAction)));
     }
 
     private generateModalText(companySettings: CompanySettings) {
-        return `Vil du importere ${companySettings.CompanyName} med virksomheter fra brreg og lagre?`;
+        return `Vil du importere ${companySettings.CompanyName} fra brreg og lagre? ` +
+        `Ved endring av orgnummer, blir nye virksomheter automatisk lagt til ved lagring`;
     }
 }

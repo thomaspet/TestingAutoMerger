@@ -48,7 +48,8 @@ import {
     UniFilesService,
     ElsaProductService,
     ElsaPurchasesService,
-    CampaignTemplateService
+    CampaignTemplateService,
+    SubEntityService
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -200,6 +201,7 @@ export class CompanySettingsComponent implements OnInit {
         private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
         private elsaPurchasesService: ElsaPurchasesService,
+        private subEntityService: SubEntityService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -556,7 +558,7 @@ export class CompanySettingsComponent implements OnInit {
 
         this.companySettingsService
             .Put(company.ID, company)
-            .do((companySettings: CompanySettings) => this.promptUpdateOfSubEntitiesIfNeeded(companySettings))
+            .finally(() => this.subEntityService.invalidateCache())
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
@@ -606,8 +608,10 @@ export class CompanySettingsComponent implements OnInit {
 
     private promptImportFromBrregIfNeeded(companySettings: CompanySettings) {
         if (!!this.savedCompanyOrgValue && this.savedCompanyOrgValue !== '-') {
+            this.companySettingsViewService.informUserAboutBrregSubEntityImport(companySettings);
             return;
         }
+
 
         this.companySettingsViewService
             .askUserAboutBrregImport(companySettings)
