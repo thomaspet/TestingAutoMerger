@@ -89,6 +89,9 @@ export class VacationPayModal implements OnInit, IUniModal {
             .do((response: any) => {
                 const [comp, basics, financial] = response;
                 this.basicamounts = basics;
+                this.basicamounts.sort((a, b) => {
+                    return  new Date(a.FromDate).getFullYear() - new Date(b.FromDate).getFullYear();
+                });
                 this.currentYear = financial;
                 this.companysalary = comp;
                 this.companysalary['_wagedeductionText'] = this._vacationpaylineService
@@ -249,7 +252,11 @@ export class VacationPayModal implements OnInit, IUniModal {
             return false;
         }
         const birthYear = new Date(rowModel.Employee.BirthDate).getFullYear();
-        return this.vacationBaseYear - birthYear >= 60;
+        if (this.vacationBaseYear === this.currentYear) {
+            return this.vacationBaseYear - birthYear >= 59;
+        } else if (this.vacationBaseYear < this.currentYear) {
+            return this.vacationBaseYear - birthYear >= 60;
+        }
     }
 
     private updateRow(row: VacationPayLine) {
@@ -284,19 +291,22 @@ export class VacationPayModal implements OnInit, IUniModal {
             default:
                 break;
         }
-        const tmp = this.basicamounts.find((basicA: BasicAmount) => {
-            basicA.FromDate = new Date(basicA.FromDate.toString());
-            return basicA.FromDate.getFullYear() === this.vacationBaseYear;
-        });
-
-        if (tmp) {
-            headerModel.BasicAmount = tmp.BasicAmountPrYear;
-            this.companysalary['_BasicAmount'] = tmp.BasicAmountPrYear;
-        }
-
+        this.setProperBasicAmount(headerModel);
         this.getVacationpayData(headerModel);
         this.setUpRates(this.vacationBaseYear);
         return headerModel;
+    }
+
+    private setProperBasicAmount(headerModel: IVacationPayHeader) {
+        for (let i = this.basicamounts.length - 1; i >= 0; i--) {
+            const ba = this.basicamounts[i];
+            ba.FromDate = new Date(ba.FromDate.toString());
+            if (ba.FromDate.getFullYear() <= this.vacationBaseYear) {
+                headerModel.BasicAmount = ba.BasicAmountPrYear;
+                this.companysalary['_BasicAmount'] = ba.BasicAmountPrYear;
+                return;
+            }
+        }
     }
 
     private setUpRates(year: number) {
@@ -370,7 +380,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         const nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false)
             .setWidth('4rem')
             .setTooltipResolver((rowModel: VacationPayLine) => {
-                if (rowModel.Age > 60) {
+                if (this.empOver60(rowModel)) {
                     return {
                         type: 'warn',
                         text: 'Ansatt er over 60 år'
