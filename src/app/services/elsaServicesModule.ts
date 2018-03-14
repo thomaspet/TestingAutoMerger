@@ -1,5 +1,6 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
-import {ElsaProductService, ElsaPurchasesService} from '@app/services/services';
+import {ElsaProductService} from '@app/services/elsa/elsaProductService';
+import {ElsaPurchasesService} from '@app/services/elsa/elsaPurchasesService';
 
 export * from './elsa/elsaProductService';
 export * from './elsa/elsaPurchasesService';
