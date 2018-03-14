@@ -2,7 +2,6 @@
              [saveactions]="saveActions">
 </uni-toolbar>
 
-
 <section class="application">
     <section class="uni-checkbox">
         <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
@@ -11,11 +10,11 @@
         </label>
     </section>
 
-    <uni-table [resource]="reminderList"
-               [config]="reminderTable"
-               (rowSelectionChanged)="onRowSelected($event)"
-               (rowSelected)="onRowSelected($event)">
-    </uni-table>
+    <ag-grid-wrapper
+        [resource]="reminderList"
+        [config]="reminderTable"
+        (rowSelectionChange)="onRowSelectionChange($event)">
+    </ag-grid-wrapper>
     <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
 </section>
 

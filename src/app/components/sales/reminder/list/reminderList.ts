@@ -9,13 +9,13 @@ import {UniModalService} from '../../../../../framework/uniModal/barrel';
 import {UniReminderSettingsModal} from '../../../common/reminder/settings/reminderSettingsModal';
 import {CustomerInvoiceReminderSettings, LocalDate} from '../../../../unientities';
 import {
-    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
     ITableFilter,
     IContextMenuItem
-} from '../../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     NumberFormat,
     CustomerInvoiceService,
@@ -31,8 +31,7 @@ declare const _;
     templateUrl: './reminderList.html'
 })
 export class ReminderList {
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private reminderTable: UniTableConfig;
     private reminderList: any;
@@ -200,13 +199,11 @@ export class ReminderList {
             .onClose.subscribe(() => done());
     }
 
-    public onRowSelected(data) {
+    public onRowSelectionChange(selectedRows) {
         this.summaryData.restSumChecked = 0;
         this.summaryData.SumFee = 0;
 
-        let selectedRows = this.table.getSelectedRows();
-
-        selectedRows.forEach(x => {
+        (selectedRows || []).forEach(x => {
             this.summaryData.restSumChecked += x.RestAmount;
             this.summaryData.SumFee += x.Fee;
         });
