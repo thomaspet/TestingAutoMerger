@@ -172,6 +172,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.PutAction(ID, 'control');
     }
 
+    public recalculateTax(ID: number) {
+        return super.PutAction(ID, 'recalculatetax');
+    }
+
+
     public resetSettling(ID: number) {
         return super.PutAction(ID, 'resetrun');
     }

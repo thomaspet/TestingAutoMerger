@@ -276,6 +276,33 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             },
             {
+                label: 'Rekalkuler skatt',
+                action: () => {
+                    const payrollrun = this.payrollrun$.getValue();
+                    if (payrollrun) {
+                        if (payrollrun.StatusCode && payrollrun.StatusCode >= 2) {
+                            this._toastService.addToast(
+                                'Kan ikke rekalkulere', ToastType.warn, 4,
+                                'Lønnsavregningen må være åpen for å rekalkulere'
+                            );
+                        } else {
+                            this.busy = true;
+                            this.payrollrunService.recalculateTax(this.payrollrunID).finally(() => this.busy = false)
+                            .subscribe(() => {
+                                this.getData();
+                            }, err => this.errorService.handle(err));
+                        }
+                    }
+                },
+                disabled: (rowModel) => {
+                    if (this.payrollrun$.getValue()) {
+                        return this.payrollrun$.getValue().StatusCode >= 1;
+                    } else {
+                        return true;
+                    }
+                }
+            },
+            {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
                     const payrollrun = this.payrollrun$.getValue();
