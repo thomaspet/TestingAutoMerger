@@ -251,6 +251,17 @@ export class AgGridWrapper {
     }
 
     public onFiltersChange(event) { // TODO: typeme
+        if (this.config.multiRowSelect) {
+            this.rowSelectionChange.next([]);
+            // Remove the checkmark in header checkbox
+            if (this.wrapperElement && this.wrapperElement.nativeElement) {
+                const headerCheckbox = this.wrapperElement.nativeElement.querySelector('.header-checkbox');
+                if (headerCheckbox) {
+                    headerCheckbox.classList.remove('checked');
+                }
+            }
+        }
+
         this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it

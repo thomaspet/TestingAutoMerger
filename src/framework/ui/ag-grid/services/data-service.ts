@@ -104,11 +104,7 @@ export class TableDataService {
                 let orderby;
                 if (params.sortModel && params.sortModel.length) {
                     const sortModel = params.sortModel[0];
-                    const visibleColumns = this.config.columns.filter(col => col.visible);
-                    const sortCol = visibleColumns[sortModel.colId];
-                    if (sortCol) {
-                        orderby = `${sortCol.field} ${sortModel.sort}`;
-                    }
+                    orderby = `${sortModel.colId} ${sortModel.sort}`;
                 }
 
                 if (orderby) {

@@ -325,7 +325,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'InstalmentType',
                         FieldType: FieldType.DROPDOWN,
                         Label: 'Type',
-                        HelpText: this.getHelpText('instalmenttype'),
+                        Tooltip: {
+                            Text: this.getHelpText('instalmenttype')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 0,
@@ -355,7 +357,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Name',
                         FieldType: FieldType.TEXT,
                         Label: 'Tekst til lønnspost',
-                        HelpText: this.getHelpText('name'),
+                        Tooltip: {
+                            Text: this.getHelpText('name')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 1,
@@ -396,7 +400,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'WageTypeNumber',
                         FieldType: FieldType.AUTOCOMPLETE,
                         Label: 'Lønnsart',
-                        HelpText: this.getHelpText('wagetypenumber'),
+                        Tooltip: {
+                            Text: this.getHelpText('wagetypenumber')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 3,
@@ -427,7 +433,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'FromDate',
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Fra dato',
-                        HelpText: this.getHelpText('fromdate'),
+                        Tooltip: {
+                            Text: this.getHelpText('fromdate')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 4
@@ -437,7 +445,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'ToDate',
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Til dato',
-                        HelpText: this.getHelpText('todate'),
+                        Tooltip: {
+                            Text: this.getHelpText('todate')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 5
@@ -447,7 +457,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Amount',
                         FieldType: FieldType.NUMERIC,
                         Label: salaryBalance.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo',
-                        HelpText: this.getHelpText('amount'),
+                        Tooltip: {
+                            Text: this.getHelpText('amount')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 6,
@@ -462,7 +474,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'Instalment',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Avdrag',
-                        HelpText: this.getHelpText('instalment'),
+                        Tooltip: {
+                            Text: this.getHelpText('instalment')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 7,
@@ -477,7 +491,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'InstalmentPercent',
                         FieldType: FieldType.NUMERIC,
                         Label: 'Avdrag prosent',
-                        HelpText: this.getHelpText('instalmentpercent'),
+                        Tooltip: {
+                            Text: this.getHelpText('instalmentpercent')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 8,
@@ -493,7 +509,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'SupplierID',
                         FieldType: FieldType.AUTOCOMPLETE,
                         Label: 'Leverandør',
-                        HelpText: this.getHelpText('supplierid'),
+                        Tooltip: {
+                            Text: this.getHelpText('supplierid')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 9,
@@ -511,7 +529,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'KID',
                         FieldType: FieldType.TEXT,
                         Label: 'Kid',
-                        HelpText: this.getHelpText('kid'),
+                        Tooltip: {
+                            Text: this.getHelpText('kid')
+                        },
                         FieldSet: 0,
                         Section: 0,
                         Placement: 10,
@@ -553,7 +573,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Property: 'CreatePayment',
                         FieldType: FieldType.CHECKBOX,
                         ReadOnly: false,
-                        HelpText: this.getHelpText('createpayment'),
+                        Tooltip: {
+                            Text: this.getHelpText('createpayment')
+                        },
                         Label: 'Lag utbetaling',
                         FieldSet: 0,
                         Section: 0,
