@@ -1174,7 +1174,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setFilterable(false)
             .setSkipOnEnterKeyNavigation(true);
 
-        const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
+         const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
             .setTemplate(line => line.JournalEntryDrafts ? line.JournalEntryDrafts[0].CreatedAt : null)
             .setWidth('100px')
             .setVisible(false);
@@ -1186,7 +1186,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             )
             .setVisible(false);
 
-        let defaultRowData = {
+        const defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
             DebitAccountID: null,
@@ -1247,23 +1247,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
             // SupplierInvoice == "Fakturamottak"
             tableName = 'accounting.journalEntry.supplierinvoice';
-
-            if (this.defaultRowData) {
-                defaultRowData = this.defaultRowData;
-            }
-
-            contextMenuItems = [
-                {
-                    action: (item) => this.deleteLine(item),
-                    disabled: (item) => item.StatusCode,
-                    label: 'Slett linje'
-                },
-                {
-                    action: (item: JournalEntryData) => this.openAccrual(item),
-                    disabled: (item) => this.disabled,
-                    label: 'Periodisering'
-                }
-            ];
 
             projectCol.setVisible(false);
             departmentCol.setVisible(false);
@@ -1960,6 +1943,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     ToastType.bad, 5, 'Bilaget har ingen resultatkontoer' );
             }
         } else {
+
             if (item.JournalEntryDataAccrual) {
                 const data = {
                     accrualAmount: null,
