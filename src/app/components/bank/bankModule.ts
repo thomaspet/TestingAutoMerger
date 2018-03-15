@@ -18,7 +18,8 @@ import {
     UniPaymentEditModal,
     UniAutobankAgreementListModal,
     UniAutobankAgreementModal,
-    UniAgreementWarningModal
+    UniAgreementWarningModal,
+    MatchCustomerInvoiceManual
 } from './modals';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 
@@ -43,14 +44,16 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
         UniAutobankAgreementListModal,
         UniAutobankAgreementModal,
         UniAgreementWarningModal,
-        UniBankUserPasswordModal
+        UniBankUserPasswordModal,
+        MatchCustomerInvoiceManual
     ],
     entryComponents: [
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
         UniAutobankAgreementModal,
         UniAgreementWarningModal,
-        UniBankUserPasswordModal
+        UniBankUserPasswordModal,
+        MatchCustomerInvoiceManual
     ],
     providers: [
         CanDeactivateGuard

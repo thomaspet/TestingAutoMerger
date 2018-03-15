@@ -22,7 +22,7 @@ import {
     UniAutobankAgreementModal,
     UniAutobankAgreementListModal
 } from './modals';
-import {File, Payment, PaymentBatch, LocalDate} from '../../unientities';
+import {File, Payment, PaymentBatch, LocalDate, CustomerInvoice} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -35,13 +35,15 @@ import {
     PaymentService,
     JournalEntryService,
     ElsaProductService,
-    ElsaPurchasesService
+    ElsaPurchasesService,
+    CustomerInvoiceService
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { RequestMethod } from '@angular/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
+import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 
 @Component({
     selector: 'uni-bank-component',
@@ -131,6 +133,11 @@ export class BankComponent implements AfterViewInit {
             Code: 'book_manual',
             ExecuteActionHandler: (selectedRows) => this.bookManual(selectedRows),
             CheckActionIsDisabled: (selectedRow) => this.checkBookPaymentDisabled(selectedRow)
+        },
+        {
+            Code: 'select_invoice',
+            ExecuteActionHandler: (selectedRows) => this.selectInvoiceForPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         }
     ];
 
@@ -160,7 +167,8 @@ export class BankComponent implements AfterViewInit {
         private paymentService: PaymentService,
         private journalEntryService: JournalEntryService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchasesService
+        private elsaPurchasesService: ElsaPurchasesService,
+        private customerInvoiceService:CustomerInvoiceService
     ) {
         this.updateTab();
         this.checkAutobankAccess();
@@ -485,6 +493,22 @@ export class BankComponent implements AfterViewInit {
                     .subscribe(() => {
                         this.tickerContainer.mainTicker.reloadData(); // refresh table
                     });
+                }
+            });
+        });
+    }
+
+    public selectInvoiceForPayment(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            const modal = this.modalService.open(MatchCustomerInvoiceManual, {
+                data: {model: row}
+            });
+
+            modal.onClose.subscribe((result) => {
+                if (result && result.length > 0) {
+                    this.customerInvoiceService.matchInvoicesManual(result, row.ID)
+                        .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
                 }
             });
         });
