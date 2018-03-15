@@ -1199,7 +1199,7 @@ export class BillView implements OnInit {
                     }, err => this.errorService.handle(err)
                     );
             }
-
+    
             this.updateJournalEntryManualFinancialDate(model, true);
         }
 
@@ -1305,9 +1305,6 @@ export class BillView implements OnInit {
             current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         }
 
-        // update supplier for journal entry manual
-        this.updateJournalEntryManualSupplier(current, true);
-
         // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
 
@@ -1379,10 +1376,6 @@ export class BillView implements OnInit {
 
         if (!isInitial) {
             this.hasStartupFileID = false;
-        } else {
-            setTimeout(() => {
-                this.journalEntryManual.setJournalEntryData([]);
-            });
         }
         try { if (this.uniForm) { this.uniForm.editMode(); } } catch (err) { }
     }
@@ -2042,7 +2035,7 @@ export class BillView implements OnInit {
             }
         });
         if (changes) {
-            this.journalEntryManual.setJournalEntryData(lines);
+            this.journalEntryManual.setJournalEntryData(lines);                    
         }
     }
 
@@ -2079,7 +2072,7 @@ export class BillView implements OnInit {
         this.accountService.GetAll(`filter=SupplierID eq ${invoice.SupplierID}&top=1`).map(x => x[0]).subscribe(supplierAccount => {
             this.defaultRowData.CreditAccount = supplierAccount;
             this.defaultRowData.CreditAccountID = supplierAccount.ID;
-
+            
             // update existing lines
             if (updatelines) {
                 let lines = this.journalEntryManual.getJournalEntryData();
@@ -2377,13 +2370,13 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (!current.Supplier && !current.InvoiceNumber) { return ''; }
 
-        let supplierDescription =
+        let supplierDescription = 
             (current.Supplier ? current.Supplier.SupplierNumber : '') +
             (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
 
         return current.InvoiceNumber
             ? `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`
-            : supplierDescription;
+            : supplierDescription;       
     }
 
     private preSave(): boolean {
@@ -2424,21 +2417,6 @@ export class BillView implements OnInit {
             drafts[1].Amount = -line.Amount;
             drafts[1].AmountCurrency = -line.AmountCurrency;
             drafts[1].Description = `fakturanr. ${current.InvoiceNumber || 0}`;
-
-            // Dimensions
-            if (line.Dimensions && (line.Dimensions.ProjectID || line.Dimensions.DepartmentID)) {
-                if (!drafts[0].Dimensions) { drafts[0].Dimensions = new Dimensions(); }
-                if (!drafts[1].Dimensions) { drafts[1].Dimensions = new Dimensions(); }
-
-                if (line.Dimensions.ProjectID) {
-                    drafts[0].Dimensions.ProjectID = line.Dimensions.ProjectID;
-                    drafts[1].Dimensions.ProjectID = line.Dimensions.ProjectID;
-                }
-                if (line.Dimensions.DepartmentID) {
-                    drafts[0].Dimensions.DepartmentID = line.Dimensions.DepartmentID;
-                    drafts[1].Dimensions.DepartmentID = line.Dimensions.DepartmentID;
-                }
-            }
 
             draftlines = draftlines.concat(drafts);
         });
