@@ -79,8 +79,7 @@ declare const _; // lodash
 
 export enum JournalEntryMode {
     Manual,
-    Payment,
-    SupplierInvoice
+    Payment
 }
 
 @Component({
@@ -98,9 +97,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
-    @Input() public defaultRowData: JournalEntryData;
-    @Input() public amount: number = 0;
-    @Input() public amountCurrency: number = 0;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
 
@@ -221,11 +217,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         // if the disabled input is changed and the table is loaded, reload it (should hide )
         if (changes['disabled'] && this.table) {
-            this.setupUniTable();
-        }
-
-        if (changes['defaultRowData'] && this.defaultRowData && this.table) {
-            this.journalEntryTableConfig.setDefaultRowData(this.defaultRowData);
             this.setupUniTable();
         }
 
@@ -492,22 +483,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Amount = null;
         }
 
-        return rowModel;
-    }
-
-    private setAmount(rowModel: JournalEntryData): JournalEntryData {
-        if (rowModel.AmountCurrency || this.amountCurrency === 0) { return rowModel; }
-
-        let lines = this.table.getTableData();
-        let sumAmountCurrency = lines.reduce((sum, line) => {
-            return sum + (line.AmountCurrency || 0);
-        }, 0);
-        let sumAmount = lines.reduce((sum, line) => {
-            return sum + (line.Amount || 0); 
-        }, 0);
-
-        rowModel.AmountCurrency = this.amountCurrency - sumAmountCurrency;
-        rowModel.Amount = this.amount - sumAmount;
         return rowModel;
     }
 
@@ -1244,25 +1219,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 addedPaymentCol,
                 fileCol
             ];
-        } else if (this.mode === JournalEntryMode.SupplierInvoice) {
-            // SupplierInvoice == "Fakturamottak"
-            tableName = 'accounting.journalEntry.supplierinvoice';
-
-            projectCol.setVisible(false);
-            departmentCol.setVisible(false);
-            netAmountCol.setVisible(false);
-
-            columns = [
-                debitAccountCol,
-                debitVatTypeCol,
-                projectCol,
-                departmentCol,
-                descriptionCol,
-                amountCol,
-                netAmountCol,
-                amountCurrencyCol
-            ];
-
         } else {
             // Manual == "Bilagsregistrering"
             tableName = 'accounting.journalEntry.manual';
@@ -1438,7 +1394,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'DebitAccount') {
                     row = this.setDebitAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
-                    row = this.setAmount(row);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
                     row = this.clearPostPostMarking(row);
                 } else if (event.field === 'CreditAccount') {
