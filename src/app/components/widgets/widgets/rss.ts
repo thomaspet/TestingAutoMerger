@@ -27,7 +27,7 @@ export class UniRSSWidget {
 
     public ngAfterViewInit() {
         if (this.widget) {
-            let endpoint = '/api/biz/rss/1';
+            let endpoint = '/api/biz/rss?action=rss';
             this.widgetDataService.getData(endpoint).subscribe(
                 data => {
                     if (data && data.Items) {
