@@ -62,6 +62,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public disabled: boolean = false;
     @Input() public editmode: boolean = false;
     @Input() public defaultRowData: JournalEntryData;
+    @Input() public amount: number = 0;
     @Input() public amountCurrency: number = 0;
     @Input() public selectedNumberSeries: NumberSeries;
 
