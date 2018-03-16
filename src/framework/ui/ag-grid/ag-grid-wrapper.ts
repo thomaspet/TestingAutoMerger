@@ -591,12 +591,11 @@ export class AgGridWrapper {
         if (this.config.editable) {
             const rowNode = this.agGridApi.getDisplayedRowAtIndex(index);
             if (rowNode && rowNode.data) {
-                const colIndex = this.columns.findIndex(col => {
-                    const editable = typeof col.editable === 'function'
+                const visibleColumns = this.columns.filter(col => col.visible) || [];
+                const colIndex = visibleColumns.findIndex(col => {
+                    return (typeof col.editable === 'function')
                         ? col.editable(rowNode.data)
                         : col.editable;
-
-                    return editable && col.visible;
                 });
 
                 if (colIndex >= 0) {
