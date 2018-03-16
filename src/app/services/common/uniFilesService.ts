@@ -77,6 +77,26 @@ export class UniFilesService {
         });
     }
 
+    public getFileSplitList(id: string, reauthOnFailure: boolean = true): Observable<any> {
+        var options = new RequestOptions({
+            headers: new Headers({
+                'Accept': 'application/json',
+                'Token': this.uniFilesToken,
+                'Key': this.activeCompany.Key
+            })
+        });
+
+        return this.http.get(this.uniFilesBaseUrl + '/api/file/get-page-split-info/' + id, options)
+            .catch(err => {
+            if (err.status === 401 && reauthOnFailure) {
+                return Observable.fromPromise(this.authService.authenticateUniFiles())
+                    .switchMap(() => this.getFileSplitList(id, false))
+            } else {
+                return Observable.throw(err);
+            }
+        }).map(res => res.json());
+    }
+
     public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
         var options = new RequestOptions({
             headers: new Headers({

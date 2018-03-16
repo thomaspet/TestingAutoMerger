@@ -93,13 +93,17 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uniModal/ba
                         </li>
                         <button (click)="showMorePages()" *ngIf="thumbnails.length > maxVisibleImages">Vis flere</button>
                         <span *ngIf="thumbnails.length > 0 && visibleThumbnails.length === 0">
-                            Ingen flere bilder å velge
+                            <strong>Ingen flere bilder å velge</strong>
+                            <p>Trykk Del opp fil under for at endringene skal lagres og filen skal deles opp.</p>
                         </span>
                     </div>
                 </div>
             </article>
             <footer>
                 <button [attr.aria-busy]="isSplitting" (click)="splitFile()" class="good">Del opp fil</button>
+                <button (click)="splitRemainingPerPage()" *ngIf="thumbnails.length > 0 && visibleThumbnails.length > 0">
+                    Del opp dokumentet per side
+                </button>
                 <button [disabled]="isSplitting" (click)="clear()">Nullstill</button>
                 <button [disabled]="isSplitting" (click)="close()" class="bad">Avbryt</button>
             </footer>
@@ -196,6 +200,18 @@ export class FileSplitModal implements IUniModal {
                     this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages);
 
                     this.focusOnFirstThumbnail();
+
+                    if (!res.SplitPages) {
+                        this.uniFilesService.getFileSplitList(this.file.StorageReference, true)
+                            .subscribe(splitRes => {
+                                if (splitRes && splitRes.SplitPages && splitRes.SplitPages.length > 0) {
+                                    this.autoSplitOnSplitPages(splitRes.SplitPages);
+                                }
+                            }, err => this.errorService.handle(err)
+                        );
+                    } else {
+                        this.autoSplitOnSplitPages(res.SplitPages);
+                    }
 
                     this.cdr.markForCheck();
                 } else {
@@ -436,8 +452,74 @@ export class FileSplitModal implements IUniModal {
         this.currentPart.Pages = [];
     }
 
-    private rotateLeft(event) {
+    private splitRemainingPerPage() {
+        // if we have already selected some pages, add those to a new part first
+        if (this.currentPart && this.currentPart.Pages.length > 0) {
+            this.createNewPartFromSelected();
+        }
 
+        // if we have any remaining pages, create one part per page
+        if (this.visibleThumbnails) {
+            this.visibleThumbnails.forEach(thumb => {
+                let part =  { partNo: this.parts.length + 1, Pages: [] }
+                part.Pages.push(thumb.page);
+
+                let realThumb = this.thumbnails.find(x => x.page === thumb.page);
+                if (realThumb) {
+                    realThumb._isPartOfBatch = true;
+                }
+
+                this.parts.push(part);
+            });
+        }
+
+        this.currentPart = null;
+        this.currentThumbnail = null;
+
+        // update image list because new images will be available for selection now
+        this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
+    }
+
+    private autoSplitOnSplitPages(splitPages: Array<number>) {
+        if(splitPages.length > 0) {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Dele opp fil automatisk?',
+                message: `Det ble funnet ${splitPages.length} skilleark i filen - vil du dele opp filen automatisk basert på disse?`
+            });
+
+            modal.onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    let part =  { partNo: this.parts.length + 1, Pages: [] }
+
+                    for(let i = 1; i <= this.file.Pages; i++) {
+                        let thumb = this.thumbnails.find(x => x.page === i);
+                        if (thumb) {
+                            thumb._isPartOfBatch = true;
+                        }
+
+                        part.Pages.push(thumb.page);
+
+                        // create new part if this is the last page, or the page is a splitpage
+                        if (i === this.file.Pages || splitPages.indexOf(i) !== -1) {
+                            this.parts.push(part);
+                            part = { partNo: this.parts.length + 1, Pages: [] }
+                        }
+                    }
+
+                    this.currentPart = null;
+                    this.currentThumbnail = null;
+
+                    // update image list because new images will be available for selection now
+                    this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
+
+                    this.cdr.markForCheck();
+                }
+            });
+        }
+    }
+
+
+    private rotateLeft(event) {
         // do rotations locally and keep track of rotation for later usage
         this.currentThumbnail._rotation =
             this.currentThumbnail._rotation > 0 ?
@@ -446,7 +528,6 @@ export class FileSplitModal implements IUniModal {
     }
 
     private rotateRight(event) {
-
         // do rotations locally and keep track of rotation for later usage
         this.currentThumbnail._rotation =
             this.currentThumbnail._rotation < 270 ?
