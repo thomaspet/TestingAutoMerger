@@ -35,7 +35,8 @@ import {
     IGetRowsParams,
     GridSizeChangedEvent,
     ColumnResizedEvent,
-    ColumnMovedEvent
+    ColumnMovedEvent,
+    RowClickedEvent
 } from 'ag-grid';
 
 import {Observable} from 'rxjs/Observable';
@@ -60,6 +61,7 @@ export class AgGridWrapper {
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
 
     @Output() public columnsChange: EventEmitter<UniTableColumn[]> = new EventEmitter(false);
+    @Output() public rowClick: EventEmitter<any> = new EventEmitter(false);
     @Output() public rowChange: EventEmitter<IRowChangeEvent> = new EventEmitter(false); // TODO: typeme!
     @Output() public rowDelete: EventEmitter<any> = new EventEmitter(false);
     @Output() public rowSelectionChange: EventEmitter<any|any[]> = new EventEmitter(false);
@@ -226,6 +228,10 @@ export class AgGridWrapper {
             this.columns.splice(event.toIndex, 0, col);
             this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
         }
+    }
+
+    public onRowClick(event: RowClickedEvent) {
+        this.rowClick.next(event.data);
     }
 
     public onCellClick(event: CellClickedEvent) {

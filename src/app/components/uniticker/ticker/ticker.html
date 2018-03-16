@@ -35,7 +35,8 @@
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
                 (columnsChange)="onColumnsChange($event)"
-                (rowSelectionChange)="onRowSelectionChange($event)">
+                (rowSelectionChange)="onRowSelectionChange($event)"
+                (rowClick)="onRowClick($event)">
             </ag-grid-wrapper>
 
             <div *ngIf="ticker.Type !== 'table'">

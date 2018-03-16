@@ -417,13 +417,15 @@ export class UniTicker {
             this.ticker.Actions ? this.ticker.Actions : [];
     }
 
+    public onRowClick(row) {
+        this.selectedRow = row;
+        this.selectedRow._editable = this.tableConfig.editable;
+        this.rowSelected.emit(this.selectedRow);
+    }
+
     private onRowSelectionChange(selection) {
         if (Array.isArray(selection)) {
             this.rowSelectionChange.emit(selection);
-        } else {
-            this.selectedRow = selection;
-            this.selectedRow._editable = this.tableConfig.editable;
-            this.rowSelected.emit(this.selectedRow);
         }
     }
 
@@ -714,7 +716,7 @@ export class UniTicker {
                         col.isSumColumn = column.SumColumn;
                         col.sumFunction = column.SumFunction;
 
-                        if (column.Resizeable !== true) {
+                        if (column.Resizeable === false) {
                             col.resizeable = false;
                         }
 

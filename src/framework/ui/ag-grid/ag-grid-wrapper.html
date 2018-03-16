@@ -52,6 +52,7 @@
         [rowSelection]="selectionMode"
         [suppressRowClickSelection]="selectionMode === 'multiple'"
         (selectionChanged)="onSelectionChange($event)"
+        (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"
         (columnMoved)="columnMoveDebouncer$.next($event)">
     </ag-grid-angular>
