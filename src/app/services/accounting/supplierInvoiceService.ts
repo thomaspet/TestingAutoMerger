@@ -228,28 +228,6 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.json());
     }
 
-    public isOCR(file: any): boolean {
-        if (!file.Name) { return false; }
-
-        if (file.ContentType) {
-            if (file.ContentType === 'application/xml') { return false; }
-            if (file.ContentType.startsWith('image')) { return true; }
-        }
-        if (file.Extension && file.Extension === '.xml') { return false; }
-
-        const ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
-        const ending = file.Name.toLowerCase().split('.').pop();
-
-        return ocrformats.indexOf(ending) >= 0 || ending.indexOf('pdf') >= 0;
-    }
-
-    public isEHF(file: any): boolean {
-        if (!file.Name) { return false; }
-
-        const name = (file.Name || '').toLowerCase();
-        return name.indexOf('.ehf') !== -1;
-    }
-
     private selectBuilder(...args: any[]): string {
         var select = '';
         var alias = '', item = '';

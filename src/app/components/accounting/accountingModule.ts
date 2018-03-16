@@ -49,6 +49,7 @@ import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
 import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
+import {BillSimpleJournalEntryView, AccountPipe, VatCodePipe, TrimTextPipe} from './bill/detail/journal/simple';
 import {BillHistoryView} from './bill/detail/history/history';
 import {UniAssignModal} from './bill/detail/assignmodal';
 import {UniAddFileModal} from './bill/detail/addFileModal';
@@ -114,7 +115,8 @@ import {DraftLineDescriptionModal} from './journalentry/components/journalentryp
         Payments,
         BillsView,
         BillView,
-        BillHistoryView,
+        BillSimpleJournalEntryView, BillHistoryView,
+        AccountPipe, VatCodePipe, TrimTextPipe,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         UniAssignModal, MyStringFilterPipe,
@@ -146,7 +148,7 @@ import {DraftLineDescriptionModal} from './journalentry/components/journalentryp
         DimensionResultReport,
         DrilldownBalanceReportPart,
 
-        // PostPost
+        // PostPos
         PostPost
     ],
     entryComponents: [

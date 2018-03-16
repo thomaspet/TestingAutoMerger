@@ -153,9 +153,23 @@ export class UniTicker {
             const tickerParams = this.getSearchParams(urlParams);
             const sumParams = new URLSearchParams();
             sumParams.set('model', tickerParams.get('model'));
-            sumParams.set('expand', tickerParams.get('expand'));
             sumParams.set('filter', tickerParams.get('filter'));
             sumParams.set('select', selects.join(','));
+
+
+            // Anders - 16.03.2018
+            // Mega hacky way to avoid items being expanded on sum request
+            // due to one of the columns summing on order lines.
+            // This will be fixed properly på UK-1083
+            // REPLACE WITH ORIGINAL WHEN ISSUE IS RESOLVED!!
+            const expandString = tickerParams.get('expand') || '';
+            let expands = expandString.replace(' ', '').split(',');
+            expands = expands.filter(field => field.toLowerCase() !== 'items');
+
+            sumParams.set('expand', expands.join(','));
+
+            // Original:
+            // sumParams.set('expand', tickerParams.get('expand'));
 
             return this.statisticsService.GetAllByUrlSearchParams(sumParams)
                 .map(res => res.json())
