@@ -215,7 +215,6 @@ export class AgGridWrapper {
     }
 
     public onColumnMove(event: ColumnMovedEvent) {
-        console.log('huh?', event);
         if (!this.config || !this.config.configStoreKey) {
             return;
         }
@@ -231,7 +230,10 @@ export class AgGridWrapper {
     }
 
     public onRowClick(event: RowClickedEvent) {
-        this.rowClick.next(event.data);
+        const row = event && event.data;
+        if (row && !row['_isSumRow']) {
+            this.rowClick.next(event.data);
+        }
     }
 
     public onCellClick(event: CellClickedEvent) {
