@@ -138,7 +138,13 @@ export class BankComponent implements AfterViewInit {
             Code: 'select_invoice',
             ExecuteActionHandler: (selectedRows) => this.selectInvoiceForPayment(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
+            Code: 'revert_batch',
+            ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => this.checkRevertPaymentBatchDisabled(selectedRow)
         }
+
     ];
 
     public checkResetPaymentDisabled(selectedRow: any): boolean {
@@ -150,6 +156,12 @@ export class BankComponent implements AfterViewInit {
         // incase payment is rejected and done manualy in a bankprogram you can still book the payment
         const enabledForStatuses = [44003, 44006, 44010, 44012, 44014];
         return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
+    }
+
+    public checkRevertPaymentBatchDisabled(selectedRow: any): boolean {
+        // incase payment batch is rejected and done manualy you can revert it
+        const enabledForStatuses = [45001, 45002, 45006, 45007, 45013];
+        return !enabledForStatuses.includes(selectedRow.PaymentBatchStatusCode);
     }
 
     constructor(
@@ -439,6 +451,7 @@ export class BankComponent implements AfterViewInit {
                                 'oldPaymentID=' + payment.ID
                             ).subscribe(paymentResponse => {
                                 this.tickerContainer.mainTicker.reloadData(); // refresh table
+                                this.toastService.addToast('Lagring og tilbakestillingen av betalingen er fullført', ToastType.good, 3);
                             });
                         }
                     });
@@ -451,6 +464,33 @@ export class BankComponent implements AfterViewInit {
                         'oldPaymentID=' + payment.ID
                     ).subscribe(paymentResponse => {
                         this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        this.toastService.addToast('Tilbakestillingen av betalingen er fullført', ToastType.good, 3);
+                    });
+                }
+            });
+        });
+    }
+
+    public revertBatch(selectedRows: any) {
+        return new Promise(() => {
+        const row = selectedRows[0];
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Tilbakestille betalingsbunt',
+            message: `Viktig, du må kun gjøre dette hvis betalingsfil er avvist fra banken eller `
+            + ` hvis betalingsfil ikke er sendt til nettbank.<br>Når filen er allerede er akseptert `
+            + ` i nettbanken og du sender den igjen blir betalingen utført flere ganger.<br>`
+            + ` Vil du tilbakestille betalingsbunt med ID: ${row.ID}?`,
+            buttonLabels: {
+                accept: 'Tilbakestill',
+                reject: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe((result) => {
+            if (result === ConfirmActions.ACCEPT) {
+                this.paymentBatchService.revertPaymentBatch(row.ID, true).subscribe(paymentResponse => {
+                    this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    this.toastService.addToast('Tilbakestillingen av betalingsbunt er fullført', ToastType.good, 3);
                     });
                 }
             });
@@ -473,6 +513,7 @@ export class BankComponent implements AfterViewInit {
             if (result === ConfirmActions.ACCEPT) {
                 this.paymentService.Remove(row.ID).subscribe(paymentResponse => {
                     this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
                     });
                 }
             });
@@ -619,7 +660,7 @@ export class BankComponent implements AfterViewInit {
             });
 
             modal.onClose.subscribe((response) => {
-                if (response === ConfirmActions.REJECT) {
+                if (response !== ConfirmActions.ACCEPT) {
                     doneHandler('Lagring og utbetaling avbrutt');
                     return;
                 }
@@ -705,7 +746,6 @@ export class BankComponent implements AfterViewInit {
 
     private validateBeforePay(selectedRows: Array<any>): boolean {
         const errorMessages: string[] = [];
-
         const paymentsWithoutFromAccount = selectedRows.filter(x => !x.FromBankAccountAccountNumber);
         if (paymentsWithoutFromAccount.length > 0) {
             errorMessages.push(`Det er ${paymentsWithoutFromAccount.length} rader som mangler fra-konto`);

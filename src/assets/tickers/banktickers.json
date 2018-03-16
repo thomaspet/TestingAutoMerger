@@ -239,6 +239,13 @@
                 "DisplayField": "PaymentDate"
             },
             {
+                "Header": "Betalingsbunt",
+                "Field": "PaymentBatchID",
+                "Type": "id",
+                "Width": "15%",
+                "FilterOperator": "contains"
+            },
+            {
                 "Header": "Status",
                 "Field": "StatusCode",
                 "Width": "15%",
@@ -482,6 +489,92 @@
         "SubTickersCodes": ["tracelink_table", "payment_details"]
     },
     {
+        "Name": "Utbetalingbunter",
+        "Code": "payment_batch_list",
+        "RequiredUIPermissions": ["ui_bank"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "EditToggle": false,
+        "MultiRowSelect": false,
+        "Group": "Bank",
+        "Model": "PaymentBatch",
+        "Columns": [
+            {
+                "Header": "ID",
+                "Field": "ID",
+                "Width": "40",
+                "FilterOperator": "contains",
+                "DefaultHidden": false,
+                "Resizeable" : false
+
+            },
+            {
+                "Header": "Sum Beløp",
+                "Field": "TotalAmount",
+                "FilterOperator": "contains",
+                "DefaultHidden": false,
+                "Type": "money"
+            },
+            {
+                "Header": "Bilagsdato",
+                "Field": "CreatedAt",
+                "FilterOperator": "contains",
+                "DefaultHidden": false,
+                "Type": "date"
+            },
+            {
+                "Header": "Antall poster",
+                "Field": "NumberOfPayments",
+                "FilterOperator": "contains",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "FilterOperator": "contains",
+                "DefaultHidden": false
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Last ned betalingsfil",
+                "Code": "download_file",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Leg tilbakke til ubetalt",
+                "Code": "revert_batch",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_batches",
+                "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "IsCustomerPayment",
+                            "Operator": "eq",
+                            "Value": "false"
+                        }
+                    ]
+                }]
+            }],
+        "SubTickersCodes": ["payments_in_batch"]
+    },
+    {
         "Name": "Detaljer",
         "Type": "Details",
         "Code": "payment_details",
@@ -609,6 +702,69 @@
                         }
                     ]
                 }]
+            }
+        ]
+    },
+    {
+        "Name": "Betalinger",
+        "Type": "Table",
+        "Code": "payments_in_batch",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "Payment",
+        "Expand": "",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "PaymentBatchID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Columns": [
+            {
+                "Header": "Betales til",
+                "Field": "BusinessRelation.Name",
+                "Width": "15%",
+                "LinkNavigationProperty": "InvoiceNumber",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "KID",
+                "Field": "PaymentID",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "Alias": "PaymentID",
+                "DisplayField": "PaymentID"
+            },
+            {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "Width": "10%",
+                "FilterOperator": "contains",
+                "SumColumn": true
+            },
+            {
+                "Header": "Beløp",
+                "Field": "Amount",
+                "Width": "10%",
+                "FilterOperator": "contains",
+                "Alias": "Amount",
+                "DisplayField": "Amount"
+            },
+            {
+                "Header": "Betalingsdato",
+                "Field": "PaymentDate",
+                "Type": "date",
+                "Width": "15%",
+                "FilterOperator": "contains",
+                "Alias": "PaymentDate",
+                "DisplayField": "PaymentDate"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "15%",
+                "FilterOperator": "contains"
             }
         ]
     }

@@ -13,8 +13,8 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         this.DefaultOrderBy = null;
     }
 
-    public revertPaymentBatch(paymentBatchID: number): Observable<any> {
-        return super.PutAction(null, 'revert-payment-batch', `ID=${paymentBatchID}`);
+    public revertPaymentBatch(paymentBatchID: number, recreatePayments: Boolean = false): Observable<any> {
+        return super.PutAction(null, 'revert-payment-batch', `ID=${paymentBatchID}&recreatePayments=${recreatePayments}`);
     }
 
     public generatePaymentFile(paymentBatchID: number): Observable<PaymentBatch> {
