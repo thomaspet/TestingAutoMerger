@@ -122,6 +122,10 @@ export class UniTickerContainer {
         });
     }
 
+    public hideSubTickers() {
+        this.showSubTickers = false;
+    }
+
     public onRowSelected(row) {
         this.selectedRow = row;
         this.showSubTickers = !row._editable;

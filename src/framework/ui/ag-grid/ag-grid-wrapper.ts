@@ -133,6 +133,10 @@ export class AgGridWrapper {
             }
 
             if (this.agGridApi) {
+                if (this.agGridApi.getSelectedRows().length) {
+                    this.agGridApi.deselectAll();
+                }
+
                 this.initialize();
             }
         }
@@ -175,15 +179,25 @@ export class AgGridWrapper {
 
     private onDataLoaded(api: GridApi) {
         if (this.domLayout !== 'autoHeight') {
-            const displayCount = Math.min(this.dataService.loadedRowCount, this.config.pageSize);
-            this.tableHeight = 80 + (displayCount * 35) + 'px';
-            api.doLayout();
-            setTimeout(() => api.sizeColumnsToFit());
+            const loadedRowCount = this.dataService.loadedRowCount;
+
+            if (loadedRowCount < this.config.pageSize) {
+                if (loadedRowCount > 0) {
+                    this.tableHeight = 80 + (loadedRowCount * 35) + 'px';
+                } else {
+                    this.tableHeight = '95px';
+                }
+
+                api.doLayout();
+            }
         }
     }
 
     public onGridSizeChange(event: GridSizeChangedEvent) {
         event.api.sizeColumnsToFit();
+        // As sad as this is, its required for the widths
+        // to update properly after scroll bars disappear..
+        setTimeout(() => event.api.sizeColumnsToFit(), 500);
     }
 
     public onColumnResize(event: ColumnResizedEvent) {
@@ -247,6 +261,10 @@ export class AgGridWrapper {
         }
 
         const column: UniTableColumn = event.colDef['_uniTableColumn'];
+
+        if (!column) {
+            return;
+        }
 
         if (column.onCellClick) {
             column.onCellClick(event.data);
@@ -542,7 +560,7 @@ export class AgGridWrapper {
     }
 
     public getSelectedRows() {
-        return this.agGridApi.getSelectedRows();
+        return (this.agGridApi && this.agGridApi.getSelectedRows()) || [];
     }
 
     public getRowCount() {

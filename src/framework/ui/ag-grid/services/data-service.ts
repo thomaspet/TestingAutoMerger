@@ -167,6 +167,11 @@ export class TableDataService {
     public refreshData() {
         if (this.gridApi) {
             this.loadedRowCount = 0;
+
+            if (this.gridApi.getSelectedRows().length) {
+                this.gridApi.deselectAll();
+            }
+
             if (this.hasRemoteLookup) {
                 this.gridApi.refreshInfiniteCache();
             } else {

@@ -25,7 +25,7 @@
 
     <uni-sub-ticker-container
         *ngIf="showSubTickers && ticker?.SubTickers?.length"
-        (close)="showSubTickers = false"
+        (close)="hideSubTickers()"
         [parentModel]="selectedRow"
         [parentTicker]="ticker"
         [subTickers]="ticker.SubTickers"
