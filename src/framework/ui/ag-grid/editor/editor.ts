@@ -310,7 +310,7 @@ export class TableEditor {
             case KeyCodes.RIGHT_ARROW:
                 if (this.canMoveRight(inputElement)) {
                     event.preventDefault();
-                    this.moveThrottle.next({direction: 'right'});
+                    this.moveThrottle.next({direction: 'right', key: key});
                 }
             break;
             case KeyCodes.UP_ARROW:
@@ -353,12 +353,15 @@ export class TableEditor {
         });
 
         if (direction  === 'right' && this.visibleColumns[this.currentCellIndex]) {
-            const jumpToColumn = this.visibleColumns[this.currentCellIndex].jumpToColumn;
-            const jumpToIndex = jumpToColumn && this.visibleColumns.findIndex(col => col.field === jumpToColumn);
+            // Only jump to column on enter/tab, not right arrow
+            if (!keyCode || keyCode !== KeyCodes.RIGHT_ARROW) {
+                const jumpToColumn = this.visibleColumns[this.currentCellIndex].jumpToColumn;
+                const jumpToIndex = jumpToColumn && this.visibleColumns.findIndex(col => col.field === jumpToColumn);
 
-            if (jumpToIndex >= 0) {
-                this.activate(this.currentRowIndex, jumpToIndex);
-                return;
+                if (jumpToIndex >= 0) {
+                    this.activate(this.currentRowIndex, jumpToIndex);
+                    return;
+                }
             }
         }
 
