@@ -1011,6 +1011,7 @@ export class TickerColumn {
     public SelectableFieldName?: string;
     public Format?: string;
     public Width?: string;
+    public Resizeable?: boolean;
     public DefaultHidden?: boolean;
     public CssClass?: string;
     public Type?: string;

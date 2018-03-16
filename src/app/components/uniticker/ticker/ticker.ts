@@ -714,6 +714,10 @@ export class UniTicker {
                         col.isSumColumn = column.SumColumn;
                         col.sumFunction = column.SumFunction;
 
+                        if (column.Resizeable !== true) {
+                            col.resizeable = false;
+                        }
+
                         if (column.CssClass) {
                             col.cls = column.CssClass;
                         }
