@@ -155,13 +155,8 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
-    private queryMunicipals(query: string): Observable<Municipal> {
-        return this.municipalService
-            .GetAll(`filter=startswith(MunicipalityNo,'${query}') or contains(MunicipalityName,'${query}')`);
-    }
-
     private getMunicipalityOptions(employee: Employee) {
-        let defaultValue = Observable
+        const defaultValue = Observable
             .of(employee)
             .switchMap(emp => emp && emp.MunicipalityNo
                 ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
@@ -171,7 +166,7 @@ export class EmployeeService extends BizHttp<Employee> {
         return {
             getDefaultData: () => defaultValue,
             template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
-            search: (query: string) => this.queryMunicipals(query),
+            search: (query: string) => this.municipalService.search(query),
             valueProperty: 'MunicipalityNo',
             displayProperty: 'MunicipalityName',
             debounceTime: 200

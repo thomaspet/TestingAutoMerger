@@ -85,7 +85,7 @@ export class SubEntityDetails {
                     }
                 }
             };
-            this._municipalityService.GetAll('').subscribe(municipalities => {
+            this._municipalityService.getAll('').subscribe(municipalities => {
                 municipality.Options = {
                     source: municipalities,
                     valueProperty: 'MunicipalityNo',
