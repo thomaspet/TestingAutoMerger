@@ -41,13 +41,14 @@
             <legend>Fritekst</legend>
             <label>
                 <span>Kommentar</span>
-                <input type="text" [formControl]="commentControl" (change)="onDataChange()" />
+                <input type="text"
+                       [formControl]="commentControl"
+                       [readonly]="isReadOnly()"
+                       (change)="onDataChange()"/>
             </label>
             <label>
                 <span>Fritekst</span>
-                <textarea [formControl]="freeTextControl"
-                        (change)="onDataChange()">
-                </textarea>
+                <textarea [formControl]="freeTextControl" [readonly]="isReadOnly()" (change)="onDataChange()"></textarea>
             </label>
         </fieldset>
 
@@ -55,6 +56,7 @@
             <legend>Selgere</legend>
             <seller-links
                 [parent]="data"
+                [readonly]="isReadOnly()"
                 (sellerChanged)="onDataChange()"
                 (deleted)="onSellerLinkDeleted($event)">
             </seller-links>
@@ -80,6 +82,7 @@
                 id="attachments"
                 [entity]="entityName"
                 [entityID]="data?.ID"
+                [readonly]="readonly"
                 [hideLabel]="true">
             </uni-attachments>
         </fieldset>

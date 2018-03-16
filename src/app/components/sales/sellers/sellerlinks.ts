@@ -21,6 +21,7 @@ export class SellerLinks implements AfterViewInit {
     @ViewChild(UniTable) private table: UniTable;
 
     @Input() public parent: any;
+    @Input() public readonly: any;
     @Output() public sellerChanged: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
     @Output() public selected: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
     @Output() public deleted: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
@@ -133,11 +134,11 @@ export class SellerLinks implements AfterViewInit {
         });
 
         // Setup table
-        this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', true, true, 15)
+        this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', !this.readonly, true, 15)
             .setSearchable(false)
             .setSortable(false)
             .setDefaultRowData(defaultRowModel)
-            .setDeleteButton(true)
+            .setDeleteButton(!this.readonly)
             .setContextMenu(contextMenuItems)
             .setChangeCallback(event => this.changeCallback(event))
             .setColumns([sellerCol, percentCol, amountCol]);

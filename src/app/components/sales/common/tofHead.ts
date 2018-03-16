@@ -1,6 +1,15 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {CompanySettings, CurrencyCode, Project, Terms, Seller, SellerLink} from '../../../unientities';
+import {
+    CompanySettings,
+    CurrencyCode,
+    Project,
+    Terms,
+    Seller,
+    SellerLink,
+    StatusCodeCustomerInvoice,
+    StatusCodeCustomerQuote
+} from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 
@@ -13,6 +22,7 @@ declare var _;
 export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
     @ViewChild(TofDetailsForm) public detailsForm: TofDetailsForm;
+
     @Input() public entityName: string;
     @Input() public readonly: boolean;
     @Input() private data: any;
@@ -40,7 +50,7 @@ export class TofHead implements OnChanges {
     }
 
     public onDataChange(data?: any) {
-        let updatedEntity = data || this.data;
+        const updatedEntity = data || this.data;
 
         updatedEntity.FreeTxt = this.freeTextControl.value;
         updatedEntity.Comment = this.commentControl.value;
@@ -67,5 +77,9 @@ export class TofHead implements OnChanges {
         if (this.customerCard) {
             this.customerCard.focus();
         }
+    }
+
+    private isReadOnly(): boolean {
+        return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
 }

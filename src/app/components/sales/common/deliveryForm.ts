@@ -1,7 +1,7 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {Address, LocalDate, Terms} from '../../../unientities';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Address, LocalDate, Terms, StatusCodeCustomerInvoice} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
-import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniModalService, UniAddressModal} from '../../../../framework/uniModal/barrel';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -14,19 +14,17 @@ declare const _;
         <uni-form [fields]="fields$"
                   [model]="model$"
                   [config]="formConfig$"
-                  (readyEvent)="onFormReady($event)"
                   (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDeliveryForm {
-    @ViewChild(UniForm) private form: UniForm;
-
     @Input() public readonly: boolean;
     @Input() public entityType: string;
     @Input() public entity: any;
     @Input() public paymentTerms: Terms[];
     @Input() public deliveryTerms: Terms[];
+
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     private model$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -43,16 +41,6 @@ export class TofDeliveryForm {
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
 
-        if (changes['readonly'] && this.form) {
-            setTimeout(() => {
-                if (this.readonly) {
-                    this.form.readMode();
-                } else {
-                    this.form.editMode();
-                }
-            });
-        }
-
         if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
             const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
                 return addr.AddressLine1 === this.entity.ShippingAddressLine1
@@ -66,13 +54,8 @@ export class TofDeliveryForm {
                 this.model$.next(this.entity);
             }
         }
-        this.initFormLayout();
-    }
 
-    public onFormReady() {
-        if (this.readonly) {
-            this.form.readMode();
-        }
+        this.initFormLayout();
     }
 
     public onFormChange(changes) {
@@ -105,7 +88,7 @@ export class TofDeliveryForm {
             }
         }
 
-        let shippingAddress = changes['_shippingAddress'];
+        const shippingAddress = changes['_shippingAddress'];
         if (shippingAddress) {
             this.saveAddressOnCustomer(shippingAddress.currentValue).subscribe(
                 res => {
@@ -122,7 +105,7 @@ export class TofDeliveryForm {
     }
 
     private saveAddressOnCustomer(address: Address): Observable<Address> {
-        var idx = 0;
+        let idx = 0;
 
         if (!address.ID || address.ID === 0) {
             address['_createguid'] = this.addressService.getNewGuid();
@@ -136,7 +119,7 @@ export class TofDeliveryForm {
         // remove entries with equal _createguid
         this.entity.Customer.Info.Addresses = _.uniqBy(this.entity.Customer.Info.Addresses, '_createguid');
 
-        let saveObservable = this.businessRelationService.Put(
+        const saveObservable = this.businessRelationService.Put(
             this.entity.Customer.Info.ID,
             this.entity.Customer.Info
         ).catch(err => this.errorService.handleRxCatch(err, saveObservable))
@@ -150,7 +133,7 @@ export class TofDeliveryForm {
     }
 
     private initFormLayout() {
-        let addressFieldOptions = {
+        const addressFieldOptions = {
             entity: Address,
             listProperty: 'Customer.Info.Addresses',
             displayValue: 'AddressLine1',
@@ -169,33 +152,25 @@ export class TofDeliveryForm {
             }
         };
 
-        this.fields$.next([
-            {
+        const fields: UniFieldLayout[] = [
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'Requisition',
-                Placement: 1,
                 FieldType: FieldType.TEXT,
                 Label: 'Rekvisisjon',
-                Description: '',
-                HelpText: '',
                 Section: 0,
-                StatusCode: 0,
-                ID: 6
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 Legend: 'Betingelser og levering',
                 EntityType: this.entityType,
                 Property: 'PaymentTermsID',
-                Placement: 1,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Betalingsbetingelse',
                 Section: 0,
-                StatusCode: 0,
-                ID: 0,
                 Options: {
                     source: this.paymentTerms,
                     valueProperty: 'ID',
@@ -204,19 +179,16 @@ export class TofDeliveryForm {
                     },
                     debounceTime: 200,
                     addEmptyValue: true
-                }
+                },
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryTermsID',
-                Placement: 1,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Leveringsbetingelse',
                 Section: 0,
-                StatusCode: 0,
-                ID: 1,
                 Options: {
                     source: this.deliveryTerms,
                     valueProperty: 'ID',
@@ -225,65 +197,55 @@ export class TofDeliveryForm {
                     },
                     debounceTime: 200,
                     addEmptyValue: true
-                }
+                },
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
-                Placement: 1,
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
-                Description: '',
-                HelpText: '',
                 Section: 0,
-                StatusCode: 0,
-                ID: 2,
+                ReadOnly: this.readonly,
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: '_ShippingAddress',
-                Placement: 1,
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Leveringsadresse',
-                Description: '',
-                HelpText: '',
                 Options: addressFieldOptions,
                 Section: 0,
-                ID: 3
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryName',
-                Placement: 1,
                 FieldType: FieldType.TEXT,
                 Label: 'Mottaker',
-                Description: '',
-                HelpText: '',
                 Section: 0,
-                StatusCode: 0,
-                ID: 4,
             },
-            {
+            <any> {
                 FieldSet: 1,
                 FieldSetColumn: 2,
                 EntityType: this.entityType,
                 Property: 'DeliveryMethod',
-                Placement: 1,
                 FieldType: FieldType.TEXT,
                 Label: 'Leveringsmåte',
-                Description: '',
-                HelpText: '',
                 Section: 0,
-                StatusCode: 0,
-                ID: 5,
             }
-        ]);
+        ];
+
+        if (this.entityType !== 'CustomerInvoice') {
+            fields.forEach(field => {
+                field.ReadOnly = this.readonly;
+            });
+        }
+
+        this.fields$.next(fields);
     }
 
     private setPaymentDueDate(entity) {

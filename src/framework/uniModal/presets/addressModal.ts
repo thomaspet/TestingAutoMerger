@@ -68,7 +68,7 @@ export class UniAddressModal implements IUniModal {
 
     public formChange(changes) {
         if (changes['PostalCode'] && changes['PostalCode'].currentValue) {
-            let address = this.formModel$.getValue();
+            const address = this.formModel$.getValue();
             this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
                 .subscribe(
                     res => {
@@ -103,7 +103,7 @@ export class UniAddressModal implements IUniModal {
     }
 
     private getFormFields(): UniFieldLayout[] {
-        let fields = [
+        const fields = [
             <any> {
                 EntityType: 'Address',
                 Property: 'AddressLine1',

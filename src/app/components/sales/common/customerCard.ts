@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Customer, SellerLink, SharingType, StatusCodeSharing} from '../../../unientities';
-import {CustomerDetailsModal} from '../customer/customerDetails/customerDetailsModal';
+import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
+import {UniAddressModal} from '../../../../framework/uniModal/presets/addressModal';
 import {
     AddressService,
     EHFService,
@@ -13,7 +13,7 @@ import {
     StatusService
 } from '../../../services/services';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import * as moment from 'moment';
 
 @Component({
@@ -31,7 +31,7 @@ import * as moment from 'moment';
                 </uni-search>
 
                 <section class="addressCard" [attr.aria-readonly]="readonly">
-                    <span *ngIf="!readonly" class="edit-btn" (click)="openCustomerModal(entity.CustomerID)"></span>
+                    <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
                     <section class="sharing-badges">
                         <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                         <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
@@ -117,10 +117,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         private statisticsService: StatisticsService,
         private statusService: StatusService
     ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(
-            this.customerExpands,
-            () => this.openCustomerModal(null)
-        );
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
     }
 
     public ngAfterViewInit() {
@@ -263,14 +260,55 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         }
     }
 
-    public openCustomerModal(id) {
-        const returnValue = this.modalService.open(CustomerDetailsModal, { data: { ID: id }}).onClose;
-        returnValue.subscribe((res: Customer) => {
-            if (res) {
-                this.customerSelected(res);
+    public openAddressModal() {
+        const invoiceAddress = <Address>{
+            AddressLine1: this.entity.InvoiceAddressLine1,
+            AddressLine2: this.entity.InvoiceAddressLine2,
+            AddressLine3: this.entity.InvoiceAddressLine3,
+            PostalCode: this.entity.InvoicePostalCode,
+            City: this.entity.InvoiceCity,
+            Country: this.entity.InvoiceCountry
+        };
+
+        this.modalService.open(UniAddressModal, {data: invoiceAddress}).onClose.subscribe(updatedInvoiceAddress => {
+            if (updatedInvoiceAddress) {
+                this.entity.InvoiceAddressLine1 = updatedInvoiceAddress.AddressLine1;
+                this.entity.InvoiceAddressLine2 = updatedInvoiceAddress.AddressLine2;
+                this.entity.InvoiceAddressLine3 = updatedInvoiceAddress.AddressLine3;
+                this.entity.InvoicePostalCode = updatedInvoiceAddress.PostalCode;
+                this.entity.InvoiceCity = updatedInvoiceAddress.City;
+                this.entity.InvoiceCountry = updatedInvoiceAddress.Country;
+
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Endre kunde?',
+                    message: 'Endre framtidig fakturaadresse for denne kunden?',
+                    buttonLabels: {
+                        accept: 'Ja',
+                        cancel: 'Nei, kun på denne blanketten'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        const customer = <Customer>{
+                            ID: this.entity.CustomerID,
+                            Info: {
+                                ID: this.entity.Customer.BusinessRelationID,
+                                InvoiceAddress: {
+                                    ID: this.entity.Customer.Info.InvoiceAddressID,
+                                    AddressLine1: updatedInvoiceAddress.AddressLine1,
+                                    AddressLine2: updatedInvoiceAddress.AddressLine2,
+                                    AddressLine3: updatedInvoiceAddress.AddressLine3,
+                                    PostalCode: updatedInvoiceAddress.PostalCode,
+                                    City: updatedInvoiceAddress.City,
+                                    Country: updatedInvoiceAddress.Country
+                                }
+                            }
+                        };
+                        this.customerService.Put(this.entity.CustomerID, customer).subscribe();
+                    }
+                });
+                this.entityChange.emit(this.entity);
             }
         });
-        return returnValue;
     }
 
     public formFieldChange() {

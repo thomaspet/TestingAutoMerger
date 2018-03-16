@@ -1,6 +1,6 @@
-import {Component, Input, Output, ViewChild, EventEmitter, SimpleChanges} from '@angular/core';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, SellerLink} from '../../../unientities';
+import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, StatusCodeCustomerInvoice} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 
@@ -12,14 +12,11 @@ declare const _;
         <uni-form [fields]="fields$"
                   [model]="entity$"
                   [config]="formConfig$"
-                  (readyEvent)="onFormReady($event)"
                   (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDetailsForm {
-    @ViewChild(UniForm) private form: UniForm;
-
     @Input() public readonly: boolean;
     @Input() public entityType: string;
     @Input() public entity: any;
@@ -27,6 +24,7 @@ export class TofDetailsForm {
     @Input() public projects: Project;
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
+
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
@@ -36,75 +34,18 @@ export class TofDetailsForm {
 
     public ngOnInit() {
         this.entity$.next(this.entity);
+        this.initFormFields();
     }
 
     public ngOnChanges(changes) {
         this.entity$.next(this.entity);
-
-        if (this.projects && this.entityType) {
-            this.initFormFields();
-        } else if (changes['currencyCodes'] && this.currencyCodes) {
+        if ((this.projects && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
         }
-
-        if ((changes['readonly'] || changes['entity']) && this.form) {
-            this.setEntityAccessability();
-        }
-    }
-
-    public onFormReady() {
-        this.setEntityAccessability();
-    }
-
-    public setEntityAccessability() {
-        setTimeout(() => {
-            if (!this.entity) {
-                this.form.readMode();
-            } else {
-                if (this.entityType === 'CustomerInvoice') {
-                    this.form.editMode();
-                    switch (this.entity.StatusCode) {
-                        case null:
-                        case 42001:
-                            break;
-                        case 42002:
-                            this.setFieldsReadonly(['InvoiceDate', 'CurrencyCodeID']);
-                            break;
-                        case 42003:
-                            this.setFieldsReadonly(['InvoiceDate', 'PaymentDueDate', 'CurrencyCodeID']);
-                            break;
-                        default:
-                            this.form.readMode();
-                            break;
-
-                    }
-                } else {
-                    if (this.readonly) { this.form.readMode();
-                    } else { this.form.editMode(); }
-
-                }
-            }
-        });
-    }
-
-    public setFieldsReadonly(fieldPropertyNames: Array<string>) {
-         setTimeout(() => {
-            let fields = this.fields$.getValue();
-            if (fieldPropertyNames) {
-                fieldPropertyNames.forEach(fieldPropertyName => {
-                    fields.forEach(field => {
-                        if (field['Property'] === fieldPropertyName) {
-                            field['ReadOnly'] = true;
-                        }
-                    });
-                });
-            }
-            this.fields$.next(fields);
-        });
     }
 
     public onFormChange(changes: SimpleChanges) {
-        var keys = Object.keys(changes);
+        const keys = Object.keys(changes);
         keys.forEach(key => {
             _.set(this.entity, key, changes[key].currentValue);
         });
@@ -117,14 +58,12 @@ export class TofDetailsForm {
             this.setDates(changes['InvoiceDate'].currentValue);
         }
 
-
-
         this.entityChange.emit(this.entity);
     }
 
     private initFormFields() {
         if (this.currencyCodes && this.entity) {
-            let fields: UniFieldLayout[] = [
+            const fields: UniFieldLayout[] = [
                 <any> {
                     Legend: 'Detaljer',
                     FieldSet: 1,
@@ -134,20 +73,16 @@ export class TofDetailsForm {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Fakturadato',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 1,
+                    ReadOnly: this.readonly,
                 },
                 <any> {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
                     Property: 'PaymentDueDate',
-                    Placement: 2,
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Label: 'Forfallsdato',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 2,
                 },
                 <any> {
                     FieldSet: 1,
@@ -157,14 +92,13 @@ export class TofDetailsForm {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Valuta',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 3,
                     Options: {
                         source: this.currencyCodes,
                         valueProperty: 'ID',
                         displayProperty: 'Code',
                         debounceTime: 200
-                    }
+                    },
+                    ReadOnly: this.readonly,
                 },
                 <any> {
                     FieldSet: 1,
@@ -174,8 +108,6 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'Vår referanse',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 5
                 },
                 <any> {
                     FieldSet: 1,
@@ -185,8 +117,6 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'Deres referanse',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 6,
                 },
                 <any> {
                     FieldSet: 1,
@@ -196,8 +126,6 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'E-postadresse',
                     Section: 0,
-                    StatusCode: 0,
-                    ID: 4,
                 },
                 <any> {
                     FieldSet: 1,
@@ -218,7 +146,6 @@ export class TofDetailsForm {
                         },
                         addEmptyValue: true
                     },
-                    ID: 7
                 },
                 <any> {
                     FieldSet: 1,
@@ -228,7 +155,6 @@ export class TofDetailsForm {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0,
-                    StatusCode: 0,
                     Options: {
                         source: this.sellers,
                         valueProperty: 'ID',
@@ -236,7 +162,6 @@ export class TofDetailsForm {
                         debounceTime: 200,
                         addEmptyValue: true
                     },
-                    ID: 8
                 },
             ];
 
@@ -249,6 +174,12 @@ export class TofDetailsForm {
                 fields[0].Label = 'Ordredato';
                 fields[0].Property = 'OrderDate';
                 fields[1].Hidden = true;
+            }
+
+            if (this.entityType !== 'CustomerInvoice') {
+                fields.forEach(field => {
+                    field.ReadOnly = this.readonly;
+                });
             }
 
             this.fields$.next(fields);
