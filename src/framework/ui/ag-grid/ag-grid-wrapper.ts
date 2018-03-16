@@ -187,9 +187,10 @@ export class AgGridWrapper {
                 } else {
                     this.tableHeight = '95px';
                 }
-
-                api.doLayout();
             }
+
+            api.doLayout();
+            api.sizeColumnsToFit();
         }
     }
 
