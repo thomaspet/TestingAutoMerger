@@ -129,6 +129,13 @@ export class TableEditor {
                     return;
                 }
 
+                // Make sure there is always an empty row at the bottom
+                // if config.autoAddNewRow is true
+                const rowCount = this.agGridApi.getDisplayedRowCount();
+                if (this.config.autoAddNewRow && rowIndex >= (rowCount - 1)) {
+                    this.dataService.addRow();
+                }
+
                 this.currentRow = row;
                 this.currentColumn = this.visibleColumns && this.visibleColumns[colIndex];
 
