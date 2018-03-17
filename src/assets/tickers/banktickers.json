@@ -149,8 +149,17 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Valg faktura manuelt",
+                "Name": "Velg faktura manuelt",
                 "Code": "select_invoice",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg kunde manuelt",
+                "Code": "select_customer",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
@@ -546,7 +555,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Leg tilbakke til ubetalt",
+                "Name": "Legg tilbake til ubetalt",
                 "Code": "revert_batch",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,

@@ -20,7 +20,8 @@ import {
 } from '../../../framework/uniModal/barrel';
 import {
     UniAutobankAgreementModal,
-    UniAutobankAgreementListModal
+    UniAutobankAgreementListModal,
+    MatchCustomerManualModal
 } from './modals';
 import {File, Payment, PaymentBatch, LocalDate, CustomerInvoice} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -140,11 +141,15 @@ export class BankComponent implements AfterViewInit {
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
+            Code: 'select_customer',
+            ExecuteActionHandler: (selectedRows) => this.selectCustomerForPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
             CheckActionIsDisabled: (selectedRow) => this.checkRevertPaymentBatchDisabled(selectedRow)
         }
-
     ];
 
     public checkResetPaymentDisabled(selectedRow: any): boolean {
@@ -549,6 +554,24 @@ export class BankComponent implements AfterViewInit {
             modal.onClose.subscribe((result) => {
                 if (result && result.length > 0) {
                     this.customerInvoiceService.matchInvoicesManual(result, row.ID)
+                        .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
+                }
+            });
+        });
+    }
+
+    public selectCustomerForPayment(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            const modal = this.modalService.open(MatchCustomerManualModal, {
+                data: {model: row}
+            });
+
+            modal.onClose.subscribe((result) => {
+                if (result && result > 0) {
+                    this.journalEntryService.PutAction(null,
+                        'book-payment-against-customer',
+                        'customerID=' + result + '&paymentID=' + row.ID)
                         .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
                 }
             });
