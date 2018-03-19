@@ -25,6 +25,7 @@ import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
 import {UniCustomDimension} from './custom/customDimension';
 import {UniCustomDimensionList} from './custom/customDimensionList';
+import {UniDimensionView} from './custom/dimension';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import {UniCustomDimensionList} from './custom/customDimensionList';
         ProjectLite,
         ProjectLiteDetails,
         UniCustomDimension,
-        UniCustomDimensionList
+        UniCustomDimensionList,
+        UniDimensionView
     ]
 })
 export class DimensionsModule {}

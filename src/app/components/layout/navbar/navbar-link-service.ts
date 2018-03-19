@@ -43,15 +43,15 @@ export class NavbarLinkService {
 
         if (this.authService.canActivateRoute(user, 'dimensions/customdimensionlist')) {
             // Add custom dimensions to the list
-            this.dimensionSettingsService.GetAll(null).subscribe((dimensions) => {
-                    routeSections.push({
-                        componentListName: 'Dimensjoner',
-                        componentListHeader: 'Dimensjoner',
-                        componentListUrl: '/dimensions/customdimensionlist',
-                        componentListIcon: 'dimension',
-                        componentList: this.getDimensionList(dimensions)
-                });
-            });
+            // this.dimensionSettingsService.GetAll(null).subscribe((dimensions) => {
+            //         routeSections.push({
+            //             componentListName: 'Dimensjoner',
+            //             componentListHeader: 'Dimensjoner',
+            //             componentListUrl: '/dimensions/customdimensionlist',
+            //             componentListIcon: 'dimension',
+            //             componentList: this.getDimensionList(dimensions)
+            //     });
+            // });
         }
 
         routeSections.forEach(section => {
@@ -65,14 +65,25 @@ export class NavbarLinkService {
     }
 
     public getDimensionList(dimensions) {
-        const list = [];
+        const list = [
+            {
+                componentName: 'Prosjekt',
+                componentUrl: '/dimensions/overview/1' ,
+                moduleID: UniModules.Dimensions
+            },
+            {
+                componentName: 'Avdeling',
+                componentUrl: '/dimensions/overview/2' ,
+                moduleID: UniModules.Dimensions
+            }
+        ];
 
         dimensions.forEach((dim) => {
             // add check to see if dim.IsActive??
             list.push(
                 {
                     componentName: dim.Label,
-                    componentUrl: '/dimensions/customdimensionlist/' + dim.Dimension ,
+                    componentUrl: '/dimensions/overview/' + dim.Dimension ,
                     moduleID: UniModules.Dimensions
                 }
             );

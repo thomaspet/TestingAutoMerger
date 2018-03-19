@@ -188,16 +188,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 componentName: 'Betaling',
                 componentUrl: '/accounting/journalentry/payments',
                 moduleID: UniModules.Payments
-            },
-            {
-                componentName: 'Prosjekt LITE',
-                componentUrl: '/dimensions/projectslite',
-                moduleID: UniModules.Projects, groupHeader: 'Dimensjoner'
-            },
-            {
-                componentName: 'Avdeling',
-                componentUrl: '/dimensions/departments',
-                moduleID: UniModules.Departments
             }
         ]
     },

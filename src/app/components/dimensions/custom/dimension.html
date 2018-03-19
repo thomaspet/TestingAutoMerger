@@ -1,0 +1,23 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+<section style="margin-top: 2rem">
+    <div style="float: left; width: 20%; padding: 0 2%; box-sizing: border-box;">
+        <select
+            #selectElem (change)="dimChange(selectElem.value)"
+            style="margin-bottom: 2rem; display: inline-block; height: 2rem; padding: 0.187rem 0.5rem; background-color: #fff; border: 0.0625rem solid #C3CAD9; border-radius: 0.125rem; font-weight: 400;">
+            <option *ngFor="let dim of dimensionMetaData" [value]="dim.Dimension" [selected]="dim.Dimension == currentDimension" style="color: #1d4882; ">
+                {{ dim.Label }}
+            </option>
+        </select>
+        <uni-table [resource]="dimensionList" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
+    </div>
+    <div class="uni-dimension-form-class" style="float: left; width: 79%;">
+        <uni-form
+            [config]="{}"
+            [fields]="fields$"
+            [model]="model$">
+        </uni-form>
+    </div>
+</section>

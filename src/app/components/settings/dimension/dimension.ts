@@ -42,13 +42,7 @@ export class UniDimensionSettings implements OnInit {
             },
             {
                 action: (item) => {
-                    this.router.navigateByUrl('dimensions/customdimension/' + item.Dimension + '?dimensionID=0');
-                },
-                label: 'Opprett ny'
-            },
-            {
-                action: (item) => {
-                    this.router.navigateByUrl('dimensions/customdimensionlist/' + item.Dimension);
+                    this.router.navigateByUrl('dimensions/overview/' + item.Dimension);
                 },
                 label: 'Gå til liste'
             }
