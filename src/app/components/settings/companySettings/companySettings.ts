@@ -14,6 +14,7 @@ import {
     Address,
     BankAccount,
     CompanySettings,
+    TOFCurrencySettings,
     CompanyType,
     CurrencyCode,
     Email,
@@ -32,6 +33,8 @@ import {
     BankAccountService,
     CompanyService,
     CompanySettingsService,
+    TofCurrencySettingsService,
+    DefaultTOFCurrencySettingsOptions,
     CompanyTypeService,
     CurrencyCodeService,
     CurrencyService,
@@ -91,7 +94,8 @@ export class CompanySettingsComponent implements OnInit {
         'CompanyBankAccount',
         'TaxBankAccount',
         'SalaryBankAccount',
-        'DefaultSalesAccount'
+        'DefaultSalesAccount',
+        'DefaultTOFCurrencySettings'
     ];
 
     public company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
@@ -200,6 +204,8 @@ export class CompanySettingsComponent implements OnInit {
         private router: Router,
         private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
+        private adminPurchasesService: AdminPurchasesService,
+        private tofCurrencySettingsService: TofCurrencySettingsService,
         private elsaPurchasesService: ElsaPurchasesService,
         private subEntityService: SubEntityService,
     ) {
@@ -271,7 +277,7 @@ export class CompanySettingsComponent implements OnInit {
                     orderTemplate: this.orderTemplate,
                     invoiceTemplate: this.invoiceTemplate,
                     quoteTemplate: this.quoteTemplate
-                })
+                });
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -284,6 +290,8 @@ export class CompanySettingsComponent implements OnInit {
                         data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
                         data.LogoHideField = data.LogoHideField || this.logoHideOptions[2].Value;
                         data.LogoAlign = data.LogoAlign || this.logoAlignOptions[0].Alignment;
+                        data['_DefaultTOFCurrencySettings'] = this.tofCurrencySettingsService
+                            .getDefaultTOFCurrencySettings(data.DefaultTOFCurrencySettings);
                         this.company$.next(data);
                         this.getFormLayout();
                         this.extendFormConfig();
@@ -481,6 +489,14 @@ export class CompanySettingsComponent implements OnInit {
                 this.disableOrgnrInvoiceEmail();
             }
         }
+
+        if (changes['_DefaultTOFCurrencySettings']) {
+            const company = this.company$.getValue();
+            const defaultTOFCurrencySettings = changes['_DefaultTOFCurrencySettings'].currentValue;
+            company.DefaultTOFCurrencySettings = this.tofCurrencySettingsService
+                .setDefaultTOFCurrencySettings(company.DefaultTOFCurrencySettings, defaultTOFCurrencySettings);
+            this.company$.next(company);
+        }
     }
 
     public onFormInputChange(changes: SimpleChanges) {
@@ -544,6 +560,10 @@ export class CompanySettingsComponent implements OnInit {
                 company.SalaryBankAccount.BankAccountType = 'salarybank';
             }
             company.BankAccounts = company.BankAccounts.filter(x => x !== company.SalaryBankAccount);
+        }
+
+        if (!company.DefaultTOFCurrencySettingsID && company.DefaultTOFCurrencySettings) {
+            company.DefaultTOFCurrencySettings['_createguid'] = this.tofCurrencySettingsService.getNewGuid();
         }
 
         templates.forEach(template => {
@@ -1139,47 +1159,11 @@ export class CompanySettingsComponent implements OnInit {
                 }
             },
             {
-                EntityType: 'CompanySettings',
-                Property: 'BaseCurrencyCodeID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Valuta',
-                FieldSet: 4,
-                Section: 1,
-                Legend: 'Valuta',
-                Sectionheader: 'Selskapsoppsett'
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'AgioGainAccountID',
-                FieldType: FieldType.UNI_SEARCH,
-                Label: 'Konto for valutagevinst',
-                FieldSet: 4,
-                Section: 1,
-                Sectionheader: 'Selskapsoppsett',
-                Options: {
-                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
-                    valueProperty: 'ID'
-                }
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'AgioLossAccountID',
-                FieldType: FieldType.UNI_SEARCH,
-                Label: 'Konto for valutatap',
-                FieldSet: 4,
-                Section: 1,
-                Sectionheader: 'Selskapsoppsett',
-                Options: {
-                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
-                    valueProperty: 'ID'
-                }
-            },
-            {
                 Property: 'ShowNumberOfDecimals',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Antall desimaler i visning av antall og pris',
                 Section: 1,
-                FieldSet: 5,
+                FieldSet: 4,
                 Legend: 'Avrunding',
                 Sectionheader: '',
                 Options: {
@@ -1193,7 +1177,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Antall desimaler ved avrunding',
                 Section: 1,
-                FieldSet: 5,
+                FieldSet: 4,
                 Sectionheader: 'Avrunding',
                 Options: {
                     source: this.roundingNumberOfDecimals,
@@ -1206,7 +1190,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'AcceptableDelta4CustomerPaymentAccountID',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Konto for øredifferanse',
-                FieldSet: 5,
+                FieldSet: 4,
                 Section: 1,
                 Sectionheader: 'Øredifferanse ved innbetaling',
                 Options: {
@@ -1219,9 +1203,66 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'AcceptableDelta4CustomerPayment',
                 FieldType: FieldType.NUMERIC,
                 Label: 'Akseptabelt differanse-beløp ved innbetaling',
-                FieldSet: 5,
+                FieldSet: 4,
                 Section: 1,
                 Sectionheader: 'Øredifferanse ved innbetaling'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'BaseCurrencyCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Valuta',
+                FieldSet: 5,
+                Section: 1,
+                Legend: 'Valuta',
+                Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'AgioGainAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Konto for valutagevinst',
+                FieldSet: 5,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett',
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'AgioLossAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Konto for valutatap',
+                FieldSet: 5,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett',
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: '_DefaultTOFCurrencySettings',
+                FieldType: FieldType.CHECKBOXGROUP,
+                Label: 'Behold valutapris ved:',
+                FieldSet: 5,
+                Section: 1,
+                Options: {
+                    multivalue: true,
+                    source: [
+                        {ID: DefaultTOFCurrencySettingsOptions.QuoteToOrder, Name: 'Overføring tilbud til ordre'},
+                        {ID: DefaultTOFCurrencySettingsOptions.QuoteToInvoice, Name: 'Overføring tilbud til faktura'},
+                        {ID: DefaultTOFCurrencySettingsOptions.OrderToInvoice, Name: 'Overføring ordre til faktura'},
+                        {ID: DefaultTOFCurrencySettingsOptions.QuotedateChange, Name: 'Ny dato på tilbud'},
+                        {ID: DefaultTOFCurrencySettingsOptions.OrderdateChange, Name: 'Ny dato på ordre'},
+                        {ID: DefaultTOFCurrencySettingsOptions.InvoicedateChange, Name: 'Ny dato på faktura'}
+                    ],
+                    valueProperty: 'ID',
+                    labelProperty: 'Name'
+                }
             },
             {
                 EntityType: 'CompanySettings',
@@ -1463,7 +1504,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private logoFileChanged(files: Array<any>) {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
             // update logourl in company object
             company.LogoFileID = files[files.length - 1].ID;
@@ -1504,7 +1545,7 @@ export class CompanySettingsComponent implements OnInit {
             .onClose.subscribe((status) => {
                 if (status !== 0) {
                     this.companySettingsService.Get(1).subscribe(settings => {
-                        let company = this.company$.getValue();
+                        const company = this.company$.getValue();
                         company.BankAccounts = settings.BankAccounts;
                         company.CompanyBankAccount = settings.CompanyBankAccount;
                         this.company$.next(company);

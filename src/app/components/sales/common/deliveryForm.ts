@@ -156,15 +156,6 @@ export class TofDeliveryForm {
             <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
-                EntityType: this.entityType,
-                Property: 'Requisition',
-                FieldType: FieldType.TEXT,
-                Label: 'Rekvisisjon',
-                Section: 0,
-            },
-            <any> {
-                FieldSet: 1,
-                FieldSetColumn: 1,
                 Legend: 'Betingelser og levering',
                 EntityType: this.entityType,
                 Property: 'PaymentTermsID',
@@ -201,7 +192,7 @@ export class TofDeliveryForm {
             },
             <any> {
                 FieldSet: 1,
-                FieldSetColumn: 2,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: 'DeliveryDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
@@ -211,7 +202,7 @@ export class TofDeliveryForm {
             },
             <any> {
                 FieldSet: 1,
-                FieldSetColumn: 2,
+                FieldSetColumn: 1,
                 EntityType: this.entityType,
                 Property: '_ShippingAddress',
                 FieldType: FieldType.MULTIVALUE,

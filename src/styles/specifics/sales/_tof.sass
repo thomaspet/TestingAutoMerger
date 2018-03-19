@@ -31,6 +31,8 @@ article.tof-head
 
     tof-details-form,
     tof-delivery-form,
+    .currency-container
+
         order: 2
         flex: 1
 
@@ -39,12 +41,27 @@ article.tof-head
             flex-basis: 100%
             max-width: none
 
+            .fieldset-column
+                height: 12rem
+
         uni-field
             label span
                 width: 10rem
 
             label span+*
                 width: calc(100% - 10rem)
+
+    .currency-container
+        @include labelLength(18rem)
+
+        uni-field
+            width: 19.3rem
+
+            label span
+                width: 4rem
+
+            label span+*
+                width: calc(100% - 4rem)
 
     .freetext-fieldset,
     .attachment-fieldset,
