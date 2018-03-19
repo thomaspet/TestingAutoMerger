@@ -10,6 +10,7 @@
     (blur)="blurHandler()"
     (focus)="focusHandler()"
     [title]="control?.value || ''"
+    tabindex="-1"
 />
 <button class="uni-url-openBtn" type="button"
         (click)="openUrl()"

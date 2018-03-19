@@ -8,7 +8,7 @@
            aria-autocomplete="none"
            [attr.aria-owns]="guid"
            [attr.aria-activedescendant]="activeDescendantId"
-           tabindex="0"
+           tabindex="-1"
            [value]="getDisplayValue(selectedItem)"
            [placeholder]="config?.placeholder || ''"
            [attr.aria-readonly]="readonly"
@@ -19,6 +19,7 @@
     <button
         type="button"
         class="closeBtn"
+        tabindex="-1"
         (click)="clear($event)"
         *ngIf="selectedItem && !readonly && !config?.hideDeleteButton"
     ></button>
@@ -27,6 +28,7 @@
             <input #searchInput type="search"
                    [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
                    [formControl]="searchControl"
+                   tabindex="-1"
             />
         </section>
 

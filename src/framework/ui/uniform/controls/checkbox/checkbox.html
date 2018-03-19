@@ -6,6 +6,7 @@
     [placeholder]="field?.Placeholder || ''"
     [checked]="isChecked()"
     (focus)="focusHandler()"
+    tabindex="-1"
 />
 <label (click)="checkIt()" tabindex="-1">{{field?.Label}}</label>
 <ng-content></ng-content>

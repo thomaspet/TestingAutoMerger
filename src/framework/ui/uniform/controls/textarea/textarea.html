@@ -10,5 +10,6 @@
     (focus)="focusHandler()"
     [title]="control?.value || ''"
     (keydown)="onKeydown($event)"
+    tabindex="-1"
 ></textarea>
 <ng-content></ng-content>

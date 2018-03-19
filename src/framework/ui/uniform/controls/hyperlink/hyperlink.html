@@ -4,5 +4,6 @@
    [attr.aria-describedby]="asideGuid"
    (focus)="focusHandler()"
    [title]="field?.Options?.description"
+   tabindex="-1"
 >{{field?.Options?.description}}</a>
 <ng-content></ng-content>

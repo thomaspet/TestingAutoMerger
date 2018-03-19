@@ -9,6 +9,7 @@
         [value]="getValue(item)"
         [name]="getValue(item)"
         (focus)="focusHandler()"
+        tabindex="-1"
     />
     <label (click)="checkIt(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
     <ng-content></ng-content>

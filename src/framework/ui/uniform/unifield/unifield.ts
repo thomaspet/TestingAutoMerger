@@ -35,6 +35,8 @@ export class UniField {
     public touched = false;
     public errorMessages = [];
     public componentResolver: any;
+    public keyDownSubscription;
+    public elementReference;
     public get Component() {
         return new Promise(resolve => {
             if (this.component) {
@@ -61,6 +63,23 @@ export class UniField {
                 input.addEventListener('focus', event => this.eventHandler(event.type, event));
             }
         });
+    }
+
+    public ngOnDestroy() {
+        if (this.keyDownSubscription) {
+            this.keyDownSubscription.unsubscribe();
+        }
+    }
+
+    public ngOnChanges() {
+        if (this.elementReference !== this.elementRef) {
+            if (this.keyDownSubscription) {
+                this.keyDownSubscription.unsubscribe();
+            }
+            this.keyDownSubscription = Observable.fromEvent(this.elementRef.nativeElement, 'keydown')
+                .subscribe(this.keyDownHandler.bind(this));
+            this.elementReference = this.elementRef;
+        }
     }
 
     public onFocusHandler(event) {
@@ -200,7 +219,6 @@ export class UniField {
         this.moveForwardEvent.emit(action);
     }
 
-    @HostListener('keydown', ['$event'])
     public keyDownHandler(event: KeyboardEvent) {
         const key: string = KeyCodes[event.which || event.keyCode];
         const ctrl: boolean = event.ctrlKey;
@@ -230,7 +248,7 @@ export class UniField {
             });
             this.validateModel(this.getSimpleChange());
 
-        } else if (combination.length === 2 && (combination[0] === 'shift' && combination[0] === 'tab')) {
+        } else if (combination.length === 2 && (combination[0] === 'shift' && combination[1] === 'tab')) {
             this.moveBackwardEvent.emit({
                 event: event,
                 field: this.field
