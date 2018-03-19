@@ -86,4 +86,15 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .send()
             .map(response => response.json());
     }
+
+    public sendAutobankPayment(body: any) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(body)
+            .withEndPoint('paymentbatches?action=create-and-send-to-payment')
+            .send()
+            .map(response => response.json());
+    }
 }
