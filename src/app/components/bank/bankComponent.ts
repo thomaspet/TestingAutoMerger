@@ -185,7 +185,8 @@ export class BankComponent implements AfterViewInit {
         private journalEntryService: JournalEntryService,
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchasesService,
+        private elsaPurchasesService: ElsaPurchasesService
+        
     ) {
         this.updateTab();
         this.checkAutobankAccess();
@@ -698,73 +699,76 @@ export class BankComponent implements AfterViewInit {
             paymentIDs.push(x.ID);
         });
 
+        // User selected manual payment!
+        if (isManualPayment) {
         // Create action to generate batch for n paymetns
         this.paymentService.createPaymentBatch(paymentIDs, isManualPayment)
-            .subscribe((paymentBatch: PaymentBatch) => {
-                this.toastService.addToast(
-                    `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
-                    ToastType.good, 5
-                );
+        .subscribe((paymentBatch: PaymentBatch) => {
+            this.toastService.addToast(
+                `Betalingsbunt ${paymentBatch.ID} opprettet, genererer utbetalingsfil...`,
+                ToastType.good, 5
+            );
 
-                // Refresh list after paymentbatch has been generated
-                this.tickerContainer.mainTicker.reloadData();
+            // Refresh list after paymentbatch has been generated
+            this.tickerContainer.mainTicker.reloadData();
 
-                // Run action to generate paymentfile based on batch
-                this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
-                .subscribe((updatedPaymentBatch: PaymentBatch) => {
-                    if (updatedPaymentBatch.PaymentFileID) {
-                        this.toastService.addToast(
-                            'Utbetalingsfil laget, henter fil...',
-                            ToastType.good, 5
-                        );
-                        this.updateSaveActions(this.selectedTicker.Code);
+            // Run action to generate paymentfile based on batch
+            this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
+            .subscribe((updatedPaymentBatch: PaymentBatch) => {
+                if (updatedPaymentBatch.PaymentFileID) {
+                    this.toastService.addToast(
+                        'Utbetalingsfil laget, henter fil...',
+                        ToastType.good, 5
+                    );
+                    this.updateSaveActions(this.selectedTicker.Code);
 
-                        // User clicked for manual payment, should download the file
-                        if (isManualPayment) {
-                            this.fileService
-                            .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
-                            .subscribe((blob) => {
-                                doneHandler('Utbetalingsfil hentet');
+                    this.fileService
+                        .downloadFile(updatedPaymentBatch.PaymentFileID, 'application/xml')
+                        .subscribe((blob) => {
+                            doneHandler('Utbetalingsfil hentet');
 
-                                // Download file so the user can open it
-                                saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                                this.tickerContainer.tickerFilters.getFilterCounts();
-                                this.tickerContainer.mainTicker.reloadData();
-                            },
-                            err => {
-                                doneHandler('Feil ved henting av utbetalingsfil');
-                                this.errorService.handle(err);
-                            });
-                        // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
-                        } else if (this.agreements.length) {
-                            this.modalService.open(UniSendPaymentModal, {
-                                data: { PaymentBatchID: updatedPaymentBatch.ID }
-                            }).onClose.subscribe(
-                                res => {
-                                doneHandler(res);
-                                this.tickerContainer.tickerFilters.getFilterCounts();
-                                this.tickerContainer.mainTicker.reloadData();
-                            },
-                            err => doneHandler('Feil ved sending av autobank'));
-                        }
-                    } else {
-                        this.toastService.addToast(
-                            'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
-                            ToastType.bad
-                        );
-                        this.updateSaveActions(this.selectedTicker.Code);
-                        doneHandler('Feil ved henting av utbetalingsfil');
-                    }
-                },
-                err => {
-                    doneHandler('Feil ved generering av utbetalingsfil');
-                    this.errorService.handle(err);
-                });
+                            // Download file so the user can open it
+                            saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
+                            this.tickerContainer.tickerFilters.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                        },
+                        err => {
+                            doneHandler('Feil ved henting av utbetalingsfil');
+                            this.errorService.handle(err);
+                        });
+                } else {
+                    this.toastService.addToast(
+                        'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
+                        ToastType.bad
+                    );
+                    this.updateSaveActions(this.selectedTicker.Code);
+                    doneHandler('Feil ved henting av utbetalingsfil');
+                }
             },
             err => {
-                doneHandler('Feil ved opprettelse av betalingsbunt');
+                doneHandler('Feil ved generering av utbetalingsfil');
                 this.errorService.handle(err);
             });
+        },
+        err => {
+            doneHandler('Feil ved opprettelse av betalingsbunt');
+            this.errorService.handle(err);
+        });
+
+        // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
+        } else if (this.agreements.length) {
+            this.modalService.open(UniSendPaymentModal, {
+                data: { PaymentIds: paymentIDs }
+            }).onClose.subscribe(
+                res => {
+                doneHandler(res);
+                if (res === 'Sendingen er fullført') {
+                    this.tickerContainer.tickerFilters.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+                }
+            },
+            err => doneHandler('Feil ved sending av autobank'));
+        }
     }
 
     private validateBeforePay(selectedRows: Array<any>): boolean {

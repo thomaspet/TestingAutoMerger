@@ -57,14 +57,20 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     }
 
     public initFormModel() {
-        const model: Object = this.options.data || { Password: '', PaymentBatchID: '' };
+        const model: Object = this.options.data || { Password: ''};
         this.formModel$.next(model);
     }
 
     public onGoodClick() {
         const model = this.formModel$.getValue();
         if (model['Password']) {
-            this.paymentBatchService.SendToPayment(model['Password'], model['PaymentBatchID']).subscribe((res) => {
+
+            const body = {
+                Password : model['Password'],
+                PaymentIds: this.options.data.PaymentIds
+            };
+
+            this.paymentBatchService.sendAutobankPayment(body).subscribe((res) => {
                 this.onClose.emit('Sendingen er fullført');
             }, err => {
                 this.errorService.handle(err);
