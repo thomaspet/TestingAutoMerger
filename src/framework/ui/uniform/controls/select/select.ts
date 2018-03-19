@@ -248,8 +248,10 @@ export class UniSelect implements OnChanges, AfterViewInit {
         }
         this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
         this.initialItem = this.selectedItem;
-        this.valueChange.emit(this.selectedItem);
-        this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+        if (this.selectedItem !== undefined) {
+            this.valueChange.emit(this.selectedItem);
+            this.activeDecentantId = this.guid + '-item-' + this.focusedIndex;
+        }
         this.close();
         this.focus();
     }

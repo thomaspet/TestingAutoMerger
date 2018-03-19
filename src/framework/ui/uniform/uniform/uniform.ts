@@ -245,7 +245,7 @@ export class UniForm implements OnChanges, OnInit {
     public onMoveForward(action) {
         const field = action.field;
         const event = action.event;
-        let index = this._layout.Fields.indexOf(field);
+        let index = this._layout.Fields.findIndex(item => item.Property === field.Property);
         if (index === this._layout.Fields.length - 1) {
             this.moveOutEvent.emit({
                 event: event,
@@ -282,6 +282,7 @@ export class UniForm implements OnChanges, OnInit {
         }
 
         const component = this.field(property, isMultivalue);
+        this.currentComponent = component;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
             if (!section.isOpen) {
@@ -304,7 +305,7 @@ export class UniForm implements OnChanges, OnInit {
     public onMoveBackward(action) {
         const field = action.field;
         const event = action.event;
-        let index = this._layout.Fields.indexOf(field);
+        let index = this._layout.Fields.findIndex(item => item.Property === field.Property);
         if (index === 0) {
             this.moveOutEvent.emit({
                 event: event,
@@ -341,6 +342,7 @@ export class UniForm implements OnChanges, OnInit {
         }
 
         const component = this.field(property, isMultivalue);
+        this.currentComponent = component;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
             if (!section.isOpen) {
@@ -410,35 +412,6 @@ export class UniForm implements OnChanges, OnInit {
     public findFirstNotHiddenComponent() {
         const f = this._layout.Fields.find(x => !x.Hidden);
         return this.field(f.Property);
-    }
-
-    public hasEvent(event: string) {
-        const cmp = this.currentComponent;
-        if (!cmp.field.Options) {
-            return false;
-        }
-        const options = cmp.field.Options;
-        if (options.events) {
-            if (options.events[event]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public findNextElementFormLastFocusedComponent() {
-        const cmp: UniField = this.currentComponent;
-        let index = this._layout.Fields.indexOf(cmp.field);
-        if (index < 0) {
-            return;
-        }
-        while (this._layout.Fields[index + 1] && this._layout.Fields[index + 1].Hidden) {
-            index++;
-        }
-        if (index >= this._layout.Fields.length - 1) {
-            return;
-        }
-        return this.field(this._layout.Fields[index + 1].Property);
     }
 
     public addSectionEvents() {
