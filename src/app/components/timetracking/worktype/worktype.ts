@@ -7,7 +7,7 @@ import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
-import {ProductService, WageTypeService} from '@app/services/services';
+import {ProductService, WageTypeService, ErrorService} from '@app/services/services';
 import {URLSearchParams} from '@angular/http';
 import {isObject, isString} from 'util';
 
@@ -24,17 +24,14 @@ export class WorktypeDetailview {
     private viewconfig: IViewConfig;
     private productService: ProductService;
     private wagetypeService: WageTypeService;
+    private errorService: ErrorService;
     private wagetypes: WageType[] = [];
 
-    constructor(productservice: ProductService, wagetypeservice: WageTypeService) {
+    constructor(productservice: ProductService, wagetypeservice: WageTypeService, errorservice: ErrorService) {
         this.productService = productservice;
         this.wagetypeService = wagetypeservice;
-        this.getWagetypesObs()
-            .catch(err => Observable.of([]))
-            .subscribe((wagetypes: WageType[]) => {
-                this.wagetypes = wagetypes;
-                this.viewconfig = this.createLayout();
-            });
+        this.errorService = errorservice;
+        this.viewconfig = this.createLayout();
     }
 
     public canDeactivate() {
@@ -44,7 +41,13 @@ export class WorktypeDetailview {
     private getWagetypesObs(): Observable<WageType[]> {
         return this.wagetypes.length > 0
             ? Observable.of(this.wagetypes)
-            : this.wagetypeService.GetAll('');
+            : this.wagetypeService
+                .GetAll('')
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .map(wageTypes => {
+                this.wagetypes = wageTypes;
+                return wageTypes;
+            });
     }
 
     private createLayout(): IViewConfig {
@@ -87,10 +90,23 @@ export class WorktypeDetailview {
                 }),
                 createFormField('Price', 'Pris', ControlTypes.TextInput, undefined, false, 2, 'Priser'),
                 createFormField('WagetypeNumber', 'Lønnsart', ControlTypes.AutocompleteInput, undefined, false, 3, 'Time til lønn', {
-                    source: this.wagetypes,
+                    search: (query) => this.getWagetypesObs().map(wageTypes => {
+                        return wageTypes
+                            .filter(wt =>
+                                !query ||
+                                `${wt.WageTypeNumber}`.startsWith(query) ||
+                                `${wt.WageTypeName}`.includes(query));
+                    }),
                     template: (obj) => obj ? `${obj.WageTypeNumber} - ${obj.WageTypeName}` : '',
                     valueProperty: 'WageTypeNumber',
-                    debounceTime: 150
+                    debounceTime: 150,
+                    getDefaultData: () => this.getWagetypesObs().map(wageTypes => {
+                        const model: WorkType = this.genericDetail.current$.getValue();
+                        if (!model || !model.WagetypeNumber) {
+                            return Observable.of([]);
+                        }
+                        return Observable.of(wageTypes.filter(wt => wt.WageTypeNumber === model.WagetypeNumber));
+                    })
                 }),
             ],
         };
