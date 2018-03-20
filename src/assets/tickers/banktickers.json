@@ -7,6 +7,7 @@
         "IsTopLevelTicker": true,
         "Group": "Bank",
         "Model": "Payment",
+        "OrderBy":"PaymentDate desc",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
         "Columns": [
             {
@@ -33,6 +34,13 @@
                 "Field": "ToBankAccount.AccountNumber",
                 "Width": "15%",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Innbetalings Dato",
+                "Field": "PaymentDate",
+                "Width": "15%",
+                "FilterOperator": "eq",
+                "Type" :"localdate"
             },
             {
                 "Header": "KID",
