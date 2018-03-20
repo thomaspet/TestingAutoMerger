@@ -31,10 +31,15 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     }
 
     private load() {
-        let fields: UniFieldLayout[] = [];
+        const fields: UniFieldLayout[] = [];
         if (this.salaryTransaction$.getValue().Supplements) {
-            this.salaryTransaction$.getValue().Supplements
+            this.salaryTransaction$
+                .getValue()
+                .Supplements
                 .forEach((supplement: SalaryTransactionSupplement, index) => {
+                    if (supplement.Deleted) {
+                        return;
+                    }
                     if (!supplement.WageTypeSupplement && this.salaryTransaction$.getValue().Wagetype) {
                         supplement.WageTypeSupplement = this.salaryTransaction$.getValue()
                             .Wagetype
@@ -96,14 +101,14 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     }
 
     private getNewField(supplement: SalaryTransactionSupplement, type: FieldType, property: string): UniFieldLayout {
-        let config = this.options.modalConfig;
-        let field: UniFieldLayout = new UniFieldLayout();
+        const config = this.options.modalConfig;
+        const field: UniFieldLayout = new UniFieldLayout();
         field.EntityType = 'SalaryTransactionSupplement';
         field.Label = supplement.WageTypeSupplement.Name;
         field.FieldType = type;
         field.Property = property;
         field.LineBreak = true;
-        field.ReadOnly = config && config.readOnly;
+        field.ReadOnly = (field.Label.toLowerCase().trim().startsWith('antall')) || config && config.readOnly;
         return field;
     }
 }

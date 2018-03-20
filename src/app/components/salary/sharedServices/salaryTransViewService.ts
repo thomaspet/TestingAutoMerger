@@ -26,7 +26,7 @@ export class SalaryTransViewService {
             .setResizeable(false)
             .setCls('icon-column')
             .setOnCellClick((rowModel: SalaryTransaction) => {
-                if (!rowModel.Supplements || !rowModel.Supplements.length) {
+                if (!rowModel.Supplements || !rowModel.Supplements.filter(x => !x.Deleted).length) {
                     return;
                 }
 
@@ -34,7 +34,7 @@ export class SalaryTransViewService {
             })
             .setTemplate(row => '')
             .setTooltipResolver((row: SalaryTransaction) => {
-                if (!row.Supplements || !row.Supplements.length || this.isOnlyAmountField(row)) {
+                if (!row.Supplements || !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)) {
                     return;
                 }
 
@@ -58,7 +58,7 @@ export class SalaryTransViewService {
         }
 
     private isOnlyAmountField(row: SalaryTransaction) {
-        const supplement = row.Supplements[0];
+        const supplement = row.Supplements.filter(x => !x.Deleted)[0];
         const wtSupp = supplement.WageTypeSupplement
             || (row.Wagetype && row.Wagetype.SupplementaryInformations
                 ? row.Wagetype.SupplementaryInformations.find(x => x.ID === supplement.WageTypeSupplementID)
@@ -66,16 +66,16 @@ export class SalaryTransViewService {
         return row.Supplements.length === 1
             && wtSupp
             && wtSupp.ValueType === Valuetype.IsMoney
-            && wtSupp.Name.toLowerCase().trim() === 'antall';
+            && wtSupp.Name.toLowerCase().trim().startsWith('antall');
     }
 
     private generateSupplementsTitle(trans: SalaryTransaction, wtSupps: WageTypeSupplement[]): string {
         if (this.supplementService.anyUnfinished(trans.Supplements, wtSupps)) {
             return 'Tilleggsopplysninger mangler';
         }
-        let supplements = _.cloneDeep(trans.Supplements);
+        const supplements = _.cloneDeep(trans.Supplements);
         let title = ``;
-        let last = supplements.pop();
+        const last = supplements.pop();
         supplements
             .forEach(supp => title += this.getDisplayVal(supp, trans));
         title += this.getDisplayVal(last, trans);
@@ -88,7 +88,7 @@ export class SalaryTransViewService {
         if (!wtSupp && trans.Wagetype && trans.Wagetype.SupplementaryInformations) {
             wtSupp = trans.Wagetype.SupplementaryInformations.find(wt => wt.ID === supp.WageTypeSupplementID);
         }
-        let displayVal = this.supplementService.displaySupplement(supp, wtSupp);
+        const displayVal = this.supplementService.displaySupplement(supp, wtSupp);
         return !displayVal
             ? ''
             : `${displayVal}
