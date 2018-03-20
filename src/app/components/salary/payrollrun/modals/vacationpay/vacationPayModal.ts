@@ -174,14 +174,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             .take(1)
             .map(model => {
                 if (value['SixthWeek']) {
-                    this.vacationpayBasis.forEach((vacationPay: VacationPayLine) => {
-                        if (value['SixthWeek'].currentValue) {
-                            vacationPay['_IncludeSixthWeek'] = 'Ja';
-                        } else {
-                            vacationPay['_IncludeSixthWeek'] = 'Nei';
-                        }
-                        this.calcVacationPayAndUpdateWithdrawal(vacationPay, model);
-                    });
+                    this.calcAllWithdrawals(model);
                 }
 
                 if (value['PercentPayout']) {
@@ -238,8 +231,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                             x['_Rate'] = x.Rate;
                             x['_VacationPay'] = x.VacationPay;
                         }
-                        this.setVacationPay(x, x.VacationPay60);
-                        this.calcWithdrawal(x, vacationHeaderModel);
+                        this.recalcVacationPay(x, vacationHeaderModel);
                         return x;
                     });
                 }
@@ -256,17 +248,6 @@ export class VacationPayModal implements OnInit, IUniModal {
             return this.vacationBaseYear - birthYear >= 59;
         } else if (this.vacationBaseYear < this.currentYear) {
             return this.vacationBaseYear - birthYear >= 60;
-        }
-    }
-
-    private updateRow(row: VacationPayLine) {
-        if (this.empOver60(row) && row['_IncludeSixthWeek'] === 'Ja') {
-            row['_Rate'] = row.Rate60;
-            row['_VacationPay'] = row.VacationPay60;
-        } else {
-            row['_IncludeSixthWeek'] = 'Nei';
-            row['_Rate'] = row.Rate;
-            row['_VacationPay'] = row.VacationPay;
         }
     }
 
@@ -438,8 +419,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             .setChangeCallback((event) => {
                 const row: VacationPayLine = event.rowModel;
                 if (event.field === 'ManualVacationPayBase' || event.field === '_IncludeSixthWeek') {
-                    this.updateRow(row);
-                    this.calcVacationPayAndUpdateWithdrawal(row, this.vacationHeaderModel$.getValue());
+                    this.recalcVacationPay(row, this.vacationHeaderModel$.getValue());
                 }
                 if (event.field === 'Withdrawal') {
                     row['_rowSelected'] = true;
@@ -449,33 +429,23 @@ export class VacationPayModal implements OnInit, IUniModal {
             });
     }
 
-    private calcVacationPayAndUpdateWithdrawal(line: VacationPayLine, model: IVacationPayHeader) {
-        this.calcVacationPay(line);
-        this.calcWithdrawal(line, model);
-    }
-
     private calcAllWithdrawals(model: IVacationPayHeader) {
-        this.vacationpayBasis = this.vacationpayBasis.map(row => this.calcWithdrawal(row, model));
+        this.vacationpayBasis = this.vacationpayBasis.map(row => this.recalcVacationPay(row, model));
     }
 
-    private calcWithdrawal(rowModel: VacationPayLine, model: IVacationPayHeader): VacationPayLine {
-        const widthdrawal = (rowModel['_VacationPay'] - rowModel['PaidVacationPay']);
-        rowModel['Withdrawal'] = Math.round(widthdrawal * model.PercentPayout / 100);
-        return rowModel;
-    }
-
-    private calcVacationPay(rowModel: VacationPayLine) {
-        const vacBase = rowModel.ManualVacationPayBase + rowModel.SystemVacationPayBase;
-        this.setVacationPay(rowModel, Math.round(vacBase * rowModel['_Rate'] / 100));
-    }
-
-    private setVacationPay(row: VacationPayLine, vacationPay: number) {
-        row['_VacationPay'] = vacationPay;
-        if (this.empOver60(row)) {
-            row.VacationPay60 = vacationPay;
+    private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
+        if (model.SixthWeek && this.empOver60(row)) {
+            row['_IncludeSixthWeek'] = 'Ja';
+            row['_Rate'] = row['Rate60'];
         } else {
-            row.VacationPay = vacationPay;
+            row['_IncludeSixthWeek'] = 'Nei';
+            row['_Rate'] = row['Rate'];
         }
+        const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
+        row['_VacationPay'] = Math.round(vacBase * row['_Rate'] / 100);
+        const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
+        row['Withdrawal'] = Math.round(widthdrawal * model.PercentPayout / 100);
+        return row;
     }
 
     private getSaveactions(saveIsActive: boolean, createPaymentsActive: boolean): IUniSaveAction[] {
