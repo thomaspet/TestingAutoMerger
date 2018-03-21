@@ -165,6 +165,7 @@ export class CompanySettingsComponent implements OnInit {
     private quoteTemplate: CampaignTemplate;
 
     private hasBoughtEHF: boolean = false;
+    private hideXtraPaymentOrgXmlTagValue: boolean;
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
@@ -237,6 +238,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.currencyCodes = dataset[2];
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
+                this.hideXtraPaymentOrgXmlTagValue = !dataset[5].UseXtraPaymentOrgXmlTag;
                 this.municipalities = dataset[6];
                 this.emptyPhone = dataset[7];
                 this.emptyEmail = dataset[8];
@@ -269,7 +271,7 @@ export class CompanySettingsComponent implements OnInit {
                     orderTemplate: this.orderTemplate,
                     invoiceTemplate: this.invoiceTemplate,
                     quoteTemplate: this.quoteTemplate
-                })
+                });
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -478,6 +480,16 @@ export class CompanySettingsComponent implements OnInit {
             } else {
                 this.disableOrgnrInvoiceEmail();
             }
+        }
+
+        if (changes['UseXtraPaymentOrgXmlTag']) {
+            this.hideXtraPaymentOrgXmlTagValue = !changes['UseXtraPaymentOrgXmlTag'].currentValue;
+            this.fields$.next(this.fields$.getValue().map((item) => {
+                if (item.Property === 'XtraPaymentOrgXmlTagValue') {
+                    item.Hidden = this.hideXtraPaymentOrgXmlTagValue;
+                }
+                return item;
+            }));
         }
     }
 
@@ -1270,6 +1282,16 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'XtraPaymentOrgXmlTagValue',
+                FieldType: FieldType.TEXT,
+                Label: 'Divisjonskode DNB',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.hideXtraPaymentOrgXmlTagValue
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'BankChargeAccountID',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Konto for bankgebyr',
@@ -1459,7 +1481,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private logoFileChanged(files: Array<any>) {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
             // update logourl in company object
             company.LogoFileID = files[files.length - 1].ID;
@@ -1500,7 +1522,7 @@ export class CompanySettingsComponent implements OnInit {
             .onClose.subscribe((status) => {
                 if (status !== 0) {
                     this.companySettingsService.Get(1).subscribe(settings => {
-                        let company = this.company$.getValue();
+                        const company = this.company$.getValue();
                         company.BankAccounts = settings.BankAccounts;
                         company.CompanyBankAccount = settings.CompanyBankAccount;
                         this.company$.next(company);
