@@ -170,6 +170,7 @@ export class CompanySettingsComponent implements OnInit {
     private quoteTemplate: CampaignTemplate;
 
     private hasBoughtEHF: boolean = false;
+    private hideXtraPaymentOrgXmlTagValue: boolean;
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
@@ -244,6 +245,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.currencyCodes = dataset[2];
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
+                this.hideXtraPaymentOrgXmlTagValue = !dataset[5].UseXtraPaymentOrgXmlTag;
                 this.municipalities = dataset[6];
                 this.emptyPhone = dataset[7];
                 this.emptyEmail = dataset[8];
@@ -495,6 +497,16 @@ export class CompanySettingsComponent implements OnInit {
             company.DefaultTOFCurrencySettings = this.tofCurrencySettingsService
                 .setDefaultTOFCurrencySettings(company.DefaultTOFCurrencySettings, defaultTOFCurrencySettings);
             this.company$.next(company);
+        }
+
+        if (changes['UseXtraPaymentOrgXmlTag']) {
+            this.hideXtraPaymentOrgXmlTagValue = !changes['UseXtraPaymentOrgXmlTag'].currentValue;
+            this.fields$.next(this.fields$.getValue().map((item) => {
+                if (item.Property === 'XtraPaymentOrgXmlTagValue') {
+                    item.Hidden = this.hideXtraPaymentOrgXmlTagValue;
+                }
+                return item;
+            }));
         }
     }
 
@@ -1311,6 +1323,16 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'XtraPaymentOrgXmlTagValue',
+                FieldType: FieldType.TEXT,
+                Label: 'Divisjonskode DNB',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.hideXtraPaymentOrgXmlTagValue
             },
             {
                 EntityType: 'CompanySettings',

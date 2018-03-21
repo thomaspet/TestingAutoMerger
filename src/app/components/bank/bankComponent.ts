@@ -300,7 +300,7 @@ export class BankComponent implements AfterViewInit {
             this.actions.push({
                 label: 'Manuell betaling',
                 action: (done) => this.pay(done, true),
-                main: this.rows.length > 0,
+                main: this.rows.length > 0 && !this.agreements.length,
                 disabled: this.rows.length === 0
             });
 

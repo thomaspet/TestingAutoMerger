@@ -7,19 +7,29 @@ import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
 import {UniSearchWrapper} from '../controls/uniSearchWrapper';
 
+/*
+    Dont make changes to this unless you know what you're doing!
+    UniQuery uses the numerical values when saving configs,
+    on the backend, so altering these will cause the wrong
+    column types to be used in UniQuery...
+    <insert facepalm gif>
+
+    Adding stuff to the end of the enum is fine, just dont alter existing numbers.
+*/
 export enum UniTableColumnType {
     Text = 1,
     Number = 2,
     DateTime = 3,
     Lookup = 4,
-    Select = 5,
-    Money = 6,
-    Percent = 7,
-    LocalDate = 8,
-    Boolean = 9,
-    UniSearch = 10,
-    Typeahead = 11,
-    Link = 12
+    Custom = 5,
+    Select = 6,
+    Money = 7,
+    Percent = 8,
+    LocalDate = 9,
+    Boolean = 10,
+    UniSearch = 11,
+    Typeahead = 12,
+    Link = 13
 }
 
 export enum UniTableColumnSortMode {
