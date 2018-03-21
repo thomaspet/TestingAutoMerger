@@ -16,50 +16,35 @@ import {IUniModal, ConfirmActions} from '@uni-framework/uniModal/interfaces';
                 <object data="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" type="application/pdf">
                   alt : <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf">License.pdf</a>
                 </object>
-                <input #checkbox type="checkbox"><label #label>Godta</label>
+
+                <section class="uni-checkbox">
+                    <input type="checkbox" id="agreement-checkbox" [(ngModel)]="licenceAgreement" />
+                    <label for="agreement-checkbox">Godta lisensavtale</label>
+                </section>
+
             </article>
             <footer>
-                <button class="good" (click)="good()">Ok</button>
-                <button class="bad" (click)="bad()">Avbryt</button>
+                <button class="good" (click)="confirm()">Bekreft</button>
+                <button class="bad" (click)="reject()">Avbryt</button>
             </footer>
         </section>
     `
 })
 export class LicenseAgreementModal implements IUniModal {
-
     @Output() public onClose: EventEmitter<ConfirmActions> = new EventEmitter<ConfirmActions>();
 
-    @ViewChild('checkbox') public checkbox: ElementRef;
-    @ViewChild('label') public label: ElementRef;
+    public licenceAgreement: boolean = false;
 
-    public hasAcceptedLicense: boolean = false;
-
-
-    public ngOnInit() {
-        Observable
-            .fromEvent(this.label.nativeElement, 'click')
-            .subscribe(eventClick => this.toggleHasAcceptedLicense());
-    }
-
-    private toggleHasAcceptedLicense() {
-        if (this.hasAcceptedLicense) {
-            this.checkbox.nativeElement.removeAttribute('checked');
-        } else {
-            this.checkbox.nativeElement.setAttribute('checked', true);
-        }
-        this.hasAcceptedLicense = !this.hasAcceptedLicense;
-    }
-
-    public good() {
-        if (!this.hasAcceptedLicense) {
-            alert('Du må huke av for at du godtar lisensen før du kan gå videre.');
-        } else {
+    public confirm() {
+        if (this.licenceAgreement) {
             this.onClose.emit(ConfirmActions.ACCEPT);
+        } else {
+            window.alert('Du må godta avtalen før du kan gå videre');
         }
     }
 
-    public bad() {
-        const confirmed = confirm('Hvis du ikke godtar lisensen så blir du logget ut igjen.');
+    public reject() {
+        const confirmed = confirm('Hvis du ikke godtar lisensen blir du logget ut av applikasjonen.');
         if (confirmed) {
             this.onClose.emit(ConfirmActions.REJECT);
         }
