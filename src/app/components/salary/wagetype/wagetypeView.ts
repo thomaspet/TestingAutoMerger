@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
@@ -18,6 +18,7 @@ import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subscription} from 'rxjs/Subscription';
 
 const WAGETYPE_KEY = 'wagetype';
 
@@ -25,9 +26,10 @@ const WAGETYPE_KEY = 'wagetype';
     selector: 'uni-wagetype-view',
     templateUrl: './wageTypeView.html'
 })
-export class WageTypeView extends UniView {
+export class WageTypeView extends UniView implements OnDestroy {
     public busy: boolean;
     private url: string = '/salary/wagetypes/';
+    private subs: Subscription[] = [];
 
     private wagetypeID: number;
     private wageType: WageType;
@@ -60,12 +62,14 @@ export class WageTypeView extends UniView {
 
         this.saveActions = [{
             label: 'Lagre',
-            action: this.saveWageType.bind(this),
+            action: this.askAndSaveWageType.bind(this),
             main: true,
             disabled: true
         }];
 
-        this.route.params.subscribe((params) => {
+        this.subs = [
+            ...this.subs,
+            this.route.params.subscribe((params) => {
             this.wagetypeID = +params['id'];
             this.contextMenuItems$.next([{
                 label: 'Slett lønnsart',
@@ -103,7 +107,7 @@ export class WageTypeView extends UniView {
                 this.wageType = undefined;
             }
 
-        });
+        }),
 
         this.router.events.subscribe((event: any) => {
             if (event instanceof NavigationEnd) {
@@ -111,8 +115,13 @@ export class WageTypeView extends UniView {
                     this.getWageType();
                 }
             }
-        });
+        })
+    ];
 
+    }
+
+    public ngOnDestroy() {
+        this.subs.forEach(sub => sub.unsubscribe());
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -124,9 +133,15 @@ export class WageTypeView extends UniView {
                     : this.modalService
                         .openUnsavedChangesModal()
                         .onClose
+                        .switchMap(result => {
+                            if (result !== ConfirmActions.ACCEPT) {
+                                return Observable.of(result);
+                            }
+                            return this.promptUserAboutSaving(() => {});
+                        })
                         .map((action: ConfirmActions) => {
                             if (action === ConfirmActions.ACCEPT) {
-                                this.saveWageType((m) => {}, false);
+                                this.saveWageTypeObs(false).subscribe();
                                 return true;
                             } else {
                                 return action === ConfirmActions.REJECT;
@@ -141,47 +156,28 @@ export class WageTypeView extends UniView {
             });
     }
 
-    private updateTabStrip(wagetypeID, wageType: WageType) {
+    private updateTabStrip(wagetypeID, wageType: WageType, active: boolean = true) {
         if (wageType.WageTypeNumber) {
             this.tabService.addTab({
                 name: 'Lønnsartnr. ' + wageType.WageTypeNumber,
                 url: this.url + wageType.ID,
                 moduleID: UniModules.Wagetypes,
-                active: true
+                active: active
             });
         } else {
             this.tabService.addTab({
                 name: 'Ny lønnsart',
                 url: this.url + wagetypeID,
                 moduleID: UniModules.Wagetypes,
-                active: true
+                active: active
             });
         }
     }
 
-    private saveWageType(done: (message: string) => void, updateView: boolean = true) {
-        super.getStateSubject('wagetype')
-            .take(1)
-            .map(wt => this.wageTypeService.washWageType(wt))
-            .switchMap(wt => this.checkValidYearAndCreateNew(wt))
-            .map(wageType => {
-                if (wageType.WageTypeNumber === null) {
-                    wageType.WageTypeNumber = 0;
-                }
-
-                if (wageType.SupplementaryInformations) {
-                    wageType.SupplementaryInformations.forEach(supplement => {
-                        if (supplement['_setDelete']) {
-                            supplement['Deleted'] = true;
-                        }
-                    });
-                }
-
-                return wageType;
-            })
-            .switchMap(wageType => (wageType.ID > 0)
-                ? this.wageTypeService.Put(wageType.ID, wageType)
-                : this.wageTypeService.Post(wageType))
+    private askAndSaveWageType(done: (message: string) => void, updateView: boolean = true) {
+        this.promptUserAboutSaving(done)
+            .filter(result => result === ConfirmActions.ACCEPT)
+            .switchMap(() => this.saveWageTypeObs(updateView))
             .subscribe((wageType: WageType) => {
                 if (updateView) {
                     super.updateState('wagetype', wageType, false);
@@ -195,6 +191,63 @@ export class WageTypeView extends UniView {
                 done('Lagring feilet');
                 this.errorService.handle(error);
             });
+    }
+
+    private promptUserAboutSaving(done: (message: string) => void): Observable<ConfirmActions> {
+        return this.modalService
+        .confirm({
+            header: 'Bekreft lagring',
+            message: 'Åpne lønnsposter tilknyttet denne lønnsarten vil oppdateres. Ønsker du å lagre?',
+            buttonLabels: {
+                accept: 'Lagre',
+                cancel: 'Avbryt'
+            }
+        })
+        .onClose
+        .do(result => {
+            if (result === ConfirmActions.ACCEPT) {
+                return;
+            }
+            done('Lagring avbrutt');
+        });
+    }
+
+    private saveWageTypeObs(updateView: boolean): Observable<WageType> {
+        return super.getStateSubject('wagetype')
+        .take(1)
+        .map(wt => this.wageTypeService.washWageType(wt))
+        .switchMap(wt => this.checkValidYearAndCreateNew(wt))
+        .map(wageType => {
+            if (wageType.WageTypeNumber === null) {
+                wageType.WageTypeNumber = 0;
+            }
+
+            if (wageType.SupplementaryInformations) {
+                wageType.SupplementaryInformations.forEach(supplement => {
+                    if (supplement['_setDelete']) {
+                        supplement['Deleted'] = true;
+                    }
+                });
+            }
+
+            return wageType;
+        })
+        .switchMap(wageType => (wageType.ID > 0)
+            ? this.wageTypeService.Put(wageType.ID, wageType)
+            : this.wageTypeService.Post(wageType))
+        .do((wt: WageType) => {
+            if (updateView) {
+                return;
+            }
+
+            this.tabService
+                .activeTab$
+                .take(1)
+                .subscribe(tab => {
+                    this.updateTabStrip(wt.ID, wt, false);
+                    this.tabService.addTab(tab);
+                });
+        });
     }
 
     private checkValidYearAndCreateNew(wageType: WageType): Observable<WageType> {
