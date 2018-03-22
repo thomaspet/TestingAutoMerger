@@ -1053,23 +1053,28 @@ export class UniTable implements OnChanges {
     }
 
     public focusRow(originalIndex: number) {
-        setTimeout(() => {
-            if (!this.tableData || !this.tableData.size) {
-                return;
-            }
-
-            const firstVisibleCellIndex = this.tableColumns.findIndex(col  => {
-                return col.get('visible');
-            });
-
-            const index = this.tableData.findIndex(row => row.get('_originalIndex') === originalIndex);
-            const rows = this.tbody.nativeElement.rows;
-            if (rows && index < rows.length) {
-                if (firstVisibleCellIndex >= 0) {
-                    rows[index].cells[firstVisibleCellIndex].focus();
+        if (originalIndex >= 0) {
+            setTimeout(() => {
+                if (!this.tableData || !this.tableData.size) {
+                    return;
                 }
-            }
-        });
+
+                try {
+                    const firstVisibleCellIndex = this.tableColumns.findIndex(col  => {
+                        return col.get('visible');
+                    });
+
+                    const index = this.tableData.findIndex(r => r.get('_originalIndex') === originalIndex);
+                    const rows = this.tbody.nativeElement.rows;
+                    const cell = rows[index].cells[firstVisibleCellIndex];
+                    cell.focus();
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+        } else {
+            console.error('You just called focusRow(undefined) on the table, fix please!');
+        }
     }
 
     public blur() {
