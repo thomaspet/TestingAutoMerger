@@ -87,6 +87,10 @@ export class SubCompanyComponent implements OnInit {
             this.activated = true;
             this.getLicenseCustomers();
             this.onParentCustomerChange(this.customer.getValue());
+        } else {
+            if (this.candidates.length === 0) {
+                this.getLicenseCustomers();
+            }
         }
     }
 
@@ -186,15 +190,15 @@ export class SubCompanyComponent implements OnInit {
             Name: 'SubCompany',
             BaseEntity: 'SubCompany',
             Fields: [
-                { FieldSet: 1, Property: '_licenseCompany',
-                    FieldType: FieldType.DROPDOWN, Label: 'Lisens', Section: 0, ReadOnly: true, Options:  {
+                { FieldSet: 1, Legend: 'Kobling mot underselskap', Property: '_licenseCompany',
+                    FieldType: FieldType.DROPDOWN, Label: 'Oppslag', Section: 0, ReadOnly: true, Options:  {
                         source: [],
                         valueProperty: 'id',
                         template: item => `${item.companyName} (${item.contractType})`,
                         hideDeleteButton: false
                     }
                  },
-                { FieldSet: 1, Legend: 'Underselskap', Property: 'CompanyName',
+                { FieldSet: 1, Property: 'CompanyName',
                     FieldType: FieldType.TEXT, Label: 'Navn', Section: 0 },
                 { FieldSet: 1, Property: 'CompanyKey',
                     FieldType: FieldType.TEXT, Label: 'Nøkkel', Section: 0 },
@@ -276,6 +280,7 @@ export class SubCompanyComponent implements OnInit {
 
     private attachLicense(value: ISubCompany) {
         const match = this.candidates.find( x => x.companyKey === value.CompanyKey);
+        value.CompanyType = value.CompanyType || 1;
         value['_licenseCompany'] = match ? match.id : undefined;
     }
 }

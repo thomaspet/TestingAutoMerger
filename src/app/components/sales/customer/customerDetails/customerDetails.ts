@@ -1131,12 +1131,12 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     FieldSet: 6,
-                    Sectionheader: 'Bank',
+                    Legend: 'Bank',
                     Section: 0,
                     EntityType: 'Customer',
                     Property: 'Info.BankAccounts',
                     FieldType: FieldType.MULTIVALUE,
-                    Label: 'Bankkonto',
+                    Label: 'Bankkonto'
                 },
             ]
         };
@@ -1154,7 +1154,6 @@ export class CustomerDetails implements OnInit {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = 'customer';
-                    // bankaccount.BusinessRelationID = this.getCurrentSupplier().BusinessRelationID;
                     bankaccount.ID = 0;
                 }
                 const modal = this.modalService.open(UniBankAccountModal, {
