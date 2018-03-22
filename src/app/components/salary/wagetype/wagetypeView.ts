@@ -185,7 +185,7 @@ export class WageTypeView extends UniView {
             .subscribe((wageType: WageType) => {
                 if (updateView) {
                     super.updateState('wagetype', wageType, false);
-                    let childRoute = this.router.url.split('/').pop();
+                    const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute);
                     done('lagring fullført');
                     this.saveActions[0].disabled = true;
@@ -256,7 +256,7 @@ export class WageTypeView extends UniView {
                     .subscribe((prev: WageType) => {
                         if (prev) {
                             this.wageType = prev;
-                            let childRoute = this.router.url.split('/').pop();
+                            const childRoute = this.router.url.split('/').pop();
                             this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
                         }
                     }, err => this.errorService.handle(err));
@@ -272,7 +272,7 @@ export class WageTypeView extends UniView {
                     .subscribe((next: WageType) => {
                         if (next) {
                             this.wageType = next;
-                            let childRoute = this.router.url.split('/').pop();
+                            const childRoute = this.router.url.split('/').pop();
                             this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
                         }
                     }, err => this.errorService.handle(err));
@@ -289,7 +289,7 @@ export class WageTypeView extends UniView {
                         if (this.wageType.ID === 0) {
                             this.setDefaultValues();
                         }
-                        let childRoute = this.router.url.split('/').pop();
+                        const childRoute = this.router.url.split('/').pop();
                         this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
                     }
                 }, err => this.errorService.handle(err));

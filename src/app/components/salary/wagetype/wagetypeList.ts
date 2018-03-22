@@ -45,11 +45,7 @@ export class WagetypeList implements OnInit {
     public ngOnInit() {
         this._wageTypeService.invalidateCache();
         this.busy = true;
-        this.wageTypes$ =
-        this._wageTypeService
-            .GetAll('orderBy=WageTypeNumber ASC')
-            .finally(() => this.busy = false)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        this.getWagetypes();
 
         const idCol = new UniTableColumn('WageTypeNumber', 'Nr', UniTableColumnType.Number);
         idCol.setWidth('5rem');
@@ -70,6 +66,13 @@ export class WagetypeList implements OnInit {
             .setSearchable(true);
     }
 
+    private getWagetypes() {
+        this.wageTypes$ = this._wageTypeService
+            .GetAll('orderBy=WageTypeNumber ASC')
+            .finally(() => this.busy = false)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
     public rowSelected(event) {
         this._router.navigateByUrl('/salary/wagetypes/' + event.rowModel.ID);
     }
@@ -79,7 +82,10 @@ export class WagetypeList implements OnInit {
     }
 
     public syncWagetypes() {
+        this.busy = true;
+        this._wageTypeService.invalidateCache();
         this._wageTypeService.syncWagetypes()
+            .do(() => this.getWagetypes())
             .subscribe((response) => {
                 this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
             });
