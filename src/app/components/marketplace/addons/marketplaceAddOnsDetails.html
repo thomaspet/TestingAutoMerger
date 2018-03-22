@@ -37,14 +37,14 @@
                     <button (click)="buy(product)">Kjøp nå</button>
                 </section>
                 <section *ngIf="(hasBoughtProduct$ | async)" class="has-bought-section">
-                    <section class="has-bought-header">Du har allerede kjøpt {{product.label}}</section>
+                    <section class="has-bought-header">Du har kjøpt {{product.label}}</section>
                     <section *ngIf="!(canActivate$ | async)" class="checkmark_thingy">
                         Abonnert <i class="material-icons">check circle</i>
                     </section>
                     <section *ngIf="(canActivate$ | async)" class="checkmark_thingy" (click)="activate(product)">
                         Aktiver <i class="material-icons">circle</i>
                     </section>
-                    <section class="number_of_users"><a href="#/settings/company">
+                    <section class="number_of_users"><a href="#/settings/users">
                         {{numberOfUsersForProduct$ | async}} brukere</a>
                     </section>
                 </section>
