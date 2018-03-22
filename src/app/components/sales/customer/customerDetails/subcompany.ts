@@ -176,7 +176,7 @@ export class SubCompanyComponent implements OnInit {
     }
 
     private ElsaGet(route: string, params?: any): Observable<any> {
-        return this.http.asGET().usingAdminDomain()
+        return this.http.asGET().usingElsaDomain()
         .withEndPoint(route).send(params)
         .map(response => response.json());
     }
