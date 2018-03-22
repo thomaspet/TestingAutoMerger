@@ -186,7 +186,6 @@ export class BankComponent implements AfterViewInit {
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
         private elsaPurchasesService: ElsaPurchasesService
-        
     ) {
         this.updateTab();
         this.checkAutobankAccess();

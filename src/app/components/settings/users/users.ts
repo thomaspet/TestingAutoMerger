@@ -5,7 +5,13 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {RoleService, ErrorService, UserService} from '../../../services/services';
+import {
+    RoleService,
+    ErrorService,
+    UserService,
+    ElsaProductService,
+    ElsaPurchasesService
+} from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '@uni-framework/uniModal/modalService';
@@ -38,6 +44,7 @@ export class Users {
     private selectedIndex: number = 0;
     private userTableConfig: UniTableConfig;
     private roleTableConfig: UniTableConfig;
+    private hasAutobankProduct: boolean = false;
 
     private formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
     private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -54,10 +61,13 @@ export class Users {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private browserStorage: BrowserStorageService,
-        private toast: ToastService
+        private toast: ToastService,
+        private elsaProductService: ElsaProductService,
+        private elsaPurchasesService: ElsaPurchasesService
     ) {
         this.initTableConfigs();
         this.initFormConfigs();
+        this.checkAutobankAccess();
 
         this.newUserForm = new FormGroup({
             Email: new FormControl('', this.isInvalidEmail)
@@ -140,6 +150,27 @@ export class Users {
         this.selectedUser = this.formModel$.getValue();
     }
 
+    // Copied from bankComponent.ts - line 252
+    private checkAutobankAccess() {
+        // Replace purchases getAll with filtered request when filtering works..
+        Observable.forkJoin(
+            this.elsaProductService.GetAll(),
+            this.elsaPurchasesService.GetAll()
+        ).subscribe(
+            res => {
+                const [products, purchases] = res;
+
+                // TODO: fix this check when we know what to look for..
+                const autobank = products && products.find(product => {
+                    return product.name && product.name.toLowerCase() === 'autobank';
+                });
+
+                this.hasAutobankProduct = autobank && purchases.some(purchase => purchase.productID === autobank.id);
+            },
+            err => console.error(err)
+        );
+    }
+
      private initTableConfigs() {
         const contextMenuItems: IContextMenuItem[] = [
             {
@@ -206,7 +237,7 @@ export class Users {
                         this.registerBankUser(user);
                     }
                 },
-                disabled: (user: User) => !!user.BankIntegrationUserName
+                disabled: (user: User) => !!user.BankIntegrationUserName || !this.hasAutobankProduct
             }
         ];
 
