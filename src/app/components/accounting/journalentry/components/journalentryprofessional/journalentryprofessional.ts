@@ -262,16 +262,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         this.journalEntryLines = data;
         setTimeout(() => {
-            if (this.table) {
-                this.table.blur();
-                this.table.focusRow(this.currentRowIndex);
-            } else {
-                setTimeout(() => {
-                    if (this.table) {
-                        this.table.blur();
-                        this.table.focusRow(this.currentRowIndex);
-                    }
-                }, 500);
+            if (this.currentRowIndex >= 0) {
+                if (this.table) {
+                    this.table.blur();
+                    this.table.focusRow(this.currentRowIndex);
+                } else {
+                    setTimeout(() => {
+                        if (this.table) {
+                            this.table.blur();
+                            this.table.focusRow(this.currentRowIndex);
+                        }
+                    }, 500);
+                }
             }
 
             // when the journalEntryLines changes, we need to update the sameornew alternatives,
