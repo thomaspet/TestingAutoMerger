@@ -35,7 +35,7 @@ export class AdminCompanyLicensesService {
     public Get(id: number): Observable<CompanyLicense> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/CompanyLicense/${id}`)
             .send()
             .map(req => req.json());
@@ -44,7 +44,7 @@ export class AdminCompanyLicensesService {
     public GetAll(): Observable<CompanyLicense[]> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint('/api/CompanyLicense')
             .send()
             .map(req => req.json());
@@ -53,7 +53,7 @@ export class AdminCompanyLicensesService {
     public PurchasesForUserLicense(companyKey: string): Observable<UserLicensePurchase[]> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/CompanyLicenses/${companyKey}/purchasesForUserLicenseByCompanyKey`)
             .send()
             .map(req => req.json());

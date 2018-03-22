@@ -7,7 +7,7 @@ export const environment = {
     BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no/',
     UNI_PUSH_ADAPTER_URL: 'https://pilotapi-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://pilot-unijobserver.unieconomy.no/api/',
-    ADMIN_SERVER_URL: 'https://admin.unieconomy.no',
+    ELSA_SERVER_URL: 'https://admin.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',

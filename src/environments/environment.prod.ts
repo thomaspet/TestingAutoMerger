@@ -7,7 +7,7 @@ export const environment = {
     BASE_URL_FILES: 'https://files.unieconomy.no/',
     UNI_PUSH_ADAPTER_URL: 'https://pushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://jobserver.unieconomy.no/api/',
-    ADMIN_SERVER_URL: 'https://elsa.unieconomy.no',
+    ELSA_SERVER_URL: 'https://elsa.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',

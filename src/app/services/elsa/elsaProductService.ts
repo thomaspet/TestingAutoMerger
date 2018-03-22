@@ -35,7 +35,7 @@ export class ElsaProductService {
     public Get(id: number): Observable<ElsaProduct> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/products/${id}`)
             .send();
     }
@@ -43,7 +43,7 @@ export class ElsaProductService {
     public GetAll(): Observable<ElsaProduct[]> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint('/api/products')
             .send()
             .map(req => req.json())
@@ -53,7 +53,7 @@ export class ElsaProductService {
     public FindProductByName(name: string): Observable<ElsaProduct> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint('/api/products')
             .send()
             .map(req => req.json())
@@ -88,7 +88,7 @@ export class ElsaProductService {
     public PurchaseProduct(product: ElsaProduct): Observable<boolean> {
         return this.uniHttp
             .asPOST()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/products/${product.id}/purchase`)
             .send()
             .map(() => true)
@@ -98,7 +98,7 @@ export class ElsaProductService {
     public UnpurchaseProduct(product: ElsaProduct): Observable<boolean> {
         return this.uniHttp
             .asDELETE()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/purchases/${product.id}`)
             .send()
             .map(() => true)

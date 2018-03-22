@@ -12,7 +12,7 @@ export const environment = {
   BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
   UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
   UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
-  ADMIN_SERVER_URL: 'https://dev-elsa.azurewebsites.net',
+  ELSA_SERVER_URL: 'https://dev-elsa.azurewebsites.net',
 
   API_DOMAINS: {
       INIT: '/api/init/',

@@ -22,7 +22,7 @@ export class ElsaPurchasesService {
     public Get(id: number): Observable<ElsaPurchase> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint(`/api/purchases/${id}`)
             .send()
             .map(response => response.json());
@@ -31,7 +31,7 @@ export class ElsaPurchasesService {
     public GetAll(): Observable<ElsaPurchase[]> {
         return this.uniHttp
             .asGET()
-            .usingAdminDomain()
+            .usingElsaDomain()
             .withEndPoint('/api/purchases')
             .send()
             .map(response => response.json());

@@ -128,8 +128,8 @@ export class UniHttp {
         return this;
     }
 
-    public usingAdminDomain() {
-        this.baseUrl = environment.ADMIN_SERVER_URL;
+    public usingElsaDomain() {
+        this.baseUrl = environment.ELSA_SERVER_URL;
         this.apiDomain = '';
         return this;
     }
