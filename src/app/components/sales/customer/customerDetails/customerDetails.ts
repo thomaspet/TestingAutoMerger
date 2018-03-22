@@ -16,7 +16,8 @@ import {
     Terms,
     NumberSeries,
     Seller,
-    SellerLink
+    SellerLink,
+    BankAccount
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -42,16 +43,19 @@ import {
     UniSearchCustomerConfig,
     NumberSeriesService,
     SellerLinkService,
-    SellerService
+    SellerService,
+    BankAccountService
 } from '../../../../services/services';
 import {
     UniModalService,
     UniAddressModal,
     UniEmailModal,
     UniPhoneModal,
-    ConfirmActions
+    ConfirmActions,
+    UniBankAccountModal
 } from '../../../../../framework/uniModal/barrel';
 import {UniHttp} from '../../../../../framework/core/http/http';
+import {SubCompanyComponent} from './subcompany';
 
 @Component({
     selector: 'customer-details',
@@ -63,6 +67,7 @@ export class CustomerDetails implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
+    @ViewChild(SubCompanyComponent) private subCompany: SubCompanyComponent;
 
     private customerID: any;
     private allowSearchCustomer: boolean = true;
@@ -171,6 +176,8 @@ export class CustomerDetails implements OnInit {
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Dimensions',
+        'Info.DefaultBankAccount',
+        'Info.BankAccounts.Bank',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
         'Info.Contacts.Info',
@@ -219,7 +226,8 @@ export class CustomerDetails implements OnInit {
         private termsService: TermsService,
         private numberSeriesService: NumberSeriesService,
         private sellerLinkService: SellerLinkService,
-        private sellerService: SellerService
+        private sellerService: SellerService,
+        private bankaccountService: BankAccountService
     ) {}
 
     public ngOnInit() {
@@ -282,6 +290,12 @@ export class CustomerDetails implements OnInit {
                 },
                 err => this.errorService.handle(err)
             );
+    }
+
+    public onSubCompanyChange(event) {
+        this.isDirty = true;
+        this.isDisabled = false;
+        this.setupSaveActions();
     }
 
     public addCustomer() {
@@ -351,6 +365,9 @@ export class CustomerDetails implements OnInit {
         } else {
             this.activeTab = tab;
             this.showReportWithID = reportid;
+            if (this.activeTab === 'subcompany') {
+                this.subCompany.activate();
+            }
         }
     }
 
@@ -799,6 +816,7 @@ export class CustomerDetails implements OnInit {
                                 .subscribe(retrievedCustomer => {
                                     this.setMainContact(retrievedCustomer);
                                     this.customer$.next(retrievedCustomer);
+                                    this.subCompany.refresh();
                                     this.setTabTitle();
                                 });
                         }
@@ -831,6 +849,7 @@ export class CustomerDetails implements OnInit {
     }
 
     private emailValidation(value: any, field: UniFieldLayout): UniFormError | null {
+        // tslint:disable-next-line:max-line-length
         const validEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
         if (!validEmail.test(value)) {
             return {
@@ -946,7 +965,7 @@ export class CustomerDetails implements OnInit {
 
     // TODO: remove later on when backend is fixed - Info.InvoiceAddress vs InvoiceAddress
     private getComponentLayout(): any {
-        return {
+        const layout = {
             Name: 'Customer',
             BaseEntity: 'Customer',
             Fields: [
@@ -1110,21 +1129,44 @@ export class CustomerDetails implements OnInit {
                     Label: 'GLN-nummer',
                     FieldType: FieldType.TEXT
                 },
-
-                // Hidden field
                 {
+                    FieldSet: 6,
+                    Sectionheader: 'Bank',
+                    Section: 0,
                     EntityType: 'Customer',
-                    Property: 'DefaultBankAccountID',
-                    Hidden: true, // false, // TODO: > 30.6
-                    FieldType: FieldType.DROPDOWN,
+                    Property: 'Info.BankAccounts',
+                    FieldType: FieldType.MULTIVALUE,
                     Label: 'Bankkonto',
-                    FieldSet: 0,
-                    Section: 0, // 3, // TODO: > 30.6
-                    Sectionheader: 'Konto & bank',
-                    Legend: 'Konto & bank',
-                }
+                },
             ]
         };
+
+        const field: any = layout.Fields.find(x => x.Property === 'Info.BankAccounts');
+        field.Options = {
+            entity: BankAccount,
+            listProperty: 'Info.BankAccounts',
+            displayValue: 'AccountNumber',
+            linkProperty: 'ID',
+            storeResultInProperty: 'Info.DefaultBankAccount',
+            storeIdInProperty: 'Info.DefaultBankAccountID',
+            editor: (bankaccount: BankAccount) => {
+                if ((bankaccount && !bankaccount.ID) || !bankaccount) {
+                    bankaccount = bankaccount || new BankAccount();
+                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                    bankaccount.BankAccountType = 'customer';
+                    // bankaccount.BusinessRelationID = this.getCurrentSupplier().BusinessRelationID;
+                    bankaccount.ID = 0;
+                }
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount
+                });
+
+                return modal.onClose.take(1).toPromise();
+            }
+        };
+
+        return layout;
+
     }
 
 }

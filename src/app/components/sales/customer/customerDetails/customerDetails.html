@@ -43,6 +43,12 @@
                         (click)="showTab('report', link.id)"
                 >{{link.name}}</a>
             </li>
+            <li>
+                <a [class]="activeTab === 'subcompany' ? 'router-link-active' : ''"
+                   (click)="showTab('subcompany')">
+                    Selskap
+                </a>                
+            </li>
         </ul>
     </div>
 
@@ -103,6 +109,11 @@
                 [projectID]="(customer$ | async)?.Dimensions?.ProjectID || 0">
         </uni-query-read-only>
     </div>
+
+    <subcompanycomponent [hidden]="activeTab !== 'subcompany'" [customer]="customer$" (change)="onSubCompanyChange($event)" >
+
+    </subcompanycomponent>
+
 </section>
 
 <uni-save *ngIf="modalMode" [actions]="saveactions" class="fixed-position uni_save_modal_mode"></uni-save>

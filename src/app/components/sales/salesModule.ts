@@ -53,6 +53,7 @@ import {SellerLinks} from './sellers/sellerLinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
+import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 
 @NgModule({
     imports: [
@@ -79,6 +80,7 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
         CustomerDetails,
         CustomerProductsSold,
         CustomerList,
+        SubCompanyComponent,
 
         TofHead,
         TofCustomerCard,
