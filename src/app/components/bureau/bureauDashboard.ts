@@ -88,7 +88,7 @@ export class BureauDashboard {
         this.allTags = this.generateAllTags(this.companyTags);
         this.authService.authentication$
             .asObservable()
-            .filter(auth => auth.user)
+            .filter(auth => !!auth.user)
             .map(auth => auth.user.License.Company.Agency.Name)
             .subscribe(name => this.toolbarConfig.title = 'Mine selskaper' + (name ? ` - ${name}` : '') );
 
