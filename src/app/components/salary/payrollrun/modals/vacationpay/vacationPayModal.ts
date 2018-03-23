@@ -434,17 +434,24 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
+        const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
+        const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
             row['_Rate'] = row['Rate60'];
+            if (vacBase > limitBasicAmount) {
+                row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
+                + limitBasicAmount * this.companysalary['_Rate60'] / 100;
+            } else {
+                row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate60'] / 100;
+            }
         } else {
             row['_IncludeSixthWeek'] = 'Nei';
             row['_Rate'] = row['Rate'];
+            row['_VacationPay'] = row['VacationPay'] = vacBase * row['_Rate'] / 100;
         }
-        const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
-        row['_VacationPay'] = Math.round(vacBase * row['_Rate'] / 100);
         const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
-        row['Withdrawal'] = Math.round(widthdrawal * model.PercentPayout / 100);
+        row['Withdrawal'] = widthdrawal * model.PercentPayout / 100;
         return row;
     }
 
