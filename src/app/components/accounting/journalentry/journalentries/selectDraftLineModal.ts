@@ -58,9 +58,9 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
 
     private generateUniTableConfig() {
         const columns = [
-            new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.LocalDate),
+            new UniTableColumn('MinJournalEntryCreatedAt', 'Opprettet', UniTableColumnType.LocalDate),
             new UniTableColumn('userDisplayName', 'Utført av', UniTableColumnType.Text),
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+            new UniTableColumn('JournalEntryDescription', 'Beskrivelse', UniTableColumnType.Text),
         ];
 
         const contextMenuItem: IContextMenuItem[] = [
@@ -79,7 +79,9 @@ export class SelectDraftLineModal implements IUniModal, OnInit {
 
     private deleteLine(line) {
         this.unitable.removeRow(line._originalIndex);
-        this.journalEntryService.Remove(line.ID, line).subscribe();
+
+        this.journalEntryService.deleteJournalEntryDraftGroup(line.JournalEntryDraftGroup)
+            .subscribe(() => { });
     }
 
     close(data?: any) {

@@ -25,7 +25,8 @@ declare const _;
         <section role="dialog" class="uni-modal" style="width: 60vw">
             <header><h1>{{options?.data.title}}</h1></header>
             <article>
-                <section class="accrual-periods">
+                <section class="accrual-periods"
+                    *ngIf="modalConfig && modalConfig.model && modalConfig?.model['_periodYears'] && currentFinancialYearPeriods">
                     <table cols=4>
                         <tr>
                             <th></th>
@@ -244,12 +245,13 @@ export class AccrualModal implements IUniModal {
                 accrual.AccrualAmount = accrualAmount;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] = new Array<string>();
+
                 // set this value to the id of the object in getAccrualPeriodsOptions
                 // array to change default period value
                 if (accrualStartDate) {
+                    accrual['_financialDate'] = accrualStartDate;
                     accrual.Periods =
                         this.getDefaultPeriods(accrualAmount, accrualStartDate.year, accrualStartDate.month + 1);
-                    accrual['_financialDate'] = accrualStartDate;
                     accrual['_periodYears'] =
                         [accrualStartDate.year, accrualStartDate.year + 1, accrualStartDate.year + 2];
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
@@ -258,6 +260,7 @@ export class AccrualModal implements IUniModal {
             } else {
                 accrual.AccrualAmount = journalEntryLineDraft.Amount;
                 let startYear: number = journalEntryLineDraft.FinancialDate.year;
+
                 let startPeriod: number = journalEntryLineDraft.FinancialDate.month;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] =  new Array<string>();
@@ -286,6 +289,17 @@ export class AccrualModal implements IUniModal {
                     accrual['_periodYears'] = [accrual.JournalEntryLineDraft.FinancialDate.year,
                         accrual.JournalEntryLineDraft.FinancialDate.month,
                         accrual.JournalEntryLineDraft.FinancialDate.year + 2];
+                } else if (journalEntryLineDraft && journalEntryLineDraft.FinancialDate) {
+                    let startYear: number = journalEntryLineDraft.FinancialDate.year;
+                    accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
+                    accrual['_financialDate'] = journalEntryLineDraft.FinancialDate;
+                    accrual['_numberOfPeriods'] = accrual.Periods.length;
+                    accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
+                } else if (accrualStartDate) {
+                    let startYear: number = accrual.Periods[0].AccountYear;
+                    accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
+                    accrual['_financialDate'] = accrualStartDate;
+                    accrual['_numberOfPeriods'] = accrual.Periods.length;
                 } else {
                     if (accrual.ID) {
                         this.toastService.addToast('Periodisering',
@@ -310,8 +324,9 @@ export class AccrualModal implements IUniModal {
                     .subscribe(periods => {
                         this.currentFinancialYearPeriods = periods;
                         this.setupForm();
+
                         if (this.modalConfig.model) {
-                            this.checkboxEnabledState = this.isAccrualSaved();
+                            this.checkboxEnabledState = this.isAccrualAccrued();
                             this.setAccrualPeriodBasedOnAccrual();
                             this.changeRecalculatePeriods();
                         }
@@ -337,22 +352,21 @@ export class AccrualModal implements IUniModal {
         this.setAccountingLockedPeriods();
 
         let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
-        accrualJEMode.ReadOnly = this.isAccrualSaved();
+        accrualJEMode.ReadOnly = this.isAccrualAccrued();
         accrualJEMode.Options = {
             source: this.modalConfig.modelJournalEntryModes,
             valueProperty: 'ID',
             displayProperty: 'Name'
         };
 
-
         this.model$.next(this.modalConfig.model);
 
-        if (this.isAccrualSaved()) {
+        if (this.isAccrualAccrued()) {
             this.toastService.addToast(
                 'Periodisering',
                 ToastType.warn,
                 8,
-                'Denne periodiseringen er allerede lagret, og kan ikke redigere ytterligere'
+                'Denne periodiseringen er allerede periodisert, og kan ikke redigere ytterligere'
             );
         }
         this.fields$.next(fields);
@@ -408,17 +422,19 @@ export class AccrualModal implements IUniModal {
         this.allCheckBoxEnabledValues = enablingValues;
     }
 
-    private isAccrualSaved(): boolean {
-        let isSaved = false;
-        if (this.modalConfig.model.ID && this.modalConfig.model.ID > 0) {
-            isSaved = true;
+    private isAccrualAccrued(): boolean {
+        let isAccrued = false;
+        // should probably check status here, but that does not seem to be updated. However the
+        // JournalEntryLineDraftID is set when accrual is run
+        if (this.modalConfig.model.JournalEntryLineDraftID && this.modalConfig.model.JournalEntryLineDraftID > 0) {
+            isAccrued = true;
         }
-        return isSaved;
+        return isAccrued;
     }
 
     private setAccrualPeriods(periodNo: number, yearNumber: number): void {
 
-        if (this.isAccrualSaved()) {
+        if (this.isAccrualAccrued()) {
             return;
         }
 
@@ -430,7 +446,6 @@ export class AccrualModal implements IUniModal {
             let yearCounter: number = yearNumber;
             let counter: number = periodNo - 1;
             let maxYear: number = 3;
-
 
             while ( overAllCounter < this.numberOfPeriods && yearCounter <= maxYear ) {
 
@@ -476,7 +491,7 @@ export class AccrualModal implements IUniModal {
 
     private reSelectCheckBoxes(): void {
 
-        if (this.isAccrualSaved()) {
+        if (this.isAccrualAccrued()) {
             return;
         }
 

@@ -340,6 +340,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
         }
 
+        if (newRow.JournalEntryID && newRow.JournalEntryID !== 0) {
+            // if journalentryno was changed for an existing journalentry (saved as a draft),
+            // we need to clear the JournalEntryID if any other items use the same JournalEntryID
+            if (data.filter(x => x.JournalEntryID === newRow.JournalEntryID && x._originalIndex !== newRow['_originalIndex']).length > 0) {
+                newRow.JournalEntryID = null;
+            }
+        }
+
+        if (newRow.JournalEntryNo && newRow.JournalEntryNo !== '') {
+            // check if we have another row with the same JournalEntryNo - if so, get the JournalEntryID from
+            // that row and update it on the current row
+            var otherJournalEntryData = data.filter(x => x.JournalEntryNo === newRow.JournalEntryNo && x.JournalEntryID && x._originalIndex !== newRow['_originalIndex']);
+            if (otherJournalEntryData.length > 0) {
+                newRow.JournalEntryID = otherJournalEntryData[0].JournalEntryID;
+            }
+        }
+
         newRow.SameOrNew = newRow.JournalEntryNo;
         newRow.SameOrNewDetails = {ID: newRow.JournalEntryNo, Name: newRow.JournalEntryNo};
         newRow.NumberSeriesTaskID = this.selectedNumberSeriesTaskID;
@@ -1904,13 +1921,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             if (item.JournalEntryDataAccrual) {
                 const data = {
                     accrualAmount: null,
-                    accrualStartDate: null,
+                    accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
                     accrual: item.JournalEntryDataAccrual,
                     title: title
                 };
                 this.openAccrualModal(data, item);
-
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
                 const data = {
                     accrualAmount: item['NetAmountCurrency'],
@@ -2140,7 +2156,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return br;
     }
 
-    private setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
+    public setupJournalEntryNumbers(doUpdateExistingLines: boolean): Promise<any> {
         if (!this.currentFinancialYear) {
             return Promise.resolve();
         }
@@ -2167,7 +2183,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             // Check if readonly rows contains one or more lines with the wrong numberseries
                             const shouldUpdateData = editableRows.some(
                                 row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
-                                row.NumberseriessID !== this.selectedNumberSeries.ID
+                                row.NumberseriesID !== this.selectedNumberSeries.ID
                             );
                             if (shouldUpdateData) {
                                 const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
@@ -2273,20 +2289,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
-    public postJournalEntryData(completeCallback, saveAsDraft?: boolean, id?: number) {
+    public saveJournalEntryDrafts(completeCallback) {
         const tableData = this.table.getTableData();
-        tableData.forEach(data => {
-            data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
-        });
 
-        if (saveAsDraft) {
-            this.modalService.open(DraftLineDescriptionModal)
+        this.modalService.open(DraftLineDescriptionModal)
                 .onClose
                 .subscribe((text: string) => {
                     if (text === null) {
                         return completeCallback('');
                     }
-                    this.journalEntryService.postJournalEntryData(tableData, saveAsDraft, id, text)
+                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
 
@@ -2296,54 +2308,63 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.dataChanged.emit(this.journalEntryLines);
                         },
                         err => {
-                            completeCallback('Feil ved lagring av kladd');
+                            // use empty parameter so the parent knows something went wrong
+                            completeCallback('');
                             this.errorService.handle(err);
                         }
                     );
                 });
-        } else {
-            this.journalEntryService.postJournalEntryData(tableData)
-                .subscribe(data => {
-                    const firstJournalEntry = data[0];
-                    const lastJournalEntry = data[data.length - 1];
+    }
 
-                    // Validate if journalEntry number has changed
-                    const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
+    public postJournalEntryData(completeCallback, id?: number) {
+        const tableData = this.table.getTableData();
 
-                    if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
-                        lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
-                        this.toastService.addToast(
-                            'Lagring var vellykket, men merk at tildelt bilagsnummer er '
-                                + firstJournalEntry.JournalEntryNumber + ' - '
-                                + lastJournalEntry.JournalEntryNumber,
-                            ToastType.warn
-                        );
+        tableData.forEach(data => {
+            data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+        });
 
-                    } else {
-                        this.toastService.addToast(
-                            'Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNumber
-                                + (firstJournalEntry.JournalEntryNumber !== lastJournalEntry.JournalEntryNumber
-                                    ? ' - ' + lastJournalEntry.JournalEntryNumber
-                                    : ''
-                                ),
-                            ToastType.good, 10);
-                    }
+        this.journalEntryService.postJournalEntryData(tableData)
+            .subscribe(data => {
+                const firstJournalEntry = data[0];
+                const lastJournalEntry = data[data.length - 1];
 
-                    completeCallback('Lagret og bokført');
+                // Validate if journalEntry number has changed
+                const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
 
-                    // Empty list
-                    this.journalEntryLines = new Array<JournalEntryData>();
+                if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
+                    this.toastService.addToast(
+                        'Lagring var vellykket, men merk at tildelt bilagsnummer er '
+                            + firstJournalEntry.JournalEntryNumber + ' - '
+                            + lastJournalEntry.JournalEntryNumber,
+                        ToastType.warn
+                    );
 
-                    this.setupJournalEntryNumbers(false);
-
-                    this.dataChanged.emit(this.journalEntryLines);
-                },
-                err => {
-                    completeCallback('Feil ved lagring av bilag');
-                    this.errorService.handle(err);
+                } else {
+                    this.toastService.addToast(
+                        'Lagring var vellykket. Bilagsnr: ' + firstJournalEntry.JournalEntryNumber
+                            + (firstJournalEntry.JournalEntryNumber !== lastJournalEntry.JournalEntryNumber
+                                ? ' - ' + lastJournalEntry.JournalEntryNumber
+                                : ''
+                            ),
+                        ToastType.good, 10);
                 }
-            );
-        }
+
+                completeCallback('Lagret og bokført');
+
+                // Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+
+                this.setupJournalEntryNumbers(false);
+
+                this.dataChanged.emit(this.journalEntryLines);
+            },
+            err => {
+                completeCallback('Feil ved lagring av bilag');
+                this.errorService.handle(err);
+            }
+        );
+
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {

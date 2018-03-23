@@ -217,13 +217,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 {
                     label: 'Lagre som kladd',
                     action: (completeEvent) => {
-                        this.postJournalEntryData(
-                            completeEvent, true, this.currentJournalEntryID ? parseInt(this.currentJournalEntryID, 10) : null
-                        );
+                        this.saveJournalEntryDraft(completeEvent);
                     },
                     main: true,
                     disabled: !this.isDirty
-
                 }
             ];
 
@@ -381,7 +378,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
-        if (!this.vatTypes) {
+        if (!this.vatTypes || !this.journalEntryProfessional) {
             // we need to load vattypes/other data to do some calculations to display data
             // correctly, so wait for this to load before showing data
             if (retryCount < 10) {
@@ -389,34 +386,23 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(lines, retryCount++);
                 }, 500);
             } else {
-                console.log('Vattype data not loaded correctly, could not set data');
+                console.log('Vattype data or journalentrygrid not loaded correctly, could not set data');
             }
-        }
-
-        if (this.journalEntryProfessional) {
+        } else {
             if (this.editmode === true) {
+                // copies lines from the original array and lets you edit them as a template
+                // for the journalentry.
                 const copiedArray = [...lines];
 
                 copiedArray.map(line => {
                     line.StatusCode = null;
                     return line;
                 });
-                this.journalEntryProfessional.setJournalEntryData(copiedArray);
-            } else {
-                this.journalEntryProfessional.setJournalEntryData(lines);
+
+                lines = copiedArray;
             }
-        } else {
-            if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.setJournalEntryData(lines);
-            } else {
-                setTimeout(() => {
-                    if (this.journalEntryProfessional) {
-                        this.journalEntryProfessional.setJournalEntryData(lines);
-                    } else {
-                        console.error('Could not set data, journalentryprofessional not initialised');
-                    }
-                });
-            }
+
+            this.journalEntryProfessional.setJournalEntryData(lines);
 
             // run this after the rest of the databinding is complete - if not it can cause multiple
             // changes in the same change detection cycle, and this makes angular really cranky
@@ -438,6 +424,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.validateJournalEntryData(lines);
             }
         }
+    }
+
+    public setupJournalEntryNumbers() {
+        this.journalEntryProfessional.setupJournalEntryNumbers(true);
     }
 
     private setupSubscriptions() {
@@ -736,41 +726,50 @@ export class JournalEntryManual implements OnChanges, OnInit {
         return Observable.of(true);
     }
 
-    private postJournalEntryData(completeCallback, saveAsDraft?: boolean, id?: number | null) {
+    private saveJournalEntryDraft(completeCallback) {
         // allow events from UniTable to finish, e.g. if the focus was in a cell
         // when the user clicked the save button the unitable events should be allowed
         // to run first, to let it update its' datasource
-        if (saveAsDraft) {
-            this.journalEntryProfessional.postJournalEntryData((result: string) => {
-                completeCallback(result);
+        setTimeout(() => {
+            if (this.journalEntryProfessional) {
+                this.journalEntryProfessional.saveJournalEntryDrafts((result: string) => {
+                    completeCallback(result);
 
                     if (result && result !== '') {
                         this.onDataChanged([]);
                         this.clear();
                     }
-            }, saveAsDraft, id);
-
-            this.onShowImageForJournalEntry(null);
-        } else {
-            setTimeout(() => {
-                this.canPostData().subscribe((canPost: boolean) => {
-                    if (canPost && this.journalEntryProfessional) {
-                        this.journalEntryProfessional.postJournalEntryData((result: string) => {
-                            completeCallback(result);
-
-                            if (result && result !== '') {
-                                this.onDataChanged([]);
-                                this.clear();
-                            }
-                        });
-
-                        this.onShowImageForJournalEntry(null);
-                    } else {
-                        completeCallback('Lagring avbrutt');
-                    }
                 });
+
+                this.onShowImageForJournalEntry(null);
+            } else {
+                completeCallback('Lagring avbrutt');
+            }
+        });
+    }
+
+    private postJournalEntryData(completeCallback, id?: number | null) {
+        // allow events from UniTable to finish, e.g. if the focus was in a cell
+        // when the user clicked the save button the unitable events should be allowed
+        // to run first, to let it update its' datasource
+        setTimeout(() => {
+            this.canPostData().subscribe((canPost: boolean) => {
+                if (canPost && this.journalEntryProfessional) {
+                    this.journalEntryProfessional.postJournalEntryData((result: string) => {
+                        completeCallback(result);
+
+                        if (result && result !== '') {
+                            this.onDataChanged([]);
+                            this.clear();
+                        }
+                    });
+
+                    this.onShowImageForJournalEntry(null);
+                } else {
+                    completeCallback('Lagring avbrutt');
+                }
             });
-        }
+        });
     }
 
     public removeJournalEntryData() {

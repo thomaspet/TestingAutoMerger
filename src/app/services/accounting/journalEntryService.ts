@@ -154,9 +154,31 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         .map(response => response.json());
     }
 
-    public postJournalEntryData(
-        journalEntryData: Array<JournalEntryData>, saveAsDraft?: boolean, id?: number, text?: string
-    ): Observable<any> {
+    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
+        const journalEntryDataWithJournalEntryID =
+            journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
+        const existingJournalEntryIDs: Array<number> = [];
+        journalEntryDataWithJournalEntryID.forEach(line => {
+            existingJournalEntryIDs.push(line.JournalEntryID);
+        });
+
+        if (existingJournalEntryIDs.length) {
+            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+                .flatMap(existingJournalEntries => {
+                    const journalEntries = this.createJournalEntryObjects(journalEntryData, existingJournalEntries);
+                    journalEntries.forEach(je => je.Description = text);
+
+                    return this.saveJournalEntriesAsDraft(journalEntries);
+                });
+        } else {
+            const journalEntries = this.createJournalEntryObjects(journalEntryData, []);
+            journalEntries.forEach(je => je.Description = text);
+
+            return this.saveJournalEntriesAsDraft(journalEntries);
+        }
+    }
+
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, id?: number): Observable<any> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
@@ -168,45 +190,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         journalEntryDataWithJournalEntryID.forEach(line => {
             existingJournalEntryIDs.push(line.JournalEntryID);
         });
-
-        if (saveAsDraft && id) {
-            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
-                .flatMap(existingJournalEntries => {
-                    const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
-                    const lineIDs = [];
-
-                    journalEntryData.forEach(x => x.JournalEntryDrafts ? x.JournalEntryDrafts.forEach(y => lineIDs.push(y.ID)) : x);
-                    journalEntries[0].DraftLines.forEach((lines: JournalEntryLineDraft) => delete lines.Account);
-                    journalEntries[0].ID = id;
-                    journalEntries[0].Description = text;
-                    journalEntries[0].DraftLines.forEach((x: JournalEntryLineDraft, i) => {
-                        x.ID = lineIDs[i] || 0;
-
-                        if (!x.ID) {
-                            x._createguid = this.getNewGuid();
-                        }
-
-                        if (!x.Dimensions || !x.Dimensions.ID) {
-                            x.Dimensions = null;
-                        }
-                        return x;
-                    });
-                    return this.saveDraftLines(journalEntries);
-                });
-        }
-
-        if (saveAsDraft) {
-            const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
-            const draftLines = [];
-            journalEntries.map((journalEntry: JournalEntry) => journalEntry.DraftLines.map((lines: JournalEntryLineDraft) => {
-                delete lines.Account;
-                lines.Amount = lines.Amount || 0;
-                draftLines.push(lines);
-            }));
-            journalEntries[0].DraftLines = draftLines;
-            journalEntries[0].Description = text;
-            return this.saveDraftLines(journalEntries);
-        }
 
         if (existingJournalEntryIDs.length) {
             return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
@@ -220,17 +203,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
     }
 
-    private saveDraftLines(journalEntries: Array<JournalEntry>): Observable<any> {
-        const jE = journalEntries[0];
-        const httpAction = jE.ID ? this.http.asPUT() : this.http.asPOST();
-        const route = jE.ID ? `${this.relativeURL}/${jE.ID}` : this.relativeURL;
-
-        return httpAction
+    private saveJournalEntriesAsDraft(journalEntries: Array<JournalEntry>): Observable<any> {
+        return this.http
+            .asPOST()
             .usingBusinessDomain()
-            .withEndPoint(route)
-            .withBody(jE)
+            .withBody(journalEntries)
+            .withEndPoint(this.relativeURL + '?action=save-journal-entries-as-draft')
             .send()
             .map(response => response.json());
+    }
+
+    public deleteJournalEntryDraftGroup(journalEntryDraftGroup: string): Observable<any> {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=delete-journal-entry-draft-group&journalEntryDraftGroup=' + journalEntryDraftGroup)
+            .send();
     }
 
     private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<any> {
@@ -267,7 +255,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         // set some extra properties on that
                         const existingJournalEntry =
                             existingJournalEntries.find(
-                                x => x.ID ? x.ID.toString() : x.JournalEntryID.toString() === line.JournalEntryID.toString()
+                                x => (x.ID ? x.ID.toString() : x.JournalEntryID.toString()) === line.JournalEntryID.toString()
                             );
 
                         if (existingJournalEntry) {
@@ -334,7 +322,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.AmountCurrency = amountCurrency;
             draftLine.CurrencyExchangeRate = journalEntryData.CurrencyExchangeRate;
             draftLine.CurrencyCode = journalEntryData.CurrencyCode;
-            draftLine.CurrencyCodeID = journalEntryData.CurrencyCode.ID;
+            draftLine.CurrencyCodeID = journalEntryData.CurrencyCode ? journalEntryData.CurrencyCode.ID : null;
             draftLine.Description = journalEntryData.Description;
             draftLine.Dimensions = journalEntryData.Dimensions;
             draftLine.FinancialDate = journalEntryData.FinancialDate
@@ -418,11 +406,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return lines;
     }
 
-    public saveJournalEntryData(journalDataEntries: Array<JournalEntryData>): Observable<any> {
+    public saveJournalEntryData(journalEntries: Array<JournalEntry>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withBody(journalDataEntries)
+            .withBody(journalEntries)
             .withEndPoint(this.relativeURL + '?action=save-journal-entry-data')
             .send()
             .map(response => response.json());
@@ -725,6 +713,15 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public getJournalEntryDataByJournalEntryDraftGroup(journalEntryDraftGroup: string): Observable<Array<JournalEntryData>> {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + '?action=get-journal-entry-data&journalEntryDraftGroup=' + journalEntryDraftGroup)
+            .send()
+            .map(response => response.json());
+    }
+
     public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<JournalEntryData[]> {
         return Observable.forkJoin(
             this.journalEntryLineDraftService.GetAll(
@@ -826,8 +823,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.StatusCode = line.StatusCode;
             jed.JournalEntryDraftIDs = [];
             jed.JournalEntryDrafts = [];
-            jed.CurrencyID = line.CurrencyCodeID;
-            jed.CurrencyCode = line.CurrencyCode;
         }
 
         if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {

@@ -298,11 +298,13 @@ export class JournalEntries {
     }
 
     private getDrafts() {
+        // get drafts - this can contain multiple journalentries, grouped by JournalEntryDraftGroup
         this.statisticsService.GetAll(
-            'model=Journalentry&' +
-            'select=Journalentry.*,user.DisplayName&' +
-            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.id,0) eq 0&' +
-            'join=JournalEntry.CreatedBy eq User.GlobalIdentity and Journalentry.Id eq SupplierInvoice.JournalEntryId'
+            'model=JournalEntry&' +
+            'distinct=true&' +
+            'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
+            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0&' +
+            'join=JournalEntry.CreatedBy eq User.GlobalIdentity and JournalEntry.Id eq SupplierInvoice.JournalEntryId'
         )
             .subscribe(journalEntries => {
                 this.modalService.open(SelectDraftLineModal, {data: {draftLines: journalEntries.Data}})
@@ -311,10 +313,20 @@ export class JournalEntries {
                         if (!selectedLine) {
                             return;
                         }
-                        this.editmode = true;
-                        this.journalEntryManual.clear();
-                        this.journalEntryManual.currentJournalEntryID = selectedLine.ID;
-                        this.currentJournalEntryID = selectedLine.ID;
+
+                        // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
+                        this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
+                            .subscribe(journalEntryData => {
+                                this.editmode = false;
+                                this.journalEntryManual.currentJournalEntryID = null;
+                                this.currentJournalEntryID = 0;
+
+                                setTimeout(() => {
+                                    this.journalEntryManual.setJournalEntryData(journalEntryData);
+                                    this.journalEntryManual.isDirty = true;
+                                });
+                            }, err => this.errorService.handle(err)
+                        );
                     });
             },
             err => this.errorService.handle(err));
