@@ -166,6 +166,7 @@ export class CompanySettingsComponent implements OnInit {
 
     private hasBoughtEHF: boolean = false;
     private hideXtraPaymentOrgXmlTagValue: boolean;
+    private hideBankValues: boolean;
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
@@ -239,6 +240,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.periodSeries = dataset[3];
                 this.accountGroupSets = dataset[4];
                 this.hideXtraPaymentOrgXmlTagValue = !dataset[5].UseXtraPaymentOrgXmlTag;
+                this.hideBankValues = !dataset[5].UsePaymentBankValues;
                 this.municipalities = dataset[6];
                 this.emptyPhone = dataset[7];
                 this.emptyEmail = dataset[8];
@@ -490,6 +492,47 @@ export class CompanySettingsComponent implements OnInit {
                 }
                 return item;
             }));
+
+            const obj = this.company$.getValue();
+
+            // If Nordea bank is activated while DNB bank is activated
+            if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
+                obj['UsePaymentBankValues'] = false;
+                this.hideBankValues = true;
+                this.company$.next(obj);
+                this.fields$.next(this.fields$.getValue().map((item) => {
+                    if (item.Property === 'PaymentBankAgreementNumber' || item.Property === 'PaymentBankIdentification') {
+                        item.Hidden = this.hideBankValues;
+                    }
+                    return item;
+                }));
+            }
+        }
+
+        if (changes['UsePaymentBankValues']) {
+            this.hideBankValues = !changes['UsePaymentBankValues'].currentValue;
+            this.fields$.next(this.fields$.getValue().map((item) => {
+                if (item.Property === 'PaymentBankAgreementNumber' || item.Property === 'PaymentBankIdentification') {
+                    item.Hidden = this.hideBankValues;
+                }
+                return item;
+            }));
+
+            const obj = this.company$.getValue();
+
+            // If DNB bank is activated while Nordea bank is activated
+            if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
+                obj.UseXtraPaymentOrgXmlTag = false;
+                this.hideXtraPaymentOrgXmlTagValue = true;
+                this.company$.next(obj);
+                this.fields$.next(this.fields$.getValue().map((item) => {
+                    if (item.Property === 'XtraPaymentOrgXmlTagValue') {
+                        item.Hidden = this.hideXtraPaymentOrgXmlTagValue;
+                    }
+                    return item;
+                }));
+            }
+
         }
     }
 
@@ -1264,12 +1307,32 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
-                Property: 'PaymentBankIdentification',
-                FieldType: FieldType.TEXT,
-                Label: 'Bank-integrasjon ID',
+                Property: 'UsePaymentBankValues',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Betaling fra Nordea',
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'PaymentBankIdentification',
+                FieldType: FieldType.TEXT,
+                Label: 'Nordea signer id',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.hideBankValues
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'PaymentBankAgreementNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Nordea avtalenummer',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Bankkontoer',
+                Hidden: this.hideBankValues
             },
             {
                 EntityType: 'CompanySettings',
