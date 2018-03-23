@@ -315,7 +315,7 @@ export class UniForm implements OnChanges, OnInit {
             return;
         }
         index = index - 1;
-        let nextField = this._layout.Fields[index - 1];
+        let nextField = this._layout.Fields[index];
         while (nextField.Hidden === true) {
             index = index - 1;
             if (index < 0) {
