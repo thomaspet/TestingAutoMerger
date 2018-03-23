@@ -344,6 +344,11 @@ export class BillsView implements OnInit {
     }
 
     public onFileSplitCompleted() {
+        // the previously selected file will be deleted after splitting it, so reset the file selection
+        this.fileID = null;
+        this.hidePreview();
+
+        // also refresh the list, because we will most likely have multiple new files now
         this.refreshList(this.currentFilter);
     }
 

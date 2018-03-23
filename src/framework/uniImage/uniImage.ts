@@ -54,7 +54,7 @@ export interface IUploadConfig {
                     </a>
 
                     <a class="split" (click)="splitFileDialog()"
-                        *ngIf="splitFileDialogAllowed && !readonly && files[currentFileIndex] && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
+                        *ngIf="splitFileDialogAllowed && files[currentFileIndex] && files[currentFileIndex].Pages > 1 && files[currentFileIndex].Name.toLowerCase().endsWith('.pdf')">
                         <i class="material-icons">call_split</i>
                     </a>
 
