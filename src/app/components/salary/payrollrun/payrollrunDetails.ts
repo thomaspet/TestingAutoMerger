@@ -1097,6 +1097,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             trans.Dimensions = null;
                         }
                     }
+                } else {
+                    trans.Supplements = null;
                 }
                 trans.Wagetype = null;
                 trans.Employee = null;
