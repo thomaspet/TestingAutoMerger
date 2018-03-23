@@ -24,6 +24,8 @@ interface ICompanyLicense {
     companyName: string;
     companyKey: string;
     orgNumber: string;
+    contractType: number;
+    contractTypeName?: string;
 }
 
 export enum CompanyTypeEnum {
@@ -194,7 +196,7 @@ export class SubCompanyComponent implements OnInit {
                     FieldType: FieldType.DROPDOWN, Label: 'Oppslag', Section: 0, ReadOnly: true, Options:  {
                         source: [],
                         valueProperty: 'id',
-                        template: item => `${item.companyName} (${item.contractType})`,
+                        template: item => `${item.companyName} (${item.contractTypeName})`,
                         hideDeleteButton: false
                     }
                  },
@@ -222,60 +224,45 @@ export class SubCompanyComponent implements OnInit {
     }
 
     private getLicenseCustomers() {
-        this.ElsaGet('/api/customers')
-            .subscribe( list => {
-                this.getAllCompanyLicenses(list);
-             });
+        this.ElsaGet('/api/companylicenses')
+            .subscribe( list => this.processLicenseList(list));
     }
 
-    private getAllCompanyLicenses(customers: Array<{ id: number, name: string, contracts: Array<any>}>) {
+    private processLicenseList(licenses: Array<ICompanyLicense>) {
 
-        const elsaRequests = [];
-        const list = [];
+        const list = licenses
+            .filter( x => x.companyKey !== this.activeCompanyKey )
+            .sort((a, b) => a.companyName.toLowerCase() > b.companyName.toLowerCase() ? 1 : a.companyName === b.companyName ? 0 : -1 );
 
-        customers.forEach(cust => {
-            if (cust.contracts && cust.contracts.length > 0) {
-                elsaRequests.push(this.ElsaGet(`/api/customers/${cust.id}`));
+        list.forEach( ctr => {
+            const tp = ContractTypes.find( x => x.id === ctr.contractType);
+            if (tp) {
+                ctr.contractTypeName = tp.name;
             }
         });
 
-        Observable.forkJoin(...elsaRequests).subscribe( results => {
-            results.forEach( (result: any) => {
-                if (!(result && result.contracts && result.contracts.length > 0)) {
-                    return;
-                }
-                result.contracts.forEach(ctr => {
-                    if (ctr.companyLicenses && ctr.companyLicenses.length > 0) {
-                        const contractType = ContractTypes.find( x => x.id === ctr.contractType);
-                        ctr.companyLicenses.forEach(lic => {
-                            if (lic.companyKey !== this.activeCompanyKey) {
-                                lic.contractType = contractType ? contractType.name : '';
-                                list.push(lic);
-                            }
-                        });
-                    }
-                });
-            });
+        this.showLicenses(list);
 
-            // Sort the list:
-            this.candidates = list.sort( x => x.companyName);
+    }
 
-            // Set the combo-value?
-            const current = this.subCompany$.getValue();
-            if (current && current.CompanyKey) {
-                this.attachLicense(current);
-                this.subCompany$.next(current);
-            }
+    private showLicenses(list: Array<ICompanyLicense>) {
 
-            // Update combo in form-view:
-            const combo = this.layout.Fields.find( x => x.Property === '_licenseCompany');
-            if (combo) {
-                combo.ReadOnly = this.candidates.length === 0;
-                combo.Options.source = this.candidates;
-                this.fields$.next(this.layout.Fields);
-            }
+        this.candidates = list;
 
-        });
+        // Set the combo-value?
+        const current = this.subCompany$.getValue();
+        if (current && current.CompanyKey) {
+            this.attachLicense(current);
+            this.subCompany$.next(current);
+        }
+
+        // Update combo in form-view:
+        const combo = this.layout.Fields.find( x => x.Property === '_licenseCompany');
+        if (combo) {
+            combo.ReadOnly = this.candidates.length === 0;
+            combo.Options.source = this.candidates;
+            this.fields$.next(this.layout.Fields);
+        }
     }
 
     private attachLicense(value: ISubCompany) {
