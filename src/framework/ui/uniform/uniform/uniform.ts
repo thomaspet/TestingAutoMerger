@@ -326,7 +326,7 @@ export class UniForm implements OnChanges, OnInit {
                 });
                 return;
             }
-            nextField = this._layout.Fields[index - 1];
+            nextField = this._layout.Fields[index];
         }
         if (event) {
             event.preventDefault();
