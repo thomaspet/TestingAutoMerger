@@ -39,7 +39,10 @@ import {
     EmailService,
     SellerService,
     SellerLinkService,
-    VatTypeService
+    VatTypeService,
+    DimensionSettingsService,
+    CustomDimensionService,
+    DepartmentService
 } from '../../../../services/services';
 
 import {
@@ -116,6 +119,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
+    private dimensionTypes: any[];
 
     private customerExpandOptions: string[] = [
         'Info',
@@ -180,7 +184,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private emailService: EmailService,
         private sellerService: SellerService,
         private sellerLinkService: SellerLinkService,
-        private vatTypeService: VatTypeService
+        private vatTypeService: VatTypeService,
+        private dimensionsSettingsService: DimensionSettingsService,
+        private customDimensionService: CustomDimensionService,
+        private departmentService: DepartmentService
     ) { }
 
     public ngOnInit() {
@@ -227,7 +234,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe((res) => {
                     const quote = res[0];
                     this.companySettings = res[1];
@@ -237,6 +245,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.projects = res[5];
                     this.sellers = res[6];
                     this.vatTypes = res[7];
+
+                    this.setUpDims(res[8]);
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -274,7 +284,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     ['NumberSeriesType']),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
@@ -304,6 +315,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.projects = res[9];
                         this.sellers = res[10];
                         this.vatTypes = res[11];
+                        this.setUpDims(res[12]);
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
@@ -601,6 +613,33 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     public onSellerDelete(sellerLink: SellerLink) {
         this.deletables.push(sellerLink);
+    }
+
+    private setUpDims(dims) {
+        this.dimensionTypes = [{
+            Label: 'Avdeling',
+            Dimension: 2,
+            Property: 'DefaultDimensions.DepartmentID',
+            Data: []
+        }];
+
+        const queries = [this.departmentService.GetAll(null)];
+
+        dims.forEach((dim) => {
+            this.dimensionTypes.push({
+                Label: dim.Label,
+                Dimension: dim.Dimension,
+                Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
+                Data: []
+            });
+            queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
+        });
+
+        Observable.forkJoin(queries).subscribe((res) => {
+            res.forEach((list, index) => {
+                this.dimensionTypes[index].Data = res[index];
+            });
+        });
     }
 
     private didCustomerChange(quote: CustomerQuote): boolean {
@@ -1025,11 +1064,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (this.quote.DefaultDimensions && !this.quote.DefaultDimensions.ID) {
             this.quote.DefaultDimensions._createguid = this.customerQuoteService.getNewGuid();
-        } else if (this.quote.DefaultDimensions
-            && this.quote.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
-                this.quote.DefaultDimensions = undefined;
         }
-
 
         if (this.quote.DefaultSeller && this.quote.DefaultSeller.ID > 0) {
             this.quote.DefaultSellerID = this.quote.DefaultSeller.ID;

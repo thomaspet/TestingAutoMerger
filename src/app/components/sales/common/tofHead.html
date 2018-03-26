@@ -96,10 +96,18 @@
             </uni-attachments>
         </fieldset>
 
-        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 6 && entityName === 'CustomerInvoice'">
+        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 7 && entityName === 'CustomerInvoice'">
             <legend>Purringer</legend>
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </fieldset>
+
+        <uni-dimension-tof-view
+            *ngIf="activeTabIndex === 6"
+            (entityChange)="onDataChange($event)"
+            [dimensionTypes]="dimensionTypes"
+            [entity]="data"
+            [entityType]="entityName">
+        </uni-dimension-tof-view>
 
     </article>
 </section>

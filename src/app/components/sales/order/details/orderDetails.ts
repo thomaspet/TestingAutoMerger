@@ -44,7 +44,9 @@ import {
     EmailService,
     SellerService,
     SellerLinkService,
-    VatTypeService
+    VatTypeService,
+    DimensionSettingsService,
+    CustomDimensionService
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -113,6 +115,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
     private currentOrderDate: LocalDate;
+    private dimensionTypes: any[];
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -190,7 +193,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private emailService: EmailService,
         private sellerService: SellerService,
         private sellerLinkService: SellerLinkService,
-        private vatTypeService: VatTypeService
+        private vatTypeService: VatTypeService,
+        private dimensionsSettingsService: DimensionSettingsService,
+        private customDimensionService: CustomDimensionService
    ) {}
 
     public ngOnInit() {
@@ -232,7 +237,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(res => {
                     const order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -242,6 +248,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.projects = res[5];
                     this.sellers = res[6];
                     this.vatTypes = res[7];
+
+                    this.setUpDims(res[8]);
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -284,7 +292,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     ),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
@@ -313,6 +322,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.projects = res[9];
                         this.sellers = res[10];
                         this.vatTypes = res[11];
+                        this.setUpDims(res[12]);
 
                         order.OrderDate = new LocalDate(Date());
 
@@ -378,6 +388,33 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
                     return result !== ConfirmActions.CANCEL;
                 });
+    }
+
+    private setUpDims(dims) {
+        this.dimensionTypes = [{
+            Label: 'Avdeling',
+            Dimension: 2,
+            Property: 'DefaultDimensions.DepartmentID',
+            Data: []
+        }];
+
+        const queries = [this.departmentService.GetAll(null)];
+
+        dims.forEach((dim) => {
+            this.dimensionTypes.push({
+                Label: dim.Label,
+                Dimension: dim.Dimension,
+                Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
+                Data: []
+            });
+            queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
+        });
+
+        Observable.forkJoin(queries).subscribe((res) => {
+            res.forEach((list, index) => {
+                this.dimensionTypes[index].Data = res[index];
+            });
+        });
     }
 
     public onOrderChange(order) {
@@ -1034,9 +1071,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         if (this.order.DefaultDimensions && !this.order.DefaultDimensions.ID) {
             this.order.DefaultDimensions._createguid = this.customerOrderService.getNewGuid();
-        } else if (this.order.DefaultDimensions
-            && this.order.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
-                this.order.DefaultDimensions = undefined;
         }
 
         if (this.order.DefaultSeller && this.order.DefaultSeller.ID > 0) {

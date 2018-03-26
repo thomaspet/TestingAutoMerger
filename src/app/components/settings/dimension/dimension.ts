@@ -52,14 +52,17 @@ export class UniDimensionSettings implements OnInit {
             .setSearchable(false)
             .setAutoAddNewRow(false)
             .setColumns([
-                new UniTableColumn('Dimension', 'Nummer', UniTableColumnType.Text).setWidth('10%'),
+                new UniTableColumn('Dimension', 'Nummer', UniTableColumnType.Text).setWidth('10%')
+                .setLinkResolver(row => `/dimensions/overview/${row.Dimension}`),
                 new UniTableColumn('Label', 'Tekst', UniTableColumnType.Text),
                 new UniTableColumn('IsActive', 'Aktiv', UniTableColumnType.Text)
                     .setTemplate(
                         (item) => {
                             return item.IsActive ? 'Ja' : 'Nei';
                         })
-                    .setWidth('15%')])
+                    .setWidth('8%')
+                    .setAlignment('center')
+                ])
             .setDeleteButton(false)
             .setContextMenu(contextMenuItem);
     }

@@ -91,8 +91,8 @@ export class UniDimensionView implements OnInit {
             this.fields$.next(this.getDimensionFields());
             this.getDimensionlist().subscribe((dims) => {
                 this.dimensionList = dims;
-                this.currentItem = dims[0];
-                this.model$.next(dims[0]);
+                this.currentItem = dims.length > 0 ? dims[0] : this.getNewDimension();
+                this.model$.next(this.currentItem);
                 this.setUpListTable(this.numberKey);
                 this.cdr.markForCheck();
                 this.updateToolbarConfig();
@@ -137,8 +137,8 @@ export class UniDimensionView implements OnInit {
         this.fields$.next(this.getDimensionFields());
         this.getDimensionlist().subscribe((dims) => {
             this.dimensionList = dims;
-            this.currentItem = dims[0];
-            this.model$.next(dims[0]);
+            this.currentItem = dims.length > 0 ? dims[0] : this.getNewDimension();
+            this.model$.next(this.currentItem);
             this.setUpListTable(this.numberKey);
             this.cdr.markForCheck();
             this.updateToolbarConfig();
@@ -151,7 +151,7 @@ export class UniDimensionView implements OnInit {
     }
 
     public save(done) {
-        if (this.checkDimension()) {
+        if (this.checkDimension(done)) {
             const query = this.getSaveOption().subscribe((res) => {
                 done('Lagring vellykket');
                 this.currentItem = res;
@@ -163,8 +163,6 @@ export class UniDimensionView implements OnInit {
             (err) => {
                 done('Lagring feilet');
             });
-        } else {
-            done('Ikke lagret. Sjekk at feltene er fylt ut.');
         }
     }
 
@@ -298,8 +296,9 @@ export class UniDimensionView implements OnInit {
         }
     }
 
-    public checkDimension(): boolean {
+    public checkDimension(done): boolean {
         const dim = this.model$.getValue();
+        let returnBoolean = true;
         if (!dim) {
             return false;
         }
@@ -309,8 +308,15 @@ export class UniDimensionView implements OnInit {
             case 2:
                 return true;
             default:
-                return dim.Number && dim.Name !== '';
+                if (!dim.Name || dim.Name === '') {
+                    returnBoolean = false;
+                    done('Ikke lagret! Dimensjonen må ha et navn');
+                } else if (!dim.Number) {
+                    returnBoolean = false;
+                    done('Ikke lagret! Dimensjonsnummer kan ikke være 0 eller tomt');
+                }
         }
+        return returnBoolean;
     }
 
     private getNewDimension() {
@@ -318,14 +324,14 @@ export class UniDimensionView implements OnInit {
             case 1:
                 return {
                     Name: '',
-                    ProjectNumber: null,
+                    ProjectNumber: undefined,
                     Description: '',
                     ProjectLeadName: ''
                 };
             case 2:
                 return {
                     Name: '',
-                    DepartmentNumber: null,
+                    DepartmentNumber: undefined,
                     Description: '',
                     DepartmentManagerName: ''
                 };
@@ -346,7 +352,7 @@ export class UniDimensionView implements OnInit {
             default:
                 return {
                     Name: '',
-                    Number: 0,
+                    Number: null,
                     Description: '',
                 };
         }

@@ -45,7 +45,10 @@ import {
     SellerService,
     SellerLinkService,
     VatTypeService,
-    ElsaProductService
+    ElsaProductService,
+    DimensionSettingsService,
+    CustomDimensionService,
+    DepartmentService
 } from '../../../../services/services';
 
 import {
@@ -138,6 +141,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
     private currentInvoiceDate: LocalDate;
+    private dimensionTypes: any[];
 
     private customerExpandOptions: string[] = [
         'DeliveryTerms',
@@ -207,7 +211,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private sellerService: SellerService,
         private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
-        private elsaProductService: ElsaProductService
+        private elsaProductService: ElsaProductService,
+        private dimensionsSettingsService: DimensionSettingsService,
+        private customDimensionService: CustomDimensionService,
+        private departmentService: DepartmentService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -260,7 +267,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     ),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     invoice.OurReference = res[1].DisplayName;
@@ -280,6 +288,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.projects = res[9];
                     this.sellers = res[10];
                     this.vatTypes = res[11];
+                    this.setUpDims(res[12]);
 
                     invoice.InvoiceDate = new LocalDate(Date());
 
@@ -322,7 +331,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.dimensionsSettingsService.GetAll(null)
                 ).subscribe((res) => {
                     const invoice = res[0];
                     this.companySettings = res[1];
@@ -332,6 +342,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.projects = res[5];
                     this.sellers = res[6];
                     this.vatTypes = res[7];
+                    this.setUpDims(res[8]);
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -406,6 +417,33 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         }
         return statusText;
+    }
+
+    private setUpDims(dims) {
+        this.dimensionTypes = [{
+            Label: 'Avdeling',
+            Dimension: 2,
+            Property: 'DefaultDimensions.DepartmentID',
+            Data: []
+        }];
+
+        const queries = [this.departmentService.GetAll(null)];
+
+        dims.forEach((dim) => {
+            this.dimensionTypes.push({
+                Label: dim.Label,
+                Dimension: dim.Dimension,
+                Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
+                Data: []
+            });
+            queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
+        });
+
+        Observable.forkJoin(queries).subscribe((res) => {
+            res.forEach((list, index) => {
+                this.dimensionTypes[index].Data = res[index];
+            });
+        });
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
@@ -1220,9 +1258,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         if (this.invoice.DefaultDimensions && !this.invoice.DefaultDimensions.ID) {
             this.invoice.DefaultDimensions._createguid = this.customerInvoiceService.getNewGuid();
-        } else if (this.invoice.DefaultDimensions
-            && this.invoice.DefaultDimensions.ProjectID === this.currentDefaultProjectID) {
-                this.invoice.DefaultDimensions = undefined;
         }
 
         // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view

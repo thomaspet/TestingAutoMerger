@@ -23,8 +23,6 @@ import {ProjectHourTotals} from './project/hours/hourtotals';
 import {ProjectLite} from './projectLite/projectLite';
 import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
-import {UniCustomDimension} from './custom/customDimension';
-import {UniCustomDimensionList} from './custom/customDimensionList';
 import {UniDimensionView} from './custom/dimension';
 
 
@@ -56,8 +54,6 @@ import {UniDimensionView} from './custom/dimension';
         ProjectHourTotals,
         ProjectLite,
         ProjectLiteDetails,
-        UniCustomDimension,
-        UniCustomDimensionList,
         UniDimensionView
     ]
 })

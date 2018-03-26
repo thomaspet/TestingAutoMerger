@@ -53,6 +53,7 @@ import {SellerLinks} from './sellers/sellerLinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
+import {UniDimensionTOFView} from './common/dimensionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 
 @NgModule({
@@ -89,6 +90,7 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
         TofCurrencyForm,
         TradeItemTable,
         UniTofSelectModal,
+        UniDimensionTOFView,
 
         InvoiceList,
         InvoiceDetails,

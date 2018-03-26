@@ -12,6 +12,7 @@ import {
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
+import {UniDimensionTOFView} from './dimensionForm';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 
@@ -34,11 +35,12 @@ export class TofHead implements OnChanges, OnInit {
     @Input() public deliveryTerms: Terms[];
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
+    @Input() public dimensionTypes: any[];
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
     @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
-    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Valuta', 'Fritekst', 'Selgere', 'Dokumenter'];
+    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Valuta', 'Fritekst', 'Selgere', 'Dokumenter', 'Dimensjoner'];
     public activeTabIndex: number = 0;
 
     private freeTextControl: FormControl = new FormControl('');
@@ -51,6 +53,7 @@ export class TofHead implements OnChanges, OnInit {
     }
 
     public ngOnChanges(changes: SimpleChanges) {
+
         if (this.data) {
             this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
             this.commentControl.setValue(this.data.Comment, {emitEvent: false});

@@ -43,15 +43,15 @@ export class NavbarLinkService {
 
         if (this.authService.canActivateRoute(user, 'dimensions/customdimensionlist')) {
             // Add custom dimensions to the list
-            // this.dimensionSettingsService.GetAll(null).subscribe((dimensions) => {
-            //         routeSections.push({
-            //             componentListName: 'Dimensjoner',
-            //             componentListHeader: 'Dimensjoner',
-            //             componentListUrl: '/dimensions/customdimensionlist',
-            //             componentListIcon: 'dimension',
-            //             componentList: this.getDimensionList(dimensions)
-            //     });
-            // });
+            this.dimensionSettingsService.GetAll(null).subscribe((dimensions) => {
+                    routeSections.push({
+                        componentListName: 'Dimensjoner',
+                        componentListHeader: 'Dimensjoner',
+                        componentListUrl: '/dimensions/customdimensionlist',
+                        componentListIcon: 'dimension',
+                        componentList: this.getDimensionList(dimensions)
+                });
+            });
         }
 
         routeSections.forEach(section => {
