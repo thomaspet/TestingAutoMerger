@@ -178,7 +178,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
 
 
     public resetSettling(ID: number) {
-        return super.PutAction(ID, 'resetrun');
+        return super.PutAction(ID, 'resetrun').do(() => this.clearRelatedCaches());
     }
 
     public getPaymentList(ID: number) {
@@ -341,6 +341,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     private clearRelatedCaches(): void {
         this.salaryBalanceLineService.invalidateCache();
         this.salaryBalanceService.invalidateCache();
+        this.salaryTransactionService.invalidateCache();
     }
 
     private getTaxHelpText() {
