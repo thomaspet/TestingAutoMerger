@@ -97,4 +97,26 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .send()
             .map(response => response.json());
     }
+
+    public updatePaymentsToPaidAndJournalPayments(paymentIDs: number[]) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(paymentIDs)
+            .withEndPoint('paymentbatches?action=update-payments-to-paid-and-journal-payments')
+            .send()
+            .map(response => response.json());
+    }
+
+    public updatePaymentsToPaid(paymentIDs: number[]) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(paymentIDs)
+            .withEndPoint('paymentbatches?action=update-payments-to-completed')
+            .send()
+            .map(response => response.json());
+    }
 }
