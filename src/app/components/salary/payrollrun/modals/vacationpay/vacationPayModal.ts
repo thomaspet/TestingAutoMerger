@@ -380,6 +380,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 if (row['_isEmpty']) {
                     return;
                 }
+
                 if (row['_IncludeSixthWeek'] === 'Ja') {
                     return '' + row.Rate60;
                 } else {
@@ -397,14 +398,16 @@ export class VacationPayModal implements OnInit, IUniModal {
                 if (row['_isEmpty']) {
                     return;
                 }
+
                 if (row['_IncludeSixthWeek'] === 'Ja') {
-                    return '' + row.VacationPay60;
+                    return '' + this.useFirstTwoDecimals(row.VacationPay60);
                 } else {
-                    return '' + row.VacationPay;
+                    return '' + this.useFirstTwoDecimals(row.VacationPay);
                 }
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
-            .setWidth('7rem');
+            .setWidth('7rem')
+            .setTemplate((row: VacationPayLine) => '' + this.useFirstTwoDecimals(row.PaidVacationPay));
         const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
 
@@ -433,6 +436,12 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.vacationpayBasis = this.vacationpayBasis.map(row => this.recalcVacationPay(row, model));
     }
 
+    private useFirstTwoDecimals(number: number) {
+        const integer = Math.trunc(number);
+        const decimal = Math.trunc((number - integer) * 100);
+        return integer + (decimal / 100);
+    }
+
     private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
         const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
@@ -451,7 +460,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             row['_VacationPay'] = row['VacationPay'] = vacBase * row['_Rate'] / 100;
         }
         const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
-        row['Withdrawal'] = widthdrawal * model.PercentPayout / 100;
+        row['Withdrawal'] = this.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
         return row;
     }
 
