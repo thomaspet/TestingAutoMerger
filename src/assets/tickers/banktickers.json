@@ -351,6 +351,7 @@
                 "Name": "Overført bank",
                 "Code": "transferred_bank",
                 "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -406,6 +407,7 @@
                 "Name": "Betalt ikke bokført",
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [

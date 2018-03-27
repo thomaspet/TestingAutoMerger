@@ -148,7 +148,7 @@ export class BankComponent implements AfterViewInit {
         {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
-            CheckActionIsDisabled: (selectedRow) => this.checkRevertPaymentBatchDisabled(selectedRow)
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentBatchStatusCode === 45009
         }
     ];
 
@@ -161,12 +161,6 @@ export class BankComponent implements AfterViewInit {
         // incase payment is rejected and done manualy in a bankprogram you can still book the payment
         const enabledForStatuses = [44003, 44006, 44010, 44012, 44014];
         return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
-    }
-
-    public checkRevertPaymentBatchDisabled(selectedRow: any): boolean {
-        // incase payment batch is rejected and done manualy you can revert it
-        const enabledForStatuses = [45001, 45002, 45006, 45007, 45013];
-        return !enabledForStatuses.includes(selectedRow.PaymentBatchStatusCode);
     }
 
     constructor(
@@ -213,9 +207,9 @@ export class BankComponent implements AfterViewInit {
                     return;
                 }
 
-                if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code) {
-                    this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
+                this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
 
+                if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code) {
                     this.updateTab();
                     this.selectedTicker = ticker;
                     this.updateSaveActions(tickerCode);
@@ -300,21 +294,21 @@ export class BankComponent implements AfterViewInit {
                 label: 'Manuell betaling',
                 action: (done) => this.pay(done, true),
                 main: this.rows.length > 0 && !this.agreements.length,
-                disabled: this.rows.length === 0
+                disabled: this.rows.length === 0 || !this.canEdit
             });
 
             this.actions.push({
                 label: 'Send til betaling',
                 action: (done) => this.pay(done, false),
-                main: this.rows.length > 0,
-                disabled: this.rows.length === 0 || !this.agreements.length
+                main: this.rows.length > 0 && this.canEdit,
+                disabled: this.rows.length === 0 || !this.agreements.length || !this.canEdit
             });
 
             this.actions.push({
                 label: 'Slett valgte',
                 action: (done) => this.deleteSelected(done),
                 main: false,
-                disabled: this.rows.length === 0
+                disabled: this.rows.length === 0 || !this.canEdit
             });
 
             this.actions.push({
@@ -325,6 +319,24 @@ export class BankComponent implements AfterViewInit {
                 },
                 disabled: false,
                 isUpload: true
+            });
+
+            this.actions.push({
+                label: 'Bokfør og sett til betalt',
+                action: (done, file) => {
+                    done('Status oppdatert');
+                    this.updatePaymentStatusToPaidAndJournaled(done);
+                },
+                disabled: this.rows.length === 0
+            });
+
+            this.actions.push({
+                label: 'Sett som betalt og bokført',
+                action: (done, file) => {
+                    done('Status oppdatert');
+                    this.updatePaymentStatusToPaid(done);
+                },
+                disabled: this.rows.length === 0
             });
         } else if (selectedTickerCode === 'bank_list') {
             this.actions.push({
@@ -522,6 +534,86 @@ export class BankComponent implements AfterViewInit {
                     });
                 }
             });
+        });
+    }
+
+    public updatePaymentStatusToPaidAndJournaled(doneHandler: (status: string) => any) {
+        this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
+        if (this.rows.length === 0) {
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke linjer du vil endre, eller kryss av for alle'
+            );
+
+            doneHandler('Lagring og utbetaling avbrutt');
+            return;
+        }
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Oppdater betalingsstatus',
+            message: `Viktig, du må kun gjøre dette hvis betalinger er fullført og du har ikke bokført betalinger manuelt.`,
+            buttonLabels: {
+                accept: 'Oppdater',
+                reject: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe((result) => {
+            if (result === ConfirmActions.ACCEPT) {
+                const paymentIDs: number[] = [];
+                this.rows.forEach(x => {
+                    paymentIDs.push(x.ID);
+                });
+                this.paymentBatchService.updatePaymentsToPaidAndJournalPayments(paymentIDs).subscribe(paymentResponse => {
+                    this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
+                });
+            } else {
+                doneHandler('Status oppdatering avbrutt');
+                return;
+            }
+        });
+    }
+
+    public updatePaymentStatusToPaid(doneHandler: (status: string) => any) {
+        this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
+        if (this.rows.length === 0) {
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke linjer du vil endre, eller kryss av for alle'
+            );
+
+            doneHandler('Lagring og utbetaling avbrutt');
+            return;
+        }
+
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: 'Oppdater betalingsstatus',
+            message: `Viktig, du må kun gjøre dette hvis du har manuelt bokført betalinger og hvis betalinger er fullført.`,
+            buttonLabels: {
+                accept: 'Oppdater',
+                reject: 'Avbryt'
+            }
+        });
+
+        modal.onClose.subscribe((result) => {
+            if (result === ConfirmActions.ACCEPT) {
+                const paymentIDs: number[] = [];
+                this.rows.forEach(x => {
+                    paymentIDs.push(x.ID);
+                });
+                this.paymentBatchService.updatePaymentsToPaid(paymentIDs).subscribe(paymentResponse => {
+                    this.tickerContainer.mainTicker.reloadData(); // refresh table
+                    this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
+                });
+            } else {
+                doneHandler('Status oppdatering avbrutt');
+                return;
+            }
         });
     }
 
