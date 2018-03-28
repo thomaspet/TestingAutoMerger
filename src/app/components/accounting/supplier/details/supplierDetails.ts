@@ -138,7 +138,7 @@ export class SupplierDetails implements OnInit {
     };
 
     private localizationOptions: {Culture: string, Label: string}[] = [
-        {Culture: '', Label: 'Norsk bokmål'},
+        {Culture: 'no', Label: 'Norsk bokmål'},
         {Culture: 'en', Label: 'Engelsk'},
     ];
 
@@ -430,7 +430,6 @@ export class SupplierDetails implements OnInit {
             source: this.localizationOptions,
             valueProperty: 'Culture',
             displayProperty: 'Label',
-            hideDeleteButton: true,
             searchable: false,
         };
 

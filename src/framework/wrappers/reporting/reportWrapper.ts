@@ -91,7 +91,7 @@ export class StimulsoftReportWrapper {
         const dataset = new Stimulsoft.System.Data.DataSet('Data');
         dataset.readJson(data);
         report.regData('Data', 'Data', dataset);
-        if (localization) { report.localizeReport(localization); }
+        if (localization && localization !== 'no') { report.localizeReport(localization); }
         report.render();
         resolver(report);
     }
@@ -141,10 +141,10 @@ export class StimulsoftReportWrapper {
 
                     this.renderReport(template, reportData, parameters, localization, (report) => {
                         let mimetype: string;
-                        
+
                         if (report) {
                             var settings, service;
-    
+
                             switch (format) {
                                 case 'html':
                                     mimetype = 'text/html';
@@ -173,13 +173,13 @@ export class StimulsoftReportWrapper {
                                     service = new Stimulsoft.Report.Export.StiPdfExportService();
                                     break;
                             }
-    
+
                             const fileName = (!report.reportAlias || !report.reportAlias.length)
                                 ? report.reportName
                                 : report.reportAlias;
-    
+
                             var data: any;
-    
+
                             // Export
                             if (format === 'html') {
                                 const textWriter = new Stimulsoft.System.IO.TextWriter();
@@ -191,7 +191,7 @@ export class StimulsoftReportWrapper {
                                 service.exportTo(report, stream, settings);
                                 data = stream.toArray();
                             }
-    
+
                             // Save or return
                             if (saveReport) {
                                 if (format == 'html') {
@@ -207,7 +207,7 @@ export class StimulsoftReportWrapper {
                                     : fromByteArray(data));
                             }
                         }
-                                                
+
                     });
                 });
             }
