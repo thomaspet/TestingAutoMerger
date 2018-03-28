@@ -102,11 +102,6 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
                 this.busy = false;
                 this.cdr.markForCheck();
             });
-
-            // this.reportService.generateReportHtml(this.options.data, this.modalConfig, () => {
-            //    this.busy = false;
-            //    this.cdr.markForCheck();
-            // });
         }
     }
 

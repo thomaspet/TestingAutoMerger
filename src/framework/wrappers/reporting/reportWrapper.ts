@@ -72,31 +72,7 @@ export class StimulsoftReportWrapper {
         return this.loadStimulsoftScript('viewer');
     }
 
-    private generateReport(template: string, reportData: Object, parameters: Array<any>){
-        const report = new Stimulsoft.Report.StiReport();
-        report.load(template);
-
-        // remove connections specified in the template file
-        report.dictionary.databases.clear();
-        // add variables based on parameters
-        if (parameters) {
-            for (let i = 0; i < parameters.length; i++) {
-                let reportParam = report.dictionary.variables.getByName(parameters[i].Name);
-                if (reportParam) {
-                    reportParam.value = parameters[i].value;
-                }
-            }
-        }
-
-        const dataset = new Stimulsoft.System.Data.DataSet('Data');
-        dataset.readJson(reportData);
-        report.regData('Data', 'Data', dataset);
-        report.render();
-
-        return report;
-    }
-
-    public renderReport(template, data, parameters, resolver) {
+    public renderReport(template, data, parameters, localization, resolver) {
         const report = new Stimulsoft.Report.StiReport();
         report.load(template);
 
@@ -115,6 +91,7 @@ export class StimulsoftReportWrapper {
         const dataset = new Stimulsoft.System.Data.DataSet('Data');
         dataset.readJson(data);
         report.regData('Data', 'Data', dataset);
+        if (localization) { report.localizeReport(localization); }
         report.render();
         resolver(report);
     }
@@ -138,18 +115,19 @@ export class StimulsoftReportWrapper {
 
     }
 
-    public showReport(template: string, reportData: Object, parameters: Array<any>, caller: any) {
+    public showReport(template: string, reportData: Object, parameters: Array<any>, localization: string, caller: any) {
         if (!template || !reportData || !caller) {
             return;
         }
         this.loadStimulsoft().then(() => this.loadStimulsoftViewer().then(() => {
             Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
-            const report = this.generateReport(template, reportData, parameters);
-            this.renderHtml(report, null);
+            this.renderReport(template, reportData, parameters, localization, (report) => {
+                this.renderHtml(report, null);
+            });
         }));
     }
 
-    public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string): Promise<string> {
+    public printReport(template: string, reportData: Object, parameters: Array<any>, saveReport: boolean, format: string, localization: string): Promise<string> {
         return new Promise((resolve, reject) => {
             if (!template || !reportData) {
                 reject();
@@ -161,74 +139,76 @@ export class StimulsoftReportWrapper {
                         'Source Sans Pro'
                     );
 
-                    const report = this.generateReport(template, reportData, parameters);
-                    let mimetype: string;
-
-                    if (report) {
-                        var settings, service;
-
-                        switch (format) {
-                            case 'html':
-                                mimetype = 'text/html';
-                                settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
-                                service = new Stimulsoft.Report.Export.StiHtmlExportService();
-                                settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
-                                break;
-                            case 'doc':
-                                mimetype = 'application/doc';
-                                settings = new Stimulsoft.Report.Export.StiWord2007ExportSettings();
-                                service = new Stimulsoft.Report.Export.StiWord2007ExportService();
-                                break;
-                            case 'xls':
-                                mimetype = 'application/xls';
-                                settings = new Stimulsoft.Report.Export.StiExcelExportSettings(null);
-                                service = new Stimulsoft.Report.Export.StiExcel2007ExportService();
-                                break;
-                            case 'csv':
-                                mimetype = 'application/csv';
-                                settings = new Stimulsoft.Report.Export.StiCsvExportSettings();
-                                service = new Stimulsoft.Report.Export.StiCsvExportService();
-                                break;
-                            default:
-                                mimetype = 'application/pdf';
-                                settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
-                                service = new Stimulsoft.Report.Export.StiPdfExportService();
-                                break;
-                        }
-
-                        const fileName = (!report.reportAlias || !report.reportAlias.length)
-                            ? report.reportName
-                            : report.reportAlias;
-
-                        var data: any;
-
-                        // Export
-                        if (format === 'html') {
-                            const textWriter = new Stimulsoft.System.IO.TextWriter();
-                            const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
-                            service.exportTo(report, htmlTextWriter, settings);
-                            data = textWriter.getStringBuilder().toString();
-                        } else {
-                            const stream = new Stimulsoft.System.IO.MemoryStream();
-                            service.exportTo(report, stream, settings);
-                            data = stream.toArray();
-                        }
-
-                        // Save or return
-                        if (saveReport) {
-                            if (format == 'html') {
-                                let blob = new Blob([data], { type: mimetype })
-                                saveAs(blob, fileName + '.' + format);
-                            } else {
-                                let blob = new Blob([new Int8Array(data)], { type: mimetype });
-                                saveAs(blob, fileName + '.' + format);
+                    this.renderReport(template, reportData, parameters, localization, (report) => {
+                        let mimetype: string;
+                        
+                        if (report) {
+                            var settings, service;
+    
+                            switch (format) {
+                                case 'html':
+                                    mimetype = 'text/html';
+                                    settings = new Stimulsoft.Report.Export.StiHtmlExportSettings();
+                                    service = new Stimulsoft.Report.Export.StiHtmlExportService();
+                                    settings.htmlType = Stimulsoft.Report.StiHtmlType.Html5;
+                                    break;
+                                case 'doc':
+                                    mimetype = 'application/doc';
+                                    settings = new Stimulsoft.Report.Export.StiWord2007ExportSettings();
+                                    service = new Stimulsoft.Report.Export.StiWord2007ExportService();
+                                    break;
+                                case 'xls':
+                                    mimetype = 'application/xls';
+                                    settings = new Stimulsoft.Report.Export.StiExcelExportSettings(null);
+                                    service = new Stimulsoft.Report.Export.StiExcel2007ExportService();
+                                    break;
+                                case 'csv':
+                                    mimetype = 'application/csv';
+                                    settings = new Stimulsoft.Report.Export.StiCsvExportSettings();
+                                    service = new Stimulsoft.Report.Export.StiCsvExportService();
+                                    break;
+                                default:
+                                    mimetype = 'application/pdf';
+                                    settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
+                                    service = new Stimulsoft.Report.Export.StiPdfExportService();
+                                    break;
                             }
-                        } else {
-                            resolve(format === 'html'
-                                ? btoa(data)
-                                : fromByteArray(data));
+    
+                            const fileName = (!report.reportAlias || !report.reportAlias.length)
+                                ? report.reportName
+                                : report.reportAlias;
+    
+                            var data: any;
+    
+                            // Export
+                            if (format === 'html') {
+                                const textWriter = new Stimulsoft.System.IO.TextWriter();
+                                const htmlTextWriter = new Stimulsoft.Report.Export.StiHtmlTextWriter(textWriter);
+                                service.exportTo(report, htmlTextWriter, settings);
+                                data = textWriter.getStringBuilder().toString();
+                            } else {
+                                const stream = new Stimulsoft.System.IO.MemoryStream();
+                                service.exportTo(report, stream, settings);
+                                data = stream.toArray();
+                            }
+    
+                            // Save or return
+                            if (saveReport) {
+                                if (format == 'html') {
+                                    let blob = new Blob([data], { type: mimetype })
+                                    saveAs(blob, fileName + '.' + format);
+                                } else {
+                                    let blob = new Blob([new Int8Array(data)], { type: mimetype });
+                                    saveAs(blob, fileName + '.' + format);
+                                }
+                            } else {
+                                resolve(format === 'html'
+                                    ? btoa(data)
+                                    : fromByteArray(data));
+                            }
                         }
-                    }
+                                                
+                    });
                 });
             }
         });

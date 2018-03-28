@@ -15,6 +15,7 @@ import {AuthService} from '../../authService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportStep} from '@app/components/reports/report-step';
 import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {StatisticsService} from '@app/services/services';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -34,7 +35,8 @@ export class ReportService extends BizHttp<string> {
         private toastService: ToastService,
         private reportDefinitionService: ReportDefinitionService,
         private authService: AuthService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private statisticsService: StatisticsService
     ) {
         super(http);
 
@@ -91,7 +93,7 @@ export class ReportService extends BizHttp<string> {
         this.report = <Report>report;
         this.target = target;
         this.sendemail = null;
-
+        
         this.generateReport(doneHandler); // startReportProccess()
     }
 
@@ -100,7 +102,7 @@ export class ReportService extends BizHttp<string> {
         this.report = <Report>report;
         this.target = null;
         this.sendemail = null;
-
+        
         this.generateReport(doneHandler);
     }
 
@@ -113,7 +115,8 @@ export class ReportService extends BizHttp<string> {
                     this.report.templateJson,
                     this.report.dataSources,
                     this.report.parameters,
-                    false, 'pdf'
+                    false, 'pdf',
+                    this.report.localization
                 )
             );
     }
@@ -200,6 +203,7 @@ export class ReportService extends BizHttp<string> {
                 this.report.templateJson,
                 this.report.dataSources,
                 this.report.parameters,
+                this.report.localization,
                 resolve
             );
         });
@@ -261,10 +265,45 @@ export class ReportService extends BizHttp<string> {
             });
     }
 
+    private getCustomerLocalizationOverride(entity: string) {
+        if (this.report.dataSources[entity]) {
+            let obs;
+            if (entity === 'CustomerInvoice' && this.report.Name === 'Purring') {
+                const customerNumber = this.report.dataSources[entity][0].CustomerCustomerNumber;
+                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);                
+            } else {
+                const customerID = this.report.dataSources[entity][0].CustomerID;
+                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=ID eq ${customerID}`);
+            }
+
+            obs.subscribe((res) => {
+                if (res[0].Localization) {
+                    this.report.localization = res[0].Localization;
+                }
+            })
+        }
+    }
+
+    private getLocalizationOverride() {
+        // Override localization from CompanySettings?
+        if (this.report.dataSources['CompanySettings']) {
+            if (this.report.dataSources['CompanySettings'][0].Localization) {
+                this.report.localization = this.report.dataSources['CompanySettings'][0].Localization;                        
+            }
+        }
+        // Override localization from Customer?
+        ['CustomerInvoice', 'CustomerOrder', 'CustomerQuote'].forEach(entity => {
+            this.getCustomerLocalizationOverride(entity);
+        });
+    }
+
     private getDataSourcesObservable(): Observable<any> {
         return this.getReportData(this.report.ID, this.report.parameters)
             .map(dataSources => {
                 this.report.dataSources = dataSources;
+                if (!this.report.localization) {
+                    this.getLocalizationOverride();
+                }
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
@@ -274,10 +313,10 @@ export class ReportService extends BizHttp<string> {
         // console.log('DATA: ', JSON.stringify(dataSources));
 
         if (this.target) {
-            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.target);
+            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.report.localization, this.target);
             if (doneHandler) { doneHandler(''); }
         } else {
-            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format).then(attachment => {
+            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format, this.report.localization).then(attachment => {
                 if (this.sendemail) {
                     let body = {
                         ToAddresses: [this.sendemail.EmailAddress],
@@ -331,4 +370,5 @@ export class Report extends ReportDefinition {
     public parameters: ReportParameter[];
     public dataSources: ReportDataSource[];
     public templateJson: string;
+    public localization: string;
 }
