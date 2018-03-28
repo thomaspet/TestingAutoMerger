@@ -42,6 +42,12 @@ export class UniView {
         this.cacheService.updatePageCache(this.cacheKey, pageCache);
     }
 
+    protected exist(key: string) {
+        const pageCache = this.cacheService.getPageCache(this.cacheKey);
+        const stateVariable = pageCache.state[key];
+        return !!stateVariable && !!stateVariable.updatedAt;
+    }
+
     protected isDirty(key?: string): boolean {
         let pageCache = this.cacheService.getPageCache(this.cacheKey);
 

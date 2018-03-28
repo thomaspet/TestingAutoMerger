@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, SimpleChange} from '@angular/core';
 import {Employment, Account, SubEntity, Project, Department} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -252,7 +252,18 @@ export class EmploymentDetails implements OnChanges {
     }
 
     public onFormChange(value: SimpleChanges) {
+        if (!Object.keys(value).some(key => this.hasChanged(value[key]))) {
+            return;
+        }
         this.employmentChange.emit(this.employment$.getValue());
+    }
+
+    private hasChanged(value: SimpleChange) {
+        if (isNaN(value.currentValue) || isNaN(value.previousValue)) {
+            return value.currentValue !== value.previousValue;
+        }
+
+        return Math.round(value.currentValue) !== Math.round(value.previousValue);
     }
 
     public onFormReady(value) {
