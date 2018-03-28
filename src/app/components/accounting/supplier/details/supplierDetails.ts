@@ -137,6 +137,11 @@ export class SupplierDetails implements OnInit {
         ]
     };
 
+    private localizationOptions: {Culture: string, Label: string}[] = [
+        {Culture: '', Label: 'Norsk bokmål'},
+        {Culture: 'en', Label: 'Engelsk'},
+    ];
+
     constructor(private departmentService: DepartmentService,
                 private projectService: ProjectService,
                 private supplierService: SupplierService,
@@ -250,7 +255,7 @@ export class SupplierDetails implements OnInit {
     }
 
     public numberSeriesChange(selectedSerie) {
-        let supplier = this.supplier$.getValue();
+        const supplier = this.supplier$.getValue();
         supplier.SubAccountNumberSeriesID = selectedSerie.ID;
         this.supplier$.next(supplier);
     }
@@ -260,7 +265,7 @@ export class SupplierDetails implements OnInit {
         if (this.modalMode) {
             return;
         }
-        let tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
+        const tabTitle = supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
         this.tabService.addTab({
             url: '/accounting/suppliers/' + supplier.ID,
             name: tabTitle,
@@ -420,6 +425,15 @@ export class SupplierDetails implements OnInit {
             debounceTime: 200
         };
 
+        const localization: UniFieldLayout = fields.find(x => x.Property === 'Localization');
+        localization.Options = {
+            source: this.localizationOptions,
+            valueProperty: 'Culture',
+            displayProperty: 'Label',
+            hideDeleteButton: true,
+            searchable: false,
+        };
+
         const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.dropdownData[0],
@@ -459,7 +473,7 @@ export class SupplierDetails implements OnInit {
             },
         };
 
-        let invoiceaddress: UniFieldLayout = fields.find(x => x.Label === 'Fakturaadresse');
+        const invoiceaddress: UniFieldLayout = fields.find(x => x.Label === 'Fakturaadresse');
 
         invoiceaddress.Options = {
             entity: Address,
@@ -480,7 +494,7 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        let emails: UniFieldLayout = fields.find(x => x.Property === 'Info.Emails');
+        const emails: UniFieldLayout = fields.find(x => x.Property === 'Info.Emails');
 
         emails.Options = {
             entity: Email,
@@ -498,7 +512,7 @@ export class SupplierDetails implements OnInit {
             },
         };
 
-        let shippingaddress: UniFieldLayout = fields.find(x => x.Label === 'Leveringsadresse');
+        const shippingaddress: UniFieldLayout = fields.find(x => x.Label === 'Leveringsadresse');
         shippingaddress.Options = {
             entity: Address,
             listProperty: 'Info.Addresses',
@@ -519,7 +533,7 @@ export class SupplierDetails implements OnInit {
             }
         };
 
-        let defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.BankAccounts');
+        const defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.BankAccounts');
         defaultBankAccount.Options = {
             entity: BankAccount,
             listProperty: 'Info.BankAccounts',
@@ -551,14 +565,14 @@ export class SupplierDetails implements OnInit {
     }
 
     public saveSupplier(completeEvent?: any) {
-        let supplier = this.supplier$.getValue();
+        const supplier = this.supplier$.getValue();
 
         // if the user has typed something in Name for a new supplier, but has not
         // selected something from the list or clicked F3, the searchbox is still active,
         // so we need to get the value from there
         if (!supplier.ID || supplier.ID === 0) {
             if (!supplier.Info.Name || supplier.Info.Name === '') {
-                let searchInfo = <any>this.form.field('_SupplierSearchResult');
+                const searchInfo = <any>this.form.field('_SupplierSearchResult');
                 if (searchInfo) {
                     if (searchInfo.component && searchInfo.component.input) {
                         supplier.Info.Name = searchInfo.component.input.value;
@@ -866,14 +880,6 @@ export class SupplierDetails implements OnInit {
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Telefonnumre',
                 },
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Supplier',
-                    Property: 'GLN',
-                    Label: 'GLN',
-                    FieldType: FieldType.TEXT
-                },
 
                 // Fieldset 3 (terms)
                 {
@@ -895,11 +901,10 @@ export class SupplierDetails implements OnInit {
                 {
                     FieldSet: 3,
                     Legend: 'Betingelser',
-                    Sectionheader: 'Aksesspunkt',
                     EntityType: 'Supplier',
-                    Property: 'PeppolAddress',
-                    Label: 'Peppoladresse',
-                    FieldType: FieldType.TEXT
+                    Property: 'Localization',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Språk tilbud/ordre/faktura',
                 },
 
                 // Fieldset 4 (dimensions)
@@ -918,7 +923,25 @@ export class SupplierDetails implements OnInit {
                     Property: 'Dimensions.DepartmentID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Avdeling',
-                }
+                },
+
+                // Fieldset 5 (EHF)
+                {
+                    FieldSet: 5,
+                    Legend: 'EHF',
+                    EntityType: 'Supplier',
+                    Property: 'PeppolAddress',
+                    Label: 'Peppoladresse',
+                    FieldType: FieldType.TEXT,
+                },
+                {
+                    FieldSet: 5,
+                    Legend: 'EHF',
+                    EntityType: 'Supplier',
+                    Property: 'GLN',
+                    Label: 'GLN-nummer',
+                    FieldType: FieldType.TEXT
+                },
             ]
         };
     }

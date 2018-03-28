@@ -129,7 +129,7 @@ export class CompanySettingsComponent implements OnInit {
     public isDirty: boolean = false;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public companyLogoFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     public saveactions: IUniSaveAction[] = [{
         label: 'Lagre',
@@ -161,6 +161,11 @@ export class CompanySettingsComponent implements OnInit {
         {Value: 1, Label: 'Firmanavn'},
         {Value: 2, Label: 'Logo'},
         {Value: 3, Label: 'Firmanavn & logo'},
+    ];
+
+    private localizationOptions: {Culture: string, Label: string}[] = [
+        {Culture: '', Label: 'Norsk bokmål'},
+        {Culture: 'en', Label: 'Engelsk'},
     ];
 
     private currentYear: number;
@@ -1512,7 +1517,7 @@ export class CompanySettingsComponent implements OnInit {
             }
         ]);
 
-        this.companyLogoFields$.next([
+        this.reportSetupFields$.next([
             {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Vis logo i rapport',
@@ -1524,6 +1529,7 @@ export class CompanySettingsComponent implements OnInit {
                     hideDeleteButton: true,
                     searchable: false,
                 },
+                Legend: 'Generelt',
                 Section: 0,
                 FieldSet: 1,
             },
@@ -1539,8 +1545,21 @@ export class CompanySettingsComponent implements OnInit {
                     searchable: false,
                 },
                 FieldSet: 1,
-                Legend: 'Logo',
                 Section: 0,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Standard språk',
+                Property: 'company.Localization',
+                Options: {
+                    source: this.localizationOptions,
+                    valueProperty: 'Culture',
+                    displayProperty: 'Label',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Section: 0,
+                FieldSet: 1,
             },
             {
                 FieldType: FieldType.TEXTAREA,

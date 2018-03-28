@@ -203,6 +203,11 @@ export class CustomerDetails implements OnInit {
 
     private saveactions: IUniSaveAction[];
 
+    private localizationOptions: {Culture: string, Label: string}[] = [
+        {Culture: '', Label: 'Norsk bokmål'},
+        {Culture: 'en', Label: 'Engelsk'},
+    ];
+
     constructor(
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private departmentService: DepartmentService,
@@ -535,6 +540,15 @@ export class CustomerDetails implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'Code',
             debounceTime: 200
+        };
+
+        const localization: UniFieldLayout = fields.find(x => x.Property === 'Localization');
+        localization.Options = {
+            source: this.localizationOptions,
+            valueProperty: 'Culture',
+            displayProperty: 'Label',
+            hideDeleteButton: true,
+            searchable: false,
         };
 
         const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
@@ -1079,6 +1093,15 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.DROPDOWN,
                     Sectionheader: 'Betingelser',
                     Label: 'Foretrukket valuta',
+                    Section: 0
+                },
+                {
+                    FieldSet: 3,
+                    EntityType: 'Customer',
+                    Property: 'Localization',
+                    FieldType: FieldType.DROPDOWN,
+                    Sectionheader: 'Betingelser',
+                    Label: 'Språk tilbud/ordre/faktura',
                     Section: 0
                 },
 
