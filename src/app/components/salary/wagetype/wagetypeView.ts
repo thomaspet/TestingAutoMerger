@@ -194,17 +194,27 @@ export class WageTypeView extends UniView implements OnDestroy {
     }
 
     private promptUserAboutSaving(done: (message: string) => void): Observable<ConfirmActions> {
-        return this.modalService
-        .confirm({
-            header: 'Bekreft lagring',
-            message: 'Åpne lønnsposter tilknyttet denne lønnsarten vil oppdateres. Ønsker du å lagre?',
-            buttonLabels: {
-                accept: 'Lagre',
-                cancel: 'Avbryt'
-            }
-        })
-        .onClose
-        .do(result => {
+        return super.getStateSubject(WAGETYPE_KEY)
+            .take(1)
+            .map((wt: WageType) => {
+                return !wt.ID && !wt.WageTypeNumber;
+            })
+            .switchMap(dontAsk => {
+                if (dontAsk) {
+                    return Observable.of(ConfirmActions.ACCEPT);
+                }
+
+                return this.modalService.confirm({
+                    header: 'Bekreft lagring',
+                    message: 'Åpne lønnsposter tilknyttet denne lønnsarten vil oppdateres. Ønsker du å lagre?',
+                    buttonLabels: {
+                        accept: 'Lagre',
+                        cancel: 'Avbryt'
+                    }
+                })
+                .onClose;
+            })
+            .do(result => {
             if (result === ConfirmActions.ACCEPT) {
                 return;
             }
@@ -213,7 +223,7 @@ export class WageTypeView extends UniView implements OnDestroy {
     }
 
     private saveWageTypeObs(updateView: boolean): Observable<WageType> {
-        return super.getStateSubject('wagetype')
+        return super.getStateSubject(WAGETYPE_KEY)
         .take(1)
         .map(wt => this.wageTypeService.washWageType(wt))
         .switchMap(wt => this.checkValidYearAndCreateNew(wt))
