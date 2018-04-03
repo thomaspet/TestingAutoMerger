@@ -51,7 +51,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             )
             .finally(() => this.busy = false)
             .subscribe((response: any) => {
-                var [compsal, rates] = response;
+                const [compsal, rates] = response;
                 this.companysalaryModel$.next(compsal);
                 this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
                 this.vacationRates = rates;
@@ -142,9 +142,9 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
     }
 
     private setFormFields() {
-        var mainAccountCostVacation = new UniFieldLayout();
+        const mainAccountCostVacation = new UniFieldLayout();
         const companysalaryModel = this.companysalaryModel$.getValue();
-        let cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
+        const cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
             ? this._accountService.GetAll(
                 `filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1'
             )
@@ -162,8 +162,8 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
 
-        var mainAccountAllocatedVacation = new UniFieldLayout();
-        let allVacAccountObs: Observable<Account> = companysalaryModel
+        const mainAccountAllocatedVacation = new UniFieldLayout();
+        const allVacAccountObs: Observable<Account> = companysalaryModel
             && companysalaryModel.MainAccountAllocatedVacation
                 ? this._accountService.GetAll(
                     `filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1'
@@ -182,7 +182,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
 
-        var payInHoliday = new UniFieldLayout();
+        const payInHoliday = new UniFieldLayout();
         payInHoliday.Label = 'Trekk i fastlønn i feriemåned';
         payInHoliday.Property = 'WageDeductionDueToHoliday';
         payInHoliday.FieldType = FieldType.DROPDOWN;
@@ -197,9 +197,9 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
     }
 
     private setTableConfig() {
-        var rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
-        var rate60Col = new UniTableColumn('Rate60', 'Tilleggssats over 60 år', UniTableColumnType.Percent);
-        var dateCol = new UniTableColumn('FromDate', 'Gjelder fra og med år', UniTableColumnType.Text)
+        const rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
+        const rate60Col = new UniTableColumn('Rate60', 'Tilleggssats over 60 år', UniTableColumnType.Percent);
+        const dateCol = new UniTableColumn('FromDate', 'Gjelder fra opptjeningsår', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
                 return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
             });
@@ -208,7 +208,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             .setColumns([rateCol, rate60Col, dateCol])
             .setPageable(this.vacationRates.length > 10)
             .setChangeCallback((event) => {
-                let row = event.rowModel;
+                const row = event.rowModel;
                 if (event.field === 'FromDate') {
                     row.FromDate = row.FromDate && new LocalDate(row.FromDate + '-01-01');
                     return row;
