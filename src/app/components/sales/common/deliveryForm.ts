@@ -198,6 +198,7 @@ export class TofDeliveryForm {
                     debounceTime: 200,
                     addEmptyValue: true
                 },
+                ReadOnly: this.readonly
             },
             <any> {
                 FieldSet: 1,
