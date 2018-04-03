@@ -164,7 +164,7 @@ export class CompanySettingsComponent implements OnInit {
     ];
 
     private localizationOptions: {Culture: string, Label: string}[] = [
-        {Culture: '', Label: 'Norsk bokmål'},
+        {Culture: 'no', Label: 'Norsk bokmål'},
         {Culture: 'en', Label: 'Engelsk'},
     ];
 
