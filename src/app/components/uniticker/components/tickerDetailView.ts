@@ -48,7 +48,7 @@ export class UniTickerDetailView {
 
             if (field.Type === 'address' && value) {
                 let valueParts = value.split(' - ');
-                value = valueParts.shift() + '<br>' + valueParts.join(' ');
+                value = valueParts.shift() + '\n' + valueParts.join(' ');
             }
 
             if (field.Format === 'DatePassed' && value) {
@@ -58,7 +58,7 @@ export class UniTickerDetailView {
                     : 'date-bad';
             }
 
-            field['_value'] = value || '&nbsp;';
+            field['_value'] = value;
             return field;
         });
     }

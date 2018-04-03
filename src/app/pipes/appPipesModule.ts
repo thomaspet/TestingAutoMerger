@@ -4,7 +4,6 @@ import {PeriodDateFormatPipe} from './periodDateFormatPipe';
 import {UniAccountNumberPipe} from './uniAccountNumberPipe';
 import {UniCurrencyPipe} from './uniCurrencyPipe';
 import {UniDateFormatPipe} from './uniDateFormatPipe';
-import {UniSafeHtml} from './safeHTML';
 import {UniNumberFormatPipe} from './uniNumberFormatPipe';
 
 @NgModule({
@@ -16,7 +15,6 @@ import {UniNumberFormatPipe} from './uniNumberFormatPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniSafeHtml,
         UniNumberFormatPipe
     ],
     providers: [
@@ -24,7 +22,6 @@ import {UniNumberFormatPipe} from './uniNumberFormatPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniSafeHtml,
         UniNumberFormatPipe
     ],
     exports: [
@@ -33,7 +30,6 @@ import {UniNumberFormatPipe} from './uniNumberFormatPipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniDateFormatPipe,
-        UniSafeHtml,
         UniNumberFormatPipe
     ]
 })

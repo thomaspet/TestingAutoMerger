@@ -2,7 +2,7 @@
     <section *ngFor="let group of fieldGroups" class="ticker-fieldset-column">
         <span *ngFor="let field of group" class="ticker-field">
             <label>{{field.Header}}</label>
-            <span [ngClass]="field._class" [innerHtml]="field._value | safehtml"></span>
+            <span [ngClass]="field._class">{{field._value}}</span>
         </span>
     </section>
 </section>
