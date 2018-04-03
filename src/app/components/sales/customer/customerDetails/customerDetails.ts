@@ -864,7 +864,7 @@ export class CustomerDetails implements OnInit {
     private emailValidation(value: any, field: UniFieldLayout): UniFormError | null {
         // tslint:disable-next-line:max-line-length
         const validEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        if (!validEmail.test(value)) {
+        if (value && !validEmail.test(value)) {
             return {
                 value: value,
                 errorMessage: `${value} er ikke en gyldig email-adresse.`,
