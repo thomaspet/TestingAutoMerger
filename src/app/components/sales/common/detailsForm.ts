@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CompanySettings, LocalDate, Project, Seller} from '../../../unientities';
+import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, StatusCodeCustomerInvoice} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 
@@ -20,6 +20,7 @@ export class TofDetailsForm {
     @Input() public readonly: boolean;
     @Input() public entityType: string;
     @Input() public entity: any;
+    @Input() public currencyCodes: Array<CurrencyCode>;
     @Input() public projects: Project;
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
@@ -61,7 +62,7 @@ export class TofDetailsForm {
     }
 
     private initFormFields() {
-        if (this.entity) {
+        if (this.currencyCodes && this.entity) {
             const fields: UniFieldLayout[] = [
                 <any> {
                     Legend: 'Detaljer',
@@ -87,6 +88,22 @@ export class TofDetailsForm {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
+                    Property: 'CurrencyCodeID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Valuta',
+                    Section: 0,
+                    Options: {
+                        source: this.currencyCodes,
+                        valueProperty: 'ID',
+                        displayProperty: 'Code',
+                        debounceTime: 200
+                    },
+                    ReadOnly: this.readonly,
+                },
+                <any> {
+                    FieldSet: 1,
+                    FieldSetColumn: 1,
+                    EntityType: this.entityType,
                     Property: 'OurReference',
                     FieldType: FieldType.TEXT,
                     Label: 'Vår referanse',
@@ -94,23 +111,11 @@ export class TofDetailsForm {
                 },
                 <any> {
                     FieldSet: 1,
-                    FieldSetColumn: 1,
+                    FieldSetColumn: 2,
                     EntityType: this.entityType,
                     Property: 'YourReference',
                     FieldType: FieldType.TEXT,
                     Label: 'Deres referanse',
-                    Section: 0,
-                },
-                {
-                    FieldSet: 1,
-                    FieldSetColumn: 2,
-                    EntityType: this.entityType,
-                    Property: 'Requisition',
-                    Placement: 1,
-                    FieldType: FieldType.TEXT,
-                    Label: 'Rekvisisjon',
-                    Description: '',
-                    HelpText: '',
                     Section: 0,
                 },
                 <any> {
@@ -157,7 +162,7 @@ export class TofDetailsForm {
                         debounceTime: 200,
                         addEmptyValue: true
                     },
-                }
+                },
             ];
 
             if (this.entityType === 'CustomerQuote') {

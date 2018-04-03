@@ -24,8 +24,7 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
             'TaxBankAccount',
             'SalaryBankAccount',
             'DefaultSalesAccount',
-            'BaseCurrencyCode',
-            'DefaultTOFCurrencySettings'
+            'BaseCurrencyCode'
         ];
     }
 

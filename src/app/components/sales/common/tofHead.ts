@@ -1,4 +1,4 @@
-import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges, OnInit} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {
     CompanySettings,
@@ -12,8 +12,6 @@ import {
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 
 declare var _;
 
@@ -21,7 +19,7 @@ declare var _;
     selector: 'uni-tof-head',
     templateUrl: './tofHead.html'
 })
-export class TofHead implements OnChanges, OnInit {
+export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
     @ViewChild(TofDetailsForm) public detailsForm: TofDetailsForm;
 
@@ -38,17 +36,11 @@ export class TofHead implements OnChanges, OnInit {
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
     @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
-    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Valuta', 'Fritekst', 'Selgere', 'Dokumenter'];
+    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Fritekst', 'Selgere', 'Dokumenter'];
     public activeTabIndex: number = 0;
 
     private freeTextControl: FormControl = new FormControl('');
     private commentControl: FormControl = new FormControl('');
-
-    public ngOnInit() {
-        if (this.entityName === 'CustomerInvoice') {
-            this.tabs.push('Purringer');
-        }
-    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (this.data) {
@@ -73,6 +65,12 @@ export class TofHead implements OnChanges, OnInit {
         }
         this.sellerDelete.emit(sellerLink);
         this.dataChange.emit(this.data);
+    }
+
+    public ngOnInit() {
+        if (this.entityName === 'CustomerInvoice') {
+            this.tabs.push('Purringer');
+        }
     }
 
     public focus() {
