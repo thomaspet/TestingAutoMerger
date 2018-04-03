@@ -224,7 +224,7 @@ export class CompanySettingsComponent implements OnInit {
             this.periodeSeriesService.GetAll(null),
             this.accountGroupSetService.GetAll(null),
             this.companySettingsService.Get(1),
-            this.municipalService.GetAll(null),
+            this.municipalService.getAll(null),
             this.phoneService.GetNewEntity(),
             this.emailService.GetNewEntity(),
             this.addressService.GetNewEntity(null, 'Address'),
