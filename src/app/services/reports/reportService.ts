@@ -15,7 +15,7 @@ import {AuthService} from '../../authService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportStep} from '@app/components/reports/report-step';
 import {UniModalService} from '@uni-framework/uniModal/modalService';
-import {StatisticsService} from '@app/services/services';
+import {StatisticsService} from '@app/services/common/statisticsService';
 
 @Injectable()
 export class ReportService extends BizHttp<string> {
@@ -93,7 +93,7 @@ export class ReportService extends BizHttp<string> {
         this.report = <Report>report;
         this.target = target;
         this.sendemail = null;
-        
+
         this.generateReport(doneHandler); // startReportProccess()
     }
 
@@ -102,7 +102,7 @@ export class ReportService extends BizHttp<string> {
         this.report = <Report>report;
         this.target = null;
         this.sendemail = null;
-        
+
         this.generateReport(doneHandler);
     }
 
@@ -270,7 +270,7 @@ export class ReportService extends BizHttp<string> {
             let obs;
             if (entity === 'CustomerInvoice' && this.report.Name === 'Purring') {
                 const customerNumber = this.report.dataSources[entity][0].CustomerCustomerNumber;
-                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);                
+                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);
             } else {
                 const customerID = this.report.dataSources[entity][0].CustomerID;
                 obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=ID eq ${customerID}`);
@@ -288,7 +288,7 @@ export class ReportService extends BizHttp<string> {
         // Override localization from CompanySettings?
         if (this.report.dataSources['CompanySettings']) {
             if (this.report.dataSources['CompanySettings'][0].Localization) {
-                this.report.localization = this.report.dataSources['CompanySettings'][0].Localization;                        
+                this.report.localization = this.report.dataSources['CompanySettings'][0].Localization;
             }
         }
         // Override localization from Customer?
