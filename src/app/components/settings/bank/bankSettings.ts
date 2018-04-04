@@ -1,6 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {URLSearchParams} from '@angular/http';
+import {SettingsService} from '../settings-service';
 import {
     UniTable,
     UniTableColumn,
@@ -24,7 +25,6 @@ import { CompanyBankAccount, BankAccount } from '@uni-entities';
             [config]="tableConfig"
             (rowDeleted)="deleteSettings($event.rowModel)">
         </uni-table>
-        <uni-save class="fixed-position" [actions]="saveactions"></uni-save>
     `
 })
 
@@ -43,14 +43,9 @@ export class UniBankSettings {
     private busy: boolean = false;
     private isClosing: boolean = false;
 
-    public saveactions: IUniSaveAction[] = [{
-        label: 'Lagre',
-        action: (event) => this.saveSettings(event),
-        main: true,
-        disabled: !this.hasUnsavedChanges
-    }];
 
     constructor(
+        private settingsService: SettingsService,
         private bankService: BankService,
         private errorService: ErrorService,
         private accountService: AccountService,
@@ -59,6 +54,7 @@ export class UniBankSettings {
         private modalService: UniModalService
     ) {
         this.setUpTable();
+        this.updateSaveActions();
     }
 
     private setUpTable() {
@@ -354,12 +350,12 @@ export class UniBankSettings {
     }
 
     public updateSaveActions() {
-        this.saveactions = [{
+        this.settingsService.setSaveActions([{
             label: 'Lagre',
             action: (event) => this.saveSettings(event),
             main: true,
             disabled: !this.hasUnsavedChanges
-        }];
+        }]);
     }
 
     public canDeactivate(): Observable<boolean> {
