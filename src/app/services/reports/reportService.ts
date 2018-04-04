@@ -266,7 +266,7 @@ export class ReportService extends BizHttp<string> {
     }
 
     private getCustomerLocalizationOverride(entity: string) {
-        if (this.report.dataSources[entity] && this.report.dataSources[entity].length > 0) {
+        if (this.report.dataSources[entity] && this.report.dataSources[entity][0]) {
             let obs;
 
             if (entity === 'CustomerInvoice' && this.report.Name === 'Purring') {
@@ -289,7 +289,7 @@ export class ReportService extends BizHttp<string> {
 
     private getLocalizationOverride() {
         // Override localization from CompanySettings?
-        if (this.report.dataSources['CompanySettings'] && this.report.dataSources['CompanySettings'].length > 0) {
+        if (this.report.dataSources['CompanySettings'] && this.report.dataSources['CompanySettings'][0]) {
             if (this.report.dataSources['CompanySettings'][0].Localization) {
                 this.report.localization = this.report.dataSources['CompanySettings'][0].Localization;
             }
