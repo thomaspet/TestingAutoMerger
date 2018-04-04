@@ -422,6 +422,10 @@ export class VacationPayModal implements OnInit, IUniModal {
             .setChangeCallback((event) => {
                 const row: VacationPayLine = event.rowModel;
                 if (event.field === 'ManualVacationPayBase' || event.field === '_IncludeSixthWeek') {
+                    if (!row['ManualVacationPayBase']) {
+                        row['ManualVacationPayBase'] = 0;
+                    }
+
                     this.recalcVacationPay(row, this.vacationHeaderModel$.getValue());
                 }
                 if (event.field === 'Withdrawal') {
