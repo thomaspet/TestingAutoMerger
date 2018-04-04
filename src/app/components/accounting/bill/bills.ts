@@ -18,8 +18,6 @@ import {UniAssignModal, AssignDetails} from './detail/assignmodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
 import {
     ApprovalService,
-    SettingsService,
-    ViewSettings,
     SupplierInvoiceService,
     IStatTotal,
     ErrorService,
@@ -28,6 +26,7 @@ import {
     UserService,
     JournalEntryService
 } from '../../../services/services';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {
   UniImageSize,
@@ -82,7 +81,6 @@ export class BillsView implements OnInit {
     public searchTotals: { grandTotal: number, count: number } = { grandTotal: 0, count: 0 };
     public currentFilter: IFilter;
     private preSearchFilter: IFilter;
-    private viewSettings: ViewSettings;
 
     private hasQueriedInboxCount: boolean = false;
     private startupWithSearchText: string;
@@ -190,7 +188,7 @@ export class BillsView implements OnInit {
         private toast: ToastService,
         private route: ActivatedRoute,
         private router: Router,
-        private settingsService: SettingsService,
+        private browserStorage: BrowserStorageService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private pageStateService: PageStateService,
@@ -199,14 +197,13 @@ export class BillsView implements OnInit {
         private approvalService: ApprovalService,
         private journalEntryService: JournalEntryService
     ) {
-
-        this.viewSettings = settingsService.getViewSettings('economy.bills.settings');
         tabService.addTab({
             name: 'Fakturamottak',
             url: '/accounting/bills',
             moduleID: UniModules.Bills,
             active: true
         });
+
         this.checkPath();
     }
 
@@ -983,7 +980,7 @@ export class BillsView implements OnInit {
             this.pageStateService.setPageState('search', this.startupWithSearchText);
         } else {
             this.pageStateService.setPageState('filter', filter.name);
-            this.viewSettings.setProp('defaultFilter', filter.name);
+            this.browserStorage.setItem('bills.defaultFilter', filter.name);
         }
     }
 
@@ -1023,9 +1020,9 @@ export class BillsView implements OnInit {
 
         // Default-filter?
         if (this.currentFilter === undefined) {
-            const name = this.viewSettings.getProp('defaultFilter', 'Inbox');
+            const filterName = this.browserStorage.getItem('bills.defaultFilter') || 'Inbox';
             this.filters.forEach(x => {
-                if (x.name === name) {
+                if (x.name === filterName) {
                     this.currentFilter = x;
                     x.isSelected = true;
                 } else {

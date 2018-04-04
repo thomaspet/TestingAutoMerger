@@ -1,4 +1,5 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
+import {SettingsService} from '../settings-service';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
@@ -58,6 +59,7 @@ export class NumberSeries {
     public saveactions: IUniSaveAction[] = [];
 
     constructor(
+        private settingService: SettingsService,
         private http: UniHttp,
         private tabService: TabService,
         private errorService: ErrorService,
@@ -94,28 +96,26 @@ export class NumberSeries {
     }
 
     public updateSaveActions() {
-        this.saveactions = [
+        this.settingService.setSaveActions([
             {
-                label: 'Lagre',
+                label: 'Lagre nummerserier',
                 action: (done) => this.onSaveClicked(done),
                 main: true,
                 disabled: false
-            }];
+            }
+        ]);
     }
 
     public onSaveClicked(done) {
-        setTimeout( () => { // Allow the annoying editors to update
-            this.busy = true;
-            this.Save().then(x => {
-                this.busy = false;
-                done('Lagret');
-            })
-            .catch(err => {
-                this.errorService.handle(err);
-                done('En feil oppstod!');
-            });
-
-        }, 50);
+        this.busy = true;
+        this.Save().then(x => {
+            this.busy = false;
+            done('Lagring fullført');
+        })
+        .catch(err => {
+            this.errorService.handle(err);
+            done('En feil oppstod!');
+        });
     }
 
     private setCurrent(t: any) {

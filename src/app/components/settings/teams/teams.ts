@@ -1,6 +1,7 @@
 ﻿// tslint:disable:max-line-length
 import {Component, ViewChildren, QueryList} from '@angular/core';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {SettingsService} from '../settings-service';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
@@ -37,6 +38,7 @@ export class Teams {
     public saveactions: IUniSaveAction[] = [];
 
     constructor(
+        private settingsService: SettingsService,
         private http: UniHttp,
         private tabService: TabService,
         private userService: UserService,
@@ -53,12 +55,12 @@ export class Teams {
     }
 
     public updateSaveActions() {
-        this.saveactions = [{
-            label: 'Lagre',
+        this.settingsService.setSaveActions([{
+            label: 'Lagre team',
             action: (done) => this.onSaveClicked(done),
             main: true,
             disabled: !this.hasUnsavedChanges
-        }];
+        }]);
     }
 
     public onTeamSelected(event) {
@@ -84,13 +86,11 @@ export class Teams {
     }
 
     public onSaveClicked(done) {
-        setTimeout( () => { // Allow the annoying editors to update
-            this.busy = true;
-            this.save().then(x => {
-                this.busy = false;
-                done();
-            }).catch(reason => done(reason));
-        }, 50);
+        this.busy = true;
+        this.save().then(x => {
+            this.busy = false;
+            done('Team lagret');
+        }).catch(reason => done(reason));
     }
 
     private setCurrent(t: Team) {

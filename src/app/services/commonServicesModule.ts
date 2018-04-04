@@ -23,7 +23,6 @@ import {CountryService} from './common/countryService';
 import {PostalCodeService} from './common/postalCodeService';
 import {NumberFormat} from './common/numberFormatService';
 import {StatusService} from './common/statusService';
-import {SettingsService} from './common/settingsService';
 import {CompanyService} from './common/companyService';
 import {ErrorService} from './common/errorService';
 import {PageStateService} from './common/pageStateService';
@@ -87,7 +86,6 @@ export * from './common/countryService';
 export * from './common/postalCodeService';
 export * from './common/numberFormatService';
 export * from './common/statusService';
-export * from './common/settingsService';
 export * from './common/companyService';
 export * from './common/errorService';
 export * from './common/pageStateService';
@@ -155,7 +153,6 @@ export class CommonServicesModule {
                 PostalCodeService,
                 NumberFormat,
                 StatusService,
-                SettingsService,
                 CompanyService,
                 PageStateService,
                 FileService,

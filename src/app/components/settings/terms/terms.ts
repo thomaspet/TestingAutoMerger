@@ -1,5 +1,11 @@
 import {Component, ViewChildren, QueryList} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTable, UniTableColumnType} from '../../../../framework/ui/unitable/index';
+import {SettingsService} from '../settings-service';
+import {
+    UniTableConfig,
+    UniTableColumn,
+    UniTable,
+    UniTableColumnType
+} from '../../../../framework/ui/unitable/index';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ErrorService, GuidService} from '../../../services/services';
 import {Terms, TermsType} from '../../../unientities';
@@ -30,9 +36,9 @@ export class UniTerms {
 
     public termsTypeTableConfig: UniTableConfig;
     public termsTableConfig: UniTableConfig;
-    public saveactions: IUniSaveAction[] = [];
 
     constructor(
+        private settingsService: SettingsService,
         private http: UniHttp,
         private errorService: ErrorService,
         private guidService: GuidService,
@@ -60,12 +66,12 @@ export class UniTerms {
     }
 
     public updateSaveActions() {
-        this.saveactions = [{
-            label: 'Lagre',
+        this.settingsService.setSaveActions([{
+            label: 'Lagre betingelser',
             action: (done) => this.onSaveClicked(done),
             main: true,
             disabled: !this.hasUnsavedChanges
-        }];
+        }]);
     }
 
     public onSaveClicked(done) {

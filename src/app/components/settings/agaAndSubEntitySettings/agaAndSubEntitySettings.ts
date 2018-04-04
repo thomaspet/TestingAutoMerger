@@ -23,6 +23,7 @@ import {
     AgaZoneService,
     ErrorService
 } from '../../../services/services';
+import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 declare var _;
 
@@ -51,18 +52,17 @@ export class AgaAndSubEntitySettings implements OnInit {
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 
-    public saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre aga og virksomheter',
-            action: this.saveAgaAndSubEntities.bind(this),
-            main: true,
-            disabled: false
-        }
-    ];
+    public saveaction: IUniSaveAction = {
+        label: 'Lagre aga og virksomheter',
+        action: this.saveAgaAndSubEntities.bind(this),
+        main: true,
+        disabled: false
+    };
 
     public busy: boolean;
 
     constructor(
+        private settingsService: SettingsService,
         private companySalaryService: CompanySalaryService,
         private accountService: AccountService,
         private subentityService: SubEntityService,
@@ -76,6 +76,8 @@ export class AgaAndSubEntitySettings implements OnInit {
                 1: { isOpen: true }
             }
         });
+
+        this.settingsService.setSaveActions([this.saveaction]);
     }
 
     public ngOnInit() {
@@ -373,8 +375,8 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {
-        this.saveactions[0].disabled = isDisabled;
-        this.saveactions = _.cloneDeep(this.saveactions);
+        this.saveaction.disabled = isDisabled;
+        this.settingsService.setSaveActions([this.saveaction]);
     }
 
     public saveAgaAndSubEntities(done) {
@@ -407,7 +409,10 @@ export class AgaAndSubEntitySettings implements OnInit {
             saveObs.push(mainOrgSave);
         }
         Observable.forkJoin(saveObs)
-            .finally( () => this.saveactions[0].disabled = false)
+            .finally(() => {
+                this.saveaction.disabled = false;
+                this.settingsService.setSaveActions([this.saveaction]);
+            })
             .subscribe((response: any) => {
                 this.companySalary$.next(response[0]);
                 this.mainOrganization$.next(response[2]);

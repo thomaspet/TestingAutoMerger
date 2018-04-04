@@ -66,6 +66,7 @@ import {
     UniPhoneModal,
     ConfirmActions
 } from '@uni-framework/uniModal/barrel';
+import {SettingsService} from '../settings-service';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -130,13 +131,6 @@ export class CompanySettingsComponent implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
-    public saveactions: IUniSaveAction[] = [{
-        label: 'Lagre',
-        action: (event) => this.saveSettings(event),
-        main: true,
-        disabled: false
-    }];
 
     public roundingTypes: {ID: number, Label: string}[] = [
         {ID: 0, Label: 'Opp'},
@@ -214,11 +208,19 @@ export class CompanySettingsComponent implements OnInit {
         private tofCurrencySettingsService: TofCurrencySettingsService,
         private elsaPurchasesService: ElsaPurchasesService,
         private subEntityService: SubEntityService,
+        private settingsService: SettingsService
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
             err => this.errorService.handle(err)
         );
+
+        this.settingsService.setSaveActions([{
+            label: 'Lagre firmainnstillinger',
+            action: (event) => this.saveSettings(event),
+            main: true,
+            disabled: false
+        }]);
     }
 
     public ngOnInit() {

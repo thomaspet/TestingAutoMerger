@@ -1,5 +1,6 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import {SettingsService} from '../settings-service';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {AuthService} from '../../../authService';
 import {UniModalService} from '../../../../framework/uniModal/barrel';
@@ -36,16 +37,15 @@ export class WebHookSettings {
     private isPermitted: boolean = false;
     private isBusy: boolean = true;
 
-    private saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (done) => this.save(done),
-            main: true,
-            disabled: true
-        }
-    ];
+    private saveaction: IUniSaveAction = {
+        label: 'Lagre',
+        action: (done) => this.save(done),
+        main: true,
+        disabled: true
+    };
 
     public constructor(
+        private settingsService: SettingsService,
         private umhSerivce: UmhService,
         private companyService: CompanyService,
         private authService: AuthService,
@@ -56,6 +56,8 @@ export class WebHookSettings {
     ) {}
 
     public ngOnInit() {
+        this.settingsService.setSaveActions([this.saveaction]);
+
         this.objectiveSelectConfig = {
             displayProperty: 'Name',
             placeholder: 'Velg objektiv',
@@ -101,6 +103,11 @@ export class WebHookSettings {
         this.cdr.detectChanges();
     }
 
+    private setSaveActionDisabled(disabled: boolean) {
+        this.saveaction.disabled = disabled;
+        this.settingsService.setSaveActions([this.saveaction]);
+    }
+
     private gatherData() {
         Observable.forkJoin(
             this.umhSerivce.getActions(),
@@ -117,7 +124,7 @@ export class WebHookSettings {
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
-        if (this.saveactions[0].disabled) {
+        if (this.saveaction.disabled) {
            return true;
         }
 
@@ -140,7 +147,7 @@ export class WebHookSettings {
 
     private initObjectives(data: any) {
         const objectives = [];
-        let objective: IUmhObjective = {
+        const objective: IUmhObjective = {
             id: this.noFilter,
             Name: 'All'
         };
@@ -172,12 +179,12 @@ export class WebHookSettings {
                 subscriptions => {
                     const length = subscriptions.length;
 
-                    for (var i = 0; i < length; ++i) {
+                    for (let i = 0; i < length; ++i) {
                         subscriptions[i].State = SubscriptionState.Unchanged;
                     }
                     this.subscriptions = subscriptions;
                     this.isBusy = false;
-                    this.saveactions[0].disabled = true;
+                    this.setSaveActionDisabled(true);
                 },
                 err => this.errorService.handle(err)
             );
@@ -187,7 +194,7 @@ export class WebHookSettings {
     public onSubmit() {
         this.subscriptions.push(this.subscription);
         this.initSubscription();
-        this.saveactions[0].disabled = false;
+        this.setSaveActionDisabled(false);
     }
 
     public enableWebHooks() {
@@ -253,7 +260,7 @@ export class WebHookSettings {
 
     public onDeleteSubscription(subscription: IUmhSubscription) {
         if (subscription.State === SubscriptionState.New) {
-            var idx = this.subscriptions.indexOf(subscription);
+            const idx = this.subscriptions.indexOf(subscription);
 
             if (idx > -1) {
                 this.subscriptions.splice(idx, 1);
@@ -262,11 +269,12 @@ export class WebHookSettings {
         } else {
             subscription.State = SubscriptionState.Deleted;
         }
-        this.saveactions[0].disabled = false;
+
+        this.setSaveActionDisabled(false);
     }
 
     private updateSubscription(subscription: IUmhSubscription) {
-        this.saveactions[0].disabled = false;
+        this.setSaveActionDisabled(false);
 
         if (subscription.State !== SubscriptionState.New) {
             subscription.State = SubscriptionState.Changed;
@@ -280,7 +288,7 @@ export class WebHookSettings {
 
     public getObjectiveName(id: string): string {
         if (this.objectives !== undefined) {
-            var objective =  this.objectives.find(o => o.id === id);
+            const objective =  this.objectives.find(o => o.id === id);
 
             return objective !== undefined ? objective.Name : '';
         } else {
@@ -290,7 +298,7 @@ export class WebHookSettings {
 
     public getActionName(id: string): string {
         if (this.actions !== undefined) {
-            var action = this.actions.find(o => o.id === id);
+            const action = this.actions.find(o => o.id === id);
 
             return action !== undefined ? action.Name : null;
         } else {
@@ -328,6 +336,7 @@ export class WebHookSettings {
         } else {
             done();
         }
-        this.saveactions[0].disabled = true;
+
+        this.setSaveActionDisabled(true);
    }
 }

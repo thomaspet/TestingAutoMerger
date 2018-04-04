@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IPosterWidget} from '../common/poster/poster';
+import {SettingsService} from './settings-service';
 import {CompanySettings, SubEntity, User, File} from '../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService, SubEntityService, UserService, ErrorService} from '../../services/services';
@@ -49,12 +50,14 @@ export class Settings implements OnInit {
     };
 
     constructor(
+        private settingsService: SettingsService,
         private tabService: TabService,
         private companySettingsService: CompanySettingsService,
         private subEntityService: SubEntityService,
         private userService: UserService,
         private errorService: ErrorService,
-        private http: UniHttp) {
+        private http: UniHttp
+    ) {
         this.tabService.addTab({
              name: 'Innstillinger',
              url: '/settings/company',

@@ -1,4 +1,5 @@
 ﻿import {Component} from '@angular/core';
+import {SettingsService} from '../settings-service';
 import {UserService, ErrorService} from '../../../services/services';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {User} from '../../../unientities';
@@ -17,20 +18,21 @@ export class UserSettings {
     public formFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public isDirty: boolean = false;
 
-    public saveactions: IUniSaveAction[] = [{
-        label: 'Lagre',
-        action: (done) => this.saveSettings(done),
-        main: true,
-        disabled: false
-    }];
-
     constructor(
+        private settingsService: SettingsService,
         private userService: UserService,
         private errorService: ErrorService,
         private modalService: UniModalService
     ) {}
 
     public ngOnInit() {
+        this.settingsService.setSaveActions([{
+            label: 'Lagre bruker',
+            action: (done) => this.saveSettings(done),
+            main: true,
+            disabled: false
+        }]);
+
         this.userService.getCurrentUser().subscribe(
             user => this.user$.next(user),
             err => this.errorService.handle(err)

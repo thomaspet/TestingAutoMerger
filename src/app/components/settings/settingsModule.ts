@@ -8,6 +8,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {settingsRoutes} from './settingsRoutes';
 import {Settings} from './settings';
+import {SettingsService} from './settings-service';
 
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {SubEntitySettingsService} from './agaAndSubEntitySettings/services/subEntitySettingsService';
@@ -99,7 +100,8 @@ import {UniAdminPasswordModal} from '@app/components/settings/users/admin-passwo
     ],
     providers: [
         SubEntitySettingsService,
-        CompanySettingsViewService
+        CompanySettingsViewService,
+        SettingsService
     ]
 })
 export class SettingsModule {

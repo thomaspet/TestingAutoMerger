@@ -1,4 +1,7 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="settingsService.saveActions$ | async">
+</uni-toolbar>
 
 <uni-poster [widgets]="widgets" *ngIf="widgets"></uni-poster>
 
