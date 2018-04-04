@@ -209,7 +209,7 @@ export class UniCompanyDropdown {
                         'Kan ikke endre standard',
                          ToastType.warn,
                          5,
-                         'Regnskapsår eksisterer ikke. Endret kun nåværende sessjon.'
+                         'Regnskapsår eksisterer ikke. Endret kun nåværende sesjon.'
                     );
                 }
                 this.close();

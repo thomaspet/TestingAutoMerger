@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {EmployeeTaxCard, TaxCard} from '../../../unientities';
+import {EmployeeTaxCard, TaxCard, FreeAmountType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 
@@ -271,9 +271,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Section: 0,
                         Options: {
                             source: [
-                                { id: 0, name: 'Ingen' },
-                                { id: 1, name: 'Frikort med beløp' },
-                                { id: 3, name: 'Frikort uten beløp' }
+                                { id: FreeAmountType.None, name: 'Ingen' },
+                                { id: FreeAmountType.WithAmount, name: 'Frikort med beløp' },
+                                { id: FreeAmountType.NoLimit, name: 'Frikort uten beløp' }
                             ],
                             template: (obj) => `${obj.id} - ${obj.name}`,
                             valueProperty: 'id',
@@ -326,9 +326,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Section: 0,
                         Options: {
                             source: [
-                                { id: 0, name: 'Ingen' },
-                                { id: 1, name: 'Frikort med beløp' },
-                                { id: 3, name: 'Frikort uten beløp' }
+                                { id: FreeAmountType.None, name: 'Ingen' },
+                                { id: FreeAmountType.WithAmount, name: 'Frikort med beløp' },
+                                { id: FreeAmountType.NoLimit, name: 'Frikort uten beløp' }
                             ],
                             template: (obj) => `${obj.id} - ${obj.name}`,
                             valueProperty: 'id',
@@ -378,8 +378,8 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         Section: 0,
                         Options: {
                             source: [
-                                { id: 0, name: 'Ingen' },
-                                { id: 3, name: 'Frikort uten beløp' }
+                                { id: FreeAmountType.None, name: 'Ingen' },
+                                { id: FreeAmountType.NoLimit, name: 'Frikort uten beløp' }
                             ],
                             template: (obj) => `${obj.id} - ${obj.name}`,
                             valueProperty: 'id',
