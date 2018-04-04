@@ -8,7 +8,8 @@ import {
     Seller,
     SellerLink,
     StatusCodeCustomerInvoice,
-    StatusCodeCustomerQuote
+    StatusCodeCustomerQuote,
+    User,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
@@ -32,6 +33,7 @@ export class TofHead implements OnChanges {
     @Input() public deliveryTerms: Terms[];
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
+    @Input() public currentUser: User;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
     @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
@@ -46,6 +48,13 @@ export class TofHead implements OnChanges {
         if (this.data) {
             this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
             this.commentControl.setValue(this.data.Comment, {emitEvent: false});
+
+            if (this.sellers && this.data.ID === 0 && this.currentUser) {
+                const userIsSeller = this.sellers.find(seller => seller.UserID === this.currentUser.ID);
+                if (userIsSeller) {
+                    this.data.DefaultSeller = userIsSeller;
+                }
+            }
         }
     }
 

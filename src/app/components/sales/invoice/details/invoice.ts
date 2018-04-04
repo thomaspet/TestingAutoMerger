@@ -18,7 +18,8 @@ import {
     StatusCodeCustomerInvoice,
     Terms,
     NumberSeries,
-    VatType
+    VatType,
+    User,
 } from '../../../../unientities';
 
 import {
@@ -129,6 +130,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private currentCustomer: Customer;
     private currentPaymentTerm: Terms;
     private currentDeliveryTerm: Terms;
+    private currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private selectConfig: any;
@@ -263,7 +265,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
-                    invoice.OurReference = res[1].DisplayName;
+                    this.currentUser = res[1];
+                    invoice.OurReference = this.currentUser.DisplayName;
                     if (res[2]) {
                         invoice = this.tofHelper.mapCustomerToEntity(res[2], invoice);
                     }

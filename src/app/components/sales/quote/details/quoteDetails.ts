@@ -17,7 +17,8 @@ import {
     StatusCodeCustomerQuote,
     Terms,
     NumberSeries,
-    VatType
+    VatType,
+    User,
 } from '../../../../unientities';
 
 import {
@@ -99,6 +100,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private currencyExchangeRate: number;
     private currentCustomer: Customer;
     private currentDeliveryTerm: Terms;
+    private currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
@@ -278,7 +280,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
-                        quote.OurReference = res[1].DisplayName;
+                        this.currentUser = res[1];
+                        quote.OurReference = this.currentUser.DisplayName;
                         this.companySettings = res[2];
                         this.currencyCodes = res[3];
                         this.paymentTerms = res[4];
