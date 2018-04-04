@@ -266,27 +266,30 @@ export class ReportService extends BizHttp<string> {
     }
 
     private getCustomerLocalizationOverride(entity: string) {
-        if (this.report.dataSources[entity]) {
+        if (this.report.dataSources[entity] && this.report.dataSources[entity].length > 0) {
             let obs;
+
             if (entity === 'CustomerInvoice' && this.report.Name === 'Purring') {
                 const customerNumber = this.report.dataSources[entity][0].CustomerCustomerNumber;
-                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);
+                obs = this.statisticsService
+                    .GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);
             } else {
                 const customerID = this.report.dataSources[entity][0].CustomerID;
-                obs = this.statisticsService.GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=ID eq ${customerID}`);
+                obs = this.statisticsService
+                    .GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=ID eq ${customerID}`);
             }
 
             obs.subscribe((res) => {
                 if (res[0].Localization) {
                     this.report.localization = res[0].Localization;
                 }
-            })
+            });
         }
     }
 
     private getLocalizationOverride() {
         // Override localization from CompanySettings?
-        if (this.report.dataSources['CompanySettings']) {
+        if (this.report.dataSources['CompanySettings'] && this.report.dataSources['CompanySettings'].length > 0) {
             if (this.report.dataSources['CompanySettings'][0].Localization) {
                 this.report.localization = this.report.dataSources['CompanySettings'][0].Localization;
             }
