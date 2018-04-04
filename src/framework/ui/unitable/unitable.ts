@@ -436,6 +436,11 @@ export class UniTable implements OnChanges {
     }
 
     public onFiltersChange(event) {
+        // Reset row selection
+        if (this.config.multiRowSelect) {
+            this.onSelectAllRowsChange(false);
+        }
+
         this.basicSearchFilters = event.basicSearchFilters;
         this.advancedSearchFilters = event.advancedSearchFilters;
 
