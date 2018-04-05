@@ -2289,6 +2289,39 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
+    public trySaveJournalEntryDrafts(completeCallback) {
+        const tableData = this.table.getTableData();
+
+        // check if any of the data contains no account - this will cause problems when saving
+        let hasInvalidData: boolean = false;
+        tableData.forEach(x => {
+            if (!x.DebitAccount && !x.CreditAccount) {
+                hasInvalidData = true;
+            }
+        });
+
+        if (hasInvalidData) {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Ugyldige data',
+                    message: 'Rader som ikke har debet og/eller kreditkonto vil ikke bli lagret',
+                    buttonLabels: {
+                        accept: 'Lagre kladd likevel',
+                        cancel: 'Avbryt'
+                    }
+                });
+
+                modal.onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.saveJournalEntryDrafts(completeCallback);
+                    } else {
+                        completeCallback('');
+                    }
+                });
+        } else {
+            this.saveJournalEntryDrafts(completeCallback);
+        }
+    }
+
     public saveJournalEntryDrafts(completeCallback) {
         const tableData = this.table.getTableData();
 

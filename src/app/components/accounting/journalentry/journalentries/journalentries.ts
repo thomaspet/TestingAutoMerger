@@ -303,7 +303,7 @@ export class JournalEntries {
             'model=JournalEntry&' +
             'distinct=true&' +
             'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
-            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0&' +
+            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0 and isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne \'00000000-0000-0000-0000-000000000000\'&' +
             'join=JournalEntry.CreatedBy eq User.GlobalIdentity and JournalEntry.Id eq SupplierInvoice.JournalEntryId'
         )
             .subscribe(journalEntries => {

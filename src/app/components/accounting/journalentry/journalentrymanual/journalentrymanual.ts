@@ -732,7 +732,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         // to run first, to let it update its' datasource
         setTimeout(() => {
             if (this.journalEntryProfessional) {
-                this.journalEntryProfessional.saveJournalEntryDrafts((result: string) => {
+                this.journalEntryProfessional.trySaveJournalEntryDrafts((result: string) => {
                     completeCallback(result);
 
                     if (result && result !== '') {
