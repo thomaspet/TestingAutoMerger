@@ -454,7 +454,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             row['_Rate'] = row['Rate60'];
             if (vacBase > limitBasicAmount) {
                 row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
-                + limitBasicAmount * this.companysalary['_Rate60'] / 100;
+                + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
             } else {
                 row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate60'] / 100;
             }
