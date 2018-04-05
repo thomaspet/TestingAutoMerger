@@ -4,7 +4,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
-import {ExternalSearch} from './externalSearch/externalSearch';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
@@ -52,7 +51,6 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
     declarations: [
         PredefinedDescriptionList,
         ContextMenu,
-        ExternalSearch,
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,
@@ -110,7 +108,6 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
     exports: [
         PredefinedDescriptionList,
         ContextMenu,
-        ExternalSearch,
         AccrualModal,
         AltinnAuthenticationModal,
         UniBreadcrumbs,

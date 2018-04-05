@@ -1,8 +1,4 @@
-﻿<section class="poster_overview" *ngIf="showExternalSearch">
-    <external-search [searchText]="searchText" (selectEvent)="addSearchInfo($event)" [helpText]="'Registrer informasjon i feltene under, eller trykk på et av selskapene under for å fylle inn informasjon automatisk. Søket vil oppdatere seg hvis du endrer Firmanavn'"></external-search>
-</section>
-
-<article *ngIf="company$ | async">
+﻿<article *ngIf="company$ | async">
 
     <uni-form class="companySettings"
               [config]="config$"

@@ -1,0 +1,48 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        <h1>Hent opplysninger fra brønnøysundregisteret</h1>
+    </header>
+
+    <article>
+        <p class="warn" style="margin-top: 0;">
+            Merk at denne prosesssen kan overskrive tidligere registrert informasjon om selskapet
+        </p>
+
+        <input
+            type="search"
+            placeholder="Søk etter virksomhet"
+            [formControl]="searchControl"
+        />
+
+        <section class="search-results">
+            <table class="uni-table">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Orgnr</th>
+                        <th>Addresse</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let result of searchResults; let idx = index"
+                        [attr.aria-selected]="idx === selectedIndex"
+                        (click)="selectItem(idx)">
+
+                        <td>{{result.navn}}</td>
+                        <td>{{result.orgnr}}</td>
+                        <td>{{result.forretningsadr || result.forradrpoststed}} - {{result.forradrpostnr}} {{result.forradrkommnavn}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </article>
+
+    <footer>
+        <button class="good" (click)="close(true)" [disabled]="!(selectedIndex >= 0)">
+            Velg virksomhet
+        </button>
+        <button class="bad" (click)="close(false)">Avbryt</button>
+    </footer>
+</section>

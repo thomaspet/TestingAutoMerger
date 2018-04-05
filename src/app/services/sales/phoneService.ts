@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Phone, PhoneTypeEnum} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
+import {IBrRegCompanyInfo} from '@uni-framework/uniModal/presets/brRegModal/brRegModal';
 import {ErrorService} from '../common/errorService';
 
 @Injectable()
@@ -18,10 +18,10 @@ export class PhoneService extends BizHttp<Phone> {
         this.DefaultOrderBy = null;
     }
 
-    public phoneFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
-        if(selectedSearchInfo.tlf === '') {
+    public phoneFromSearch(selectedSearchInfo: IBrRegCompanyInfo): Promise<any> {
+        if (selectedSearchInfo.tlf === '') {
             return null;
-        };
+        }
 
         return new Promise(resolve => {
             this.GetNewEntity([], 'phone').subscribe(phone => {
@@ -33,10 +33,10 @@ export class PhoneService extends BizHttp<Phone> {
         });
     }
 
-    public mobileFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
-        if(selectedSearchInfo.tlf_mobil === '') {
+    public mobileFromSearch(selectedSearchInfo: IBrRegCompanyInfo): Promise<any> {
+        if (selectedSearchInfo.tlf_mobil === '') {
             return null;
-        };
+        }
 
         return new Promise(resolve => {
             this.GetNewEntity([], 'phone').subscribe(phone => {

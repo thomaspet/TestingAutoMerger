@@ -5,7 +5,6 @@ import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index'
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {IUploadConfig} from '@uni-framework/uniImage/uniImage';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import {SearchResultItem} from '../../common/externalSearch/externalSearch';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
@@ -64,7 +63,8 @@ import {
     UniEmailModal,
     UniModalService,
     UniPhoneModal,
-    ConfirmActions
+    UniBrRegModal,
+    ConfirmActions,
 } from '@uni-framework/uniModal/barrel';
 import {SettingsService} from '../settings-service';
 
@@ -123,8 +123,6 @@ export class CompanySettingsComponent implements OnInit {
     public emptyEmail: Email;
     public emptyAddress: Address;
 
-    private showExternalSearch: boolean = false;
-    private searchText: string = '';
     private organizationnumbertoast: number;
 
     public isDirty: boolean = false;
@@ -308,26 +306,6 @@ export class CompanySettingsComponent implements OnInit {
                     },
                     err => this.errorService.handle(err)
                 );
-
-                this.showExternalSearch = this.company$.getValue().OrganizationNumber === '';
-
-                if (this.showExternalSearch) {
-                    setTimeout(() => {
-                        this.searchText = this.company$.getValue().CompanyName;
-                    });
-                }
-
-                if (this.showExternalSearch) {
-                    this.form.field('CompanyName')
-                        .component
-                        .control
-                        .valueChanges
-                        .debounceTime(300)
-                        .distinctUntilChanged()
-                        .subscribe((data) => {
-                            this.searchText = data;
-                        });
-                }
             },
             err => this.errorService.handle(err)
             );
@@ -353,25 +331,6 @@ export class CompanySettingsComponent implements OnInit {
         if (data['_FileFlowEmail']) {
             this.form.field('_UpdateEmail').readMode(); // Disable button update email address as initial state
         }
-    }
-
-    public addSearchInfo(searchInfo: SearchResultItem) {
-        const company = this.company$.getValue();
-
-        company.OrganizationNumber = searchInfo.orgnr;
-        company.CompanyName = searchInfo.navn;
-        company.DefaultAddress.AddressLine1 = searchInfo.forretningsadr;
-        company.DefaultAddress.PostalCode = searchInfo.forradrpostnr;
-        company.DefaultAddress.City = searchInfo.forradrpoststed;
-        company.OfficeMunicipalityNo = searchInfo.forradrkommnr;
-        company.DefaultPhone.Number = searchInfo.tlf;
-        company.WebAddress = searchInfo.url;
-
-        const companyType = this.companyTypes.find(x => x !== null && x.Name === searchInfo.organisasjonsform);
-        if (companyType) {
-            company.CompanyTypeID = companyType.ID;
-        }
-        this.company$.next(company);
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -645,7 +604,6 @@ export class CompanySettingsComponent implements OnInit {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
                     // this.company$.next(this.setupCompanySettingsData(retrievedCompany));
                     this.getDataAndSetupForm();
-                    this.showExternalSearch = retrievedCompany.OrganizationNumber === '';
 
                     this.reminderSettings.save().then(() => {
                         this.isDirty = false;
@@ -707,6 +665,52 @@ export class CompanySettingsComponent implements OnInit {
                 this.company$.next(compSettings);
                 this.saveSettings(() => {});
             }, err => this.errorService.handle(err));
+    }
+
+    private openBrRegModal() {
+        this.modalService.open(UniBrRegModal).onClose.subscribe(brRegInfo => {
+            if (brRegInfo) {
+                const company = this.company$.getValue();
+
+                company.CompanyName = brRegInfo.navn;
+                company.OrganizationNumber = brRegInfo.orgnr;
+                company.OfficeMunicipalityNo = brRegInfo.forradrkommnr;
+                company.WebAddress = brRegInfo.url;
+
+                const companyType = this.companyTypes.find(type => {
+                    return type && type.Name === brRegInfo.organisasjonsform;
+                });
+
+                if (companyType) {
+                    company.CompanyTypeID = companyType.ID;
+                }
+
+                if (!company.DefaultAddress) {
+                    company.DefaultAddress = <any> {
+                        ID: 0,
+                        _createguid: this.companySettingsService.getNewGuid(),
+                    };
+                }
+
+                company.DefaultAddress.AddressLine1 = brRegInfo.forretningsadr;
+                company.DefaultAddress.PostalCode = brRegInfo.forradrpostnr;
+                company.DefaultAddress.City = brRegInfo.forradrpoststed;
+                company.DefaultAddress.Country = brRegInfo.forradrland;
+
+                if (brRegInfo.tlf) {
+                    if (!company.DefaultPhone) {
+                        company.DefaultPhone = <any> {
+                            ID: 0,
+                            _createguid: this.companySettingsService.getNewGuid()
+                        };
+                    }
+
+                    company.DefaultPhone.Number = brRegInfo.tlf;
+                }
+
+                this.company$.next(company);
+            }
+        });
     }
 
     public updateMunicipalityName() {
@@ -1043,6 +1047,15 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Kontorkommune',
                 FieldSet: 1,
                 Section: 0
+            },
+            {
+                Section: 0,
+                FieldSet: 1,
+                FieldType: FieldType.BUTTON,
+                Label: 'Hent opplysninger fra br-reg',
+                Options: {
+                    click: () => this.openBrRegModal(),
+                }
             },
             {
                 EntityType: 'CompanySettings',

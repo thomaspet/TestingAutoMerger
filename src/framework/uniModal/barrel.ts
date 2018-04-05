@@ -14,6 +14,7 @@ import {UniApproveModal} from './presets/approveModal';
 import {UniDownloadPaymentsModal} from './presets/downloadPaymentsModal';
 import {SingleTextFieldModal} from './presets/singleTextFieldModal';
 import {LicenseAgreementModal} from '@uni-framework/uniModal/presets/licenseAgreementModal';
+import {UniBrRegModal} from './presets/brRegModal/brRegModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -33,6 +34,7 @@ export * from './presets/approveModal';
 export * from './presets/downloadPaymentsModal';
 export * from './presets/singleTextFieldModal';
 export * from './presets/licenseAgreementModal';
+export * from './presets/brRegModal/brRegModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -50,6 +52,7 @@ export const MODALS = [
     UniApproveModal,
     UniDownloadPaymentsModal,
     SingleTextFieldModal,
-    LicenseAgreementModal
+    LicenseAgreementModal,
+    UniBrRegModal,
 ];
 

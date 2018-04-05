@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Address} from '../../unientities';
-import {UniHttp} from '../../../framework/core/http/http';
-import {SearchResultItem} from '../../../app/components/common/externalSearch/externalSearch';
+import {BizHttp} from '@uni-framework/core/http/BizHttp';
+import {Address} from '@app/unientities';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {IBrRegCompanyInfo} from '@uni-framework/uniModal/presets/brRegModal/brRegModal';
 import {ErrorService} from '../common/errorService';
 
 @Injectable()
@@ -18,14 +18,14 @@ export class AddressService extends BizHttp<Address> {
         this.DefaultOrderBy = null;
     }
 
-    public businessAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+    public businessAddressFromSearch(selectedSearchInfo: IBrRegCompanyInfo): Promise<any> {
 
         if ( selectedSearchInfo.forretningsadr === ''
             && selectedSearchInfo.forradrpostnr  === ''
             && selectedSearchInfo.forradrpoststed  === ''
             && selectedSearchInfo.forradrland  === '') {
             return null;
-        };
+        }
 
         return new Promise(resolve => {
             this.GetNewEntity([], 'address').subscribe((address: Address) => {
@@ -39,7 +39,7 @@ export class AddressService extends BizHttp<Address> {
         });
     }
 
-    public postalAddressFromSearch(selectedSearchInfo: SearchResultItem): Promise<any> {
+    public postalAddressFromSearch(selectedSearchInfo: IBrRegCompanyInfo): Promise<any> {
         if ( selectedSearchInfo.postadresse === ''
             && selectedSearchInfo.ppostnr  === ''
             && selectedSearchInfo.ppoststed  === ''
