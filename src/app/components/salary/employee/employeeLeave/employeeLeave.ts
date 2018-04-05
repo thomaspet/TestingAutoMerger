@@ -58,12 +58,17 @@ export class EmployeeLeaves extends UniView {
         const leavePercentCol = new UniTableColumn('LeavePercent', 'Prosent', UniTableColumnType.Percent);
         const commentCol = new UniTableColumn('Description', 'Kommentar');
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
-            .setTemplate((dataItem) => {
-                if (!dataItem.LeaveType && !dataItem['_isEmpty']) {
-                    dataItem.LeaveType = Leavetype.Leave;
+            .setTemplate((dataItem: EmployeeLeave) => {
+
+                const leaveType = dataItem.LeaveType
+                    ? this.employeeLeaveService.getOnlyNewTypes().find(lt => +lt.ID === +dataItem.LeaveType)
+                    : null;
+
+                if (!leaveType && dataItem.LeaveType === Leavetype.Leave) {
+                    return 'Permisjon';
                 }
-                const leaveType = this.employeeLeaveService.getOnlyNewTypes().find(lt => +lt.ID === +dataItem.LeaveType);
-                return leaveType ? leaveType.text : leaveType === undefined && dataItem.ID > 0 ? 'Permisjon' : '';
+
+                return leaveType && leaveType.text;
             })
             .setOptions({
                 itemTemplate: selectedItem => selectedItem.text,
@@ -99,7 +104,7 @@ export class EmployeeLeaves extends UniView {
                     this.mapEmploymentToPermision(row);
                 } else if (this.employments && !row.ID && !row['_isDirty']) {
                     row.Employment = this.employments.find(x => x.Standard);
-                    row['LeaveType'] = this.employeeLeaveService.getOnlyNewTypes()[0].ID;
+                    row.LeaveType = row.LeaveType || Leavetype.NotSet;
                     row.EmploymentID = row.Employment ? row.Employment.ID : undefined;
                 }
 
