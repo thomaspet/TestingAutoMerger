@@ -305,32 +305,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    const payrollrun = this.payrollrun$.getValue();
-                    if (payrollrun) {
-                        if (!payrollrun.StatusCode) {
-                            this._toastService.addToast(
-                                'Kan ikke nullstille', ToastType.warn, 4,
-                                'Lønnsavregningen må være avregnet før du kan nullstille den'
-                            );
-                        } else {
-                            if (payrollrun.StatusCode < 2
-                                || confirm('Denne lønnsavregningen er bokført, er du sikker på at du vil nullstille?')
-                            ) {
-                                this.busy = true;
-                                this.payrollrunService.resetSettling(this.payrollrunID)
-                                    .finally(() => this.busy = false)
-                                    .subscribe((response: boolean) => {
-                                        if (response) {
-                                            this.getData();
-                                        } else {
-                                            this.errorService.handleWithMessage(
-                                                response, 'Fikk ikke nullstilt lønnsavregning'
-                                            );
-                                        }
-                                    }, err => this.errorService.handle(err));
-                            }
+                    this.busy = true;
+                    this.payrollRunDetailsService
+                    .resetRun(this.payrollrun$.getValue())
+                    .finally(() => this.busy = false)
+                    .subscribe(refresh => {
+                        if (refresh) {
+                            this.getData();
                         }
-                    }
+                    });
                 },
                 disabled: (rowModel) => {
                     if (this.payrollrun$.getValue()) {

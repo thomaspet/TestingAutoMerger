@@ -6,6 +6,7 @@ import {Observable} from 'rxjs/Observable';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval} from '../../../../unientities';
 import * as moment from 'moment';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class PayrollRunDetailsService {
@@ -15,7 +16,8 @@ export class PayrollRunDetailsService {
         private modalService: UniModalService,
         private payrollRunService: PayrollrunService,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private toastService: ToastService
     ) {}
 
     public deletePayrollRun(id: number): void {
@@ -84,5 +86,53 @@ export class PayrollRunDetailsService {
         }
 
         return new LocalDate(toDate.toLocaleString()).toDate();
+    }
+
+    public resetRun(payrollrun: PayrollRun): Observable<boolean> {
+        if (!payrollrun) {
+            return Observable.of(false);
+        }
+
+        if (!payrollrun.StatusCode) {
+            this.toastService.addToast(
+                'Kan ikke nullstille', ToastType.warn, 4,
+                'Lønnsavregningen må være avregnet før du kan nullstille den'
+            );
+            return Observable.of(false);
+        }
+
+        return this.modalService
+            .confirm({
+                message: this.getResetRunMessage(),
+                header: 'Nullstille lønnsavregning',
+                buttonLabels: {
+                    accept: 'Nullstill',
+                    cancel: 'Avbryt'
+                }
+            })
+            .onClose
+            .switchMap(action => action === ConfirmActions.ACCEPT
+                ? this.resetSettling(payrollrun)
+                : Observable.of(false))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    private getResetRunMessage(): string {
+        return '<p>Lønnsavregninger som er bokført og/eller utbetalt bør ikke nullstilles. ' +
+        'Vi anbefaler da å lage en ny lønnsavregning hvor man korrigerer lønnspostene som har blitt feil.</p>' +
+        '<p>Ved nullstilling vil lønnsposter oppdateres dersom lønnsart og/eller skattekort på ansatt har blitt endret siden ' +
+        'lønnsavregningen ble avregnet. Dersom du har bokført må bokføringen korrigeres manuelt. Ønsker du å fortsette?</p>';
+    }
+
+    private resetSettling(payrollRun: PayrollRun): Observable<boolean> {
+        return this.payrollRunService
+                .resetSettling(payrollRun.ID)
+                .do(response => {
+                    if (!response) {
+                        this.errorService.handleWithMessage(
+                            response, 'Fikk ikke nullstilt lønnsavregning'
+                        );
+                    }
+                });
     }
 }
