@@ -3,7 +3,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {SubEntityList} from './subEntityList';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {GrantModal} from './modals/grantModal';
 import {FreeAmountModal} from './modals/freeAmountModal';
 import {Observable} from 'rxjs/Observable';

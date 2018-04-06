@@ -11,7 +11,7 @@ import {
     UniTableConfig,
     UniTableColumnType
 } from '../../../../../framework/ui/unitable/index';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {VatReport} from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
 import {ToastService} from '../../../../../framework/uniToast/toastService';

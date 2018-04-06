@@ -10,7 +10,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {ErrorService, GuidService} from '../../../services/services';
 import {Terms, TermsType} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'uni-terms',

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
 
 @Component({
     selector: 'draftline-description-modal',

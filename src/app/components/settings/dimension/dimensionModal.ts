@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {FormControl, FormGroup} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

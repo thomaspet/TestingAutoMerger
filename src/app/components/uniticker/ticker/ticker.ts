@@ -35,7 +35,7 @@ import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService
 import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';

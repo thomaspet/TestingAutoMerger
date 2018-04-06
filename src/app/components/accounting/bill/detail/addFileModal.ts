@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit, ViewChild, HostListener} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     UniTableColumn,

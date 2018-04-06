@@ -53,7 +53,7 @@ import {
     UniPhoneModal,
     ConfirmActions,
     UniBankAccountModal
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {SubCompanyComponent} from './subcompany';
 

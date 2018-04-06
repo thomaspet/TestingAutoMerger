@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {PayrollrunService, ErrorService} from '../../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';

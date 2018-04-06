@@ -14,7 +14,7 @@ import {
     IModalOptions,
     IUniModal,
     ConfirmActions
-} from '@uni-framework/uniModal/interfaces';
+} from '@uni-framework/uni-modal/interfaces';
 import {UniConfirmModalV2} from './confirmModal';
 
 import {UniMath} from '../../core/uniMath';
@@ -23,7 +23,7 @@ import {ToastService, ToastType} from '../../uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
-import { UniModalService } from '@uni-framework/uniModal/modalService';
+import { UniModalService } from '@uni-framework/uni-modal/modalService';
 
 @Component({
     selector: 'uni-register-payment-modal',

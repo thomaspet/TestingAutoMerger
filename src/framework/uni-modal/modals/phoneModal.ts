@@ -1,18 +1,18 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {Email} from '../../../app/unientities';
+import {Phone, PhoneTypeEnum} from '../../../app/unientities';
 
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
-    selector: 'uni-email-modal',
+    selector: 'uni-phone-modal',
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{options.header || 'Epost'}}</h1>
+                <h1>{{options.header || 'Telefon'}}</h1>
             </header>
             <article>
                 <uni-form
@@ -30,7 +30,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
         </section>
     `
 })
-export class UniEmailModal implements IUniModal {
+export class UniPhoneModal implements IUniModal {
     @Input()
     public options: IModalOptions = {};
 
@@ -38,20 +38,19 @@ export class UniEmailModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private formModel$: BehaviorSubject<Email> = new BehaviorSubject(null);
+    private formModel$: BehaviorSubject<Phone> = new BehaviorSubject(null);
     private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     constructor(private elementRef: ElementRef) {}
 
     public ngOnInit() {
-        const email = this.options.data || {};
+        const phone = this.options.data || {};
         const fields = this.getFormFields();
 
-        if (email._initValue && fields[0] && !email[fields[0].Property]) {
-            email[fields[0].Property] = email._initValue;
+        if (phone._initValue && fields[0] && !phone[fields[0].Property]) {
+            phone[fields[0].Property] = phone._initValue;
         }
-
-        this.formModel$.next(email);
+        this.formModel$.next(phone);
         this.formFields$.next(this.getFormFields());
     }
 
@@ -70,28 +69,51 @@ export class UniEmailModal implements IUniModal {
     }
 
     public close(emitValue?: boolean) {
-        let email: Email;
+        let phone: Phone;
         if (emitValue) {
-            email = this.formModel$.getValue();
+            phone = this.formModel$.getValue();
         }
 
-        this.onClose.emit(email);
+        this.onClose.emit(phone);
     }
 
     private getFormFields(): UniFieldLayout[] {
-        return [
+        let fields = [
             <any> {
-                EntityType: 'Email',
-                Property: 'EmailAddress',
-                FieldType: FieldType.EMAIL,
-                Label: 'Epostadresse',
+                EntityType: 'Phone',
+                Property: 'Number',
+                FieldType: FieldType.TEXT,
+                Label: 'Telefonnr.',
             },
             <any> {
-                EntityType: 'Email',
+                EntityType: 'Phone',
+                Property: 'CountryCode',
+                FieldType: FieldType.TEXT,
+                Label: 'Landskode',
+            },
+            <any> {
+                EntityType: 'Phone',
                 Property: 'Description',
                 FieldType: FieldType.TEXT,
                 Label: 'Beskrivelse',
+            },
+            <any> {
+                EntityType: 'Phone',
+                Property: 'Type',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type',
+                Options: {
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    source:  [
+                        {ID: PhoneTypeEnum.PtPhone, Name: 'Telefon'},
+                        {ID: PhoneTypeEnum.PtMobile, Name: 'Mobil' },
+                        {ID: PhoneTypeEnum.PtFax, Name: 'Fax'}
+                    ]
+                }
             }
         ];
+
+        return fields;
     }
 }

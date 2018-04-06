@@ -8,7 +8,7 @@ import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SalaryBalance, SalBalType} from '../../../unientities';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {SalaryBalanceLineModal} from './modals/salBalLineModal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';

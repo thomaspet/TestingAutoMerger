@@ -7,7 +7,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType, UniField} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 @Component({
     selector: 'uni-models',
     templateUrl: './models.html'

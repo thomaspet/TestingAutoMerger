@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { UniFieldLayout, FieldType } from '../../ui/uniform/index';
 import { ToastService, ToastType } from '../../uniToast/toastService';
 import {

@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {
     ErrorService,
     ProjectService,

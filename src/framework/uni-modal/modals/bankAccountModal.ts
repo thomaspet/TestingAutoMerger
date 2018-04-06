@@ -8,7 +8,7 @@ import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
-import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-bankaccount-modal',

@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumn, UniTable, UniTableColumnType, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {DimensionSettingsService} from '../../../services/common/dimensionSettingsService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {UniDimensionModal} from './dimensionModal';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
 

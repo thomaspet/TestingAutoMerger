@@ -14,8 +14,8 @@ import {URLSearchParams} from '@angular/http';
 import {WagetypeDetail} from '@app/components/salary/wagetype/views/wagetypeDetails';
 import {ModulusService} from '../../common/modulusService';
 import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
-import {UniModalService} from '../../../../framework/uniModal/modalService';
-import {ConfirmActions} from '../../../../framework/uniModal/interfaces';
+import {UniModalService} from '../../../../framework/uni-modal/modalService';
+import {ConfirmActions} from '../../../../framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 

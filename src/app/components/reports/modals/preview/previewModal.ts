@@ -2,7 +2,7 @@ import {
     Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewEncapsulation,
     AfterViewInit, ChangeDetectionStrategy
 } from '@angular/core';
-import {IModalOptions, IUniModal} from './../../../../../framework/uniModal/barrel';
+import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReportFormat} from '../../../../models/reportFormat';
 import {ReportService, Report} from '../../../../services/services';
 

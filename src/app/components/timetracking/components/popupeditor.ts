@@ -13,7 +13,7 @@ import {
     TimesheetService,
     ErrorService
 } from '../../../services/services';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {LocalDate} from '../../../unientities';
 import {WorkEditor} from './workeditor';
 

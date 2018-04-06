@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
 import {Address} from '@app/unientities';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {IBrRegCompanyInfo} from '@uni-framework/uniModal/presets/brRegModal/brRegModal';
+import {IBrRegCompanyInfo} from '@uni-framework/uni-modal/modals/brRegModal/brRegModal';
 import {ErrorService} from '../common/errorService';
 
 @Injectable()

@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Address, LocalDate, Terms, StatusCodeCustomerInvoice} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {UniModalService, UniAddressModal} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniAddressModal} from '../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';

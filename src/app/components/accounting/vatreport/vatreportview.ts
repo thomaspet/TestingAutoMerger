@@ -10,7 +10,7 @@ import {
 import {Observable} from 'rxjs/Observable';
 import {Subscription} from 'rxjs/Subscription';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';

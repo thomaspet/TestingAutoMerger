@@ -2,7 +2,7 @@ import {CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot} from '
 import {Injectable} from '@angular/core';
 import {EmployeeService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 @Injectable()
 export class EmpCanActivateGuard implements CanActivate {

@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '../../../../framework/uniModal/barrel';
+import {IModalOptions, IUniModal} from '../../../../framework/uni-modal';
 import {File} from '../../../unientities';
 import {UniImage, UniImageSize} from '../../../../framework/uniImage/uniImage';
 

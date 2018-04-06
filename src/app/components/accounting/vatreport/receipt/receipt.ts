@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {VatReport, AltinnGetVatReportDataFromAltinnStatus, VatReportSummaryPerPost} from '../../../../unientities';
 import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {
     ErrorService,
     VatReportService

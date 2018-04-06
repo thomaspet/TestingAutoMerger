@@ -6,7 +6,7 @@ import {
     ChangeDetectionStrategy,
     OnInit
 } from '@angular/core';
-import {IModalOptions, IUniModal} from '../../uniModal/interfaces';
+import {IModalOptions, IUniModal} from '../../uni-modal/interfaces';
 import {UniTableConfig} from '../unitable/config/unitableConfig';
 import {UniTableColumn} from '../unitable/config/unitableColumn';
 

@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {SalarybalanceService, ErrorService, ReportDefinitionService, FileService} from '../../../../services/services';
 import {SalaryBalance, SalBalType} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs/Observable';

@@ -22,7 +22,7 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 import {SalaryTransactionSelectionList} from '../salarytrans/salarytransactionSelectionList';
 import {UniView} from '../../../../framework/core/uniView';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import 'rxjs/add/observable/forkJoin';
 import {

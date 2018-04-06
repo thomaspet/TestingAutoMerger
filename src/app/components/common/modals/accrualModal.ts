@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/cor
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
     AccountService,
     ErrorService,

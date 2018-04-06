@@ -8,7 +8,7 @@ import {
     PayrollrunService,
     EmployeeService
 } from '../../../../services/services';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

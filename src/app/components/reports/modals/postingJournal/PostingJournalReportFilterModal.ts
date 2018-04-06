@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
 import {ReportDefinitionParameterService, FinancialYearService} from '../../../../services/services';
 import {JournalEntryService} from '../../../../services/services';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {ErrorService} from '../../../../services/services';

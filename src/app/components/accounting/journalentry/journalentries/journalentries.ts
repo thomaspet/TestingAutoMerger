@@ -17,7 +17,7 @@ import {
     UniModalService,
     UniConfirmModalV2,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';

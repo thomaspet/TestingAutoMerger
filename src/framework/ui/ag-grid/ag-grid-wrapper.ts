@@ -13,7 +13,7 @@ import {Router} from '@angular/router';
 
 import {UniTableConfig} from '../unitable/config/unitableConfig';
 import {UniTableColumn, IUniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
-import {UniModalService} from '../../uniModal/modalService';
+import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
 import {ColumnMenuNew} from './column-menu-modal';

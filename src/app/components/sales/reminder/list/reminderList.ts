@@ -5,7 +5,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniReminderSettingsModal} from '../../../common/reminder/settings/reminderSettingsModal';
 import {CustomerInvoiceReminderSettings, LocalDate} from '../../../../unientities';
 import {

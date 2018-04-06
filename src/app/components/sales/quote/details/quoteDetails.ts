@@ -49,7 +49,7 @@ import {
     UniModalService,
     UniSendEmailModal,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';

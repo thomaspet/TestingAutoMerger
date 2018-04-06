@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {TaxCardReadStatus} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';

@@ -1,7 +1,7 @@
 import {Component, OnInit, EventEmitter, Input, Output, OnChanges, SimpleChanges} from '@angular/core';
 import {A07Response} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/barrel';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {AltinnIntegrationService, ErrorService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 

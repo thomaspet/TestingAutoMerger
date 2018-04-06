@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from './../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from './../../../../../framework/uni-modal';
 import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({

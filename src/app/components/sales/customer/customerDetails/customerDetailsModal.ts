@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {CustomerDetails} from './customerDetails';
 import {Customer} from '../../../../unientities';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 
 @Component({
     selector: 'customer-details-modal',

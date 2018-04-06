@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {PeriodSeries, CompanySettings} from '../../../unientities';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {CompanySettingsService, ErrorService} from '../../../services/services';
-import {IUniModal, IModalOptions} from '@uni-framework/uniModal/interfaces';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {PeriodSeriesService, FinancialYearService} from '../../../services/services';
 
 declare const _; // lodash

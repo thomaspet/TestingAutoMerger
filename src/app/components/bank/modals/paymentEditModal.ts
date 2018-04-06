@@ -8,7 +8,7 @@ import {
     UniBankAccountModal,
     UniConfirmModalV2,
     ConfirmActions
-} from '../../../../framework/uniModal/barrel';
+} from '../../../../framework/uni-modal';
 import {
     UniTable,
     UniTableColumn,

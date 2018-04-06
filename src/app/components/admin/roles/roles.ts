@@ -7,7 +7,7 @@ import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 
 import {Role, Permission} from '../../../unientities';
 import {RoleService, PermissionService, ErrorService} from '../../../services/services';

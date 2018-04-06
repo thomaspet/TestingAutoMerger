@@ -14,7 +14,7 @@ import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportStep} from '@app/components/reports/report-step';
-import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
 @Injectable()

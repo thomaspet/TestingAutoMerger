@@ -16,7 +16,7 @@ import {AuthService} from '../../app/authService';
 import {Observable} from 'rxjs/Observable';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
-import {UniModalService, ConfirmActions} from '../uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../uni-modal';
 import {UniPrintModal} from '../../app/components/reports/modals/print/printModal';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {FileSplitModal} from '../fileSplit/FileSplitModal';

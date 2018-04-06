@@ -46,7 +46,7 @@ import {
     ConfirmActions,
     UniApproveModal,
     ApprovalDetails
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
     SupplierService,

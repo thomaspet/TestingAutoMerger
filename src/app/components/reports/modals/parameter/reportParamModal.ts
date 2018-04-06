@@ -1,12 +1,12 @@
 import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
-import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
 import {ReportDefinitionParameter, ReportDefinition, LocalDate} from '@uni-entities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
-import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-report-params-modal',

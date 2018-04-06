@@ -12,7 +12,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 
 import {UniView} from '../../../../framework/core/uniView';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
 import {Observable} from 'rxjs/Observable';

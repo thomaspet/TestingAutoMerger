@@ -7,7 +7,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {UniTickerWrapper} from '../../../uniticker/tickerWrapper/tickerWrapper';
 import {ITickerActionOverride, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
-import {UniModalService, UniSendEmailModal, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, UniSendEmailModal, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
     CustomerQuoteService,
     ReportDefinitionService,

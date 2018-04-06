@@ -1,5 +1,5 @@
 ﻿import {Component} from '@angular/core';
-import {UniModalService, UniAddressModal} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, UniAddressModal} from '../../../../../framework/uni-modal';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';

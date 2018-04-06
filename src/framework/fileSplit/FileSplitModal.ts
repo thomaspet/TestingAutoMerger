@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {IModalOptions, IUniModal} from '../uniModal/barrel';
+import {IModalOptions, IUniModal} from '../uni-modal';
 import {File} from '../../app/unientities';
 import {environment} from 'src/environments/environment';
 import {Http} from '@angular/http';
@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {KeyCodes} from '../../app/services/common/keyCodes';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
 
 @Component({
     selector: 'file-split-modal',

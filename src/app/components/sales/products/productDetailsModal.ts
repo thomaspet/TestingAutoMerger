@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ProductDetails} from './productDetails';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'uni-product-details-modal',

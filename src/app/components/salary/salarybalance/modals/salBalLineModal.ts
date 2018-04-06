@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {SalarybalanceLine} from '../salarybalanceLine';
 
 @Component({

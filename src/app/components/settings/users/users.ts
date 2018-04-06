@@ -14,7 +14,7 @@ import {
 } from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {UniModalService} from '@uni-framework/uniModal/modalService';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';

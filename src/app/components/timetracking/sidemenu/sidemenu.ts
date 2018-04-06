@@ -3,7 +3,7 @@ import {IFilter} from '../../../services/timetracking/workerService';
 import {UniTemplateModal, TemplateCloseOptions, ITemplateReturnObject} from '../components/newtemplatemodal';
 import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import * as moment from 'moment';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 

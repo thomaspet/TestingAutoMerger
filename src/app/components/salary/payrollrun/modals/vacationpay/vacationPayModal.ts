@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
 import {BasicAmount, VacationPayLine, CompanySalary} from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
@@ -14,7 +14,7 @@ import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySett
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniModalService, ConfirmActions} from '../../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
 

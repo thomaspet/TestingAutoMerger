@@ -5,7 +5,7 @@ import {FieldType} from '../../../../framework/ui/uniform/index';
 import {User} from '../../../unientities';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 
 @Component({

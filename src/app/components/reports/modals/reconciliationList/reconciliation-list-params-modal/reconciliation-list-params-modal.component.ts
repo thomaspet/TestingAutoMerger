@@ -1,5 +1,5 @@
 import {Component, OnInit, EventEmitter, Output, Input, OnChanges} from '@angular/core';
-import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../../../../../framework/uniModal/barrel';
+import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportDefinition, ReportDefinitionParameter, Employee} from '../../../../../unientities';
 import {Observable} from 'rxjs/Observable';

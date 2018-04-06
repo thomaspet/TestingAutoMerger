@@ -58,7 +58,7 @@ import {
     UniSendEmailModal,
     UniSendVippsInvoiceModal,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';

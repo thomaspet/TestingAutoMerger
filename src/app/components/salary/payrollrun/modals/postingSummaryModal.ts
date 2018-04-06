@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {PostingSummary, LocalDate, PayrollRun, NumberSeries} from '../../../../unientities';
@@ -67,10 +67,10 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                         }
                     }
                 ];
-        
+
                 this.fields$.next(newFields);
             });
-        
+
         this.payrollService
             .getPostingsummary(this.payrollrunID)
             .finally(() => this.busy = false)

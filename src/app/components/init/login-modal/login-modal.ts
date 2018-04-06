@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from '@app/authService';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/barrel';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {User} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

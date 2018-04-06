@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
     UniForm,
     FieldType,
@@ -22,7 +22,7 @@ import {
 import {
     UniModalService,
     UniBankAccountModal
-} from '../../../../framework/uniModal/barrel';
+} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';

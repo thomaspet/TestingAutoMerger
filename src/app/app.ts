@@ -3,12 +3,12 @@ import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init';
 import {ErrorService} from './services/services';
-import {UniModalService} from '../framework/uniModal/barrel';
+import {UniModalService} from '../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
-import {LicenseAgreementModal} from '@uni-framework/uniModal/presets/licenseAgreementModal';
-import {UniConfirmModalV2} from '@uni-framework/uniModal/presets/confirmModal';
+import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgreementModal';
+import {UniConfirmModalV2} from '@uni-framework/uni-modal/modals/confirmModal';
 import {UserDto} from '@app/unientities';
-import {ConfirmActions} from '@uni-framework/uniModal/interfaces';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-app',

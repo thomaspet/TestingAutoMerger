@@ -15,7 +15,7 @@ import {
 } from '../../../unientities';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import {
     ApprovalService,
     SupplierInvoiceService,

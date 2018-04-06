@@ -3,7 +3,7 @@ import {Employee, PayrollRun} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {
     UniTableConfig,
     UniTableColumn,

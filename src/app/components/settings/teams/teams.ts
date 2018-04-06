@@ -8,7 +8,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../.
 import {ErrorService, UserService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 import {IUniSaveAction} from '../../../../framework/save/save';
 

@@ -16,7 +16,7 @@ import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {Subscription} from 'rxjs/Subscription';
 import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';

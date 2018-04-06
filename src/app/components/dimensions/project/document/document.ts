@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {
     ProjectService,

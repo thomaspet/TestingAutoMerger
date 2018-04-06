@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig } from '@uni-framework/ui/unitable';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';

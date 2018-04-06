@@ -9,7 +9,7 @@ import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {environment} from 'src/environments/environment';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {saveAs} from 'file-saver';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';

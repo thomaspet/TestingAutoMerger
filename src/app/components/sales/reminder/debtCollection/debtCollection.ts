@@ -3,7 +3,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
     NumberFormat,
     CustomerInvoiceService,

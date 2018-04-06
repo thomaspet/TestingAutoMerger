@@ -4,7 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '../../../services/services';
 import {SubEntity, Municipal, AGAZone} from '../../../unientities';
 import {SubEntityDetails} from './subEntityDetails';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import {SubEntitySettingsService} from './services/subEntitySettingsService';
 
 

@@ -10,7 +10,7 @@ import {WorkItemGroup, WorkRelation} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ReportWorkflow} from './pipes';
 import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './model';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {WorkitemGroupService} from './workitemgroupservice';
 import {PopupMenu} from './popupmenu';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';

@@ -45,7 +45,7 @@ import {
     UniPhoneModal,
     UniBankAccountModal,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 
 declare const _; // lodash
 

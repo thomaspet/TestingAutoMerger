@@ -4,7 +4,7 @@ import {
 } from '../../../unientities';
 import {SupplementService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {
     UniTableColumnType,
     UniTableColumn

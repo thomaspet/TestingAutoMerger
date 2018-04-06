@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 import {WageTypeService, ErrorService} from '../../../../services/services';
 import {WageType} from '../../../../unientities';

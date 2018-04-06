@@ -6,7 +6,7 @@ import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {PredefinedDescription} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 
 import {PredefinedDescriptionService, ErrorService} from '../../../services/services';
 

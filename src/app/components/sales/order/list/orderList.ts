@@ -21,7 +21,7 @@ import {
     UniModalService,
     UniSendEmailModal,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 
 @Component({
     selector: 'order-list',

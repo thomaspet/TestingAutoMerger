@@ -19,7 +19,7 @@ import {TaxCardModal} from './modals/taxCardModal';
 import {
     UniModalService,
     ConfirmActions
-} from '../../../../framework/uniModal/barrel';
+} from '../../../../framework/uni-modal';
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,

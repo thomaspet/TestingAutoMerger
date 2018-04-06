@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniTableConfig} from '../config/unitableConfig';
 import * as Immutable from 'immutable';
 

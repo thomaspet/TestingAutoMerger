@@ -11,7 +11,7 @@ import {
 } from '../../../services/services';
 import {SettingsService} from '../settings-service';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'altinn-settings',

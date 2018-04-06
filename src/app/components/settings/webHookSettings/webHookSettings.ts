@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {SettingsService} from '../settings-service';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {AuthService} from '../../../authService';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {CompanyService, ErrorService} from '../../../services/services';
 import {Company} from '../../../unientities';

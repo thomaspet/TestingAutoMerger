@@ -48,7 +48,7 @@ import {
     UniModalService,
     UniConfirmModalV2,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 
 @Component({
     selector: 'journal-entry-manual',

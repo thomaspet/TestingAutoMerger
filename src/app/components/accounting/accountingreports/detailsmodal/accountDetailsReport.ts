@@ -10,7 +10,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType} from '../../../../../framework/ui/uniform/index';

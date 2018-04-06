@@ -6,7 +6,7 @@ import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../.
 import {TaxResponseModal} from './taxResponseModal';
 import {AltinnAuthenticationModal} from '../../../common/modals/AltinnAuthenticationModal';
 import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 declare var _;
 
 @Component({

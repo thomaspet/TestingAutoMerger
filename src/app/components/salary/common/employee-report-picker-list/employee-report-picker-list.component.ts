@@ -4,7 +4,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportDefinitionService, ErrorService} from '../../../../services/services';
 import {Employee} from '../../../../unientities';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 
 enum PaycheckFormat {
     E_MAIL = 'Epost',

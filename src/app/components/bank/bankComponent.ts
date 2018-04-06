@@ -17,7 +17,7 @@ import {
     UniSendPaymentModal,
     UniConfirmModalV2,
     ConfirmActions,
-} from '../../../framework/uniModal/barrel';
+} from '../../../framework/uni-modal';
 import {
     UniAutobankAgreementModal,
     UniAutobankAgreementListModal,

@@ -14,7 +14,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ErrorService} from '../../../services/services';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {WorkEditor} from '../components/workeditor';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';

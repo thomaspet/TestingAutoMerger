@@ -7,7 +7,7 @@ import {CompanySettingsService} from '../../../services/common/companySettingsSe
 import {AgreementService} from '../../../services/common/agreementService';
 import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uni-modal';
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AdminCompanyLicensesService} from '@app/services/admin/adminCompanyLicensesService';

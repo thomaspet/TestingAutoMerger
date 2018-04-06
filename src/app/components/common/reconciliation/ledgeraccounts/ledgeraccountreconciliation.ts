@@ -15,7 +15,7 @@ import {
 import {INumberOptions} from '../../../../../framework/ui/uniform/index';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {exportToFile, arrayToCsv} from '../../../common/utils/utils';
 import {
     ErrorService,
@@ -378,7 +378,7 @@ export class LedgerAccountReconciliation {
         const tableData = this.table.getTableData();
 
         this.canAutoMark = false;
-       
+
         this.postPostService.automark(tableData)
             .subscribe( result => {
                 if (result.length > 0) {

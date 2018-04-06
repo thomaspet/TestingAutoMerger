@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {UniModalService} from '../../../uniModal/barrel';
+import {UniModalService} from '../../../uni-modal';
 import {ColumnMenuModal} from './columnMenuModal';
 import {UniTableConfig} from '../config/unitableConfig';
 import * as Immutable from 'immutable';

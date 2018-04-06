@@ -12,7 +12,7 @@ import {
     UniEmailModal,
     UniPhoneModal,
     UniBankAccountModal
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {
     EmployeeService,
     MunicipalService,

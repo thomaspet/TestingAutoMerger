@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter, SimpleChange, AfterViewInit, OnInit, OnChanges} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../framework/uni-modal';
 import {UniForm} from '../../../framework/ui/uniform/index';
 import {BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

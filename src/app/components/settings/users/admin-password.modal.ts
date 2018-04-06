@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {FieldType} from '@uni-framework/ui/uniform';
 import {UserService} from '@app/services/common/userService';
 import {UniHttp} from '@uni-framework/core/http/http';

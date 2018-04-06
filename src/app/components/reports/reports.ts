@@ -20,7 +20,7 @@ import {
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';
 

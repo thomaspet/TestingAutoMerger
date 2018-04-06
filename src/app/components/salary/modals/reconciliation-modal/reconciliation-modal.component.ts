@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import {IUniModal, IModalOptions, UniModalService} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions, UniModalService} from '../../../../../framework/uni-modal';
 import {AltinnIntegrationService, ErrorService} from '../../../../services/services';
 import {A06Options, AltinnReceipt, A07Response} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

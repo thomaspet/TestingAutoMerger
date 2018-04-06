@@ -14,7 +14,7 @@ import {
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 type HashMap<T> = {
     [key: string]: T;

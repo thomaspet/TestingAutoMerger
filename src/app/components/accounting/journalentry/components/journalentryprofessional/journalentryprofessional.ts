@@ -64,7 +64,7 @@ import {
     UniRegisterPaymentModal,
     UniConfirmModalV2,
     ConfirmActions
-} from '../../../../../../framework/uniModal/barrel';
+} from '../../../../../../framework/uni-modal';
 
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';

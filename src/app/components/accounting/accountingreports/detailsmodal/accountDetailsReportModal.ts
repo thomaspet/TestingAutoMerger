@@ -1,6 +1,6 @@
 import {Component, Type, Output, EventEmitter, Input} from '@angular/core';
 import {AccountDetailsReport} from './accountDetailsReport';
-import {IUniModal, IModalOptions} from '../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 
 export interface IDetailsModalInput {
     modalMode: boolean;

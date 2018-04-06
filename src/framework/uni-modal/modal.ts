@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniModalService} from './modalService';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-modal-v2',

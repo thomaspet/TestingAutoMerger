@@ -4,7 +4,7 @@ import {WorkRelation, WorkBalance} from '../../../../unientities';
 import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../../common/utils/utils';
 import {UniTimeModal} from '../../components/popupeditor';
-import {UniModalService} from '../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../framework/uni-modal';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 

@@ -8,10 +8,10 @@ import {
     EventEmitter,
     Type
 } from '@angular/core';
-import {UniUnsavedChangesModal} from './presets/unsavedChangesModal';
-import {UniConfirmModalV2} from './presets/confirmModal';
+import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
+import {UniConfirmModalV2} from './modals/confirmModal';
 import {Observable} from 'rxjs/Observable';
-import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Injectable()
 export class UniModalService {

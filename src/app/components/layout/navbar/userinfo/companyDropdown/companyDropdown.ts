@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettings, FinancialYear, User} from '../../../../../unientities';
 import {UniSelect, ISelectConfig} from '../../../../../../framework/ui/uniform/index';
-import {UniModalService} from '../../../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../../../framework/uni-modal';
 import {AuthService} from '../../../../../authService';
 import {
     CompanySettingsService,

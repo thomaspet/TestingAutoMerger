@@ -9,7 +9,7 @@ import {
     UniTableConfig
 } from '../../../../framework/ui/unitable/index';
 import {BankService, ErrorService, AccountService, BankAccountService} from '../../../services/services';
-import {UniModalService, UniConfirmModalV2, ConfirmActions, UniBankAccountModal} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions, UniBankAccountModal} from '../../../../framework/uni-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {Observable} from 'rxjs/Observable';
 import { UnitableAutocomplete } from '@uni-framework/ui/unitable/controls/autocomplete';

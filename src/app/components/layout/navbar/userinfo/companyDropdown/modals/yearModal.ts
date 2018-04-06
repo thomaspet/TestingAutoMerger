@@ -1,7 +1,7 @@
 import {Component, Input, EventEmitter, Output} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IUniModal, IModalOptions} from '../../../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../../../../framework/uni-modal';
 
 export interface IChangeYear {
     year: number;

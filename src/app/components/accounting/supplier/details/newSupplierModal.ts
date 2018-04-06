@@ -1,7 +1,7 @@
 import {Component, Output, Input, EventEmitter, ViewChild} from '@angular/core';
 import {Supplier} from '../../../../unientities';
 import {SupplierDetails} from '../../supplier/details/supplierDetails';
-import {IUniModal, IModalOptions} from './../../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from './../../../../../framework/uni-modal';
 import {ErrorService} from '../../../../services/services';
 
 @Component({

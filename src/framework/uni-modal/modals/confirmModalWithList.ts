@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uniModal/interfaces';
+import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 
 export interface IConfirmModalWithListReturnValue {
     list: Array<boolean>;

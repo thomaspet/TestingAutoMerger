@@ -5,7 +5,7 @@ import {ErrorService, CompanyService} from '../../app/services/services';
 import {Notification, NotificationStatus, Company} from '../../app/unientities';
 import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../app/authService';
-import {UniModalService, ConfirmActions} from '../uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../uni-modal';
 
 import * as moment from 'moment';
 import {

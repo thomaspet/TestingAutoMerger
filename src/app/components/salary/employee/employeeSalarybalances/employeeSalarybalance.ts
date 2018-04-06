@@ -9,7 +9,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salaryBalanceList';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService, ConfirmActions} from '@uni-framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 const SALARYBALANCES_KEY = 'salarybalances';
 const SAVE_TRIGGER_KEY = 'save';

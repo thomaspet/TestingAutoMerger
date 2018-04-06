@@ -6,7 +6,7 @@ import {
     UniModalService,
     UniSendEmailModal,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {
     CompanySettings,
     CurrencyCode,

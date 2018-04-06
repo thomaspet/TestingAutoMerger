@@ -34,7 +34,7 @@ import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
 
 import {ToastService} from './uniToast/toastService';
-import {UniModalService, MODALS} from './uniModal/barrel';
+import {UniModalService, MODALS} from './uni-modal';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';

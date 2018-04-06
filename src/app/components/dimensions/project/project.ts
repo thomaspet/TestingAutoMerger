@@ -6,7 +6,7 @@ import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ProjectService, ErrorService, UserService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
-import {UniModalService, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {trimLength} from '../../common/utils/utils';
 import {
     UniTable,

@@ -33,7 +33,7 @@ import {
 import {
     UniModalService,
     ConfirmActions,
-} from '../../../../framework/uniModal/barrel';
+} from '../../../../framework/uni-modal';
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
 import {FieldType} from '../../../../framework/ui/uniform/index';

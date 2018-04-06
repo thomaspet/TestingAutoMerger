@@ -17,7 +17,7 @@ import {
     YearService,
     ReportDefinitionService
 } from '../../../services/services';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import {ReconciliationModalComponent} from '../modals';

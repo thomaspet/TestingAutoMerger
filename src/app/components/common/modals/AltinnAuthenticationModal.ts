@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';

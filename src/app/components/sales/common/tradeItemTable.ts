@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {
     UniTableColumn,
     UniTableColumnType,

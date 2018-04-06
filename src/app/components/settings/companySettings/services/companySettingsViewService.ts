@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {SubEntityService, ErrorService, CompanySettingsService} from '../../../../services/services';
 import {SubEntitySettingsService} from '../../agaAndSubEntitySettings/services/subEntitySettingsService';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {CompanySettings} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';

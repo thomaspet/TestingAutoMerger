@@ -27,7 +27,7 @@ import {
     UniPhoneModal,
     UniEmailModal,
     ConfirmActions
-} from '../../../../framework/uniModal/barrel';
+} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'contact-details',

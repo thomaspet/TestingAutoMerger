@@ -1,5 +1,5 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {IUniModal, IModalOptions, ConfirmActions, UniModalService} from '@uni-framework/uniModal/barrel';
+import {IUniModal, IModalOptions, ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {UniTable, IRowChangeEvent, UniTableColumn, UniTableColumnType, IUniTableConfig, UniTableConfig} from '@uni-framework/ui/unitable';
 import {SimpleChanges, AfterViewInit} from '@angular/core/src/metadata/lifecycle_hooks';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';

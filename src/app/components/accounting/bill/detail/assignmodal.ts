@@ -1,7 +1,7 @@
 import {Component, Output, ChangeDetectionStrategy, ChangeDetectorRef
     , HostListener, EventEmitter, Pipe, PipeTransform} from '@angular/core';
 import {ErrorService, SupplierInvoiceService} from '../../../../services/services';
-import {IUniModal} from '../../../../../framework/uniModal/barrel';
+import {IUniModal} from '../../../../../framework/uni-modal';
 import {User, Team} from '../../../../unientities';
 
 
@@ -209,7 +209,7 @@ export class UniAssignModal implements IUniModal {
         if (this.userListIsShown) {
             document.getElementById(element).style.display = 'none';
             // Remove event listener when hit
-            if (this.cleanupHandler) {                
+            if (this.cleanupHandler) {
                 this.cleanupHandler();
                 this.cleanupHandler = undefined;
             }
@@ -284,6 +284,6 @@ export class AssignDetails {
 const ownAddEventListener = (scope, type, handler, capture) => {
     scope.addEventListener(type, handler, capture);
     return () => {
-        scope.removeEventListener(type, handler, capture);    
+        scope.removeEventListener(type, handler, capture);
     }
 }

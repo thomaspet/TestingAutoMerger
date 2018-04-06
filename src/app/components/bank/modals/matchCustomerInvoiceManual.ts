@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import { CustomerInvoice, JournalEntry } from '@uni-entities';
 import { CustomerInvoiceService } from '@app/services/services';
 import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig, UniTable } from '@uni-framework/ui/unitable';

@@ -5,7 +5,7 @@ import {Observable} from 'rxjs/Observable';
 import {CompanySettings, Address, Phone} from '@app/unientities';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {BusinessRelationService, ErrorService} from '@app/services/services';
-import {IModalOptions, IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 export interface IBrRegCompanyInfo {
     navn: string;

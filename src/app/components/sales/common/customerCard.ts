@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
-import {UniAddressModal} from '../../../../framework/uniModal/presets/addressModal';
+import {UniAddressModal} from '../../../../framework/uni-modal/modals/addressModal';
 import {
     AddressService,
     EHFService,
@@ -13,7 +13,7 @@ import {
     StatusService
 } from '../../../services/services';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uniModal/barrel';
+import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import * as moment from 'moment';
 
 @Component({

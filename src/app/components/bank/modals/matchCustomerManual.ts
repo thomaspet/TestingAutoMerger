@@ -1,5 +1,5 @@
-import { IUniModal } from '@uni-framework/uniModal/interfaces';
-import { IModalOptions } from '@uni-framework/uniModal/barrel';
+import { IUniModal } from '@uni-framework/uni-modal/interfaces';
+import { IModalOptions } from '@uni-framework/uni-modal';
 import { Input, EventEmitter, Output, Component } from '@angular/core';
 import { CustomerService } from '@app/services/services';
 

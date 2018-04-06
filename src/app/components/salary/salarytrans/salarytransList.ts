@@ -21,7 +21,7 @@ import {UniForm} from '../../../../framework/ui/uniform/index';
 
 import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal';
-import {UniModalService} from '../../../../framework/uniModal/barrel';
+import {UniModalService} from '../../../../framework/uni-modal';
 import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip

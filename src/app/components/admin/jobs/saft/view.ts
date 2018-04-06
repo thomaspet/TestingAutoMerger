@@ -7,7 +7,7 @@ import {environment} from 'src/environments/environment';
 import {
     UniModalService,
     ConfirmActions
-} from '../../../../../framework/uniModal/barrel';
+} from '../../../../../framework/uni-modal';
 import {SaftImportModal} from './saftimportmodal';
 import * as moment from 'moment';
 
@@ -192,16 +192,16 @@ export class SaftExportView implements OnInit {
     }
 
     public onUploadClick(authenticated = false) {
-        
+
         if (!authenticated) {
             this.busy = true;
             this.authService.authenticateUniFiles()
-            .then( 
+            .then(
                 value => {
                     this.busy = false;
                     this.onUploadClick(true);
                 },
-                err => { 
+                err => {
                     this.busy = false;
                     this.errorService.handle(err);
                 }
@@ -220,7 +220,7 @@ export class SaftExportView implements OnInit {
             data.append('Caption', ''); // where should we get this from the user?
             data.append('File', <any>f);
 
-            
+
 
             this.ngHttp.post(this.baseUrl + '/api/file', data)
                 .map(res => res.json())

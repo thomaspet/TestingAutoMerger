@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Output} from '@angular/core';
-import {IUniModal} from '@uni-framework/uniModal/interfaces';
+import {IUniModal} from '@uni-framework/uni-modal/interfaces';
 import fields from './register-bank-user.form';
 
 

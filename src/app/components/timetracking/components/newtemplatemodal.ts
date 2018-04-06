@@ -3,7 +3,7 @@ import {ITimeTrackingTemplate, ITemplate} from '../sidemenu/sidemenu';
 import {getDeepValue} from '../../common/utils/utils';
 import {WorkEditor} from './workeditor';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {IUniModal, IModalOptions} from '../../../../framework/uniModal/barrel';
+import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
     UniTable,
     UniTableColumn,

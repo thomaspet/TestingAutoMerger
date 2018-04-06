@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {SubEntityService, ErrorService} from '../../../../services/services';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uniModal/barrel';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {SubEntity} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';

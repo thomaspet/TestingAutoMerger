@@ -10,7 +10,7 @@ import {
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
-import { IModalOptions, IUniModal } from '@uni-framework/uniModal/interfaces';
+import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-address-modal',

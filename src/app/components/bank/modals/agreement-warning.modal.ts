@@ -5,7 +5,7 @@ import {
     IUniModal,
     UniConfirmModalV2,
     ConfirmActions
-} from '@uni-framework/uniModal/barrel';
+} from '@uni-framework/uni-modal';
 import {UniAutobankAgreementModal} from './autobankAgreementModal';
 
 @Component({
