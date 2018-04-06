@@ -21,7 +21,8 @@ import {
     StatusCodeCustomerOrder,
     Terms,
     NumberSeries,
-    VatType
+    VatType,
+    Department
 } from '../../../../unientities';
 import {
     AddressService,
@@ -108,6 +109,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
+    private departments: Department[];
     private currentDefaultProjectID: number;
     private selectConfig: any;
     private numberSeries: NumberSeries[];
@@ -151,6 +153,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Items.Dimensions',
         'Items.Dimensions.Project',
         'Items.Dimensions.Department',
+        'Items.Dimensions.Dimension5',
+        'Items.Dimensions.Dimension6',
+        'Items.Dimensions.Dimension7',
+        'Items.Dimensions.Dimension8',
+        'Items.Dimensions.Dimension9',
+        'Items.Dimensions.Dimension10',
         'Items.Account',
         'Items.Dimensions.Project.ProjectTasks',
         'PaymentTerms',
@@ -238,6 +246,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(res => {
                     const order = <CustomerOrder>res[0];
@@ -248,8 +257,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.projects = res[5];
                     this.sellers = res[6];
                     this.vatTypes = res[7];
-
-                    this.setUpDims(res[8]);
+                    this.departments = res[8];
+                    this.setUpDims(res[9]);
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -293,6 +302,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(
                     (res) => {
@@ -322,7 +332,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.projects = res[9];
                         this.sellers = res[10];
                         this.vatTypes = res[11];
-                        this.setUpDims(res[12]);
+                        this.departments = res[12];
+                        this.setUpDims(res[13]);
 
                         order.OrderDate = new LocalDate(Date());
 
@@ -395,10 +406,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
             Label: 'Avdeling',
             Dimension: 2,
             Property: 'DefaultDimensions.DepartmentID',
-            Data: []
+            Data: this.departments
         }];
 
-        const queries = [this.departmentService.GetAll(null)];
+        const queries = [];
 
         dims.forEach((dim) => {
             this.dimensionTypes.push({
@@ -412,7 +423,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         Observable.forkJoin(queries).subscribe((res) => {
             res.forEach((list, index) => {
-                this.dimensionTypes[index].Data = res[index];
+                this.dimensionTypes[index + 1].Data = res[index];
             });
         });
     }
@@ -456,6 +467,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 });
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions.ProjectID, true);
+            }
+        }
+
+        // If the update comes from dimension view
+        if (order['_updatedField']) {
+            const dimension = order['_updatedField'].split('.');
+            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]]);
+            } else {
+                // Department, Region and Reponsibility hits here!
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]]);
             }
         }
 

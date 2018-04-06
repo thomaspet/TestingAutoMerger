@@ -17,6 +17,15 @@ export class CustomDimensionService {
             .map(res => res.json());
     }
 
+    public getCustomDimensionListWithFilter(dimension: number, filter: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('dimension' + dimension + '?')
+            .send()
+            .map(res => res.json());
+    }
+
     public getCustomDimension(dimension: number, id: number) {
         return this.http
             .asGET()

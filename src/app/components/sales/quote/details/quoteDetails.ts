@@ -17,7 +17,8 @@ import {
     StatusCodeCustomerQuote,
     Terms,
     NumberSeries,
-    VatType
+    VatType,
+    Department
 } from '../../../../unientities';
 
 import {
@@ -105,6 +106,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
+    private departments: Department[];
     private currentDefaultProjectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
@@ -146,6 +148,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Items.Dimensions',
         'Items.Dimensions.Project',
         'Items.Dimensions.Department',
+        'Items.Dimensions.Dimension5',
+        'Items.Dimensions.Dimension6',
+        'Items.Dimensions.Dimension7',
+        'Items.Dimensions.Dimension8',
+        'Items.Dimensions.Dimension9',
+        'Items.Dimensions.Dimension10',
         'Customer',
         'DefaultDimensions',
         'Sellers',
@@ -235,6 +243,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null)
                 ).subscribe((res) => {
                     const quote = res[0];
@@ -245,8 +254,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.projects = res[5];
                     this.sellers = res[6];
                     this.vatTypes = res[7];
-
-                    this.setUpDims(res[8]);
+                    this.departments = res[8];
+                    this.setUpDims(res[9]);
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -285,6 +294,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.projectService.GetAll(null),
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                    this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null)
                 ).subscribe(
                     (res) => {
@@ -315,7 +325,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.projects = res[9];
                         this.sellers = res[10];
                         this.vatTypes = res[11];
-                        this.setUpDims(res[12]);
+                        this.departments = res[12];
+                        this.setUpDims(res[13]);
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
@@ -450,6 +461,18 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 });
             } else {
                 this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions.ProjectID, true);
+            }
+        }
+
+        // If the update comes from dimension view
+        if (quote['_updatedField']) {
+            const dimension = quote['_updatedField'].split('.');
+            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]]);
+            } else {
+                // Department, Region and Reponsibility hits here!
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]]);
             }
         }
 
@@ -620,10 +643,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             Label: 'Avdeling',
             Dimension: 2,
             Property: 'DefaultDimensions.DepartmentID',
-            Data: []
+            Data: this.departments
         }];
 
-        const queries = [this.departmentService.GetAll(null)];
+        const queries = [];
 
         dims.forEach((dim) => {
             this.dimensionTypes.push({
@@ -637,7 +660,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         Observable.forkJoin(queries).subscribe((res) => {
             res.forEach((list, index) => {
-                this.dimensionTypes[index].Data = res[index];
+                this.dimensionTypes[index + 1].Data = res[index];
             });
         });
     }

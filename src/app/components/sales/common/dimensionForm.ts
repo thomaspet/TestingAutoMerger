@@ -40,6 +40,8 @@ export class UniDimensionTOFView implements OnInit {
         keys.forEach(key => {
             _.set(this.entity, key, changes[key].currentValue);
         });
+
+        this.entity['_updatedField'] = Object.keys(changes)[0];
         this.entityChange.emit(this.entity);
     }
 

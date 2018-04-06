@@ -27,7 +27,9 @@
         [vatDate]="order.OrderDate"
         [vatTypes]="vatTypes"
         [projects]="projects"
+        [departments]="departments"
         [(items)]="orderItems"
+        [dimensionTypes]="dimensionTypes"
         [currencyCodeID]="currencyCodeID"
         [currencyExchangeRate]="currencyExchangeRate"
         (itemsChange)="recalcDebouncer.next($event)">

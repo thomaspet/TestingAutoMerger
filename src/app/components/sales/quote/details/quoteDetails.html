@@ -23,6 +23,7 @@
     <uni-tradeitem-table *ngIf="quote"
         [readonly]="readonly"
         [projects]="projects"
+        [departments]="departments"
         [defaultTradeItem]="newQuoteItem"
         [vatDate]="quote.QuoteDate"
         [vatTypes]="vatTypes"
@@ -30,6 +31,7 @@
         [(items)]="quoteItems"
         [currencyCodeID]="currencyCodeID"
         [currencyExchangeRate]="currencyExchangeRate"
+        [dimensionTypes]="dimensionTypes"
         (itemsChange)="recalcDebouncer.emit($event)">
     </uni-tradeitem-table>
     <uni-summary *ngIf="quote" [configs]="summary" [ngClass]="{'-is-dirty':dirty}"></uni-summary>

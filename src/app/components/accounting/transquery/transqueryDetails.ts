@@ -27,7 +27,8 @@ import {
     StatisticsService,
     AccountService,
     FinancialYearService,
-    BrowserStorageService
+    BrowserStorageService,
+    CustomDimensionService
 } from '../../../services/services';
 
 import {
@@ -62,6 +63,7 @@ export class TransqueryDetails implements OnInit {
     private allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
+    private dimensionTypes: any[];
 
     private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
@@ -89,7 +91,8 @@ export class TransqueryDetails implements OnInit {
         private financialYearService: FinancialYearService,
         private storageService: BrowserStorageService,
         private router: Router,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private customDimensionService: CustomDimensionService
     ) {
         this.tabService.addTab({
             'name': 'Forespørsel bilag',
@@ -103,10 +106,12 @@ export class TransqueryDetails implements OnInit {
         // setup unitable and router parameter subscriptions
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYear()
+            this.financialYearService.getActiveFinancialYear(),
+            this.customDimensionService.getMetadata()
         ).subscribe(data => {
             this.financialYears = data[0];
             this.activeFinancialYear = data[1];
+            this.dimensionTypes = data[2];
 
             // set default value for filtering
             const searchParams: ISearchParams = {
@@ -227,6 +232,18 @@ export class TransqueryDetails implements OnInit {
             'Project.Name,' +
             'Department.DepartmentNumber,' +
             'Project.ProjectNumber,' +
+            'Dimension5.Number,' +
+            'Dimension5.Name,' +
+            'Dimension6.Number,' +
+            'Dimension6.Name,' +
+            'Dimension7.Number,' +
+            'Dimension7.Name,' +
+            'Dimension8.Number,' +
+            'Dimension8.Name,' +
+            'Dimension9.Number,' +
+            'Dimension9.Name,' +
+            'Dimension10.Number,' +
+            'Dimension10.Name,' +
             'TerminPeriod.No,' +
             'TerminPeriod.AccountYear,' +
             'Period.AccountYear,' +
@@ -241,8 +258,11 @@ export class TransqueryDetails implements OnInit {
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
                 + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
+                + ',Dimensions.Dimension5,Dimensions.Dimension6,Dimensions.Dimension7,Dimensions.Dimension8'
+                + ',Dimensions.Dimension9,Dimensions.Dimension10'
         );
-        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
+        urlParams.set('join',
+            'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
         urlParams.set('filter', filters.join(' and '));
         urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
@@ -660,6 +680,18 @@ export class TransqueryDetails implements OnInit {
                 .setWidth('40px')
                 .setFilterable(false)
         ];
+
+        this.dimensionTypes.forEach((dim, index) => {
+            columns.splice(25 + index, 0,
+                new UniTableColumn('Dimension' + dim.Dimension + '.Name', dim.Label, UniTableColumnType.Text)
+                .setFilterable(false)
+                .setTemplate(line => {
+                    const numberString = 'Dimension' + dim.Dimension + 'Number';
+                    return line[numberString] ? line[numberString] + ': ' + line['Dimension' + dim.Dimension + 'Name'] : '';
+                })
+                .setVisible(false),
+            );
+        });
 
         columns.forEach(x => {
             x.conditionalCls = (data) => this.getCssClasses(data, x.field);

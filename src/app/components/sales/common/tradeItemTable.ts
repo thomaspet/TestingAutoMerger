@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
-import {UniModalService} from '../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {
     UniTableColumn,
     UniTableColumnType,
@@ -14,6 +14,7 @@ import {
     VatType,
     CompanySettings,
     Project,
+    Department,
     Dimensions,
     LocalDate,
     ProductCategory
@@ -26,7 +27,8 @@ import {
     ProjectTaskService,
     DepartmentService,
     ErrorService,
-    CompanySettingsService
+    CompanySettingsService,
+    CustomDimensionService
 } from '../../../services/services';
 import * as moment from 'moment';
 import * as _ from 'lodash';
@@ -50,8 +52,10 @@ export class TradeItemTable {
     @Input() public currencyCodeID: number;
     @Input() public currencyExchangeRate: number;
     @Input() public projects: Project[];
+    @Input() public departments: Department[];
     @Input() public configStoreKey: string;
     @Input() public items: any;
+    @Input() public dimensionTypes: any;
     @Input() public vatDate: LocalDate;
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
@@ -70,7 +74,8 @@ export class TradeItemTable {
         private projectTaskService: ProjectTaskService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private customDimensionService: CustomDimensionService
     ) {}
 
     public ngOnInit() {
@@ -117,26 +122,26 @@ export class TradeItemTable {
 
     public updateVatPercentsAndItems() {
         if (this.vatTypes && this.items) {
-            let vatTypes = this.vatTypes;
+            const vatTypes = this.vatTypes;
 
             // find the correct vatpercentage based on the either vatdate or current date,
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
-            let vatDate =
+            const vatDate =
                 this.vatDate ?
                     moment(this.vatDate) :
                     moment(Date());
 
-            let changedVatTypeIDs: Array<number> = [];
+            const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
 
-                let validPercentageForVatType =
+                const validPercentageForVatType =
                     vatType.VatTypePercentages.find(y =>
                             (moment(y.ValidFrom) <= vatDate && y.ValidTo && moment(y.ValidTo) >= vatDate)
                             || (moment(y.ValidFrom) <= vatDate && !y.ValidTo));
 
-                let vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
+                            const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
 
                 // set the correct percentage on the VatType also, this is done to reflect it properly in
                 // the UI if changing a date leads to using a different vatpercent
@@ -153,14 +158,14 @@ export class TradeItemTable {
                 // any of the items actually use this vattype - so keep track of any real changes
                 let didAnythingReallyChange = false;
 
-                let itemsWithoutVatPercent = this.items.filter(x => x.VatType && !x.VatType.VatPercent);
-                let items = itemsWithoutVatPercent.length > 0 ?
+                const itemsWithoutVatPercent = this.items.filter(x => x.VatType && !x.VatType.VatPercent);
+                const items = itemsWithoutVatPercent.length > 0 ?
                     itemsWithoutVatPercent :
                     this.items.filter(x => x.VatType && changedVatTypeIDs.indexOf(x.VatType.ID) !== -1);
 
                 items.forEach(item => {
                     if (item.VatType) {
-                        let newVatType = this.vatTypes.find(x => x.ID === item.VatType.ID);
+                        const newVatType = this.vatTypes.find(x => x.ID === item.VatType.ID);
                         item.VatType = newVatType;
 
                         didAnythingReallyChange = true;
@@ -182,7 +187,7 @@ export class TradeItemTable {
 
     public updateAllItemVatCodes(currencyCodeID) {
         if (this.foreignVatType) {
-            let isBaseCurrencyUsed: Boolean = (currencyCodeID === this.settings.BaseCurrencyCodeID) ? true : false;
+            const isBaseCurrencyUsed: Boolean = (currencyCodeID === this.settings.BaseCurrencyCodeID) ? true : false;
             this.items.forEach(item => {
                 item.VatTypeID = isBaseCurrencyUsed ? item.Product.VatTypeID : this.foreignVatType.ID;
                 item.VatType = isBaseCurrencyUsed ? item.Product.VatType : this.foreignVatType;
@@ -204,6 +209,103 @@ export class TradeItemTable {
                 item.Dimensions = item.Dimensions || new Dimensions();
                 item.Dimensions.ProjectID = projectID;
                 item.Dimensions.Project = this.defaultProject;
+                return item;
+            });
+        }
+    }
+
+    public setNonCustomDimsOnTradeItems(entity: string, id: number) {
+        let shouldAskBeforeChange: boolean = false;
+
+        this.items.forEach((item) => {
+            if (item.Dimensions
+                && item.Dimensions[entity]
+                && item.Dimensions[entity] !== id) {
+                    shouldAskBeforeChange = true;
+                }
+        });
+
+        // let currentDimArray = entity.substr(0, entity.length - 2) === '' ? this.departments : []; // [] to be replaced with regions
+        // currentDimArray = entity.substr(0, entity.length - 2) === 'Region'
+        // ? currentDimArray : []; // [] to be replaced with this.responsibilities
+
+        // Should get from departments, regions or responsibilities!
+        const defaultDim = this.departments.find(dep => dep.ID === id);
+
+        // Change default trade item when dimension is changed
+        this.defaultTradeItem.Dimensions[entity] = id;
+        this.defaultTradeItem.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
+
+        const func = () => {
+            // Set up query to match entity!
+            this.items = this.items.map(item => {
+                item.Dimensions = item.Dimensions || new Dimensions();
+                item.Dimensions[entity] = id;
+                item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
+                return item;
+            });
+        };
+
+        if (shouldAskBeforeChange) {
+            this.modalService.confirm({
+                header: `Endre dimensjon på alle varelinjer?`,
+                message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    func();
+                }
+            });
+        } else {
+            func();
+        }
+    }
+
+    public setDimensionOnTradeItems(dimension: number, dimensionID: number) {
+        const dim = this.dimensionTypes.find(dimType => dimType.Dimension === dimension).Data.find(item => item.ID === dimensionID);
+        let shouldAskBeforeChange: boolean = false;
+
+        // Change default trade item when dimension is changed
+        this.defaultTradeItem.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
+        this.defaultTradeItem.Dimensions['Dimension' + dimension] = dim;
+        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
+
+        // Loop items to see if we need to ask before changing dimensions on line level
+        this.items.forEach((item) => {
+            if (item.Dimensions
+                && item.Dimensions['Dimension' + dimension + 'ID']
+                && item.Dimensions['Dimension' + dimension + 'ID'] !== dimensionID) {
+                    shouldAskBeforeChange = true;
+                }
+        });
+
+        if (shouldAskBeforeChange) {
+            this.modalService.confirm({
+                header: `Endre dimensjon på alle varelinjer?`,
+                message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.items = this.items.map(item => {
+                        item.Dimensions = item.Dimensions || new Dimensions();
+                        item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
+                        item.Dimensions['Dimension' + dimension] = dim;
+                        return item;
+                    });
+                }
+            });
+        } else {
+            this.items = this.items.map(item => {
+                item.Dimensions = item.Dimensions || new Dimensions();
+                item.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
+                item.Dimensions['Dimension' + dimension] = dim;
                 return item;
             });
         }
@@ -310,7 +412,7 @@ export class TradeItemTable {
                 itemTemplate: item => `${item.VatCode}: ${item.VatPercent}% - ${item.Name}`,
                 lookupFunction: (searchValue) => {
                     const query = searchValue.toLowerCase();
-                    let filtered = this.vatTypes.filter((vatType) => {
+                    const filtered = this.vatTypes.filter((vatType) => {
                         return vatType.VatCode.toLowerCase().startsWith(query)
                             || vatType.Name.toLowerCase().indexOf(query) > -1
                             || vatType.VatPercent.toString() === query;
@@ -352,7 +454,7 @@ export class TradeItemTable {
 
                     if (typeof query === 'string' && query !== '') {
                         if (query.indexOf(',') !== -1 || query.indexOf('.') !== -1) {
-                            let querySplit = query.split(/[,.]/) ;
+                            const querySplit = query.split(/[,.]/) ;
                             filter = `filter=startswith(Number,'${querySplit[0]}') and `
                                 + `(contains(Name,'${querySplit[1]}') or `
                                 + `contains(ID,'${querySplit[1]}'))&groupby=ProjectID`;
@@ -369,11 +471,11 @@ export class TradeItemTable {
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
-        let projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+            const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
-                    let project = rowModel.Dimensions.Project;
+                    const project = rowModel.Dimensions.Project;
                     return project.ProjectNumber + ': ' + project.Name;
                 }
 
@@ -392,11 +494,11 @@ export class TradeItemTable {
                 }
             });
 
-        let departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
+            const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
-                    let dep = rowModel.Dimensions.Department;
+                    const dep = rowModel.Dimensions.Department;
                     return dep.DepartmentNumber + ': ' + dep.Name;
                 }
 
@@ -415,6 +517,39 @@ export class TradeItemTable {
                 }
             });
 
+        const dimensionCols = [];
+
+        this.dimensionTypes.forEach((type, index) => {
+            if (type.Label === 'Avdeling' || type.Dimension < 4) {
+                return;
+            }
+            const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions['Dimension' + type.Dimension]) {
+                    const dim = rowModel.Dimensions['Dimension' + type.Dimension];
+                    return dim.Number + ': ' + dim.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.Number + ': ' + item.Name);
+                },
+                searchPlaceholder: 'Velg avdeling',
+                lookupFunction: (query) => {
+
+                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                        type.Dimension,
+                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            });
+
+            dimensionCols.push(dimCol);
+        });
 
         const sumTotalExVatCol = new UniTableColumn('SumTotalExVatCurrency', 'Netto', UniTableColumnType.Money, false)
             .setVisible(false);
@@ -426,20 +561,19 @@ export class TradeItemTable {
             'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false
         );
 
-
         this.tableConfig = new UniTableConfig(this.configStoreKey, !this.readonly)
             .setColumns([
                 sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
                 exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
-            ])
+            ].concat(dimensionCols))
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
             .setCopyFromCellAbove(false)
             .setIsRowReadOnly(row => row.StatusCode === 41103)
             .setChangeCallback((event) => {
-                let updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
+                const updatedRow = this.tradeItemHelper.tradeItemChangeCallback(
                     event,
                     this.currencyCodeID,
                     this.currencyExchangeRate,
@@ -452,8 +586,8 @@ export class TradeItemTable {
                 updatedRow['_isDirty'] = true;
 
                 if (updatedRow.Dimensions && updatedRow.Dimensions.ProjectTask) {
-                    let projectId = updatedRow.Dimensions.ProjectTask.ProjectID;
-                    let project = this.projects.find(p => p.ID === projectId);
+                    const projectId = updatedRow.Dimensions.ProjectTask.ProjectID;
+                    const project = this.projects.find(p => p.ID === projectId);
 
                     if (project) {
                       updatedRow.Dimensions.Project = project;
@@ -529,8 +663,8 @@ export class TradeItemTable {
             let copyPasteFilter = '';
 
             if (searchValue.indexOf(':') > 0) {
-                let accountNumberPart = searchValue.split(':')[0].trim();
-                let accountNamePart =  searchValue.split(':')[1].trim();
+                const accountNumberPart = searchValue.split(':')[0].trim();
+                const accountNamePart =  searchValue.split(':')[1].trim();
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
                     + `and AccountName eq '${accountNamePart}')`;
             }

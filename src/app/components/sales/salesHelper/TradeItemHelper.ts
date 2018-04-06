@@ -156,6 +156,14 @@ export class TradeItemHelper  {
                 : null;
         }
 
+        if (event.field.indexOf('Dimensions.Dimension') !== -1) {
+            const dimensionString = 'Dimension' + event.field.match(/\d+/)[0];
+
+            newRow.Dimensions[dimensionString + 'ID'] = !!newRow.Dimensions[dimensionString]
+                ? newRow.Dimensions[dimensionString].ID
+                : null;
+        }
+
         if (event.field === 'PriceExVatCurrency') {
             newRow.PriceSetByUser = true;
             if (newRow.PriceExVatCurrency) {

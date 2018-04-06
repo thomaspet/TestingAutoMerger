@@ -49,6 +49,7 @@ import {
     JournalEntryLineDraftService,
     DepartmentService,
     ProjectService,
+    CustomDimensionService,
     CustomerInvoiceService,
     CompanySettingsService,
     ErrorService,
@@ -117,6 +118,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private predefinedDescriptions: Array<any>;
     private projects: Project[];
     private departments: Department[];
+    private dimensionTypes: any[];
 
     private SAME_OR_NEW_NEW: string = '1';
     private newAlternative: any = {ID: this.SAME_OR_NEW_NEW, Name: 'Nytt bilag'};
@@ -179,6 +181,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private journalEntryLineDraftService: JournalEntryLineDraftService,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
+        private customDimensionService: CustomDimensionService,
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
         private errorService: ErrorService,
@@ -290,7 +293,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.projectService.GetAll(null),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
-            this.predefinedDescriptionService.GetAll('filter=Type eq 1')
+            this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
+            this.customDimensionService.getMetadata()
         ).subscribe(
             (data) => {
                 this.departments = data[0];
@@ -311,6 +315,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (data[4]) {
                         this.predefinedDescriptions = data[4];
                 }
+
+                this.dimensionTypes = data[5];
 
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
@@ -351,7 +357,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (newRow.JournalEntryNo && newRow.JournalEntryNo !== '') {
             // check if we have another row with the same JournalEntryNo - if so, get the JournalEntryID from
             // that row and update it on the current row
-            var otherJournalEntryData = data.filter(x => x.JournalEntryNo === newRow.JournalEntryNo && x.JournalEntryID && x._originalIndex !== newRow['_originalIndex']);
+            const otherJournalEntryData = data.filter(x => x.JournalEntryNo === newRow.JournalEntryNo
+                && x.JournalEntryID && x._originalIndex !== newRow['_originalIndex']);
             if (otherJournalEntryData.length > 0) {
                 newRow.JournalEntryID = otherJournalEntryData[0].JournalEntryID;
             }
@@ -653,6 +660,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             rowModel.Dimensions.Project = null;
             rowModel.Dimensions.ProjectID = null;
+        }
+        return rowModel;
+    }
+
+    private setDimensionProperties(rowModel: any, dimType: string) {
+        const dimSplit = dimType.split('.');
+        const dimension = rowModel[dimType];
+
+        if (dimension) {
+            if (!rowModel.Dimensions) {
+                rowModel.Dimensions = {};
+            }
+            rowModel.Dimensions[dimSplit[1]] = dimension;
+            rowModel.Dimensions[dimSplit[1] + 'ID'] = dimension.ID;
+        } else {
+            rowModel.Dimensions[dimSplit[1]] = null;
+            rowModel.Dimensions[dimSplit[1] + 'ID'] = null;
         }
         return rowModel;
     }
@@ -1140,6 +1164,34 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
             });
 
+        const dimensionCols = [];
+        this.dimensionTypes.forEach((type, index) => {
+            const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel) => {
+                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions['Dimension' + type.Dimension]) {
+                    const dim = rowModel.Dimensions['Dimension' + type.Dimension];
+                    return dim.Number + ': ' + dim.Name;
+                }
+
+                return '';
+            })
+            .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.Number + ': ' + item.Name);
+                },
+                lookupFunction: (query) => {
+                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                        type.Dimension,
+                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            });
+
+            dimensionCols.push(dimCol);
+        });
+
         const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
             .setOptions({
                 lookupFunction: (searchValue) => {
@@ -1290,6 +1342,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 addedPaymentCol,
                 fileCol
             ];
+
+            if (dimensionCols.length) {
+                dimensionCols.forEach((col, index) => {
+                    columns.splice(17 + index, 0, col);
+                });
+            }
         }
 
         if (this.defaultVisibleColumns.length > 0) {
@@ -1314,7 +1372,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 const rowModel = <JournalEntryData> event.rowModel;
-
                 // get row from table - it may have been updated after the editor got it
                 // because some of the events sometimes are async. Therefore, get the row
                 // from the table, and reapply the changes made by this event
@@ -1433,6 +1490,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDepartmentProperties(row);
                 } else if (event.field === 'Dimensions.Project') {
                     row = this.setProjectProperties(row);
+                } else if (event.field.indexOf('Dimensions.Dimension') !== -1) {
+                    row = this.setDimensionProperties(row, event.field);
                 } else if (event.field === 'Description') {
                     row = this.setDescriptionProperties(row);
                 } else if (event.field === 'CustomerInvoice') {
