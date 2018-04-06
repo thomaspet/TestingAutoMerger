@@ -104,11 +104,6 @@ export class ReminderRules implements AfterViewInit {
                 FieldType: FieldType.NUMERIC,
             },
             <any> {
-                Property: 'UseMaximumLegalReminderFee',
-                Label: 'Bruk forskriftens makssats',
-                FieldType: FieldType.CHECKBOX,
-            },
-            <any> {
                 Property: 'MinimumDaysFromDueDate',
                 Label: 'Dager fra forfall',
                 FieldType: FieldType.NUMERIC,
