@@ -85,7 +85,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         const wageTypeCol = new UniTableColumn('_WageTypeNumber', 'Lønnsart', UniTableColumnType.Number, false)
             .setWidth('5.5rem');
         const textCol = new UniTableColumn('_Text', 'Tekst', UniTableColumnType.Text, false);
-        const supplementTextCol = new UniTableColumn('WageTypeSupplement.Description', 'Opplysningsfelt',
+        const supplementTextCol = new UniTableColumn('_Name', 'Opplysningsfelt',
             UniTableColumnType.Text, false);
         const valueCol = new UniTableColumn('_Value', 'Verdi', UniTableColumnType.Text, true)
             .setTemplate((rowModel: SalaryTransactionSupplement) => this.showValue(rowModel));
@@ -133,19 +133,20 @@ export class SalaryTransactionSupplementList implements OnInit {
     private getModel(payrollRunID: number, year: number): Observable<SalaryTransactionSupplement[]> {
         return this.transObservable(payrollRunID, year)
             .switchMap((response: [SalaryTransaction[], number[]]) => {
-                let [transes, empIDs] = response;
+                const [transes, empIDs] = response;
                 this.transactions = transes;
                 return Observable.forkJoin(
                     Observable.of(transes),
                     this.employeeObservable(empIDs));
             })
             .map((result: [SalaryTransaction[], Employee[]]) => {
-                let [transes, employees] = result;
+                const [transes, employees] = result;
                 return transes
                     .map(trans =>
                         trans
                             .Supplements
                             .map(supplement => {
+                                const wtSupp = supplement && supplement.WageTypeSupplement;
                                 supplement['_Employee'] = employees.find(emp => emp.ID === trans.EmployeeID);
                                 supplement['_WageTypeNumber'] = trans.WageTypeNumber;
                                 supplement['_PayrollRunID'] = trans.PayrollRunID;
@@ -154,6 +155,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                                 supplement['_ToDate'] = trans.ToDate;
                                 supplement['_Amount'] = trans.Amount;
                                 supplement['_Sum'] = trans.Sum;
+                                supplement['_Name'] = (wtSupp && (wtSupp.Description || wtSupp.Name));
                                 return supplement;
                             }))
                     .reduce((prev, curr, arr) => [...prev, ...curr], []);
