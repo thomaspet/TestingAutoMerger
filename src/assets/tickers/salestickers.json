@@ -74,9 +74,40 @@
         "SubTickersCodes": ["customer_details", "contact_list", "invoice_list", "order_list", "quote_list"],
         "Filters": [
             {
+                "Name": "Aktiv",
+                "Code": "active_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "ne",
+                                "Value": "50001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Inaktiv",
+                "Code": "inactive_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "50001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 "Name": "Alle",
-                "Code": "all_customers",
-                "Filter": ""
+                "Code": "all_customers"
             }
         ]
     },

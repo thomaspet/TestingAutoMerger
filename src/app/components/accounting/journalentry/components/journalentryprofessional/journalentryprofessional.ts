@@ -1901,7 +1901,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         let filter = '';
         if (searchValue === '') {
-            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0`;
+            filter = `Visible eq 'true' and isnull(AccountID,0) eq 0 ` +
+            `and (Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001 ) ` +
+            `or ( Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001)`;
         } else {
             let copyPasteFilter = '';
 
@@ -1909,12 +1911,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 const accountNumberPart = searchValue.split(':')[0].trim();
                 const accountNamePart = searchValue.split(':')[1].trim();
 
-                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
-                    + `and AccountName eq '${accountNamePart}')`;
+                copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' ` +
+                    `and AccountName eq '${accountNamePart}') ` +
+                    `and (Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001 ) ` +
+                    `or ( Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001)`;
             }
 
-            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') `
-                + `or contains(AccountName\,'${searchValue}')${copyPasteFilter} )`;
+            filter = `Visible eq 'true' and (startswith(AccountNumber\,'${searchValue}') ` +
+            `or contains(AccountName\,'${searchValue}')${copyPasteFilter} ) ` +
+            `and (Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001) ` +
+            `or (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001) ` +
+            `or AccountNumber eq '${searchValue}'`;
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);

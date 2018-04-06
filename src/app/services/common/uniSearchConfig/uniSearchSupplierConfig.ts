@@ -146,11 +146,11 @@ export class UniSearchSupplierConfig {
         const model = 'Supplier';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = `contains(Info.Name,'${searchTerm}')`;
+        let filter = `contains(Info.Name,'${searchTerm}') and (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001)`;
         let orderBy = 'Info.Name';
         if (startNumber) {
             filter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Phones.Number']
-                .map(x => `startswith(${x},'${startNumber}')`).join(' or ');
+                .map(x => `startswith(${x},'${startNumber}') and (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001) or (${x} eq ${startNumber})`).join(' or ');
             orderBy = 'Supplier.SupplierNumber';
         }
         const select = [
@@ -164,7 +164,8 @@ export class UniSearchSupplierConfig {
             'InvoiceAddress.City as City',
             'InvoiceAddress.CountryCode as CountryCode',
             'DefaultEmail.EmailAddress as EmailAddress',
-            'Supplier.WebUrl as WebUrl'
+            'Supplier.WebUrl as WebUrl',
+            'Supplier.StatusCode as StatusCode'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;

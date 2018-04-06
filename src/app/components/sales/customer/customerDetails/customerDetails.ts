@@ -57,6 +57,9 @@ import {
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {SubCompanyComponent} from './subcompany';
 
+import {StatusCode} from '../../../sales/salesHelper/salesEnums';
+import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
+
 @Component({
     selector: 'customer-details',
     templateUrl: './customerDetails.html'
@@ -97,8 +100,18 @@ export class CustomerDetails implements OnInit {
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
 
+     public statusTypes: Array<any> = [
+        { Code: StatusCode.Pending, Text: 'Lead' },
+        { Code: StatusCode.Active, Text: 'Aktiv' },
+        { Code: StatusCode.InActive, Text: 'Deaktivert' },
+        { Code: StatusCode.Deleted, Text: 'Slettet' },
+    ];
+
+    public statustrack: IStatus[];
+
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
+        statustrack: null,
         navigation: {
             prev: this.previousCustomer.bind(this),
             next: this.nextCustomer.bind(this),
@@ -118,6 +131,16 @@ export class CustomerDetails implements OnInit {
             {
                 label: 'Ny faktura',
                 action: () => this.router.navigateByUrl(`/sales/invoices/0;customerID=${this.customerID}`),
+                disabled: () => !this.customerID
+            },
+            {
+                label: 'Aktiver kunde',
+                action: () => this.activateCustomer(this.customerID),
+                disabled: () => !this.customerID
+            },
+            {
+                label: 'Deaktiver kunde',
+                action: () => this.deactivateCustomer(this.customerID),
                 disabled: () => !this.customerID
             },
             {
@@ -257,11 +280,31 @@ export class CustomerDetails implements OnInit {
         }
     }
 
+    private activateCustomer(customerID: number) {
+        this.customerService.activateCustomer(customerID).subscribe(
+            res => this.statustrack = this.getStatustrackConfig(30001),
+            err => this.errorService.handle(err)
+        );
+    }
+
+    private deactivateCustomer(customerID: number) {
+        this.customerService.deactivateCustomer(customerID).subscribe(
+            res => this.statustrack = this.getStatustrackConfig(50001),
+            err => this.errorService.handle(err)
+        );
+    }
+
     private setupSaveActions() {
         this.saveactions = [
              {
                  label: 'Lagre',
                  action: (completeEvent) => this.saveCustomer(completeEvent),
+                 main: true,
+                 disabled: this.isDisabled
+             },
+             {
+                 label: 'Lagre som lead',
+                 action: (completeEvent) => this.saveCustomer(completeEvent, true),
                  main: true,
                  disabled: this.isDisabled
              }
@@ -443,6 +486,7 @@ export class CustomerDetails implements OnInit {
                     this.numberSeries.find(x => x.Name === 'Customer number series').ID;
                 this.setMainContact(customer);
                 this.customer$.next(customer);
+                this.statustrack = this.getStatustrackConfig();
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
@@ -490,6 +534,7 @@ export class CustomerDetails implements OnInit {
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.updateCustomerWidgets();
+                this.statustrack = this.getStatustrackConfig();
             }, err => this.errorService.handle(err));
         }
     }
@@ -506,6 +551,34 @@ export class CustomerDetails implements OnInit {
                 x['_maincontact'] = x.ID === customer.Info.DefaultContactID;
             });
         }
+    }
+
+    private getStatustrackConfig(statusCode?: number) {
+        const statustrack: IStatus[] = [];
+        const activeStatus = statusCode || this.customer$.value.StatusCode;
+
+        this.statusTypes.forEach((status) => {
+            let _state: STATUSTRACK_STATES;
+
+            if (!activeStatus) {
+               _state = STATUSTRACK_STATES.Disabled;
+            }
+
+            if (status.Code > activeStatus) {
+                _state = STATUSTRACK_STATES.Future;
+            } else if (status.Code < activeStatus) {
+                _state = STATUSTRACK_STATES.Completed;
+            } else if (status.Code === activeStatus) {
+                _state = STATUSTRACK_STATES.Active;
+            }
+
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
+        });
+        return statustrack;
     }
 
     public updateCustomerWidgets() {
@@ -716,7 +789,7 @@ export class CustomerDetails implements OnInit {
         }
     }
 
-    public saveCustomer(completeEvent: any) {
+    public saveCustomer(completeEvent: any, saveAsLead?: boolean) {
         // small timeout to allow uniform and unitable to update the sources before saving
         setTimeout(() => {
             const customer = this.customer$.getValue();
@@ -840,6 +913,9 @@ export class CustomerDetails implements OnInit {
                     }
                 );
             } else {
+                if (saveAsLead) {
+                    customer.StatusCode = StatusCode.Pending;
+                }
                 this.customerService.Post(customer).subscribe(
                     (newCustomer) => {
                         this.isDirty = false;
@@ -857,7 +933,6 @@ export class CustomerDetails implements OnInit {
                     }
                 );
             }
-
         }, 100);
     }
 

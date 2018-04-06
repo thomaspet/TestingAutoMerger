@@ -1191,7 +1191,7 @@ export class CompanySettingsComponent implements OnInit {
                 Label: 'Kredittdager',
                 FieldSet: 3,
                 Section: 1,
-                Legend: 'Kundeleverandør'
+                Legend: 'Kunde/leverandør'
             },
             {
                 EntityType: 'CompanySettings',

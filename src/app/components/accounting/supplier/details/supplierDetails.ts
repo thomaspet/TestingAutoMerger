@@ -47,6 +47,9 @@ import {
     ConfirmActions
 } from '../../../../../framework/uni-modal';
 
+import {StatusCode} from '../../../sales/salesHelper/salesEnums';
+import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
+
 declare const _; // lodash
 
 @Component({
@@ -118,17 +121,42 @@ export class SupplierDetails implements OnInit {
             action: (completeEvent) => this.saveSupplier(completeEvent),
             main: true,
             disabled: false
+        },
+        {
+            label: 'Lagre som kladd',
+            action: (completeEvent) => this.saveSupplier(completeEvent, true),
+            main: true,
+            disabled: false
         }
     ];
 
+    public statusTypes: Array<any> = [
+        { Code: StatusCode.Active, Text: 'Aktiv' },
+        { Code: StatusCode.InActive, Text: 'Deaktivert' },
+        { Code: StatusCode.Deleted, Text: 'Slettet' },
+    ];
+
+    public statustrack: IStatus[];
+
     private toolbarconfig: IToolbarConfig = {
         title: 'Leverandør',
+        statustrack: null,
         navigation: {
             prev: this.previousSupplier.bind(this),
             next: this.nextSupplier.bind(this),
             add: this.addSupplier.bind(this)
         },
         contextmenu: [
+            {
+                label: 'Aktiver leverandør',
+                action: () => this.activateSupplier(this.supplierID),
+                disabled: () => !this.supplierID
+            },
+            {
+                label: 'Deaktiver leverandør',
+                action: () => this.deactivateSupplier(this.supplierID),
+                disabled: () => !this.supplierID
+            },
             {
                 label: 'Slett leverandør',
                 action: () => this.deleteSupplier(this.supplierID),
@@ -183,6 +211,20 @@ export class SupplierDetails implements OnInit {
                 );
             });
         }
+    }
+
+    private activateSupplier(customerID: number) {
+        this.supplierService.activateSupplier(customerID).subscribe(
+            res => this.statustrack = this.getStatustrackConfig(30001),
+            err => this.errorService.handle(err)
+        );
+    }
+
+    private deactivateSupplier(customerID: number) {
+        this.supplierService.deactivateSupplier(customerID).subscribe(
+            res => this.statustrack = this.getStatustrackConfig(50001),
+            err => this.errorService.handle(err)
+        );
     }
 
     public supplierDetailsChange(changes: SimpleChanges) {
@@ -339,6 +381,7 @@ export class SupplierDetails implements OnInit {
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
+
                 const supplier: Supplier = response[0];
 
                 this.dropdownData = [response[1], response[2]];
@@ -356,6 +399,7 @@ export class SupplierDetails implements OnInit {
                 ).ID;
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
+                this.statustrack = this.getStatustrackConfig();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.supplierID, this.numberSeries, 'Supplier number series'
@@ -372,6 +416,7 @@ export class SupplierDetails implements OnInit {
                 this.supplier$.next(supplier);
                 this.setTabTitle();
                 this.showHideNameProperties();
+                this.statustrack = this.getStatustrackConfig();
             }, err => this.errorService.handle(err));
         }
     }
@@ -563,7 +608,7 @@ export class SupplierDetails implements OnInit {
         return this.supplier$.value;
     }
 
-    public saveSupplier(completeEvent?: any) {
+    public saveSupplier(completeEvent?: any, saveAsDraft?: boolean) {
         const supplier = this.supplier$.getValue();
 
         // if the user has typed something in Name for a new supplier, but has not
@@ -718,6 +763,9 @@ export class SupplierDetails implements OnInit {
                     }
                 );
         } else {
+            if (saveAsDraft) {
+                supplier.StatusCode = StatusCode.Pending;
+            }
             this.supplierService.Post(supplier)
                 .subscribe(
                     (newSupplier) => {
@@ -792,6 +840,34 @@ export class SupplierDetails implements OnInit {
         };
 
         return uniSearchConfig;
+    }
+
+    private getStatustrackConfig(statusCode?: number) {
+        const statustrack: IStatus[] = [];
+        const activeStatus = statusCode || this.supplier$.value.StatusCode;
+
+        this.statusTypes.forEach((status) => {
+            let _state: STATUSTRACK_STATES;
+
+            if (!activeStatus) {
+               _state = STATUSTRACK_STATES.Disabled;
+            }
+
+            if (status.Code > activeStatus) {
+                _state = STATUSTRACK_STATES.Future;
+            } else if (status.Code < activeStatus) {
+                _state = STATUSTRACK_STATES.Completed;
+            } else if (status.Code === activeStatus) {
+                _state = STATUSTRACK_STATES.Active;
+            }
+
+            statustrack.push({
+                title: status.Text,
+                state: _state,
+                code: status.Code
+            });
+        });
+        return statustrack;
     }
 
     // TODO: change to 'ComponentLayout' when object respects the interface

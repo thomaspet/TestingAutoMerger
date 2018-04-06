@@ -1,5 +1,6 @@
 <uni-toolbar
     *ngIf="!modalMode"
+    [statustrack]="statustrack"
     [config]="toolbarconfig"
     [saveactions]="saveactions"
     [commentsConfig]="commentsConfig"
@@ -47,7 +48,7 @@
                 <a [class]="activeTab === 'subcompany' ? 'router-link-active' : ''"
                    (click)="showTab('subcompany')">
                     Selskap
-                </a>                
+                </a>
             </li>
         </ul>
     </div>

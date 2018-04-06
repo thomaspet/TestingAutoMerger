@@ -16,7 +16,13 @@ export class AccountService extends BizHttp<Account> {
     }
 
     public searchAccounts(filter: string, top: number = 500, orderby = 'AccountNumber') {
-        return this.statisticsService.GetAll(`model=Account&top=${top}&filter=${filter}&orderby=${orderby}&expand=TopLevelAccountGroup&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,Account.LockManualPosts as AccountLockManualPosts,VatTypeID as VatTypeID,TopLevelAccountGroup.GroupNumber,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
+        return this.statisticsService.GetAll(`model=Account` +
+            `&top=${top}` +
+            `&filter=${filter}` +
+            `&orderby=${orderby}` +
+            `&expand=TopLevelAccountGroup` +
+            `&join=Account.Customerid eq Customer.ID and Account.supplierid eq Supplier.id` +
+            `&select=Account.ID as AccountID,Account.AccountID as MainAccountID,Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,Account.LockManualPosts as AccountLockManualPosts,VatTypeID as VatTypeID,TopLevelAccountGroup.GroupNumber,Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,Account.UseDeductivePercent as AccountUseDeductivePercent`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
     }

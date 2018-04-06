@@ -15,16 +15,36 @@ export class CustomerService extends BizHttp<Customer> {
 
         this.entityType = Customer.EntityType;
 
-        this.DefaultOrderBy = "Info.Name";
+        this.DefaultOrderBy = 'Info.Name';
 
-        this.defaultExpand = ["Info"];
+        this.defaultExpand = ['Info'];
     }
 
     public deleteCustomer(id: any): any {
-        return this.http.asDELETE().withDefaultHeaders().usingBusinessDomain().withEndPoint('customers/' + id)
+        return this.http.asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)
             .send();
     }
 
+    public activateCustomer(id: any): any {
+        return this.http
+            .asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=activate&ID=${id}`)
+            .send();
+    }
+
+    public deactivateCustomer(id: any): any {
+        return this.http
+            .asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=deactivate&ID=${id}`)
+            .send();
+    }
 
     public getCustomerStatistics(customerID: number): Observable<CustomerStatisticsData> {
         return Observable.forkJoin(

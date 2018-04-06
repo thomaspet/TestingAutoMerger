@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Supplier} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from "rxjs/Observable";
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SupplierService extends BizHttp<Supplier> {
@@ -10,28 +10,48 @@ export class SupplierService extends BizHttp<Supplier> {
     constructor(http: UniHttp) {
         super(http);
 
-        //TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
+        // TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
         this.relativeURL = Supplier.RelativeUrl;
 
         this.entityType = Supplier.EntityType;
 
-        //set this property if you want a default sort order from the API
+        // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
     }
 
     public deleteSupplier(id: any): any {
-        return this.http.asDELETE().withDefaultHeaders().usingBusinessDomain().withEndPoint('suppliers/' + id)
+        return this.http
+            .asDELETE()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)
             .send();
     }
 
-    NextSupplier(currentID: number): Observable<Supplier>
-    {
-        return super.GetAction(currentID, "next");
+     public activateSupplier(id: any): any {
+        return this.http
+            .asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=activate&ID=${id}`)
+            .send();
     }
 
-    PreviousSupplier(currentID: number): Observable<Supplier>
-    {
-        return super.GetAction(currentID, "previous");
+    public deactivateSupplier(id: any): any {
+        return this.http
+            .asPUT()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=deactivate&ID=${id}`)
+            .send();
+    }
+
+    NextSupplier(currentID: number): Observable<Supplier> {
+        return super.GetAction(currentID, 'next');
+    }
+
+    PreviousSupplier(currentID: number): Observable<Supplier> {
+        return super.GetAction(currentID, 'previous');
     }
 
     /* Not implemented on backend
