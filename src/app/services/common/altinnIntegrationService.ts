@@ -34,6 +34,10 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         this.inServer = integrate;
     }
 
+    public checkLogin(): Observable<boolean> {
+        return super.GetAction(null, 'checklogin');
+    }
+
     public getPassword(): Observable<string> {
         return this.http
             .asGET()
