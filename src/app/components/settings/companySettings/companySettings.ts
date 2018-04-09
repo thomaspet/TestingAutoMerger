@@ -46,7 +46,7 @@ import {
     VatTypeService,
     UniFilesService,
     ElsaProductService,
-    ElsaPurchaseService,
+    ElsaPurchasesService,
     CampaignTemplateService,
     SubEntityService
 } from '@app/services/services';
@@ -199,7 +199,7 @@ export class CompanySettingsComponent implements OnInit {
         private router: Router,
         private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
-        private elsaPurchasesService: ElsaPurchaseService,
+        private elsaPurchasesService: ElsaPurchasesService,
         private subEntityService: SubEntityService,
         private settingsService: SettingsService
     ) {
@@ -280,7 +280,7 @@ export class CompanySettingsComponent implements OnInit {
                     orderTemplate: this.orderTemplate,
                     invoiceTemplate: this.invoiceTemplate,
                     quoteTemplate: this.quoteTemplate
-                })
+                });
 
                 // do this after getting emptyPhone/email/address
                 this.company$.next(this.setupCompanySettingsData(dataset[5]));
@@ -1582,7 +1582,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private logoFileChanged(files: Array<any>) {
-        let company = this.company$.getValue();
+        const company = this.company$.getValue();
         if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
             // update logourl in company object
             company.LogoFileID = files[files.length - 1].ID;
@@ -1623,7 +1623,7 @@ export class CompanySettingsComponent implements OnInit {
             .onClose.subscribe((status) => {
                 if (status !== 0) {
                     this.companySettingsService.Get(1).subscribe(settings => {
-                        let company = this.company$.getValue();
+                        const company = this.company$.getValue();
                         company.BankAccounts = settings.BankAccounts;
                         company.CompanyBankAccount = settings.CompanyBankAccount;
                         this.company$.next(company);
