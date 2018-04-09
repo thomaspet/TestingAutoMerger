@@ -90,6 +90,22 @@
                 ]
             },
             {
+                "Name": "Lead",
+                "Code": "lead_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "20001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 "Name": "Inaktiv",
                 "Code": "inactive_customers",
                 "UseAllCriterias": true,
