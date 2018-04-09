@@ -27,7 +27,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.DefaultOrderBy = null;
 
         this.lastSelectedFinancialYear$.subscribe(financialYear => {
-            if (financialYear) {
+            if (financialYear && financialYear.Year) {
                 this.browserStorage.setItemOnCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, financialYear);
             }
         });
@@ -42,7 +42,13 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
             const local = this.browserStorage.getItemFromCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
             const year = new FinancialYear();
             Object.assign(year, local);
-            return year;
+
+            if (year.Year) {
+                return year;
+            } else {
+                this.browserStorage.removeItemFromCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY);
+                return null;
+            }
         } catch (e) {
             return null;
         }

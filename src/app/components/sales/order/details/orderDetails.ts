@@ -22,7 +22,8 @@ import {
     Terms,
     NumberSeries,
     VatType,
-    Department
+    Department,
+    User,
 } from '../../../../unientities';
 import {
     AddressService,
@@ -105,6 +106,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private currencyExchangeRate: number;
     private currentCustomer: Customer;
     private currentDeliveryTerm: Terms;
+    private currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
@@ -307,7 +309,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
-                        order.OurReference = res[1].DisplayName;
+                        this.currentUser = res[1];
+                        order.OurReference = this.currentUser.DisplayName;
                         this.companySettings = res[2];
                         this.currencyCodes = res[3];
                         this.paymentTerms = res[4];

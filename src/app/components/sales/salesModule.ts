@@ -36,7 +36,6 @@ import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
-import {TofCurrencyForm} from './common/currencyForm';
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
@@ -87,7 +86,6 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
         TofCustomerCard,
         TofDetailsForm,
         TofDeliveryForm,
-        TofCurrencyForm,
         TradeItemTable,
         UniTofSelectModal,
         UniDimensionTOFView,
