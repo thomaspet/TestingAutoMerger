@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {ElsaPurchase} from '@app/services/elsa/elsaPurchasesService';
 
 export interface ElsaProduct {
     id: number
@@ -18,8 +19,9 @@ export interface ElsaProduct {
     isBundle: boolean
     productStatus: ElsaProductStatusCode
     parentProductNames: string
-    subProducts: ElsaProduct[]
+    subProducts?: ElsaProduct[]
 }
+
 
 export enum ElsaProductStatusCode {
     Active = 0,
@@ -37,7 +39,8 @@ export class ElsaProductService {
             .asGET()
             .usingElsaDomain()
             .withEndPoint(`/api/products/${id}`)
-            .send();
+            .send()
+            .map(req => req.json());
     }
 
     public GetAll(): Observable<ElsaProduct[]> {
@@ -56,9 +59,8 @@ export class ElsaProductService {
             .usingElsaDomain()
             .withEndPoint('/api/products')
             .send()
-            .map(req => req.json())
             .map(products => {
-                return products.filter(product => product.name === name)[0];
+                return products.find(product => product.name === name);
             });
     }
 
@@ -85,23 +87,12 @@ export class ElsaProductService {
         return products;
     }
 
-    public PurchaseProduct(product: ElsaProduct): Observable<boolean> {
+    public PurchaseProductOnCurrentCompany(product: ElsaProduct): Observable<ElsaPurchase> {
         return this.uniHttp
             .asPOST()
             .usingElsaDomain()
             .withEndPoint(`/api/products/${product.id}/purchase`)
             .send()
-            .map(() => true)
-            .catch(() => Observable.of(false));
-    }
-
-    public UnpurchaseProduct(product: ElsaProduct): Observable<boolean> {
-        return this.uniHttp
-            .asDELETE()
-            .usingElsaDomain()
-            .withEndPoint(`/api/purchases/${product.id}`)
-            .send()
-            .map(() => true)
-            .catch(() => Observable.of(false));
+            .map(req => req.json());
     }
 }

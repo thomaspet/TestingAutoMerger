@@ -3,7 +3,6 @@ import {JobService} from './admin/jobs/jobService';
 import {ModelService} from './admin/models/modelService';
 import {RoleService} from './admin/roleService';
 import {PermissionService} from './admin/permissionService';
-import {AdminCompanyLicensesService} from '@app/services/admin/adminCompanyLicensesService';
 
 export * from './admin/jobs/jobService';
 export * from './admin/models/modelService';
@@ -22,7 +21,6 @@ export class AdminServicesModule {
                 ModelService,
                 RoleService,
                 PermissionService,
-                AdminCompanyLicensesService,
             ]
         };
     }

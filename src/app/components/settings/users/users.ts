@@ -10,7 +10,7 @@ import {
     ErrorService,
     UserService,
     ElsaProductService,
-    ElsaPurchasesService
+    ElsaPurchaseService
 } from '../../../services/services';
 import {Role, UserRole, User} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -63,7 +63,7 @@ export class Users {
         private browserStorage: BrowserStorageService,
         private toast: ToastService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchasesService
+        private elsaPurchasesService: ElsaPurchaseService
     ) {
         this.initTableConfigs();
         this.initFormConfigs();

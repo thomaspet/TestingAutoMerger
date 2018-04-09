@@ -37,7 +37,7 @@ import {
     JournalEntryService,
     CustomerInvoiceService,
     ElsaProductService,
-    ElsaPurchasesService,
+    ElsaPurchaseService,
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -179,7 +179,7 @@ export class BankComponent implements AfterViewInit {
         private journalEntryService: JournalEntryService,
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchasesService
+        private elsaPurchasesService: ElsaPurchaseService
     ) {
         this.updateTab();
         this.checkAutobankAccess();

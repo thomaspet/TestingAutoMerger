@@ -1,6 +1,7 @@
 import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {IUniModal, ConfirmActions} from '../interfaces';
+
 
 @Component({
     selector: 'license-agreement-modal',

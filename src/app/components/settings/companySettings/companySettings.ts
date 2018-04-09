@@ -49,7 +49,7 @@ import {
     VatTypeService,
     UniFilesService,
     ElsaProductService,
-    ElsaPurchasesService,
+    ElsaPurchaseService,
     CampaignTemplateService,
     SubEntityService
 } from '@app/services/services';
@@ -204,7 +204,7 @@ export class CompanySettingsComponent implements OnInit {
         private agreementService: AgreementService,
         private campaignTemplateService: CampaignTemplateService,
         private tofCurrencySettingsService: TofCurrencySettingsService,
-        private elsaPurchasesService: ElsaPurchasesService,
+        private elsaPurchasesService: ElsaPurchaseService,
         private subEntityService: SubEntityService,
         private settingsService: SettingsService
     ) {

@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ElsaProductService, ElsaProduct, ElsaPurchasesService} from '@app/services/services';
+import {ElsaProductService, ElsaProduct, ElsaPurchaseService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {AgreementService} from '../../../services/common/agreementService';
@@ -10,8 +10,8 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uni-modal';
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {AdminCompanyLicensesService} from '@app/services/admin/adminCompanyLicensesService';
 import {AuthService, IAuthDetails} from '@app/authService';
+import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',
@@ -28,8 +28,8 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
         private tabService: TabService,
         private errorService: ErrorService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchasesService,
-        private adminCompanyLicensesService: AdminCompanyLicensesService,
+        private elsaPurchasesService: ElsaPurchaseService,
+        private elsaCompanyLicenseService: ElsaCompanyLicenseService,
         private authService: AuthService,
         private route: ActivatedRoute,
         private router: Router,
@@ -134,23 +134,22 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     public buy(product: ElsaProduct) {
         this.showActivateModal(product).then(() => {
             this.elsaProductService
-                .PurchaseProduct(product)
+                .PurchaseProductOnCurrentCompany(product)
                 .do(() => this.updateNumberOfUsersForProduct(product.id))
                 .subscribe(
-                    result => {
-                        if (result) {
-                            this.toastService.addToast(
-                                `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
-                            );
+                    () => {
+                        this.toastService.addToast(
+                            `Kjøpte produktet: ${product.label}`, ToastType.good, ToastTime.short
+                        );
 
-                            this.hasBoughtProduct$.next(true);
-                        } else {
+                        this.hasBoughtProduct$.next(true);
+                    },
+                    err => {
                             this.toastService.addToast(
-                                `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
-                            );
-                        }
-                    }
-                , err => this.errorService.handle(err));
+                            `Fikk ikke kjøpt produktet pga en feil oppstod`, ToastType.bad, ToastTime.short
+                        );
+                        this.errorService.handle(err);
+                    });
         }).catch(err => {
             // the purchase was aborted, most likely the user didnt accept the terms for the service,
             // or something went wrong when accepting the terms
@@ -170,7 +169,7 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
 
     private updateNumberOfUsersForProduct(productId: number) {
         this.authService.authentication$.first().subscribe((auth: IAuthDetails) =>
-            this.adminCompanyLicensesService.PurchasesForUserLicense(auth.activeCompany.Key)
+            this.elsaCompanyLicenseService.PurchasesForUserLicense(auth.activeCompany.Key)
                 .map(purchasesForUser => purchasesForUser
                     .reduce((counter, purchase) => purchase.productID === productId ? counter + 1 : counter, 0)
                 )

@@ -18,6 +18,7 @@ import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTe
 import {isNullOrUndefined} from 'util';
 import {Router, ActivationEnd} from '@angular/router';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -316,10 +317,8 @@ export class BureauDashboard {
         this.contextMenu.nativeElement.style = `top: ${offsetTop}`;
         const that = this;
         this.elementRef.nativeElement.addEventListener('click', function listener(event) {
-            if (!that.contextMenu.nativeElement.contains(event.target)) {
-                that.closeContextMenu();
-                that.elementRef.nativeElement.removeEventListener(event.type, listener);
-            }
+            that.closeContextMenu();
+            that.elementRef.nativeElement.removeEventListener(event.type, listener);
         });
     }
 
@@ -348,6 +347,14 @@ export class BureauDashboard {
                     }
                 }
             )
+    }
+
+    public editPurchases(company: KpiCompany) {
+        this.modalService
+            .open(ManageProductsModal, {
+                header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
+                data: {companyKey: company.Key},
+            })
     }
 
     public companyHasTag(company: KpiCompany, tag: string): boolean {

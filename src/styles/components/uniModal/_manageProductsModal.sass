@@ -1,0 +1,39 @@
+manage-products-modal
+    .uni-modal
+        width: fit-content
+
+    .manage-products-table
+        line-height: 0.5rem
+        margin-left: 0.5rem
+
+    th.username-cell
+        text-align: left
+    td.username-cell
+        text-align: left
+        vertical-align: middle
+
+    th.matrix-cell
+        padding: 0 0.5rem
+    td.matrix-cell
+        //padding-top: 7px
+        text-align: center
+
+    .material-icons.checkmark-bought::before
+        content: "check"
+        color: $uni-color-good
+
+    .material-icons.checkmark-bought:hover::before
+        content: "remove"
+        color: $uni-color-warn
+
+    .material-icons.checkmark-unbought::before
+        content: "close"
+        color: $uni-color-scale6
+
+    .material-icons.checkmark-unbought:hover::before
+        content: "add"
+        color: $uni-color-good
+
+    .username-row:hover
+        background-color: $uni-color-scale9
+        border-color: $uni-color-scale9

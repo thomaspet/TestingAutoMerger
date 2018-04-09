@@ -36,6 +36,7 @@
                 <section [ngClass]="{hidden: !contextMenuCompany}" #contextMenu class="unitable-contextmenu bureau-context-menu">
                     <ul>
                         <li (click)="addLabel(contextMenuCompany)">Editer filter</li>
+                        <li (click)="editPurchases(contextMenuCompany)">Administer produkter</li>
                     </ul>
                 </section>
                 <thead>
