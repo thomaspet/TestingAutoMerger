@@ -34,6 +34,7 @@ export class EmploymentDetails implements OnChanges {
     @Input() private subEntities: SubEntity[];
     @Input() private projects: Project[];
     @Input() private departments: Department[];
+    @Input() private employeeID: number;
 
     @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
 
@@ -54,9 +55,14 @@ export class EmploymentDetails implements OnChanges {
         private errorService: ErrorService
     ) {}
 
-    public ngOnChanges(change) {
+    public ngOnChanges(change: SimpleChanges) {
         if (!this.formReady) {
             this.buildForm();
+        }
+
+        if (change['employeeID'] && !change['employeeID'].currentValue) {
+            this.employment = null;
+            this.formReady = false;
         }
 
         if (change['employment'] && change['employment'].currentValue) {
