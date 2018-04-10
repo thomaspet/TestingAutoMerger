@@ -712,7 +712,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         if (hasWarning) {
             return this.modalService.open(UniConfirmModalV2, {
-                header: 'Bekreft bokføring med advasler',
+                header: 'Bekreft bokføring med advarsler',
                 message: 'Det finnes advarsler, men du kan likevel bokføre dersom dataene er riktige',
                 buttonLabels: {
                     accept: 'Lagre og bokfør',
