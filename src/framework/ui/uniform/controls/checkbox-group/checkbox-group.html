@@ -11,6 +11,6 @@
         (focus)="focusHandler()"
         tabindex="-1"
     />
-    <label (click)="checkIt(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
+    <label (click)="toggleCheckbox(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
     <ng-content></ng-content>
 </ng-template>

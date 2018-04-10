@@ -50,6 +50,9 @@ export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
                 // TODO: manage lookup url;
             }
             this.readOnly$.next(this.field.ReadOnly);
+        }
+
+        if (this.model && this.field) {
             this.selectedItems = _.get(this.model, this.field.Property, []);
         }
     }
@@ -61,48 +64,31 @@ export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
         return _.get(item, this.field.Options.labelProperty);
     }
 
-    public checkIt(item) {
+    public toggleCheckbox(item) {
         if (this.field.ReadOnly) {
             return;
         }
+
+        const wasChecked = this.isChecked(item);
+
         const itemValue = _.get(item, this.field.Options.valueProperty);
-        if (!this.isChecked(item)) {
-            if (this.field.Options.multivalue !== false) {
-                const previousValue = _.get(this.model, this.field.Property);
-                this.selectedItems.push(itemValue);
-                _.set(this.model, this.field.Property, [...this.selectedItems]);
-                this.emitChange(previousValue, this.selectedItems);
-                this.emitInstantChange(previousValue, this.selectedItems, true);
-            } else {
-                const previousValue = _.get(this.model, this.field.Property);
-                _.set(this.model, this.field.Property, itemValue);
-                this.emitChange(previousValue, itemValue);
-                this.emitInstantChange(previousValue, itemValue, true);
-            }
+        const previousValue = _.cloneDeep(_.get(this.model, this.field.Property));
+
+        if (wasChecked) {
+            const index = this.selectedItems.indexOf(itemValue);
+            this.selectedItems.splice(index, 1);
+            _.set(this.model, this.field.Property, this.selectedItems);
         } else {
-            if (this.field.Options.multivalue !== false) {
-                const index = this.selectedItems.indexOf(itemValue);
-                const previousValue = [...this.selectedItems];
-                this.selectedItems.splice(index, 1);
-                _.set(this.model, this.field.Property, this.selectedItems);
-                this.emitChange(previousValue, this.selectedItems);
-                this.emitInstantChange(previousValue, this.selectedItems, true);
-            } else {
-                const previousValue = _.get(this.model, this.field.Property);
-                _.set(this.model, this.field.Property, null);
-                this.emitChange(previousValue, null);
-                this.emitInstantChange(previousValue, null, true);
-            }
+            this.selectedItems.push(itemValue);
+            _.set(this.model, this.field.Property, [...this.selectedItems]);
         }
+
+        this.emitChange(previousValue, this.selectedItems);
+        this.emitInstantChange(previousValue, this.selectedItems, true);
     }
 
     public isChecked(item) {
         const itemValue = _.get(item, this.field.Options.valueProperty);
-        if (this.field.Options.multivalue !== false) {
-            return this.selectedItems.indexOf(itemValue) >= 0;
-        } else {
-            const modelValue = _.get(this.model, this.field.Property);
-            return itemValue === modelValue;
-        }
+        return this.selectedItems.indexOf(itemValue) >= 0;
     }
 }
