@@ -59,6 +59,7 @@ export class ElsaProductService {
             .usingElsaDomain()
             .withEndPoint('/api/products')
             .send()
+            .map(res => res && res.json())
             .map(products => {
                 return products.find(product => product.name === name);
             });
