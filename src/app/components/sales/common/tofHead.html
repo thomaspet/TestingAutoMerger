@@ -82,7 +82,7 @@
                 id="attachments"
                 [entity]="entityName"
                 [entityID]="data?.ID"
-                [readonly]="readonly"
+                [readonly]="!data?.ID"
                 [hideLabel]="true">
             </uni-attachments>
         </fieldset>
