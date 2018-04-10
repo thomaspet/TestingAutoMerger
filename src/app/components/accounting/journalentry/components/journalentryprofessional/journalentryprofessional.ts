@@ -335,7 +335,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 newRow.JournalEntryNo = newRow.SameOrNewDetails.Name;
             }
         } else {
-            if (data.length === 0) {
+            if (data.length === 0 || data.filter(x => x.JournalEntryNo && x.JournalEntryNo !== '').length === 0) {
                 // set New number as default if nothing is specified and no previous numbers have been used
                 newRow.SameOrNewDetails = this.journalEntryNumberAlternatives[
                     this.journalEntryNumberAlternatives.length - 1
@@ -2430,7 +2430,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // Validate if journalEntry number has changed
                 const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
 
-                if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                if (!numbers || firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
                     lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
                     this.toastService.addToast(
                         'Lagring var vellykket, men merk at tildelt bilagsnummer er '
@@ -2586,6 +2586,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private isEqualArrays(arr1: any[], arr2: any[]): boolean {
+        if ((arr1 && !arr2) || (!arr1 && arr2)) {
+            return false;
+        }
+
         if (arr1.length !== arr2.length) {
             return false;
         }
