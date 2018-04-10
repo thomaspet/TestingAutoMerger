@@ -12,13 +12,14 @@ import {
     ElsaProductService,
     ElsaPurchaseService
 } from '../../../services/services';
-import {Role, UserRole, User} from '../../../unientities';
+import {Role, UserRole, User, Company} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
+import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 
 
 @Component({
@@ -404,6 +405,15 @@ export class Users {
                 this.getUsers(false);
             }
         });
+    }
+
+    public editPurchases() {
+        const company: Company = this.browserStorage.getItem('activeCompany');
+        this.modalService
+            .open(ManageProductsModal, {
+                header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
+                data: {companyKey: company.Key},
+            })
     }
 }
 

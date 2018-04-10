@@ -1,4 +1,5 @@
-﻿<!-- <h3>Legg til bruker</h3> -->
+<button class="manage-products-button" (click)="editPurchases()">Administrer bruker tilganger til produckter</button>
+
 <form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
     <input type="email"
@@ -13,7 +14,6 @@
     </button>
 </form>
 
-<!-- <h3>Brukere</h3> -->
 <section class="splitview">
     <nav class ="splitview_list">
         <uni-table *ngIf="users?.length"
