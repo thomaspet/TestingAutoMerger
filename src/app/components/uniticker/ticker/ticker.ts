@@ -756,7 +756,9 @@ export class UniTicker {
                             });
                         } else {
                             // set up templates based on rules for e.g. fieldname
-                            if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                            if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
+                                || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
+                                || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
                                 col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
                             }
 
