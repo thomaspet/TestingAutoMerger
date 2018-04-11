@@ -1385,7 +1385,7 @@ export class BillView implements OnInit {
             const hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
             const filter = ((it.StatusCode === StatusCodeSupplierInvoice.ToPayment
                 && hasJournalEntry) ? ['journal'] : undefined);
-            this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'pay'], filter);
+            this.addActions(it._links.transitions, list, true, ['assign', 'approve', 'journal', 'sendForPayment'], filter);
 
             // Reassign as admin
             if (!it._links.transitions.hasOwnProperty('reAssign')
@@ -1451,7 +1451,6 @@ export class BillView implements OnInit {
                     this.newAction(lang.task_journal_and_topayment, 'task_journal_and_topayment', '');
                 list.push(toPaymentAction);
             }
-
             this.actions = list;
         } else {
             this.initDefaultActions();
@@ -1501,10 +1500,8 @@ export class BillView implements OnInit {
         let ix = 0, setAsMain = false, isFiltered = false, key: string;
         let ixFound = -1;
         if (!linkNode) { return; }
-
         for (key in linkNode) {
             if (linkNode.hasOwnProperty(key)) {
-
                 isFiltered = filters ? (filters.findIndex(x => x === key) >= 0) : false;
                 if (!isFiltered) {
                     ix++;
