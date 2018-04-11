@@ -86,14 +86,14 @@ export class NewAccountModal implements IUniModal, AfterViewInit, OnInit, OnChan
 
         this.config = {
             title: 'Ny konto',
-            initSearchCriteria: this.options.data.searchCriteria,
+            initSearchCriteria: this.options.data.searchCritera,
             mode: null,
             question: 'Opprette ny konto',
             disableQuestion: false,
         };
 
         this.model$.next(this.config.model);
-        this.uniSearchConfig.initialItem$.next(this.options.data.searchCriteria);
+        this.uniSearchConfig.initialItem$.next({Name: this.options.data.searchCritera});
     }
 
     public createNewAccountAndCloseModal(accountType: string) {
