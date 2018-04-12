@@ -1,0 +1,12 @@
+<article class="collapsable" [ngClass]="{'-is-open': showIntegrationSection}">
+    <h4 (click)="showIntegrationSection = !showIntegrationSection">Integrasjoner</h4>
+    <div class="collapsable-content">
+        <apikey-component></apikey-component>
+    </div>
+</article>
+<article class="collapsable" [ngClass]="{'-is-open': showWebhooksSection}">
+    <h4 (click)="showWebhooksSection = !showWebhooksSection">Webhooks</h4>
+    <div class="collapsable-content">
+        <webhook-settings></webhook-settings>
+    </div>
+</article>

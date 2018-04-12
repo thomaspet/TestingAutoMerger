@@ -278,21 +278,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             {
                 label: 'Rekalkuler skatt',
                 action: () => {
-                    const payrollrun = this.payrollrun$.getValue();
-                    if (payrollrun) {
-                        if (payrollrun.StatusCode && payrollrun.StatusCode >= 2) {
-                            this._toastService.addToast(
-                                'Kan ikke rekalkulere', ToastType.warn, 4,
-                                'Lønnsavregningen må være åpen for å rekalkulere'
-                            );
-                        } else {
-                            this.busy = true;
-                            this.payrollrunService.recalculateTax(this.payrollrunID).finally(() => this.busy = false)
-                            .subscribe(() => {
-                                this.getData();
-                            }, err => this.errorService.handle(err));
-                        }
-                    }
+                    this.recalcTaxOnPayrun();
                 },
                 disabled: (rowModel) => {
                     if (this.payrollrun$.getValue()) {
@@ -851,6 +837,26 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     this.getSalaryTransactions();
                 }
             });
+    }
+
+    public recalcTaxOnPayrun() {
+        const payrollrun = this.payrollrun$.getValue();
+        if (payrollrun) {
+            if (payrollrun.StatusCode && payrollrun.StatusCode >= 2) {
+                this._toastService.addToast(
+                    'Kan ikke rekalkulere', ToastType.warn, 4,
+                    'Lønnsavregningen må være åpen for å rekalkulere'
+                );
+            } else {
+                this.busy = true;
+                this.payrollrunService
+                    .recalculateTax(this.payrollrunID)
+                    .finally(() => this.busy = false)
+                    .subscribe(() => {
+                        this.getData();
+                    }, err => this.errorService.handle(err));
+            }
+        }
     }
 
     public openPaycheckSendingModal() {

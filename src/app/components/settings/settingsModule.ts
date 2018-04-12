@@ -36,6 +36,7 @@ import {CommonServicesModule} from '../../services/commonServicesModule';
 import {RoleSelector} from './users/roleSelector';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
+import {IntegrationSettings} from './integrationSettings/integrationSettings';
 
 @NgModule({
     imports: [
@@ -70,7 +71,8 @@ import {UniAdminPasswordModal} from '@app/components/settings/users/admin-passwo
         RoleSelector,
         UniRegisterBankUserModal,
         UniAdminPasswordModal,
-        UniDimensionModal
+        UniDimensionModal,
+        IntegrationSettings
     ],
     entryComponents: [
         GrantModal,
