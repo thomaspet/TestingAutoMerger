@@ -810,7 +810,7 @@
             {
                 "Header": "Dato",
                 "Field": "CreatedAt",
-                "Type": "Date",
+                "Format": "DateWithTime",
                 "Width": "10%"
             },
             {
@@ -851,7 +851,7 @@
             {
                 "Header": "Dato",
                 "Field": "CreatedAt",
-                "Type": "Date",
+                "Format": "DateWithTime",
                 "Width": "10%"
             },
             {
