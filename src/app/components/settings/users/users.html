@@ -1,4 +1,4 @@
-<button class="manage-products-button" (click)="editPurchases()">Administrer bruker tilganger til produckter</button>
+<button class="manage-products-button" (click)="editPurchases()">Administrer brukertilganger til produkter</button>
 
 <form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
     <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
