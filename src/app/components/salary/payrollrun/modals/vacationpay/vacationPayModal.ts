@@ -293,7 +293,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private setUpRates(year: number) {
         this.companyVacationrateService
-            .getRatesForYear(year)
+            .getCurrentRates(year)
             .filter(res => !!res)
             .subscribe(res => {
                 this.companysalary['_Rate'] = res.Rate;

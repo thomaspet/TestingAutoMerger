@@ -12,7 +12,7 @@ export class CompanyVacationRateService extends BizHttp<CompanyVacationRate> {
         this.entityType = CompanyVacationRate.EntityType;
     }
 
-    public getRatesForYear(year: number): Observable<CompanyVacationRate> {
-        return super.GetAll(`filter=year(FromDate) le ${year}&orderby=FromDate desc&top=1`).map(res => res[0]);
+    public getCurrentRates(year: number = null) {
+        return super.GetAction(null, 'current', year ? `year=${year}` : '');
     }
 }
