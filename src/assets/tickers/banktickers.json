@@ -175,7 +175,7 @@
                 "NeedsActionOverride": true
             }
         ],
-        "SubTickersCodes": ["payment_details", "post_in_file"]
+        "SubTickersCodes": ["payment_details", "post_in_file", "payment_status_log"]
     },
     {
         "Name": "Utbetaling",
@@ -505,7 +505,7 @@
                 }]
             }
         ],
-        "SubTickersCodes": ["tracelink_table", "payment_details"]
+        "SubTickersCodes": ["tracelink_table", "payment_details", "payment_status_log"]
     },
     {
         "Name": "Utbetalingbunter",
@@ -591,7 +591,7 @@
                     ]
                 }]
             }],
-        "SubTickersCodes": ["payments_in_batch"]
+        "SubTickersCodes": ["payments_in_batch", "paymentBatch_status_log"]
     },
     {
         "Name": "Detaljer",
@@ -703,7 +703,9 @@
                 "FieldSetColumn": 1,
                 "Header": "ID",
                 "Field": "SourceInstanceID",
-                "Type": "id"
+                "Type": "Link",
+                "ExternalModel": "SupplierInvoice",
+                "LinkNavigationProperty": "SourceInstanceID"
             }
         ],
         "Filters": [
@@ -784,6 +786,88 @@
                 "Field": "StatusCode",
                 "Width": "15%",
                 "FilterOperator": "contains"
+            }
+        ]
+    },
+    {
+        "Name": "Status-logg",
+        "Type": "Table",
+        "Code": "payment_status_log",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "StatusLog",
+        "Expand": "",
+        "Joins": "StatusLog.CreatedBy eq User.GlobalIdentity",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filter": "EntityType eq 'Payment'",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Format": "DateWithTime",
+                "Width": "10%"
+            },
+            {
+                "Header": "Fra",
+                "Field": "FromStatus",
+                "Width": "30%"
+            },
+            {
+                "Header": "Til",
+                "Field": "ToStatus",
+                "Width": "30%"
+            },
+            {
+                "Header": "Bruker",
+                "Field": "User.DisplayName",
+                "Width": "30%"
+            }
+        ]
+    },
+    {
+        "Name": "Status-logg",
+        "Type": "Table",
+        "Code": "paymentBatch_status_log",
+        "IsTopLevelTicker": false,
+        "Group": "Bank",
+        "Model": "StatusLog",
+        "Expand": "",
+        "Joins": "StatusLog.CreatedBy eq User.GlobalIdentity",
+        "SubTickers": [],
+        "UseParentTickerActions": false,
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Filter": "EntityType eq 'PaymentBatch'",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Format": "DateWithTime",
+                "Width": "10%"
+            },
+            {
+                "Header": "Fra",
+                "Field": "FromStatus",
+                "Width": "30%"
+            },
+            {
+                "Header": "Til",
+                "Field": "ToStatus",
+                "Width": "30%"
+            },
+            {
+                "Header": "Bruker",
+                "Field": "User.DisplayName",
+                "Width": "30%"
             }
         ]
     }
