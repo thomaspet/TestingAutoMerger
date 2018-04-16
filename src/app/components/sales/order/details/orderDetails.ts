@@ -121,7 +121,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private currentOrderDate: LocalDate;
     private dimensionTypes: any[];
 
-    private customerExpandOptions: string[] = [
+    private customerExpands: string[] = [
         'DeliveryTerms',
         'Dimensions',
         'Dimensions.Project',
@@ -140,7 +140,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'DefaultSeller.Seller'
     ];
 
-    private expandOptions: Array<string> = [
+    private orderExpands: Array<string> = [
         'Customer',
         'Customer.Info',
         'Customer.Info.Addresses',
@@ -149,25 +149,27 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Customer.Dimensions.Department',
         'DefaultDimensions',
         'DeliveryTerms',
-        'Items',
-        'Items.Product.VatType',
-        'Items.VatType',
-        'Items.Dimensions',
-        'Items.Dimensions.Project',
-        'Items.Dimensions.Department',
-        'Items.Dimensions.Dimension5',
-        'Items.Dimensions.Dimension6',
-        'Items.Dimensions.Dimension7',
-        'Items.Dimensions.Dimension8',
-        'Items.Dimensions.Dimension9',
-        'Items.Dimensions.Dimension10',
-        'Items.Account',
-        'Items.Dimensions.Project.ProjectTasks',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
         'DefaultSeller.Seller'
+    ];
+
+    private orderItemExpands: string[] = [
+        'Product.VatType',
+        'VatType',
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
+        'Account',
+        'Dimensions.Project.ProjectTasks',
     ];
 
     // New
@@ -240,7 +242,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
             if (this.orderID) {
                 Observable.forkJoin(
-                    this.customerOrderService.Get(this.orderID, this.expandOptions),
+                    this.getOrder(this.orderID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
@@ -286,14 +288,14 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
-                    this.customerOrderService.GetNewEntity(['DefaultDimensions'], CustomerOrder.EntityType),
+                    this.getOrder(0),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     customerID ? this.customerService.Get(
-                        customerID, this.customerExpandOptions
+                        customerID, this.customerExpands
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(
@@ -370,6 +372,29 @@ export class OrderDetails implements OnInit, AfterViewInit {
             this.tradeItemTable.blurTable();
             this.tofHead.focus();
         }
+    }
+
+    private getOrder(ID: number): Observable<CustomerOrder> {
+        if (!ID) {
+            return this.customerOrderService.GetNewEntity(
+                ['DefaultDimensions'],
+                CustomerOrder.EntityType
+            );
+        }
+
+        return Observable.forkJoin(
+            this.customerOrderService.Get(ID, this.orderExpands),
+            this.customerOrderItemService.GetAll(
+                `filter=CustomerOrderID eq ${ID}&hateoas=false`,
+                this.orderItemExpands
+            )
+        ).map(res => {
+            const order: CustomerOrder = res[0];
+            const orderItems: CustomerOrderItem[] = res[1];
+
+            order.Items = orderItems;
+            return order;
+        });
     }
 
     public numberSeriesChange(selectedSerie) {
@@ -643,7 +668,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         return new Promise((resolve) => {
             const orderObservable = !!order
                 ? Observable.of(order)
-                : this.customerOrderService.Get(this.orderID, this.expandOptions);
+                : this.getOrder(this.orderID);
 
             orderObservable.subscribe(res => {
                 if (!order) { order = res; }

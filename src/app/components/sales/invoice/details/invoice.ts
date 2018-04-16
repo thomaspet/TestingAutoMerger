@@ -147,7 +147,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private currentInvoiceDate: LocalDate;
     private dimensionTypes: any[];
 
-    private customerExpandOptions: string[] = [
+    private customerExpands: string[] = [
         'DeliveryTerms',
         'Dimensions',
         'Dimensions.Project',
@@ -163,30 +163,32 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'DefaultSeller'
     ];
 
-    private expandOptions: Array<string> = [
+    private invoiceExpands: Array<string> = [
         'Customer',
         'DefaultDimensions',
         'DeliveryTerms',
         'InvoiceReference',
-        'Items',
-        'Items.Product.VatType',
-        'Items.VatType',
-        'Items.Account',
-        'Items.Dimensions',
-        'Items.Dimensions.Project',
-        'Items.Dimensions.Department',
-        'Items.Dimensions.Dimension5',
-        'Items.Dimensions.Dimension6',
-        'Items.Dimensions.Dimension7',
-        'Items.Dimensions.Dimension8',
-        'Items.Dimensions.Dimension9',
-        'Items.Dimensions.Dimension10',
         'JournalEntry',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller'
-    ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+    ].concat(this.customerExpands.map(option => 'Customer.' + option));
+
+    private invoiceItemExpands: string[] = [
+        'Product.VatType',
+        'VatType',
+        'Account',
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
+    ];
 
     private commentsConfig: ICommentsConfig;
 
@@ -262,9 +264,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 Observable.forkJoin(
                     this.customerInvoiceService.GetNewEntity(['DefaultDimensions'], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
-                    customerID ? this.customerService.Get(
-                        customerID, this.customerExpandOptions
-                    ) : Observable.of(null),
+                    customerID
+                        ? this.customerService.Get(customerID, this.customerExpands)
+                        : Observable.of(null),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
@@ -337,7 +339,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
-                    this.customerInvoiceService.Get(this.invoiceID, this.expandOptions),
+                    this.getInvoice(this.invoiceID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
@@ -395,6 +397,30 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     public ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
+
+    private getInvoice(ID: number): Observable<CustomerInvoice> {
+        if (!ID) {
+            return this.customerInvoiceService.GetNewEntity(
+                ['DefaultDimensions'],
+                CustomerInvoice.EntityType
+            );
+        }
+
+        return Observable.forkJoin(
+            this.customerInvoiceService.Get(ID, this.invoiceExpands),
+            this.customerInvoiceItemService.GetAll(
+                `filter=CustomerInvoiceID eq ${ID}&hateoas=false`,
+                this.invoiceItemExpands
+            )
+        ).map(res => {
+            const invoice: CustomerInvoice = res[0];
+            const invoiceItems: CustomerInvoiceItem[] = res[1];
+
+            invoice.Items = invoiceItems;
+            return invoice;
+        });
+    }
+
 
     private ehfReadyUpdateSaveActions() {
         if (!this.invoice || !!!this.invoice.Customer) {
@@ -1197,9 +1223,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     label: 'Lagre endringer',
                     action: done => this.saveInvoice(done).then(res => {
                         if (res) {
-                            this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
-                            .subscribe((refreshed) => {
-                                this.refreshInvoice(refreshed);
+                            this.getInvoice(this.invoice.ID).subscribe(invoice => {
+                                this.refreshInvoice(invoice);
                             });
                         }
                     }),
@@ -1443,11 +1468,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     (res) => this.selectConfig = undefined,
                     (err) => this.errorService.handle(err),
                     () => {
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions)
-                            .subscribe(res => {
-                                this.refreshInvoice(res);
-                                done(doneText);
-                            });
+                        this.getInvoice(invoice.ID).subscribe(res => {
+                            this.refreshInvoice(res);
+                            done(doneText);
+                        });
                     }
                 );
             } else {
@@ -1487,11 +1511,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 if (requiresPageRefresh) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
-                    this.customerInvoiceService.Get(invoice.ID, this.expandOptions)
-                        .subscribe(
+                    this.getInvoice(this.invoice.ID).subscribe(
                         res => this.refreshInvoice(res),
                         err => this.errorService.handle(err)
-                        );
+                    );
                 }
                 done('Lagring fullført');
             } else {
@@ -1618,7 +1641,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             5
                         );
 
-                        this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe(invoice => {
+                        this.getInvoice(this.invoice.ID).subscribe(invoice => {
                             this.refreshInvoice(invoice);
                         });
                     },
@@ -1631,27 +1654,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 done();
             }
         });
-
-        // this.registerPaymentModal.confirm(
-        //    this.invoice.ID, title, this.invoice.CurrencyCode, this.invoice.CurrencyExchangeRate,
-        //     'CustomerInvoice', invoicePaymentData).then(res => {
-        //     if (res.status === ConfirmActions.ACCEPT) {
-        //         this.customerInvoiceService.ActionWithBody(
-        //    res.id, <any>res.model, 'payInvoice').subscribe((journalEntry) => {
-        //             this.toastService.addToast(
-        //    'Faktura er betalt. Bilagsnummer: ' + journalEntry.JournalEntryNumber, ToastType.good, 5);
-        //             done('Betaling registrert');
-        //             this.customerInvoiceService.Get(this.invoice.ID, this.expandOptions).subscribe((invoice) => {
-        //                 this.refreshInvoice(invoice);
-        //             });
-        //         }, (err) => {
-        //             done('Feilet ved registrering av betaling');
-        //             this.errorService.handle(err);
-        //         });
-        //     } else {
-        //         done();
-        //     }
-        // });
     }
 
     private handleSaveError(error, donehandler) {

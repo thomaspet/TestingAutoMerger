@@ -125,7 +125,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private projectID: number;
     private dimensionTypes: any[];
 
-    private customerExpandOptions: string[] = [
+    private customerExpands: string[] = [
         'Info',
         'Info.Addresses',
         'Info.DefaultContact.Info',
@@ -142,20 +142,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'DefaultSeller',
         'DefaultSeller.Seller'
     ];
-    private expandOptions: Array<string> = [
-        'Items',
-        'Items.Product.VatType',
-        'Items.VatType',
-        'Items.Account',
-        'Items.Dimensions',
-        'Items.Dimensions.Project',
-        'Items.Dimensions.Department',
-        'Items.Dimensions.Dimension5',
-        'Items.Dimensions.Dimension6',
-        'Items.Dimensions.Dimension7',
-        'Items.Dimensions.Dimension8',
-        'Items.Dimensions.Dimension9',
-        'Items.Dimensions.Dimension10',
+
+    private quoteExpands: string[] = [
         'Customer',
         'DefaultDimensions',
         'Sellers',
@@ -164,7 +152,23 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'DefaultSeller.Seller',
         'PaymentTerms',
         'DeliveryTerms'
-    ].concat(this.customerExpandOptions.map(option => 'Customer.' + option));
+    ].concat(this.customerExpands.map(option => 'Customer.' + option));
+
+    private quoteItemExpands: string[] = [
+        'Product',
+        'Product.VatType',
+        'VatType',
+        'Account',
+        'Dimensions',
+        'Dimensions.Project',
+        'Dimensions.Department',
+        'Dimensions.Dimension5',
+        'Dimensions.Dimension6',
+        'Dimensions.Dimension7',
+        'Dimensions.Dimension8',
+        'Dimensions.Dimension9',
+        'Dimensions.Dimension10',
+    ];
 
     private commentsConfig: ICommentsConfig;
 
@@ -237,7 +241,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
             if (this.quoteID) {
                 Observable.forkJoin(
-                    this.customerQuoteService.Get(this.quoteID, this.expandOptions),
+                    this.getQuote(this.quoteID),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
@@ -280,14 +284,14 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 });
             } else {
                 Observable.forkJoin(
-                    this.customerQuoteService.GetNewEntity(['DefaultDimensions'], CustomerQuote.EntityType),
+                    this.getQuote(0),
                     this.userService.getCurrentUser(),
                     this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
                     customerID ? this.customerService.Get(
-                        customerID, this.customerExpandOptions
+                        customerID, this.customerExpands
                     ) : Observable.of(null),
                     projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
                     this.numberSeriesService.GetAll(`filter=NumberSeriesType.Name eq 'Customer Quote number `
@@ -366,6 +370,29 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
     }
 
+    private getQuote(ID: number): Observable<CustomerQuote> {
+        if (!ID) {
+            return this.customerQuoteService.GetNewEntity(
+                ['DefaultDimensions'],
+                CustomerQuote.EntityType
+            );
+        }
+
+        return Observable.forkJoin(
+            this.customerQuoteService.Get(ID, this.quoteExpands),
+            this.customerQuoteItemService.GetAll(
+                `filter=CustomerQuoteID eq ${ID}&hateoas=false`,
+                this.quoteItemExpands
+            )
+        ).map(res => {
+            const quote: CustomerQuote = res[0];
+            const quoteItems: CustomerQuoteItem[] = res[1];
+
+            quote.Items = quoteItems;
+            return quote;
+        });
+    }
+
     public canDeactivate(): Observable<boolean> {
         return !this.isDirty
             ? Observable.of(true)
@@ -389,7 +416,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         return new Promise((resolve) => {
             const orderObservable = !!quote
                 ? Observable.of(quote)
-                : this.customerQuoteService.Get(this.quoteID, this.expandOptions);
+                : this.getQuote(this.quoteID);
 
             orderObservable.subscribe(res => {
                 if (!quote) { quote = res; }
