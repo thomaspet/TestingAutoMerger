@@ -65,7 +65,7 @@ declare const _;
                 <div style="clear: both;"></div>
             </article>
             <footer>
-                <button (click)="close('ok')" class="good">Ok</button>
+                <button (click)="close('ok')" [disabled]="lockedDateSelected" class="good">Ok</button>
                 <button (click)="close('cancel')">Avbryt</button>
                 <button (click)="close('remove')" class="bad">Fjern</button>
             </footer>
@@ -91,12 +91,14 @@ export class AccrualModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
+    private lockDate: any;
     private currentFinancialYear: number;
     private currentFinancialYearPeriods: Array<Period> = [];
     private checkboxEnabledState: Boolean = false;
     private numberOfPeriods: number;
     private lastClickedPeriodNo: number = 0;
     private lastClickedYear: number = 0;
+    private lockedDateSelected: boolean = false;
 
     private allCheckboxValues: any = [
         {period1: false, period2: false, period3: false},
@@ -167,16 +169,16 @@ export class AccrualModal implements IUniModal {
 
     private getDefaultPeriods(accrualAmount: number, startYear: number, startPeriod: number): Array<AccrualPeriod> {
 
-        let accrualPeriodAmount: number = accrualAmount / 3;
+        const accrualPeriodAmount: number = accrualAmount / 3;
         let accrualPeriods: Array<AccrualPeriod> = [];
 
-        let ap1: AccrualPeriod = new AccrualPeriod();
+        const ap1: AccrualPeriod = new AccrualPeriod();
         ap1.Amount = accrualPeriodAmount;
         ap1.StatusCode = 33001;
         ap1.AccountYear = startYear;
         ap1.PeriodNo = startPeriod;
 
-        let ap2: AccrualPeriod = new AccrualPeriod();
+        const ap2: AccrualPeriod = new AccrualPeriod();
         ap2.Amount = accrualPeriodAmount;
         ap2.StatusCode = 33001;
         if (ap1.PeriodNo > 11) {
@@ -187,7 +189,7 @@ export class AccrualModal implements IUniModal {
             ap2.PeriodNo = ap1.PeriodNo + 1;
         }
 
-        let ap3: AccrualPeriod = new AccrualPeriod();
+        const ap3: AccrualPeriod = new AccrualPeriod();
         ap3.Amount = accrualPeriodAmount;
         ap3.StatusCode = 33001;
         if (ap2.PeriodNo > 11) {
@@ -203,7 +205,6 @@ export class AccrualModal implements IUniModal {
     }
 
     public onFormChange(event) {
-
         if (event['_numberOfPeriods']) {
 
             // minimum periods must be 2, so always push back to 2 periods if not numeric of less than to is set
@@ -227,10 +228,11 @@ export class AccrualModal implements IUniModal {
     }
 
     public ngOnInit() {
+        this.lockDate = this.options.data.AccountingLockedDate;
         let accrual = this.options.data.accrual;
-        let accrualAmount = this.options.data.accrualAmount;
-        let accrualStartDate = this.options.data.accrualStartDate;
-        let journalEntryLineDraft = this.options.data.journalEntryLineDraft;
+        const accrualAmount = this.options.data.accrualAmount;
+        const accrualStartDate = this.options.data.accrualStartDate;
+        const journalEntryLineDraft = this.options.data.journalEntryLineDraft;
 
         if ((!journalEntryLineDraft && !accrual) && (!accrualStartDate || !accrualAmount)) {
             this.toastService.addToast('Periodisering', ToastType.bad, 10, 'Mangler informasjon om beløp og dato!');
@@ -259,9 +261,9 @@ export class AccrualModal implements IUniModal {
                 }
             } else {
                 accrual.AccrualAmount = journalEntryLineDraft.Amount;
-                let startYear: number = journalEntryLineDraft.FinancialDate.year;
+                const startYear: number = journalEntryLineDraft.FinancialDate.year;
 
-                let startPeriod: number = journalEntryLineDraft.FinancialDate.month;
+                const startPeriod: number = journalEntryLineDraft.FinancialDate.month;
                 accrual['_isValid'] = false;
                 accrual['_validationMessage'] =  new Array<string>();
                 if (journalEntryLineDraft.FinancialDate) {
@@ -290,13 +292,13 @@ export class AccrualModal implements IUniModal {
                         accrual.JournalEntryLineDraft.FinancialDate.month,
                         accrual.JournalEntryLineDraft.FinancialDate.year + 2];
                 } else if (journalEntryLineDraft && journalEntryLineDraft.FinancialDate) {
-                    let startYear: number = journalEntryLineDraft.FinancialDate.year;
+                    const startYear: number = journalEntryLineDraft.FinancialDate.year;
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = journalEntryLineDraft.FinancialDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
                     accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
                 } else if (accrualStartDate) {
-                    let startYear: number = accrual.Periods[0].AccountYear;
+                    const startYear: number = accrual.Periods[0].AccountYear;
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = accrualStartDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
@@ -323,6 +325,7 @@ export class AccrualModal implements IUniModal {
                 ['PeriodSeries'])
                     .subscribe(periods => {
                         this.currentFinancialYearPeriods = periods;
+                        this.isLockedDate(periods);
                         this.setupForm();
 
                         if (this.modalConfig.model) {
@@ -340,6 +343,29 @@ export class AccrualModal implements IUniModal {
         this.setupForm();
     }
 
+    public isLockedDate(periodes: any = []) {
+        if (!this.lockDate) {
+            return;
+        }
+        periodes.forEach((period, index) => {
+            this.allCheckBoxEnabledValues[index].period1 = new Date(this.lockDate) >= new Date(
+                this.modalConfig.model._periodYears[0],
+                new Date(period.FromDate).getMonth(),
+                new Date(period.FromDate).getDate()
+            );
+            this.allCheckBoxEnabledValues[index].period2 = new Date(this.lockDate) >= new Date(
+                this.modalConfig.model._periodYears[1],
+                new Date(period.FromDate).getMonth(),
+                new Date(period.FromDate).getDate()
+            );
+            this.allCheckBoxEnabledValues[index].period3 = new Date(this.lockDate) >= new Date(
+                this.modalConfig.model._periodYears[2],
+                new Date(period.FromDate).getMonth(),
+                new Date(period.FromDate).getDate()
+            );
+        });
+    }
+
     private setupForm() {
         this.fields$.next(this.getFields());
         this.modalConfig.modelJournalEntryModes = this.getAccrualJournalEntryModes();
@@ -347,11 +373,11 @@ export class AccrualModal implements IUniModal {
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
 
-        this.setAccountingLockedPeriods();
+        // this.setAccountingLockedPeriods();
 
-        let accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
+        const accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
         accrualJEMode.ReadOnly = this.isAccrualAccrued();
         accrualJEMode.Options = {
             source: this.modalConfig.modelJournalEntryModes,
@@ -390,7 +416,7 @@ export class AccrualModal implements IUniModal {
     }
 
     private setAccountingLockedPeriods(): void {
-        let enablingValues = [
+        const enablingValues = [
             {period1: false, period2: false, period3: false},
             {period1: false, period2: false, period3: false},
             {period1: false, period2: false, period3: false},
@@ -405,12 +431,12 @@ export class AccrualModal implements IUniModal {
             {period1: false, period2: false, period3: false}
         ];
 
-        let tempDate = this.journalEntryService.getAccountingLockedDate();
+        const tempDate = this.journalEntryService.getAccountingLockedDate();
         if (tempDate) {
-            let lockedDate = new LocalDate(tempDate.toString());
-            let lockedMonth = lockedDate.month;
-            let lockedYear = lockedDate.year;
-            let year = this.currentFinancialYear;
+            const lockedDate = new LocalDate(tempDate.toString());
+            const lockedMonth = lockedDate.month;
+            const lockedYear = lockedDate.year;
+            const year = this.currentFinancialYear;
 
             if (lockedYear === year) {
 
@@ -438,14 +464,14 @@ export class AccrualModal implements IUniModal {
             return;
         }
 
-        let checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
+        const checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
 
         let overAllCounter: number = 0;
         if (this.numberOfPeriods > 0) {
             this.resetAllChechBoxValues();
             let yearCounter: number = yearNumber;
             let counter: number = periodNo - 1;
-            let maxYear: number = 3;
+            const maxYear: number = 3;
 
             while ( overAllCounter < this.numberOfPeriods && yearCounter <= maxYear ) {
 
@@ -480,10 +506,9 @@ export class AccrualModal implements IUniModal {
     }
 
     public setSingleAccrualPeriod(periodNo: number, yearNumber: number) {
-
         this.lastClickedPeriodNo = periodNo;
         this.lastClickedYear = yearNumber;
-        let checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
+        const checkBoxValue = !this.allCheckboxValues[periodNo - 1]['period' + yearNumber];
         this.allCheckboxValues[periodNo - 1]['period' + yearNumber] = checkBoxValue;
         this.changeRecalculatePeriods();
 
@@ -536,7 +561,13 @@ export class AccrualModal implements IUniModal {
                 } else {
                     yearNumber = 3;
                 }
+                // TODO: Logic to find new period if autoselect is locked
                 this.allCheckboxValues[item.PeriodNo - 1]['period' + yearNumber] = true;
+                if (this.allCheckBoxEnabledValues[item.PeriodNo - 1]['period' + yearNumber]) {
+                    this.lockedDateSelected = true;
+                    this.toastService.addToast('OBS: Låst regnskapsår', ToastType.bad, 10,
+                        'Periodisering ikke mulig med gitt dato. Sjekk bilagslinjen eller Regnskapslås.');
+                }
             });
         }
     }
@@ -548,9 +579,9 @@ export class AccrualModal implements IUniModal {
 
     private isAccrualPeriodsEqualOrLessThan24(periods: Array<AccrualPeriod>): boolean {
 
-        let numberOfPeriods: number = periods.length;
-        let firstPeriod: AccrualPeriod = periods[0];
-        let lastPeriod: AccrualPeriod = periods[numberOfPeriods - 1];
+        const numberOfPeriods: number = periods.length;
+        const firstPeriod: AccrualPeriod = periods[0];
+        const lastPeriod: AccrualPeriod = periods[numberOfPeriods - 1];
 
         if (!periods || (periods.length < 2)) {
             return true;
@@ -570,7 +601,7 @@ export class AccrualModal implements IUniModal {
 
     public validateAccrual(showToaster: boolean): Array<string> {
 
-        let messages: Array<string> = new Array<string>();
+        const messages: Array<string> = new Array<string>();
 
         if (this.modalConfig.model.Periods.length < 2 ||
             this.isAccrualPeriodsEqualOrLessThan24(this.modalConfig.model.Periods) === false) {
@@ -592,7 +623,7 @@ export class AccrualModal implements IUniModal {
 
     private changeRecalculatePeriods(): void {
 
-        let accrualPeriods: Array<AccrualPeriod> = new Array<AccrualPeriod>();
+        const accrualPeriods: Array<AccrualPeriod> = new Array<AccrualPeriod>();
         let yearCounter: number = 1;
         let periodCounter: number = 0;
         while (yearCounter < 4) {
@@ -623,7 +654,7 @@ export class AccrualModal implements IUniModal {
             item.Amount = this.modalConfig.model['_periodAmount'];
         });
 
-        let validationMsg: string [] = this.validateAccrual(false);
+        const validationMsg: string [] = this.validateAccrual(false);
         if (validationMsg && validationMsg.length > 0) {
             this.modalConfig.model['_isValid'] = false;
             this.modalConfig.model['_validationMessage'] = validationMsg;
