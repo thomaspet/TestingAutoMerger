@@ -155,11 +155,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
+
+        // filter out entries with no account or no amount, the user has already approved
+        // this in a dialog
+        journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
+
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
         journalEntryDataWithJournalEntryID.forEach(line => {
-            existingJournalEntryIDs.push(line.JournalEntryID);
+            if (!existingJournalEntryIDs.find(x => x === line.JournalEntryID)) {
+                existingJournalEntryIDs.push(line.JournalEntryID);
+            }
         });
 
         if (existingJournalEntryIDs.length) {
