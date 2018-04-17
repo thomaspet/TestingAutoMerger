@@ -50,6 +50,7 @@
             [entity]="(current | async)?.ID ? 'SupplierInvoice' : ''"
             [entityID]="(current | async)?.ID"
             [splitAllowed]="true"
+            [rotateAllowed]="true"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
             (imageClicked)="onImageClicked($event)"
