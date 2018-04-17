@@ -43,11 +43,14 @@
         [suppressDragLeaveHidesColumns]="true"
         [headerHeight]="35"
         [rowHeight]="35"
+        [rowDragManaged]="true"
+        [suppressRowDrag]="!config?.rowDraggable || !config?.editable"
 
         (gridReady)="onAgGridReady($event)"
         (gridSizeChanged)="onGridSizeChange($event)"
         (columnResized)="onColumnResize($event)"
         (modelUpdated)="onAgModelUpdate($event)"
+        (rowDragEnd)="onRowDragEnd($event)"
 
         [rowSelection]="selectionMode"
         [suppressRowClickSelection]="selectionMode === 'multiple'"

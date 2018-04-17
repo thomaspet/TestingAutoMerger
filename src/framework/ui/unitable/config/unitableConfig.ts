@@ -57,6 +57,7 @@ export interface IUniTableConfig {
     searchListVisible?: boolean;
     allowEditToggle?: boolean;
     headerVisible?: boolean;
+    rowDraggable?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -79,6 +80,7 @@ export class UniTableConfig implements IUniTableConfig {
     public autoAddNewRow: boolean;
     public allowGroupFilter: boolean;
     public sortable: boolean;
+    public rowDraggable: boolean;
     public multiRowSelect: boolean;
     public multiRowSelectDefaultValue: boolean;
     public columnMenuVisible: boolean;
@@ -163,6 +165,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setSortable(sortable: boolean) {
         this.sortable = sortable;
+        return this;
+    }
+
+    public setRowDraggable(draggable: boolean) {
+        this.rowDraggable = draggable;
         return this;
     }
 

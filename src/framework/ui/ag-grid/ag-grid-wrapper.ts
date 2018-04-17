@@ -36,7 +36,8 @@ import {
     GridSizeChangedEvent,
     ColumnResizedEvent,
     ColumnMovedEvent,
-    RowClickedEvent
+    RowClickedEvent,
+    RowDragEndEvent
 } from 'ag-grid';
 
 import {Observable} from 'rxjs/Observable';
@@ -199,6 +200,22 @@ export class AgGridWrapper {
         // As sad as this is, its required for the widths
         // to update properly after scroll bars disappear..
         setTimeout(() => event.api.sizeColumnsToFit(), 500);
+    }
+
+    public onRowDragEnd(event: RowDragEndEvent) {
+        try {
+            const originalIndex = event.node.data['_originalIndex'];
+            const newIndex = event.overIndex;
+
+            const data = this.dataService.getTableData();
+            const row = data.splice(originalIndex, 1)[0];
+            data.splice(newIndex, 0, row);
+
+            this.dataService.initialize(this.agGridApi, this.config, data);
+            this.resourceChange.emit(data);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     public onColumnResize(event: ColumnResizedEvent) {
@@ -541,6 +558,15 @@ export class AgGridWrapper {
             }
 
             colDefs.push(menuColumn);
+        }
+
+        if (this.config.rowDraggable && this.config.editable) {
+            colDefs.unshift({
+                rowDrag: true,
+                width: 36,
+                suppressResize: true,
+                valueGetter: () => 'Flytt rad',
+            });
         }
 
         return colDefs;
