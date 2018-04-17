@@ -2359,7 +2359,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         // check if any of the data contains no account - this will cause problems when saving
         let hasInvalidData: boolean = false;
         tableData.forEach(x => {
-            if (!x.DebitAccount && !x.CreditAccount) {
+            if ((!x.DebitAccount && !x.CreditAccount) || !x.AmountCurrency) {
                 hasInvalidData = true;
             }
         });
@@ -2367,7 +2367,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (hasInvalidData) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                     header: 'Ugyldige data',
-                    message: 'Rader som ikke har debet og/eller kreditkonto vil ikke bli lagret',
+                    message: 'Rader som ikke har beløp og debet og/eller kreditkonto vil ikke bli lagret',
                     buttonLabels: {
                         accept: 'Lagre kladd likevel',
                         cancel: 'Avbryt'
