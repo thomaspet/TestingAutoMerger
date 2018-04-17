@@ -21,11 +21,18 @@ export class CustomerInvoiceItemService extends BizHttp<CustomerInvoiceItem> {
         this.relativeURL = CustomerInvoiceItem.RelativeUrl;
         this.entityType = CustomerInvoiceItem.EntityType;
         this.DefaultOrderBy = null;
+
+        /*
+            Because saving quote/order/invoice doesnt invalidate the cache of this service.
+            Ideally this shouldn't be a separate service, the quote/order/invoice services
+            should just have a function for getting items. Might refactor later if I find time.
+        */
+       this.disableCache();
     }
 
     public getStatusText(statusCode: number, invoiceType: number): string {
-        let dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
-        let statusType = dict.find(x => x.Code === statusCode);
+        const dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
+        const statusType = dict.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
 }
