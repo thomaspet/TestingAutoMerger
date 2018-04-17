@@ -2008,6 +2008,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private openAccrualModal(data: any, item) {
+        // Add the accounting lock date to the data object
+        if (this.companySettings.AccountingLockedDate) {
+            data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
+        }
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 this.onModalChanged(item, res.model);
