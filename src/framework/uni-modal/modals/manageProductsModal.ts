@@ -194,6 +194,8 @@ export class ManageProductsModal implements IUniModal {
                     userPurchase => purchase.isAssigned = buy,
                     err => this.errorService.handle(err),
                 );
-        });
+        },
+        err => this.errorService.handle(err)
+        );
     }
 }

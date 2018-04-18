@@ -62,7 +62,7 @@ export class ElsaCompanyLicenseService {
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint(`/api/CompanyLicenses/${key}`)
+            .withEndPoint(`/api/CompanyLicenses/byCompanyKey/${key}`)
             .send()
             .map(req => req.json());
     }
