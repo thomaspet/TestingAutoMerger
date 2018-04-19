@@ -418,7 +418,7 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['OrganizationNumber']) {
-            const organizationnumber = changes['OrganizationNumber'].currentValue;
+            const organizationnumber = changes['OrganizationNumber'].currentValue.trim();
             if (organizationnumber === ''
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
