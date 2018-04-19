@@ -113,14 +113,17 @@ export class WagetypeDetail extends UniView {
                 .switchMap((wageType: WageType) => {
                     if (wageType.ID !== this.wagetypeID) {
                         this.wagetypeID = wageType.ID;
-                        wageType['_baseOptions'] = this.getBaseOptions(wageType);
-
                         this.rateIsReadOnly = wageType.GetRateFrom !== GetRateFrom.WageType;
 
                         this.incomeTypeDatasource = [];
                         this.benefitDatasource = [];
                         this.descriptionDatasource = [];
                         this.supplementPackages = [];
+
+                        if (!wageType.ID) {
+                            this.setDefaultValues(wageType);
+                        }
+                        wageType['_baseOptions'] = this.getBaseOptions(wageType);
 
                         return this.setup(wageType);
                     } else {
@@ -131,6 +134,13 @@ export class WagetypeDetail extends UniView {
                     this.wageType$.next(wageType);
                 }, err => this.errorService.handle(err));
         });
+    }
+
+    private setDefaultValues(wageType: WageType) {
+        wageType.taxtype = TaxType.Tax_Table;
+        wageType.Base_Vacation = true;
+        wageType.Base_EmploymentTax = true;
+        wageType.Base_div1 = true;
     }
 
     private getBaseOptions(wageType: WageType): WageTypeBaseOptions[] {
@@ -157,7 +167,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private getSetupSources(wageType: WageType) {
-        let sources = [
+        const sources = [
             <Observable<any>>this.wageService.layout('WagetypeDetails', this.wageType$),
             this.inntektService.getSalaryValidValueTypes()
         ];
@@ -236,7 +246,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private checkAmeldingInfo(wageType: WageType, fields: any[]) {
-        let hasSupplements = (wageType.SupplementaryInformations
+        const hasSupplements = (wageType.SupplementaryInformations
             && wageType.SupplementaryInformations.length > 0);
 
         this.showSupplementaryInformations = hasSupplements;
@@ -456,7 +466,7 @@ export class WagetypeDetail extends UniView {
     }
 
     private updateForSkatteOgAvgiftregel(supplementPackages: any[]) {
-        let filtered: any[] = [];
+        const filtered: any[] = [];
         supplementPackages.forEach(pack => {
             if (pack.skatteOgAvgiftregel === null) {
                 filtered.push(pack);
@@ -496,19 +506,19 @@ export class WagetypeDetail extends UniView {
     }
 
     private addTilleggsInformasjon(tillegg) {
-        let tilleggsObj: any = tillegg.tilleggsinformasjon;
-        let spesiObj: any = tillegg.spesifikasjon;
-        let additions: WageTypeSupplement[] = [];
+        const tilleggsObj: any = tillegg.tilleggsinformasjon;
+        const spesiObj: any = tillegg.spesifikasjon;
+        const additions: WageTypeSupplement[] = [];
 
         if (tilleggsObj !== null) {
-            for (var key in tilleggsObj) {
+            for (const key in tilleggsObj) {
                 if (key !== null) {
-                    var obj = tilleggsObj[key];
+                    const obj = tilleggsObj[key];
                     if (typeof obj === 'object' && obj !== null) {
-                        for (var prop in obj) {
+                        for (const prop in obj) {
                             if (obj.hasOwnProperty(prop)) {
                                 if (obj[prop] !== null) {
-                                    let wtSupp: WageTypeSupplement = new WageTypeSupplement();
+                                    const wtSupp: WageTypeSupplement = new WageTypeSupplement();
                                     wtSupp.Name = prop;
                                     wtSupp.ameldingType = key;
                                     wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
@@ -519,7 +529,7 @@ export class WagetypeDetail extends UniView {
                             }
                         }
                     } else if (obj !== null) {
-                        let wtSupp: WageTypeSupplement = new WageTypeSupplement();
+                        const wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = key;
                         wtSupp.ameldingType = key;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
@@ -532,10 +542,10 @@ export class WagetypeDetail extends UniView {
         }
 
         if (spesiObj !== null) {
-            for (var props in spesiObj) {
+            for (const props in spesiObj) {
                 if (spesiObj.hasOwnProperty(props)) {
                     if (spesiObj[props] !== null) {
-                        let wtSupp: WageTypeSupplement = new WageTypeSupplement();
+                        const wtSupp: WageTypeSupplement = new WageTypeSupplement();
                         wtSupp.Name = props;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
                         wtSupp.WageTypeID = this.wageType$.getValue().ID;
@@ -572,11 +582,11 @@ export class WagetypeDetail extends UniView {
     }
 
     private showTilleggsPakker(wageType: WageType, fields: any[]): void {
-        let selectedPackage: any = this.supplementPackages.find(x => x.uninavn === wageType.SupplementPackage);
+        const selectedPackage: any = this.supplementPackages.find(x => x.uninavn === wageType.SupplementPackage);
         this.showSupplementaryInformations = false;
 
         if (selectedPackage) {
-            let supInfo: WageTypeSupplement[] = [];
+            const supInfo: WageTypeSupplement[] = [];
             selectedPackage.additions.forEach(addition => {
                 supInfo.push(addition);
             });
@@ -598,16 +608,16 @@ export class WagetypeDetail extends UniView {
         wageType.SupplementaryInformations = wageType.SupplementaryInformations.filter(x => x.ID);
 
         if (wageType.SupplementaryInformations && wageType.SupplementaryInformations.length) {
-            for (var g = 0; g < wageType.SupplementaryInformations.length; g++) {
+            for (let g = 0; g < wageType.SupplementaryInformations.length; g++) {
                 wageType.SupplementaryInformations[g]['_setDelete'] = true;
             }
         }
 
-        let array = wageType.SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
+        const array = wageType.SupplementaryInformations.concat(JSON.parse(JSON.stringify(additions)));
 
         // ensure no duplicates
-        for (var i = array.length - 1; i > 0; i--) {
-            for (var j = i - 1; j >= 0; j--) {
+        for (let i = array.length - 1; i > 0; i--) {
+            for (let j = i - 1; j >= 0; j--) {
                 if (array[i].Name === array[j].Name) {
                     array[j]['_setDelete'] = true;
                     break;
@@ -618,9 +628,9 @@ export class WagetypeDetail extends UniView {
     }
 
     private setupTilleggspakkeConfig() {
-        let tilleggsopplysning = new UniTableColumn('Name', 'Tilleggsopplysning', UniTableColumnType.Text);
+        const tilleggsopplysning = new UniTableColumn('Name', 'Tilleggsopplysning', UniTableColumnType.Text);
         tilleggsopplysning.editable = false;
-        let suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
+        const suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text);
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
             .setFilters([
@@ -634,7 +644,7 @@ export class WagetypeDetail extends UniView {
                     .asObservable()
                     .take(1)
                     .map(wt => {
-                        let suppIndex = wt.SupplementaryInformations
+                        const suppIndex = wt.SupplementaryInformations
                             .findIndex(x => x['_originalIndex'] === event['originalIndex']);
                         wt.SupplementaryInformations[suppIndex] = event.rowModel;
                         return wt;
@@ -651,11 +661,11 @@ export class WagetypeDetail extends UniView {
             .filter(() => Object
                 .keys(changes)
                 .some(key => {
-                    let change = changes[key];
+                    const change = changes[key];
                     return change.previousValue !== change.currentValue;
                 }))
             .map((result: [WageType, any[]]) => {
-                let [wageType, fields] = result;
+                const [wageType, fields] = result;
 
                 if (changes['GetRateFrom']) {
                     this.setReadOnlyOnField(
@@ -665,7 +675,7 @@ export class WagetypeDetail extends UniView {
                 }
 
                 if (changes['Base_Payment']) {
-                    let basePayment = changes['Base_Payment'].currentValue;
+                    const basePayment = changes['Base_Payment'].currentValue;
                     this.setReadOnlyOnField(fields, 'HideFromPaycheck', basePayment);
                     this.setReadOnlyOnField(fields, 'AccountNumber_balance', basePayment);
                     wageType.HideFromPaycheck = false;
@@ -696,7 +706,7 @@ export class WagetypeDetail extends UniView {
                 return [wageType, fields];
             })
             .subscribe((result: [WageType, any[]]) => {
-                let [wageType, fields] = result;
+                const [wageType, fields] = result;
                 this.fields$.next(fields);
                 super.updateState('wagetype', wageType, true);
             });
@@ -733,7 +743,7 @@ export class WagetypeDetail extends UniView {
             .take(1)
             .filter(fields => event.prev.Placement > event.next.Placement)
             .map(fields => {
-                let newNextField = fields
+                const newNextField = fields
                     .filter(field => !field.Hidden)
                     .find(field => field.Placement > event.prev.Placement) || {};
                 return newNextField.Property || '';
@@ -749,7 +759,7 @@ export class WagetypeDetail extends UniView {
         this.fields$
             .take(1)
             .map(fields => {
-                let newPrevfield = fields
+                const newPrevfield = fields
                     .filter(field => !field.Hidden)
                     .sort((fieldA, fieldB) => fieldB.Placement - fieldA.Placement)
                     .find(field => field.Placement < event.prev.Placement) || {};
