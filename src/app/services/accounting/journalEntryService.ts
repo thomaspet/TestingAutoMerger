@@ -617,8 +617,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
                             `(${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
                         result.Messages.push(message);
-                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(currentFinancialYear.ValidTo, 'day')
-                        || moment(entry.FinancialDate).isBefore(currentFinancialYear.ValidFrom, 'day')) {
+                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(financialYearEntry.ValidTo, 'day')
+                        || moment(entry.FinancialDate).isBefore(financialYearEntry.ValidFrom, 'day')) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
                         message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ` +
