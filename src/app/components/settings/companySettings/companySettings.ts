@@ -1215,6 +1215,15 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'SaveCustomersFromQuoteAsLead',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Lagre som lead',
+                FieldSet: 3,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'BaseCurrencyCodeID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
