@@ -37,7 +37,8 @@
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
-        [enableServerSideSorting]="true"
+        [enableSorting]="!config?.editable"
+        [enableServerSideSorting]="rowModelType === 'infinite'"
 
         [suppressNoRowsOverlay]="true"
         [suppressDragLeaveHidesColumns]="true"
