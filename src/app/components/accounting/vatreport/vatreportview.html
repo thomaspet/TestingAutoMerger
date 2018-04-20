@@ -110,7 +110,8 @@
                           [period]="currentVatReport?.TerminPeriod"
                           [vatTypes]="vatTypes"
                           [isHistoricData]="isHistoricData"
-                          [vatReportID]="currentVatReport.ID">
+                          [vatReportID]="currentVatReport.ID"
+                          [vatReportMessages]="reportMessages">
     </vat-summary-per-post>
     <vatreport-receipt-view *ngIf="showView == 'receipt'"
                             [vatReport]="currentVatReport"

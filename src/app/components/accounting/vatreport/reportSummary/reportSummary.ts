@@ -1,6 +1,6 @@
-import {Component, Input, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {VatCodeGroup, VatReportSummaryPerPost, VatType, Period} from '../../../../unientities';
-
+import {VatReportMessage, ValidationLevel} from '../../../../unientities';
 
 @Component({
     selector: 'vat-summary-per-post',
@@ -15,9 +15,16 @@ export class VatSummaryPerPost implements OnChanges {
     @Input() private reportSummaryPerPost: VatReportSummaryPerPost[];
     @Input() public isHistoricData: boolean = false;
     @Input() private vatReportID: number = 0;
+    @Input() private vatReportMessages: VatReportMessage[];
 
-    public ngOnChanges() {
+    private vatReportMessagesImportant: VatReportMessage[];
+
+    public ngOnChanges(changes: SimpleChanges) {
         this.postGroups = this.groupVatReportsByVatCodeGroupID(this.reportSummaryPerPost || []);
+
+        if (changes['vatReportMessages'] && changes['vatReportMessages'].currentValue) {
+            this.vatReportMessagesImportant = this.vatReportMessages.filter(x => x.Level === ValidationLevel.Error || x.Level === ValidationLevel.Warning);
+        }
     }
 
     private groupVatReportsByVatCodeGroupID(postList: VatReportSummaryPerPost[]): VatCodeGroupWithPosts[] {
@@ -69,6 +76,17 @@ export class VatSummaryPerPost implements OnChanges {
         }
 
         return vatCodesAndAccountNos.join(',');
+    }
+
+    public levelToClass(level: ValidationLevel) {
+        switch (level) {
+            case ValidationLevel.Info:
+                return 'success';
+            case ValidationLevel.Warning:
+                return 'warn';
+            case ValidationLevel.Error:
+                return 'error';
+        }
     }
 }
 
