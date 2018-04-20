@@ -35,7 +35,7 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
-            <section class="image-section">
+            <section class="image-section" *ngIf="files?.length > 0">
                 <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
                     <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                         class="prev"

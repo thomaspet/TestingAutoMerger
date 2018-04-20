@@ -16,6 +16,7 @@
             [financialYears]="financialYears"
             [currentFinancialYear]="currentFinancialYear"
             [vatDeductions]="vatDeductions"
+            [defaultRowData]="defaultRowData"
             [vattypes]="vatTypes"
             [selectedNumberSeries]="selectedNumberSeries">
         </journal-entry-professional>
@@ -33,9 +34,9 @@
                 {{message.Message}}
             </strong>
         </div>
-        <uni-summary [configs]="summary" *ngIf="itemsSummaryData" [attr.aria-busy]="busy"></uni-summary>
+        <uni-summary [configs]="summary" *ngIf="itemsSummaryData && mode !== 2" [attr.aria-busy]="busy"></uni-summary>
 
-        <section class="account_summary_container">
+        <section class="account_summary_container" *ngIf="mode !== 2">
             <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
                 <tr>
                     <th class="first_col"></th>
@@ -80,7 +81,7 @@
             </table>
         </section>
 
-         <section class="openposts_container">
+         <section class="openposts_container" *ngIf="mode !== 2">
              <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
              <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
                  Ingen åpne poster funnet for valgt rad

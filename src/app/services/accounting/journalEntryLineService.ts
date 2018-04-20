@@ -17,6 +17,9 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
         // set this property if you want a default sort order from the API
         this.DefaultOrderBy = null;
+
+        // caching journalentryline requests can caused undesired effects, so diable it
+        super.disableCache();
     }
 
     public periodNumberToPeriodDates(period: number, year: number): PeriodDates {

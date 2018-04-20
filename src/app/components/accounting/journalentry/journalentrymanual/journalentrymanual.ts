@@ -1,5 +1,5 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter, HostListener} from '@angular/core';
-import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
+import {JournalEntryProfessional, JournalEntryMode} from '../components/journalentryprofessional/journalentryprofessional';
 import {
     Dimensions,
     FinancialYear,
@@ -61,10 +61,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
     @Input() public editmode: boolean = false;
+    @Input() public singleRowMode: boolean = false; // used if you dont want debit/credit, just rows
+    @Input() public doValidateBalance: boolean = true;
+    @Input() public defaultRowData: JournalEntryData;
     @Input() public selectedNumberSeries: NumberSeries;
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public dataChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Output() public dataLoaded: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional)
@@ -253,15 +258,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.isDirty = true;
                 this.disabled = false;
                 this.setJournalEntryData(data);
+
+                this.dataLoaded.emit(data);
             } else {
                 // We have asked to show an existing journalentry, load it from the API and show it.
                 // Assume the parent compont has set the disabled property and thereby specifies if
-                // the component should be read only or not
-                this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID)
+                // the component should be read only or not. If no existing lines has a statuscode,
+                // the component should be in editmode, because this means that the journalentry has
+                // not been booked yet
+                this.journalEntryService.getJournalEntryDataByJournalEntryID(this.journalEntryID, this.singleRowMode)
                     .subscribe((serverLines: Array<JournalEntryData>) => {
                         this.isDirty = false;
-                        this.disabled = !this.editmode;
+
+                        if (serverLines.filter(x => x.StatusCode).length === 0) {
+                            this.disabled = false;
+                        } else {
+                            this.disabled = !this.editmode;
+                        }
                         this.setJournalEntryData(serverLines);
+
+                        this.dataLoaded.emit(serverLines);
                     },
                     err => this.errorService.handle(err)
                 );
@@ -375,6 +391,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         if (this.journalEntryProfessional) {
             return this.journalEntryProfessional.getTableData();
         }
+        return null;
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
@@ -442,6 +459,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private onDataChanged(data: JournalEntryData[]) {
+        this.dataChanged.emit(data);
         if (data.length <= 0) {
             this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
             this.setSums();
@@ -470,7 +488,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
             this.journalEntryService.setSessionData(this.mode, data);
 
-            this.validateJournalEntryData(data);
+            if (this.mode !== JournalEntryMode.SupplierInvoice) {
+                this.validateJournalEntryData(data);
+            }
             this.calculateItemSums(data);
 
             this.getOpenPostsForRow();
@@ -481,6 +501,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public onDataLoaded(data: JournalEntryData[]) {
         this.calculateItemSums(data);
+        this.dataLoaded.emit(data);
     }
 
     public onRowSelected(selectedRow: JournalEntryData) {
@@ -599,29 +620,32 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.lastRetrievedOpenPostsExpectedPositive = expectPositiveAmount;
                     this.openPostsForSelectedRow = null;
 
+
                     this.journalEntryLineService.GetAll(
                         `expand=CurrencyCode&orderby=ID desc&filter=SubAccountID eq ${ledgerAccountID} `
                         + `and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0`
                     ).subscribe(lines => {
                         let line: JournalEntryLine = null;
-                        if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
-                            line = lines.find(x => x.ID === this.currentJournalEntryData.PostPostJournalEntryLineID);
-                        } else if (this.currentJournalEntryData.CustomerInvoiceID) {
-                            line = lines.find(
-                                x => x.CustomerInvoiceID === this.currentJournalEntryData.CustomerInvoiceID
-                            );
-                        } else if (this.currentJournalEntryData.SupplierInvoiceID) {
-                            line = lines.find(
-                                x => x.SupplierInvoiceID === this.currentJournalEntryData.SupplierInvoiceID
-                            );
-                        }
+                        if (this.currentJournalEntryData) {
+                            if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
+                                line = lines.find(x => x.ID === this.currentJournalEntryData.PostPostJournalEntryLineID);
+                            } else if (this.currentJournalEntryData.CustomerInvoiceID) {
+                                line = lines.find(
+                                    x => x.CustomerInvoiceID === this.currentJournalEntryData.CustomerInvoiceID
+                                );
+                            } else if (this.currentJournalEntryData.SupplierInvoiceID) {
+                                line = lines.find(
+                                    x => x.SupplierInvoiceID === this.currentJournalEntryData.SupplierInvoiceID
+                                );
+                            }
 
-                        if (line) {
-                            line['_rowSelected'] = true;
-                        }
+                            if (line) {
+                                line['_rowSelected'] = true;
+                            }
 
-                        this.openPostsForSelectedRow = lines;
-                        this.openPostRetrievingDataInProgress = false;
+                            this.openPostsForSelectedRow = lines;
+                            this.openPostRetrievingDataInProgress = false;
+                        }
                     }, err => {
                         this.openPostRetrievingDataInProgress = false;
                         this.errorService.handle(err);
@@ -674,7 +698,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
              data,
              this.currentFinancialYear,
              this.financialYears,
-             this.companySettings)
+             this.companySettings,
+             this.doValidateBalance)
              .then(result => this.validationResult = result );
 
         /*

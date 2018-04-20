@@ -4,28 +4,13 @@
              class="no-print">
 </uni-toolbar>
 
-<nav class="horizontal_nav no-print">
-    <ul>
-        <li class="unigrid-small-true unigrid-huge-false unigrid-large-false unigrid-medium-false" >
-            <a (click)="onTabClick(tabs[0])" [ngClass]="{'router-link-active': tabs[0].isSelected}" >{{tabs[0].label}}</a>
-        </li>
-        <li *ngFor="let tab of tabs" [hidden]="tab.isHidden" >
-            <a (click)="onTabClick(tab)" [ngClass]="{'router-link-active': tab.isSelected}" >
-                {{tab.label}}
-                <span *ngIf="tab.count" class="tab_counter">{{tab.count}}</span>
-            </a>
-        </li>
-    </ul>
-</nav>
-
-<section class="application">
-    <fieldset>
-        <legend>Kjøpsfaktura</legend>
+<section class="uni-split-view-container">
+    <section class="left-side">
 
         <uni-form
-            [config]='formConfig'
-            [fields]='fields$'
-            [model]='current'
+            [config]="formConfig$"
+            [fields]="fields$"
+            [model]="current"
             (readyEvent)="onFormReady($event)"
             (changeEvent)="onFormChange($event)"
             (inputEvent)="onFormInput($event)"
@@ -33,15 +18,56 @@
             (toggleEvent)="onToggleEvent($event)">
         </uni-form>
 
-        <article class="collapsable" [ngClass]="{'-is-open': !collapseSimpleJournal}">
-            <h4 (click)="collapseSimpleJournal = !collapseSimpleJournal">Kontering</h4>
-            <div class="collapsable-content">
-                <bill-simple-journalentry [supplierinvoice]="current" (valueChange)="onEntryChange($event)" ></bill-simple-journalentry>
-            </div>
-        </article>
-    </fieldset>
+        <section class="tabs">
+            <button (click)="setTab('posts')" [ngClass]="{'active': currentTab === 'posts'}">
+                Kontering
+            </button>
 
-    <fieldset [hidden]="!tabs[1].isSelected">
+            <button (click)="setTab('history')" [ngClass]="{'active': currentTab === 'history'}">
+                Leverandørhistorikk
+            </button>
+        </section>
+
+        <section class="journal-entry" *ngIf="currentTab === 'posts'">
+            <journal-entry-manual
+                *ngIf="(current | async)"
+                [mode]="2"
+                [editmode]="false"
+                [journalEntryID]="(current | async)?.JournalEntryID"
+                [runAsSubComponent]="true"
+                [singleRowMode]="true"
+                [doValidateBalance]="false"
+                [defaultRowData]="defaultRowData"
+                (dataChanged)="onJournalEntryManualChange($event)"
+                (dataLoaded)="onJournalEntryManualDataLoaded($event)">
+            </journal-entry-manual>
+
+            <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
+                <tr>
+                    <td>Differanse</td>
+                    <td [class.warning]="sumRemainder" *ngIf="sumRemainder != null">{{ sumRemainder | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+                    <td *ngIf="sumRemainder == null">-</td>
+                    <td>Sum Mva</td>
+                    <td *ngIf="sumVat != null">{{ sumVat | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+                    <td *ngIf="sumVat == null">-</td>
+                </tr>
+                <tr *ngIf="current.CurrencyExchangeRate">
+                    <td>Valutakurs: {{current.CurrencyExchangeRate}}</td>
+                </tr>
+            </table>
+
+        </section>
+
+        <section class="bill-history" *ngIf="currentTab === 'history'">
+            <uni-bill-history
+                [isActive]="true"
+                [supplierID]="(current | async)?.SupplierID"
+                [parentID]="(current | async)?.ID">
+            </uni-bill-history>
+        </section>
+
+    </section>
+    <section class="right-side journalentry-image-area">
         <legend>Dokument ({{this.files?.length || 0}})</legend>
         <uni-image
             [singleImage]="false"
@@ -49,6 +75,7 @@
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
             [entity]="(current | async)?.ID ? 'SupplierInvoice' : ''"
             [entityID]="(current | async)?.ID"
+            [size]="1200"
             [splitAllowed]="true"
             [rotateAllowed]="true"
             (fileListReady)="onFileListReady($event)"
@@ -57,16 +84,6 @@
             (useWord)="onUseWord($event)">
         </uni-image>
         <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
-    </fieldset>
-
-    <fieldset [hidden]="!tabs[4].isSelected">
-        <legend>Historikk</legend>
-
-        <uni-bill-history
-            [isActive]="tabs[4].isSelected"
-            [supplierID]="(current | async)?.SupplierID"
-            [parentID]="(current | async)?.ID">
-        </uni-bill-history>
-    </fieldset>
+    </section>
 
 </section>
