@@ -131,10 +131,18 @@ export class TransqueryDetails implements OnInit {
             this.route.params.subscribe(params => {
                 const unitableFilter = this.generateUnitableFilters(params);
                 this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
-                this.lookupFunction = (urlParams: URLSearchParams) =>
-                    this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                this.setupFunction();
             });
         });
+    }
+
+    private setupFunction() {
+        this.lookupFunction = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    private onColumnsChange(event) {
+        this.setupFunction();
     }
 
     private getTableData(urlParams: URLSearchParams): Observable<Response> {
@@ -201,65 +209,29 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
+        let selectString = 'ID as ID';
+        let expandString = '';
+
+        // Loop the columns in unitable to only get the data for the once visible!
+        this.table.tableColumns.toJS().forEach((col) => {
+            selectString += col.visible ? ',' + col.field : '';
+            if (col.field.indexOf('Dimension') !== -1 && col.visible) {
+                selectString += ',Dimension' + parseInt(col.field.substr(9, 3), 10) + '.Number';
+                expandString += ',Dimensions.Dimension' + parseInt(col.field.substr(9, 3), 10);
+            } else if (col.field.indexOf('Department') !== -1 && col.visible) {
+                selectString += ',Department.DepartmentNumber';
+            } else if (col.field.indexOf('Project') !== -1 && col.visible) {
+                selectString += ',Project.ProjectNumber';
+            }
+        });
+
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select',
-            'ID as ID,' +
-            'JournalEntryNumberNumeric,' +
-            'JournalEntryNumber,' +
-            'Account.AccountNumber,' +
-            'Account.AccountName,' +
-            'SubAccount.AccountNumber,' +
-            'SubAccount.AccountName,' +
-            'FinancialDate,' +
-            'CreatedAt,' +
-            'User.DisplayName,' +
-            'VatDate,' +
-            'Description,' +
-            'VatType.VatCode,' +
-            'Amount,' +
-            'AmountCurrency,' +
-            'CurrencyCode.Code,' +
-            'CurrencyExchangeRate,' +
-            'TaxBasisAmount,' +
-            'TaxBasisAmountCurrency,' +
-            'VatReportID,' +
-            'RestAmount,' +
-            'RestAmountCurrency,' +
-            'StatusCode,' +
-            'InvoiceNumber,' +
-            'DueDate,' +
-            'Department.Name,' +
-            'Project.Name,' +
-            'Department.DepartmentNumber,' +
-            'Project.ProjectNumber,' +
-            'Dimension5.Number,' +
-            'Dimension5.Name,' +
-            'Dimension6.Number,' +
-            'Dimension6.Name,' +
-            'Dimension7.Number,' +
-            'Dimension7.Name,' +
-            'Dimension8.Number,' +
-            'Dimension8.Name,' +
-            'Dimension9.Number,' +
-            'Dimension9.Name,' +
-            'Dimension10.Number,' +
-            'Dimension10.Name,' +
-            'TerminPeriod.No,' +
-            'TerminPeriod.AccountYear,' +
-            'Period.AccountYear,' +
-            'JournalEntryID as JournalEntryID,' +
-            'ReferenceCreditPostID as ReferenceCreditPostID,' +
-            'OriginalReferencePostID as OriginalReferencePostID,' +
-            'VatDeductionPercent as VatDeductionPercent,' +
-            'JournalEntry.JournalEntryAccrualID,' +
-            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
-        );
+        urlParams.set('select', selectString );
         urlParams.set(
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
                 + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
-                + ',Dimensions.Dimension5,Dimensions.Dimension6,Dimensions.Dimension7,Dimensions.Dimension8'
-                + ',Dimensions.Dimension9,Dimensions.Dimension10'
+                + expandString
         );
         urlParams.set('join',
             'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');

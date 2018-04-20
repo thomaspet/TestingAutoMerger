@@ -79,7 +79,7 @@ export class UniTable implements OnChanges {
 
     private tableDataOriginal: Immutable.List<any>; // for sorting, filtering etc.
     private tableData: Immutable.List<any>;
-    private tableColumns: Immutable.List<any>;
+    public tableColumns: Immutable.List<any>;
 
     private basicSearchFilters: ITableFilter[];
     private advancedSearchFilters: ITableFilter[];
