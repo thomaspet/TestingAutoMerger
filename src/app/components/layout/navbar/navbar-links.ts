@@ -352,10 +352,15 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 moduleID: UniModules.Roles
             },
             {
+                componentName: 'GDPR List',
+                componentUrl: '/admin/gdpr',
+                moduleID: UniModules.GDPRList
+            },
+            {
                 componentName: 'Versjonsinformasjon',
                 componentUrl: '/about/versions',
                 moduleID: UniModules.Versions
-            }
+            },
         ]
     }
 ];
