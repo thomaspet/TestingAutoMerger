@@ -5,7 +5,6 @@ import {File, FileEntityLink} from '../../../unientities';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AuthService} from '../../../authService';
 import {FileService, ErrorService, UniFilesService, StatisticsService} from '../../../services/services';
-import {ImageUploader} from '../../../../framework/uniImage/imageUploader';
 import {environment} from 'src/environments/environment';
 import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
@@ -79,7 +78,6 @@ export class UniAttachments {
     constructor(
         private ngHttp: Http,
         private http: UniHttp,
-        private imageUploader: ImageUploader,
         private errorService: ErrorService,
         private fileService: FileService,
         private uniFilesService: UniFilesService,

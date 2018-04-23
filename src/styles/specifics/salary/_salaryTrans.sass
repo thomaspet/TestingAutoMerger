@@ -5,100 +5,13 @@ salarytrans
         @include unigrid-flush(14)
 
         .splitview_list
-
             .icon-column
                 font-size: 0
                 height: 1rem
 
-            .missing-info:before
-                content: ''
-                display: inline-block
-                position: absolute
-                background: transparent unicon-warning($uni-color-bad) top center no-repeat
-                background-size: 1rem
-                margin: .3rem .4rem 0 0
-                height: 1rem
-                width: 1rem
-
-            [aria-selected]:not([aria-selected=false]) .missing-info:before
-                background-image: unicon-warning($uni-color-negative)
-                background-size: 1rem
-
             th:last-child,
             td:last-child
                 border-left: none
-
-.salarytrans-payrollrun-detail
-    @include unigrid-flush(14)
-    margin: 0 auto
-
-    h1
-        @extend h2
-        margin: 0
-
-    p
-        @extend .poster_toolbar_orgnr
-
-section.salarytrans-filter
-    width: 100%
-    background-color: transparentize($uni-color-scale9, .5)
-
-    salarytrans-filter
-        display: block
-        @include unigrid-flush(14)
-        margin: 1rem auto
-        padding: 1rem 0
-        text-align: center
-
-    p
-        display: inline-block
-        margin: 0
-
-.detail_header
-    @include clearfix
-    margin: 0
-    padding: 0
-    position: relative
-    min-height: 2rem
-
-.detail_header_info
-    width: 100%
-
-    h1
-        @extend h2
-        display: flex
-        align-items: baseline
-        flex-grow: 1
-        order: 4
-        font-weight: 300
-        line-height: 100%
-        small
-            @extend p
-            flex-basis: fit-content
-            margin: 0 0 0 1rem
-
-.detail_header_info_tableForm
-    color: $uni-color-scale3
-
-    label
-        @include unigrid-flush(2)
-        position: relative
-        margin-left: 0
-        margin-right: 12rem
-        min-height: 1.5rem
-        font-weight: 400
-
-    input[readonly]
-        color: $uni-color-scale3
-        padding-left: 0
-        position: absolute
-        top: 0
-        left: 100%
-        width: 10rem
-        margin-right: 2rem
-        font-weight: 300
-        background: transparent
-        border: none
 
 
 .detail_header_navigation
@@ -141,64 +54,6 @@ salarytrans .detail_tables
         font-size: .9rem
         font-weight: 400
 
-.summarytable
-    display: block
-    background: transparentize($uni-color-good, .9)
-    border-top: pxToRem(3) double $uni-color-scale9
-    border-bottom: pxToRem(1) solid $uni-color-scale9
-    pointer-events: none
-    transition: color 1000ms ease-in
-    position: relative
-
-    &:before
-        content: 'Summarytable is deprecated. Use <uni-summary> instead!'
-        display: block
-        background: yellow
-        position: absolute
-        top: 0
-        left: 0
-
-    &.-is-dirty
-        margin-bottom: .7rem
-
-    table
-        tr:nth-of-type(odd),
-        tr:nth-of-type(even),
-        td,
-        th,
-            background: transparent
-            overflow: visible
-            text-align: left !important
-
-        td
-            font-weight: 400
-            line-height: .5rem
-            padding-bottom: 1.5rem
-            padding-left: 2rem
-
-        th
-            padding-top: 1rem
-            padding-left: 2rem
-
-
-.detail_keyFigures
-    dt,
-    dd
-        display: block
-        float: left
-        margin-right: 1rem
-    dt
-        font-weight: 600
-        width: 5rem
-
-    dd
-        width: 15rem
-        overflow: hidden
-        text-overflow: ellipsis
-        white-space: nowrap
-
-    dt:nth-of-type(3)
-        clear: left
 
 salarytrans
     .splitview_list
@@ -221,9 +76,6 @@ payrollrun-details .entityDetails
         width: 32rem
         left: calc(12.5rem - 17.7rem)
 
-.journalEntryNumber
-    @extend .application
-
 .salaryTransTable
     .icon-column
         font-size: 0
@@ -231,21 +83,3 @@ payrollrun-details .entityDetails
         display: flex
         justify-content: center
         align-content: center
-
-    .info-base
-        display: inline-block
-        height: 1rem
-        width: 1rem
-        border-radius: 99rem
-        background-size: 1rem 1rem
-        background-image: unicon-info($uni-color-negative)
-        background-position: center center
-        background-repeat: no-repeat
-
-    .info-warn
-        @extend .info-base
-        background-color: $uni-color-warn
-
-    .info-ok
-        @extend .info-base
-        background-color: $uni-color-good

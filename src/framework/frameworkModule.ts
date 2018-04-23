@@ -3,14 +3,11 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
 import {FileSplitModal} from './fileSplit/FileSplitModal';
-import {UniDocumentList} from './documents/list';
-import {UniDocumentUploader} from './documents/uploader';
 import {UniSave} from './save/save';
 import {UniUploadFileSaveAction} from './save/upload';
 import {UniImage} from './uniImage/uniImage';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
-import {ImageUploader} from './uniImage/imageUploader';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
 import {UniPipesModule} from './pipes/pipesModule';
 import {UniNotifications} from './notifications/notifications';
@@ -56,8 +53,6 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
         UniComponentLoader,
         ClickOutsideDirective,
         UniModal,
-        UniDocumentList,
-        UniDocumentUploader,
         UniSave,
         UniUploadFileSaveAction,
         UniImage,
@@ -81,7 +76,6 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
         UniHttp,
         ComponentCreator,
         Logger,
-        ImageUploader,
         CommentService,
         StimulsoftReportWrapper,
     ],
@@ -96,8 +90,6 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 
         // Components
         UniModal,
-        UniDocumentList,
-        UniDocumentUploader,
         UniSave,
         UniUploadFileSaveAction,
         UniImage,
