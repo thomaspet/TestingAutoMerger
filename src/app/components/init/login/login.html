@@ -37,7 +37,11 @@
     </section>
 
     <section #companySelector style="display: none">
-        <p class='validation info' *ngIf="infoMessage.length">{{infoMessage}}</p>
+        <ng-template [ngIf]="missingCompanies">
+            <p class='validation info'>Fant ingen selskaper på brukeren. Dersom problemet vedvarer vennligst kontakt din systemadministrator eller vårt kundesenter.</p>
+            <a (click)="resetLogin()" style="display:block;text-align:center;">Tilbake til innlogging</a>
+        </ng-template>
+
         <uni-select
             [config]="selectConfig"
             [items]="availableCompanies"

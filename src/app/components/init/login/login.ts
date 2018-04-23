@@ -27,7 +27,7 @@ export class Login {
 
     private working: boolean;
     private errorMessage: string = '';
-    private infoMessage: string = '';
+    public missingCompanies: boolean;
 
     private availableCompanies: any[];
     private selectConfig: ISelectConfig;
@@ -81,8 +81,7 @@ export class Login {
                 });
 
                 if (response.status !== 200) {
-                    this.infoMessage =
-                     'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
+                    this.missingCompanies = true;
                     return;
                 }
 
@@ -103,21 +102,26 @@ export class Login {
                             this.select.focus();
                         });
                     } else {
-                        this.infoMessage =
-                        'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
+                        this.missingCompanies = true;
                     }
                 } catch (exception) {
-                    this.infoMessage =
-                    'Du har ikke tilgang til noen selskaper. Kontakt din administrator.';
+                    this.missingCompanies = true;
                 }
             });
+    }
+
+    public resetLogin() {
+        this.missingCompanies = false;
+        this.usernameControl.enable();
+        this.passwordControl.enable();
+        $(this.companySelector.nativeElement).hide();
+        $(this.loginForm.nativeElement).show();
     }
 
     private onCompanySelected(company) {
         if (company) {
             const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');
-            // this._router.navigateByUrl(url);
             this._authService.setActiveCompany(company, url);
         }
     }
