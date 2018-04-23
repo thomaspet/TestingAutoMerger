@@ -580,6 +580,10 @@ export class CompanySettingsComponent implements OnInit {
         this.companySettingsService
             .Put(company.ID, company)
             .finally(() => this.subEntityService.invalidateCache())
+            .catch((err, obs) => {
+                complete('Lagring feilet.');
+                return this.errorService.handleRxCatch(err, obs);
+            })
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
@@ -607,10 +611,6 @@ export class CompanySettingsComponent implements OnInit {
                         complete('Purreinnstillinger feilet i lagring');
                     });
                 });
-            },
-            (err) => {
-                this.errorService.handle(err);
-                complete('Lagring feilet.');
             }
         );
     }
