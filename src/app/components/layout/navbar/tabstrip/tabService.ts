@@ -82,8 +82,7 @@ export enum UniModules {
     Thresholds      = 704,
     Dimensions      = 705,
     About           = 706,
-    Versions        = 707,
-    GDPRList        = 708
+    Versions        = 707
 }
 
 @Injectable()

@@ -5,7 +5,6 @@ import {JobLog} from './jobs/log/jobLog';
 import {UniModels} from './models/models';
 import {UniRoles} from './roles/roles';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
-import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
 
 export const adminRoutes = [
     {
@@ -38,10 +37,6 @@ export const adminRoutes = [
             {
                 path: 'thresholds',
                 component: ApprovalThresholds
-            },
-            {
-                path: 'gdpr',
-                component: UniGdprPeopleList
             }
         ]
     }

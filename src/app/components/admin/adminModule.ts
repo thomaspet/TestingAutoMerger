@@ -21,8 +21,6 @@ import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
-import { UniGdprPeopleList } from '@app/components/admin/gdpr/gdpr-people-list.component';
-import { PeopleService } from '@app/components/admin/gdpr/people.service';
 
 @NgModule({
     entryComponents: [
@@ -51,11 +49,7 @@ import { PeopleService } from '@app/components/admin/gdpr/people.service';
         ApprovalThresholds,
         ApprovalThresholdRules,
         SaftExportView,
-        SaftImportModal,
-        UniGdprPeopleList
-    ],
-    providers: [
-        PeopleService
+        SaftImportModal
     ],
     exports: [
         JobList,
@@ -64,8 +58,7 @@ import { PeopleService } from '@app/components/admin/gdpr/people.service';
         UniModels,
         UniRoles,
         PermissionSelector,
-        ApprovalThresholds,
-        UniGdprPeopleList
+        ApprovalThresholds
     ]
 })
 export class AdminModule {}
