@@ -25,6 +25,7 @@ export interface IModalOptions {
     activateClickOutside?: boolean; // removeMe?
     closeOnClickOutside?: boolean;
     closeOnEscape?: boolean;
+    hideCloseButton?: boolean;
 }
 
 export interface IUniModal {

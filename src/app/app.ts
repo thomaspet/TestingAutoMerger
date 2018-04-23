@@ -46,7 +46,8 @@ export class App {
                 this.loginModalOpen = true;
                 this.modalService.open(LoginModal, {
                     closeOnEscape: false,
-                    closeOnClickOutside: false
+                    closeOnClickOutside: false,
+                    hideCloseButton: true
                 }).onClose.subscribe(() => {
                     this.loginModalOpen = false;
                 });
@@ -108,7 +109,7 @@ export class App {
 
         this.modalService
             .open(UniConfirmModalV2, {
-                message: `Lisensavtale for ${company.Name} må være godtatt før du kan ta Uni Economy i bruk.<br /> 
+                message: `Lisensavtale for ${company.Name} må være godtatt før du kan ta Uni Economy i bruk.<br />
                           Vennligst kontakt din systemeier for godkjenning av avtale.<br /><br />
                           <b>Kontaktinfo:</b><br />
                           ${company.ContactPerson}<br />

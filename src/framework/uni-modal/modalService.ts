@@ -28,7 +28,7 @@ export class UniModalService {
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             const key = event.which || event.keyCode;
             if (this.openModalRefs.length && key === 27) {
-                let activeModal = this.openModalRefs[this.openModalRefs.length - 1];
+                const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                 if (activeModal.instance.options.closeOnEscape !== false) {
                     this.forceClose(activeModal);
                 }
@@ -37,7 +37,7 @@ export class UniModalService {
     }
 
     public forceClose(modalRef: ComponentRef<IUniModal>): void {
-        let options = modalRef && modalRef.instance.options || {};
+        const options = modalRef && modalRef.instance.options || {};
 
         if (options.hasOwnProperty('cancelValue')) {
             modalRef.instance.onClose.emit(options.cancelValue);
@@ -106,7 +106,7 @@ export class UniModalService {
             componentRef.instance.onClose.complete();
         });
 
-        let index = this.openModalRefs.findIndex(ref => ref === componentRef);
+        const index = this.openModalRefs.findIndex(ref => ref === componentRef);
         componentRef.destroy();
 
         if (index >= 0) {
@@ -133,16 +133,18 @@ export class UniModalService {
             dialogElement.setAttribute('open', 'true');
 
             // Add close button
-            const header = dialogElement.querySelector('header');
-            const headerButton = header && header.querySelector('button');
-            if (header && !headerButton) {
-                let button = document.createElement('button');
-                button.classList.add('modal-close-button');
-                button.onclick = (event) => {
-                    this.forceClose(componentRef);
-                };
+            if (!options || !options.hideCloseButton) {
+                const header = dialogElement.querySelector('header');
+                const headerButton = header && header.querySelector('button');
+                if (header && !headerButton) {
+                    const button = document.createElement('button');
+                    button.classList.add('modal-close-button');
+                    button.onclick = (event) => {
+                        this.forceClose(componentRef);
+                    };
 
-                header.appendChild(button);
+                    header.appendChild(button);
+                }
             }
 
             // Add classes from options
@@ -152,7 +154,7 @@ export class UniModalService {
         }
 
         componentRootNode.style.margin = '0 auto';
-        let backdrop = this.createBackdrop(options);
+        const backdrop = this.createBackdrop(options);
         backdrop.appendChild(componentRootNode);
 
         // Set class modal-open on body to prevent background scroll
@@ -165,7 +167,7 @@ export class UniModalService {
     /** Injects a new UniModal into the container and returns it's ComponentRef */
     private compileModal(modal: Type<IUniModal>, options: IModalOptions): ComponentRef<IUniModal> {
         const factory = this.factoryResolver.resolveComponentFactory(modal);
-        let componentRef = factory.create(this.injector);
+        const componentRef = factory.create(this.injector);
 
         componentRef.instance['contentComponent'] = modal;
         componentRef.instance['options'] = options || {};
@@ -183,13 +185,13 @@ export class UniModalService {
 
     /** Creates a backdrop element, appends it to our container and returns it */
     private createBackdrop(options: IModalOptions): Element {
-        let backdrop = document.createElement('section');
+        const backdrop = document.createElement('section');
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside) {
             backdrop.addEventListener('click', (event: MouseEvent) => {
                 event.stopPropagation();
-                let target = event.target || event.srcElement;
+                const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,
                 // only clicks directly on the backdrop
@@ -207,7 +209,7 @@ export class UniModalService {
 
     /** Creates a container element for our modals */
     private createContainer(): void {
-        let container = document.createElement('section');
+        const container = document.createElement('section');
         container.classList.add('uni-modal-container');
         container.id = 'uni-modal-container';
 
