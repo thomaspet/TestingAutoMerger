@@ -1,9 +1,9 @@
-﻿<article *ngIf="company$ | async">
+﻿<article *ngIf="companySettings$ | async">
 
     <uni-form class="companySettings"
               [config]="config$"
               [fields]="fields$"
-              [model]="company$"
+              [model]="companySettings$"
               (changeEvent)="companySettingsChange($event)"
               (inputEvent)="onFormInputChange($event)"
               (readyEvent)="onFormReady()">

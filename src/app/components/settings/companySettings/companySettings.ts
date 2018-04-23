@@ -95,7 +95,7 @@ export class CompanySettingsComponent implements OnInit {
         'DefaultSalesAccount'
     ];
 
-    public company$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
+    public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
     private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
@@ -283,17 +283,17 @@ export class CompanySettingsComponent implements OnInit {
                 });
 
                 // do this after getting emptyPhone/email/address
-                this.company$.next(this.setupCompanySettingsData(dataset[5]));
+                this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
                 this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                     company => {
-                        const data = this.company$.getValue();
+                        const data = this.companySettings$.getValue();
                         data['_FileFlowEmail'] = company['FileFlowEmail'];
                         data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
                         data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
                         data.LogoHideField = data.LogoHideField || this.logoHideOptions[2].Value;
                         data.LogoAlign = data.LogoAlign || this.logoAlignOptions[0].Alignment;
-                        this.company$.next(data);
+                        this.companySettings$.next(data);
                         this.getFormLayout();
                         this.extendFormConfig();
                     },
@@ -320,7 +320,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public onFormReady() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
         if (data['_FileFlowEmail']) {
             this.form.field('_UpdateEmail').readMode(); // Disable button update email address as initial state
         }
@@ -346,7 +346,7 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['quoteTemplate.Template']) {
             this.quoteTemplate.Template = changes['quoteTemplate.Template'].currentValue;
             this.reportModel$.next({
-                company: this.company$.value,
+                company: this.companySettings$.value,
                 orderTemplate: this.orderTemplate,
                 invoiceTemplate: this.invoiceTemplate,
                 quoteTemplate: this.quoteTemplate
@@ -356,7 +356,7 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['orderTemplate.Template']) {
             this.orderTemplate.Template = changes['orderTemplate.Template'].currentValue;
             this.reportModel$.next({
-                company: this.company$.value,
+                company: this.companySettings$.value,
                 orderTemplate: this.orderTemplate,
                 invoiceTemplate: this.invoiceTemplate,
                 quoteTemplate: this.quoteTemplate
@@ -366,7 +366,7 @@ export class CompanySettingsComponent implements OnInit {
         if (changes['invoiceTemplate.Template']) {
             this.invoiceTemplate.Template = changes['invoiceTemplate.Template'].currentValue;
             this.reportModel$.next({
-                company: this.company$.value,
+                company: this.companySettings$.value,
                 orderTemplate: this.orderTemplate,
                 invoiceTemplate: this.invoiceTemplate,
                 quoteTemplate: this.quoteTemplate
@@ -386,10 +386,10 @@ export class CompanySettingsComponent implements OnInit {
                 .catch((ba: BankAccount) => {
                     const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'CompanyBankAccount');
-                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.companySettings$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
-                    this.company$.next(this.company$.getValue());
+                    this.companySettings$.next(this.companySettings$.getValue());
                 });
         }
 
@@ -398,10 +398,10 @@ export class CompanySettingsComponent implements OnInit {
                 .catch((ba: BankAccount) => {
                     const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'TaxBankAccount');
-                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.companySettings$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
-                    this.company$.next(this.company$.getValue());
+                    this.companySettings$.next(this.companySettings$.getValue());
                 });
         }
 
@@ -410,10 +410,10 @@ export class CompanySettingsComponent implements OnInit {
                 .catch((ba: BankAccount) => {
                     const field: UniFieldLayout = this.fields$
                         .getValue().find(x => x.Property === 'SalaryBankAccount');
-                        const list = _.get(this.company$.getValue(), field.Options.listProperty);
+                        const list = _.get(this.companySettings$.getValue(), field.Options.listProperty);
                     ba['_mode'] = 0;
                     list.push(ba);
-                    this.company$.next(this.company$.getValue());
+                    this.companySettings$.next(this.companySettings$.getValue());
                 });
         }
 
@@ -433,7 +433,7 @@ export class CompanySettingsComponent implements OnInit {
                     this.toastService.removeToast(this.organizationnumbertoast);
                 }
 
-                this.company$
+                this.companySettings$
                     .asObservable()
                     .take(1)
                     .subscribe(
@@ -444,7 +444,7 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['_FileFlowOrgnrEmailCheckbox']) {
-            const data = this.company$.getValue();
+            const data = this.companySettings$.getValue();
             if (data['_FileFlowOrgnrEmailCheckbox']) {
                 this.generateOrgnrInvoiceEmail();
             } else {
@@ -461,13 +461,13 @@ export class CompanySettingsComponent implements OnInit {
                 return item;
             }));
 
-            const obj = this.company$.getValue();
+            const obj = this.companySettings$.getValue();
 
             // If Nordea bank is activated while DNB bank is activated
             if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
                 obj['UsePaymentBankValues'] = false;
                 this.hideBankValues = true;
-                this.company$.next(obj);
+                this.companySettings$.next(obj);
                 this.fields$.next(this.fields$.getValue().map((item) => {
                     if (item.Property === 'PaymentBankAgreementNumber' || item.Property === 'PaymentBankIdentification') {
                         item.Hidden = this.hideBankValues;
@@ -486,13 +486,13 @@ export class CompanySettingsComponent implements OnInit {
                 return item;
             }));
 
-            const obj = this.company$.getValue();
+            const obj = this.companySettings$.getValue();
 
             // If DNB bank is activated while Nordea bank is activated
             if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
                 obj.UseXtraPaymentOrgXmlTag = false;
                 this.hideXtraPaymentOrgXmlTagValue = true;
-                this.company$.next(obj);
+                this.companySettings$.next(obj);
                 this.fields$.next(this.fields$.getValue().map((item) => {
                     if (item.Property === 'XtraPaymentOrgXmlTagValue') {
                         item.Hidden = this.hideXtraPaymentOrgXmlTagValue;
@@ -520,7 +520,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     public saveSettings(complete) {
-        const company = this.company$.value;
+        const company = this.companySettings$.value;
         const templates = [this.invoiceTemplate, this.orderTemplate, this.quoteTemplate];
 
         if (company.BankAccounts) {
@@ -643,7 +643,7 @@ export class CompanySettingsComponent implements OnInit {
                 }
 
                 this.savedCompanyOrgValue = compSettings.OrganizationNumber;
-                this.company$.next(compSettings);
+                this.companySettings$.next(compSettings);
                 this.saveSettings(() => {});
             }, err => this.errorService.handle(err));
     }
@@ -651,7 +651,7 @@ export class CompanySettingsComponent implements OnInit {
     private openBrRegModal() {
         this.modalService.open(UniBrRegModal).onClose.subscribe(brRegInfo => {
             if (brRegInfo) {
-                const company = this.company$.getValue();
+                const company = this.companySettings$.getValue();
 
                 company.CompanyName = brRegInfo.navn;
                 company.OrganizationNumber = brRegInfo.orgnr;
@@ -689,18 +689,18 @@ export class CompanySettingsComponent implements OnInit {
                     company.DefaultPhone.Number = brRegInfo.tlf;
                 }
 
-                this.company$.next(company);
+                this.companySettings$.next(company);
             }
         });
     }
 
     public updateMunicipalityName() {
-        const company = this.company$.getValue();
+        const company = this.companySettings$.getValue();
         this.municipalService.GetAll(`filter=MunicipalityNo eq '${company.OfficeMunicipalityNo}'`)
             .subscribe((data) => {
                 if (data && data.length > 0) {
                     company['MunicipalityName'] = data[0].MunicipalityName;
-                    this.company$.next(company);
+                    this.companySettings$.next(company);
                 }
             }, err => this.errorService.handle(err));
     }
@@ -864,7 +864,7 @@ export class CompanySettingsComponent implements OnInit {
         const salaryBankAccount: UniFieldLayout = fields.find(x => x.Property === 'SalaryBankAccount');
         salaryBankAccount.Options = this.getBankAccountOptions('SalaryBankAccount', 'salary');
 
-        const settings = this.company$.getValue();
+        const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
         apActivated.Label = this.hasBoughtEHF ? (settings.APActivated ? 'Reaktiver EHF' : 'Aktiver EHF') : 'Til markedsplass';
         apActivated.Options.class = settings.APActivated ? 'good' : '';
@@ -885,7 +885,7 @@ export class CompanySettingsComponent implements OnInit {
                     bankaccount = bankaccount || new BankAccount();
                     bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
                     bankaccount.BankAccountType = bankAccountType;
-                    bankaccount.CompanySettingsID = this.company$.getValue().ID;
+                    bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
                 }
 
@@ -906,7 +906,7 @@ export class CompanySettingsComponent implements OnInit {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email')
             .subscribe(
             company => {
-                const data = this.company$.getValue();
+                const data = this.companySettings$.getValue();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
                 const fields = this.fields$.getValue();
                 fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Deaktiver epostmottak';
@@ -916,7 +916,7 @@ export class CompanySettingsComponent implements OnInit {
                 fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = false;
 
                 this.fields$.next(fields);
-                this.company$.next(data);
+                this.companySettings$.next(data);
 
                 setTimeout(() => {
                      this.form.field('_UpdateEmail').readMode();
@@ -925,21 +925,21 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private updateInvoiceEmail() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
         const customEmail = data['_FileFlowEmail'];
         this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email', 'customEmail=' + customEmail)
         .subscribe(
             company => {
                 this.form.field('_UpdateEmail').readMode();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
-                this.company$.next(data);
+                this.companySettings$.next(data);
             }, err => this.errorService.handle(err));
     }
 
     private disableInvoiceEmail() {
         this.companyService.Action(this.authService.activeCompany.ID, 'disable-email')
             .subscribe(company => {
-                const data = this.company$.getValue();
+                const data = this.companySettings$.getValue();
                 const fields = this.fields$.getValue();
                 data['_FileFlowEmail'] = '';
                 data['_FileFlowOrgnrEmail'] = '';
@@ -950,36 +950,36 @@ export class CompanySettingsComponent implements OnInit {
                 fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = true;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = true;
                 this.fields$.next(fields);
-                this.company$.next(data);
+                this.companySettings$.next(data);
             },
             err => this.errorService.handle(err)
         );
     }
 
     private generateOrgnrInvoiceEmail() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
         this.companyService.Action(this.authService.activeCompany.ID, 'create-orgnr-email')
             .subscribe(
             company => {
                 data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
-                this.company$.next(data);
+                this.companySettings$.next(data);
             }, err => {
                 data['_FileFlowOrgnrEmailCheckbox'] = false;
-                this.company$.next(data);
+                this.companySettings$.next(data);
                 this.errorService.handle(err);
             });
     }
 
     private disableOrgnrInvoiceEmail() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
         this.companyService.Action(this.authService.activeCompany.ID, 'disable-orgnr-email')
             .subscribe(
             company => {
                 data['_FileFlowOrgnrEmail'] = '';
-                this.company$.next(data);
+                this.companySettings$.next(data);
             }, err => {
                 data['_FileFlowOrgnrEmailCheckbox'] = true;
-                this.company$.next(data);
+                this.companySettings$.next(data);
                 this.errorService.handle(err);
             });
     }
@@ -1429,12 +1429,12 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 7,
                 Section: 1,
                 Legend: 'Elektronisk Faktura',
-                Hidden: !this.company$.getValue()['APActivated']
+                Hidden: !this.companySettings$.getValue()['APActivated']
             },
             {
                 Property: 'UseOcrInterpretation',
                 FieldType: FieldType.BUTTON,
-                Label: this.company$.getValue()['UseOcrInterpretation'] ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning',
+                Label: this.companySettings$.getValue()['UseOcrInterpretation'] ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
@@ -1446,7 +1446,7 @@ export class CompanySettingsComponent implements OnInit {
             {
                 Property: '_FileFlowEmailActivated',
                 FieldType: FieldType.BUTTON,
-                Label: this.company$.getValue()['_FileFlowEmail'] ? 'Deaktiver epostmottak' : 'Aktiver epostmottak',
+                Label: this.companySettings$.getValue()['_FileFlowEmail'] ? 'Deaktiver epostmottak' : 'Aktiver epostmottak',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
@@ -1464,7 +1464,7 @@ export class CompanySettingsComponent implements OnInit {
                 Section: 1,
                 FieldSet: 7,
                 ReadOnly: false,
-                Hidden: !this.company$.getValue()['_FileFlowEmail']
+                Hidden: !this.companySettings$.getValue()['_FileFlowEmail']
             },
             {
                 FieldType: FieldType.BUTTON,
@@ -1476,8 +1476,8 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     click: () => this.updateInvoiceEmail()
                 },
-                ReadOnly: this.company$.getValue()['_FileFlowEmail'],
-                Hidden: !this.company$.getValue()['_FileFlowEmail']
+                ReadOnly: this.companySettings$.getValue()['_FileFlowEmail'],
+                Hidden: !this.companySettings$.getValue()['_FileFlowEmail']
             },
             {
                 FieldType: FieldType.CHECKBOX,
@@ -1486,7 +1486,7 @@ export class CompanySettingsComponent implements OnInit {
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
-                Hidden: !this.company$.getValue()['_FileFlowEmail']
+                Hidden: !this.companySettings$.getValue()['_FileFlowEmail']
             },
             {
                 FieldType: FieldType.TEXT,
@@ -1497,7 +1497,7 @@ export class CompanySettingsComponent implements OnInit {
                 Section: 1,
                 FieldSet: 7,
                 ReadOnly: true,
-                Hidden: !this.company$.getValue()['_FileFlowEmail']
+                Hidden: !this.companySettings$.getValue()['_FileFlowEmail']
             }
         ]);
 
@@ -1591,11 +1591,11 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private logoFileChanged(files: Array<any>) {
-        const company = this.company$.getValue();
+        const company = this.companySettings$.getValue();
         if (files && files.length > 0 && company.LogoFileID !== files[files.length - 1].ID) {
             // update logourl in company object
             company.LogoFileID = files[files.length - 1].ID;
-            this.company$.next(company);
+            this.companySettings$.next(company);
 
             // run request to save it without the user clicking save, because otherwise
             // the LogoFileID and FileEntityLinks will be left in an inconsistent state
@@ -1632,17 +1632,17 @@ export class CompanySettingsComponent implements OnInit {
             .onClose.subscribe((status) => {
                 if (status !== 0) {
                     this.companySettingsService.Get(1).subscribe(settings => {
-                        const company = this.company$.getValue();
+                        const company = this.companySettings$.getValue();
                         company.BankAccounts = settings.BankAccounts;
                         company.CompanyBankAccount = settings.CompanyBankAccount;
-                        this.company$.next(company);
+                        this.companySettings$.next(company);
                     });
                 }
         }, err => this.errorService.handle(err));
     }
 
     private confirmTermsOCR() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
 
         if (!data['UseOcrInterpretation']) {
             this.elsaProductService.FindProductByName('OCR-SCAN').subscribe(p => {
@@ -1653,7 +1653,7 @@ export class CompanySettingsComponent implements OnInit {
             this.companySettingsService.PostAction(1, 'reject-ocr-agreement')
                 .subscribe(acceptResp => {
                     data['UseOcrInterpretation'] = false;
-                    this.company$.next(data);
+                    this.companySettings$.next(data);
 
                     const fields = this.fields$.getValue();
                     fields.find(f => f.Property === 'UseOcrInterpretation').Label = 'Aktiver OCR-tolkning';
@@ -1664,7 +1664,7 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private activateEmail() {
-        const data = this.company$.getValue();
+        const data = this.companySettings$.getValue();
         if (!data['_FileFlowEmail']) {
             this.generateInvoiceEmail();
         } else {
