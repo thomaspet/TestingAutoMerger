@@ -1315,7 +1315,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 financialDateCol,
                 debitAccountCol,
                 creditAccountCol,
-                deductionPercentCol,
                 currencyCodeCol,
                 amountCurrencyCol,
                 amountCol,
@@ -1354,6 +1353,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             columns = [
                 debitAccountCol,
                 debitVatTypeCol,
+                deductionPercentCol,
                 projectCol,
                 departmentCol,
                 descriptionCol,

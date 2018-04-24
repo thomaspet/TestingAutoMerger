@@ -2502,6 +2502,7 @@ export class BillView implements OnInit {
                     draft.Description = line.Description ? line.Description : this.createLineDescription();
                     draft.VatTypeID = line.DebitVatTypeID;
                     draft.VatPercent = line.DebitVatType ? line.DebitVatType.VatPercent : 0;
+                    draft.VatDeductionPercent = line.VatDeductionPercent;
 
                     // Dimensions
                     if (line.Dimensions && (line.Dimensions.ProjectID || line.Dimensions.DepartmentID)) {
