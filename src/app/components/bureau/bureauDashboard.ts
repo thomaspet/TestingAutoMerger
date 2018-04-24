@@ -196,44 +196,15 @@ export class BureauDashboard {
     }
 
     public startCompanyCreation(doneCallback: (string)=>void) {
-        this.uniModalService.open(UniNewCompanyModal).onClose.subscribe(modalResult => {
-            if (!modalResult || !modalResult.CompanyName) {
-                doneCallback('Oppretting av selskap avbrutt');
-                return;
-            }
-
-            this.userService.getCurrentUser().switchMap(user => {
-                return this.createCompany(modalResult.CompanyName, user.Email);
-            }).subscribe(
-                res => {
-                    this.companies.unshift(res.json());
-                    doneCallback(`Selskap ${modalResult.CompanyName} opprettet`);
-                },
-                err => {
-                    if (err.status === 403) {
-                        this.toastService.addToast(
-                            'Du har ikke tilgang til å opprette nye selskaper',
-                            ToastType.bad,
-                            3000
-                        );
-                    } else {
-                        this.errorService.handle(err);
-                    }
-
-                    doneCallback('Oppretting av selskap feilet');
+        this.uniModalService.open(UniNewCompanyModal).onClose
+            .subscribe(company => {
+                if (!company) {
+                    doneCallback('Oppretting av selskap avbrutt');
+                } else {
+                    this.companies.unshift(company);
+                    doneCallback(`Selskap ${company.Name} opprettet`);
                 }
-            );
-        });
-    }
-
-    private createCompany(name: string, email: string) {
-        return this.uniHttp
-            .asPUT()
-            .withEndPoint('companies?action=create-company')
-            .withBody({
-                CompanyName : name
-            })
-            .send();
+            });
     }
 
     public sortBy(key: string, toggleDirection?: boolean) {

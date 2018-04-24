@@ -58,13 +58,7 @@ export class UniBrRegModal implements IUniModal {
     private performLookup(query: string) {
         this.selectedIndex = undefined;
         this.brService.search(query).subscribe(
-            res => {
-                if (res && res.Data) {
-                    this.searchResults = res.Data.entries || [];
-                } else {
-                    this.searchResults = [];
-                }
-            },
+            res => this.searchResults = res,
             err => this.errorService.handle(err)
         );
     }

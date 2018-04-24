@@ -1,24 +1,35 @@
 import {Injectable, SimpleChange} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {BusinessRelation} from '../../unientities';
+import {BusinessRelation, CompanySettings, CompanyType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {RequestMethod} from '@angular/http';
 import {BankAccountService} from '../accounting/bankAccountService';
 import {ErrorService} from '../common/errorService';
+import {IBrRegCompanyInfo} from '@uni-framework/uni-modal';
 
 @Injectable()
 export class BusinessRelationService extends BizHttp<BusinessRelation> {
 
-    constructor(http: UniHttp, private bankaccountService: BankAccountService, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp,
+        private bankaccountService: BankAccountService,
+        private errorService: ErrorService,
+    ) {
         super(http);
         this.relativeURL = BusinessRelation.RelativeUrl;
         this.entityType = BusinessRelation.EntityType;
         this.DefaultOrderBy = null;
     }
 
-    public search(searchText: string): Observable<any> {
-        return this.Action(null, 'search-data-hotel', 'searchText=' + searchText, RequestMethod.Get);
+    public search(searchText: string): Observable<IBrRegCompanyInfo[]> {
+        return this.Action(null, 'search-data-hotel', 'searchText=' + searchText, RequestMethod.Get)
+            .map(res => {
+                if (res && res.Data) {
+                    return res.Data.entries || [];
+                }
+                return [];
+            });
     }
 
     public deleteRemovedBankAccounts(bc: SimpleChange, brInfo: BusinessRelation) {
@@ -39,6 +50,48 @@ export class BusinessRelationService extends BizHttp<BusinessRelation> {
                     });
                 }
             });
+        }
+    }
+
+    public updateCompanySettingsWithBrreg(
+        companySetting: CompanySettings,
+        brregInfo: IBrRegCompanyInfo,
+        companyTypes: CompanyType[],
+    ) {
+        companySetting.CompanyName = brregInfo.navn;
+        companySetting.OrganizationNumber = brregInfo.orgnr;
+        companySetting.OfficeMunicipalityNo = brregInfo.forradrkommnr;
+        companySetting.WebAddress = brregInfo.url;
+
+        const companyType = companyTypes.find(type => {
+            return type && type.Name === brregInfo.organisasjonsform;
+        });
+
+        if (companyType) {
+            companySetting.CompanyTypeID = companyType.ID;
+        }
+
+        if (!companySetting.DefaultAddress) {
+            companySetting.DefaultAddress = <any> {
+                ID: 0,
+                _createguid: this.getNewGuid(),
+            };
+        }
+
+        companySetting.DefaultAddress.AddressLine1 = brregInfo.forretningsadr;
+        companySetting.DefaultAddress.PostalCode = brregInfo.forradrpostnr;
+        companySetting.DefaultAddress.City = brregInfo.forradrpoststed;
+        companySetting.DefaultAddress.Country = brregInfo.forradrland;
+
+        if (brregInfo.tlf) {
+            if (!companySetting.DefaultPhone) {
+                companySetting.DefaultPhone = <any> {
+                    ID: 0,
+                    _createguid: this.getNewGuid()
+                };
+            }
+
+            companySetting.DefaultPhone.Number = brregInfo.tlf;
         }
     }
 }

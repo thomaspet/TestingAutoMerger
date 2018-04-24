@@ -68,6 +68,7 @@ import {SettingsService} from '../settings-service';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import { AgreementService } from '@app/services/common/agreementService';
+import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 
 declare var _;
 
@@ -201,7 +202,8 @@ export class CompanySettingsComponent implements OnInit {
         private campaignTemplateService: CampaignTemplateService,
         private elsaPurchasesService: ElsaPurchaseService,
         private subEntityService: SubEntityService,
-        private settingsService: SettingsService
+        private settingsService: SettingsService,
+        private businessRelationService: BusinessRelationService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -651,45 +653,15 @@ export class CompanySettingsComponent implements OnInit {
     private openBrRegModal() {
         this.modalService.open(UniBrRegModal).onClose.subscribe(brRegInfo => {
             if (brRegInfo) {
-                const company = this.companySettings$.getValue();
+                const companySettings = this.companySettings$.getValue();
 
-                company.CompanyName = brRegInfo.navn;
-                company.OrganizationNumber = brRegInfo.orgnr;
-                company.OfficeMunicipalityNo = brRegInfo.forradrkommnr;
-                company.WebAddress = brRegInfo.url;
+                this.businessRelationService.updateCompanySettingsWithBrreg(
+                    companySettings,
+                    brRegInfo,
+                    this.companyTypes,
+                );
 
-                const companyType = this.companyTypes.find(type => {
-                    return type && type.Name === brRegInfo.organisasjonsform;
-                });
-
-                if (companyType) {
-                    company.CompanyTypeID = companyType.ID;
-                }
-
-                if (!company.DefaultAddress) {
-                    company.DefaultAddress = <any> {
-                        ID: 0,
-                        _createguid: this.companySettingsService.getNewGuid(),
-                    };
-                }
-
-                company.DefaultAddress.AddressLine1 = brRegInfo.forretningsadr;
-                company.DefaultAddress.PostalCode = brRegInfo.forradrpostnr;
-                company.DefaultAddress.City = brRegInfo.forradrpoststed;
-                company.DefaultAddress.Country = brRegInfo.forradrland;
-
-                if (brRegInfo.tlf) {
-                    if (!company.DefaultPhone) {
-                        company.DefaultPhone = <any> {
-                            ID: 0,
-                            _createguid: this.companySettingsService.getNewGuid()
-                        };
-                    }
-
-                    company.DefaultPhone.Number = brRegInfo.tlf;
-                }
-
-                this.companySettings$.next(company);
+                this.companySettings$.next(companySettings);
             }
         });
     }
