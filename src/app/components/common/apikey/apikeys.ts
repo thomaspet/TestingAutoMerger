@@ -4,21 +4,38 @@ import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni
 import {ApiKeyService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
 import {ApiKey} from '@uni-entities';
+import {ApikeyLineModal} from './modals/apikey-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'apikey-component',
-    templateUrl: 'apikeys.html'
+    templateUrl: 'apikeys.html',
+    styleUrls: ['./apikeys.sass']
 })
 export class ApiKeyComponent implements OnInit {
     @ViewChild(UniTable) private table: UniTable;
     private apikeysConfig: UniTableConfig;
     private apikeys: ApiKey[] = [];
 
-    constructor(private router: Router,
-                private apikeyService: ApiKeyService) { }
+    constructor(
+        private router: Router,
+        private apikeyService: ApiKeyService,
+        private modalService: UniModalService
+    ) { }
 
     public ngOnInit() {
         this.getData();
+    }
+
+    public openApikeyModal() {
+        this.modalService
+            .open(ApikeyLineModal)
+            .onClose
+            .subscribe(needsUpdate => {
+                if (needsUpdate) {
+                    this.getData();
+                }
+            });
     }
 
     private getData() {
@@ -31,11 +48,15 @@ export class ApiKeyComponent implements OnInit {
     }
 
     private setupTable() {
-        const descCol = new UniTableColumn('description', 'Navn', UniTableColumnType.Text, false);
-        const urlCol = new UniTableColumn('url', 'Url', UniTableColumnType.Text, false);
+        const descCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text, false);
+        const urlCol = new UniTableColumn('Url', 'Url', UniTableColumnType.Text, false);
+        const typeCol = new UniTableColumn('IntegrationType', 'Type', UniTableColumnType.Text, false)
+            .setTemplate((apikey: ApiKey) => {
+                return this.apikeyService.getIntegrationTypeText(apikey);
+            });
         this.apikeysConfig = new UniTableConfig('common.apikey.apikeyIntegrationsList', false)
             .setColumns([
-                descCol, urlCol
+                descCol, urlCol, typeCol
             ]);
     }
 

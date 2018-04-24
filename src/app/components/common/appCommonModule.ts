@@ -39,6 +39,8 @@ import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 import {ApiKeyComponent} from './apikey/apikeys';
+import {ApikeyLine} from './apikey/apikeyLine';
+import {ApikeyLineModal} from './apikey/modals/apikey-modal';
 
 @NgModule({
     imports: [
@@ -96,7 +98,9 @@ import {ApiKeyComponent} from './apikey/apikeys';
         BookPaymentManualModal,
         VacationPaySettingsModal,
 
-        ApiKeyComponent
+        ApiKeyComponent,
+        ApikeyLine,
+        ApikeyLineModal
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -106,7 +110,8 @@ import {ApiKeyComponent} from './apikey/apikeys';
         AccrualModal,
         ImageModal,
         BookPaymentManualModal,
-        VacationPaySettingsModal
+        VacationPaySettingsModal,
+        ApikeyLineModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -152,6 +157,8 @@ import {ApiKeyComponent} from './apikey/apikeys';
         BrowserWarning,
 
         ApiKeyComponent,
+        ApikeyLine,
+        ApikeyLineModal,
     ]
 })
 export class AppCommonModule {}

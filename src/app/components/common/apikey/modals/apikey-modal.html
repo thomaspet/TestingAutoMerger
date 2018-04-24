@@ -1,0 +1,12 @@
+<section role="dialog" class="uni-modal" [attr.aria-busy]="busy">
+    <header>
+        <h1>Legg til nøkkel</h1>
+    </header>
+    <article>
+        <apikeyline (keySaved)="close(true)"></apikeyline>
+    </article>
+    <footer>
+        <button [attr.aria-busy]="busy" class="good" (click)="saveApikeyLine()">Lagre</button>
+        <button class="bad" (click)="close(false)">Lukk</button>
+    </footer>
+</section>
