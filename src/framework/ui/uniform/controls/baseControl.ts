@@ -55,7 +55,14 @@ export class BaseControl implements IBaseControl {
                 template = '';
             }
         }
-        const control = new FormControl(initialValue || template || value);
+        let control;
+        if (template !== null && template !== undefined) {
+            control = new FormControl(template);
+        } else if (initialValue !== null && initialValue !== undefined) {
+            control = new FormControl(initialValue);
+        } else {
+            control = new FormControl(value);
+        }
         this.control = control;
         this.readOnly$.next(this.field.ReadOnly);
     }

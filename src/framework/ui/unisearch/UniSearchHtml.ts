@@ -8,6 +8,7 @@ export default `<section class="uni_search">
            [config]="config"
            [disabled]="disabled"
            [title]="getTitle()"
+           tabindex="-1"
     />
 
     <button class="searchBtn"

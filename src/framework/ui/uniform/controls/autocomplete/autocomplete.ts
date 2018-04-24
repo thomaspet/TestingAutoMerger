@@ -117,6 +117,7 @@ export class UniAutocompleteInput extends BaseControl {
                     return Observable.of(this.control.value);
                 })
                 .do(input => {
+                    this.focusEvent.emit(this);
                     return this.isExpanded$.next(!this.isExpanded$.getValue());
                 })
                 .filter(input => {
@@ -156,6 +157,14 @@ export class UniAutocompleteInput extends BaseControl {
                         this.formatGrouping();
                     }
                     this.cache.search[this.control.value] = value;
+                    if (this.inputElement.nativeElement !== document.activeElement
+                        && this.toggleButton.nativeElement !== document.activeElement) {
+                        if (this.lookupResults.length) {
+                            this.confirmSelection(this.lookupResults[0]);
+                        }else {
+                            this.confirmSelection(null);
+                        }
+                    }
                 });
             let eventSubscription = Observable.fromEvent(this.el.nativeElement, 'keydown').subscribe(this.onKeyDown.bind(this));
             this.subscriptions.push(itemsSubscription, eventSubscription);
@@ -263,7 +272,7 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     private confirmSelection(item) {
-        if (!item || item.isHeader) {
+        if ((item && item.isHeader) || (!item && this.control.value !== '')) {
             this.control.setValue(this.initialDisplayValue || '', {emitEvent: false});
             this.isExpanded$.next(false);
             return;
@@ -298,6 +307,7 @@ export class UniAutocompleteInput extends BaseControl {
             this.emitChange(previousValue, this.value);
             this.emitInstantChange(previousValue, this.value, true);
         }
+        this.busy$.next(false);
     }
 
     private toggle() {
