@@ -431,12 +431,12 @@ export class TransqueryDetails implements OnInit {
 
                 this.allowManualSearch = false;
             }
-        } else if (routeParams['JournalEntryNumber']) {
+        } else if (routeParams['JournalEntryNumberNumeric']) {
             filter.push({
-                field: 'JournalEntryNumber',
+                field: 'JournalEntryNumberNumeric',
                 operator: 'eq',
-                value: routeParams['JournalEntryNumber'],
-                searchValue: routeParams['JournalEntryNumber'],
+                value: routeParams['JournalEntryNumberNumeric'],
+                searchValue: routeParams['JournalEntryNumberNumeric'],
                 group: 0,
                 selectConfig: null
             });
@@ -523,12 +523,12 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
                 .setFilterOperator('eq')
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
