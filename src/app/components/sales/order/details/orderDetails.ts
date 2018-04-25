@@ -5,7 +5,9 @@ import {Observable} from 'rxjs/Observable';
 import {
     UniModalService,
     UniSendEmailModal,
-    ConfirmActions
+    ConfirmActions,
+    IModalOptions,
+    UniConfirmModalV2,
 } from '../../../../../framework/uni-modal';
 import {
     CompanySettings,
@@ -457,12 +459,26 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     public onOrderChange(order) {
+        const inactive = 50001;
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
+            if (order.Customer.StatusCode === inactive) {
+                const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
+                this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.customerService.activateCustomer(order.CustomerID).subscribe(
+                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                    return;
+                });
+            }
+
             if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
                 this.setDeliveryDate(order);
             }

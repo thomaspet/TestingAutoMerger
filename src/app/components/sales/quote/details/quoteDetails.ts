@@ -50,11 +50,13 @@ import {
 import {
     UniModalService,
     UniSendEmailModal,
-    ConfirmActions
+    ConfirmActions,
+    IModalOptions,
+    UniConfirmModalV2,
 } from '../../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
@@ -459,6 +461,21 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         let shouldGetCurrencyRate: boolean = false;
 
         if (this.didCustomerChange(quote)) {
+            const inactive = 50001;
+            if (quote.Customer.StatusCode === inactive) {
+                const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
+                this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.customerService.activateCustomer(quote.CustomerID).subscribe(
+                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                    return;
+                });
+            }
+
+
             if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
                 this.setDeliveryDate(quote);
             }

@@ -46,7 +46,8 @@ import {
     IConfirmModalWithListReturnValue,
     ConfirmActions,
     UniApproveModal,
-    ApprovalDetails
+    ApprovalDetails,
+    IModalOptions
 } from '../../../../../framework/uni-modal';
 import {
     SupplierInvoiceService,
@@ -72,7 +73,7 @@ import {
     UserService,
     ValidationService,
     UniFilesService,
-    BankService
+    BankService,
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -241,7 +242,7 @@ export class BillView implements OnInit {
         private numberFormat: NumberFormat,
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
-        private bankService: BankService
+        private bankService: BankService,
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -1186,7 +1187,7 @@ export class BillView implements OnInit {
             this.current.next(model);
         }
 
-        if(change['DefaultDimensions.DepartmentID']) {
+        if (change['DefaultDimensions.DepartmentID']) {
             if (model.DefaultDimensions.DepartmentID) {
                 model.DefaultDimensions.Department = this.departments.find(x => x.ID === model.DefaultDimensions.DepartmentID);
             } else {
@@ -1201,6 +1202,19 @@ export class BillView implements OnInit {
         }
 
         if (change['Supplier'])  {
+            const inactive = 50001;
+            if (model.Supplier.StatusCode === inactive) {
+                const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
+                this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.supplierService.activateSupplier(model.SupplierID).subscribe(
+                            response => this.toast.addToast('Leverandør aktivert', ToastType.good),
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                    return;
+                });
+            }
             const newID = change['Supplier'].currentValue.ID;
             if (newID) {
                 this.fetchNewSupplier(newID);

@@ -29,6 +29,9 @@ class CustomStatisticsResultItem {
 @Injectable()
 export class UniSearchSupplierConfig {
 
+    private inactive = 50001;
+    private blocked = 90001;
+
     constructor(
         private statisticsService: StatisticsService,
         private supplierService: SupplierService,
@@ -146,11 +149,11 @@ export class UniSearchSupplierConfig {
         const model = 'Supplier';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = `contains(Info.Name,'${searchTerm}') and (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001)`;
+        let filter = `contains(Info.Name,'${searchTerm}') and (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked})  or (Info.Name eq '${searchTerm}') or (InvoiceAddress.AddressLine1 eq '${searchTerm}')`;
         let orderBy = 'Info.Name';
         if (startNumber) {
             filter = ['Supplier.OrgNumber', 'Supplier.SupplierNumber', 'Phones.Number']
-                .map(x => `startswith(${x},'${startNumber}') and (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001) or (${x} eq ${startNumber})`).join(' or ');
+                .map(x => `startswith(${x},'${startNumber}') and (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}) or (${x} eq ${startNumber})`).join(' or ');
             orderBy = 'Supplier.SupplierNumber';
         }
         const select = [

@@ -64,7 +64,8 @@ import {
     UniModalService,
     UniRegisterPaymentModal,
     UniConfirmModalV2,
-    ConfirmActions
+    ConfirmActions,
+    IModalOptions,
 } from '../../../../../../framework/uni-modal';
 
 import * as moment from 'moment';
@@ -174,6 +175,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private currentRowIndex: number = 0;
     private currentFileIDs = [];
     private users: any[] = [];
+
+    private blocked = 90001;
+    private inactive = 50001;
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -993,7 +997,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false)
             .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
-        const debitAccountCol = new UniTableColumn('DebitAccount', this.mode !== JournalEntryMode.SupplierInvoice ? 'Debet' : 'Konto', UniTableColumnType.Lookup)
+        const debitAccountCol = new UniTableColumn(
+            'DebitAccount',
+            this.mode !== JournalEntryMode.SupplierInvoice ? 'Debet' : 'Konto',
+            UniTableColumnType.Lookup
+        )
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
@@ -1978,23 +1986,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         let filter = '';
         if (searchValue === '') {
             filter = `Visible eq 'true' and ( isnull(AccountID,0) eq 0 ) ` +
-                `or ( ( isnull(AccountID,0) eq 0 ) and ((Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001 ) ` +
-                `or ( Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001) ))`;
+                `or ( ( isnull(AccountID,0) eq 0 ) ` +
+                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked} ) ` +
+                `or ( Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}) ))`;
         } else {
 
             if (isNaN(parseInt(searchValue, 10))) {
                 filter = `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
                 `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
                 `or (contains(AccountName\,'${searchValue}') ` +
-                `and ((Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001) ` +
-                `or (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001))) `;
+                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) ` +
+                `or (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}))) ` +
+                `or (Account.AccountName eq '${searchValue}')`;
             } else {
                 filter = `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
                 `or contains(AccountName\,'${searchValue}')  ) ` +
                 `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
-                `and ((Customer.Statuscode ne 50001 and Customer.Statuscode ne 90001) ` +
-                `or (Supplier.Statuscode ne 50001 and Supplier.Statuscode ne 90001))) `;
+                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) ` +
+                `or (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}))) ` +
+                `or (Account.AccountNumber eq ${searchValue})`;
             }
         }
 
@@ -2681,12 +2692,38 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private rowChanged(event?) {
+        if (event.newValue.CustomerID && event.newValue.StatusCode === this.inactive) {
+            const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
+            this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                if (res === ConfirmActions.ACCEPT) {
+                    this.customerService.activateCustomer(event.newValue.CustomerID).subscribe(
+                        response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                        err => this.errorService.handle(err)
+                    );
+                }
+                return;
+            });
+        }
+
+        if (event.newValue.SupplierID && event.newValue.StatusCode === this.inactive) {
+            const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
+            this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                if (res === ConfirmActions.ACCEPT) {
+                    this.supplierService.activateSupplier(event.newValue.SupplierID).subscribe(
+                        response => this.toastService.addToast('Leverandør aktivert', ToastType.good),
+                        err => this.errorService.handle(err)
+                    );
+                }
+                return;
+            });
+        }
+
         const tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
     }
 
     public getTableData() {
-        if (this.table){
+        if (this.table) {
             return this.table.getTableData();
         }
         return null;

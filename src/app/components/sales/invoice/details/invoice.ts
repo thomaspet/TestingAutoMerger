@@ -59,7 +59,9 @@ import {
     UniActivateAPModal,
     UniSendEmailModal,
     UniSendVippsInvoiceModal,
-    ConfirmActions
+    ConfirmActions,
+    UniConfirmModalV2,
+    IModalOptions,
 } from '../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
@@ -570,6 +572,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         const customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
+            const inactive = 50001;
+            if (invoice.Customer.StatusCode === inactive) {
+                const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
+                this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.customerService.activateCustomer(invoice.CustomerID).subscribe(
+                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                    return;
+                });
+            }
+
             if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
                 this.setPaymentDueDate(invoice);
             }
