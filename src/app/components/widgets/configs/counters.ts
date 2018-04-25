@@ -1,3 +1,5 @@
+import {TypeOfIntegration} from '@uni-entities';
+
 export const COUNTERS = [
     {
         id: 'counter_email',
@@ -49,6 +51,16 @@ export const COUNTERS = [
             valueKey: 'Data[0].count',
             amount: 0,
             class: 'uni-widget-notification-orange'
+        }
+    },
+    {
+        id: 'counter_salary_travels',
+        permissions: ['ui_salary_employees'],
+        width: 1,
+        height: 1,
+        widgetType: 'integrationCounter',
+        config: {
+            type: TypeOfIntegration.TravelAndExpenses
         }
     },
     {

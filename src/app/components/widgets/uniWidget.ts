@@ -28,12 +28,14 @@ import {
     UniShortcutListWidget,
     UniInfoShortcutWidget,
     UniCurrencyWidget,
-    UniTopTenWidget
+    UniTopTenWidget,
+    UniIntegrationCounterWidget
 } from './widgets/barrel';
 
 export interface IUniWidget {
     id: string;
     permissions?: string[];
+    description?: string;
     x?: number;
     y?: number;
     width: number;
@@ -64,7 +66,8 @@ export const WIDGET_MAP = {
     shortcutlist: UniShortcutListWidget,
     infoshortcut: UniInfoShortcutWidget,
     currency: UniCurrencyWidget,
-    topten: UniTopTenWidget
+    topten: UniTopTenWidget,
+    integrationCounter: UniIntegrationCounterWidget,
 };
 
 @Directive({

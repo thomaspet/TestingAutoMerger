@@ -62,6 +62,7 @@ import {VideoMappingService} from './common/videoMappingService';
 import {DimensionSettingsService} from './common/dimensionSettingsService';
 import {CustomDimensionService} from './common/customDimensionService';
 import {ApiKeyService} from './common/apikeyService';
+import {TravelService} from './common/travelService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -125,6 +126,7 @@ export * from './common/uniSearchConfig/uniSearchProductConfig';
 export * from './common/dimensionSettingsService';
 export * from './common/customDimensionService';
 export * from './common/apikeyService';
+export * from './common/travelService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -195,6 +197,7 @@ export class CommonServicesModule {
                 DimensionSettingsService,
                 CustomDimensionService,
                 ApiKeyService,
+                TravelService,
             ]
         };
     }

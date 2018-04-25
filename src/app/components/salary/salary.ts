@@ -1,6 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
+import {environment} from '../../../environments/environment';
 
 @Component({
     selector: 'uni-salary',
@@ -21,7 +22,14 @@ export class UniSalary {
              active: true
         });
 
-        this.widgetLayout = this.getDefaultLayout();
+        this.widgetLayout = this.getLayout();
+    }
+
+    private getLayout() {
+        if (environment.TRAVEL_DEACTIVATED) {
+            return this.getDefaultLayout().filter(x => x.widgetID !== 'counter_salary_travels');
+        }
+        return this.getDefaultLayout();
     }
 
     private getDefaultLayout(): any[] {
@@ -49,9 +57,13 @@ export class UniSalary {
                 y: 0,
                 widgetID: 'shortcut_salary_amelding',
             },
-
             {
                 x: 4,
+                y: 0,
+                widgetID: 'counter_salary_travels'
+            },
+            {
+                x: 5,
                 y: 0,
                 widgetID: 'clock',
             },

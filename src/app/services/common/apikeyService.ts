@@ -20,6 +20,10 @@ export class ApiKeyService extends BizHttp<ApiKey> {
         return super.GetAll('');
     }
 
+    public getApiKey(type: TypeOfIntegration): Observable<ApiKey> {
+        return super.GetAll(`IntegrationType eq ${type}`).map(res => res[0]);
+    }
+
     public getIntegrationTypes() {
         return this.integrationtypes;
     }
