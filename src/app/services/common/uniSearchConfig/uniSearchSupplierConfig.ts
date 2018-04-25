@@ -8,7 +8,7 @@ import {GuidService} from '../guidService';
 import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
-import {IUniSearchConfig} from '../../../../framework/ui/unisearch/IUniSearchConfig';
+import {IUniSearchConfig, SearchType1880} from '../../../../framework/ui/unisearch/IUniSearchConfig';
 
 const MAX_RESULTS = 50;
 
@@ -42,7 +42,7 @@ export class UniSearchSupplierConfig {
 
     public generate(
         expands: string[] = ['Info.Addresses'],
-        createNewFn?: (inputValue?: string) => Observable<UniEntity>
+        createNewFn?: (inputValue?: string) => Observable<UniEntity>,
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this.statisticsService
@@ -74,21 +74,22 @@ export class UniSearchSupplierConfig {
             ],
             inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
             createNewFn: createNewFn,
-            externalLookupFn: query =>
+            externalLookupFn: (query, searchCompanies, searchPersons) =>
                 this.integrationServerCaller
-                    .businessRelationSearch(query, MAX_RESULTS)
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, searchPersons)
                     .map(results =>
                         results.map(result =>
                             this.mapExternalSearchToCustomStatisticsObj(result)
                         )
                     ),
-            maxResultsLength: MAX_RESULTS
+            maxResultsLength: MAX_RESULTS,
+            searchType1880: SearchType1880.searchCompanies
         };
     }
 
     public generateDoNotCreateNew(
         expands: string[] = ['Info.Addresses'],
-        createNewFn?: (inputValue?: string) => Observable<UniEntity>
+        createNewFn?: (inputValue?: string) => Observable<UniEntity>,
     ): IUniSearchConfig {
         return <IUniSearchConfig> {
             lookupFn: searchTerm => this.statisticsService
@@ -133,15 +134,16 @@ export class UniSearchSupplierConfig {
             ],
             inputTemplateFn: item => `${item.SupplierNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
             createNewFn: createNewFn,
-            externalLookupFn: query =>
+            externalLookupFn: (query, searchCompanies, searchPersons) =>
                 this.integrationServerCaller
-                    .businessRelationSearch(query, MAX_RESULTS)
-                    .map(results =>
-                        results.map(result =>
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, searchPersons)
+                    .map(results => {
+                        return results.map(result =>
                             this.mapExternalSearchToCustomStatisticsObj(result)
-                        )
-                    ),
-            maxResultsLength: MAX_RESULTS
+                        );
+                    }),
+            maxResultsLength: MAX_RESULTS,
+            searchType1880: SearchType1880.searchCompanies
         };
     }
 

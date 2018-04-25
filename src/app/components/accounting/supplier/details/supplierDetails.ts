@@ -815,7 +815,8 @@ export class SupplierDetails implements OnInit {
                 supplier.Info.Name = supplierName || '';
 
                 return Observable.of(supplier);
-            });
+            }
+        );
 
         uniSearchConfig.unfinishedValueFn = (val: string) => this.supplier$
             .asObservable()

@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 // import html from './UniSearchAttrHtml';
 // import css from './UniSearchAttrCss';
-import {IUniSearchConfig} from './IUniSearchConfig';
+import {IUniSearchConfig, SearchType1880} from './IUniSearchConfig';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/do';
@@ -44,29 +44,37 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private container: ElementRef;
 
     @Input()
-    private config: IUniSearchConfig;
+    public config: IUniSearchConfig;
 
     @Output()
     public changeEvent: EventEmitter<any> = new EventEmitter<any>();
 
     private initialDisplayValue: string;
-    private selectedIndex: number = -1;
-    private expanded: boolean = false;
-    private lookupResults: any[];
+    public selectedIndex: number = -1;
+    public expanded: boolean = false;
+    public lookupResults: any[];
     public busy: boolean;
     private heightOfNewButtonPadding: number = 0;
-    private currentSearchType: SearchType = SearchType.INTERNAL;
-    private SearchTypeEnum = SearchType;
+    public currentSearchType: SearchType = SearchType.INTERNAL;
+    public SearchTypeEnum = SearchType;
     private currentInputValue: string;
 
-    private hasExternalSearch: boolean = false;
-    private hasCreateNewButton: boolean = false;
+    public searchPersons: boolean = true;
+    public searchCompanies: boolean = true;
+    public hasExternalSearch: boolean = false;
+    public hasCreateNewButton: boolean = false;
 
     constructor(private componentElement: ElementRef, private changeDetector: ChangeDetectorRef) { }
 
     public ngOnInit() {
         if (!this.config) {
             throw new Error('Tried to start the UniSearch component without giving it a IUniSearchConfig object!');
+        }
+
+        if (this.config.searchType1880 === SearchType1880.searchCompanies) {
+            this.searchPersons = false;
+        } else if (this.config.searchType1880 === SearchType1880.searchPersons) {
+            this.searchCompanies = false;
         }
 
         const el = this.componentElement.nativeElement;
@@ -204,6 +212,14 @@ export class UniSearchAttr implements OnInit, OnChanges {
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
+    public toggleSearchCompanies() {
+        this.searchCompanies = !this.searchCompanies;
+    }
+
+    public toggleSearchPersons() {
+        this.searchPersons = !this.searchPersons;
+    }
+
     private isNumber(obj: any) {
         return typeof obj === 'number';
     }
@@ -218,7 +234,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         if (this.currentSearchType === SearchType.INTERNAL) {
             lookupFn = this.config.lookupFn(query);
         } else if (this.currentSearchType === SearchType.EXTERNAL) {
-            lookupFn = this.config.externalLookupFn(query);
+            lookupFn = this.config.externalLookupFn(query, this.searchCompanies, this.searchPersons);
         }
         lookupFn.subscribe(response => {
             this.lookupResults = response;

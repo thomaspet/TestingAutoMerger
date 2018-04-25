@@ -32,7 +32,7 @@ export class IntegrationServerCaller {
     }
 
     public getAltinnCorrespondence(altinn: Altinn, orgno: string, receiptID: number): Observable<any> {
-        var altinnLogin: {
+        const altinnLogin: {
             userID: string,
             password: string,
             pin: string,
@@ -63,12 +63,18 @@ export class IntegrationServerCaller {
     public businessRelationSearch(
         query: string,
         limit: number = 30,
-        searchInBrreg: boolean = true
+        searchCompanies: boolean = true,
+        searchPersons: boolean = true,
     ): Observable<[BusinessRelationSearch]> {
         return this.http
             .withBaseUrl(environment.BASE_URL_INTEGRATION)
             .withDomain('api/businessrelationsearch')
-            .withEndPoint(`?searchCriteria=${query}&limit=${limit}&datahotel=${searchInBrreg}`)
+            .withEndPoint(
+                `?searchCriteria=${query}` +
+                `&limit=${limit}` +
+                `&searchCompanies=${searchCompanies}` +
+                `&searchPersons=${searchPersons}`
+            )
             .asGET()
             .send()
             .map(response => response.json());

@@ -75,9 +75,9 @@ export class UniSearchCustomerConfig {
             ],
             inputTemplateFn: item => `${item.Info && item.Info.Name ? item.Info.Name : ''}`,
             createNewFn: createNewFn,
-            externalLookupFn: query =>
+            externalLookupFn: (query, searchCompanies, searchPersons) =>
                 this.integrationServerCaller
-                    .businessRelationSearch(query, MAX_RESULTS)
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, searchPersons)
                     .map(results =>
                         results.map(result =>
                             this.mapExternalSearchToCustomStatisticsObj(result)
@@ -132,9 +132,9 @@ export class UniSearchCustomerConfig {
             ],
             inputTemplateFn: item => `${item.CustomerNumber || ''}${item.Info && item.Info.Name ? ' ' + item.Info.Name : ''}`,
             createNewFn: createNewFn,
-            externalLookupFn: query =>
+            externalLookupFn: (query, searchCompanies, searchPersons) =>
                 this.integrationServerCaller
-                    .businessRelationSearch(query, MAX_RESULTS)
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, searchPersons)
                     .map(results =>
                         results.map(result =>
                             this.mapExternalSearchToCustomStatisticsObj(result)

@@ -63,9 +63,9 @@ export class UniSearchEmployeeConfig {
             ],
             inputTemplateFn: item => `${item.EmployeeNumber || ''}${item.BusinessRelationInfo && item.BusinessRelationInfo.Name ? ' ' + item.BusinessRelationInfo.Name : ''}`,
             createNewFn: createNewFn,
-            externalLookupFn: query =>
+            externalLookupFn: (query, searchCompanies, SearchPersons) =>
                 this.integrationServerCaller
-                    .businessRelationSearch(query, MAX_RESULTS)
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, SearchPersons)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .map(results =>
                         results.map(result =>

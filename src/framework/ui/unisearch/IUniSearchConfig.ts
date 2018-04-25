@@ -1,6 +1,12 @@
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
+export enum SearchType1880 {
+    searchCompanies,
+    searchPersons,
+    searchCompaniesAndPersons
+}
+
 export interface IUniSearchConfig {
     lookupFn: (searchTerm: string) => Observable<any[]>;
     onSelect: (item: any) => Observable<any>;
@@ -9,7 +15,8 @@ export interface IUniSearchConfig {
     tableHeader?: string[];
     rowTemplateFn: (item: any) => string[]|number[];
     createNewFn?: (currentInputValue?: string) => Observable<any>;
-    externalLookupFn?: (searchTerm: string) => Observable<any[]>;
+    externalLookupFn?: (searchTerm: string, searchCompanies: boolean, searchPersons: boolean) => Observable<any[]>;
     maxResultsLength?: number;
     unfinishedValueFn?: (val: any) => Observable<any>;
+    searchType1880?: SearchType1880;
 }

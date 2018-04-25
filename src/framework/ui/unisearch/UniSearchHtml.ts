@@ -19,5 +19,5 @@ export default `<section class="uni_search">
             type="button"
             tabindex="-1">
         Search
-    </button>  
+    </button>
 </section>`;
