@@ -28,7 +28,7 @@ import {
 } from '../../../../framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {TableUtils} from '@uni-framework/ui/ag-grid/services/table-utils';
-import {StatisticsService, StatusService, EmployeeLeaveService} from '../../../services/services';
+import {StatisticsService, StatusService, EmployeeLeaveService, YearService} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
@@ -113,7 +113,8 @@ export class UniTicker {
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private tableUtils: TableUtils,
-        private employeeLeaveService: EmployeeLeaveService
+        private employeeLeaveService: EmployeeLeaveService,
+        private yearService: YearService
     ) {
         this.statusService
             .loadStatusCache()
@@ -339,14 +340,17 @@ export class UniTicker {
             } else {
                 filter = this.ticker.Filter;
             }
-            params.set('filter', filter);
+
+            if (filter.indexOf(':currentaccountingyear') >= 0) {
+                this.setCurrentAccountingYearInFilter(filter, params);
+            } else {
+                params.set('filter', filter);
+            }
         }
 
         if (this.selectedFilter) {
             let uniTableFilter = urlParams.get('filter');
             let newFilter = '';
-
-
 
             if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
                 newFilter = this.selectedFilter.Filter;
@@ -408,6 +412,25 @@ export class UniTicker {
         }
 
         return params;
+    }
+
+    private setCurrentAccountingYearInFilter(filter: string, urlParams: URLSearchParams)  {
+        const params = urlParams;
+        const expFilterVal = this.expressionFilters.find(x => x.Expression === 'currentaccountingyear');
+        if (expFilterVal) {
+            filter = filter.replace(':currentaccountingyear', `${expFilterVal.Value}`);
+            params.set('filter', filter);
+        } else {
+            this.yearService.getActiveYear().subscribe(activeyear => {
+                const currentAccountingYear = activeyear.toString();
+                this.expressionFilters.push({
+                    Expression: 'currentaccountingyear',
+                    Value: currentAccountingYear
+                });
+                filter = filter.replace(':currentaccountingyear', currentAccountingYear);
+                params.set('filter', filter);
+            });
+        }
     }
 
     private loadDetailTickerData() {

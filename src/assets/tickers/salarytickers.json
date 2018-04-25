@@ -74,7 +74,8 @@
         },
         "SubTickersCodes": [
             "employee_details",
-            "employment_list"
+            "employment_list",
+            "employee_taxdetails"
         ]
     },
     {
@@ -245,6 +246,63 @@
             "employment_details",
             "leave_items"
         ]
+    },
+    {
+        "Name": "Skatt",
+        "Code": "employee_taxdetails",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "EmployeeTaxCard",
+        "UseParentTickerActions": false,
+        "Filter": "Year eq ':currentaccountingyear'",
+        "Columns": [
+            {
+                "Header": "Tabell hovedarb.",
+                "Field": "loennFraHovedarbeidsgiver.Table",
+                "Type": "text"
+            },
+            {
+                "Header": "Prosent hovedarb.",
+                "Field": "loennFraHovedarbeidsgiver.Percent",
+                "Type": "text"
+            },
+            {
+                "Header": "Tabell pensjon",
+                "Field": "pensjon.Table",
+                "Type": "text"
+            },
+            {
+                "Header": "Prosent pensjon",
+                "Field": "pensjon.Percent",
+                "Type": "text"
+            },
+            {
+                "Header": "Biarbeidsgiver",
+                "Field": "NotMainEmployer",
+                "Type": "text"
+            },
+            {
+                "Header": "Resultat status",
+                "Field": "Resultatstatus",
+                "Type": "text"
+            },
+            {
+                "Header": "Sist oppdatert",
+                "Field": "UpdatedAt"
+            },
+            {
+                "Header": "xml",
+                "Field": "SKDXml",
+                "Type": "text"
+            }
+        ],
+        "ParentFilter":
+        {
+            "Field": "EmployeeID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     },
     {
         "Name": "Arbeidsforhold",
