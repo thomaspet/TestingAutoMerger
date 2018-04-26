@@ -209,7 +209,7 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID,JournalEntryID as JournalEntryID';
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -459,7 +459,7 @@ export class TransqueryDetails implements OnInit {
 
     private creditJournalEntry(item: any) {
         this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
-            header: `Kreditere bilag ${item.JournalEntryLineJournalEntryNumber}?`,
+            header: `Kreditere bilag ${item.JournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
@@ -468,7 +468,7 @@ export class TransqueryDetails implements OnInit {
             data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryLineJournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
