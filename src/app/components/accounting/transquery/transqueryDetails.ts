@@ -491,24 +491,25 @@ export class TransqueryDetails implements OnInit {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-        const data = this.journalEntryService.getSessionData(0);
+        // const data = this.journalEntryService.getSessionData(0);
         const url = '/accounting/journalentry/manual'
                 + `;journalEntryNumber=${journalEntryNumber}`
                 + `;journalEntryID=${journalEntryID};editmode=true`;
 
-        if (data && data.length > 0
-            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-                this.modalService.openRejectChangesModal()
-                    .onClose
-                    .subscribe(result => {
-                        if (result === ConfirmActions.REJECT) {
-                            this.journalEntryService.setSessionData(0, []);
-                            this.router.navigateByUrl(url);
-                        }
-                    });
-        } else {
-            this.router.navigateByUrl(url);
-        }
+        this.router.navigateByUrl(url);
+        // if (data && data.length > 0
+        //     && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
+        //         this.modalService.openRejectChangesModal()
+        //             .onClose
+        //             .subscribe(result => {
+        //                 if (result === ConfirmActions.REJECT) {
+        //                     this.journalEntryService.setSessionData(0, []);
+        //                     this.router.navigateByUrl(url);
+        //                 }
+        //             });
+        // } else {
+        //     this.router.navigateByUrl(url);
+        // }
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {

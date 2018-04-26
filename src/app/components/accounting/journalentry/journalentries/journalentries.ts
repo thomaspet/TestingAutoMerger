@@ -63,86 +63,133 @@ export class JournalEntries {
         private statisticsService: StatisticsService
     ) {
         this.tabService.addTab({
-            name: 'Bilagsregistrering', url: '/accounting/journalentry/manual',
-            moduleID: UniModules.Accounting, active: true
+            name: 'Bilagsregistrering',
+            url: '/accounting/journalentry/manual',
+            moduleID: UniModules.Accounting,
+            active: true
         });
 
         this.route.params.subscribe(params => {
-            if (params['journalEntryNumber'] && params['journalEntryID']) {
-                this.tabService.addTab({
-                    name: 'Bilagsregistrering',
-                    url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};`
-                        + `journalEntryID=${params['journalEntryID']}`,
-                    moduleID: UniModules.Accounting,
-                    active: true
-                });
+            const journalEntryID = params['journalEntryID'];
+            const journalEntryNumber = params['journalEntryNumber'];
 
-                this.editmode = false;
-                if (params['editmode']) {
-                    this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
-                        .subscribe(journalEntry => {
-                            this.editmode = params['editmode'];
-                            this.editJournalEntry(journalEntry);
-                        }
-                    );
+            if (journalEntryID) {
+                this.currentJournalEntryID = journalEntryID;
+                let tabUrl = `/accounting/journalentry/manual;journalEntryID=${journalEntryID}`;
+
+                if (journalEntryNumber) {
+                    this.currentJournalEntryNumber = journalEntryNumber;
+                    tabUrl += `;journalEntryNumber=${journalEntryNumber}`;
+                    this.tabService.addTab({
+                        name: 'Bilagsregistrering',
+                        url: tabUrl,
+                        moduleID: UniModules.Accounting,
+                        active: true
+                    });
                 }
 
-                this.currentJournalEntryNumber = params['journalEntryNumber'];
-                this.currentJournalEntryID = params['journalEntryID'];
-            } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
-                this.journalEntryService.Get(params['journalEntryID'])
-                    .subscribe(journalEntry => {
-                        const journalEntryNumber = journalEntry.JournalEntryNumber;
-                        this.tabService.addTab({
-                            name: 'Bilagsregistrering',
-                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-                                + `journalEntryID=${params['journalEntryID']}`,
-                            moduleID: UniModules.Accounting,
-                            active: true
+                this.editmode = false;
+                if (params['editmode'] || !journalEntryNumber) {
+                    this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
+                        .subscribe(journalEntry => {
+                            this.currentJournalEntryNumber = journalEntry.JournalEntryNumber;
+                            tabUrl += `;journalEntryNumber=${journalEntry.JournalEntryNumber}`;
+                            this.tabService.addTab({
+                                name: 'Bilagsregistrering',
+                                url: tabUrl,
+                                moduleID: UniModules.Accounting,
+                                active: true
+                            });
+
+                            if (params['editmode']) {
+                                this.editJournalEntry(journalEntry);
+                            }
                         });
-
-                        this.editmode = false;
-                        if (params['editmode']) {
-                            this.editmode = params['editmode'];
-                            setTimeout(() => this.editJournalEntry(journalEntry));
-                        }
-
-                        this.currentJournalEntryNumber = journalEntryNumber;
-                        this.currentJournalEntryID = params['journalEntryID'];
-                    });
-            } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
-                this.journalEntryLineService.Get(params['journalEntryLineID'])
-                    .subscribe(journalEntryLine => {
-                        const journalEntryNumber = journalEntryLine.JournalEntryNumber;
-                        this.tabService.addTab({
-                            name: 'Bilagsregistrering',
-                            url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-                                + `journalEntryID=${params['journalEntryLineID']}`,
-                            moduleID: UniModules.Accounting,
-                            active: true
-                        });
-
-                        this.editmode = false;
-                        if (params['editmode']) {
-                            this.editmode = params['editmode'];
-                            setTimeout(() => this.editJournalEntry());
-                        }
-
-                        this.currentJournalEntryNumber = journalEntryNumber;
-                        this.currentJournalEntryID = journalEntryLine.JournalEntryID;
-                    });
+                }
             } else {
-                this.tabService.addTab({
-                    name: 'Bilagsregistrering',
-                    url: '/accounting/journalentry/manual',
-                    moduleID: UniModules.Accounting,
-                    active: true
-                });
-
                 this.editmode = false;
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
             }
+
+
+            // if (params['journalEntryNumber'] && params['journalEntryID']) {
+            //     this.tabService.addTab({
+            //         name: 'Bilagsregistrering',
+            //         url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};`
+            //             + `journalEntryID=${params['journalEntryID']}`,
+            //         moduleID: UniModules.Accounting,
+            //         active: true
+            //     });
+
+            //     this.editmode = false;
+            //     if (params['editmode']) {
+            //         this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
+            //             .subscribe(journalEntry => {
+            //                 this.editmode = params['editmode'];
+            //                 this.editJournalEntry(journalEntry);
+            //             }
+            //         );
+            //     }
+
+            //     this.currentJournalEntryNumber = params['journalEntryNumber'];
+            //     this.currentJournalEntryID = params['journalEntryID'];
+            // } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
+            //     this.currentJournalEntryID = params['journalEntryID'];
+            //     this.journalEntryService.Get(params['journalEntryID'])
+            //         .subscribe(journalEntry => {
+            //             const journalEntryNumber = journalEntry.JournalEntryNumber;
+            //             this.tabService.addTab({
+            //                 name: 'Bilagsregistrering',
+            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
+            //                     + `journalEntryID=${params['journalEntryID']}`,
+            //                 moduleID: UniModules.Accounting,
+            //                 active: true
+            //             });
+
+            //             this.editmode = false;
+            //             if (params['editmode']) {
+            //                 this.editmode = params['editmode'];
+            //                 setTimeout(() => this.editJournalEntry(journalEntry));
+            //             }
+
+            //             this.currentJournalEntryNumber = journalEntryNumber;
+
+            //         });
+            // }
+            // } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
+            //     this.journalEntryLineService.Get(params['journalEntryLineID'])
+            //         .subscribe(journalEntryLine => {
+            //             const journalEntryNumber = journalEntryLine.JournalEntryNumber;
+            //             this.tabService.addTab({
+            //                 name: 'Bilagsregistrering',
+            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
+            //                     + `journalEntryID=${params['journalEntryLineID']}`,
+            //                 moduleID: UniModules.Accounting,
+            //                 active: true
+            //             });
+
+            //             this.editmode = false;
+            //             if (params['editmode']) {
+            //                 this.editmode = params['editmode'];
+            //                 setTimeout(() => this.editJournalEntry());
+            //             }
+
+            //             this.currentJournalEntryNumber = journalEntryNumber;
+            //             this.currentJournalEntryID = journalEntryLine.JournalEntryID;
+            //         });
+            // } else {
+            //     this.tabService.addTab({
+            //         name: 'Bilagsregistrering',
+            //         url: '/accounting/journalentry/manual',
+            //         moduleID: UniModules.Accounting,
+            //         active: true
+            //     });
+
+            //     this.editmode = false;
+            //     this.currentJournalEntryNumber = null;
+            //     this.currentJournalEntryID = 0;
+            // }
             this.setupToolBarconfig();
         });
     }
