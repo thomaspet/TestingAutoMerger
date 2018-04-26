@@ -209,7 +209,7 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID';
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -714,7 +714,7 @@ export class TransqueryDetails implements OnInit {
                 {
                     action: (item) => this.editJournalEntry(
                         item.JournalEntryID,
-                        item.JournalEntryLineJournalEntryNumber
+                        item.JournalEntryLineJournalEntryNumberNumeric
                     ),
                     disabled: (item) => false,
                     label: 'Korriger bilag'
