@@ -176,7 +176,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public ngOnChanges(changes: { [propName: string]: SimpleChange }) {
-        if (changes['journalEntryID'] || changes['editmode']) {
+        if (this.vatTypes && changes['journalEntryID'] || changes['editmode']) {
             this.loadData();
         }
 
@@ -395,51 +395,39 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
-        if (!this.vatTypes || !this.journalEntryProfessional) {
-            // we need to load vattypes/other data to do some calculations to display data
-            // correctly, so wait for this to load before showing data
-            if (retryCount < 10) {
-                setTimeout(() => {
-                    this.setJournalEntryData(lines, retryCount++);
-                }, 500);
-            } else {
-                console.log('Vattype data or journalentrygrid not loaded correctly, could not set data');
-            }
-        } else {
-            if (this.editmode === true) {
-                // copies lines from the original array and lets you edit them as a template
-                // for the journalentry.
-                const copiedArray = [...lines];
+        if (this.editmode) {
+            // copies lines from the original array and lets you edit them as a template
+            // for the journalentry.
+            const copiedArray = [...lines];
 
-                copiedArray.map(line => {
-                    line.StatusCode = null;
-                    return line;
-                });
-
-                lines = copiedArray;
-            }
-
-            this.journalEntryProfessional.setJournalEntryData(lines);
-
-            // run this after the rest of the databinding is complete - if not it can cause multiple
-            // changes in the same change detection cycle, and this makes angular really cranky
-            setTimeout(() => {
-                this.setupSaveConfig();
+            copiedArray.map(line => {
+                line.StatusCode = null;
+                return line;
             });
 
-            this.calculateItemSums(lines);
+            lines = copiedArray;
+        }
 
-            if (!this.currentFinancialYear) {
-                // wait a moment before trying to validate the data
-                // because the currentyears have not been retrieved yet
-                setTimeout(() => {
-                    if (this.currentFinancialYear) {
-                        this.validateJournalEntryData(lines);
-                    }
-                }, 1000);
-            } else {
-                this.validateJournalEntryData(lines);
-            }
+        this.journalEntryProfessional.setJournalEntryData(lines);
+
+        // run this after the rest of the databinding is complete - if not it can cause multiple
+        // changes in the same change detection cycle, and this makes angular really cranky
+        setTimeout(() => {
+            this.setupSaveConfig();
+        });
+
+        this.calculateItemSums(lines);
+
+        if (!this.currentFinancialYear) {
+            // wait a moment before trying to validate the data
+            // because the currentyears have not been retrieved yet
+            setTimeout(() => {
+                if (this.currentFinancialYear) {
+                    this.validateJournalEntryData(lines);
+                }
+            }, 1000);
+        } else {
+            this.validateJournalEntryData(lines);
         }
     }
 

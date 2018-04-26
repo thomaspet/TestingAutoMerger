@@ -209,7 +209,7 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID';
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -431,12 +431,12 @@ export class TransqueryDetails implements OnInit {
 
                 this.allowManualSearch = false;
             }
-        } else if (routeParams['JournalEntryNumber']) {
+        } else if (routeParams['JournalEntryNumberNumeric']) {
             filter.push({
-                field: 'JournalEntryNumber',
+                field: 'JournalEntryNumberNumeric',
                 operator: 'eq',
-                value: routeParams['JournalEntryNumber'],
-                searchValue: routeParams['JournalEntryNumber'],
+                value: routeParams['JournalEntryNumberNumeric'],
+                searchValue: routeParams['JournalEntryNumberNumeric'],
                 group: 0,
                 selectConfig: null
             });
@@ -459,7 +459,7 @@ export class TransqueryDetails implements OnInit {
 
     private creditJournalEntry(item: any) {
         this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
-            header: `Kreditere bilag ${item.JournalEntryLineJournalEntryNumber}?`,
+            header: `Kreditere bilag ${item.JournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
@@ -468,7 +468,7 @@ export class TransqueryDetails implements OnInit {
             data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryLineJournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
@@ -491,24 +491,25 @@ export class TransqueryDetails implements OnInit {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-        const data = this.journalEntryService.getSessionData(0);
+        // const data = this.journalEntryService.getSessionData(0);
         const url = '/accounting/journalentry/manual'
                 + `;journalEntryNumber=${journalEntryNumber}`
                 + `;journalEntryID=${journalEntryID};editmode=true`;
 
-        if (data && data.length > 0
-            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-                this.modalService.openRejectChangesModal()
-                    .onClose
-                    .subscribe(result => {
-                        if (result === ConfirmActions.REJECT) {
-                            this.journalEntryService.setSessionData(0, []);
-                            this.router.navigateByUrl(url);
-                        }
-                    });
-        } else {
-            this.router.navigateByUrl(url);
-        }
+        this.router.navigateByUrl(url);
+        // if (data && data.length > 0
+        //     && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
+        //         this.modalService.openRejectChangesModal()
+        //             .onClose
+        //             .subscribe(result => {
+        //                 if (result === ConfirmActions.REJECT) {
+        //                     this.journalEntryService.setSessionData(0, []);
+        //                     this.router.navigateByUrl(url);
+        //                 }
+        //             });
+        // } else {
+        //     this.router.navigateByUrl(url);
+        // }
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
@@ -523,12 +524,12 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
                 .setFilterOperator('eq')
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
@@ -714,7 +715,7 @@ export class TransqueryDetails implements OnInit {
                 {
                     action: (item) => this.editJournalEntry(
                         item.JournalEntryID,
-                        item.JournalEntryLineJournalEntryNumber
+                        item.JournalEntryLineJournalEntryNumberNumeric
                     ),
                     disabled: (item) => false,
                     label: 'Korriger bilag'
