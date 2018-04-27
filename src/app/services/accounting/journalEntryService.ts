@@ -535,10 +535,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     result.Messages.push(message);
                 }
             }
-            if (companySettings && companySettings.VatLockedDate) {
 
+            if (companySettings && companySettings.VatLockedDate) {
                 const invalidVatDates = journalDataEntries.filter(
-                    x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                    x => !x.StatusCode && x.FinancialDate
                     && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
                 );
 
@@ -620,8 +620,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         message.Message = `Bilag ${lastJournalEntryNo || ''} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
                             `(${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
                         result.Messages.push(message);
-                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(financialYearEntry.ValidTo, 'day')
-                        || moment(entry.FinancialDate).isBefore(financialYearEntry.ValidFrom, 'day')) {
+                    } else if (entry.FinancialDate && moment(entry.FinancialDate).year() > currentFinancialYear.Year
+                        || moment(entry.FinancialDate).year() < currentFinancialYear.Year) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
                         message.Message = `Bilag ${entry.JournalEntryNo || ''} har en dato som ikke er innenfor regnskapsåret ` +
