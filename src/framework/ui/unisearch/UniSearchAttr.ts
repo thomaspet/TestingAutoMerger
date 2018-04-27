@@ -214,10 +214,12 @@ export class UniSearchAttr implements OnInit, OnChanges {
 
     public toggleSearchCompanies() {
         this.searchCompanies = !this.searchCompanies;
+        this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
     public toggleSearchPersons() {
         this.searchPersons = !this.searchPersons;
+        this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
     private isNumber(obj: any) {
