@@ -487,7 +487,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
 
-            const invalidRows = journalDataEntries.filter(x => !x.StatusCode && (!x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID)));
+            const invalidRows = journalDataEntries.filter(
+                x => !x.StatusCode && (!x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID))
+            );
 
             if (invalidRows.length > 0) {
                 const message = new ValidationMessage();
@@ -524,8 +526,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
             if (companySettings && companySettings.AccountingLockedDate) {
-                const invalidDates = journalDataEntries.filter(x => !x.StatusCode && x.FinancialDate
-                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate)));
+                const invalidDates = journalDataEntries.filter(
+                    x => !x.StatusCode && x.FinancialDate
+                        && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.AccountingLockedDate))
+                );
 
                 if (invalidDates.length > 0) {
                     const message = new ValidationMessage();
@@ -535,11 +539,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     result.Messages.push(message);
                 }
             }
-            if (companySettings && companySettings.VatLockedDate) {
 
+            if (companySettings && companySettings.VatLockedDate) {
                 const invalidVatDates = journalDataEntries.filter(
-                    x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
-                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                    x => !x.StatusCode && x.FinancialDate && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
                 );
 
                 if (invalidVatDates.length > 0) {
@@ -620,8 +623,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         message.Message = `Bilag ${lastJournalEntryNo || ''} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
                             `(${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
                         result.Messages.push(message);
-                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(financialYearEntry.ValidTo, 'day')
-                        || moment(entry.FinancialDate).isBefore(financialYearEntry.ValidFrom, 'day')) {
+                    } else if (entry.FinancialDate && moment(entry.FinancialDate).year() > currentFinancialYear.Year
+                        || moment(entry.FinancialDate).year() < currentFinancialYear.Year) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
                         message.Message = `Bilag ${entry.JournalEntryNo || ''} har en dato som ikke er innenfor regnskapsåret ` +
@@ -762,7 +765,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
                 // components, because this is the way the user wants to see the data
                 draftLines.forEach(line => {
-                    let jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, null, singleRowMode);
+                    const jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, null, singleRowMode);
                     journalEntryDataObjects.push(jed);
                 });
             } else {
@@ -832,7 +835,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
     }
 
-    private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData, singleRowMode: boolean): JournalEntryData {
+    private getJournalEntryDataFromJournalEntryLineDraft(
+        line: JournalEntryLineDraft, jed: JournalEntryData, singleRowMode: boolean
+    ): JournalEntryData {
         if (!jed) {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;

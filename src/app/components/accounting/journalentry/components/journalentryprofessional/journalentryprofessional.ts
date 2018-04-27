@@ -2692,7 +2692,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private rowChanged(event?) {
-        if (event.newValue.CustomerID && event.newValue.StatusCode === this.inactive) {
+        if (event.newValue && event.newValue.CustomerID && event.newValue.StatusCode === this.inactive) {
             const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
@@ -2705,7 +2705,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        if (event.newValue.SupplierID && event.newValue.StatusCode === this.inactive) {
+        if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === this.inactive) {
             const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
