@@ -21,7 +21,7 @@ export class SupplierService extends BizHttp<Supplier> {
 
     public deleteSupplier(id: any): any {
         return this.http
-            .asDELETE()
+            .asPUT()
             .withDefaultHeaders()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)

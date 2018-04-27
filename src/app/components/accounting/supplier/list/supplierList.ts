@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {SupplierService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {SupplierService, ErrorService, CompanySettingsService, StatisticsService} from '../../../../services/services';
 import {Supplier, CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -37,19 +37,22 @@ export class SupplierList implements OnInit {
             label: 'Aktiv',
             name: 'Active',
             filter: 'statuscode ne 50001',
-            isSelected: true
+            isSelected: true,
+            count: 0,
         },
         {
             label: 'Inaktiv',
             name: 'Inactive',
             filter: 'statuscode eq 50001',
-            passiveCounter: true
+            passiveCounter: true,
+            count: 0,
         },
         {
             label: 'Alle',
             name: 'All',
             filter: '',
-            passiveCounter: true
+            passiveCounter: true,
+            count: 0,
         },
     ];
 
@@ -58,7 +61,8 @@ export class SupplierList implements OnInit {
         private supplierService: SupplierService,
         private tabService: TabService,
         private errorService: ErrorService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private statisticsService: StatisticsService,
     ) {
         this.tabService.addTab({
             name: 'Leverandører', url: '/accounting/suppliers', active: true, moduleID: UniModules.Suppliers
@@ -66,6 +70,21 @@ export class SupplierList implements OnInit {
     }
 
     public ngOnInit() {
+        this.statisticsService.GetAll(
+            `model=Supplier` +
+            `&select=sum(casewhen((Supplier.StatusCode ne '50001')\,1\,0)) as Active,` +
+            `sum(casewhen((Supplier.StatusCode eq '50001')\,1\,0)) as Inactive,` +
+            `sum(casewhen(ID gt 0\,1\,0)) as AllSuppliers`
+        )
+            .subscribe(
+                res => {
+                    this.filters[0].count = res.Data[0].Active;
+                    this.filters[1].count = res.Data[0].Inactive;
+                    this.filters[2].count = res.Data[0].AllSuppliers;
+                },
+                err => this.errorService.handle(err)
+            );
+
         this.companySettingsService.Get(1)
             .subscribe(settings => {
                 this.companySettings = settings;
