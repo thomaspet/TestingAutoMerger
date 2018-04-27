@@ -118,7 +118,14 @@ export class SupplierList implements OnInit {
 
             params.set('expand', 'Info,Dimensions,Dimensions.Department,Dimensions.Project');
 
-            params.set('filter', this.filter);
+            if (this.filter) {
+                const tableFilter = urlParams.get('filter');
+                const combinedFilters = tableFilter
+                    ? `(${tableFilter}) and ${this.filter}`
+                    : this.filter;
+
+                params.set('filter', combinedFilters);
+            }
 
             return this.supplierService.GetAllByUrlSearchParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
