@@ -72,6 +72,7 @@ import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCus
             <uni-ticker-container
                 [ticker]="selectedTicker"
                 [actionOverrides]="actionOverrides"
+                [columnOverrides]="columnOverrides"
                 (rowSelectionChange)="onRowSelectionChanged($event)">
             </uni-ticker-container>
         </section>
@@ -149,6 +150,15 @@ export class BankComponent implements AfterViewInit {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentBatchStatusCode === 45009
+        }
+    ];
+
+    public columnOverrides: ITickerColumnOverride[] = [
+        {
+            Field: 'FromBankAccount.AccountNumber',
+            Template: (row) => {
+                return row.FromBankAccountAccountNumber || row.PaymentOcrFromBankAccountNumber;
+            }
         }
     ];
 

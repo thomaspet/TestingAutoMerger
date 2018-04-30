@@ -13,60 +13,58 @@
             {
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
-                "Width": "10%",
                 "LinkNavigationProperty": "InvoiceNumber",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kunde",
                 "Field": "BusinessRelation.Name",
-                "Width": "20%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
-                "Width": "15%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Konto til",
                 "Field": "ToBankAccount.AccountNumber",
-                "Width": "15%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Innbetalings Dato",
                 "Field": "PaymentDate",
-                "Width": "15%",
                 "FilterOperator": "eq",
                 "Type" :"localdate"
             },
             {
                 "Header": "KID",
                 "Field": "PaymentID",
-                "Width": "15%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Innbetaling",
                 "Field": "IsCustomerPayment",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "DefaultHidden": false
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "10%",
                 "FilterOperator": "contains",
                 "SumColumn": true
             },
             {
                 "Header": "Status",
                 "Field": "StatusCode",
-                "Width": "15%",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Ocr Konto fra",
+                "Field": "OcrFromBankAccountNumber",
+                "FilterOperator": "contains",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "Filters": [
@@ -192,28 +190,24 @@
             {
                 "Header": "Betales til",
                 "Field": "BusinessRelation.Name",
-                "Width": "15%",
                 "LinkNavigationProperty": "InvoiceNumber",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Konto fra",
                 "Field": "FromBankAccount.AccountNumber",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "SelectRequired": true
             },
             {
                 "Header": "Konto til",
                 "Field": "ToBankAccount.AccountNumber",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "SelectRequired": true
             },
             {
                 "Header": "KID",
                 "Field": "PaymentID",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "Alias": "PaymentID",
                 "DisplayField": "PaymentID"
@@ -221,27 +215,23 @@
             {
                 "Header": "Kode",
                 "Field": "PaymentCode.Code",
-                "Width": "15%",
                 "DefaultHidden": true,
                 "SelectRequired": true
             },
             {
                 "Header": "Type",
                 "Field": "PaymentCode.Name",
-                "Width": "15%",
                 "DefaultHidden": false
             },
             {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
-                "Width": "10%",
                 "FilterOperator": "contains",
                 "SumColumn": true
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "10%",
                 "FilterOperator": "contains",
                 "Alias": "Amount",
                 "DisplayField": "Amount"
@@ -250,7 +240,6 @@
                 "Header": "Betalingsdato",
                 "Field": "PaymentDate",
                 "Type": "date",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "Alias": "PaymentDate",
                 "DisplayField": "PaymentDate"
@@ -259,13 +248,11 @@
                 "Header": "Betalingsbunt",
                 "Field": "PaymentBatchID",
                 "Type": "id",
-                "Width": "15%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Status",
                 "Field": "StatusCode",
-                "Width": "15%",
                 "FilterOperator": "contains"
             }
         ],
@@ -654,26 +641,22 @@
             {
                 "Header": "Fakturanr",
                 "Field": "InvoiceNumber",
-                "Width": "10%",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "Kunde",
                 "Field": "BusinessRelation.Name",
-                "Width": "20%",
                 "FilterOperator": "contains"
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "SumColumn": true
             },
             {
                 "Header": "KID",
                 "Field": "PaymentID",
-                "Width": "15%",
                 "FilterOperator": "contains"
             }
         ]
@@ -745,14 +728,12 @@
             {
                 "Header": "Betales til",
                 "Field": "BusinessRelation.Name",
-                "Width": "15%",
                 "LinkNavigationProperty": "InvoiceNumber",
                 "FilterOperator": "startswith"
             },
             {
                 "Header": "KID",
                 "Field": "PaymentID",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "Alias": "PaymentID",
                 "DisplayField": "PaymentID"
@@ -760,14 +741,12 @@
             {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
-                "Width": "10%",
                 "FilterOperator": "contains",
                 "SumColumn": true
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
-                "Width": "10%",
                 "FilterOperator": "contains",
                 "Alias": "Amount",
                 "DisplayField": "Amount"
@@ -776,7 +755,6 @@
                 "Header": "Betalingsdato",
                 "Field": "PaymentDate",
                 "Type": "date",
-                "Width": "15%",
                 "FilterOperator": "contains",
                 "Alias": "PaymentDate",
                 "DisplayField": "PaymentDate"
@@ -784,7 +762,6 @@
             {
                 "Header": "Status",
                 "Field": "StatusCode",
-                "Width": "15%",
                 "FilterOperator": "contains"
             }
         ]
@@ -810,23 +787,19 @@
             {
                 "Header": "Dato",
                 "Field": "CreatedAt",
-                "Format": "DateWithTime",
-                "Width": "10%"
+                "Format": "DateWithTime"
             },
             {
                 "Header": "Fra",
-                "Field": "FromStatus",
-                "Width": "30%"
+                "Field": "FromStatus"
             },
             {
                 "Header": "Til",
-                "Field": "ToStatus",
-                "Width": "30%"
+                "Field": "ToStatus"
             },
             {
                 "Header": "Bruker",
-                "Field": "User.DisplayName",
-                "Width": "30%"
+                "Field": "User.DisplayName"
             }
         ]
     },
@@ -851,23 +824,19 @@
             {
                 "Header": "Dato",
                 "Field": "CreatedAt",
-                "Format": "DateWithTime",
-                "Width": "10%"
+                "Format": "DateWithTime"
             },
             {
                 "Header": "Fra",
-                "Field": "FromStatus",
-                "Width": "30%"
+                "Field": "FromStatus"
             },
             {
                 "Header": "Til",
-                "Field": "ToStatus",
-                "Width": "30%"
+                "Field": "ToStatus"
             },
             {
                 "Header": "Bruker",
-                "Field": "User.DisplayName",
-                "Width": "30%"
+                "Field": "User.DisplayName"
             }
         ]
     }
