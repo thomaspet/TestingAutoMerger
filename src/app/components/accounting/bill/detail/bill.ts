@@ -1850,7 +1850,6 @@ export class BillView implements OnInit {
             ? this.modalService.open(UniConfirmModalV2, {
                 header: lang.ask_journal_title + current.Supplier.Info.Name,
                 message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
-                warning: lang.warning_action_not_reversable,
                 buttonLabels: {
                     accept: 'Bokfør',
                     cancel: 'Avbryt'
@@ -2030,7 +2029,7 @@ export class BillView implements OnInit {
              })
             .subscribe((invoice: SupplierInvoice) => {
                 if (flagBusy) { this.busy = false; }
-                if (!invoice.Supplier) { invoice.Supplier = new Supplier(); };
+                if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
                 this.current.next(invoice);
                 this.setupToolbar();
@@ -2048,7 +2047,7 @@ export class BillView implements OnInit {
                 if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID > 0) {
                     this.expandProjectSection();
                 }
-
+                this.updateJournalEntryManualFinancialDate(invoice, false);
                 // set diff to null until the journalentry is loaded, the data is calculated correctly
                 // through the onJournalEntryManualDataLoaded event
                 this.sumVat = null;
