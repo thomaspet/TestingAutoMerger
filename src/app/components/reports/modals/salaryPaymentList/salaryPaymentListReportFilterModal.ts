@@ -13,21 +13,26 @@ import {
     PayrollrunService
 } from '../../../../services/services';
 
-type ModalConfig = {
-    report: any,
-    title: string,
-    actions: { text: string, class?: string, method: (a: any) => void }[]
-};
+interface IModalConfig {
+    report: any;
+    title: string;
+    actions: { text: string, class?: string, method: (a: any) => void }[];
+}
+
+interface ISalaryPaymentModel {
+    RunID: number;
+    DimensionGrouping: boolean;
+}
 
 @Component({
     selector: 'salary-payment-list-report-filter-modal-content',
     templateUrl: './salaryPaymentListReportFilterModal.html'
 })
 export class SalaryPaymentListReportFilterModalContent implements OnInit {
-    @Input() public config: ModalConfig;
+    @Input() public config: IModalConfig;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<{ RunID: number }> = new BehaviorSubject({ RunID: 0 });
+    public model$: BehaviorSubject<ISalaryPaymentModel> = new BehaviorSubject({ RunID: 0, DimensionGrouping: true });
     private currentYear: number;
     constructor(
         private payrollRunService: PayrollrunService,
@@ -36,7 +41,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
 
     public ngOnInit() {
         this.config$.next(this.config);
-        let subscription = this.yearService
+        const subscription = this.yearService
             .selectedYear$
             .asObservable()
             .filter(year => !!year)
@@ -45,12 +50,12 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
             .finally(() => subscription.unsubscribe())
             .subscribe(payrollRun => {
                 this.fields$.next(this.getLayout(payrollRun));
-                this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0 });
+                this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0, DimensionGrouping: true });
             });
     }
 
     private getLayout(defaultRun: PayrollRun): UniFieldLayout[] {
-        return [<any>{
+        const fields = [<any>{
             FieldType: FieldType.AUTOCOMPLETE,
             Label: 'Lønnsavregning',
             Property: 'RunID',
@@ -64,6 +69,16 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
                 template: (obj: PayrollRun) => obj ? `${obj.ID} - ${obj.Description}` : ''
             }
         }];
+
+        if (this.config.report.ID === 8) {
+            fields.push({
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Splitt på dimensjoner',
+                Property: 'DimensionGrouping'
+            });
+        }
+
+        return fields;
     }
 }
 
@@ -77,7 +92,7 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private modalConfig: ModalConfig;
+    private modalConfig: IModalConfig;
     public type: Type<any> = SalaryPaymentListReportFilterModalContent;
 
     constructor(
@@ -96,8 +111,11 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
                     class: 'good',
                     method: (model$) => {
                         this.modal.close();
-                        let report = this.modalConfig.report;
+                        const report = this.modalConfig.report;
                         report.parameters = [{Name: 'RunID', value: model$.getValue().RunID}];
+                        if (report.ID === 8) {
+                            report.parameters.push({Name: 'DimensionGrouping', value: model$.getValue().DimensionGrouping});
+                        }
                         this.modalService.open(UniPreviewModal, {
                             data: report
                         });

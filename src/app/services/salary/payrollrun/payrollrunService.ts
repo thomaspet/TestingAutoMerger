@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary
+    Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary, PostingSummary
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
@@ -189,12 +189,17 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.PostAction(payrollrunID, 'sendpaymentlist');
     }
 
-    public getPostingsummary(ID: number) {
-        return super.GetAction(ID, 'postingsummary');
+    public getPostingsummary(ID: number, hasGrouping: boolean = true): Observable<PostingSummary> {
+        return super.GetAction(ID, 'postingsummary', `dimensionGrouping=${hasGrouping}`);
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, report: string = null, numberseriesID: string = null) {
-        return super.ActionWithBody(ID, report, 'book', undefined, `accountingDate=${date}&numberseriesID=${numberseriesID}`);
+    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: string = null, hasGrouping: boolean = true) {
+        return super.ActionWithBody(
+            ID,
+            'book',
+            undefined,
+            undefined,
+            `accountingDate=${date}&numberseriesID=${numberseriesID}&dimensionGrouping=${hasGrouping}`);
     }
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {

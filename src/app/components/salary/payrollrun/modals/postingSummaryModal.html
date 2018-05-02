@@ -2,18 +2,21 @@
     <header>
         <h1>{{headerString}}</h1>
     </header>
-    <article [attr.aria-busy]="busy">
+    <article>
         <section *ngIf="!showReceipt" class="unitableWidthAuto">
             <uni-form
                 [config]="config$"
                 [fields]="fields$"
-                [model]="formModel$">
+                [model]="formModel$"
+                (changeEvent)="change($event)">
             </uni-form>
-            <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
-            <label>Kontrollsum totalt: </label> {{getAccountingSum() | unicurrency }}
+            <section [attr.aria-busy]="busy">
+                <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
+                <label>Kontrollsum totalt: </label> {{sum$ | async | unicurrency }}
+            </section>
         </section>
 
-        <section *ngIf="showReceipt">
+        <section *ngIf="showReceipt" [attr.aria-busy]="busy">
             <p>Bilaget er bokført i ditt regnskap</p>
             <p>
                 <a (click)="close()" href="#/accounting/transquery;JournalEntryNumber={{journalNumber}}">
