@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -1285,12 +1285,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2035,9 +2035,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
+    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
-    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -2267,10 +2267,10 @@ export class Employee extends UniEntity {
     public UpdatedBy: string;
     public UserID: number;
     public VacationRateEmployeeID: number;
-    public BusinessRelationInfo: BusinessRelation;
-    public Employments: Array<Employment>;
-    public VacationRateEmployee: VacationRateEmployee;
     public SubEntity: SubEntity;
+    public Employments: Array<Employment>;
+    public BusinessRelationInfo: BusinessRelation;
+    public VacationRateEmployee: VacationRateEmployee;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -3607,8 +3607,8 @@ export class Task extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Approvals: Array<Approval>;
     public Model: Model;
+    public Approvals: Array<Approval>;
     public User: User;
     public CustomFields: any;
 }
@@ -3730,8 +3730,8 @@ export class Team extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Positions: Array<TeamPosition>;
     public Dimensions: Dimensions;
+    public Positions: Array<TeamPosition>;
     public CustomFields: any;
 }
 
@@ -5283,10 +5283,10 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -5545,11 +5545,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -5858,9 +5858,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6288,7 +6288,6 @@ export class FieldsChanged extends UniEntity {
 export class CreateCompanyDetails extends UniEntity {
     public CompanyName: string;
     public LicenseKey: string;
-    public CompanySettings: CompanySettings;
 }
 
 
@@ -6375,6 +6374,7 @@ export class CreateBankUserDTO extends UniEntity {
 
 export class ResetAutobankPasswordDTO extends UniEntity {
     public Password: string;
+    public Username: string;
 }
 
 
@@ -7042,6 +7042,7 @@ export enum StdSystemType{
     TableTaxDeduction = 4,
     Holidaypay = 5,
     AutoAdvance = 6,
+    HolidayPayDeduction = 7,
 }
 
 
@@ -7295,12 +7296,6 @@ export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
     ReportReceived = 3,
-}
-
-
-export enum StatusCodePaymentInfoType{
-    Active = 42400,
-    Disabled = 42401,
 }
 
 

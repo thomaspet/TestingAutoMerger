@@ -573,7 +573,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 .forkJoin(
                 this._salaryTransactionService
                     .GetAll(
-                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC',
+                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
                         , 'Dimensions', 'Files'])
                     .do((transes: SalaryTransaction[]) => {

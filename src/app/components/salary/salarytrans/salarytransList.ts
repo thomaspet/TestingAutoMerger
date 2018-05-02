@@ -11,11 +11,11 @@ import {
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
-    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Valuetype
+    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Valuetype, StdSystemType
 } from '../../../unientities';
 import {
     AccountService, ReportDefinitionService, UniCacheService,
-    ErrorService, NumberFormat, WageTypeService
+    ErrorService, NumberFormat, WageTypeService, SalaryTransactionService
 } from '../../../services/services';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 
@@ -68,14 +68,15 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
         private _reportDefinitionService: ReportDefinitionService,
-        private salaryTransViewService: SalaryTransViewService
+        private salaryTransViewService: SalaryTransViewService,
+        private salaryTransService: SalaryTransactionService,
     ) {
         super(router.url, cacheService);
 
         this.deleteButton = {
             disableOnReadonlyRows: true,
-            deleteHandler: (row) => {
-                if (!row['IsRecurringPost'] && !row['_isEmpty']) {
+            deleteHandler: (row: SalaryTransaction) => {
+                if (!row.IsRecurringPost && row.SystemType === StdSystemType.HolidayPayDeduction && !row['_isEmpty'] ) {
                     this.onRowDeleted(row);
                     return true;
                 } else {
@@ -124,6 +125,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.salaryTransactions = transes;
                     this.filteredTranses = this.salaryTransactions
                         .filter(x => this.employee && x.EmployeeID === this.employee.ID && !x.Deleted);
+
                     this.refresh = false;
                 }
             });
@@ -329,19 +331,19 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {
-                let row = event.rowModel;
-                let rateObservable = null;
+                const row = event.rowModel;
+                let fillInObs: Observable<SalaryTransaction> = null;
 
                 if (event.field === 'Wagetype') {
                     this.mapWagetypeToTrans(row);
                     if (row['Wagetype']) {
-                        rateObservable = this.getRate(row);
+                        fillInObs = this.fillIn(row);
                     }
                 }
 
                 if (event.field === 'employment') {
                     this.mapEmploymentToTrans(row);
-                    rateObservable = this.getRate(row);
+                    fillInObs = this.fillIn(row);
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
@@ -364,9 +366,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.checkDates(row);
                 }
 
-                if (rateObservable) {
-                    rateObservable.take(1).subscribe(rate => {
-                        row['Rate'] = rate;
+                if (fillInObs) {
+                    fillInObs.take(1).subscribe(trans => {
+                        row['Rate'] = trans.Rate;
+                        row['Text'] = trans.Text;
+                        row['Sum'] = trans.Sum;
+                        row['Amount'] = trans.Amount;
                         this.calcItem(row);
                         this.updateSalaryChanged(row, true);
                     });
@@ -380,6 +385,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 (rowModel: SalaryTransaction) => {
                     return rowModel.IsRecurringPost
                         || !!rowModel.SalaryBalanceID
+                        || rowModel.SystemType === StdSystemType.HolidayPayDeduction
                         || !this.salarytransEmployeeTableConfig.editable;
                 }
             );
@@ -442,6 +448,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private getRate(rowModel: SalaryTransaction) {
         return this.wageTypeService
             .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+    }
+
+    private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
+        rowModel.PayrollRunID = this.payrollRunID;
+        rowModel.EmployeeID = this.employeeID;
+        return this.salaryTransService.completeTrans(rowModel);
     }
 
     private mapEmploymentToTrans(rowModel: SalaryTransaction) {

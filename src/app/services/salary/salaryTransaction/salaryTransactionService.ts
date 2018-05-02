@@ -6,6 +6,7 @@ import {
     SalaryTransSupplementsModal
 } from '../../../components/salary/modals/salaryTransSupplementsModal';
 import {Observable} from 'rxJs/Observable';
+import {RequestMethod} from '@angular/http';
 
 @Injectable()
 export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
@@ -24,5 +25,9 @@ export class SalaryTransactionService extends BizHttp<SalaryTransaction> {
 
     public save(trans: SalaryTransaction): Observable<SalaryTransaction> {
         return trans.ID ? super.Put(trans.ID, trans) : super.Post(trans);
+    }
+
+    public completeTrans(trans: SalaryTransaction): Observable<SalaryTransaction> {
+        return super.ActionWithBody(null, trans, 'complete-trans', RequestMethod.Post);
     }
 }
