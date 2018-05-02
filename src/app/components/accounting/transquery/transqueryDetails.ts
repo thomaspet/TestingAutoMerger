@@ -209,7 +209,8 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber';
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber,'
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -431,12 +432,12 @@ export class TransqueryDetails implements OnInit {
 
                 this.allowManualSearch = false;
             }
-        } else if (routeParams['JournalEntryNumberNumeric']) {
+        } else if (routeParams['JournalEntryNumber']) {
             filter.push({
-                field: 'JournalEntryNumberNumeric',
+                field: 'JournalEntryNumber',
                 operator: 'eq',
-                value: routeParams['JournalEntryNumberNumeric'],
-                searchValue: routeParams['JournalEntryNumberNumeric'],
+                value: routeParams['JournalEntryNumber'],
+                searchValue: routeParams['JournalEntryNumber'],
                 group: 0,
                 selectConfig: null
             });
@@ -524,12 +525,12 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumberNumeric=${row.JournalEntryLineJournalEntryNumberNumeric}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
