@@ -209,7 +209,8 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber';
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber,'
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
