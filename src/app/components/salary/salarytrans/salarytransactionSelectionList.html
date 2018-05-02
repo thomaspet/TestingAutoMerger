@@ -10,7 +10,7 @@
     <main class="splitview_detail">
         <fieldset *ngIf="employeeList?.length">
             <legend *ngIf="employeeList[selectedIndex] && agaZone">
-                {{employeeList[selectedIndex].ID}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
+                {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
                 Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
                 <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
 

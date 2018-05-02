@@ -80,7 +80,8 @@ declare const _; // lodash
 
 export enum JournalEntryMode {
     Manual,
-    Payment
+    Payment,
+    SupplierInvoice
 }
 
 @Component({
@@ -98,6 +99,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public financialYears: Array<FinancialYear>;
     @Input() public currentFinancialYear: FinancialYear;
     @Input() public vatDeductions: Array<VatDeduction>;
+    @Input() public defaultRowData: JournalEntryData;
     @Input() public vattypes: VatType[];
     @Input() public selectedNumberSeries: NumberSeries;
 
@@ -223,6 +225,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.setupUniTable();
         }
 
+        if (changes['defaultRowData'] && this.defaultRowData && this.table) {
+            this.journalEntryTableConfig.setDefaultRowData(this.defaultRowData);
+            this.setupUniTable();
+        }
+
         if (changes['defaultVisibleColumns']) {
             this.columnsThatMustAlwaysShow.forEach(col => {
                 if (this.defaultVisibleColumns && !this.defaultVisibleColumns.some(def => def === col)) {
@@ -264,6 +271,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         this.journalEntryLines = data;
+
+        // If SupplierInvoice don't set focus on table
+        if (this.mode === JournalEntryMode.SupplierInvoice) { return; }
+
         setTimeout(() => {
             if (this.currentRowIndex >= 0) {
                 if (this.table) {
@@ -335,7 +346,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 newRow.JournalEntryNo = newRow.SameOrNewDetails.Name;
             }
         } else {
-            if (data.length === 0) {
+            if (data.length === 0 || data.filter(x => x.JournalEntryNo && x.JournalEntryNo !== '').length === 0) {
                 // set New number as default if nothing is specified and no previous numbers have been used
                 newRow.SameOrNewDetails = this.journalEntryNumberAlternatives[
                     this.journalEntryNumberAlternatives.length - 1
@@ -444,6 +455,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+
+    private calculateNetAmount(rowModel: JournalEntryData): JournalEntryData {
+        if (rowModel.NetAmountCurrency) {
+            rowModel.NetAmount = rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate;
+        } else {
+            rowModel.NetAmount = null;
+        }
+
+        return rowModel;
+    }
+
     private calculateAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency) {
             rowModel.Amount = rowModel.AmountCurrency * rowModel.CurrencyExchangeRate;
@@ -509,6 +531,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Amount = null;
         }
 
+        return rowModel;
+    }
+
+    private setAmount(rowModel: JournalEntryData): JournalEntryData {
+        if (rowModel.AmountCurrency) { return rowModel; }
+
+        rowModel.Amount = UniMath.round(rowModel.AmountCurrency * (rowModel.CurrencyExchangeRate || 1));
         return rowModel;
     }
 
@@ -658,6 +687,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Dimensions.Project = project;
             rowModel.Dimensions.ProjectID = project.ID;
         } else {
+            if (!rowModel.Dimensions) {
+                rowModel.Dimensions = {};
+            }
             rowModel.Dimensions.Project = null;
             rowModel.Dimensions.ProjectID = null;
         }
@@ -749,6 +781,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Dimensions.Department = dep;
             rowModel.Dimensions.DepartmentID = dep.ID;
         } else {
+            if (!rowModel.Dimensions) {
+                rowModel.Dimensions = {};
+            }
             rowModel.Dimensions.Department = null;
             rowModel.Dimensions.DeparmentID = null;
         }
@@ -958,7 +993,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false)
             .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
-        const debitAccountCol = new UniTableColumn('DebitAccount', 'Debet', UniTableColumnType.Lookup)
+        const debitAccountCol = new UniTableColumn('DebitAccount', this.mode !== JournalEntryMode.SupplierInvoice ? 'Debet' : 'Konto', UniTableColumnType.Lookup)
             .setDisplayField('DebitAccount.AccountNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.DebitAccount) {
@@ -1098,6 +1133,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
                     return false;
                 }
+
                 return row.StatusCode ? false : true;
             });
 
@@ -1220,7 +1256,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setFilterable(false)
             .setSkipOnEnterKeyNavigation(true);
 
-         const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
+        const createdAtCol = new UniTableColumn('CreatedAt', 'Reg dato', UniTableColumnType.DateTime, false)
             .setTemplate(line => line.JournalEntryDrafts ? line.JournalEntryDrafts[0].CreatedAt : null)
             .setWidth('100px')
             .setVisible(false);
@@ -1232,7 +1268,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             )
             .setVisible(false);
 
-        const defaultRowData = {
+        let defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
             DebitAccountID: null,
@@ -1290,6 +1326,42 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 addedPaymentCol,
                 fileCol
             ];
+        } else if (this.mode === JournalEntryMode.SupplierInvoice) {
+            // SupplierInvoice == "Fakturamottak"
+            tableName = 'accounting.journalEntry.supplierinvoice';
+
+            if (this.defaultRowData) {
+                defaultRowData = this.defaultRowData;
+            }
+
+            contextMenuItems = [
+                {
+                    action: (item) => this.deleteLine(item),
+                    disabled: (item) => item.StatusCode,
+                    label: 'Slett linje'
+                },
+                {
+                    action: (item: JournalEntryData) => this.openAccrual(item),
+                    disabled: (item) => this.disabled,
+                    label: 'Periodisering'
+                }
+            ];
+
+            projectCol.setVisible(false);
+            departmentCol.setVisible(false);
+            netAmountCol.setVisible(false);
+
+            columns = [
+                debitAccountCol,
+                debitVatTypeCol,
+                projectCol,
+                departmentCol,
+                descriptionCol,
+                amountCol,
+                netAmountCol,
+                amountCurrencyCol
+            ];
+
         } else {
             // Manual == "Bilagsregistrering"
             tableName = 'accounting.journalEntry.manual';
@@ -1365,7 +1437,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setColumns(columns)
             .setAutoAddNewRow(!this.disabled)
             .setMultiRowSelect(false)
-            .setIsRowReadOnly((rowModel) => rowModel.StatusCode)
+            .setIsRowReadOnly((rowModel) => {
+                return rowModel.StatusCode ? true : false;
+            })
             .setContextMenu(contextMenuItems)
             .setDefaultRowData(defaultRowData)
             .setColumnMenuVisible(true)
@@ -1438,6 +1512,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         row = this.calculateNetAmountAndNetAmountCurrency(row);
                     }
                 } else if (event.field === 'NetAmountCurrency') {
+                    row = this.calculateNetAmount(row);
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
                 } else if (event.field === 'VatDate') {
@@ -1470,6 +1545,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 } else if (event.field === 'DebitAccount') {
                     row = this.setDebitAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
+                    row = this.setAmount(row);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
                     row = this.clearPostPostMarking(row);
                 } else if (event.field === 'CreditAccount') {
@@ -1959,7 +2035,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private openAccrual(item: JournalEntryData) {
 
-        let title: string = 'Periodisering av bilag ' + item.JournalEntryNo;
+        let title: string = 'Periodisering av bilag ' + (item.JournalEntryNo || '');
         if (item.Description) {
             title = title + ' - ' + item.Description;
         }
@@ -1981,7 +2057,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     ToastType.bad, 5, 'Bilaget har ingen resultatkontoer' );
             }
         } else {
-
             if (item.JournalEntryDataAccrual) {
                 const data = {
                     accrualAmount: null,
@@ -2363,7 +2438,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         // check if any of the data contains no account - this will cause problems when saving
         let hasInvalidData: boolean = false;
         tableData.forEach(x => {
-            if (!x.DebitAccount && !x.CreditAccount) {
+            if ((!x.DebitAccount && !x.CreditAccount) || !x.AmountCurrency) {
                 hasInvalidData = true;
             }
         });
@@ -2371,7 +2446,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (hasInvalidData) {
             const modal = this.modalService.open(UniConfirmModalV2, {
                     header: 'Ugyldige data',
-                    message: 'Rader som ikke har debet og/eller kreditkonto vil ikke bli lagret',
+                    message: 'Rader som ikke har beløp og debet og/eller kreditkonto vil ikke bli lagret',
                     buttonLabels: {
                         accept: 'Lagre kladd likevel',
                         cancel: 'Avbryt'
@@ -2432,7 +2507,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // Validate if journalEntry number has changed
                 const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
 
-                if (firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                if (!numbers || firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
                     lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
                     this.toastService.addToast(
                         'Lagring var vellykket, men merk at tildelt bilagsnummer er '
@@ -2588,6 +2663,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private isEqualArrays(arr1: any[], arr2: any[]): boolean {
+        if ((arr1 && !arr2) || (!arr1 && arr2)) {
+            return false;
+        }
+
         if (arr1.length !== arr2.length) {
             return false;
         }
@@ -2607,6 +2686,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public getTableData() {
-        return this.table.getTableData();
+        if (this.table){
+            return this.table.getTableData();
+        }
+        return null;
     }
 }

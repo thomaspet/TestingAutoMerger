@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -411,6 +411,28 @@ export class Permission extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public RolePermissions: Array<RolePermission>;
+    public CustomFields: any;
+}
+
+
+export class BankFile extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'BankFile';
+
+    public _createguid: string;
+    public Accountnumber: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public FileID: number;
+    public ID: number;
+    public ParentFileid: number;
+    public StatusCode: number;
+    public SubCompanyID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public File: File;
+    public SubCompany: SubCompany;
     public CustomFields: any;
 }
 
@@ -684,6 +706,7 @@ export class Customer extends UniEntity {
     public GLN: string;
     public ID: number;
     public IsPrivate: boolean;
+    public Localization: string;
     public OrgNumber: string;
     public PaymentTermsID: number;
     public PeppolAddress: string;
@@ -1135,6 +1158,7 @@ export class Supplier extends UniEntity {
     public DimensionsID: number;
     public GLN: string;
     public ID: number;
+    public Localization: string;
     public OrgNumber: string;
     public PeppolAddress: string;
     public StatusCode: number;
@@ -3132,6 +3156,7 @@ export class CompanySettings extends UniEntity {
     public HideInActiveCustomers: boolean;
     public HideInActiveSuppliers: boolean;
     public ID: number;
+    public Localization: string;
     public LogoAlign: number;
     public LogoFileID: number;
     public LogoHideField: number;
@@ -4340,6 +4365,25 @@ export class Responsible extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class ApiKey extends UniEntity {
+    public static RelativeUrl = 'apikeys';
+    public static EntityType = 'ApiKey';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Key: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Url: string;
     public CustomFields: any;
 }
 
@@ -5716,9 +5760,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6202,6 +6246,7 @@ export class UserLicenseType extends UniEntity {
 export class CompanyLicense extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
+    public ID: number;
     public Key: string;
     public Name: string;
     public Agency: Agency;

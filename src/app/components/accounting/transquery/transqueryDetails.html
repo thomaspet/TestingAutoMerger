@@ -12,6 +12,7 @@
     <uni-table
         [resource]="lookupFunction"
         [config]="uniTableConfig"
+        (columnsChange)="onColumnsChange($event)"
         (cellClick)="onCellClick($event)">
     </uni-table>
 

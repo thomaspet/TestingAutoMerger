@@ -418,7 +418,7 @@ export class CompanySettingsComponent implements OnInit {
         }
 
         if (changes['OrganizationNumber']) {
-            const organizationnumber = changes['OrganizationNumber'].currentValue;
+            const organizationnumber = changes['OrganizationNumber'].currentValue.trim();
             if (organizationnumber === ''
                 || isNaN(<any>organizationnumber)
                 || organizationnumber.length !== 9) {
@@ -1212,6 +1212,15 @@ export class CompanySettingsComponent implements OnInit {
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'SaveCustomersFromQuoteAsLead',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Lagre som lead',
+                FieldSet: 3,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett'
             },
             {
                 EntityType: 'CompanySettings',

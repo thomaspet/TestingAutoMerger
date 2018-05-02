@@ -38,6 +38,7 @@ import {UniInfo} from './uniInfo/uniInfo';
 import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {ApiKeyComponent} from './apikey/apikeys';
 
 @NgModule({
     imports: [
@@ -93,7 +94,9 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
         UniInfo,
         BrowserWarning,
         BookPaymentManualModal,
-        VacationPaySettingsModal
+        VacationPaySettingsModal,
+
+        ApiKeyComponent
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -147,6 +150,8 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 
         UniInfo,
         BrowserWarning,
+
+        ApiKeyComponent,
     ]
 })
 export class AppCommonModule {}

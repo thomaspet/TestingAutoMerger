@@ -131,10 +131,18 @@ export class TransqueryDetails implements OnInit {
             this.route.params.subscribe(params => {
                 const unitableFilter = this.generateUnitableFilters(params);
                 this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
-                this.lookupFunction = (urlParams: URLSearchParams) =>
-                    this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                this.setupFunction();
             });
         });
+    }
+
+    private setupFunction() {
+        this.lookupFunction = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    private onColumnsChange(event) {
+        this.setupFunction();
     }
 
     private getTableData(urlParams: URLSearchParams): Observable<Response> {
@@ -201,65 +209,30 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber,'
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
+        let expandString = '';
+
+        // Loop the columns in unitable to only get the data for the once visible!
+        this.table.tableColumns.toJS().forEach((col) => {
+            selectString += col.visible ? ',' + col.field : '';
+            if (col.field.indexOf('Dimension') !== -1 && col.visible) {
+                selectString += ',Dimension' + parseInt(col.field.substr(9, 3), 10) + '.Number';
+                expandString += ',Dimensions.Dimension' + parseInt(col.field.substr(9, 3), 10);
+            } else if (col.field.indexOf('Department') !== -1 && col.visible) {
+                selectString += ',Department.DepartmentNumber';
+            } else if (col.field.indexOf('Project') !== -1 && col.visible) {
+                selectString += ',Project.ProjectNumber';
+            }
+        });
+
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select',
-            'ID as ID,' +
-            'JournalEntryNumberNumeric,' +
-            'JournalEntryNumber,' +
-            'Account.AccountNumber,' +
-            'Account.AccountName,' +
-            'SubAccount.AccountNumber,' +
-            'SubAccount.AccountName,' +
-            'FinancialDate,' +
-            'CreatedAt,' +
-            'User.DisplayName,' +
-            'VatDate,' +
-            'Description,' +
-            'VatType.VatCode,' +
-            'Amount,' +
-            'AmountCurrency,' +
-            'CurrencyCode.Code,' +
-            'CurrencyExchangeRate,' +
-            'TaxBasisAmount,' +
-            'TaxBasisAmountCurrency,' +
-            'VatReportID,' +
-            'RestAmount,' +
-            'RestAmountCurrency,' +
-            'StatusCode,' +
-            'InvoiceNumber,' +
-            'DueDate,' +
-            'Department.Name,' +
-            'Project.Name,' +
-            'Department.DepartmentNumber,' +
-            'Project.ProjectNumber,' +
-            'Dimension5.Number,' +
-            'Dimension5.Name,' +
-            'Dimension6.Number,' +
-            'Dimension6.Name,' +
-            'Dimension7.Number,' +
-            'Dimension7.Name,' +
-            'Dimension8.Number,' +
-            'Dimension8.Name,' +
-            'Dimension9.Number,' +
-            'Dimension9.Name,' +
-            'Dimension10.Number,' +
-            'Dimension10.Name,' +
-            'TerminPeriod.No,' +
-            'TerminPeriod.AccountYear,' +
-            'Period.AccountYear,' +
-            'JournalEntryID as JournalEntryID,' +
-            'ReferenceCreditPostID as ReferenceCreditPostID,' +
-            'OriginalReferencePostID as OriginalReferencePostID,' +
-            'VatDeductionPercent as VatDeductionPercent,' +
-            'JournalEntry.JournalEntryAccrualID,' +
-            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
-        );
+        urlParams.set('select', selectString );
         urlParams.set(
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
                 + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
-                + ',Dimensions.Dimension5,Dimensions.Dimension6,Dimensions.Dimension7,Dimensions.Dimension8'
-                + ',Dimensions.Dimension9,Dimensions.Dimension10'
+                + expandString
         );
         urlParams.set('join',
             'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
@@ -487,7 +460,7 @@ export class TransqueryDetails implements OnInit {
 
     private creditJournalEntry(item: any) {
         this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
-            header: `Kreditere bilag ${item.JournalEntryLineJournalEntryNumber}?`,
+            header: `Kreditere bilag ${item.JournalEntryNumber}?`,
             message: 'Vil du kreditere hele dette bilaget?',
             buttonLabels: {
                 accept: 'Krediter',
@@ -496,7 +469,7 @@ export class TransqueryDetails implements OnInit {
             data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryLineJournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.input)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
@@ -519,24 +492,25 @@ export class TransqueryDetails implements OnInit {
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
-        const data = this.journalEntryService.getSessionData(0);
+        // const data = this.journalEntryService.getSessionData(0);
         const url = '/accounting/journalentry/manual'
                 + `;journalEntryNumber=${journalEntryNumber}`
                 + `;journalEntryID=${journalEntryID};editmode=true`;
 
-        if (data && data.length > 0
-            && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
-                this.modalService.openRejectChangesModal()
-                    .onClose
-                    .subscribe(result => {
-                        if (result === ConfirmActions.REJECT) {
-                            this.journalEntryService.setSessionData(0, []);
-                            this.router.navigateByUrl(url);
-                        }
-                    });
-        } else {
-            this.router.navigateByUrl(url);
-        }
+        this.router.navigateByUrl(url);
+        // if (data && data.length > 0
+        //     && (!data[0].JournalEntryID || data[0].JournalEntryID.toString() !== journalEntryID.toString())) {
+        //         this.modalService.openRejectChangesModal()
+        //             .onClose
+        //             .subscribe(result => {
+        //                 if (result === ConfirmActions.REJECT) {
+        //                     this.journalEntryService.setSessionData(0, []);
+        //                     this.router.navigateByUrl(url);
+        //                 }
+        //             });
+        // } else {
+        //     this.router.navigateByUrl(url);
+        // }
     }
 
     private generateUniTableConfig(unitableFilter: ITableFilter[], routeParams: any): UniTableConfig {
@@ -551,12 +525,12 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryLineJournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
@@ -742,7 +716,7 @@ export class TransqueryDetails implements OnInit {
                 {
                     action: (item) => this.editJournalEntry(
                         item.JournalEntryID,
-                        item.JournalEntryLineJournalEntryNumber
+                        item.JournalEntryLineJournalEntryNumberNumeric
                     ),
                     disabled: (item) => false,
                     label: 'Korriger bilag'

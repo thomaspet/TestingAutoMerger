@@ -56,7 +56,7 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
                 super.updateCacheKey(this.router.url);
                 this.employeeID = +paramsChange['id'];
                 this.selectedIndex = 0;
-                this.employments$.next([]);
+                this.cachedEmployments.next([]);
             })
             .subscribe(() => {
                 super.getStateSubject('subEntities')

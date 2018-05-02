@@ -1,5 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {Observable} from 'rxjs/Observable';
 import {
     UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
 } from '../../../../../framework/ui/unitable/index';
@@ -10,6 +11,7 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {Router} from '@angular/router';
 import {
+    StatisticsService,
     ErrorService,
     CustomerInvoiceService,
     AccountService,
@@ -18,6 +20,8 @@ import {
 
 import * as moment from 'moment';
 import {JournalEntryData} from '../../../../models/models';
+import { StatusCode } from '@app/components/timetracking/timeentry/timetable/model';
+import { ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'payments',
@@ -33,6 +37,7 @@ export class Payments {
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
     private toolbarConfig: IToolbarConfig = {};
+    private reminderFeeSumList: any;
 
     constructor(
         private tabService: TabService,
@@ -40,7 +45,8 @@ export class Payments {
         private accountService: AccountService,
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private statisticsService: StatisticsService,
     ) {
         this.tabService.addTab({
             name: 'Innbetalinger', url: '/accounting/journalentry/payments',
@@ -80,7 +86,7 @@ export class Payments {
 
         ];
 
-        let toolbarConfig: IToolbarConfig = {
+        const toolbarConfig: IToolbarConfig = {
             title: 'Registrering av innbetalinger',
             contextmenu: this.contextMenuItems
         };
@@ -98,7 +104,7 @@ export class Payments {
         } else {
             if (this.journalEntryManual) {
 
-                let newJournalEntry: JournalEntryData = new JournalEntryData();
+                const newJournalEntry: JournalEntryData = new JournalEntryData();
                 newJournalEntry.InvoiceNumber = invoice.InvoiceNumber;
                 newJournalEntry.CustomerInvoiceID = invoice.ID;
                 newJournalEntry.CustomerInvoice = invoice;
@@ -109,7 +115,7 @@ export class Payments {
 
                 if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
                     for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
-                        let line = invoice.JournalEntry.Lines[i];
+                        const line = invoice.JournalEntry.Lines[i];
 
                         if (line.Account.UsePostPost) {
                             newJournalEntry.Amount = line.RestAmount;
@@ -131,6 +137,18 @@ export class Payments {
                             break;
                         }
                     }
+
+                    // calculate reminder fee
+                    if (invoice.CustomerInvoiceReminders && invoice.StatusCode === 42002) {
+                        let reminderFeeSum = 0;
+                        let reminderFeeSumCurrency = 0;
+                        invoice.CustomerInvoiceReminders.forEach(reminder => {
+                            reminderFeeSum += reminder.ReminderFee;
+                            reminderFeeSumCurrency += reminderFeeSumCurrency;
+                        });
+                        newJournalEntry.Amount += reminderFeeSum;
+                        newJournalEntry.AmountCurrency += reminderFeeSum;
+                    }
                 }
 
                 // add new journalentry data for the payment
@@ -145,6 +163,20 @@ export class Payments {
     }
 
     private setupInvoiceTable() {
+
+        Observable.forkJoin(
+            this.statisticsService.GetAll(
+                `model=CustomerInvoiceReminder`
+                + '&join=CustomerInvoice on CustomerInvoiceReminder.CustomerInvoiceID eq CustomerInvoice.ID'
+                + `&filter=CustomerInvoice.RestAmount gt 0`
+                + `&select=CustomerInvoiceID,`
+                + `sum(ReminderFeeCurrency) as SumReminderFeeCurrency,`
+                + `sum(ReminderFee) as SumReminderFee`
+            )
+        ).subscribe((response: Array<any>) => {
+            this.reminderFeeSumList = response[0];
+            console.log(this.reminderFeeSumList);
+
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set(
@@ -164,32 +196,40 @@ export class Payments {
             }
 
             if (this.ignoreInvoiceIdList.length > 0) {
-                let ignoreFilterString = ' and ( ID ne ' + this.ignoreInvoiceIdList.join(' and ID ne ') + ' ) ';
+                const ignoreFilterString = ' and ( ID ne ' + this.ignoreInvoiceIdList.join(' and ID ne ') + ' ) ';
                 urlParams.set('filter', urlParams.get('filter') + ignoreFilterString);
             }
-
             return this.customerInvoiceService.GetAllByUrlSearchParams(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
+
+
+
+
+
+
+
         // Define columns to use in the table
-        var invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+        const invoiceNumberCol = new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+            .setWidth('6%')
             .setFilterOperator('contains');
 
-        var customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+        const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+            .setWidth('6%')
             .setFilterOperator('contains');
 
-        var customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
-            .setWidth('15%')
+        const customerNameCol = new UniTableColumn('CustomerName', 'Kundenavn', UniTableColumnType.Text)
+            .setWidth('20%')
             .setFilterOperator('contains');
 
-        var invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
+        const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Fakturadato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
 
-        var dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
+        const dueDateCol = new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate)
             .setWidth('8%').setFilterOperator('eq');
 
-        var taxInclusiveAmountCurrencyCol = new UniTableColumn(
+        const taxInclusiveAmountCurrencyCol = new UniTableColumn(
             'TaxInclusiveAmountCurrency', 'Totalsum', UniTableColumnType.Number
         )
             .setWidth('8%')
@@ -197,38 +237,66 @@ export class Payments {
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
-            .setWidth('10%')
+        const currencyFeeCurrencyCol = new UniTableColumn(
+            '_ReminderFeeCurrency', 'Purregebyr', UniTableColumnType.Number
+        )
+            .setWidth('6%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var currencyCodeCol = new UniTableColumn('CurrencyCode', `Valuta`, UniTableColumnType.Number)
+        const restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
+            .setWidth('8%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setCls('column-align-right');
+
+        const currencyCodeCol = new UniTableColumn('CurrencyCode', `Valuta`, UniTableColumnType.Number)
             .setTemplate(row => row && row.CurrencyCode && row.CurrencyCode.Code)
-            .setWidth('10%')
+            .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
-            .setWidth('10%')
+        const creditedAmountCol = new UniTableColumn('CreditedAmount', 'Kreditert', UniTableColumnType.Number)
+            .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
 
-        var statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-            .setWidth('15%')
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
+            .setWidth('6%')
             .setFilterable(false)
             .setTemplate((dataItem) => {
                 return this.customerInvoiceService.getStatusText(dataItem.StatusCode, dataItem.InvoiceType);
             });
 
         // Setup table
+
         this.invoiceTable = new UniTableConfig('acconting.journalEntry.payments', false, true)
             .setPageSize(25)
             .setSearchable(true)
             .setMultiRowSelect(true)
+            .setDataMapper(cInvoices => {
+                return cInvoices.map(cInvoice => {
+                    if (this.reminderFeeSumList.Data) {
+                        const sum = this.reminderFeeSumList.Data.find(c => c.CustomerInvoiceReminderCustomerInvoiceID === cInvoice.ID);
+                        if (sum) {
+                            cInvoice['_ReminderFee'] = sum.SumReminderFee;
+                            cInvoice['_ReminderFeeCurrency'] = sum.SumReminderFeeCurrency;
+                            cInvoice.RestAmountCurrency += sum.SumReminderFeeCurrency;
+                            cInvoice.RestAmount += sum.SumReminderFee;
+                        }
+                    }
+
+                    // cInvoices map må returnere endret invoice for hver iterasjon
+                    return cInvoice;
+                });
+            })
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCurrencyCol, restAmountCurrencyCol, currencyCodeCol, creditedAmountCol, statusCol]);
-    }
+                taxInclusiveAmountCurrencyCol, currencyFeeCurrencyCol, restAmountCurrencyCol, currencyCodeCol,
+                creditedAmountCol, statusCol]);
+
+            });
+        }
 }

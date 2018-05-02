@@ -126,18 +126,18 @@ export class UnitableTypeahead implements OnInit {
             return null;
         }
 
-        // User was "too quick"
+        // User moved on while lookup was in-flight
         if (this.busy && this.inputControl.value) {
-            return this.performLookup(this.inputControl.value).switchMap((res) => {
-                return Observable.of(res[0])
-                    .map(item => {
-                        if (this.options.itemValue) {
-                            return this.options.itemValue(item);
-
-                        } else {
-                            return this.options.itemTemplate(item);
-                        }
-                    });
+            // "cache" input in case control gets reset during lookup
+            const userInput = this.inputControl.value;
+            return this.performLookup(this.inputControl.value).map((res) => {
+                if (res && res[0]) {
+                    return this.options.itemValue
+                        ? this.options.itemValue(res[0])
+                        : this.options.itemTemplate(res[0]);
+                } else {
+                    return userInput;
+                }
             });
         }
 

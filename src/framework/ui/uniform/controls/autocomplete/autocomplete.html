@@ -17,7 +17,8 @@
     <button #toggleBtn class="uni-autocomplete-searchBtn"
             type="button"
             [attr.aria-busy]="busy$ | async"
-            tabIndex="-1">
+            tabIndex="-1"
+            [disabled]="readOnly$ | async">
         Søk
     </button>
 

@@ -35,7 +35,7 @@ export interface IUploadConfig {
     selector: 'uni-image',
     template: `
         <article class="uniImage" (click)="onClick()" (clickOutside)="offClick()">
-            <section class="image-section">
+            <section class="image-section" *ngIf="files?.length > 0">
                 <section class="uni-image-pager" *ngIf="files?.length && !hideToolbar">
                     <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                         class="prev"
@@ -60,6 +60,13 @@ export interface IUploadConfig {
 
                     <a class="trash" (click)="deleteImage()" *ngIf="!readonly">
                         <i class="material-icons">delete</i>
+                    </a>
+
+                    <a (click)="rotateLeft()" *ngIf="rotateAllowed">
+                        <i class="material-icons">undo</i>
+                    </a>
+                    <a (click)="rotateRight()" *ngIf="rotateAllowed">
+                        <i class="material-icons">redo</i>
                     </a>
 
                     <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
@@ -168,6 +175,9 @@ export class UniImage {
 
     @Input()
     public readonly: boolean;
+
+    @Input()
+    public rotateAllowed: boolean;
 
     @Input()
     public splitAllowed: boolean;
@@ -555,6 +565,22 @@ export class UniImage {
         });
     }
 
+    private rotateLeft(event) {
+        this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, false)
+            .subscribe(res => {
+                this.loadImage(true);
+            }, err => this.errorService.handle(err)
+        );
+    }
+
+    private rotateRight(event) {
+        this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, true)
+            .subscribe(res => {
+                this.loadImage(true);
+            }, err => this.errorService.handle(err)
+        );
+    }
+
     private deleteImage() {
         this.modalService.confirm({
             header: 'Bekreft sletting',
@@ -645,7 +671,7 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    private loadImage() {
+    private loadImage(forceRefresh: boolean = false) {
         const file = this.files[this.currentFileIndex];
         if (!file) {
             return;
@@ -662,8 +688,8 @@ export class UniImage {
 
         this.removeHighlight();
 
-        this.imgUrl2x = this.generateImageUrl(file, size * 2);
-        this.imgUrl = this.generateImageUrl(file, size);
+        this.imgUrl2x = this.generateImageUrl(file, size * 2) + (forceRefresh ? '&t=' + Date.now() : '');
+        this.imgUrl = this.generateImageUrl(file, size) + (forceRefresh ? '&t=' + Date.now() : '');
 
         this.cdr.markForCheck();
     }

@@ -155,11 +155,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
+
+        // filter out entries with no account or no amount, the user has already approved
+        // this in a dialog
+        journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
+
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
         journalEntryDataWithJournalEntryID.forEach(line => {
-            existingJournalEntryIDs.push(line.JournalEntryID);
+            if (!existingJournalEntryIDs.find(x => x === line.JournalEntryID)) {
+                existingJournalEntryIDs.push(line.JournalEntryID);
+            }
         });
 
         if (existingJournalEntryIDs.length) {
@@ -231,7 +238,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    private createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
+    public createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
         let previousJournalEntryNo: string = null;
         const journalEntries: Array<JournalEntryExtended> = [];
 
@@ -439,7 +446,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         journalDataEntries: Array<JournalEntryData>,
         currentFinancialYear: FinancialYear,
         financialYears: Array<FinancialYear>,
-        companySettings: CompanySettings): Promise<ValidationResult> {
+        companySettings: CompanySettings,
+        doValidateBalance: boolean): Promise<ValidationResult> {
         const result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
@@ -479,7 +487,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
 
-            const invalidRows = journalDataEntries.filter(x => !x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID));
+            const invalidRows = journalDataEntries.filter(x => !x.StatusCode && (!x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID)));
 
             if (invalidRows.length > 0) {
                 const message = new ValidationMessage();
@@ -527,10 +535,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     result.Messages.push(message);
                 }
             }
-            if (companySettings && companySettings.VatLockedDate) {
 
+            if (companySettings && companySettings.VatLockedDate) {
                 const invalidVatDates = journalDataEntries.filter(
-                    x => !x.StatusCode && x.FinancialDate && (x.DebitVatType || x.CreditVatType)
+                    x => !x.StatusCode && x.FinancialDate
                     && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
                 );
 
@@ -560,20 +568,22 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             let lastJournalEntryFinancialDate: LocalDate;
 
             sortedJournalEntries.forEach(entry => {
-                if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                    const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
-                    if (diff !== 0) {
-                        const message = new ValidationMessage();
-                        message.Level = ValidationLevel.Error;
-                        message.Message = `Bilag ${lastJournalEntryNo} går ikke i balanse.`
-                            + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
-                        result.Messages.push(message);
-                    }
+                if (doValidateBalance) {
+                    if (lastJournalEntryNo !== entry.JournalEntryNo) {
+                        const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+                        if (diff !== 0) {
+                            const message = new ValidationMessage();
+                            message.Level = ValidationLevel.Error;
+                            message.Message = `Bilag ${lastJournalEntryNo || ''} går ikke i balanse.`
+                                + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
+                            result.Messages.push(message);
+                        }
 
-                    lastJournalEntryNo = entry.JournalEntryNo;
-                    currentSumCredit = 0;
-                    currentSumDebit = 0;
-                    lastJournalEntryFinancialDate = null;
+                        lastJournalEntryNo = entry.JournalEntryNo;
+                        currentSumCredit = 0;
+                        currentSumDebit = 0;
+                        lastJournalEntryFinancialDate = null;
+                    }
                 }
 
                 if (entry.JournalEntryDataAccrual) {
@@ -588,9 +598,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
                         if (isDebitResultAccount) {
-                            message.Message = `Bilag ${lastJournalEntryNo} har en periodisering med 2 resultatkontoer `;
+                            message.Message = `Bilag ${lastJournalEntryNo || ''} har en periodisering med 2 resultatkontoer `;
                         } else {
-                            message.Message = `Bilag ${lastJournalEntryNo} har en periodisering uten resultatkonto `;
+                            message.Message = `Bilag ${lastJournalEntryNo || ''} har en periodisering uten resultatkonto `;
                         }
                         result.Messages.push(message);
                     }
@@ -598,7 +608,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                 let financialYearEntry: FinancialYear;
 
-                if (entry.FinancialDate) {
+                if (!entry.StatusCode && entry.FinancialDate) {
                     financialYearEntry = financialYears.find(x =>
                             moment(entry.FinancialDate).isSameOrAfter(moment(x.ValidFrom), 'day')
                             && moment(entry.FinancialDate).isSameOrBefore(moment(x.ValidTo), 'day')
@@ -607,20 +617,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     if (!financialYearEntry) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
-                        message.Message = `Bilag ${lastJournalEntryNo} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
+                        message.Message = `Bilag ${lastJournalEntryNo || ''} har en dato som ikke finnes i noen eksisterende regnskapsår ` +
                             `(${moment(entry.FinancialDate).format('DD.MM.YYYY')}). Et nytt regnskapsår vil bli opprettet ved lagring`;
                         result.Messages.push(message);
-                    } else if (entry.FinancialDate && moment(entry.FinancialDate).isAfter(currentFinancialYear.ValidTo, 'day')
-                        || moment(entry.FinancialDate).isBefore(currentFinancialYear.ValidFrom, 'day')) {
+                    } else if (entry.FinancialDate && moment(entry.FinancialDate).year() > currentFinancialYear.Year
+                        || moment(entry.FinancialDate).year() < currentFinancialYear.Year) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Warning;
-                        message.Message = `Bilag ${entry.JournalEntryNo} har en dato som ikke er innenfor regnskapsåret ` +
+                        message.Message = `Bilag ${entry.JournalEntryNo || ''} har en dato som ikke er innenfor regnskapsåret ` +
                             `${currentFinancialYear.Year} (${moment(entry.FinancialDate).format('DD.MM.YYYY')})`;
                         result.Messages.push(message);
                     }
                 }
 
-                if (lastJournalEntryFinancialDate && entry.FinancialDate) {
+                if (lastJournalEntryFinancialDate && entry.FinancialDate && !entry.StatusCode ) {
                     // Find the financialyear for the lastJournalEntryFinancialDate.FinancialDate and log an
                     // error if they are not equal. Note that the year of the date might be different without
                     // causing an error, e.g. if the financialyear is defined from 01.07.XXXX to 30.06.XXXX+1
@@ -632,7 +642,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     if (financialYearLastEntry !== financialYearEntry) {
                         const message = new ValidationMessage();
                         message.Level = ValidationLevel.Error;
-                        message.Message = `Bilag ${lastJournalEntryNo} er fordelt over flere regnskapsår - dette er ikke lov.` +
+                        message.Message = `Bilag ${lastJournalEntryNo || ''} er fordelt over flere regnskapsår - dette er ikke lov.` +
                             ` Vennligst velg samme år, eller endre bilagsnr på linjene som har forskjellig år`;
                         result.Messages.push(message);
                     }
@@ -653,14 +663,17 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 lastJournalEntryFinancialDate = entry.FinancialDate;
             });
 
-            const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
-            if (diff !== 0) {
-                const message = new ValidationMessage();
-                message.Level = ValidationLevel.Error;
-                message.Message = `Bilag ${lastJournalEntryNo}
-                går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
-                result.Messages.push(message);
+            if (doValidateBalance) {
+                const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+                if (diff !== 0) {
+                    const message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = `Bilag ${lastJournalEntryNo || ''}
+                    går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
+                    result.Messages.push(message);
+                }
             }
+
             // FORKJOIN CHECKS
             const obs = [];
             const indexes = [];
@@ -722,13 +735,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
-    public getJournalEntryDataByJournalEntryID(journalEntryID: number): Observable<JournalEntryData[]> {
+    public getJournalEntryDataByJournalEntryID(journalEntryID: number, singleRowMode: boolean): Observable<JournalEntryData[]> {
         return Observable.forkJoin(
             this.journalEntryLineDraftService.GetAll(
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
             ['Account.TopLevelAccountGroup', 'VatType', 'Dimensions.Department', 'Dimensions.Project',
             'Dimensions.Dimension5', 'Dimensions.Dimension6', 'Dimensions.Dimension7', 'Dimensions.Dimension8',
-            'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode']),
+            'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods']),
 
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' `
                 + `and EntityID eq ${journalEntryID}&select=FileID`),
@@ -745,41 +758,51 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             const journalEntryDataObjects: Array<JournalEntryData> = [];
 
-            // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
-            // components, because this is the way the user wants to see the data
-            draftLines.forEach(line => {
-                let jed = journalEntryDataObjects.find(
-                   x => x.JournalEntryID === line.JournalEntryID
-                        && x.FinancialDate === line.FinancialDate
-                        && x.Amount === line.Amount * -1
-                        && x.AmountCurrency === line.AmountCurrency * -1
-                        && x.JournalEntryDraftIDs.length === 1
-                        && line.StatusCode === x.StatusCode
-                        && !(x.JournalEntryDataAccrualID && line.AccrualID));
-
-                if (!jed) {
-                    jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, jed);
+            if (singleRowMode) {
+                // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
+                // components, because this is the way the user wants to see the data
+                draftLines.forEach(line => {
+                    let jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, null, singleRowMode);
                     journalEntryDataObjects.push(jed);
-                } else {
-                    this.getJournalEntryDataFromJournalEntryLineDraft(line, jed);
-                }
-            });
+                });
+            } else {
+                // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
+                // components, because this is the way the user wants to see the data
+                draftLines.forEach(line => {
+                    let jed = journalEntryDataObjects.find(
+                    x => x.JournalEntryID === line.JournalEntryID
+                            && x.FinancialDate === line.FinancialDate
+                            && x.Amount === line.Amount * -1
+                            && x.AmountCurrency === line.AmountCurrency * -1
+                            && x.JournalEntryDraftIDs.length === 1
+                            && line.StatusCode === x.StatusCode
+                            && !(x.JournalEntryDataAccrualID && line.AccrualID));
 
-            // make the amounts absolute - we are setting debit/credit accounts
-            // based on positive/negative amounts, so the actual amount should be positive
-            journalEntryDataObjects.forEach(entry => {
-                if (entry.Amount < 0) {
-                    entry.Amount = Math.abs(entry.Amount);
-                }
-            });
+                    if (!jed) {
+                        jed = this.getJournalEntryDataFromJournalEntryLineDraft(line, jed, singleRowMode);
+                        journalEntryDataObjects.push(jed);
+                    } else {
+                        this.getJournalEntryDataFromJournalEntryLineDraft(line, jed, singleRowMode);
+                    }
+                });
 
-            // make the AmountCurrencys absolute - we are setting debit/credit accounts
-            // based on positive/negative AmountCurrencys, so the actual AmountCurrency should be positive
-            journalEntryDataObjects.forEach(entry => {
-                if (entry.AmountCurrency < 0) {
-                    entry.AmountCurrency = Math.abs(entry.AmountCurrency);
-                }
-            });
+                // make the amounts absolute - we are setting debit/credit accounts
+                // based on positive/negative amounts, so the actual amount should be positive.
+                // For singleRowMode, this is not true
+                journalEntryDataObjects.forEach(entry => {
+                    if (entry.Amount < 0) {
+                        entry.Amount = Math.abs(entry.Amount);
+                    }
+                });
+
+                // make the AmountCurrencys absolute - we are setting debit/credit accounts
+                // based on positive/negative AmountCurrencys, so the actual AmountCurrency should be positive
+                journalEntryDataObjects.forEach(entry => {
+                    if (entry.AmountCurrency < 0) {
+                        entry.AmountCurrency = Math.abs(entry.AmountCurrency);
+                    }
+                });
+            }
 
             // add fileids if any files are connected to the journalentries
             const fileIdList = [];
@@ -809,7 +832,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
     }
 
-    private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData): JournalEntryData {
+    private getJournalEntryDataFromJournalEntryLineDraft(line: JournalEntryLineDraft, jed: JournalEntryData, singleRowMode: boolean): JournalEntryData {
         if (!jed) {
             jed = new JournalEntryData();
             jed.FinancialDate = line.FinancialDate;
@@ -855,7 +878,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             jed.JournalEntryDataAccrual = line.Accrual;
         }
 
-        if (line.Amount > 0 || line.AmountCurrency > 0) {
+        if (line.Amount > 0 || line.AmountCurrency > 0 || singleRowMode) {
             jed.DebitAccountID = line.AccountID;
             jed.DebitAccount = line.AccountID ? line.Account : null;
             jed.DebitVatTypeID = line.VatTypeID;
@@ -883,12 +906,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : line.VatDeductionPercent;
         }
 
-        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0) {
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.Amount < 0 && !singleRowMode) {
             jed.Amount = jed.Amount * -1;
             jed.AmountCurrency = jed.AmountCurrency * -1;
         }
 
-        if (jed.CreditAccountID && jed.DebitAccountID && jed.AmountCurrency < 0) {
+        if (jed.CreditAccountID && jed.DebitAccountID && jed.AmountCurrency < 0 && !singleRowMode) {
             jed.Amount = jed.Amount * -1;
             jed.AmountCurrency = jed.AmountCurrency * -1;
         }

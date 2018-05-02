@@ -1,5 +1,6 @@
 import {Component, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
+import {URLSearchParams} from '@angular/http';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -12,10 +13,21 @@ import {
     CustomDimensionService,
     DimensionSettingsService,
     ProjectService,
-    DepartmentService
-} from '../../../services/commonServicesModule';
+    DepartmentService,
+    ErrorService,
+    CustomerInvoiceService,
+    CustomerQuoteService,
+    CustomerOrderService
+} from '../../../services/services';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, IUniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
+import {
+    UniTableConfig,
+    UniTableColumnType,
+    UniTableColumn,
+    IUniTableConfig,
+    UniTable,
+    ITableFilter
+} from '../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'uni-dimension-view',
@@ -33,9 +45,21 @@ export class UniDimensionView implements OnInit {
     public dimensionMetaData;
     public numberKey: string;
     private tableConfig: IUniTableConfig;
+    private TOFTableConfig: IUniTableConfig;
 
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private model$: BehaviorSubject<any> = new BehaviorSubject(null);
+
+    public tabs: string[] = ['Detaljer', 'Tilbud', 'Ordre', 'Faktura'];
+    public activeTabIndex: number = 0;
+
+    public numberStrings = ['QuoteNumber', 'OrderNumber', 'InvoiceNumber'];
+    public dateStrings = ['QuoteDate', 'OrderDate', 'InvoiceDate'];
+    public dateTitles = ['Tilbudsdato', 'Ordredato', 'Fakturadato'];
+    public linkResolverValues = ['quotes', 'orders', 'invoices'];
+    public services = [this.quoteService, this.orderService, this.invoiceService];
+
+    private lookupFunction: (urlParams: URLSearchParams) => any;
 
     public saveActions: IUniSaveAction[] = [
         {
@@ -62,7 +86,11 @@ export class UniDimensionView implements OnInit {
         private departmentService: DepartmentService,
         private router: Router,
         private route: ActivatedRoute,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private errorService: ErrorService,
+        private invoiceService: CustomerInvoiceService,
+        private quoteService: CustomerQuoteService,
+        private orderService: CustomerOrderService
     ) { }
 
     public ngOnInit () {
@@ -128,7 +156,125 @@ export class UniDimensionView implements OnInit {
     }
 
     public onRowSelected(item) {
-        this.model$.next(item.rowModel);
+        this.currentItem = item.rowModel;
+        this.model$.next(this.currentItem);
+        this.setUpTOFListTable(this.activeTabIndex);
+    }
+
+    public onTOFRowSelected(item) {
+        console.log(item);
+        // TODO: What todo when user clicks on tof?
+    }
+
+    public changeTab(index: number) {
+        this.activeTabIndex = index;
+        if (index > 0) {
+            this.setUpTOFListTable(index);
+        }
+    }
+
+    public setUpTOFListTable(index: number) {
+        if (!!this.currentItem && !!this.currentItem.ID) {
+            let service;
+
+            // Set default field for filter in unitable
+            let fieldString = 'Dimension' + this.currentDimension + 'ID';
+            fieldString = this.currentDimension === 1 ? 'ProjectID' : fieldString;
+            fieldString = this.currentDimension === 2 ? 'DepartmentID' : fieldString;
+            fieldString = this.currentDimension === 3 ? 'RegionID' : fieldString;
+            fieldString = this.currentDimension === 4 ? 'ResponsibilityID' : fieldString;
+
+            if (index === 1) {
+                service = this.quoteService;
+            } else if (index === 2) {
+                service = this.orderService;
+            } else {
+                service = this.invoiceService;
+            }
+
+            this.lookupFunction = (urlParams: URLSearchParams) => {
+                urlParams = urlParams || new URLSearchParams();
+                urlParams.set(
+                    'expand',
+                    'Customer,DefaultDimensions.Project,DefaultDimensions.Dimension' + this.currentDimension
+                );
+
+                if (urlParams.get('orderby') === null) {
+                    urlParams.set('orderby', this.numberStrings[index - 1] + ' desc');
+                }
+
+                    // Custom dimensions
+                if (!urlParams.get('filter') && this.currentDimension >= 5) {
+                    urlParams.set('filter', 'DefaultDimensions.Dimension' + this.currentDimension + 'ID eq ' + this.currentItem.ID);
+                    // Project
+                } else if (!urlParams.get('filter') && this.currentDimension === 1) {
+                    urlParams.set('filter', 'DefaultDimensions.ProjectID eq ' + this.currentItem.ID);
+                    // Department
+                } else if (!urlParams.get('filter') && this.currentDimension === 2) {
+                    urlParams.set('filter', 'DefaultDimensions.DepartmentID eq ' + this.currentItem.ID);
+                    // Region ??
+                } else if (!urlParams.get('filter') && this.currentDimension === 3) {
+                    urlParams.set('filter', 'DefaultDimensions.RegionID eq ' + this.currentItem.ID);
+                    // Responsibility ??
+                } else if (!urlParams.get('filter') && this.currentDimension === 4) {
+                    urlParams.set('filter', 'DefaultDimensions.ResponsibilityID eq ' + this.currentItem.ID);
+                }
+
+                return this.services[index - 1].GetAllByUrlSearchParams(urlParams)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+            };
+
+            const idCol = new UniTableColumn( this.numberStrings[index - 1], 'Nr')
+                .setWidth('8%')
+                .setLinkResolver(row => `/sales/${this.linkResolverValues[index - 1]}/${row.ID}`);
+
+            const customerNumberCol = new UniTableColumn('Customer.CustomerNumber', 'Kundenr', UniTableColumnType.Text)
+                .setWidth('10%')
+                .setLinkResolver(row => `/sales/customer/${row.Customer.ID}`);
+
+            const nameCol = new UniTableColumn('CustomerName', 'Kunde', UniTableColumnType.Text);
+
+            const dateCol = new UniTableColumn(
+                this.dateStrings[index - 1],
+                this.dateTitles[index - 1],
+                UniTableColumnType.LocalDate).setWidth('15%');
+
+            let secondDateCol = index === 3
+                ? new UniTableColumn('PaymentDueDate', 'Forfallsdato', UniTableColumnType.LocalDate).setWidth('15%')
+                : new UniTableColumn('DeliveryDate', 'Leveringsdato', UniTableColumnType.LocalDate).setWidth('15%');
+
+            secondDateCol = index === 1
+                ? new UniTableColumn('ValidUntilDate', 'Gyldig til', UniTableColumnType.LocalDate).setWidth('15%')
+                : secondDateCol;
+
+            const refCol = new UniTableColumn('OurReference', 'Vår referanse');
+
+            const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setTemplate(line => service.getStatusText(line.StatusCode))
+                .setWidth('15%');
+
+            const dimCol = new UniTableColumn(
+                'DefaultDimensions.' + fieldString,
+                this.getCurrentDimensionLabel(),
+                UniTableColumnType.Text
+            ).setVisible(false);
+
+            const totalCol = new UniTableColumn('TaxInclusiveAmount', 'Sum', UniTableColumnType.Money).setWidth('10%');
+
+            const filter: ITableFilter = {
+                field: 'DefaultDimensions.' + fieldString,
+                operator: 'eq',
+                value: this.currentItem.ID,
+                group: 0,
+                searchValue: '',
+                selectConfig: null
+            }
+
+            this.TOFTableConfig = new UniTableConfig('dimension.tof.list', false)
+                .setColumns([idCol, customerNumberCol, nameCol, dateCol, secondDateCol, refCol, statusCol, dimCol, totalCol])
+                .setFilters([filter])
+                .setSearchable(true);
+        }
     }
 
     // Called when dimension type is changed in the dropdown
@@ -139,6 +285,7 @@ export class UniDimensionView implements OnInit {
             this.dimensionList = dims;
             this.currentItem = dims.length > 0 ? dims[0] : this.getNewDimension();
             this.model$.next(this.currentItem);
+            this.activeTabIndex = 0;
             this.setUpListTable(this.numberKey);
             this.cdr.markForCheck();
             this.updateToolbarConfig();
@@ -148,6 +295,7 @@ export class UniDimensionView implements OnInit {
     public add() {
         this.currentItem = this.getNewDimension();
         this.model$.next(this.currentItem);
+        this.activeTabIndex = 0;
     }
 
     public save(done) {
@@ -167,7 +315,11 @@ export class UniDimensionView implements OnInit {
     }
 
     public updateToolbarConfig() {
-        this.toolbarconfig.subheads[0].title = this.dimensionMetaData.find(item => item.Dimension === this.currentDimension).Label;
+        this.toolbarconfig.subheads[0].title = this.getCurrentDimensionLabel();
+    }
+
+    public getCurrentDimensionLabel() {
+        return this.dimensionMetaData.find(item => item.Dimension === this.currentDimension).Label || '';
     }
 
     public getDefaultDims() {

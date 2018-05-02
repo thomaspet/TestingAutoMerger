@@ -12,6 +12,7 @@ import {
 import {SettingsService} from '../settings-service';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService} from '../../../../framework/uni-modal';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'altinn-settings',
@@ -26,6 +27,7 @@ export class AltinnSettings implements OnInit {
 
     public loginErr: string = '';
     public isDirty: boolean = false;
+    public onlyOnce: boolean = true;
 
     constructor(
         private settingsService: SettingsService,
@@ -33,7 +35,8 @@ export class AltinnSettings implements OnInit {
         private integrate: IntegrationServerCaller,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private toast: ToastService
     ) {}
 
     public ngOnInit() {
@@ -61,44 +64,26 @@ export class AltinnSettings implements OnInit {
     }
 
     public check() {
-        this.loginErr = '';
+        if (this.isDirty) {
+            this.errorService.addErrorToast('Innstillingene må lagres først');
+        }
+        this.busy = true;
+        this._altinnService.checkLogin()
+        .finally(()  => {
+            this.busy = false;
+        })
+        .subscribe((res) => {
+            if (res === true)  {
+                this.loginErr = 'Testen kommuniserte med AltInn ';
+                this.toast.addToast('Sjekk', ToastType.good, ToastTime.medium, this.loginErr);
+            } else {
+                this.loginErr = 'Test av kommunikasjon med AltInn feilet';
+                 this.toast.addToast('Sjekk', ToastType.bad, ToastTime.medium, this.loginErr);
+            }
+            this.onlyOnce = false;
+            this.busy = false;
+         }, err => { this.errorService.handle(err); this.loginErr = 'Test av kommunikasjon feilet'; });
 
-        this.companySettingsService.getCompanySettings().subscribe(company => {
-            this.altinn$
-                .asObservable()
-                .do(() => this.busy = true)
-                .take(1)
-                .switchMap(altinn => {
-                    if (altinn.SystemPw) {
-                        return Observable.of(altinn);
-                    } else {
-                        return this._altinnService.getPassword().map(password => {
-                            altinn.SystemPw = password;
-                            return altinn;
-                        });
-                    }
-                })
-                .switchMap(altinn => {
-                    if (!altinn.SystemPw) {
-                        return Observable.of('Missing password');
-                    }
-
-                    return this.integrate.checkSystemLogin(
-                        company.OrganizationNumber,
-                        altinn.SystemID,
-                        altinn.SystemPw,
-                        altinn.Language
-                    ).map(result => result ? 'Login ok' : 'Failed to log in with given credentials');
-                })
-                .finally(() => this.busy = false)
-                .subscribe(
-                    response => this.loginErr = response,
-                    err => {
-                        this.errorService.handle(err);
-                        this.loginErr = err;
-                    }
-                );
-            });
     }
 
     private getData() {
@@ -137,8 +122,9 @@ export class AltinnSettings implements OnInit {
                 this.isDirty = false;
                 this.altinn$.next(response);
                 this.fields$.next(this.prepareLayout(this.fields$.getValue(), response));
-                this.check();
-                done('altinninnstillinger lagret: ');
+                done('Innstillinger lagret ');
+                this.loginErr = '';
+                this.onlyOnce = true;
             }, error => {
                 this.errorService.handle(error);
                 done('feil ved lagring: ');

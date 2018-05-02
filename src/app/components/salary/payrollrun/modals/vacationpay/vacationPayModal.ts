@@ -17,6 +17,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
+import {UniMath} from '@uni-framework/core/uniMath';
 
 interface IVacationPayHeader {
     VacationpayYear?: number;
@@ -135,7 +136,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 header: 'Opprett feriepengeposter',
                 message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
                 + this.options.data.ID
-                + ` - Totalsum kr ${this.totalPayout}`,
+                + ` - Totalsum kr ${UniMath.useFirstTwoDecimals(this.totalPayout)}`,
                 buttonLabels: {
                     accept: 'Overfør',
                     cancel: 'Avbryt'
@@ -292,7 +293,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private setUpRates(year: number) {
         this.companyVacationrateService
-            .getRatesForYear(year)
+            .getCurrentRates(year)
             .filter(res => !!res)
             .subscribe(res => {
                 this.companysalary['_Rate'] = res.Rate;
@@ -400,14 +401,14 @@ export class VacationPayModal implements OnInit, IUniModal {
                 }
 
                 if (row['_IncludeSixthWeek'] === 'Ja') {
-                    return '' + this.useFirstTwoDecimals(row.VacationPay60);
+                    return '' + UniMath.useFirstTwoDecimals(row.VacationPay60);
                 } else {
-                    return '' + this.useFirstTwoDecimals(row.VacationPay);
+                    return '' + UniMath.useFirstTwoDecimals(row.VacationPay);
                 }
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
             .setWidth('7rem')
-            .setTemplate((row: VacationPayLine) => '' + this.useFirstTwoDecimals(row.PaidVacationPay));
+            .setTemplate((row: VacationPayLine) => '' + UniMath.useFirstTwoDecimals(row.PaidVacationPay));
         const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
 
@@ -440,12 +441,6 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.vacationpayBasis = this.vacationpayBasis.map(row => this.recalcVacationPay(row, model));
     }
 
-    private useFirstTwoDecimals(number: number) {
-        const integer = Math.trunc(number);
-        const decimal = Math.trunc((number - integer) * 100);
-        return integer + (decimal / 100);
-    }
-
     private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
         const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
@@ -464,7 +459,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             row['_VacationPay'] = row['VacationPay'] = vacBase * row['_Rate'] / 100;
         }
         const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
-        row['Withdrawal'] = this.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
+        row['Withdrawal'] = UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
         return row;
     }
 

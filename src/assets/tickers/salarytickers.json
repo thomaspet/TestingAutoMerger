@@ -904,6 +904,11 @@
                 "Field": "Wagetype.Description"
             },
             {
+                "Header": "Trekk for ferie",
+                "Field": "HolidayPayDeduction",
+                "Type": "boolean"
+            },
+            {
                 "Header": "Aga",
                 "Field": "Wagetype.Base_EmploymentTax",
                 "Type": "boolean"

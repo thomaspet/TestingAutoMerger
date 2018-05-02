@@ -337,11 +337,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 moduleID: UniModules.Jobs
             },
             {
-                componentName: 'Språk',
-                componentUrl: '/admin/languages',
-                moduleID: UniModules.Translations
-            },
-            {
                 componentName: 'Modeller',
                 componentUrl: '/admin/models',
                 moduleID: UniModules.Models

@@ -12,6 +12,7 @@ import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
 import {UniDimensionSettings} from './dimension/dimension';
+import {IntegrationSettings} from './integrationSettings/integrationSettings';
 
 export const settingsRoutes: Routes = [{
     path: '',
@@ -34,7 +35,7 @@ export const settingsRoutes: Routes = [{
         },
         {
             path: 'webhooks',
-            component: WebHookSettings,
+            component: IntegrationSettings, // WebHookSettings,
             canDeactivate: [CanDeactivateGuard]
         },
         {

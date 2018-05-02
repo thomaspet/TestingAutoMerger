@@ -377,7 +377,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(currentInvoiceID, 'create-credit-draft-invoice');
     }
 
-    public getStatusText(statusCode: number, invoiceType: number): string {
+    public getStatusText(statusCode: number, invoiceType: number = 0): string {
         let dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
         let statusType = dict.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
