@@ -194,11 +194,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public postTransactions(ID: number, date: LocalDate = null, numberseriesID: string = null, hasGrouping: boolean = true) {
-        return super.ActionWithBody(
+        return super.PutAction(
             ID,
             'book',
-            undefined,
-            undefined,
             `accountingDate=${date}&numberseriesID=${numberseriesID}&dimensionGrouping=${hasGrouping}`);
     }
 
