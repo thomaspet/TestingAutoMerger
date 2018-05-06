@@ -758,9 +758,20 @@ export class BillView implements OnInit {
         }
     }
 
+    private hasChangedFiles(files: Array<any>) {
+        if ((!this.files) && (!files)) { return false; }
+        if ((!this.files) || (!files)) { return true; }
+        if (this.files.length !== files.length) { return true; }
+        for (let i = 0; i < files.length; i++) {
+            if (files[i].id !== this.files[i].id) { return true; }
+        }
+        return false;
+    }
+
 
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
+        if (!this.hasChangedFiles(files)) { return; }
         this.files = files;
         if (files && files.length) {
             if (this.files.length !== this.numberOfDocuments) {
