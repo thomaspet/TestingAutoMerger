@@ -537,22 +537,23 @@ export class BillView implements OnInit {
                 // user has not accepted license/agreement for ocr
                 this.uniFilesService.getOcrStatistics()
                     .subscribe(res => {
-                        let countUsed = res.CountOcrDataUsed;
+                        const countUsed = res.CountOcrDataUsed;
 
                         if (countUsed <= 10) {
                             // allow running OCR the first 10 times for free
                             this.runOcrOrEHF(files);
                         } else {
                             this.companySettingsService.PostAction(1, 'ocr-trial-used')
-                                .subscribe(res => {
+                                .subscribe(result => {
                                     // this is set through the ocr-trial-used, but set it in the local object as well to
                                     // avoid displaying the same message multiple times
                                     this.companySettings.UseOcrInterpretation = false;
 
                                     const modal = this.modalService.open(UniConfirmModalV2, {
                                         header: 'OCR tolkning er ikke aktivert',
-                                        message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning) 10 ganger gratis. ' +
-                                            'For å bruke tjenesten videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
+                                        message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning)'
+                                            + ' 10 ganger gratis. '
+                                            + 'For å bruke tjenesten videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
                                         buttonLabels: {
                                             accept: 'Ok',
                                             cancel: 'Avbryt'
@@ -608,6 +609,14 @@ export class BillView implements OnInit {
             });
     }
 
+    private updateInvoice(invoice: SupplierInvoice, removeSupplier: boolean = false) {
+        if (removeSupplier) {
+            invoice.Supplier = undefined;
+            invoice.BankAccountID = invoice.BankAccountID || undefined;
+        }
+        this.current.next(invoice);
+    }
+
     private handleEHFResult(invoice: SupplierInvoice) {
         const handler = invoice.BankAccount && !invoice.BankAccount.AccountNumber && invoice.BankAccount.IBAN
             ? this.bankService.validateIBANUpsertBank(invoice.BankAccount.IBAN)
@@ -621,7 +630,8 @@ export class BillView implements OnInit {
                 invoice.Supplier.Info.BankAccounts.forEach(b => {
                     if (b.IBAN === bankaccount.IBAN) {
                         b = invoice.BankAccount;
-                        if (invoice.Supplier.Info.DefaultBankAccount && invoice.Supplier.Info.DefaultBankAccount.IBAN === bankaccount.IBAN) {
+                        if (invoice.Supplier.Info.DefaultBankAccount
+                            && invoice.Supplier.Info.DefaultBankAccount.IBAN === bankaccount.IBAN) {
                             invoice.Supplier.Info.DefaultBankAccount = b;
                         }
                     }
@@ -635,8 +645,7 @@ export class BillView implements OnInit {
                 const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
                 const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
                     + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
-                this.toast.clear();
-
+                this.toast.clear();                
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: title,
                     message: msg,
@@ -648,6 +657,7 @@ export class BillView implements OnInit {
 
                 modal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
+
                         if (invoice.Supplier.Info && invoice.Supplier.Info.BankAccounts && invoice.Supplier.Info.DefaultBankAccount)
                         {
                             invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b =>
@@ -657,11 +667,14 @@ export class BillView implements OnInit {
                         }
 
                         this.supplierService.Post(invoice.Supplier).subscribe(
-                            res => this.fetchNewSupplier(res.ID, true),
-                            err => this.errorService.handle(err)
+                            res => { this.updateInvoice(invoice); this.fetchNewSupplier(res.ID, true); },
+                            err => { this.errorService.handle(err); this.updateInvoice(invoice, true); }
                         );
+                    } else {
+                        this.updateInvoice(invoice, true);
                     }
                 });
+
             // Existing supplier and new bankaccount?
         } else if (invoice.SupplierID && !invoice.BankAccountID && invoice.BankAccount) {
                 const bbanoriban = invoice.BankAccount.AccountNumber
@@ -744,6 +757,7 @@ export class BillView implements OnInit {
             this.numberOfDocuments--;
         }
     }
+
 
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
@@ -2503,7 +2517,7 @@ export class BillView implements OnInit {
 
                 // Add draft lines
                 lines.forEach(line => {
-                    let draft = new JournalEntryLineDraft();
+                    const draft = new JournalEntryLineDraft();
                     draft["_createguid"] = this.journalEntryService.getNewGuid();
 
                     // Debit
@@ -2555,11 +2569,11 @@ export class BillView implements OnInit {
 
 
             // Add draftlines to be deleted
-            let deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);
+            const deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);
             deleted.map(line => line.Deleted = true);
             draftlines = draftlines.concat(deleted);
 
-            let autogenerated = current.JournalEntry.DraftLines.filter(x => x['_isautogeneratedcreditline']);
+            const autogenerated = current.JournalEntry.DraftLines.filter(x => x['_isautogeneratedcreditline']);
             draftlines = draftlines.concat(autogenerated);
 
             current.JournalEntry.DraftLines = draftlines;
@@ -3026,14 +3040,14 @@ export class BillView implements OnInit {
     }
 
     private lookupHistory() {
-        let observable = this.lookup.statQuery('supplierinvoice', 'select=lines.accountid as AccountID'
+        const observable = this.lookup.statQuery('supplierinvoice', 'select=lines.accountid as AccountID'
             + ',account.accountnumber as AccountNumber,max(invoicedate) as LastDate'
             + ',account.AccountName as AccountName,count(id) as Counter'
             + `&filter=supplierid eq ${this.currentSupplierID} and accountgroup.groupnumber ge 300`
             + (this.currentID ? ` and id ne ${this.currentID}` : '')
             + '&join=&expand=journalentry,journalentry.lines,journalentry.lines.account'
             + ',journalentry.lines.account.accountgroup&top=10&orderby=count(id) desc');
-        observable.subscribe((items : Array<IJournalHistoryItem>) => {
+        observable.subscribe((items: Array<IJournalHistoryItem>) => {
             if (items) {
                 this.hasSuggestions = items.length > 0;
                 items.forEach( item => item.Label = `${item.AccountNumber} - ${item.AccountName}` );
