@@ -8,7 +8,7 @@ import {
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
     VacationpayLineService, YearService, ErrorService, CompanySalaryService,
-    CompanyVacationRateService, NumberFormat
+    CompanyVacationRateService, NumberFormat, VacationRateEmployeeService
 } from '../../../../../../app/services/services';
 import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySettingsModal';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
@@ -62,17 +62,18 @@ export class VacationPayModal implements OnInit, IUniModal {
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;
     constructor(
-        private _salarytransService: SalaryTransactionService,
-        private _basicamountService: BasicAmountService,
-        private _payrollrunService: PayrollrunService,
-        private _vacationpaylineService: VacationpayLineService,
-        private _toastService: ToastService,
+        private salarytransService: SalaryTransactionService,
+        private basicamountService: BasicAmountService,
+        private payrollrunService: PayrollrunService,
+        private vacationpaylineService: VacationpayLineService,
+        private toastService: ToastService,
         private errorService: ErrorService,
         private yearService: YearService,
         private companysalaryService: CompanySalaryService,
         private companyVacationrateService: CompanyVacationRateService,
         private modalService: UniModalService,
-        private numberFormat: NumberFormat
+        private numberFormat: NumberFormat,
+        private vacationRateEmployeeService: VacationRateEmployeeService
     ) {}
 
     public ngOnInit() {
@@ -83,7 +84,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         Observable
             .forkJoin(
             this.companysalaryService.getCompanySalary(),
-            this._basicamountService.getBasicAmounts(),
+            this.basicamountService.getBasicAmounts(),
             this.yearService.getActiveYear())
             .finally(() => this.busy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
@@ -95,7 +96,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 });
                 this.currentYear = financial;
                 this.companysalary = comp;
-                this.companysalary['_wagedeductionText'] = this._vacationpaylineService
+                this.companysalary['_wagedeductionText'] = this.vacationpaylineService
                     .WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;
             })
             .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
@@ -112,9 +113,8 @@ export class VacationPayModal implements OnInit, IUniModal {
         const saveObservables: Observable<any>[] = [];
         this.vacationpayBasis.forEach(vacationpayLine => {
             vacationpayLine.ID > 0 ?
-                saveObservables.push(this._vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
-                saveObservables.push(this._vacationpaylineService.Post(vacationpayLine));
-
+                saveObservables.push(this.vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
+                saveObservables.push(this.vacationpaylineService.Post(vacationpayLine));
         });
 
         Observable.forkJoin(saveObservables)
@@ -124,7 +124,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 this.createTransesIsActive = false;
                 this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
             })
-            .do(() => this._toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4))
+            .do(() => this.toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
             .subscribe(model => this.getVacationpayData(model));
@@ -146,7 +146,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             .filter(response => response === ConfirmActions.ACCEPT)
             .switchMap(response => {
                 this.busy = true;
-                return this._vacationpaylineService
+                return this.vacationpaylineService
                     .createVacationPay(
                     this.vacationBaseYear,
                     this.options.data.ID,
@@ -196,7 +196,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     public rowChanged(event: IRowChangeEvent) {
-        if (event.field === 'ManualVacationPayBase') {
+        if (event.field === 'ManualVacationPayBase' || event.field === '_Rate') {
             this.saveIsActive = true;
         }
         this.updatetotalPay();
@@ -216,12 +216,16 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
         this.basicamountBusy = true;
-        this._vacationpaylineService
+        this.vacationpaylineService
             .getVacationpayBasis(this.vacationBaseYear, this.options.data.ID)
             .finally(() => this.basicamountBusy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((vpBasis) => {
                 if (vpBasis) {
+                    const rateCol = this.tableConfig.columns.find(x => x.header.indexOf('Sats') > -1);
+                    if (!!rateCol) {
+                        rateCol.header = `Sats (${this.vacationBaseYear})`;
+                    }
                     this.vacationpayBasis = vpBasis.map(x => {
                         if (this.empOver60(x) && vacationHeaderModel.SixthWeek) {
                             x['_IncludeSixthWeek'] = 'Ja';
@@ -375,13 +379,12 @@ export class VacationPayModal implements OnInit, IUniModal {
             'SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
         const manuellGrunnlagCol = new UniTableColumn(
             'ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
-        const rateCol = new UniTableColumn('_Rate', 'Sats', UniTableColumnType.Money, false)
-            .setWidth('4rem')
+        const rateCol = new UniTableColumn('_Rate', `Sats (${this.vacationBaseYear})`, UniTableColumnType.Money, true)
+            .setWidth('5rem')
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
                     return;
                 }
-
                 if (row['_IncludeSixthWeek'] === 'Ja') {
                     return '' + row.Rate60;
                 } else {
@@ -432,6 +435,10 @@ export class VacationPayModal implements OnInit, IUniModal {
                 if (event.field === 'Withdrawal') {
                     row['_rowSelected'] = true;
                 }
+                if (event.field === '_Rate') {
+                    row['_rateChanged'] = true;
+                    this.recalcVacationPay(row, this.vacationHeaderModel$.getValue(), true);
+                }
 
                 return row;
             });
@@ -441,12 +448,12 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.vacationpayBasis = this.vacationpayBasis.map(row => this.recalcVacationPay(row, model));
     }
 
-    private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
+    private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader, setmanually: boolean = false) {
         const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
+        this.updateAndSetRate(row, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
-            row['_Rate'] = row['Rate60'];
             if (vacBase > limitBasicAmount) {
                 row['_VacationPay'] = row['VacationPay60'] = vacBase * row['Rate'] / 100
                 + limitBasicAmount * (row.Rate60 - row.Rate) / 100;
@@ -455,11 +462,31 @@ export class VacationPayModal implements OnInit, IUniModal {
             }
         } else {
             row['_IncludeSixthWeek'] = 'Nei';
-            row['_Rate'] = row['Rate'];
             row['_VacationPay'] = row['VacationPay'] = vacBase * row['_Rate'] / 100;
         }
         const widthdrawal = (row['_VacationPay'] - row['PaidVacationPay']);
         row['Withdrawal'] = UniMath.useFirstTwoDecimals(widthdrawal * model.PercentPayout / 100);
+        return row;
+    }
+
+    private updateAndSetRate(row: VacationPayLine, setManually: boolean) {
+        const isOver60: boolean = this.empOver60(row);
+        if (setManually) { // '_Rate'-column changed
+            if (isOver60) {
+                row['Rate'] = row['_Rate'];
+                row['_Rate'] = row['_Rate'] + this.companysalary['_Rate60'];
+                row['Rate60'] = row['_Rate'];
+            } else {
+                row['Rate'] = row['_Rate'];
+                row['Rate60'] = row['_Rate'] + this.companysalary['_Rate60'];
+            }
+        } else {
+            if (isOver60) {
+                row['_Rate'] = row['Rate60'];
+            } else {
+                row['_Rate'] = row['Rate'];
+            }
+        }
         return row;
     }
 

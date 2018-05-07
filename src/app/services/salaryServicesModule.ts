@@ -20,6 +20,7 @@ import {SalaryBalanceLineService} from './salary/salarybalance/salaryBalanceLine
 import {SupplementService} from './salary/salarytransaction/salaryTransactionSupplementService';
 import {SalaryTransactionSuggestedValuesService} from './salary/salaryTransaction/salaryTransactionSuggestedValuesService';
 import {AnnualStatementService} from './salary/annualStatement/annualStatementService';
+import {VacationRateEmployeeService} from './salary/vacationrate/vacationRateEmployeeService';
 
 export * from './salary/AMelding/AMeldingService';
 export * from './salary/basicamount/basicAmountService';
@@ -42,6 +43,7 @@ export * from './salary/salarybalance/salaryBalanceLineService';
 export * from './salary/salarytransaction/salaryTransactionSupplementService';
 export * from './salary/salaryTransaction/salaryTransactionSuggestedValuesService';
 export * from './salary/annualStatement/annualStatementService';
+export * from './salary/vacationrate/vacationRateEmployeeService';
 
 @NgModule({})
 export class SalaryServicesModule {
@@ -69,7 +71,8 @@ export class SalaryServicesModule {
                 SalaryBalanceLineService,
                 SupplementService,
                 SalaryTransactionSuggestedValuesService,
-                AnnualStatementService
+                AnnualStatementService,
+                VacationRateEmployeeService
             ]
         };
     }
