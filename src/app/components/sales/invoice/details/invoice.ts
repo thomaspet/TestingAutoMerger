@@ -50,7 +50,8 @@ import {
     ElsaProductService,
     DimensionSettingsService,
     CustomDimensionService,
-    DepartmentService
+    DepartmentService,
+    PaymentInfoTypeService,
 } from '../../../../services/services';
 
 import {
@@ -148,6 +149,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private deletables: SellerLink[] = [];
     private currentInvoiceDate: LocalDate;
     private dimensionTypes: any[];
+    private paymentInfoTypes: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -228,7 +230,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private elsaProductService: ElsaProductService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
-        private departmentService: DepartmentService
+        private departmentService: DepartmentService,
+        private paymentTypeService: PaymentInfoTypeService,
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -283,7 +286,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.paymentTypeService.GetAll(null),
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     this.currentUser = res[1];
@@ -306,6 +310,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.vatTypes = res[11];
                     this.departments = res[12];
                     this.setUpDims(res[13]);
+                    this.paymentInfoTypes = res[14];
 
                     invoice.InvoiceDate = new LocalDate(Date());
 
@@ -350,7 +355,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.paymentTypeService.GetAll(null),
                 ).subscribe((res) => {
                     const invoice = res[0];
                     this.companySettings = res[1];
@@ -362,6 +368,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.vatTypes = res[7];
                     this.departments = res[8];
                     this.setUpDims(res[9]);
+                    this.paymentInfoTypes = res[10];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

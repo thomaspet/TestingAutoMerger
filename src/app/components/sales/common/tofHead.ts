@@ -35,6 +35,7 @@ export class TofHead implements OnChanges {
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
     @Input() public dimensionTypes: any[];
+    @Input() public paymentInfoTypes: any[];
     @Input() public currentUser: User;
 
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();

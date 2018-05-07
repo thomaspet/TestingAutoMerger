@@ -8,5 +8,5 @@
     (focus)="focusHandler()"
     tabindex="-1"
 />
-<label (click)="checkIt()" tabindex="-1">{{field?.Label}}</label>
+<label (click)="checkIt()" [ngClass]="field?.Classes" tabindex="-1">{{field?.Label}}</label>
 <ng-content></ng-content>

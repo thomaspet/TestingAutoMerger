@@ -595,7 +595,9 @@ export class AgGridWrapper {
     }
 
     public finishEdit(): Promise<any> {
-        return this.editor.emitAndClose();
+        return this.editor
+            ? this.editor.emitAndClose()
+            : Promise.resolve();
     }
 
     public getCurrentRow() {

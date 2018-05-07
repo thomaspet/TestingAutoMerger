@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Address, LocalDate, Terms, StatusCodeCustomerInvoice} from '../../../unientities';
+import {Address, LocalDate, Terms, StatusCodeCustomerInvoice, PaymentInfoType} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniModalService, UniAddressModal} from '../../../../framework/uni-modal';
@@ -24,6 +24,7 @@ export class TofDeliveryForm {
     @Input() public entity: any;
     @Input() public paymentTerms: Terms[];
     @Input() public deliveryTerms: Terms[];
+    @Input() public paymentInfoTypes: PaymentInfoType[];
 
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
@@ -152,7 +153,7 @@ export class TofDeliveryForm {
             }
         };
 
-        const fields: UniFieldLayout[] = [
+        let fields: UniFieldLayout[] = [
             <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
@@ -243,6 +244,41 @@ export class TofDeliveryForm {
         if (this.entityType !== 'CustomerInvoice') {
             fields.forEach(field => {
                 field.ReadOnly = this.readonly;
+            });
+        }
+
+        // Add KID to the form when entity is Order or Invoice!
+        if (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice') {
+            fields.splice(3, 0, <any> {
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: 'PaymentInfoTypeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'KID',
+                Section: 0,
+                Options: {
+                    source: this.paymentInfoTypes.filter((item) => item.StatusCode === 42400),
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item.Name;
+                    },
+                    debounceTime: 200,
+                    addEmptyValue: true
+                },
+                ReadOnly: this.readonly || this.entity.StatusCode === 41004,
+                Hidden: this.entity.StatusCode && this.entity.StatusCode > 42001
+            },
+            <any> {
+                FieldSet: 1,
+                FieldSetColumn: 1,
+                EntityType: this.entityType,
+                Property: 'PaymentID',
+                FieldType: FieldType.TEXT,
+                Label: 'KID',
+                Section: 0,
+                ReadOnly: true,
+                Hidden: this.entity.StatusCode < 42002 || this.entity.StatusCode === null
             });
         }
 

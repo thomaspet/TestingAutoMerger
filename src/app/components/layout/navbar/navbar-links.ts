@@ -121,7 +121,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 componentName: 'Valuta',
                 componentUrl: '/currency/exchange',
                 moduleID: UniModules.CurrencyExchange
-            }
+            },
+            {
+                componentName: 'KID-innstillinger',
+                componentUrl: '/sales/kidsettings',
+                moduleID: UniModules.KIDSettings,
+            },
         ]
     },
     {
@@ -173,7 +178,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 componentName: 'Kontoplan',
                 componentUrl: '/accounting/accountsettings',
-                moduleID: UniModules.Accountsettings},
+                moduleID: UniModules.Accountsettings
+            },
             {
                 componentName: 'MVA-innstillinger',
                 componentUrl: '/accounting/vatsettings',

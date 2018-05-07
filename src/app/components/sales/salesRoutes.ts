@@ -28,6 +28,8 @@ import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 import {ProductGroups, GroupDetails} from './productgroup/productgroups';
 import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
 
+import {KIDSettings} from './kidSettings/kidSettings';
+
 export const salesRoutes: Routes = [
     {
         path: '',
@@ -112,5 +114,10 @@ export const salesRoutes: Routes = [
                 component: SellerSalesList
             }
         ]
-    }
+    },
+    {
+        path: 'kidsettings',
+        component: KIDSettings,
+        canDeactivate: [CanDeactivateGuard],
+    },
 ];

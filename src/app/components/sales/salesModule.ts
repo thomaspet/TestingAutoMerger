@@ -54,6 +54,7 @@ import {SellerSalesList} from './sellers/sellerSalesList';
 import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 import {UniDimensionTOFView} from './common/dimensionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
+import {KIDSettings} from './kidSettings/kidSettings';
 
 @NgModule({
     imports: [
@@ -120,7 +121,9 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
         SellerLinks,
         SellerDetails,
         SellerSalesList,
-        SellerDetailsComponent
+        SellerDetailsComponent,
+
+        KIDSettings,
     ],
     entryComponents: [
         UniOrderToInvoiceModal,
@@ -158,6 +161,7 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
         InvoiceReminders,
         ProductGroups,
         GroupDetails,
+        KIDSettings,
 
         ProductDetails,
         ProductList,

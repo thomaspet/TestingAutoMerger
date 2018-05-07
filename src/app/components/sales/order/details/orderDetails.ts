@@ -50,7 +50,8 @@ import {
     SellerLinkService,
     VatTypeService,
     DimensionSettingsService,
-    CustomDimensionService
+    CustomDimensionService,
+    PaymentInfoTypeService,
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -122,6 +123,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private deletables: SellerLink[] = [];
     private currentOrderDate: LocalDate;
     private dimensionTypes: any[];
+    private paymentInfoTypes: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -209,7 +211,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private paymentInfoTypeService: PaymentInfoTypeService,
    ) {}
 
     public ngOnInit() {
@@ -253,7 +256,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.paymentInfoTypeService.GetAll(null),
                 ).subscribe(res => {
                     const order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -265,6 +269,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.vatTypes = res[7];
                     this.departments = res[8];
                     this.setUpDims(res[9]);
+                    this.paymentInfoTypes = res[10];
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -309,7 +314,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.paymentInfoTypeService.GetAll(null),
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
@@ -341,6 +347,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.vatTypes = res[11];
                         this.departments = res[12];
                         this.setUpDims(res[13]);
+                        this.paymentInfoTypes = res[14];
 
                         order.OrderDate = new LocalDate(Date());
 
