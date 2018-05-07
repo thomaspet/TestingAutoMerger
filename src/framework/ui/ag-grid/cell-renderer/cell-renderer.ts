@@ -12,31 +12,49 @@ export class CellRenderer {
 
     static getRowMenu(
         contextMenuClick: (event: MouseEvent, row) => void,
-        deleteButtonClick: (row) => void
+        contextMenuDisabled: (row) => boolean,
+        deleteButtonClick: (row) => void,
+        deleteButtonDisabled: (row) => boolean
     ) {
         return function(params: ICellRendererParams) {
             const container = document.createElement('span');
             container.classList.add('row-menu-container');
 
+
+
             if (deleteButtonClick) {
+                const disabled = deleteButtonDisabled && deleteButtonDisabled(params.data);
                 const deleteButton = document.createElement('i');
                 deleteButton.classList.add('material-icons');
+                if (disabled) {
+                    deleteButton.classList.add('disabled');
+                }
+
                 deleteButton.textContent = 'delete';
                 deleteButton.onclick = (event: MouseEvent) => {
                     event.stopPropagation();
-                    deleteButtonClick(params.data);
+                    if (!disabled) {
+                        deleteButtonClick(params.data);
+                    }
                 };
 
                 container.appendChild(deleteButton);
             }
 
             if (contextMenuClick) {
+                const disabled = contextMenuDisabled && contextMenuDisabled(params.data);
                 const contextMenu = document.createElement('i');
                 contextMenu.classList.add('material-icons');
+                if (disabled) {
+                    contextMenu.classList.add('disabled');
+                }
+
                 contextMenu.textContent = 'more_horiz';
                 contextMenu.onclick = (event: MouseEvent) => {
                     event.stopPropagation();
-                    contextMenuClick(event, params.data);
+                    if (!disabled) {
+                        contextMenuClick(event, params.data);
+                    }
                 };
 
                 container.appendChild(contextMenu);

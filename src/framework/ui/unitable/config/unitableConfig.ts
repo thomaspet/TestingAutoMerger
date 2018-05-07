@@ -47,6 +47,7 @@ export interface IUniTableConfig {
         disableOnReadonlyRows: boolean
     };
     deleteButton: boolean | IDeleteButton;
+    disableDeleteOnReadonly?: boolean;
     filters?: ITableFilter[];
     expressionFilterValues?: IExpressionFilterValue[];
     isRowReadOnly?: (rowModel) => boolean;
@@ -87,6 +88,7 @@ export class UniTableConfig implements IUniTableConfig {
     public advancedColumnMenu: boolean;
     public autoScrollIfNewCellCloseToBottom: boolean;
     public deleteButton: boolean | IDeleteButton;
+    public disableDeleteOnReadonly: boolean;
     public searchListVisible: boolean;
     public conditionalRowCls: (rowModel: any) => string;
     public contextMenu: {
@@ -244,8 +246,9 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setDeleteButton(deleteButton: boolean | IDeleteButton) {
+    public setDeleteButton(deleteButton: boolean | IDeleteButton, disableOnReadonly?: boolean) {
         this.deleteButton = deleteButton;
+        this.disableDeleteOnReadonly = disableOnReadonly;
         return this;
     }
 

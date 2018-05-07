@@ -536,18 +536,30 @@ export class AgGridWrapper {
                 || (this.config.contextMenu && this.config.contextMenu.items.length)
             ) {
                 let contextMenuHandler, deleteButtonHandler;
+                let contextMenuDisabled;
+                let deleteButtonDisabled;
+
+
                 if (this.config.contextMenu && this.config.contextMenu.items && this.config.contextMenu.items.length) {
                     contextMenuHandler = this.onContextMenuClick.bind(this);
+                    if (this.config.contextMenu.disableOnReadonlyRows) {
+                        contextMenuDisabled = this.isRowReadonly.bind(this);
+                    }
                 }
 
                 if (this.config.deleteButton) {
                     deleteButtonHandler = this.onDeleteRow.bind(this);
+                    if (this.config.disableDeleteOnReadonly) {
+                        deleteButtonDisabled = this.isRowReadonly.bind(this);
+                    }
                 }
 
                 if (contextMenuHandler || deleteButtonHandler) {
                     menuColumn.cellRenderer = CellRenderer.getRowMenu(
                         contextMenuHandler,
-                        deleteButtonHandler
+                        contextMenuDisabled,
+                        deleteButtonHandler,
+                        deleteButtonDisabled
                     );
                 }
 
@@ -570,6 +582,18 @@ export class AgGridWrapper {
         }
 
         return colDefs;
+    }
+
+    private isRowReadonly(row) {
+        if (!this.config.editable) {
+            return true;
+        }
+
+        if (this.config.isRowReadOnly && this.config.isRowReadOnly(row)) {
+            return true;
+        }
+
+        return false;
     }
 
 
