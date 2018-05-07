@@ -1,11 +1,11 @@
 import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/index';
-import {ApiKeyService} from '../../../services/services';
+import {ApiKeyService, ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-import {ApiKey} from '@uni-entities';
+import {ApiKey, Confirmation} from '@uni-entities';
 import {ApikeyLineModal} from './modals/apikey-modal';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'apikey-component',
@@ -20,7 +20,8 @@ export class ApiKeyComponent implements OnInit {
     constructor(
         private router: Router,
         private apikeyService: ApiKeyService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private errorService: ErrorService
     ) { }
 
     public ngOnInit() {
@@ -38,11 +39,43 @@ export class ApiKeyComponent implements OnInit {
             });
     }
 
+    public onRowDeleted(event) {
+        const row: ApiKey = event.rowModel;
+        this.modalService
+            .confirm({
+                header: 'Slette nøkkel',
+                message: `Er du sikker på at du vil slette nøkkel '${row.Description}'?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei, avbryt'
+                }
+            })
+            .onClose
+            .subscribe((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    const rowindex = this.apikeys.findIndex(x => x.ID === row.ID);
+                    if (rowindex >= 0) {
+                        this.apikeys[rowindex].Deleted = true;
+                        this.saveApikey(this.apikeys[rowindex]);
+                    }
+                } else if (result === ConfirmActions.REJECT) {
+                    this.getData();
+                }
+            });
+    }
+
+    public saveApikey(apikey: ApiKey) {
+        this.apikeyService
+            .save(apikey)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe(() => this.getData());
+    }
+
     private getData() {
         this.apikeyService
             .getApiKeys()
             .subscribe(keys => {
-                this.apikeys = keys;
+                this.apikeys = keys.filter(x => !x.Deleted);
                 this.setupTable();
             });
     }
@@ -55,6 +88,7 @@ export class ApiKeyComponent implements OnInit {
                 return this.apikeyService.getIntegrationTypeText(apikey);
             });
         this.apikeysConfig = new UniTableConfig('common.apikey.apikeyIntegrationsList', false)
+            .setDeleteButton(true)
             .setColumns([
                 descCol, urlCol, typeCol
             ]);

@@ -3,6 +3,7 @@
     <uni-table
         *ngIf="apikeys && apikeys.length > 0"
         [resource]="apikeys"
-        [config]="apikeysConfig">
+        [config]="apikeysConfig"
+        (rowDeleted)="onRowDeleted($event)">
     </uni-table>
 </article>

@@ -36,4 +36,8 @@ export class ApiKeyService extends BizHttp<ApiKey> {
             return '';
         }
     }
+
+    public save(apikey: ApiKey): Observable<ApiKey> {
+        return apikey.ID ? super.Put(apikey.ID, apikey) : super.Post(apikey);
+    }
 }
