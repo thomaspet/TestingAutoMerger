@@ -223,6 +223,8 @@ export class TransqueryDetails implements OnInit {
                 selectString += ',Department.DepartmentNumber';
             } else if (col.field.indexOf('Project') !== -1 && col.visible) {
                 selectString += ',Project.ProjectNumber';
+            } else if (col.field.indexOf('CreditJournalEntryReference') !== -1 && col.visible) {
+                expandString += ',ReferenceCreditPost,OriginalReferencePost';
             }
         });
 
@@ -466,10 +468,10 @@ export class TransqueryDetails implements OnInit {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
+            data: {JournalEntryID: item.JournalEntryID, JournalEntryAccrualID: item.JournalEntryJournalEntryAccrualID}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
@@ -641,6 +643,13 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('User.DisplayName', 'Utført av', UniTableColumnType.Text, false)
                 .setTemplate(line => line.UserDisplayName || null)
                 .setVisible(false),
+            new UniTableColumn(
+                'casewhen(isnull(OriginalReferencePost.JournalEntryNumber,0) ne 0,OriginalReferencePost.JournalEntryNumber,ReferenceCreditPost.JournalEntryNumber) as CreditJournalEntryReference',
+                'Kreditert',
+                UniTableColumnType.Link)
+                .setTemplate(line => line.CreditJournalEntryReference || null)
+                .setVisible(false)
+                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.CreditJournalEntryReference}`),
             new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
                 .setWidth('60px')
                 .setFilterable(false)

@@ -123,6 +123,38 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public getMinDatesForJournalEntry(journalEntryID: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(
+                '/api/statistics?model=journalentryline' +
+                '&select=JournalEntryNumber as JournalEntryNumber,min(VatDate) as MinVatDate,min(FinancialDate) as MinFinancialDate' +
+                '&filter=JournalEntryID eq ' + journalEntryID
+            )
+            .send()
+            .map(response => response.json())
+            .map(data => data.Data && data.Data.length > 0 ? data.Data[0] : null);
+    }
+
+    public getRelatedAccrualJournalEntries(journalEntryAccrualID: number): Observable<any> {
+        if (!journalEntryAccrualID) {
+            return Observable.empty();
+        }
+
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(
+                '/api/statistics?model=JournalEntry' +
+                '&select=JournalEntryNumber as JournalEntryNumber' +
+                '&filter=JournalEntryAccrualID eq ' + journalEntryAccrualID
+            )
+            .send()
+            .map(response => response.json())
+            .map(data => data.Data);
+    }
+
     public getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
         return this.http
             .asPOST()

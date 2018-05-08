@@ -437,10 +437,10 @@ export class JournalEntries {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: {VatDate: data ? data.DraftLines[0].VatDate : this.journalEntryManual.currentJournalEntryData.VatDate}
+            data: {JournalEntryID: data ? data.ID : null, JournalEntryAccrualID: data ? data.JournalEntryAccrualID : null}
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
@@ -472,10 +472,15 @@ export class JournalEntries {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: this.journalEntryManual.currentJournalEntryData
+            data: {
+                JournalEntryID: this.currentJournalEntryID,
+                JournalEntryAccrualID: this.journalEntryManual.currentJournalEntryData ?
+                    this.journalEntryManual.currentJournalEntryData.JournalEntryDataAccrualID
+                    : null
+            }
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {
                             this.toastService.addToast(
