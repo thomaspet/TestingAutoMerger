@@ -20,6 +20,7 @@ import {UniAdminPasswordModal} from '@app/components/settings/users/admin-passwo
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
+import {EmailService} from '@app/services/common/emailService';
 
 
 @Component({
@@ -64,14 +65,15 @@ export class Users {
         private browserStorage: BrowserStorageService,
         private toast: ToastService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchaseService
+        private elsaPurchasesService: ElsaPurchaseService,
+        private emailService: EmailService,
     ) {
         this.initTableConfigs();
         this.initFormConfigs();
         this.checkAutobankAccess();
 
         this.newUserForm = new FormGroup({
-            Email: new FormControl('', this.isInvalidEmail)
+            Email: new FormControl('', this.isInvalidEmail.bind(this))
         });
         this.roleService.GetAll(null).subscribe(
             (res) => {
@@ -310,7 +312,7 @@ export class Users {
 
                     // clear form
                     this.newUserForm = new FormGroup({
-                        Email: new FormControl('', this.isInvalidEmail)
+                        Email: new FormControl('', this.isInvalidEmail.bind(this))
                     });
 
                     this.getUsers();
@@ -353,10 +355,9 @@ export class Users {
         }
     }
 
-    private isInvalidEmail(control: FormControl) { // tslint:disable-next-line
-        let testResult = /^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i.test(control.value);
-
-        if (!testResult) {
+    private isInvalidEmail(control: FormControl) {
+        const isValidEmail = this.emailService.isValidEmailAddress(control.value);
+        if (!isValidEmail) {
             return {'isInvalidEmail': true};
         }
 

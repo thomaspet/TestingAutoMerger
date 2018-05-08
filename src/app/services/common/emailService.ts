@@ -82,4 +82,9 @@ export class EmailService extends BizHttp<Email> {
             });
         }
     }
+
+    public isValidEmailAddress(email: string): boolean {
+        // <something>@<something>.<something>
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+    }
 }
