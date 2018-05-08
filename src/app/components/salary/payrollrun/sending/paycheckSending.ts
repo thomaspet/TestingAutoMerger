@@ -55,9 +55,10 @@ export class PaycheckSending implements OnInit {
     }
 
     public handlePaychecks(printAll: boolean = false) {
-        let emps = this.getSelected();
-        let selectedPrints = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
-        let selectedEmails = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
+        const emps = this.getSelected();
+        const selectedPrints = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
+        const selectedEmails = emps.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
+
         this.printPaychecks(printAll ? emps : selectedPrints);
 
         if (printAll) {
@@ -100,6 +101,9 @@ export class PaycheckSending implements OnInit {
     }
 
     private printPaychecks(employees: Employee[]) {
+        if (!employees.length) {
+            return;
+        }
         this.reportdefinitionService
             .getReportByName(ReportNames.PAYCHECK_EMP_FILTER)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
@@ -107,7 +111,7 @@ export class PaycheckSending implements OnInit {
                 if (!report) {
                     return;
                 }
-                let employeeFilter = employees
+                const employeeFilter = employees
                     .map(emp => emp.EmployeeNumber)
                     .join(',');
 
@@ -134,8 +138,8 @@ export class PaycheckSending implements OnInit {
     }
 
     private loadEmployeesInPayrollrun() {
-        let tmpEmail: Employee[] = [];
-        let tmpPrint: Employee[] = [];
+        const tmpEmail: Employee[] = [];
+        const tmpPrint: Employee[] = [];
 
         this.payrollrunService.getEmployeesOnPayroll(this.runID,
             ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail'])
@@ -158,15 +162,15 @@ export class PaycheckSending implements OnInit {
     }
 
     private setupPaycheckTable() {
-        let employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text, false);
-        let employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
-        let emailCol = new UniTableColumn(
+        const employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text, false);
+        const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
+        const emailCol = new UniTableColumn(
             'BusinessRelationInfo.DefaultEmail.EmailAddress',
             'Epost',
             UniTableColumnType.Text,
             false);
 
-        let typeCol = new UniTableColumn(
+        const typeCol = new UniTableColumn(
             '_paycheckFormat',
             'Type',
             UniTableColumnType.Select,
@@ -179,7 +183,7 @@ export class PaycheckSending implements OnInit {
                 itemTemplate: item => item
             });
 
-        let config = new UniTableConfig('salary.payrollrun.sending.paychecks', true, true, 25)
+        const config = new UniTableConfig('salary.payrollrun.sending.paychecks', true, true, 25)
             .setSearchable(false)
             .setColumnMenuVisible(false)
             .setAutoAddNewRow(false)
