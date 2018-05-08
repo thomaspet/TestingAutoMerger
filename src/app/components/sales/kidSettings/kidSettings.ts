@@ -8,7 +8,7 @@ import { ToastService, ToastType, ToastTime, } from '../../../../framework/uniTo
 import { IUniSaveAction, } from '../../../../framework/save/save';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, } from '../../../../framework/ui/unitable/index';
 import { ErrorService, PaymentInfoTypeService, StatusService, } from '../../../services/services';
-import { PaymentInfoType, StatusCodePaymentInfoType, } from '../../../unientities';
+import { PaymentInfoType } from '../../../unientities';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';

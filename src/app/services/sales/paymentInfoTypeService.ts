@@ -1,7 +1,7 @@
 import { Injectable, } from '@angular/core';
 
 import { BizHttp, } from '../../../framework/core/http/BizHttp';
-import { PaymentInfoType, StatusCodePaymentInfoType, PaymentInfoTypePart, } from '../../unientities';
+import { PaymentInfoType, PaymentInfoTypePart, } from '../../unientities';
 import { UniHttp, } from '../../../framework/core/http/http';
 import { ErrorService, } from '../common/errorService';
 import { Observable } from 'rxjs/Observable';
@@ -24,8 +24,8 @@ export class PaymentInfoTypeService extends BizHttp<PaymentInfoType> {
     ];
 
     statusTypes: any[] = [
-        { Code: StatusCodePaymentInfoType.Active, Text: 'Aktiv' },
-        { Code: StatusCodePaymentInfoType.Disabled, Text: 'Inaktiv' },
+        { Code: 42400, Text: 'Aktiv' },
+        { Code: 42401, Text: 'Inaktiv' },
     ];
 
     constructor(

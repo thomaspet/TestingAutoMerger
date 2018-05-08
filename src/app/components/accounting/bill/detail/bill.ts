@@ -74,6 +74,7 @@ import {
     ValidationService,
     UniFilesService,
     BankService,
+    CustomDimensionService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -158,6 +159,9 @@ export class BillView implements OnInit {
     private currentTab: string = 'posts';
     private sumRemainder: number = null;
     private sumVat: number = null;
+    private customDimensions: any;
+    public loadingForm: boolean = false;
+    public hasLoadedCustomDimensions: boolean = false;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
@@ -243,6 +247,7 @@ export class BillView implements OnInit {
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
         private bankService: BankService,
+        private customDimensionService: CustomDimensionService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -288,12 +293,14 @@ export class BillView implements OnInit {
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
                 this.projectService.GetAll(null),
-                this.departmentService.GetAll(null)
+                this.departmentService.GetAll(null),
+                this.customDimensionService.getMetadata()
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
                 this.projects = res[2];
                 this.departments = res[3];
+                this.customDimensions = res[4];
 
                 if (id > 0) {
                     this.fetchInvoice(id, true);
@@ -321,7 +328,8 @@ export class BillView implements OnInit {
     }
 
     public extendFormConfig() {
-        const fields: UniFieldLayout[] = this.fields$.getValue();
+        let fields: UniFieldLayout[] = this.fields$.getValue();
+        this.loadingForm = true;
 
         const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
@@ -346,7 +354,52 @@ export class BillView implements OnInit {
             debounceTime: 200
         };
 
-        this.fields$.next(fields);
+        const queries = [];
+        const customDimensionsFields = [];
+
+        if (this.customDimensions && this.customDimensions.length > 0 && !this.hasLoadedCustomDimensions) {
+            this.customDimensions.forEach((dim) => {
+                customDimensionsFields.push({
+                    Label: dim.Label,
+                    Dimension: dim.Dimension,
+                    Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
+                    FieldType: FieldType.DROPDOWN,
+                    Data: [],
+                    Section: 1,
+                    FieldSet: 1,
+                    Sectionheader: 'Egendefinerte dimensjoner',
+                    Classes: 'bill-small-field',
+                    Legend: 'Egendefinerte dimensjoner'
+                });
+                queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
+            });
+
+            Observable.forkJoin(queries).subscribe((res) => {
+                res.forEach((list, index) => {
+                    this.customDimensions[index].Data = res[index];
+                    customDimensionsFields[index].Options = {
+                        source: res[index],
+                        valueProperty: 'ID',
+                        displayProperty: 'Name',
+                        debounceTime: 200
+                    };
+                });
+                fields = fields.concat(customDimensionsFields);
+
+                this.fields$.next(fields);
+                this.hasLoadedCustomDimensions = true;
+                this.loadingForm = false;
+            }, (err) => {
+                this.toast.addToast('Kunne ikke hente egendefinerte dimensjoner. Prøv å laste inn bilde på nytt', ToastType.bad);
+                this.fields$.next(fields);
+                this.loadingForm = false;
+            });
+
+            // fields = fields.concat(customDimensionsFields);
+        } else {
+            this.fields$.next(fields);
+            this.loadingForm = false;
+        }
     }
 
     private addTab(id: number = 0) {
@@ -366,7 +419,8 @@ export class BillView implements OnInit {
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Leverandør',
                 FieldSet: 1,
-                Legend: 'Kjøpsfaktura'
+                Legend: 'Kjøpsfaktura',
+                Section: 0
             },
             <any> {
                 Property: 'InvoiceDate',
@@ -374,6 +428,7 @@ export class BillView implements OnInit {
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'PaymentDueDate',
@@ -381,6 +436,7 @@ export class BillView implements OnInit {
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'InvoiceNumber',
@@ -388,19 +444,22 @@ export class BillView implements OnInit {
                 Label: 'Fakturanummer',
                 Classes: 'bill-small-field',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'BankAccountID',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Bankkonto',
                 FieldSet: 1,
-                Classes: 'bill-small-field right'
+                Classes: 'bill-small-field right',
+                Section: 0
             },
             <any> {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'TaxInclusiveAmountCurrency',
@@ -408,6 +467,7 @@ export class BillView implements OnInit {
                 Label: 'Fakturabeløp',
                 Classes: 'bill-amount-field',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'CurrencyCodeID',
@@ -415,20 +475,23 @@ export class BillView implements OnInit {
                 Label: 'Valuta',
                 Classes: 'bill-currency-field right',
                 FieldSet: 1,
+                Section: 0
             },
             <any> {
                 Property: 'DefaultDimensions.DepartmentID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Avdeling',
                 FieldSet: 1,
-                Classes: 'bill-small-field'
+                Classes: 'bill-small-field',
+                Section: 0
             },
             <any> {
                 Property: 'DefaultDimensions.ProjectID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Prosjekt',
                 FieldSet: 1,
-                Classes: 'bill-small-field'
+                Classes: 'bill-small-field',
+                Section: 0
             }
         ];
 
@@ -645,7 +708,7 @@ export class BillView implements OnInit {
                 const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
                 const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
                     + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
-                this.toast.clear();                
+                this.toast.clear();
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: title,
                     message: msg,
@@ -1221,6 +1284,13 @@ export class BillView implements OnInit {
 
             this.current.next(model);
         }
+
+        this.customDimensions.forEach((dim) => {
+            if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
+                model.DefaultDimensions['Dimension' + dim.Dimension] =
+                    dim.Data.find(x => x.ID === model.DefaultDimensions['Dimension' + dim.Dimension + 'ID']);
+            }
+        });
 
         if (change['SupplierID']) {
             this.fetchNewSupplier(model.SupplierID);
@@ -2137,6 +2207,18 @@ export class BillView implements OnInit {
                 changes = true;
             }
 
+            this.customDimensions.forEach((dimension) => {
+                if (!line.Dimensions['Dimension' + dimension.Dimension]
+                    && current.DefaultDimensions
+                    && current.DefaultDimensions['Dimension' + dimension.Dimension]) {
+
+                    line.Dimensions['Dimension' + dimension.Dimension] =
+                        current.DefaultDimensions['Dimension' + dimension.Dimension];
+                    line.Dimensions['Dimension' + dimension.Dimension + 'ID'] =
+                        current.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
+                }
+            });
+
             if (!line.Amount && !line.AmountCurrency) {
                 line.AmountCurrency = UniMath.round(this.sumRemainder);
                 line.Amount = UniMath.round(line.AmountCurrency * (line.CurrencyExchangeRate || 1), 2);
@@ -2551,6 +2633,11 @@ export class BillView implements OnInit {
                         if (line.Dimensions.DepartmentID) {
                             draft.Dimensions.DepartmentID = line.Dimensions.DepartmentID;
                         }
+                        this.customDimensions.forEach((dim) => {
+                            if (line.Dimensions['Dimension' + dim.Dimension + 'ID']) {
+                                draft.Dimensions['Dimension' + dim.Dimension + 'ID'] = line.Dimensions['Dimension' + dim.Dimension + 'ID'];
+                            }
+                        });
 
                         // the dimension wont actually be saved, but we need this to bypass the validations
                         // in the put method - the JournalEntryLineDraftHandler will override the values

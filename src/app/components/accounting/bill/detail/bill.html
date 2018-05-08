@@ -4,18 +4,18 @@
              class="no-print">
 </uni-toolbar>
 
-<section class="uni-split-view-container">
+<section class="uni-split-view-container" [attr.aria-busy]="loadingForm">
     <section class="left-side">
 
         <uni-form
+            [attr.aria-busy]="loadingForm"
             [config]="formConfig$"
             [fields]="fields$"
             [model]="current"
             (readyEvent)="onFormReady($event)"
             (changeEvent)="onFormChange($event)"
             (inputEvent)="onFormInput($event)"
-            (focusEvent)="onFocusEvent($event)"
-            (toggleEvent)="onToggleEvent($event)">
+            (focusEvent)="onFocusEvent($event)">
         </uni-form>
 
         <section class="tabs">

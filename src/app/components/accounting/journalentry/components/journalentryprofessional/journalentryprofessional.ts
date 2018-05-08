@@ -1231,7 +1231,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
                     ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
-            });
+            }).setWidth('8%');
 
             dimensionCols.push(dimCol);
         });
@@ -1369,6 +1369,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 netAmountCol,
                 amountCurrencyCol
             ];
+
+            if (dimensionCols.length) {
+                columns.splice(5, 0, ...dimensionCols);
+            }
 
         } else {
             // Manual == "Bilagsregistrering"
