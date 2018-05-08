@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Address, LocalDate, Terms, StatusCodeCustomerInvoice, PaymentInfoType} from '../../../unientities';
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -18,7 +18,7 @@ declare const _;
         </uni-form>
     `
 })
-export class TofDeliveryForm {
+export class TofDeliveryForm implements OnInit {
     @Input() public readonly: boolean;
     @Input() public entityType: string;
     @Input() public entity: any;
@@ -39,9 +39,17 @@ export class TofDeliveryForm {
         private modalService: UniModalService
     ) {}
 
-    public ngOnChanges(changes) {
-        this.model$.next(this.entity);
+    ngOnInit() {
+        if (this.entity && !this.entity['PaymentInfoTypeID']
+            && (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice')) {
+                this.entity['PaymentInfoTypeID'] = this.paymentInfoTypes[0].ID;
+        }
 
+        this.model$.next(this.entity);
+        this.initFormLayout();
+    }
+
+    public ngOnChanges(changes) {
         if (this.entity && this.entity.Customer && !this.entity['_shippingAddressID']) {
             const shippingAddress = this.entity.Customer.Info.Addresses.find((addr) => {
                 return addr.AddressLine1 === this.entity.ShippingAddressLine1
@@ -52,10 +60,10 @@ export class TofDeliveryForm {
 
             if (shippingAddress) {
                 this.entity['_shippingAddress'] = shippingAddress;
-                this.model$.next(this.entity);
             }
         }
 
+        this.model$.next(this.entity);
         this.initFormLayout();
     }
 
@@ -153,7 +161,7 @@ export class TofDeliveryForm {
             }
         };
 
-        let fields: UniFieldLayout[] = [
+        const fields: UniFieldLayout[] = [
             <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
@@ -258,7 +266,7 @@ export class TofDeliveryForm {
                 Label: 'KID',
                 Section: 0,
                 Options: {
-                    source: this.paymentInfoTypes.filter((item) => item.StatusCode === 42400),
+                    source: this.paymentInfoTypes.filter((item) => item.StatusCode === 42400 && !item.Locked),
                     valueProperty: 'ID',
                     template: (item) => {
                         return item.Name;

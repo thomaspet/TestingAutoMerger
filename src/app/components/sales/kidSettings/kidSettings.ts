@@ -52,11 +52,7 @@ export class KIDSettings {
         private toastService: ToastService,
     ) {
         this.tabService.addTab({name: 'KID-innstillinger', url: '/sales/kidsettings', moduleID: UniModules.KIDSettings, active: true});
-        this.requestPaymentInfoTypes();
-        this.requestPaymentInfoTypePartsMacros();
-        this.initFormConfig();
-        this.initTableConfigs();
-        this.updateSaveActions();
+        this.requestData();
     }
 
     canDeactivate() {
@@ -77,6 +73,8 @@ export class KIDSettings {
         this.checkSave(true).then(success => {
             if (success) {
                 this.setCurrent(event);
+                this.initFormConfig();
+                this.detailsTableConfig.setEditable(!this.currentPaymentInfoType.Locked);
             }
         });
     }
@@ -97,6 +95,15 @@ export class KIDSettings {
             main: true,
             disabled: !this.hasUnsavedChanges
         }];
+    }
+
+    private checkLength() {
+        let sum = 0;
+        this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part) => {
+            sum += !!part.Length ? part.Length : 0;
+        });
+
+        this.sumDoesNotMatch = sum !== this.currentPaymentInfoType['Length'];
     }
 
     private checkSave(confirmBeforeSave: boolean): Promise<boolean> {
@@ -149,7 +156,8 @@ export class KIDSettings {
                 Property: 'Name',
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
-                Section: 0
+                Section: 0,
+                ReadOnly: this.currentPaymentInfoType.Locked,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -165,6 +173,7 @@ export class KIDSettings {
                 FieldType: FieldType.NUMERIC,
                 Label: 'KID-lengde',
                 Section: 0,
+                ReadOnly: this.currentPaymentInfoType.Locked,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -172,13 +181,10 @@ export class KIDSettings {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Aktiv',
                 Classes: ['toggle'],
-                Section: 0
+                Section: 0,
+                ReadOnly: this.currentPaymentInfoType.Locked,
             },
         ]);
-    }
-
-    private isNotLockedSafe() {
-        return this.currentPaymentInfoType ? !this.currentPaymentInfoType.Locked : true;
     }
 
     private initTableConfigs() {
@@ -201,10 +207,10 @@ export class KIDSettings {
                     }),
             ]);
 
-        this.detailsTableConfig = new UniTableConfig('sales.kidsettings.details', this.isNotLockedSafe(), true, 15)
+        this.detailsTableConfig = new UniTableConfig('sales.kidsettings.details', !this.currentPaymentInfoType.Locked, true, 15)
             .setSortable(false)
             .setRowDraggable(true)
-            .setDeleteButton(true)
+            .setDeleteButton(true, !this.currentPaymentInfoType.Locked)
             .setColumns([
                 new UniTableColumn('Part', 'Element', UniTableColumnType.Typeahead)
                     .setTemplate(item => {
@@ -224,45 +230,30 @@ export class KIDSettings {
                     }),
                 new UniTableColumn('Length', 'Antall siffer', UniTableColumnType.Number)
                     .setWidth(40),
-            ]);
+        ]);
     }
 
-    private requestPaymentInfoTypes() {
-        this.paymentInfoTypeService.GetAll(null)
-            .subscribe(
-                result => {
-                    this.paymentInfoTypes = result;
-                    this.paymentInfoTypes.forEach(paymentInfoType => {
-                        paymentInfoType.PaymentInfoTypeParts = paymentInfoType.PaymentInfoTypeParts
-                            .sort((a, b) => a.SortIndex - b.SortIndex);
-                        paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
-                            .find(type => type.Type === paymentInfoType['Type']).Text;
-                    });
-                    this.setCurrent(result[0]);
-                },
-                error => this.errorService.handle(error)
-            );
-    }
+    private requestData() {
+        Observable.forkJoin(
+        this.paymentInfoTypeService.GetAll(null),
+        this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
+        ).subscribe(
+            response => {
+                this.paymentInfoTypes = response[0];
+                this.paymentInfoTypes.forEach(paymentInfoType => {
+                    paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
+                        .find(type => type.Type === paymentInfoType['Type']).Text;
+                });
+                this.setCurrent(this.paymentInfoTypes[0]);
 
-    private requestPaymentInfoTypePartsMacros() {
-        this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros')
-            .subscribe(
-                response => {
-                    this.paymentInfoTypePartsMacros = response;
-                },
-                error => {
-                    this.errorService.handle(error);
-                }
-            );
-    }
+                this.paymentInfoTypePartsMacros = response[1];
 
-    private checkLength() {
-        let sum = 0;
-        this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part) => {
-            sum += !!part.Length ? part.Length : 0;
-        });
-
-        this.sumDoesNotMatch = sum !== this.currentPaymentInfoType['Length'];
+                this.initFormConfig();
+                this.initTableConfigs();
+                this.updateSaveActions();
+            },
+            error => this.errorService.handle(error)
+        );
     }
 
     private save(): Promise<boolean>  {
@@ -336,7 +327,7 @@ export class KIDSettings {
                         resolve(true);
                         this.hasUnsavedChanges = false;
                         this.updateSaveActions();
-                        this.requestPaymentInfoTypes();
+                        this.requestData();
                     },
                     error => {
                         resolve(false);

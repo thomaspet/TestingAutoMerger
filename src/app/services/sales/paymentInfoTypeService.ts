@@ -35,7 +35,7 @@ export class PaymentInfoTypeService extends BizHttp<PaymentInfoType> {
         super(http);
         this.relativeURL = PaymentInfoType.RelativeUrl;
         this.entityType = PaymentInfoType.EntityType;
-        this.DefaultOrderBy = null;
+        this.DefaultOrderBy = 'Type,PaymentInfoTypeParts.SortIndex asc';
         this.defaultExpand = ['PaymentInfoTypeParts'];
     }
 }
