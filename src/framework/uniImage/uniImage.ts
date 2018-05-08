@@ -298,8 +298,8 @@ export class UniImage {
 
     public setOcrData(ocrResult) {
         if (ocrResult.OcrRawData) {
-            let rawData = JSON.parse(ocrResult.OcrRawData);
-            let words = rawData.AllWords;
+            const rawData = JSON.parse(ocrResult.OcrRawData);
+            const words = rawData.AllWords;
 
             if (words && ocrResult.ImageWidth && ocrResult.ImageHeight) {
                 words.forEach(word => {
@@ -359,7 +359,7 @@ export class UniImage {
         }
 
         if (this.fileIDs && this.fileIDs.length > 0) {
-            let requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
+            const requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
             this.http.asGET()
                 .usingBusinessDomain()
                 .withEndPoint(`files?filter=${requestFilter}`)
@@ -498,15 +498,15 @@ export class UniImage {
     }
 
     private imageToPrint(source: string) {
-        return "<html><head><script>function step1(){\n" +
-            "setTimeout('step2()', 10);}\n" +
-            "function step2(){window.print();window.close()}\n" +
-            "</scri" + "pt></head><body onload='step1()'>\n" +
-            "<img src='" + source + "' /></body></html>";
+        return '<html><head><script>function step1(){\n' +
+            'setTimeout(\"step2()\", 10);}\n' +
+            'function step2(){window.print();window.close()}\n' +
+            '</script></head><body onload=\"step1()\">\n' +
+            '<img src=\"' + source + '\" /></body></html>';
     }
 
     private printImage(source: string) {
-        var pwa = window.open('_new');
+        const pwa = window.open('_new');
         if (pwa) {
             pwa.document.open();
             pwa.document.write(this.imageToPrint(source));
@@ -535,7 +535,8 @@ export class UniImage {
     private splitFile() {
         this.modalService.confirm({
             header: 'Bekreft oppdeling av fil',
-            message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. Siste del av filen vil legges tilbake i innboksen',
+            message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. ' +
+                     'Siste del av filen vil legges tilbake i innboksen',
             buttonLabels: {
                 accept: 'Bekreft',
                 cancel: 'Avbryt'
@@ -568,7 +569,7 @@ export class UniImage {
     private rotateLeft(event) {
         this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, false)
             .subscribe(res => {
-                this.loadImage(true);
+                this.loadImage();
             }, err => this.errorService.handle(err)
         );
     }
@@ -576,7 +577,7 @@ export class UniImage {
     private rotateRight(event) {
         this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, true)
             .subscribe(res => {
-                this.loadImage(true);
+                this.loadImage();
             }, err => this.errorService.handle(err)
         );
     }
@@ -591,14 +592,14 @@ export class UniImage {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                let oldFileID = this.files[this.currentFileIndex].ID;
+                const oldFileID = this.files[this.currentFileIndex].ID;
                 this.http.asDELETE()
                     .usingBusinessDomain()
                     .withEndPoint(`files/${oldFileID}`)
                     .send()
                     .subscribe(
                         res => {
-                            let current = this.files[this.currentFileIndex];
+                            const current = this.files[this.currentFileIndex];
 
                             this.files.splice(this.currentFileIndex, 1);
                             this.currentFileIndex--;
@@ -627,7 +628,7 @@ export class UniImage {
 
     public reauthenticate(runAfterReauth) {
         // if something failed when loading another image, we should try again
-        if (this.imgUrl2x != this.lastUrlFailed) {
+        if (this.imgUrl2x !== this.lastUrlFailed) {
             this.didTryReAuthenticate = false;
         }
 
@@ -671,7 +672,7 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    private loadImage(forceRefresh: boolean = false) {
+    private loadImage() {
         const file = this.files[this.currentFileIndex];
         if (!file) {
             return;
@@ -682,20 +683,21 @@ export class UniImage {
             this.fileInfo += ` (${this.currentPage}/${file.Pages})`;
         }
 
-        let size = this.size || UniImageSize.medium;
+        const size = this.size || UniImageSize.medium;
 
         this.imageIsLoading = true;
 
         this.removeHighlight();
 
-        this.imgUrl2x = this.generateImageUrl(file, size * 2) + (forceRefresh ? '&t=' + Date.now() : '');
-        this.imgUrl = this.generateImageUrl(file, size) + (forceRefresh ? '&t=' + Date.now() : '');
+        this.imgUrl2x = this.generateImageUrl(file, size * 2);
+        this.imgUrl = this.generateImageUrl(file, size);
 
         this.cdr.markForCheck();
     }
 
     private generateImageUrl(file: File, width: number): string {
-        let url = `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${this.currentPage}`;
+        const url =
+            `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${this.currentPage}&t=${Date.now()}`;
         return encodeURI(url);
     }
 
@@ -708,7 +710,7 @@ export class UniImage {
     }
 
     private onDrop(event, dropData) {
-        let transfer = this.getTransfer(event);
+        const transfer = this.getTransfer(event);
         if (!transfer) {
             return;
         }
@@ -760,7 +762,7 @@ export class UniImage {
     }
 
     private uploadFile(file) {
-        let data = new FormData();
+        const data = new FormData();
         data.append('Token', this.token);
         data.append('Key', this.activeCompany.Key);
         if (this.entity) {
@@ -842,7 +844,7 @@ export class UniImage {
                 } else {
                     // increase wait time by 10 ms for each attempt, starting at 50 ms, making
                     // the total possible wait time will be approx 1 minute (55 sec + response time)
-                    let timeout = 50 + (10 * attempts);
+                    const timeout = 50 + (10 * attempts);
                     setTimeout(() => {
                         this.checkFileStatusAndLoadImage(fileId, attempts++);
                     }, timeout);
@@ -860,8 +862,8 @@ export class UniImage {
         }
 
         // Find the ratio between the original scanned image(height and width param) and the shown image
-        let widthRatio = (this.image.nativeElement.clientWidth || width) / width;
-        let heightRatio = (this.image.nativeElement.clientHeight || height) / height;
+        const widthRatio = (this.image.nativeElement.clientWidth || width) / width;
+        const heightRatio = (this.image.nativeElement.clientHeight || height) / height;
 
         if (styleObject) {
             this.highlightStyle = styleObject;
