@@ -142,8 +142,8 @@ export class RecurringPost extends UniView {
             .setOptions({
                 lookupFunction: (searchValue: string) => {
                     return this.employments.filter((employment) => {
-                        let jobName = (employment.JobName || '').toLowerCase();
-                        let jobCode = (employment.JobCode || '').toLowerCase();
+                        const jobName = (employment.JobName || '').toLowerCase();
+                        const jobCode = (employment.JobCode || '').toLowerCase();
                         return (jobName.indexOf(searchValue.toLowerCase()) > -1)
                             || jobCode.startsWith(searchValue.toLowerCase());
                     });
@@ -194,7 +194,7 @@ export class RecurringPost extends UniView {
         const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
-                let project = rowModel['_Project'];
+                const project = rowModel['_Project'];
                 if (!rowModel['_isEmpty'] && project) {
                     return project.ProjectNumber + ' - ' + project.Name;
                 }
@@ -219,7 +219,7 @@ export class RecurringPost extends UniView {
         const departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
-                let department: Department = rowModel['_Department'];
+                const department: Department = rowModel['_Department'];
                 if (!rowModel['_isEmpty'] && department) {
                     return department.DepartmentNumber + ' - ' + department.Name;
                 }
@@ -259,7 +259,7 @@ export class RecurringPost extends UniView {
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
             ])
             .setChangeCallback((event) => {
-                let row = event.rowModel;
+                const row = event.rowModel;
                 let rateObservable = null;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
@@ -307,7 +307,7 @@ export class RecurringPost extends UniView {
     private updateAndCacheSalaryTransactionRow(row, updateTable = false) {
         row['_isDirty'] = true;
 
-        let updateIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === row['_originalIndex']);
+        const updateIndex = this.recurringPosts.findIndex(x => x['_originalIndex'] === row['_originalIndex']);
         if (updateIndex > -1) {
             this.recurringPosts[updateIndex] = row;
         } else {
@@ -321,14 +321,14 @@ export class RecurringPost extends UniView {
 
     private mapWagetypeToRecurringpost(rowModel) {
         if (!rowModel['EmploymentID']) {
-            let employment = this.employments.find(emp => emp.Standard === true);
+            const employment = this.employments.find(emp => emp.Standard === true);
             if (employment) {
                 rowModel['_Employment'] = employment;
-                this.mapEmploymentToTrans(rowModel);
             }
         }
+        this.mapEmploymentToTrans(rowModel);
 
-        let wagetype = rowModel['_Wagetype'];
+        const wagetype = rowModel['_Wagetype'];
         rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
@@ -336,7 +336,7 @@ export class RecurringPost extends UniView {
         rowModel['Amount'] = 1;
         rowModel['Rate'] = wagetype.Rate;
 
-        let supplements: SalaryTransactionSupplement[] = [];
+        const supplements: SalaryTransactionSupplement[] = [];
 
         if (rowModel['Supplements']) {
             rowModel['Supplements']
@@ -350,7 +350,7 @@ export class RecurringPost extends UniView {
         if (wagetype.SupplementaryInformations) {
 
             wagetype.SupplementaryInformations.forEach((supplement: WageTypeSupplement) => {
-                let transSupplement = new SalaryTransactionSupplement();
+                const transSupplement = new SalaryTransactionSupplement();
                 transSupplement.WageTypeSupplementID = supplement.ID;
                 transSupplement.WageTypeSupplement = supplement;
                 supplements.push(transSupplement);
@@ -364,11 +364,11 @@ export class RecurringPost extends UniView {
         rowModel['EmploymentID'] = (employment) ? employment.ID : null;
 
         if (employment && employment.Dimensions) {
-            let department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+            const department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
 
             rowModel['_Department'] = department || rowModel['_Department'];
 
-            let project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
+            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project || rowModel['_Project'];
 
             this.mapDepartmentToTrans(rowModel);
@@ -381,7 +381,7 @@ export class RecurringPost extends UniView {
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {
-        let account: Account = rowModel['_Account'];
+        const account: Account = rowModel['_Account'];
         if (!account) {
             return;
         }
@@ -390,7 +390,7 @@ export class RecurringPost extends UniView {
     }
 
     private mapProjectToTrans(rowModel: SalaryTransaction) {
-        let project = rowModel['_Project'];
+        const project = rowModel['_Project'];
 
         if (!rowModel.Dimensions) {
             rowModel.Dimensions = new Dimensions();
@@ -405,7 +405,7 @@ export class RecurringPost extends UniView {
     }
 
     private mapDepartmentToTrans(rowModel: SalaryTransaction) {
-        let department: Department = rowModel['_Department'];
+        const department: Department = rowModel['_Department'];
 
         if (!rowModel.Dimensions) {
             rowModel.Dimensions = new Dimensions();
@@ -421,10 +421,10 @@ export class RecurringPost extends UniView {
 
     private calcItem(rowModel): SalaryTransaction {
         let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
-        let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
+        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
-        let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum = (Math.round((amountPrecision * rowModel['Amount']))
+        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        const sum = (Math.round((amountPrecision * rowModel['Amount']))
             * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
         return rowModel;
@@ -438,7 +438,8 @@ export class RecurringPost extends UniView {
 
     public updateSupplementsOnTransaction(trans: SalaryTransaction) {
         if (trans) {
-            let row: SalaryTransaction = this.recurringPosts.find((x: SalaryTransaction) => x['_originalIndex'] === trans['_originalIndex'] && !x.Deleted);
+            const row: SalaryTransaction = this.recurringPosts
+                .find((x: SalaryTransaction) => x['_originalIndex'] === trans['_originalIndex'] && !x.Deleted);
             if (row) {
                 row.Supplements = trans.Supplements;
                 this.updateAndCacheSalaryTransactionRow(row);

@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
-import {BasicAmount, VacationPayLine, CompanySalary} from '../../../../../unientities';
+import {BasicAmount, VacationPayLine, CompanySalary, EmployeeCategory} from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
@@ -248,11 +248,13 @@ export class VacationPayModal implements OnInit, IUniModal {
         if (!rowModel.Employee) {
             return false;
         }
-        const birthYear = new Date(rowModel.Employee.BirthDate).getFullYear();
-        if (this.vacationBaseYear === this.currentYear) {
-            return this.vacationBaseYear - birthYear >= 59;
-        } else if (this.vacationBaseYear < this.currentYear) {
-            return this.vacationBaseYear - birthYear >= 60;
+        const empAge = this.currentYear - new Date(rowModel.Employee.BirthDate).getFullYear();
+        if (empAge >= 59) {
+            if (this.vacationBaseYear === this.currentYear) {
+                return true;
+            } else {
+                return empAge >= 60;
+            }
         }
     }
 
