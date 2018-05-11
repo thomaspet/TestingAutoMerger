@@ -66,22 +66,6 @@
         "SubTickersCodes": ["customer_details", "contact_list", "invoice_list", "order_list", "quote_list"],
         "Filters": [
             {
-                "Name": "Aktiv",
-                "Code": "active_customers",
-                "UseAllCriterias": true,
-                "FilterGroups": [
-                    {
-                        "FieldFilters": [
-                            {
-                                "Field": "StatusCode",
-                                "Operator": "ne",
-                                "Value": "50001"
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
                 "Name": "Lead",
                 "Code": "lead_customers",
                 "UseAllCriterias": true,
@@ -92,6 +76,22 @@
                                 "Field": "StatusCode",
                                 "Operator": "eq",
                                 "Value": "20001"
+                            }
+                        ]
+                    }
+                ]
+            }, 
+            {
+                "Name": "Aktiv",
+                "Code": "active_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "30001"
                             }
                         ]
                     }
@@ -115,7 +115,19 @@
             },
             {
                 "Name": "Alle",
-                "Code": "all_customers"
+                "Code": "all_customers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "ne",
+                                "Value": "90001"
+                            }
+                        ]
+                    }
+                ]
             }
         ]
     },

@@ -18,11 +18,12 @@ export class SupplierList implements OnInit {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
-    private filter: string = 'statuscode ne 50001';
+    private filter: string = 'StatusCode eq 30001';
     public tabs: IUniTab[] = [
-        {name: 'Aktiv', value: 'statuscode ne 50001'},
-        {name: 'Inaktiv', value: 'statuscode eq 50001'},
-        {name: 'Alle', value: ''},
+        {name: 'Kladd', value: 'StatusCode eq null'},
+        {name: 'Aktiv', value: 'StatusCode eq 30001'},
+        {name: 'Inaktiv', value: 'StatusCode eq 50001'},
+        {name: 'Alle', value: '(StatusCode ne 90001 or StatusCode eq null)'},
     ];
 
     public createNewAction: IUniSaveAction = {
@@ -49,14 +50,16 @@ export class SupplierList implements OnInit {
     public ngOnInit() {
         this.statisticsService.GetAll(
             `model=Supplier` +
-            `&select=sum(casewhen((Supplier.StatusCode ne '50001')\,1\,0)) as Active,` +
+            `&select=sum(casewhen((Supplier.StatusCode eq '30001')\,1\,0)) as Active,` +
+            `sum(casewhen((isnull(Supplier.StatusCode, 0) eq 0)\,1\,0)) as Draft,` +
             `sum(casewhen((Supplier.StatusCode eq '50001')\,1\,0)) as Inactive,` +
-            `sum(casewhen(ID gt 0\,1\,0)) as AllSuppliers`
+            `sum(casewhen(isnull(StatusCode, 0) ne 90001\,1\,0)) as AllSuppliers`
         ).subscribe(
             res => {
-                this.tabs[0].count = res.Data[0].Active;
-                this.tabs[1].count = res.Data[0].Inactive;
-                this.tabs[2].count = res.Data[0].AllSuppliers;
+                this.tabs[0].count = res.Data[0].Draft;
+                this.tabs[1].count = res.Data[0].Active;
+                this.tabs[2].count = res.Data[0].Inactive;
+                this.tabs[3].count = res.Data[0].AllSuppliers;
             },
             err => this.errorService.handle(err)
         );
