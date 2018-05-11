@@ -1651,6 +1651,7 @@ export class Travel extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public Email: string;
+    public EmployeeNumber: number;
     public ID: number;
     public Name: string;
     public PersonID: string;
@@ -2061,9 +2062,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
+    public Employee: Employee;
     public SubEntity: SubEntity;
     public Dimensions: Dimensions;
-    public Employee: Employee;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -2154,6 +2155,7 @@ export class VacationRateEmployee extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
+    public EmployeeID: number;
     public EndDate: Date;
     public ID: number;
     public Rate: number;
@@ -2292,10 +2294,9 @@ export class Employee extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public VacationRateEmployeeID: number;
     public BusinessRelationInfo: BusinessRelation;
     public Employments: Array<Employment>;
-    public VacationRateEmployee: VacationRateEmployee;
+    public VacationRateEmployees: Array<VacationRateEmployee>;
     public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
@@ -5549,8 +5550,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;

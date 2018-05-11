@@ -6,9 +6,9 @@ import {Email, Bank} from '../../../app/unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
-import { UniModalService } from '@uni-framework/uni-modal';
-import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
-import { ErrorService, BankService } from '@app/services/services';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ErrorService, BankService} from '@app/services/services';
 
 @Component({
     selector: 'uni-bank-modal',
