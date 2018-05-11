@@ -15,12 +15,12 @@ export class ModulusService {
     }
 
     public getSSNMod11CheckSums(ssn: string): ICheckSums {
-        let checkSums: ICheckSums = {checkSum1: 0, checkSum2: 0};
-        let ssnList: number[] = [];
-        let checkDigit1Factors = [
+        const checkSums: ICheckSums = {checkSum1: 0, checkSum2: 0};
+        const ssnList: number[] = [];
+        const checkDigit1Factors = [
             3, 7, 6, 1, 8, 9, 4, 5, 2
         ];
-        let checkDigit2Factors = [
+        const checkDigit2Factors = [
             5, 4, 3, 2, 7, 6, 5, 4, 3
         ];
 
@@ -58,13 +58,12 @@ export class ModulusService {
     }
 
     public formValidationKID = (KID: string, field: UniFieldLayout): UniFormError | null => {
-        if (!KID || typeof KID !== 'string') {
+        if (!KID || typeof KID !== 'string'
+            || (KID && !KID.split('').some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID)))
+        ) {
             return null;
         }
 
-        if (KID && !KID.split('').some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID))) {
-            return null;
-        }
         return {
             value: KID,
             errorMessage: 'KID-nr. er ikke gyldig',
@@ -73,8 +72,36 @@ export class ModulusService {
         };
     }
 
+    public isValidOrgNr(OrgNr: string) {
+        if (OrgNr) {
+            return !OrgNr
+            .split('')
+            .some(x => isNaN(+x)) && this.modulus11(OrgNr);
+        }
+        return true;
+    }
+
+    public orgNrValidationUniForm = (orgNr: any, field: UniFieldLayout): UniFormError | null => {
+        if (!orgNr || typeof orgNr !== 'string'
+            || (orgNr && !orgNr.split('').some(x => isNaN(+x)) && this.modulus11(orgNr))
+        ) {
+            return null;
+        }
+        const isValidOrgNr: boolean = this.isValidOrgNr(orgNr);
+
+        if (!isValidOrgNr) {
+            return {
+                value: orgNr,
+                errorMessage: 'Ugyldig orgnr.',
+                field: field,
+                isWarning: true
+            };
+        }
+        return null;
+    }
+
     private checkSSNCheckSums(ssn: string) {
-        let checkSums = this.getSSNMod11CheckSums(ssn);
+        const checkSums = this.getSSNMod11CheckSums(ssn);
         return +ssn.charAt(ssn.length - 2) === checkSums.checkSum1
         && +ssn.charAt(ssn.length - 1) === checkSums.checkSum2;
     }
@@ -92,7 +119,7 @@ export class ModulusService {
         return this.removeSeparators(numberToCheck, [' ', '.']);
     }
     private removeSeparators(numberToCheck: string, charsToRemove: string[]) {
-        let cleaned = numberToCheck;
+        const cleaned = numberToCheck;
         charsToRemove.forEach(char => cleaned.replace(char, ''));
         return cleaned;
     }
@@ -101,7 +128,7 @@ export class ModulusService {
     // algoritms to check if last digit in KID/SSN (the control digit) is valid against the rest
 
     private modulus10(value: string): boolean {
-        let sum = value
+        const sum = value
             .split('')
             .filter(x => !isNaN(+x))
             .reverse()
@@ -121,7 +148,7 @@ export class ModulusService {
             if (multiplier > 7) { multiplier = 2; }
         }
 
-        let mod: number = (sum % 11);
+        const mod: number = (sum % 11);
         if (mod === 0 || mod === 1) { checkSum = 0; }
 
         return 11 - mod === Number(value.charAt(value.length - 1));

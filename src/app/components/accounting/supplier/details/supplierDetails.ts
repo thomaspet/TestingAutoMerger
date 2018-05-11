@@ -5,7 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
@@ -35,7 +35,8 @@ import {
     UniQueryDefinitionService,
     CurrencyCodeService,
     UniSearchSupplierConfig,
-    NumberSeriesService
+    NumberSeriesService,
+    ModulusService,
 } from '../../../../services/services';
 
 import {
@@ -170,24 +171,26 @@ export class SupplierDetails implements OnInit {
         {Culture: 'en', Label: 'Engelsk'},
     ];
 
-    constructor(private departmentService: DepartmentService,
-                private projectService: ProjectService,
-                private supplierService: SupplierService,
-                private router: Router,
-                private route: ActivatedRoute,
-                private phoneService: PhoneService,
-                private emailService: EmailService,
-                private addressService: AddressService,
-                private bankaccountService: BankAccountService,
-                private tabService: TabService,
-                private toastService: ToastService,
-                private uniQueryDefinitionService: UniQueryDefinitionService,
-                private errorService: ErrorService,
-                private currencyCodeService: CurrencyCodeService,
-                private uniSearchSupplierConfig: UniSearchSupplierConfig,
-                private modalService: UniModalService,
-                private numberSeriesService: NumberSeriesService) {
-    }
+    constructor(
+        private departmentService: DepartmentService,
+        private projectService: ProjectService,
+        private supplierService: SupplierService,
+        private router: Router,
+        private route: ActivatedRoute,
+        private phoneService: PhoneService,
+        private emailService: EmailService,
+        private addressService: AddressService,
+        private bankaccountService: BankAccountService,
+        private tabService: TabService,
+        private toastService: ToastService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private errorService: ErrorService,
+        private currencyCodeService: CurrencyCodeService,
+        private uniSearchSupplierConfig: UniSearchSupplierConfig,
+        private modalService: UniModalService,
+        private numberSeriesService: NumberSeriesService,
+        private modulusService: ModulusService,
+    ) {}
 
     public ngOnInit() {
         if (!this.modalMode) {
@@ -236,6 +239,7 @@ export class SupplierDetails implements OnInit {
 
         if (changes['_SupplierSearchResult']) {
             const supplier = changes['_SupplierSearchResult'].currentValue;
+
             if (supplier && supplier.Info && supplier.Info.Name) {
                 this.supplier$.next(supplier);
                 this.showHideNameProperties(supplier);
@@ -904,6 +908,7 @@ export class SupplierDetails implements OnInit {
                     EntityType: 'Supplier',
                     Property: 'OrgNumber',
                     FieldType: FieldType.TEXT,
+                    Validations: [this.modulusService.orgNrValidationUniForm],
                     Label: 'Organisasjonsnummer',
                 },
                 {

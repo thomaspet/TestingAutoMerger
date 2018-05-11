@@ -44,7 +44,8 @@ import {
     NumberSeriesService,
     SellerLinkService,
     SellerService,
-    BankAccountService
+    BankAccountService,
+    ModulusService,
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -255,7 +256,8 @@ export class CustomerDetails implements OnInit {
         private numberSeriesService: NumberSeriesService,
         private sellerLinkService: SellerLinkService,
         private sellerService: SellerService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private modulusService: ModulusService,
     ) {}
 
     public ngOnInit() {
@@ -1085,6 +1087,7 @@ export class CustomerDetails implements OnInit {
                     Property: 'OrgNumber',
                     FieldType: FieldType.TEXT,
                     Label: 'Organisasjonsnummer',
+                    Validations: [this.modulusService.orgNrValidationUniForm],
                     Section: 0
                 },
                 {
