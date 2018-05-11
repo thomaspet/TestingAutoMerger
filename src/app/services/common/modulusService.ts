@@ -58,9 +58,7 @@ export class ModulusService {
     }
 
     public formValidationKID = (KID: string, field: UniFieldLayout): UniFormError | null => {
-        if (!KID || typeof KID !== 'string'
-            || (KID && !KID.split('').some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID)))
-        ) {
+        if (!KID || typeof KID !== 'string' || this.isValidKID(KID)) {
             return null;
         }
 
@@ -82,22 +80,16 @@ export class ModulusService {
     }
 
     public orgNrValidationUniForm = (orgNr: any, field: UniFieldLayout): UniFormError | null => {
-        if (!orgNr || typeof orgNr !== 'string'
-            || (orgNr && !orgNr.split('').some(x => isNaN(+x)) && this.modulus11(orgNr))
-        ) {
+        if (!orgNr || typeof orgNr !== 'string' || this.isValidOrgNr(orgNr)) {
             return null;
         }
-        const isValidOrgNr: boolean = this.isValidOrgNr(orgNr);
 
-        if (!isValidOrgNr) {
-            return {
-                value: orgNr,
-                errorMessage: 'Ugyldig orgnr.',
-                field: field,
-                isWarning: true
-            };
-        }
-        return null;
+        return {
+            value: orgNr,
+            errorMessage: 'Ugyldig orgnr.',
+            field: field,
+            isWarning: true
+        };
     }
 
     private checkSSNCheckSums(ssn: string) {
