@@ -24,7 +24,11 @@ export class UnitableNumberInput {
 
     public getValue() {
         if (this.inputControl.dirty) {
-            let value = parseFloat(this.inputControl.value.replace(',', '.'));
+            const value = parseFloat(
+                this.inputControl.value
+                    .replace(',', '.')
+                    .replace(new RegExp(' ', 'gi'), '')
+            );
             return isNaN(value) ? null : value;
         } else {
             return undefined;
