@@ -16,6 +16,7 @@ import {SingleTextFieldModal} from './modals/singleTextFieldModal';
 import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgreementModal';
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
+import {UniBankModal} from './modals/bankModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -37,6 +38,7 @@ export * from './modals/singleTextFieldModal';
 export * from './modals/licenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
 export * from './modals/manageProductsModal';
+export * from './modals/bankModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -57,5 +59,6 @@ export const MODALS = [
     LicenseAgreementModal,
     UniBrRegModal,
     ManageProductsModal,
+    UniBankModal
 ];
 

@@ -9,6 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import { UniBankModal } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-bankaccount-modal',
@@ -54,7 +55,6 @@ export class UniBankAccountModal implements IUniModal {
 
     private isDirty: boolean;
     private validAccount: boolean = true;
-    private isBankChanged: boolean = false;
     private busy: boolean = false;
     private hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
@@ -78,8 +78,11 @@ export class UniBankAccountModal implements IUniModal {
         if (accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;
         }
-        this.formModel$.next(accountInfo);
-        this.formFields$.next(this.getFormFields());
+        this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
+            accountInfo['BankList'] = banks;
+            this.formModel$.next(accountInfo);
+            this.formFields$.next(this.getFormFields());
+        });
     }
 
     public onReady() {
@@ -136,31 +139,26 @@ export class UniBankAccountModal implements IUniModal {
     }
 
     public SaveBankAccount(account: BankAccount) {
-        if (account && account.Bank && account.Bank.BIC && account.AccountNumber && !account.ID) {
-            // Set account type to - to pass validation check backend
-            if (!account.BankAccountType) {
-                account.BankAccountType = '-';
-            }
-
-            this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
-                this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
-                this.onClose.emit(res);
-            });
-        // Gets in here if edit button is clicked from BankSettings!
-        } else if (this.options.data._fromBankSettings && account && account.Bank && account.Bank.BIC && account.AccountNumber) {
-            this.bankAccountService.Put<BankAccount>(account.ID, account).subscribe((res: any) => {
-                this.toastService.addToast('Konto oppdatert', ToastType.good, 4);
-            });
-        } else {
-            if (!account.Bank || account.Bank.BIC === '' || account.Bank.BIC === null) {
-                this.toastService.addToast('Mangler BIC!', ToastType.bad, 5, 'Du må oppgi en BIC for Banken.') ;
-                return;
+        if (!account.Bank || !account.Bank.BIC) {
+            this.toastService.addToast('Mangler Bank eller BIC!', ToastType.bad, 5, 'Du må velge en bank og oppgi en BIC for Banken.') ;
+            return;
+         } else {
+             if (!account.ID) {
+                 // Set account type to - to pass validation check backend
+                if (!account.BankAccountType) {
+                    account.BankAccountType = '-';
+                }
+                this.bankAccountService.Post<BankAccount>(account).subscribe((res: any) => {
+                    this.toastService.addToast('Ny konto lagret', ToastType.good, 4);
+                    this.onClose.emit(res);
+                });
+             } else {
+                this.bankAccountService.Put<BankAccount>(account.ID, account).subscribe((res: any) => {
+                    this.toastService.addToast('Konto oppdatert', ToastType.good, 4);
+                    this.onClose.emit(res);
+                });
              }
-             if (this.isBankChanged) {
-                 this.bankService.Put<Bank>(account.Bank.ID, account.Bank)
-                 .subscribe(item => {}, err => this.errorService.handle(err));
-             }
-        }
+         }
     }
 
 
@@ -170,9 +168,6 @@ export class UniBankAccountModal implements IUniModal {
         this.validAccount = true;
         this.hasChanges = true;
 
-        if (changes['Bank.BIC']) {
-            this.isBankChanged = true;
-        }
         if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
@@ -239,6 +234,9 @@ export class UniBankAccountModal implements IUniModal {
                 account.IBAN = res.IBAN;
                 account.Bank = res.Bank;
                 account.BankID = res.Bank.ID;
+                if (!account['BankList'].find(x => x.ID === res.Bank.ID)) {
+                    account['BankList'].push(res.Bank);
+                }
                 this.formModel$.next(account);
                 this.validAccount = true;
             }
@@ -336,82 +334,27 @@ export class UniBankAccountModal implements IUniModal {
                 FieldSetColumn: 1,
                 EntityType: 'Bank',
                 Property: 'Bank.Name',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.MULTIVALUE,
                 ReadOnly: true,
                 Label: 'Banknavn',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 1,
-                EntityType: 'Bank',
-                Property: 'Bank.BIC',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'BIC',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 1,
-                EntityType: 'Bank',
-                Property: 'Bank.Web',
-                FieldType: FieldType.URL,
-                ReadOnly: true,
-                Label: 'Hjemmeside',
-                LineBreak: true,
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 1,
-                EntityType: 'Bank',
-                Property: 'Bank.Email.EmailAddress',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'E-post',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 2,
-                EntityType: 'Bank',
-                Property: 'Bank.Address.AddressLine1',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'Adresse',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 2,
-                EntityType: 'Bank',
-                Property: 'Bank.Address.PostalCode',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'Postnr',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 2,
-                EntityType: 'Bank',
-                Property: 'Bank.Address.City',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'Poststed',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 2,
-                EntityType: 'Bank',
-                Property: 'Bank.Address.Country',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'Country',
-            },
-            <any> {
-                FieldSet: 2,
-                FieldSetColumn: 2,
-                EntityType: 'Bank',
-                Property: 'Bank.Phone.Number',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'Telefonnummer',
+                Options: {
+                    listProperty: 'BankList',
+                    displayValue: 'Name',
+                    linkProperty: 'ID',
+                    storeIdInProperty: 'BankID',
+                    storeResultInProperty: 'Bank',
+                    editor: (bank) => {
+                        if (!bank || !bank.ID) {
+                            bank['_isNewBank'] = true;
+                            bank = new Bank();
+                        }
+                        const modal = this.modalService.open(UniBankModal, {
+                            data: bank
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    }
+                }
             }
         ];
     }

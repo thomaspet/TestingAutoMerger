@@ -273,7 +273,7 @@ export class AddPaymentModal implements IUniModal {
 
                 return modal.onClose.take(1).toPromise();
             }
-        }
+        };
     }
 
 
