@@ -3,20 +3,31 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS, INavbarLinkSection, INavbarLink} from './navbar-links';
 import {UniModules} from './tabstrip/tabService';
-import * as _ from 'lodash';
 import {UserDto} from '@uni-entities';
-import {DimensionSettingsService} from '@app/services/common//dimensionSettingsService';
+import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
+import {Observable} from 'rxjs/Observable';
+import * as _ from 'lodash';
+
+export {INavbarLinkSection, INavbarLink} from './navbar-links';
+export type SidebarState = 'hidden' | 'collapsed' | 'expanded';
 
 @Injectable()
 export class NavbarLinkService {
     private user: UserDto;
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
+
+    public sidebarState$: BehaviorSubject<SidebarState>;
     public dimensions: any[];
 
     constructor(
         private authService: AuthService,
-        private dimensionSettingsService: DimensionSettingsService
+        private dimensionSettingsService: DimensionSettingsService,
+        private browserStorage: BrowserStorageService
     ) {
+        const initState = browserStorage.getItem('sidebar_state') || 'expanded';
+        this.sidebarState$ = new BehaviorSubject(initState);
+        this.sidebarState$.subscribe(state => browserStorage.setItem('sidebar_state', state));
+
         authService.authentication$.subscribe(authDetails => {
             if (authDetails.user) {
                 this.user = authDetails.user;
@@ -25,74 +36,94 @@ export class NavbarLinkService {
         });
     }
 
-    public addLink(componentListName: string, link: INavbarLink) {
-        const linkSections = this.linkSections$.getValue() || [];
-        const sectionIndex = linkSections.findIndex(section => section.componentListName === componentListName);
-        if (sectionIndex >= 0) {
-            linkSections[sectionIndex].componentList.push(link);
-            this.linkSections$.next(linkSections);
-        }
-    }
-
     public resetNavbar() {
         this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
+
+        this.getDimensionRouteSection(this.user).subscribe(
+            dimensionLinks => {
+                if (dimensionLinks) {
+                    const linkSections = this.linkSections$.getValue();
+                    linkSections.push(dimensionLinks);
+                    this.linkSections$.next(linkSections);
+                }
+            },
+            err => console.error(err)
+        );
     }
 
     private getLinksFilteredByPermissions(user): any[] {
-        let routeSections = _.cloneDeep(NAVBAR_LINKS);
+        const routeSections: INavbarLinkSection[] = _.cloneDeep(NAVBAR_LINKS);
 
-        if (this.authService.canActivateRoute(user, 'dimensions/customdimensionlist')) {
-            // Add custom dimensions to the list
-            this.dimensionSettingsService.GetAll(null).subscribe((dimensions) => {
-                    routeSections.push({
-                        componentListName: 'Dimensjoner',
-                        componentListHeader: 'Dimensjoner',
-                        componentListUrl: '/dimensions/customdimensionlist',
-                        componentListIcon: 'dimension',
-                        componentList: this.getDimensionList(dimensions)
-                });
-            });
-        }
-
+        // Filter out links the user doesnt have access to for every section
         routeSections.forEach(section => {
-            section.componentList = section.componentList.filter(item => {
-                return this.authService.canActivateRoute(user, item.componentUrl);
+            section.linkGroups = section.linkGroups.map(group => {
+                group.links = group.links.filter(link => {
+                    const canActivate = this.authService.canActivateRoute(user, link.url);
+                    // console.log('Checking: ' + link.url + ' - ' + canActivate);
+                    return canActivate;
+                });
+
+                // console.log(group);
+                return group;
             });
         });
 
-        routeSections = routeSections.filter(section => section.componentList.length > 0);
-        return routeSections;
+        // Filter out sections where the user doesnt have access to any links
+        return routeSections.filter(section => {
+            return section.linkGroups.some(group => group.links.length > 0);
+        });
     }
 
-    public getDimensionList(dimensions) {
-        const list = [
+    private getDimensionRouteSection(user): Observable<INavbarLinkSection> {
+        // Add custom dimensions to the list
+        if (this.authService.canActivateRoute(user, 'dimensions/customdimensionlist')) {
+            return this.dimensionSettingsService.GetAll(null).map((dimensions) => {
+                return {
+                    name: 'Dimensjoner',
+                    url: '/dimensions/customdimensionlist',
+                    icon: 'dimension',
+                    mdIcon: 'developer_board',
+                    linkGroups: [{
+                        name: '',
+                        links: this.getDimensionLinks(dimensions)
+                    }]
+                };
+            });
+        } else {
+            return Observable.of(null);
+        }
+    }
+
+    public getDimensionLinks(dimensions) {
+        const links = [
             {
-                componentName: 'Prosjekt',
-                componentUrl: '/dimensions/overview/1' ,
+                name: 'Prosjekt',
+                url: '/dimensions/overview/1' ,
                 moduleID: UniModules.Dimensions
             },
             {
-                componentName: 'Avdeling',
-                componentUrl: '/dimensions/overview/2' ,
+                name: 'Avdeling',
+                url: '/dimensions/overview/2' ,
                 moduleID: UniModules.Dimensions
             }
         ];
 
         dimensions.forEach((dim) => {
             // add check to see if dim.IsActive??
-            list.push(
+            links.push(
                 {
-                    componentName: dim.Label,
-                    componentUrl: '/dimensions/overview/' + dim.Dimension ,
+                    name: dim.Label,
+                    url: '/dimensions/overview/' + dim.Dimension ,
                     moduleID: UniModules.Dimensions
                 }
             );
         });
-        list.push({
-            componentName: 'Dimensjonsinnstillinger',
-            componentUrl: '/settings/dimension',
+
+        links.push({
+            name: 'Dimensjonsinnstillinger',
+            url: '/settings/dimension',
             moduleID: UniModules.Dimensions
         });
-        return list;
+        return links;
     }
 }

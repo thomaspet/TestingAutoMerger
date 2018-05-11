@@ -174,7 +174,6 @@ export class TofDeliveryForm implements OnInit {
             <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
-                Legend: 'Betingelser og levering',
                 EntityType: this.entityType,
                 Property: 'PaymentTermsID',
                 FieldType: FieldType.DROPDOWN,

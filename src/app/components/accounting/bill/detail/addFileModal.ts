@@ -22,8 +22,8 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
         <section role="dialog" class="uni-modal uni-approve-modal-class large">
             <header><h1>Legg til fil fra innboks</h1></header>
 
-            <article class="application accounting_inbox_container">
-                <article class="accounting_inbox_list_container">
+            <article class="bill-container">
+                <article class="bill-list">
                     <uni-table
                         [resource]="list"
                         [config]="tableConfig"
@@ -33,7 +33,7 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                     </uni-table>
                 </article>
 
-                <article class="preview_container" id="preview_container_id" [attr.aria-busy]="loadingPreview">
+                <article class="bill-preview" *ngIf="previewVisible" [attr.aria-busy]="loadingPreview">
                     <uni-image
                         [singleImage]="true"
                         [readonly]="true"
@@ -62,7 +62,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
     private fileID: any;
     private currentFiles: any;
     private file: any;
-
+    private previewVisible: boolean;
 
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
@@ -159,7 +159,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
                 if (response === ConfirmActions.ACCEPT) {
                     if (fileId === this.fileID[0]) {
                         this.fileID = null;
-                        this.hidePreview();
+                        this.previewVisible = false;
                     }
                     this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
                         res => {
@@ -200,13 +200,9 @@ export class UniAddFileModal implements OnInit, IUniModal {
     }
 
     private previewDocument(item) {
-        document.getElementById('preview_container_id').style.display = 'block';
+        this.previewVisible = true;
         this.loadingPreview = true;
         this.fileID = [item.ID];
-    }
-
-    private hidePreview() {
-        document.getElementById('preview_container_id').style.display = 'none';
     }
 
     public onFileListReady(event) {

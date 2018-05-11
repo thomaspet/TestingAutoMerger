@@ -23,7 +23,6 @@ import {ProductDetails} from './products/productDetails';
 import {SellerList} from './sellers/sellerList';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
-import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 
 import {ProductGroups, GroupDetails} from './productgroup/productgroups';
 import {routes as ProductGroupRoutes} from './productgroup/productGroupRoutes';
@@ -98,22 +97,8 @@ export const salesRoutes: Routes = [
     },
     {
         path: 'sellers/:id',
-        component: SellerDetailsComponent,
-        children: [
-            {
-                path: '',
-                pathMatch: 'full',
-                redirectTo: 'details'
-            },
-            {
-                path: 'details',
-                component: SellerDetails
-            },
-            {
-                path: ':mode',
-                component: SellerSalesList
-            }
-        ]
+        component: SellerDetails,
+        canDeactivate: [CanDeactivateGuard]
     },
     {
         path: 'kidsettings',

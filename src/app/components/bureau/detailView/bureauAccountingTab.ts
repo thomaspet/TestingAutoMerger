@@ -29,10 +29,15 @@ const BASE = environment.BASE_URL;
             <span>Fakturamotak</span>
         </section>
         <section class="text-container">
-            <p>Godkjente faktura</p>
-            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[0]}}</a>
-            <p>Bokført i {{accountingYear}}</p>
-            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Journaled')">{{viewData[1]}}</a>
+            <p>
+                Godkjente faktura:
+                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Approved')">{{viewData[0]}}</a>
+            </p>
+
+            <p>
+                Bokført i {{accountingYear}}:
+                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=Journaled')">{{viewData[1]}}</a>
+            </p>
         </section>
     </section>
     <section class="tab-part">
@@ -41,8 +46,10 @@ const BASE = environment.BASE_URL;
             <span>Bilag</span>
         </section>
         <section class="text-container">
-            <p>Antall bilag bokført i {{accountingYear}}</p>
-            <a (click)="navigateToCompanyUrl('/accounting/bills?filter=All')">{{viewData[2]}}</a>
+            <p>
+                Antall bilag bokført i {{accountingYear}}:
+                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=All')">{{viewData[2]}}</a>
+            </p>
         </section>
     </section>
 </section>`

@@ -22,6 +22,7 @@ import {
     UniSendEmailModal,
     ConfirmActions
 } from '../../../../../framework/uni-modal';
+import {IUniSaveAction} from '@uni-framework/save/save';
 
 @Component({
     selector: 'order-list',
@@ -60,6 +61,11 @@ export class OrderList implements OnInit {
     private baseCurrencyCode: string;
     public printStatusPrinted: string = '200';
 
+    public createNewAction: IUniSaveAction = {
+        label: 'Ny ordre',
+        action: () => this.createOrder()
+    };
+
     constructor(
         private uniHttpService: UniHttp,
         private router: Router,
@@ -92,7 +98,7 @@ export class OrderList implements OnInit {
     }
 
     public createOrder() {
-        this.router.navigateByUrl('/sales/order/0');
+        this.router.navigateByUrl('/sales/orders/0');
     }
 
     private onAfterPrintOrder(selectedRows: Array<any>): Promise<any> {

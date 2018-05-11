@@ -1,97 +1,87 @@
-<section class="horizontal_nav">
-    <ul>
-        <li *ngFor="let tab of tabs; let idx = index">
-            <a (click)="activeTabIndex = idx" [ngClass]="{'router-link-active': activeTabIndex === idx}">
-                {{tab}}
-            </a>
-        </li>
-    </ul>
-</section>
+<!-- <section class="application"> -->
 
-<section class="application">
-    <article class="tof-head">
+<article class="tof-head">
+    <section class="uni-container customer-card">
+        <header>
+            Kunde
+        </header>
 
-        <tof-customer-card [readonly]="readonly"
-                           [entity]="data"
-                           [entityType]="entityName"
-                           (entityChange)="onDataChange($event)">
+        <tof-customer-card
+            [readonly]="readonly"
+            [entity]="data"
+            [entityType]="entityName"
+            (entityChange)="onDataChange($event)">
         </tof-customer-card>
+    </section>
 
-        <tof-details-form *ngIf="activeTabIndex === 0"
-                          [entity]="data"
-                          (entityChange)="onDataChange($event)"
-                          [entityType]="entityName"
-                          [readonly]="readonly"
-                          [currencyCodes]="currencyCodes"
-                          [projects]="projects"
-                          [sellers]="sellers"
-                          [companySettings]="companySettings">
+    <section class="uni-container tof-forms">
+        <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+
+        <tof-details-form
+            *ngIf="activeTabIndex === 0"
+            [entity]="data"
+            (entityChange)="onDataChange($event)"
+            [entityType]="entityName"
+            [readonly]="readonly"
+            [currencyCodes]="currencyCodes"
+            [projects]="projects"
+            [sellers]="sellers"
+            [companySettings]="companySettings">
         </tof-details-form>
 
-        <tof-delivery-form *ngIf="activeTabIndex === 1"
-                           [entity]="data"
-                           (entityChange)="onDataChange($event)"
-                           [entityType]="entityName"
-                           [readonly]="readonly"
-                           [paymentInfoTypes]="paymentInfoTypes"
-                           [paymentTerms]="paymentTerms"
-                           [deliveryTerms]="deliveryTerms">
+        <tof-delivery-form
+            *ngIf="activeTabIndex === 1"
+            [entity]="data"
+            (entityChange)="onDataChange($event)"
+            [entityType]="entityName"
+            [readonly]="readonly"
+            [paymentTerms]="paymentTerms"
+            [deliveryTerms]="deliveryTerms"
+            [paymentInfoTypes]="paymentInfoTypes">
         </tof-delivery-form>
 
-        <fieldset *ngIf="activeTabIndex === 2" class="freetext-fieldset">
-            <legend>Fritekst</legend>
+        <section *ngIf="activeTabIndex === 2" class="tof-freetext">
             <label>
                 <span>Kommentar</span>
                 <input type="text"
-                       [formControl]="commentControl"
-                       [readonly]="isReadOnly()"
-                       (change)="onDataChange()"/>
+                    [formControl]="commentControl"
+                    [readonly]="isReadOnly()"
+                    (change)="onDataChange()"/>
             </label>
             <label>
                 <span>Fritekst</span>
                 <textarea [formControl]="freeTextControl" [readonly]="isReadOnly()" (change)="onDataChange()"></textarea>
             </label>
-        </fieldset>
+        </section>
 
-        <fieldset class="sellers-fieldset" *ngIf="activeTabIndex === 3">
-            <legend>Selgere</legend>
+        <section class="tof-sellers" *ngIf="activeTabIndex === 3">
             <seller-links
                 [parent]="data"
                 [readonly]="isReadOnly()"
                 (sellerChanged)="onDataChange()"
                 (deleted)="onSellerLinkDeleted($event)">
             </seller-links>
-        </fieldset>
+        </section>
 
-        <fieldset class="attachment-fieldset" *ngIf="activeTabIndex === 4">
-            <legend>Dokumenter</legend>
-            <label for="attachments">
-                <span *ngIf="data?.ID">Vedlegg</span>
-                <p *ngIf="!data?.ID">
-                    <span *ngIf="entityName == 'CustomerInvoice'">
-                        Du må lagre faktura som kladd før du kan legge til dokumenter.
-                    </span>
-                    <span *ngIf="entityName == 'CustomerOrder'">
-                        Du må lagre ordre som kladd eller registrere ordre før du kan legge til dokumenter.
-                    </span>
-                    <span *ngIf="entityName == 'CustomerQuote'">
-                        Du må lagre tilbud som kladd eller registrere tilbud før du kan legge til dokumenter.
-                    </span>
-                </p>
-            </label>
+        <section class="tof-attachments" *ngIf="activeTabIndex === 4">
+            <p *ngIf="!data?.ID">
+                <span *ngIf="entityName == 'CustomerInvoice'">
+                    Du må lagre faktura som kladd før du kan legge til dokumenter.
+                </span>
+                <span *ngIf="entityName == 'CustomerOrder'">
+                    Du må lagre ordre som kladd eller registrere ordre før du kan legge til dokumenter.
+                </span>
+                <span *ngIf="entityName == 'CustomerQuote'">
+                    Du må lagre tilbud som kladd eller registrere tilbud før du kan legge til dokumenter.
+                </span>
+            </p>
+
             <uni-attachments *ngIf="data?.ID"
                 id="attachments"
                 [entity]="entityName"
-                [entityID]="data?.ID"
-                [readonly]="!data?.ID"
-                [hideLabel]="true">
+                [entityID]="data?.ID">
             </uni-attachments>
-        </fieldset>
-
-        <fieldset class="reminder-fieldset" *ngIf="activeTabIndex === 6 && entityName === 'CustomerInvoice'">
-            <legend>Purringer</legend>
-            <invoice-reminders [customerInvoice]="data"></invoice-reminders>
-        </fieldset>
+        </section>
 
         <uni-dimension-tof-view
             *ngIf="activeTabIndex === 5"
@@ -101,5 +91,11 @@
             [entityType]="entityName">
         </uni-dimension-tof-view>
 
-    </article>
-</section>
+        <section class="tof-reminders" *ngIf="activeTabIndex === 6 && entityName === 'CustomerInvoice'">
+            <invoice-reminders [customerInvoice]="data"></invoice-reminders>
+        </section>
+
+    </section>
+
+</article>
+<!-- </section> -->

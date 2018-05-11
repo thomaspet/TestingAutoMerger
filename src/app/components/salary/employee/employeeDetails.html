@@ -1,14 +1,14 @@
-<uni-toolbar [config]="toolbarConfig"
-             [saveactions]="saveActions"
-             [tags]="categoryFilter"
-             [tagConfig]="tagConfig"
-             [searchConfig]="toolbarSearchConfig"
-             class="employeeToolbar">
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions"
+    [tags]="categoryFilter"
+    [tagConfig]="tagConfig"
+    [searchConfig]="toolbarSearchConfig"
+    [validationMessages]="toolbarValidation"
+    class="employeeToolbar">
 </uni-toolbar>
 
-<uni-poster [widgets]="employeeWidgets" *ngIf="employeeWidgets"></uni-poster>
-
-<article [attr.aria-busy]="busy">
-    <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+<article class="application" [attr.aria-busy]="busy">
+    <uni-tabs [tabs]="childRoutes"></uni-tabs>
     <router-outlet></router-outlet>
 </article>

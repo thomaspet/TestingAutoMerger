@@ -1,4 +1,11 @@
-<article class="salarybalance application" [attr.aria-busy]="busy">
-    <button (click)="createSalarybalance()" class="new-button">Nytt forskudd/trekk</button>
-    <uni-table [resource]="salaryBalances$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
+<article class="salarybalance" [attr.aria-busy]="busy">
+    <uni-table
+        [resource]="salaryBalances$ | async"
+        [config]="tableConfig"
+        (rowSelected)="rowSelected($event)">
+    </uni-table>
+
+    <button class="splitview-list-button" (click)="createSalarybalance()">
+        Nytt forskudd/trekk
+    </button>
 </article>

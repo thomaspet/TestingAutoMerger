@@ -47,6 +47,10 @@
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable || !config?.editable"
 
+        [pagination]="usePagination"
+        [paginationPageSize]="config?.pageSize"
+        (paginationChanged)="onPaginationChange($event)"
+
         (gridReady)="onAgGridReady($event)"
         (gridSizeChanged)="onGridSizeChange($event)"
         (columnResized)="onColumnResize($event)"
@@ -60,4 +64,21 @@
         (cellClicked)="onCellClick($event)"
         (columnMoved)="columnMoveDebouncer$.next($event)">
     </ag-grid-angular>
+
+    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
+        <i class="material-icons" (click)="paginate('first')">first_page</i>
+        <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
+
+        <span class="pagination-info" *ngIf="paginationInfo">
+            Side
+            <input type="text" #pageInput
+                [value]="paginationInfo.currentPage"
+                (change)="paginationInputChange(pageInput.value)"
+            />
+            av {{paginationInfo.pageCount}}
+        </span>
+
+        <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+        <i class="material-icons" (click)="paginate('last')">last_page</i>
+    </section>
 </section>

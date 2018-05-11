@@ -1,5 +1,14 @@
 export const MISC_WIDGETS = [
     {
+        id: 'overview-widget',
+        description: 'Oversikt',
+        width: 12,
+        height: 1,
+        widgetType: 'overview',
+        config: {}
+    },
+
+    {
         id: 'clock',
         description: 'Klokke',
         width: 3,
@@ -23,16 +32,14 @@ export const MISC_WIDGETS = [
         description: 'Valutakurs',
         width: 2,
         height: 1,
-        widgetType: 'currency', // TODO: enum
-        config: {
-            dataEndpoint: '/api/biz/currencies?action=get-latest-currency-downloaded-date&downloadSource=1'
-        }
+        widgetType: 'currency',
+        config: {}
     },
     {
         id: 'rss',
-        description: 'Nyheter fra kundesenteret',
-        width: 4,
-        height: 4,
+        description: 'Nyhetsbrev',
+        width: 5,
+        height: 5,
         alwaysVisible: true,
         widgetType: 'rss',
     },

@@ -8,14 +8,13 @@
 
 uni-save
     height: 2rem
-    padding-top: 1px
     box-sizing: border-box
 
 .save-buttons
     display: inline-block
     position: relative
     button
-        height: calc(1.75rem + 1px)
+        height: 2rem
         box-sizing: border-box
         line-height: 0
         margin: 0
@@ -24,14 +23,8 @@ uni-save
         text-shadow: none
         border-radius: 0
 
-        border: 1px solid transparentize($uni-color-negative, .5)
-        &:not(:first-of-type)
-            border-left: none
-        &:not(:last-of-type)
-            border-right: 1px solid $uni-color-negative
-
-        &:hover, &:focus
-            border-color: $uni-color-negative
+        &:hover
+            background: $uni-color-good
 
     .toolbar-print,
     .toolbar-email
@@ -40,6 +33,8 @@ uni-save
 
     .toolbar-save
         min-width: 8rem
+        border-radius: 3px
+
         &[disabled],
         &[aria-disabled]
             background-color: desaturate(mix($uni-color-good, $uni-color-negative, 50%), 10%)
@@ -48,6 +43,18 @@ uni-save
         @extend %hideText
         background: lighten($uni-color-good, 5%) unicon-chevron-down($uni-color-negative) center center no-repeat
         background-size: .75rem auto
+        border-top-right-radius: 3px
+        border-bottom-right-radius: 3px
+
+        margin-left: -2px
+        border-left: 1px solid #fff
+
+        &:hover
+            background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+            background-size: .75rem auto
+
+        // border: 1px solid #fafafa
+        // border-left-color: #fff
 
 .uni-save-status
     position: fixed
@@ -55,13 +62,18 @@ uni-save
     left: 0
     right: 0
     margin: 0
-    padding: .3rem 6.5% .8rem
+    padding: .3rem 1rem .8rem 18rem
     text-align: start
     display: block
     background: transparentize($uni-color-scale4, .1)
     color: $uni-color-negative
     -webkit-backdrop-filter: blur(.5rem)
     animation: .3s ease slideUp
+
+.sidebar-collapsed .uni-save-status
+    padding-left: 6rem
+.sidebar-hidden .uni-save-status
+    padding-left: 6.5%
 
 
 // Non-toolbar uni-save styling

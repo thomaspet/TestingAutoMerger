@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
+import {LayoutModule} from '../layout/layoutModule';
 
 import {BureauDashboard} from './bureauDashboard';
 import {UniNewCompanyModal} from './newCompanyModal';
@@ -19,6 +20,7 @@ import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
         UniFrameworkModule,
         AppCommonModule,
         AppPipesModule,
+        LayoutModule,
         RouterModule,
     ],
     declarations: [

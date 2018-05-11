@@ -1,9 +1,12 @@
 <browser-warning></browser-warning>
+<uni-toast-list></uni-toast-list>
 
 <uni-navbar class="no-print" *ngIf="isAuthenticated"></uni-navbar>
 
-<uni-toast-list></uni-toast-list>
+<section id="page-container" [ngClass]="'sidebar-' + (navbarService.sidebarState$ | async)">
+    <uni-sidebar *ngIf="isAuthenticated"></uni-sidebar>
 
-<main>
-    <router-outlet></router-outlet>
-</main>
+    <main id="page-content-container">
+        <router-outlet></router-outlet>
+    </main>
+</section>

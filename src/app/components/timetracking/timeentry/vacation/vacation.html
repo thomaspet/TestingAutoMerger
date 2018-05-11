@@ -6,7 +6,7 @@
         <button [disabled]="!items.length" class="bad" (click)="onDelete()">Slett ferie</button>
     </section>
 
-    <section class="splitview" [attr.aria-busy]="busy">
+    <section class="splitview">
         <nav class="splitview_list">
 
             <table class="timeentriesTable">
@@ -28,15 +28,13 @@
         </nav>
 
         <main class="splitview_detail">
-            <fieldset>
-                <legend>Feriedetaljer</legend>
-                <uni-form [config]="formConfig$"
-                    [layout]="layout$"
-                    [model]="current$"
-                    (changeEvent)="onChange($event)"
-                    (readyEvent)="onReady($event)">
-                </uni-form>
-            </fieldset>
+            <uni-form
+                [config]="{}"
+                [layout]="layout$"
+                [model]="current$"
+                (changeEvent)="onChange($event)"
+                (readyEvent)="onReady($event)">
+            </uni-form>
         </main>
 
     </section>

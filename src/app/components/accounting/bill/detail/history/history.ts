@@ -9,100 +9,65 @@ import * as moment from 'moment';
     templateUrl: './history.html'
 })
 export class BillHistoryView {
-
-    @Input() public set supplierID(value: number ) {
-        this.currentID = value || 0;
-        this.checkRefresh();
-    }
-    @Input() public set isActive(value: boolean) {
-        this._isActive = value;
-        this.checkRefresh();
-    }
+    @Input() public supplierID: number;
     @Input() public parentID: number;
 
-    public currentID: number = 0;
     public tableConfig: UniTableConfig;
     public listOfInvoices: Array<any> = [];
-    public busy: boolean = false;
     public totals: { grandTotal: number } = { grandTotal: 0 };
     private lastUpdatedSupplierID: number = 0;
-
-    private _isActive: boolean = false;
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService
-    ) {
+    ) {}
 
-    }
-
-    public ngOnInit() {
-
-    }
-
-    private checkRefresh() {
-        if (this._isActive) {
+    public ngOnChanges() {
+        if (this.parentID && this.supplierID) {
             this.refreshList();
         }
     }
 
-    public getNumberOfInvoices(supplierId: number, excludeCurrentId?: number) {
-        let query = `?model=supplierinvoice&select=count(id)&filter=isnull`
-            + `(deleted,0) eq 0 and supplierId eq ${supplierId}`;
-        if (excludeCurrentId) {
-            query += ` and ( not id eq ${excludeCurrentId} )`;
-        }
-        return this.supplierInvoiceService.getStatQuery(query).map( x => {
-            if (x && x.length > 0) {
-                return x[0].countid;
-            }
-        });
-    }
-
     private refreshList() {
-
-        // No change?
-        if (this.lastUpdatedSupplierID === this.currentID) {
+        if (this.lastUpdatedSupplierID === this.supplierID) {
             return;
         }
 
-        this.lastUpdatedSupplierID = this.currentID;
+        this.lastUpdatedSupplierID = this.supplierID;
 
-        if (!this.currentID) {
+        if (!this.supplierID) {
             this.listOfInvoices.length = 0;
             this.tableConfig = this.createTableConfig();
             this.totals.grandTotal = 0;
             return;
         }
 
-        this.busy = true;
-        var params = new URLSearchParams();
-        params.set('filter', 'SupplierID eq ' + this.currentID);
+        const params = new URLSearchParams();
+        params.set('filter', 'SupplierID eq ' + this.supplierID);
         params.set('top', '40');
-        this.supplierInvoiceService.getInvoiceList(params)
-            .finally(() => this.busy = false)
-            .subscribe( list => {
-            this.removeSelfFromList(list);
-            this.sumList(list);
-            this.listOfInvoices = list;
-            this.tableConfig = this.createTableConfig();
-        },
+        this.supplierInvoiceService.getInvoiceList(params).subscribe(
+            list => {
+                this.removeSelfFromList(list);
+                this.sumList(list);
+                this.listOfInvoices = list;
+                this.tableConfig = this.createTableConfig();
+            },
             err => this.errorService.handle(err)
         );
 
     }
 
     private sumList(list: Array<any>) {
-        var sum = 0;
+        let sum = 0;
         list.forEach( x => sum += (x.TaxInclusiveAmount || 0) );
         this.totals.grandTotal = sum;
     }
 
     private removeSelfFromList(list: Array<any>): boolean {
         if (list && list.length > 0 && this.parentID) {
-            let n = list.length - 1;
-            for (var i = n; i >= 0; i--) {
+            const n = list.length - 1;
+            for (let i = n; i >= 0; i--) {
                 if (list[i].ID === this.parentID ) {
                     list.splice(i, 1);
                     return true;
@@ -113,7 +78,7 @@ export class BillHistoryView {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cols = [
+        const cols = [
             new UniTableColumn('InvoiceDate', 'Dato', UniTableColumnType.LocalDate).setWidth('5.5em')
                 .setFilterOperator('eq')
                 .setFormat('DD.MM.YY'),
@@ -163,12 +128,4 @@ export class BillHistoryView {
             .setPageSize(12)
             .setColumnMenuVisible(true);
     }
-
-    public onRowSelected(event) {
-        var item = event.rowModel;
-        if (item) {
-
-        }
-    }
-
 }

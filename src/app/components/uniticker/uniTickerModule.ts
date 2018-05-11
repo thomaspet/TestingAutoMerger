@@ -17,7 +17,6 @@ import {UniTicker} from './ticker/ticker';
 import {UniTickerWrapper} from './tickerWrapper/tickerWrapper';
 import {UniTickerContainer} from './tickerContainer/tickerContainer';
 import {UniSubTickerContainer} from './subTickerContainer/subTickerContainer';
-import {UniTickerPredefinedFilters} from './filters/predefinedFilters';
 import {UniTickerDetailView} from './components/tickerDetailView';
 
 @NgModule({
@@ -41,7 +40,6 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         UniTicker,
         UniTickerWrapper,
         UniSubTickerContainer,
-        UniTickerPredefinedFilters,
         UniTickerDetailView
     ],
     entryComponents: [
@@ -53,7 +51,6 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         UniTicker,
         UniTickerWrapper,
         UniSubTickerContainer,
-        UniTickerPredefinedFilters,
         UniTickerDetailView,
     ]
 })

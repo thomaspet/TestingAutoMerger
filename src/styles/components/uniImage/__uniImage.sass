@@ -1,6 +1,6 @@
 uni-image
+    display: block
     position: relative
-    min-width: 100%
 
     span.span-area-highlight-class
         display: none
@@ -81,76 +81,34 @@ uni-image
                 border-left: $size solid transparent
                 border-right: $size solid transparent
 
-    .uni-thumbnail-list
-        display: block
-        list-style: none
-        margin-right: 0.5rem
-
-        li
-            height: pxToRem(50)
-            max-width: 3rem
-            display: inline-block
-            float: left
-            cursor: pointer
-            margin-right: 5px
-
-            &:last-of-type
-                @include clearfix()
-
-            img
-                width: auto
-                height: 100%
-                max-width: 100%
-
-            // REVISIT: Quickfix. Get help from Jørgen!
-            &[aria-busy]:not([aria-busy=false])
-                box-sizing: border-box !important
-                cursor: not-allowed
-
-            .uni-image-upload
-                display: block
-                height: 50px
-                width: 3rem
-                border: 1px dashed $uni-color-scale8
-                border-radius: pxToRem(5)
-                box-sizing: border-box
-                cursor: pointer
-                background: unicon-plus($uni-color-scale8) center center no-repeat
-                background-size: 1rem
-
-                &[aria-disabled]:not([aria-disabled=false])
-                    cursor: not-allowed
-
-                input[type=file]
-                    // "visible" only for screen readers
-                    @extend %visuallyHidden
-
     .uniImage
+        display: flex
+
         .image-section
             display: block
             width: 100%
             height: 100%
+            border: 1px solid $uni-color-scale9
+            flex: 1
 
-        @media (min-width: 1000px)
-            position: relative
-            display: flex
-            width: 100%
+        ul.uni-thumbnail-list
+            display: block
+            list-style: none
+            margin: 0 0 0 .5rem
+            flex: 0 0 auto
 
-            .image-section
-                flex: 1 1 auto
+            li
+                height: pxToRem(50)
+                max-width: 3rem
+                display: block
+                cursor: pointer
+                margin: 0 0 .5rem
+                border: 1px dashed $uni-color-scale9
 
-            .uni-thumbnail-list
-                flex: 0 1 3rem
-                margin: 0 0 0 .5rem
-
-                li
-                    margin: 0 0 5px 0
-
-        @media (max-width: 1000px)
-            .uni-thumbnail-list
-                position: static
-                height: 3.5rem
-                margin: .5rem 0 0 0
+                img
+                    width: auto
+                    height: 100%
+                    max-width: 100%
 
     .uni-image-pager
         width: 100%
@@ -189,8 +147,10 @@ uni-image
         .next
             float: right
 
-uni-modal .uni-thumbnail-list.-has-thumbnails
+uni-modal .uni-thumbnail-list
     position: static
     max-width: none
 
 
+.widget-logo-wrapper .image-section
+    border: none !important

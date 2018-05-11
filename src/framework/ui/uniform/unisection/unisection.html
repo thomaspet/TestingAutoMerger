@@ -21,7 +21,7 @@
         <!-- Fieldset -->
         <ng-template ngFor let-fieldset [ngForOf]="groupedFields | fieldsetIndexes" let-i="index">
             <fieldset [ngClass]="{'small': (groupedFields | fieldsetIndexes).length > 1}">
-                <legend>{{groupedFields | getLegend:fieldset}}</legend>
+                <legend *ngIf="groupedFields | getLegend:fieldset">{{groupedFields | getLegend:fieldset}}</legend>
                 <section class="fieldset-column-container">
                     <ng-template ngFor let-column [ngForOf]="groupedFields | columnIndexes:fieldset" let-j="index2">
                         <section class="fieldset-column">

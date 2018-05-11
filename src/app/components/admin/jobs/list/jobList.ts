@@ -1,20 +1,23 @@
-// angular
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {PageStateService} from '../../../../services/services';
-import {UniTableConfig, UniTableColumn} 
-    from '../../../../../framework/ui/unitable/index';
 import * as moment from 'moment';
 
-// app
+import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ErrorService, JobService} from '../../../../services/services';
+import {ErrorService, JobService} from '@app/services/services';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'recently-executed-jobs',
     templateUrl: './JobList.html'
 })
 export class JobList implements OnInit {
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'Siste utførte'},
+        {name: 'Alle jobber'},
+        {name: 'SAF-T import'},
+    ];
 
     public filterTabs: any[] = [
         { label: 'Siste utførte', name: 'jobruns', id: 1 },
@@ -27,15 +30,13 @@ export class JobList implements OnInit {
     private jobRuns: any[];
     public jobRunsConfig: UniTableConfig;
     private jobs: any[];
-    private busy: boolean = false;
 
     constructor(
         private tabService: TabService,
         private router: Router,
         private jobService: JobService,
         private errorService: ErrorService,
-        private pageStateService: PageStateService) {
-    }
+    ) {}
 
     public ngOnInit() {
 
@@ -45,18 +46,7 @@ export class JobList implements OnInit {
             active: true,
             moduleID: UniModules.Jobs
         });
-        
-        // Select view?
-        var params = this.pageStateService.getPageState(); 
-        if (params.jobtype) {
-            let ix = this.filterTabs.findIndex( t => t.name === params.jobtype);
-            if (ix >= 0) {
-                this.activeTab = this.filterTabs[ix];
-                if (this.activeTab.name === 'saft') {
-                    return;
-                }
-            }
-        }
+
 
         this.setupJobTable();
     }
@@ -66,15 +56,12 @@ export class JobList implements OnInit {
     }
 
     private getLatestJobRuns() {
-        this.busy = true;
-        this.jobService.getLatestJobRuns(20)
-            .finally(() => this.busy = false)
-            .subscribe(
+        this.jobService.getLatestJobRuns(20).subscribe(
             result => {
                 this.jobRuns = result;
             },
             err => this.errorService.handle(err)
-            );        
+        );
     }
 
     private setupJobTable() {
@@ -86,44 +73,41 @@ export class JobList implements OnInit {
                 this.prepareJobList(result);
             },
             err => this.errorService.handle(err)
-            );
+        );
     }
 
     private setupJobRunsConfig() {
-
-        var cfg = new UniTableConfig('admin.jobs.jobruns', false, true, 20);
-        cfg.columns = [
+        const tableConfig = new UniTableConfig('admin.jobs.jobruns', false, true, 20);
+        tableConfig.columns = [
             new UniTableColumn('ID', 'Nr.').setWidth('4rem'),
             new UniTableColumn('JobName', 'Navn').setWidth('15rem'),
             new UniTableColumn('Created', 'Startet')
                 .setWidth('8rem')
-                .setTemplate( row => { 
-                    return row && row.Created ? 
-                        moment(row.Created).format('DD.MM.YY HH:mm') : '';
+                .setTemplate( row => {
+                    return row && row.Created
+                        ? moment(row.Created).format('DD.MM.YY HH:mm')
+                        : '';
                 }),
             new UniTableColumn('LastStatus', 'Fremdrift')
                 .setWidth('6rem')
-                .setTemplate( row => { 
-                    return row && row.Progress && row.Progress.length > 0 ? 
-                        moment(row.Progress[0].Created).format('HH:mm') : '';
+                .setTemplate( row => {
+                    return row && row.Progress && row.Progress.length > 0
+                        ? moment(row.Progress[0].Created).format('HH:mm')
+                        : '';
                 }),
-            new UniTableColumn('Status', 'Status')
-                .setTemplate( row => { 
-                    return row && row.Progress && row.Progress.length > 0 ? 
-                        row.Progress[0].Progress : '';
-                })
+            new UniTableColumn('Status', 'Status').setTemplate(row => {
+                    return row && row.Progress && row.Progress.length > 0
+                        ? row.Progress[0].Progress
+                        : '';
+            })
         ];
-        this.jobRunsConfig = cfg;
+
+        this.jobRunsConfig = tableConfig;
     }
 
     private prepareJobList(jobNames: string[]) {
-        this.jobs = [];
-
-        jobNames.forEach(element => {
-            var job = {
-                name: element
-            };
-            this.jobs.push(job);
+        this.jobs = jobNames.map(name => {
+            return {name: name};
         });
     }
 
@@ -141,13 +125,12 @@ export class JobList implements OnInit {
     }
 
     public onJobRunSelected(event) {
-        var item = event.rowModel;
+        const item = event.rowModel;
         this.router.navigateByUrl(`/admin/job-logs/${item.JobName}/${item.HangfireJobId}`);
     }
 
     public onTabChange(tab) {
         this.activeTab = tab;
-        this.pageStateService.setPageState('jobtype', tab.name);
         if (!this.jobRunsConfig) {
             this.setupJobTable();
         }

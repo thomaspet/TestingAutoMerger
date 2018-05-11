@@ -17,6 +17,7 @@
         width: 100%
         max-width: none
         border: none
+        box-shadow: none
 
         legend
             background: #fff
@@ -26,10 +27,7 @@
             width: calc(100% - 1rem)
 
         &.small
-            width: 49%
-            flex: 1 0 49%
-            &:first-of-type
-                float: left
+            flex: 1
 
             @include media(1100px)
                 flex: 1 0 100%

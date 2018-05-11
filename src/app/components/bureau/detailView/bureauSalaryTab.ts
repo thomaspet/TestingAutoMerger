@@ -30,10 +30,15 @@ const BASE = environment.BASE_URL;
             <span>Lønns-<br />avregning</span>
         </section>
         <section class="text-container">
-            <p>Siste lønnsavregning</p>
-            <a (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[0]}}</a>
-            <p>Utbetalingsdato</p>
-            <a (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[1]}}</a>
+            <p>
+                Siste lønnsavregning:
+                <a (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[0]}}</a>
+            </p>
+
+            <p>
+                Utbetalingsdato
+                <a (click)="navigateToCompanyUrl('/salary/payrollrun')">{{viewData[1]}}</a>
+            </p>
         </section>
     </section>
     <section class="tab-part">
@@ -42,8 +47,10 @@ const BASE = environment.BASE_URL;
             <span>A-Melding</span>
         </section>
         <section class="text-container">
-            <p>Siste leverte periode (A-melding)</p>
-            <a (click)="navigateToCompanyUrl('/salary/amelding')">{{viewData[2]}}</a>
+            <p>
+                Siste leverte periode (A-melding):
+                <a (click)="navigateToCompanyUrl('/salary/amelding')">{{viewData[2]}}</a>
+            </p>
         </section>
     </section>
 </section>`

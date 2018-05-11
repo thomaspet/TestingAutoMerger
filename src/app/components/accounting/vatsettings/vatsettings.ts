@@ -7,6 +7,7 @@ import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {VatDeductionSettings} from './vatdeductions/vatdeductionsettings';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'vat-settings',
@@ -19,46 +20,47 @@ export class VatSettings {
 
     private vatType: VatType;
     private hasChanges: boolean = false;
-    private activeTab: string = '';
 
     private toolbarconfig: IToolbarConfig;
-
     private saveactions: IUniSaveAction[];
+
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'MVA innstillinger'},
+        {name: 'Forholdsmessig MVA / fradrag'}
+    ];
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({
-            name: 'MVA-innstillinger', url: '/accounting/vatsettings', moduleID: UniModules.Vatsettings, active: true
+            name: 'MVA-innstillinger',
+            url: '/accounting/vatsettings',
+            moduleID: UniModules.Vatsettings,
+            active: true
         });
-
-        this.showTab('vatsettings');
     }
 
-    private showTab(newTab: string) {
-        this.activeTab = newTab;
+    public onTabIndexChange(index: number) {
+        this.activeTabIndex = index;
 
-        if (newTab === 'vatsettings') {
-            this.saveactions = [
-                {
-                    label: 'Lagre innstillinger',
-                    action: (completeEvent) => this.saveSettings(completeEvent),
-                    main: true,
-                    disabled: false
-                }
-            ];
+        if (index === 0) {
+            this.saveactions = [{
+                label: 'Lagre innstillinger',
+                action: (completeEvent) => this.saveSettings(completeEvent),
+                main: true,
+                disabled: false
+            }];
 
             this.toolbarconfig = {
                 title: 'MVA-innstillinger',
                 omitFinalCrumb: true
             };
-        } else if (newTab === 'deductions') {
-            this.saveactions = [
-                {
-                    label: 'Lagre',
-                    action: (completeEvent) => this.saveSettings(completeEvent),
-                    main: true,
-                    disabled: false
-                }
-            ];
+        } else {
+            this.saveactions = [{
+                label: 'Lagre',
+                action: (completeEvent) => this.saveSettings(completeEvent),
+                main: true,
+                disabled: false
+            }];
 
             this.toolbarconfig = {
                 title: 'Forholdsvis MVA-innstillinger',

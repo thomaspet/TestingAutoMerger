@@ -1,70 +1,54 @@
-<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
-            [statustrack]="statustrack"
-            [saveactions]="saveactions"
-            [commentsConfig]="commentsConfig"
-            [selectConfig]="selectConfig"
-            (selectValueChanged)="numberSeriesChange($event)">
+<uni-toolbar
+    *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [validationMessages]="supplierStatusValidation"
+    [saveactions]="saveactions"
+    [commentsConfig]="commentsConfig"
+    [selectConfig]="selectConfig"
+    (selectValueChanged)="numberSeriesChange($event)">
 </uni-toolbar>
 
-<header class="supplier_poster" *ngIf="(supplier$|async)">
-    <div class="horizontal_nav" *ngIf="(supplier$|async)?.ID">
-        <ul>
-            <li>
-                <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
-                   (click)="showTab('details')">
-                    Detaljer
-                </a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'reconciliation' ? 'router-link-active' : ''"
-                   (click)="showTab('reconciliation')">
-                    Åpne poster
-                </a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'attachments' ? 'router-link-active' : ''"
-                   (click)="showTab('attachments')">
-                    Dokumenter
-                </a>
-            </li>
-            <li *ngFor="let link of reportLinks">
-                <a
-                        [class]="activeTab === 'uniquery' && showReportWithID == link.id ? 'router-link-active' : ''"
-                        (click)="showTab('report', link.id)"
-                >{{link.name}}</a>
-            </li>
-        </ul>
-    </div>
-</header>
+<section class="application" *ngIf='(supplier$|async)'>
+    <uni-tabs [tabs]="tabs" (activeIndexChange)="showTab($event)"></uni-tabs>
 
-<section class="supplier-details application" *ngIf='(supplier$|async)'>
-    <uni-form *ngIf="activeTab === 'details'"
-              [config]="config$"
-              [fields]="fields$"
-              [model]="supplier$"
-              (changeEvent)="supplierDetailsChange($event)">
-    </uni-form>
-    <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (supplier$|async)?.ID">
-        <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
-        <div class="collapsable-content">
-            <contacts
-                [parentBusinessRelation]="(supplier$ | async)?.Info"
-                (contactChanged)="onContactChanged($event)">
-            </contacts>
-        </div>
-    </article>
-    <ledger-account-reconciliation [supplierID]="(supplier$|async)?.ID"  *ngIf="activeTab === 'reconciliation'"></ledger-account-reconciliation>
-    <uni-attachments *ngIf="activeTab === 'attachments'"
-        id="attachments"
-        [entity]="'Supplier'"
-        [entityID]="(supplier$ | async)?.ID"
-        [hideLabel]="true">
-    </uni-attachments>
-    <uni-query-read-only
-            *ngFor="let link of reportLinks"
-            [hidden]="showReportWithID != link.id"
-            [ngClass]="{'hidden': showReportWithID != link.id}"
-            [queryDefinitionID]="link.id"
+    <ng-template [ngIf]="activeTabIndex === 0">
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="supplier$"
+            (changeEvent)="supplierDetailsChange($event)">
+        </uni-form>
+
+        <article *ngIf="(supplier$|async)?.ID" class="collapsable" [ngClass]="{'-is-open': showContactSection}">
+            <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
+            <div class="collapsable-content">
+                <contacts
+                    [parentBusinessRelation]="(supplier$ | async)?.Info"
+                    (contactChanged)="onContactChanged($event)">
+                </contacts>
+            </div>
+        </article>
+    </ng-template>
+
+    <section *ngIf="activeTabIndex === 1" class="uni-container">
+        <ledger-account-reconciliation
+            [supplierID]="(supplier$|async)?.ID">
+        </ledger-account-reconciliation>
+    </section>
+
+    <section *ngIf="activeTabIndex === 2" class="uni-container">
+        <uni-attachments
+            id="attachments"
+            [entity]="'Supplier'"
+            [entityID]="(supplier$ | async)?.ID">
+        </uni-attachments>
+    </section>
+
+    <section *ngIf="showReportWithID" class="uni-container">
+        <uni-query-read-only
+            [queryDefinitionID]="showReportWithID"
             [externalID]="(supplier$|async)?.ID">
-    </uni-query-read-only>
+        </uni-query-read-only>
+    </section>
+
 </section>

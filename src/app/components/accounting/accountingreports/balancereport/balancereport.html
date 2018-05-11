@@ -1,10 +1,26 @@
-<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
-<section class="application">
+<section class="uni-container">
     <section class="period-setup">
-        <uni-select [items]="yearItems" [config]="yearSelectConfig" (valueChange)="onYearSelect($event)"></uni-select>
+        <uni-select
+            [items]="yearItems"
+            [config]="yearSelectConfig"
+            (valueChange)="onYearSelect($event)">
+        </uni-select>
+
         Viser perioder: <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker>
         <button (click)="toggleFilter()">Filter</button>
-        <uni-form *ngIf="filterVisible" [config]="config$" [fields]="fields$" [model]="filter$" (changeEvent)="onFilterChange($event)"></uni-form>
+        <uni-form
+            *ngIf="filterVisible"
+            [config]="config$"
+            [fields]="fields$"
+            [model]="filter$"
+            (changeEvent)="onFilterChange($event)">
+        </uni-form>
     </section>
-    <drilldown-balance-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [filter]="filter"></drilldown-balance-report-part>
+
+    <drilldown-balance-report-part
+        [periodFilter1]="periodFilter1"
+        [periodFilter2]="periodFilter2"
+        [filter]="filter">
+    </drilldown-balance-report-part>
 </section>
+

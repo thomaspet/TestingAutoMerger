@@ -1,5 +1,5 @@
 // Common styling for tasks and approvals is located in _assignments.sass
-uni-tasks-new
+uni-tasks
     .assignment-list .assignment-filters
         padding-top: 1.5rem
 
@@ -7,43 +7,38 @@ uni-tasks-new
             float: left
 
     .assignment-list ul
-        height: calc(100% - 10rem)
+        height: calc(100% - 9rem)
 
     .addTask
-        display: block
+        display: flex
         width: 100%
         height: 5rem
         padding: 0
 
         label
-            display: inline-block
-            width: 15rem
+            flex: 1
 
             &.task-text
-                width: 25rem
-                margin-right: 1.5rem
+                flex: 2
+                margin-right: 1rem
+
+        .uniSelect_dropdown
+            bottom: -4.25rem
+            height: 20rem
 
         button
-            min-width: 7rem
+            flex: 0 0 5rem
+            margin: 1.5rem 0 0 1rem
 
 
     .assignment-details-content
-        margin-bottom: 5rem
-
+        height: 100%
         uni-comments
             display: block
             height: 100%
 
-            .comments-standard-mode
-                uni-comment-list
-                    padding: 2rem 12.5% 1rem 1rem
-
-                uni-comment-input
-                    position: fixed
-                    bottom: 0
-                    width: 42%
-                    padding: 1.5rem 0 1rem 1rem
-                    border-top: pxToRem(1) solid $uni-color-scale9
-
-                    button
-                        margin-right: 17%
+            uni-comment-list
+                height: calc(100% - 3.5rem)
+            uni-comment-input
+                height: 3rem
+                padding-bottom: 0

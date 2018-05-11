@@ -1,14 +1,20 @@
-﻿<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveactions">
+﻿<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
 </uni-toolbar>
+
 <section class=" application">
     <section class="splitview">
         <nav class="splitview_list">
-            <button class="new-button" (click)="createNew()">Ny konto</button>
+            <button class="new-account-btn" (click)="createNew()">Ny konto</button>
             <account-list (uniAccountChange)="changeAccount($event)"></account-list>
         </nav>
         <main class="splitview_detail">
-            <account-details (accountSaved)="accountSaved($event)" [inputAccount]="account" (changeEvent)="change($event)"></account-details>
+            <account-details
+                [inputAccount]="account"
+                (accountSaved)="accountSaved($event)"
+                (changeEvent)="change($event)">
+            </account-details>
         </main>
     </section>
 </section>

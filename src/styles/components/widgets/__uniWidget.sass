@@ -1,8 +1,7 @@
-@import 'listWidget'
-
 uni-widget-canvas
     display: block
     width: 100%
+    font-family: 'Roboto', sans-serif
 
 .canvas-cell,
 .grid-anchor
@@ -22,8 +21,8 @@ uni-widget-canvas
         border: 2px solid $uni-color-bad
 
 .widget-canvas
-    width: 87.5%
-    max-width: 1400px
+    width: 90%
+    max-width: 1500px
     margin: 0 auto
     padding: 0
     display: block
@@ -71,6 +70,7 @@ uni-widget-canvas
     bottom: 0
     left: 0
     right: 0
+    z-index: 999
 
     button
         box-shadow: darken($uni-color-scale4, 10%) 0px 1px 1px 0px
@@ -103,7 +103,6 @@ uni-widget
         width: 2rem
         padding: 0
         margin: 0
-        box-shadow: none
         border: none
         background: transparent unicon-close($uni-color-bad) center no-repeat
         background-size: .8rem
@@ -131,154 +130,41 @@ uni-multilevel-select
 uni-widget-canvas
     display: block
     position: absolute
-    top: 2rem // To account for the tab strip
+    top: 0
     left: 0
     right: 0
     bottom: 0
-    overflow: auto // To allow scroll
+    overflow: auto
     padding-top: 2rem
     background-size: cover
     background-attachment: fixed
     background-image: url('assets/dashboard.jpg')
 
-
-.uni-widget-tile-content
-    margin: 0
-    height: 100%
-    width: auto
-    z-index: 0 !important
-    overflow-x: hidden
-    overflow-y: hidden
-    color: #fff
-    border-radius: 3px
-    cursor: pointer
-
-    h2
-        padding: 0
-        margin: 0
-        position: absolute
-        right: 8%
-        bottom: 40%
-        font-size: 3.7rem
-        font-weight: 500
-
-    p
-        padding: 0
-        margin: -1rem
-        color: #fff
-
-.uni-shortcut-link
-    display: inline-block
-    cursor: pointer
-    position: relative
-    top: calc(50% - 2rem)
-    width: 100%
-    overflow: hidden
-    text-overflow: ellipsis
-    letter-spacing: .04rem
-    font-size: 14px
-    font-weight: 400
-
-    color: #fff
-    text-decoration: none
-
-    &:hover
-        color: #fff
-        text-decoration: none
-
 .uni-widget-header
-    font-size: 14px
-    font-weight: 400
-    letter-spacing: .04rem
-    color: #fff
-    margin: 0
     width: 100%
-    background-color: #06457a
+    height: 40px
+    line-height: 30px
+    padding-top: 5px
+    padding-left: 1rem
+    box-sizing: border-box
+
+    background-color: #fff
+    color: $uni-color-scale2
+    font-size: 20px
+    font-weight: 400
+    text-align: left
+
     border-top-left-radius: pxToRem(2)
     border-top-right-radius: pxToRem(2)
-    height: 35px
-    line-height: 35px
-    text-align: center
 
 .uni-widget-content
-    height: calc(100% - 35px)
+    height: calc(100% - 40px)
     background: #fff
     border-bottom-left-radius: pxToRem(2)
     border-bottom-right-radius: pxToRem(2)
     position: relative
     box-sizing: border-box
     padding: 20px
-
-.uni-widget-shortcut-tile
-    text-align: center
-    background-color: #06457a
-    cursor: pointer
-    &:hover
-        background-color: #0a2e52
-    &:active
-        transform: scale(0.97)
-    &[disabled=true],
-    &[disabled=true] *
-        cursor: not-allowed
-        background-color: desaturate(mix(#06457a, $uni-color-negative, 70%), 10%)
-
-.dashboard-shortcut-icon,
-.dashboard-notification-icon
-    @extend %hideText
-    display: inline-block
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    border-bottom-color: transparent
-    position: relative
-
-.dashboard-shortcut-icon,
-    height: 2.8rem
-    width: 2.8rem
-    top: 1rem
-
-.dashboard-notification-icon
-    height: 6.5rem
-    width: 6.5rem
-    top: -1.9rem
-    left: -2rem
-
-.letterForIconStyling
-    top: calc(52% - 2.8rem)
-
-.letterIconStyling
-    font-size: 3.6rem
-    position: relative
-    color: $uni-color-negative
-    font-family: serif
-    top: .1rem
-
-    &:hover
-        color: $uni-color-negative
-
-.uni-widget-notification-tile
-    position: relative
-    p
-        position: absolute
-        left: 2rem
-        bottom: 1.5rem
-        font-size: 15px
-        letter-spacing: .04rem
-
-.uni-widget-notification-orange
-    background-color: #dc9346
-    &:hover
-        background-color: #bb6700
-
-.uni-widget-notification-green
-    background-color: #479354
-    &:hover
-        background-color: #579354
-
-.uni-widget-notification-lite-blue
-    background-color: #7698bd
-    &:hover
-        background-color: #597a9e
 
 uni-clock,
 .uni-widget-clock
@@ -305,7 +191,7 @@ uni-clock,
 
     h3
         margin: 0
-        font-size: 1.4rem
+        font-size: 1.25rem
         font-weight: 300
 
         &:last-of-type
@@ -317,7 +203,7 @@ uni-clock,
     color: #000
 
     span
-        font-size: 4rem
+        font-size: 3.25rem
         font-weight: 300
         letter-spacing: .2rem
         display: inline
@@ -334,59 +220,6 @@ uni-clock,
 
     &.long-time span
         font-size: 2.8rem
-
-
-
-uni-kpi-widget .uni-widget-content
-    padding: 0
-
-.kpi-widget-row
-    display: flex
-    flex-flow: row nowrap
-    height: 33%
-    box-sizing: border-box
-    border-bottom: 1px solid #85898b
-    &:last-of-type
-        border-bottom: none
-
-    .kpi-widget-column
-        height: 100%
-        flex: 1 0 33%
-        max-width: 33%
-        color: $uni-color-positive
-        align-items: center
-
-        display: flex
-        justify-content: center
-        flex-direction: column
-        text-align: center
-
-        span
-            display: block
-
-            &.kpi-widget-title
-                font-size: 1.25rem
-                font-weight: 100
-
-            &.kpi-widget-value
-                font-size: 1.25rem
-
-        canvas
-            width: 90%
-            height: 70%
-            max-height: 70%
-            // margin-top: 10%
-
-        .kpi-widget-arrow
-            @extend %hideText
-            display: block
-            height: 1.2rem
-            width: 1.2rem
-            background-size: 1.2rem
-            background-position: center center
-            background-repeat: no-repeat
-            position: relative
-            border-bottom-color: transparent
 
 
 .widget-logo-wrapper
@@ -413,7 +246,7 @@ uni-rss
 
     ul
         list-style: none
-        height: calc(100% - 35px)
+        height: calc(100% - 40px)
         overflow-y: auto
         margin: 0
         padding: 0 1rem
@@ -441,37 +274,58 @@ uni-rss
         a
             text-decoration: none !important
 
-.positive-negative-widget
+.positive-negative-widget,
+.currency_widget
+    display: flex
+    flex-direction: column
+    justify-content: center
     width: 100%
     height: 100%
     border-radius: 3px
-    padding-top: 1rem
     box-sizing: border-box
     text-align: center
 
-    background-color: #77b655
+    background: #fff
+    color: $uni-color-scale2
+    cursor: pointer
+
     &:hover
-        cursor: pointer
-        background-color: #4aa526
+        background: #f0f0f0
 
-    &.negative
-        background-color: #d65f63
-        &:hover
-            background-color: #df4d52
-
-    .title
-        display: block
-        margin: 0
-        margin-top: -3%
-        color: #fefefe
-        font-size: 1em
-
+.positive-negative-widget
     .value
-        display: block
-        margin: 0
-        margin-top: 6%
-        color: #fefefe
-        font-size: 2em
+        color: lighten($uni-color-toolbar, 5%)
+        font-size: 2rem
+        margin-top: .5rem
+
+        &.bad
+            color: $uni-color-bad
+
+    @include media(1600px)
+        font-size: 14px
+        .value
+            font-size: 25px
+            margin-top: .25rem
+
+.currency_widget
+    span
+        flex: 0 0 auto
+
+        &.label
+            font-size: .85rem
+
+        &.last-update-date
+            font-size: 1.5rem
+            margin: .25rem 0
+            color: $uni-color-toolbar
+            &.warn
+                color: $uni-color-warn
+            &.bad
+                color: $uni-color-bad
+
+            @include media(1600px)
+                font-size: 20px
+                margin: 0
 
 .transaction-list
     list-style: none
@@ -483,10 +337,9 @@ uni-rss
         line-height: 2rem
         padding: .1rem 1rem
 
-        &:hover,&.is-active
+        &:hover, &.is-active
             cursor: pointer
-            background-color: $uni-color-negative
-            color: $navbarBackground
+            color: $uni-color-toolbar
             font-weight: 600
 
 .transaction_table
@@ -587,9 +440,10 @@ uni-rss
         cursor: pointer
         background-color: darken($uni-color-good, 10%)
 
-.info_shortcut_section
-    padding: 0
-    cursor: pointer
+uni-info-shortcut
+    .info_shortcut_section
+        padding: 0
+        cursor: pointer
 
     img
         width: 100%
@@ -608,84 +462,49 @@ uni-rss
             font-size: small
             line-height: 1.2rem
 
-.currency_widget
-    height: 100%;
-    background-color: #fff;
-    border-bottom-left-radius: .125rem;
-    border-bottom-right-radius: .125rem;
-    position: relative;
-    box-sizing: border-box;
-    color: black;
-    font-family: $uni-stack
-    padding: .25rem
-    color: $uni-color-negative
 
-    .currency_widget_number
-        font-size: 1.4rem
-        color: $uni-color-negative
-        margin: 5px 0
+    @include media(1600px)
+        img
+            height: 35%
+        div
+            height: 65%
+        .uni-widget-header
+            font-size: 16px
 
-    .currency_widget_bank
-        font-size: 1rem
-        color: $uni-color-negative
-        position: relative
-        bottom: 15%
 
-    .currency_refresh_icon
-        @extend %hideText
-        display: inline-block
-        background-size: contain
-        background-position: center center
-        background-repeat: no-repeat
-        background-image: unicon-info($uni-color-negative)
-        border-bottom-color: transparent
-        position: absolute
-        width: 1rem
-        height: 1rem
-        bottom: calc(50% - .5rem)
-        left: 85%
+uni-top-ten-widget
+    .topten-table-container
+        padding: 0 0 20px 20px
+        overflow: auto
 
-    &:hover
-        cursor: pointer
+    .topten-table
+        color: $uni-color-positive
+        width: 100%
+        table-layout: fixed
+        font-size: .8rem
 
-    label
-        font-size: .9rem
+        tbody
+            tr
+                line-height: 170%
 
-    &.red
-        background-color: #d65f63
-        &:hover
-            background-color: $uni-color-bad
-    &.orange
-        background-color: #e28e27
-        &:hover
-            background-color: $uni-color-warn
-    &.green
-        background-color: #77b655
-        &:hover
-            background-color: $uni-color-good
+    @include media(1600px)
+        .uni-widget-header
+            font-size: 16px
+        .topten-table
+            font-size: 12px
+            .previous-year
+                display: none
 
-.topten-table-container
-    padding: 0 0 20px 20px
 
-.topten-table
-    color: $uni-color-positive
-    width: 100%
-    table-layout: fixed
-    font-size: .8rem
+    .twenty-width-right
+        width: 20%
+        text-align: right
 
-    tbody
-        tr
-            line-height: 170%
+    .five-width-end
+        width: 5%
 
-.twenty-width-right
-    width: 20%
-    text-align: right
-
-.five-width-end
-    width: 5%
-
-.thirtyfive-width-start
-    width: 35%
+    .thirtyfive-width-start
+        width: 35%
 
 .customer-name-col
     width: 35%
@@ -720,136 +539,176 @@ uni-rss
             background-color: $uni-color-scale9
 
 
-// Icons
-.dashboard-shortcut-icon-fallback
-    background-image: unicon-plus($uni-color-negative)
+uni-widget
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
 
-.dashboard-shortcut-icon-calender
-    background-image: unicon-calendar($uni-color-negative)
+uni-chart
+    .uni-widget-content
+        padding: 20px 2rem
 
-.dashboard-shortcut-icon-home
-    background-image: unicon-home($uni-color-negative)
+.uni-widget-button
+    flex: 1
+    padding: 0 .25rem
+    box-sizing: border-box
+    cursor: pointer
+    color: $uni-color-scale2
 
-.dashboard-shortcut-icon-lock
-    background-image: unicon-lock($uni-color-negative)
+    height: 100%
+    display: flex
+    flex-direction: column
+    justify-content: center
+    text-align: center
 
-.dashboard-shortcut-icon-globe
-    background-image: unicon-globe($uni-color-negative)
+    &:hover
+        background: #f0f0f0
 
-.dashboard-shortcut-icon-plus
-    background-image: unicon-plus($uni-color-negative)
+    + .uni-widget-button
+        border-left: 1px solid $uni-color-scale9
 
-.dashboard-shortcut-icon-paperclip
-    background-image: unicon-paperclip($uni-color-negative)
+uni-shortcuts
+    display: flex
+    width: 100%
+    height: 100%
+    background: #fff
+    border-radius: 3px
 
-.dashboard-shortcut-icon-hourreg
-    background-image: unicon-clock-filler($uni-color-negative)
+    .uni-widget-button
+        font-size: 15px
 
-.dashboard-shortcut-icon-accounting
-    background-image: unicon-accounting($uni-color-negative)
+        i.material-icons
+            display: block
+            color: $uni-color-toolbar
+            font-size: 36px
+            margin-bottom: .25rem
 
-.dashboard-shortcut-icon-payroll
-    background-image: unicon-payroll($uni-color-negative)
+        i.letter-icon
+            font-style: normal
+            font-family: serif
+            color: $uni-color-toolbar
+            font-size: 40px
+            margin: .5rem 0
 
-.dashboard-shortcut-icon-bank
-    background-image: unicon-bank($uni-color-negative)
+        span
+            white-space: nowrap
 
-.dashboard-shortcut-icon-invoice
-    background-image: unicon-invoice($uni-color-negative)
+        &.not-allowed
+            cursor: not-allowed
+            color: $uni-color-scale8
 
-.dashboard-shortcut-icon-chat
-    background-image: unicon-chat($uni-color-negative)
+            i.material-icons
+                color: $uni-color-scale8
 
-.dashboard-shortcut-icon-user
-    background-image: unicon-user($uni-color-negative)
+            &:hover
+                background: none
 
-.dashboard-shortcut-icon-sale
-    background-image: unicon-sale($uni-color-negative)
+        @include media(1600px)
+            font-size: 14px
+            i.material-icons
+                font-size: 30px
 
-.dashboard-shortcut-icon-search
-    background-image: unicon-search($uni-color-negative)
+uni-counters-widget
+    display: flex
+    width: 100%
+    height: 100%
+    background: #fff
+    border-radius: 3px
+    margin: auto 0
 
-.dashboard-shortcut-icon-amelding
-    background-image: unicon-amelding($uni-color-negative)
+    .uni-widget-button
+        min-width: 7rem
 
-.dashboard-shortcut-icon-employee
-    background-image: unicon-employee($uni-color-negative)
+        p
+            margin: 0 0 .15rem 0
+            font-size: 18px
 
-.dashboard-shortcut-icon-payrollrun
-    background-image: unicon-payrollrun($uni-color-negative)
+        span
+            display: block
+            font-size: 40px
+            line-height: 40px
 
-.dashboard-shortcut-icon-wagetype
-    background-image: unicon-wagetype($uni-color-negative)
+            color: lighten($uni-color-toolbar, 5%)
+            &.bad
+                color: $uni-color-bad
 
-.dashboard-shortcut-icon-customer
-    background-image: unicon-customer($uni-color-negative)
+        @include media(1600px)
+            p
+                font-size: 17px
+            span
+                font-size: 30px
+                line-height: 30px
 
-.dashboard-shortcut-icon-product
-    background-image: unicon-product($uni-color-negative)
+uni-kpi-widget
+    display: flex
+    width: 100%
+    height: 100%
+    padding: 0 1.25rem 0 2rem
+    background: #fff
+    border-radius: 3px
+    text-align: left
+    color: $uni-color-scale2
 
-.dashboard-shortcut-icon-journalentry
-    background-image: unicon-journalentry($uni-color-negative)
+    .company-name
+        flex: 0 0 auto
+        margin: auto 0
+        font-size: 30px
+        font-weight: normal
 
-.dashboard-shortcut-icon-supplierinvoice
-    background-image: unicon-supplierinvoice($uni-color-negative)
+    .kpi-section
+        flex: 0 0 auto
+        margin: auto 2rem
+        display: flex
 
-.dashboard-shortcut-icon-mva
-    background-image: unicon-mva($uni-color-negative)
+        .overview-widget-count
+            flex: 0 0 auto
+            min-width: 7rem
+            padding: 0 1rem
+            box-sizing: border-box
+            text-align: center
 
-.dashboard-shortcut-icon-accountingreport
-    background-image: unicon-accountingreport($uni-color-negative)
+            margin-left: 2rem
 
-.dashboard-shortcut-icon-magnifying
-    background-image: unicon-magnifying($uni-color-negative)
+            p
+                margin: 0
+                font-size: 18px
 
-.dashboard-notification-icon-paperclip
-    background-image: unicon-paperclip(rgba(255,255,255,.3))
+            span
+                display: block
+                font-size: 16px
+                line-height: 30px
 
-.dashboard-notification-icon-globe
-    background-image: unicon-globe(rgba(255,255,255,.3))
+                color: $uni-color-scale5
+                strong
+                    color: $uni-color-scale2
 
-.dashboard-notification-icon-letter
-    background-image: unicon-letter(rgba(255,255,255,.3))
+                i.material-icons
+                    vertical-align: middle
+                    margin-right: .25rem
+                    margin-top: -3px
 
-.dashboard-notification-icon-search
-    background-image: unicon-search(rgba(255,255,255,.3))
+                    &.good
+                        color: $uni-color-good
+                    &.warn
+                        color: $uni-color-warn
+                    &.bad
+                        color: $uni-color-bad
 
-.dashboard-notification-icon-bell
-    background-image: unicon-bell(rgba(255,255,255,.3))
+    @include media(1250px)
+        .kpi-section
+            margin-left: auto
+            .overview-widget-count
+                margin-left: 0
 
-.dashboard-notification-icon-home
-    background-image: unicon-home(rgba(255,255,255,.3))
 
-.dashboard-notification-icon-settings
-    background-image: unicon-settings(rgba(255,255,255,.3))
+    @include media(900px)
+        flex-direction: column
+        justify-content: center
+        .company-name
+            flex: 0 0 auto
+            margin: 0 auto .5rem
+        .kpi-section
+            margin: 0 auto
 
-.dashboard-notification-icon-ehf
-    background-image: unicon-ehf(rgba(255,255,255,.3))
+    @include media(768px)
+        .kpi-section
+            display: none
 
-.dashboard-notification-icon-pdf
-    background-image: unicon-pdf(rgba(255,255,255,.3))
-
-.dashboard-notification-icon-notification
-    background-image: unicon-notification(rgba(255,255,255,.3))
-
-.dashboard-notification-icon-travel
-    background-image: unicon-travel(rgba(255,255,255,.3))
-
-.kpi-widget-level1
-    background-image: unicon-arrow(rgba(214,94,99, 1))
-    transform: rotate(45deg)
-
-.kpi-widget-level2
-    background-image: unicon-arrow(rgba(235,181,171, 1))
-    transform: rotate(35deg)
-
-.kpi-widget-level3
-    background-image: unicon-arrow(rgba(185,212,157, 1))
-    transform: rotate(25deg)
-
-.kpi-widget-level4
-    background-image: unicon-arrow(rgba(155,197,125, 1))
-    transform: rotate(10deg)
-
-.kpi-widget-level5
-    background-image: unicon-arrow(rgba(119,182,85, 1))

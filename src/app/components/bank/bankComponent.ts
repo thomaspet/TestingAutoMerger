@@ -687,7 +687,7 @@ export class BankComponent implements AfterViewInit {
         this.paymentBatchService.registerAndCompleteCustomerPayment(file.ID)
             .subscribe(res => {
                 this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                this.tickerContainer.tickerFilters.getFilterCounts();
+                this.tickerContainer.getFilterCounts();
                 this.tickerContainer.mainTicker.reloadData();
             },
             err => this.errorService.handle(err)
@@ -703,7 +703,7 @@ export class BankComponent implements AfterViewInit {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');
 
-                this.tickerContainer.tickerFilters.getFilterCounts();
+                this.tickerContainer.getFilterCounts();
                 this.tickerContainer.mainTicker.reloadData();
             },
             err => this.errorService.handle(err)
@@ -830,7 +830,7 @@ export class BankComponent implements AfterViewInit {
 
                             // Download file so the user can open it
                             saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                            this.tickerContainer.tickerFilters.getFilterCounts();
+                            this.tickerContainer.getFilterCounts();
                             this.tickerContainer.mainTicker.reloadData();
                         },
                         err => {
@@ -864,7 +864,7 @@ export class BankComponent implements AfterViewInit {
                 res => {
                 doneHandler(res);
                 if (res === 'Sendingen er fullført') {
-                    this.tickerContainer.tickerFilters.getFilterCounts();
+                    this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
                 }
             },

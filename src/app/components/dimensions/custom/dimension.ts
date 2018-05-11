@@ -28,10 +28,12 @@ import {
     UniTable,
     ITableFilter
 } from '../../../../framework/ui/unitable/index';
+import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-dimension-view',
-    templateUrl: './dimension.html'
+    templateUrl: './dimension.html',
+    styleUrls: ['./dimension.sass']
 })
 
 export class UniDimensionView implements OnInit {
@@ -50,8 +52,13 @@ export class UniDimensionView implements OnInit {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
-    public tabs: string[] = ['Detaljer', 'Tilbud', 'Ordre', 'Faktura'];
     public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'Detaljer'},
+        {name: 'Tilbud'},
+        {name: 'Ordre'},
+        {name: 'Faktura'}
+    ];
 
     public numberStrings = ['QuoteNumber', 'OrderNumber', 'InvoiceNumber'];
     public dateStrings = ['QuoteDate', 'OrderDate', 'InvoiceDate'];
@@ -107,6 +114,14 @@ export class UniDimensionView implements OnInit {
 
             this.getDimensions();
         });
+    }
+
+    public getHeaderText(dimension): string {
+        if (dimension.ID) {
+            return `${dimension[this.numberKey]} - ${dimension.Name}`;
+        } else {
+            return 'Ingenting å vise';
+        }
     }
 
     // Gets all dimension-types and adds them to local array, then calls getDimensionsList
@@ -268,7 +283,7 @@ export class UniDimensionView implements OnInit {
                 group: 0,
                 searchValue: '',
                 selectConfig: null
-            }
+            };
 
             this.TOFTableConfig = new UniTableConfig('dimension.tof.list', false)
                 .setColumns([idCol, customerNumberCol, nameCol, dateCol, secondDateCol, refCol, statusCol, dimCol, totalCol])
@@ -353,30 +368,21 @@ export class UniDimensionView implements OnInit {
                         Label: 'Prosjektnummer',
                         Property: 'ProjectNumber',
                         Placeholder: 'Autogenerert hvis blank',
-                        FieldSet: 1,
-                        Legend: 'Prosjekt',
-                        FieldSetColumn: 1
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Navn',
                         Property: 'Name',
-                        FieldSet: 1,
-                        FieldSetColumn: 2
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Prosjektleder',
                         Property: 'ProjectLeadName',
-                        FieldSet: 1,
-                        FieldSetColumn: 1
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Beskrivelse',
                         Property: 'Description',
-                        FieldSet: 1,
-                        FieldSetColumn: 2
                     }
                 ];
             case 2: // Department
@@ -386,30 +392,21 @@ export class UniDimensionView implements OnInit {
                         Label: 'Avdelingsnummer',
                         Property: 'DepartmentNumber',
                         Placeholder: 'Autogenerert hvis blank',
-                        Legend: 'Avdeling',
-                        FieldSet: 1,
-                        FieldSetColumn: 1
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Navn',
                         Property: 'Name',
-                        FieldSet: 1,
-                        FieldSetColumn: 2
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Avdelingsleder',
                         Property: 'DepartmentManagerName',
-                        FieldSet: 1,
-                        FieldSetColumn: 1
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Beskrivelse',
                         Property: 'Description',
-                        FieldSet: 1,
-                        FieldSetColumn: 2
                     }
                 ];
             default:
@@ -418,30 +415,21 @@ export class UniDimensionView implements OnInit {
                         FieldType: FieldType.TEXT,
                         Label: 'Nummer',
                         Property: 'Number',
-                        FieldSet: 1,
-                        FieldSetColumn: 1,
-                        Legend: this.dimensionMetaData.find(item => item.Dimension === this.currentDimension).Label
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Navn',
                         Property: 'Name',
-                        FieldSet: 1,
-                        FieldSetColumn: 2,
                     },
                     <any>{
                         FieldType: FieldType.TEXT,
                         Label: 'Beskrivelse',
                         Property: 'Description',
-                        FieldSet: 1,
-                        FieldSetColumn: 1
                     },
                     <any>{
                         FieldType: FieldType.DATE_TIME_PICKER,
                         Label: 'Opprettet',
                         Property: 'CreatedAt',
-                        FieldSet: 1,
-                        FieldSetColumn: 2,
                         ReadOnly: true
                     }
                 ];

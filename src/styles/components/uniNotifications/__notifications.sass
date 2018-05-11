@@ -1,21 +1,20 @@
-.notifications_toggle,
-.notifications_toggle:hover,
-.notifications_toggle:focus
-    @extend %toolbarButton
-    background: $navbarBackground
-    background: unicon-bell(#fff) no-repeat center
-    background-size: 1rem auto
-    border: none
+uni-notifications
+    position: relative
 
-// REVISIT: This is very hacky and wont work on different screen sizes..
+.notifications-toggle
+    color: #fff
+    line-height: 2.5rem
+    vertical-align: middle
+    cursor: pointer
+
 .notifications_count
     pointer-events: none
-    // cursor: pointer
     color: #fff
     background: $uni-color-bad
     display: block
     position: absolute
-    top: 5px
+    top: 4px
+    right: -3px
     text-align: center
     font-size: .8rem
     line-height: .9rem
@@ -30,7 +29,6 @@
     z-index: #{map-get($zindex, hamburger)}
     height: 35rem
     width: 25rem
-    margin-top: .25rem
     font-size: 0.9rem
 
     display: none
@@ -51,17 +49,7 @@
     display: flex
     flex-wrap: wrap
     position: relative
-
-    &:not(:last-child):after
-            content: ''
-            display: block
-            height: pxToRem(1)
-            width: calc(100% - 2rem)
-            position: absolute
-            right: 0
-            bottom: 0
-            background: $uni-color-scale9
-            flex-basis: 100%
+    border-bottom: 1px solid $uni-color-scale9
 
     &:before
         display: none
@@ -147,8 +135,3 @@
         &:focus,
         &:hover
             color: $uni-color-scale2
-
-
-
-
-

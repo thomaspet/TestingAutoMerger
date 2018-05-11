@@ -12,15 +12,16 @@ export interface IUniTab {
     active?: boolean;
 }
 
+interface ITabContextMenuData {
+    top: number;
+    left: number;
+    index: number;
+}
+
 @Component({
     selector: 'uni-tabstrip',
     template: `
-        <ol class="navbar_tabs">
-            <li class="home-tab" title="Hjem"
-                (click)="activateHomeTab()"
-                [ngClass]="{'router-tab-active': homeTabActive}">
-            </li>
-
+        <ul class="navbar_tabs">
             <!-- Collapsed tabs -->
             <ng-template [ngIf]="collapseTabs" [ngIfElse]="tabsExpanded">
                 <li *ngIf="tabs?.length"
@@ -36,7 +37,9 @@ export interface IUniTab {
                             [ngClass]="{'active': tab.active}">
 
                             {{tab?.name}}
-                            <span class="close" (click)="closeTab(idx, $event)"></span>
+                            <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
+                                close
+                            </i>
                         </li>
                     </ul>
                 </li>
@@ -46,15 +49,39 @@ export interface IUniTab {
             <ng-template #tabsExpanded>
                 <li *ngFor="let tab of tabs; let idx = index"
                     (click)="activateTab(idx)"
-                    (mousedown)="possiblyCloseTab(idx, $event)"
-                    [ngClass]="{'router-tab-active': tab.active}"
-                    [title]="tab.name">
+                    (mousedown)="onMouseDown(idx, $event)"
+                    (contextmenu)="openContextMenu($event, idx)"
+                    [ngClass]="{'router-tab-active': tab.active}">
 
                     {{tab.name}}
-                    <span class="close" (click)="closeTab(idx, $event)"></span>
+                    <i (click)="closeTab(idx, $event)" class="material-icons close-tab">
+                        close
+                    </i>
                 </li>
             </ng-template>
-        </ol>
+        </ul>
+
+        <ul class="tab-context-menu"
+            *ngIf="tabContextMenu"
+            (clickOutside)="closeContextMenu()"
+            [ngStyle]="{
+                left: tabContextMenu.left + 'px',
+                top: tabContextMenu.top + 'px'
+            }">
+
+            <li (click)="contextMenuClick(tabContextMenu.index, 'tab')">
+                Lukk fane
+            </li>
+            <li (click)="contextMenuClick(tabContextMenu.index, 'left')">
+                Lukk faner til venstre
+            </li>
+            <li (click)="contextMenuClick(tabContextMenu.index, 'right')">
+                Lukk faner til høyre
+            </li>
+            <li (click)="contextMenuClick(tabContextMenu.index, 'others')">
+                Lukk alle andre faner
+            </li>
+        </ul>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -65,6 +92,8 @@ export class UniTabStrip {
 
     private collapseTabs: boolean;
     private componentDestroyedSubject: Subject<any> = new Subject();
+
+    public tabContextMenu: ITabContextMenuData;
 
     constructor(
         private router: Router,
@@ -101,7 +130,7 @@ export class UniTabStrip {
             .takeUntil(this.componentDestroyedSubject)
             .throttleTime(200)
             .subscribe(event => {
-                let collapseTabs = window.innerWidth <= 1250;
+                const collapseTabs = window.innerWidth <= 1250;
 
                 // Only run change detection when layout changes
                 if (collapseTabs !== this.collapseTabs) {
@@ -117,7 +146,7 @@ export class UniTabStrip {
             .takeUntil(this.componentDestroyedSubject)
             .subscribe((tabs) => {
                 this.tabs = tabs;
-                let activeTab = tabs.find(tab => tab.active);
+                const activeTab = tabs.find(tab => tab.active);
                 if (activeTab) {
                     this.lastActiveTab = activeTab;
                 } else if (!this.lastActiveTab) {
@@ -132,12 +161,48 @@ export class UniTabStrip {
         this.componentDestroyedSubject.next();
     }
 
-    public possiblyCloseTab(index: number, event: MouseEvent) {
-        // check for middle mouse button
+    public onMouseDown(index: number, event: MouseEvent) {
         if (event.button === 1) {
+            // Middle mouse button
             event.preventDefault();
             this.tabService.closeTab(index);
         }
+    }
+
+    public openContextMenu(event: MouseEvent, index: number) {
+        event.preventDefault();
+
+        this.tabContextMenu = {
+            top: event.clientY,
+            left: event.clientX,
+            index: index
+        };
+
+        this.cdr.markForCheck();
+    }
+
+    public contextMenuClick(index: number, type: 'tab'|'left'|'right'|'others') {
+        this.closeContextMenu();
+
+        switch (type) {
+            case 'tab':
+                this.tabService.closeTab(index);
+            break;
+            case 'left':
+                this.tabService.closeLeftOf(index);
+            break;
+            case 'right':
+                this.tabService.closeRightOf(index);
+            break;
+            case 'others':
+                this.tabService.closeAllOthers(index);
+            break;
+        }
+    }
+
+    public closeContextMenu() {
+        this.tabContextMenu = undefined;
+        this.cdr.markForCheck();
     }
 
     public activateTab(index: number): void {

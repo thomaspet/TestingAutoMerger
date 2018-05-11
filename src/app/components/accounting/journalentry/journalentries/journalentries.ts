@@ -247,7 +247,7 @@ export class JournalEntries {
             && this.journalEntryManual.numberSeries.length > 1 ?
                 {
                     items: this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(this.journalEntryManual.numberSeries),
-                    label: 'Nummerserie:',
+                    label: 'Nummerserie',
                     selectedItem: this.selectedNumberSeries
                 }
                 : null;

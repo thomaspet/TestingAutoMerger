@@ -4,10 +4,19 @@
     100%
         transform scaleX(100%)
 
-.amelding_summary_overview
-    @include unigrid(4)
-    float: left
+amelding-summary-view
+    .uni-container
+        margin-right: 0
+        display: flex
 
+        .amelding_summary_overview
+            flex: 1
+
+        .amelding_summary_sections
+            flex: 3
+
+
+.amelding_summary_overview
     dt, dd
         display: inline-block
         line-height: 2rem
@@ -21,35 +30,28 @@
         margin-left: 0
 
 .amelding_summary_sections
-    @include unigrid(12)
-    @include clearfix
-    float: right
     list-style: none
 
 .amelding_summary_section
-    border: pxToRem(1) solid $uni-color-scale9
-    border-radius: pxToRem(5)
+    border: 1px solid $uni-color-scale9
     margin-bottom: 1rem
-
-    &:last-of-type
-        margin-bottom: 5.5rem
-
-    &[aria-expanded]:not([aria-expanded=false])
-        border-color: $uni-color-scale8
 
 .amelding_summary_section_header,
 .amelding_summary_section_details
     padding: 1rem
+
+.amelding_summary_section[aria-expanded]:not([aria-expanded=false])
+    .amelding_summary_section_header
+        border-bottom: pxToRem(1) solid $uni-color-scale9
 
 .amelding_summary_section_header
     width: calc(100% - 2rem)
     display: flex
     justify-content: space-between
     align-items: center
-    padding-bottom: .2rem
     cursor: pointer
 
-    h2
+    p
         margin: 0
         flex-grow: 1
         padding-left: 1rem
@@ -60,23 +62,8 @@
         line-height: 1rem
         font-size: 1rem
 
-    &:before
-        flex-grow: 0
-        content: ''
-        display: block
-        width: .75rem
-        height: .75rem
-        margin-bottom: 1rem
-        background: unicon-chevron-right($uni-color-scale6) center center no-repeat
-        background-size: contain
-        transition: all 300ms ease
-
-    .amelding_summary_section[aria-expanded]:not([aria-expanded=false]) &
-        background-color: mix($uni-color-negative, #fff, 50%)
-        border-bottom: pxToRem(1) solid $uni-color-scale9
-
-        &:before
-            transform: rotate(90deg)
+    .small
+        font-size: 14px
 
 .amelding_summary_section_overview
     margin: 0

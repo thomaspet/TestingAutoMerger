@@ -287,12 +287,14 @@ export class UnitableAutocomplete implements OnInit {
     public onActionClick(button: any) {
         this.addValuePromise = new Promise((resolve) => {
             button.action().subscribe(item => {
-                button.getAction(item).subscribe((result) => {
-                    resolve(result || undefined);
-                },
-                (err) => {
-                    button.errorAction(err);
-                });
+                if (item) {
+                    button.getAction(item).subscribe(
+                        res => resolve(res),
+                        err => button.errorAction(err)
+                    );
+                } else {
+                    resolve(null);
+                }
             });
         });
     }

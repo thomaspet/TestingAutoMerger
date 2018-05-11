@@ -5,18 +5,12 @@
     [selectConfig]="registerConfig"
     (selectValueChanged)="changeRegister($event.Register)">
 </uni-toolbar>
-<header class="horizontal_nav no-print">
-    <ul>
-        <li *ngFor="let filter of showoptions">
-            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >
-                {{filter.label}}&nbsp;
-                <span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span>
-            </a>
-        </li>
-    </ul>
-</header>
 
 <section class="application">
+    <uni-tabs
+        [tabs]="tabs"
+        (tabClick)="onFilterClick($event)">
+    </uni-tabs>
 
     <section class="splitview">
         <nav class="splitview_list">
@@ -36,7 +30,16 @@
         </nav>
 
         <main class="splitview_detail">
-            <div class="toolbar"><button title="Ctrl + A" class="good" [disabled]="!(postpost?.canAutoMark)" (click)="autoMark()">Automerking</button></div>
+            <div class="toolbar">
+                <button title="Ctrl + A"
+                    class="good"
+                    [disabled]="!(postpost?.canAutoMark)"
+                    (click)="autoMark()">
+
+                    Automerking
+                </button>
+            </div>
+
             <ledger-account-reconciliation
                 [customerID]="(customer$ | async)?.ID"
                 [supplierID]="(supplier$ | async)?.ID"
@@ -44,7 +47,6 @@
                 [pointInTime]="pointInTime$ | async"
                 [autoLocking]="autolocking"
                 [hideHeader]="true"
-                [modalMode]="true"
                 (allSelectedLocked)="onAllSelectedLocked($event)">
             </ledger-account-reconciliation>
         </main>

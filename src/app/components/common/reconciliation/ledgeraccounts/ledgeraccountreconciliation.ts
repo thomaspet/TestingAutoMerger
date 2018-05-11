@@ -61,9 +61,6 @@ export class LedgerAccountReconciliation {
     @Input()
     public hideHeader: boolean = false;
 
-    @Input()
-    public modalMode: boolean = false;
-
     @Output()
     public allSelectedLocked: EventEmitter<boolean> = new EventEmitter();
 

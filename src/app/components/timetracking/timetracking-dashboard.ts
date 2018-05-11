@@ -27,34 +27,19 @@ export class TimetrackingDashboard {
     private getDefaultLayout(): any[] {
         return [
             {
-                widgetID: 'shortcut_timetracking_worktypes',
+                widgetID: 'shortcuts_timetracking',
                 y: 0,
                 x: 0
             },
             {
-                widgetID: 'shortcut_timetracking_workers',
+                widgetID: 'sum_hours',
                 y: 0,
-                x: 1
-            },
-            {
-                widgetID: 'shortcut_timetracking_invoice_hours',
-                y: 0,
-                x: 2
-            },
-            {
-                widgetID: 'shortcut_timetracking_reports',
-                y: 0,
-                x: 3
-            },
-            {
-                widgetID: 'shortcut_timetracking_timeentry',
-                y: 0,
-                x: 4
+                x: 5
             },
             {
                 widgetID: 'clock',
                 y: 0,
-                x: 5
+                x: 7
             },
             {
                 y: 1,
@@ -68,22 +53,14 @@ export class TimetrackingDashboard {
             },
 
             {
-                y: 4,
-                x: 0,
+                y: 1,
+                x: 5,
                 widgetID: 'info_shortcut_videos',
             },
             {
-                y: 4,
-                x: 2,
-                widgetID: 'info_shortcut_help',
-            },
-            {
-                y: 4,
-                x: 4,
+                y: 1,
+                x: 7,
                 widgetID: 'info_shortcut_overview',
-            },
-            {
-                widgetID: 'rss',
             },
         ];
     }

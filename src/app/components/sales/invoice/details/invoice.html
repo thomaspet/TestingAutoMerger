@@ -1,41 +1,63 @@
-<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveActions"
-             [shareActions]="shareActions"
-             [commentsConfig]="commentsConfig"
-             [selectConfig]="selectConfig"
-             (selectValueChanged)="numberSeriesChange($event)">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions"
+    [shareActions]="shareActions"
+    [commentsConfig]="commentsConfig"
+    [selectConfig]="selectConfig"
+    (selectValueChanged)="numberSeriesChange($event)">
 </uni-toolbar>
 
-<uni-tof-head [readonly]="readonly"
-              [entityName]="'CustomerInvoice'"
-              [data]="invoice"
-              [currencyCodes]="currencyCodes"
-              [projects]="projects"
-              [paymentTerms]="paymentTerms"
-              [deliveryTerms]="deliveryTerms"
-              [sellers]="sellers"
-              [companySettings]="companySettings"
-              [dimensionTypes]="dimensionTypes"
-              [paymentInfoTypes]="paymentInfoTypes"
-              [currentUser]="currentUser"
-              (dataChange)="onInvoiceChange($event)"
-              (sellerDelete)="onSellerDelete($event)">
-</uni-tof-head>
-
 <section class="application">
-    <uni-tradeitem-table *ngIf="invoice"
-        [configStoreKey]="'sales.invoice.tradeitemTable'"
+    <uni-tof-head
         [readonly]="readonly"
+        [entityName]="'CustomerInvoice'"
+        [data]="invoice"
+        [currencyCodes]="currencyCodes"
         [projects]="projects"
-        [departments]="departments"
-        [vatTypes]="vatTypes"
-        [vatDate]="invoice.InvoiceDate"
-        [(items)]="invoiceItems"
+        [paymentTerms]="paymentTerms"
+        [deliveryTerms]="deliveryTerms"
+        [sellers]="sellers"
+        [companySettings]="companySettings"
         [dimensionTypes]="dimensionTypes"
-        [currencyCodeID]="currencyCodeID"
-        [currencyExchangeRate]="currencyExchangeRate"
-        [defaultTradeItem]="newInvoiceItem"
-        (itemsChange)="recalcDebouncer.next($event)">
-    </uni-tradeitem-table>
-    <uni-summary *ngIf="invoice" [configs]="summaryFields"></uni-summary>
+        [paymentInfoTypes]="paymentInfoTypes"
+        [currentUser]="currentUser"
+        (dataChange)="onInvoiceChange($event)"
+        (sellerDelete)="onSellerDelete($event)">
+    </uni-tof-head>
+
+    <section class="uni-container tradeitem-container">
+        <header>Varelinjer</header>
+
+        <uni-tradeitem-table
+            *ngIf="invoice"
+            [configStoreKey]="'sales.invoice.tradeitemTable'"
+            [readonly]="readonly"
+            [projects]="projects"
+            [departments]="departments"
+            [vatTypes]="vatTypes"
+            [vatDate]="invoice.InvoiceDate"
+            [(items)]="invoiceItems"
+            [dimensionTypes]="dimensionTypes"
+            [currencyCodeID]="currencyCodeID"
+            [currencyExchangeRate]="currencyExchangeRate"
+            [defaultTradeItem]="newInvoiceItem"
+            (itemsChange)="recalcDebouncer.next($event)">
+        </uni-tradeitem-table>
+
+        <section class="tof-summary">
+            <span class="currency-info">
+                {{currencyInfo}}
+            </span>
+
+            <section class="vertical-summary" *ngIf="summaryLines?.length">
+                <section class="summary-line"
+                    *ngFor="let summaryLine of summaryLines"
+                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+
+                    <label>{{summaryLine.label}}</label>
+                    <span>{{summaryLine.value}}</span>
+                </section>
+            </section>
+        </section>
+    </section>
 </section>

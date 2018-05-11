@@ -1,367 +1,462 @@
 import {UniModules} from './tabstrip/tabService';
 
 export interface INavbarLink {
-    componentName: string;
-    componentUrl: string;
+    name: string;
+    url: string;
     moduleID?: number;
-    groupHeader?: string;
+    routerLinkActiveExact?: boolean;
 }
 
 export interface INavbarLinkSection {
-    componentListName: string;
-    componentListHeader: string;
-    componentListUrl: string;
-    componentListIcon: string;
-    componentList: INavbarLink[];
+    name: string;
+    url: string;
+    icon: string;
+    mdIcon?: string;
+    hidden?: boolean;
+    linkGroups: {
+        name: string;
+        links: INavbarLink[];
+    }[];
 }
 
 export const NAVBAR_LINKS: INavbarLinkSection[] = [
+    // NØKKELTALL
     {
-        componentListName: 'Nøkkeltall',
-        componentListHeader: 'Nøkkeltall',
-        componentListUrl: '/',
-        componentListIcon: 'key-figures',
-        componentList: [
+        name: 'Nøkkeltall',
+        url: '/',
+        icon: 'key-figures',
+        mdIcon: 'equalizer',
+        linkGroups: [
             {
-                componentName: 'Skrivebord',
-                componentUrl: '/',
-                moduleID: UniModules.Dashboard
-            },
-            {
-                componentName: 'Selskaper',
-                componentUrl: '/bureau',
-                moduleID: UniModules.BureauDashboard
-            },
-            {
-                componentName: 'Markedsplass',
-                componentUrl: '/marketplace',
-                moduleID: UniModules.Marketplace
-            },
-            {
-                componentName: 'Oversikt',
-                componentUrl: '/overview',
-                moduleID: UniModules.UniTicker
-            },
-            {
-                componentName: 'Resultat og balanse',
-                componentUrl: '/accounting/accountingreports',
-                moduleID: UniModules.AccountingReports
-            },
-            {
-                componentName: 'Rapporter',
-                componentUrl: '/reports',
-                moduleID: UniModules.Reports
-            },
-            {
-                componentName: 'Uttrekk',
-                componentUrl: '/uniqueries',
-                moduleID: UniModules.UniQuery
-            },
-            {
-                componentName: 'Mine oppgaver',
-                componentUrl: '/assignments',
-                moduleID: UniModules.Assignments
-            },
+                name: '',
+                links: [
+                    {
+                        name: 'Dashbord',
+                        url: '/',
+                        moduleID: UniModules.Dashboard,
+                        routerLinkActiveExact: true
 
+                    },
+                    {
+                        name: 'Selskaper',
+                        url: '/bureau',
+                        moduleID: UniModules.BureauDashboard
+                    },
+                    {
+                        name: 'Markedsplass',
+                        url: '/marketplace',
+                        moduleID: UniModules.Marketplace
+                    },
+                    {
+                        name: 'Mine oppgaver',
+                        url: '/assignments',
+                        moduleID: UniModules.Assignments
+                    },
+                ]
+            },
             {
-                componentName: 'Delinger',
-                componentUrl: '/sharings',
-                moduleID: UniModules.Sharings
+                name: 'Tall og rapporter',
+                links: [
+                    {
+                        name: 'Oversikt',
+                        url: '/overview',
+                        moduleID: UniModules.UniTicker
+                    },
+                    {
+                        name: 'Resultat og balanse',
+                        url: '/accounting/accountingreports',
+                        moduleID: UniModules.AccountingReports
+                    },
+                    {
+                        name: 'Delinger',
+                        url: '/sharings',
+                        moduleID: UniModules.Sharings
+                    },
+                    {
+                        name: 'Uttrekk',
+                        url: '/uniqueries',
+                        moduleID: UniModules.UniQuery
+                    },
+                    {
+                        name: 'Rapporter',
+                        url: '/reports',
+                        moduleID: UniModules.Reports
+                    },
+                ]
             }
         ]
     },
+
+    // SALG
     {
-        componentListName: 'Salg',
-        componentListHeader: 'Salg',
-        componentListUrl: '/sales',
-        componentListIcon: 'sales',
-        componentList: [
+        name: 'Salg',
+        url: '/sales',
+        icon: 'sales',
+        mdIcon: 'shopping_cart',
+        linkGroups: [
             {
-                componentName: 'Faktura',
-                componentUrl: '/sales/invoices',
-                moduleID: UniModules.Invoices
+                name: '',
+                links: [
+                    {
+                        name: 'Salgsmodul',
+                        url: '/sales/',
+                        moduleID: UniModules.Sales,
+                        routerLinkActiveExact: true
+                    },
+                    {
+                        name: 'Faktura',
+                        url: '/sales/invoices',
+                        moduleID: UniModules.Invoices
+                    },
+                    {
+                        name: 'Ordre',
+                        url: '/sales/orders',
+                        moduleID: UniModules.Orders
+                    },
+                    {
+                        name: 'Tilbud',
+                        url: '/sales/quotes',
+                        moduleID: UniModules.Quotes
+                    },
+                    {
+                        name: 'Purring',
+                        url: '/sales/reminders',
+                        moduleID: UniModules.Reminders
+                    },
+                    {
+                        name: 'KID-innstillinger',
+                        url: '/sales/kidsettings',
+                        moduleID: UniModules.KIDSettings,
+                    },
+                ]
             },
             {
-                componentName: 'Ordre',
-                componentUrl: '/sales/orders',
-                moduleID: UniModules.Orders
-            },
-            {
-                componentName: 'Tilbud',
-                componentUrl: '/sales/quotes',
-                moduleID: UniModules.Quotes
-            },
-            {
-                componentName: 'Purring',
-                componentUrl: '/sales/reminders',
-                moduleID: UniModules.Reminders
-            },
-            {
-                componentName: 'Kunder',
-                componentUrl: '/sales/customer',
-                moduleID: UniModules.Customers,
-                groupHeader: 'Register'
-            },
-            {
-                componentName: 'Produkter',
-                componentUrl: '/sales/products',
-                moduleID: UniModules.Products
-            },
-            {
-                componentName: 'Produktgrupper',
-                componentUrl: '/sales/productgroups',
-                moduleID: UniModules.ProductGroup
-            },
-            {
-                componentName: 'Selgere',
-                componentUrl: '/sales/sellers',
-                moduleID: UniModules.Sellers
-            },
-            {
-                componentName: 'Valuta',
-                componentUrl: '/currency/exchange',
-                moduleID: UniModules.CurrencyExchange
-            },
-            {
-                componentName: 'KID-innstillinger',
-                componentUrl: '/sales/kidsettings',
-                moduleID: UniModules.KIDSettings,
-            },
-        ]
-    },
-    {
-        componentListName: 'Regnskap',
-        componentListHeader: 'Regnskap og økonomi',
-        componentListUrl: '/accounting',
-        componentListIcon: 'accounting',
-        componentList: [
-            {
-                componentName: 'Bilagsføring',
-                componentUrl: '/accounting/journalentry',
-                moduleID: UniModules.Accounting
-            },
-            {
-                componentName: 'Fakturamottak',
-                componentUrl: '/accounting/bills',
-                moduleID: UniModules.Bills
-            },
-            {
-                componentName: 'Åpne poster',
-                componentUrl: '/accounting/postpost',
-                moduleID: UniModules.PostPost
-            },
-            {
-                componentName: 'MVA-melding',
-                componentUrl: '/accounting/vatreport',
-                moduleID: UniModules.VatReport
-            },
-            {
-                componentName: 'Resultat og balanse',
-                componentUrl: '/accounting/accountingreports',
-                moduleID: UniModules.AccountingReports
-            },
-            {
-                componentName: 'Søk på bilag',
-                componentUrl: '/accounting/transquery',
-                moduleID: UniModules.TransqueryDetails, groupHeader: 'Søk'
-            },
-            {
-                componentName: 'Søk på konto',
-                componentUrl: '/accounting/accountquery',
-                moduleID: UniModules.AccountQuery
-            },
-            {
-                componentName: 'Leverandør',
-                componentUrl: '/accounting/suppliers',
-                moduleID: UniModules.Suppliers, groupHeader: 'Register'
-            },
-            {
-                componentName: 'Kontoplan',
-                componentUrl: '/accounting/accountsettings',
-                moduleID: UniModules.Accountsettings
-            },
-            {
-                componentName: 'MVA-innstillinger',
-                componentUrl: '/accounting/vatsettings',
-                moduleID: UniModules.Vatsettings
-            },
-            {
-                componentName: 'Valuta',
-                componentUrl: '/currency/exchange',
-                moduleID: UniModules.CurrencyExchange
-            },
-            {
-                componentName: 'Betaling',
-                componentUrl: '/accounting/journalentry/payments',
-                moduleID: UniModules.Payments
+                name: 'Register',
+                links: [
+                    {
+                        name: 'Kunder',
+                        url: '/sales/customer',
+                        moduleID: UniModules.Customers
+                    },
+                    {
+                        name: 'Produkter',
+                        url: '/sales/products',
+                        moduleID: UniModules.Products
+                    },
+                    {
+                        name: 'Produktgrupper',
+                        url: '/sales/productgroups',
+                        moduleID: UniModules.ProductGroup
+                    },
+                    {
+                        name: 'Selgere',
+                        url: '/sales/sellers',
+                        moduleID: UniModules.Sellers
+                    },
+                    {
+                        name: 'Valuta',
+                        url: '/currency/exchange',
+                        moduleID: UniModules.CurrencyExchange
+                    }
+                ]
             }
         ]
     },
+
+    // REGNSKAP
     {
-        componentListName: 'Bank',
-        componentListHeader: 'Bank',
-        componentListUrl: '/bank',
-        componentListIcon: 'bank',
-        componentList: [
+        name: 'Regnskap',
+        url: '/accounting',
+        icon: 'accounting',
+        mdIcon: 'library_books',
+        linkGroups: [
             {
-                componentName: 'Betalinger',
-                componentUrl: '/bank',
+                name: '',
+                links: [
+                    {
+                        name: 'Regnskapsmodul',
+                        url: '/accounting/',
+                        moduleID: UniModules.Accounting,
+                        routerLinkActiveExact: true
+                    },
+                    {
+                        name: 'Bilagsføring',
+                        url: '/accounting/journalentry',
+                        moduleID: UniModules.Accounting
+                    },
+                    {
+                        name: 'Fakturamottak',
+                        url: '/accounting/bills',
+                        moduleID: UniModules.Bills
+                    },
+                    {
+                        name: 'Åpne poster',
+                        url: '/accounting/postpost',
+                        moduleID: UniModules.PostPost
+                    },
+                    {
+                        name: 'MVA-melding',
+                        url: '/accounting/vatreport',
+                        moduleID: UniModules.VatReport
+                    },
+                    {
+                        name: 'Resultat og balanse',
+                        url: '/accounting/accountingreports',
+                        moduleID: UniModules.AccountingReports
+                    },
+                ]
+            },
+            {
+                name: 'Register',
+                links: [
+                    {
+                        name: 'Leverandør',
+                        url: '/accounting/suppliers',
+                        moduleID: UniModules.Suppliers,
+                    },
+                    {
+                        name: 'Kontoplan',
+                        url: '/accounting/accountsettings',
+                        moduleID: UniModules.Accountsettings
+                    },
+                    {
+                        name: 'MVA-innstillinger',
+                        url: '/accounting/vatsettings',
+                        moduleID: UniModules.Vatsettings
+                    },
+                    {
+                        name: 'Valuta',
+                        url: '/currency/exchange',
+                        moduleID: UniModules.CurrencyExchange
+                    },
+                    {
+                        name: 'Betaling',
+                        url: '/accounting/journalentry/payments',
+                        moduleID: UniModules.Payments
+                    },
+                ]
+            }
+        ]
+    },
+
+    // BANK
+    {
+        name: 'Bank',
+        url: '/bank',
+        icon: 'bank',
+        mdIcon: 'account_balance',
+        linkGroups: [{
+            name: '',
+            links: [{
+                name: 'Betalinger',
+                url: '/bank',
                 moduleID: UniModules.Payment
+            }]
+        }]
+    },
+
+    // LØNN
+    {
+        name: 'Lønn',
+        url: '/salary',
+        icon: 'salary',
+        mdIcon: 'group',
+        linkGroups: [
+            {
+                name: '',
+                links: [
+                    {
+                        name: 'Lønnsmodul',
+                        url: '/salary/',
+                        moduleID: UniModules.Salary,
+                        routerLinkActiveExact: true
+                    },
+                    {
+                        name: 'Lønnsavregning',
+                        url: '/salary/payrollrun',
+                        moduleID: UniModules.Payrollrun
+                    },
+                    {
+                        name: 'A-Melding',
+                        url: '/salary/amelding',
+                        moduleID: UniModules.Amelding
+                    },
+                    {
+                        name: 'Saldo',
+                        url: '/salary/salarybalances',
+                        moduleID: UniModules.Salarybalances
+                    },
+                    {
+                        name: 'Tilleggsopplysninger',
+                        url: '/salary/supplements',
+                        moduleID: UniModules.Supplements
+                    },
+                    {
+                        name: 'Årsoppgave til inntektsmottaker',
+                        url: '/salary/annualstatements',
+                        moduleID: UniModules.AnnualStatements
+                    }
+                ]
+            },
+            {
+                name: 'Register',
+                links: [
+                    {
+                        name: 'Ansatte',
+                        url: '/salary/employees',
+                        moduleID: UniModules.Employees,
+                    },
+                    {
+                        name: 'Lønnsarter',
+                        url: '/salary/wagetypes',
+                        moduleID: UniModules.Wagetypes
+                    },
+                    {
+                        name: 'Kategorier',
+                        url: '/salary/employeecategories',
+                        moduleID: UniModules.Categories
+                    },
+                    {
+                        name: 'Altinn oversikt',
+                        url: '/salary/altinnoverview',
+                        moduleID: UniModules.AltinnOverview
+                    }
+                ]
             }
         ]
     },
+
+    // TIMER
     {
-        componentListName: 'Lønn',
-        componentListHeader: 'Lønn og personal',
-        componentListUrl: '/salary',
-        componentListIcon: 'salary',
-        componentList: [
+        name: 'Timer',
+        url: '/timetracking',
+        icon: 'timetracking',
+        mdIcon: 'watch_later',
+        linkGroups: [
             {
-                componentName: 'Lønnsavregning',
-                componentUrl: '/salary/payrollrun',
-                moduleID: UniModules.Payrollrun
+                name: '',
+                links: [
+                    {
+                        name: 'Timemodul',
+                        url: '/timetracking/',
+                        moduleID: UniModules.Timesheets,
+                        routerLinkActiveExact: true
+                    },
+                    {
+                        name: 'Timeregistrering',
+                        url: '/timetracking/timeentry',
+                        moduleID: UniModules.Timesheets
+                    },
+                    {
+                        name: 'Fakturering av timer',
+                        url: '/timetracking/invoice-hours',
+                        moduleID: UniModules.Timesheets
+                    },
+                ]
             },
             {
-                componentName: 'A-Melding',
-                componentUrl: '/salary/amelding',
-                moduleID: UniModules.Amelding
-            },
-            {
-                componentName: 'Saldo',
-                componentUrl: '/salary/salarybalances',
-                moduleID: UniModules.Salarybalances
-            },
-            {
-                componentName: 'Tilleggsopplysninger',
-                componentUrl: '/salary/supplements',
-                moduleID: UniModules.Supplements
-            },
-            {
-                componentName: 'Årsoppgave til inntektsmottaker',
-                componentUrl: '/salary/annualstatements',
-                moduleID: UniModules.AnnualStatements
-            },
-            {
-                componentName: 'Ansatte',
-                componentUrl: '/salary/employees',
-                moduleID: UniModules.Employees,
-                groupHeader: 'Register'
-            },
-            {
-                componentName: 'Lønnsarter',
-                componentUrl: '/salary/wagetypes',
-                moduleID: UniModules.Wagetypes
-            },
-            {
-                componentName: 'Kategorier',
-                componentUrl: '/salary/employeecategories',
-                moduleID: UniModules.Categories
-            },
-            {
-                componentName: 'Altinn oversikt',
-                componentUrl: '/salary/altinnoverview',
-                moduleID: UniModules.AltinnOverview
+                name: 'Register',
+                links: [
+                    {
+                        name: 'Personer',
+                        url: '/timetracking/workers',
+                        moduleID: UniModules.Workers,
+                    },
+                    {
+                        name: 'Timearter',
+                        url: '/timetracking/worktypes',
+                        moduleID: UniModules.WorkTypes
+                    },
+                    {
+                        name: 'Stillingsmaler',
+                        url: '/timetracking/workprofiles',
+                        moduleID: UniModules.WorkProfiles
+                    },
+                ]
             }
         ]
     },
+
+    // PROSJEKT
     {
-        componentListName: 'Timer',
-        componentListHeader: 'Timer',
-        componentListUrl: '/timetracking',
-        componentListIcon: 'timetracking',
-        componentList: [
-            {
-                componentName: 'Timemodul',
-                componentUrl: '/timetracking',
-                moduleID: UniModules.Timesheets
-            },
-            {
-                componentName: 'Timeregistrering',
-                componentUrl: '/timetracking/timeentry',
-                moduleID: UniModules.Timesheets
-            },
-            {
-                componentName: 'Fakturering av timer',
-                componentUrl: '/timetracking/invoice-hours',
-                moduleID: UniModules.Timesheets
-            },
-            {
-                componentName: 'Personer',
-                componentUrl: '/timetracking/workers',
-                moduleID: UniModules.Workers, groupHeader: 'Register'
-            },
-            {
-                componentName: 'Timearter',
-                componentUrl: '/timetracking/worktypes',
-                moduleID: UniModules.WorkTypes
-            },
-            {
-                componentName: 'Stillingsmaler',
-                componentUrl: '/timetracking/workprofiles',
-                moduleID: UniModules.WorkProfiles
-            },
-        ]
+        name: 'Prosjekt [BETA]',
+        url: '/dimensions/projects',
+        icon: 'projects',
+        mdIcon: 'work',
+        linkGroups: [{
+            name: '',
+            links: [
+                {
+                    name: 'Oversikt',
+                    url: '/dimensions/projects/overview',
+                    moduleID: UniModules.Projects
+                },
+                {
+                    name: 'Timer',
+                    url: '/dimensions/projects/hours',
+                    moduleID: UniModules.Projects
+                },
+            ]
+        }]
     },
+
+    // INNSTILLINGER
     {
-        componentListName: 'Prosjekt [BETA]',
-        componentListHeader: 'Prosjekt [BETA]',
-        componentListUrl: '/dimensions/projects',
-        componentListIcon: 'projects',
-        componentList: [
+        name: 'Innstillinger',
+        url: '/settings',
+        icon: 'settings',
+        mdIcon: 'settings',
+        hidden: true,
+        linkGroups: [
             {
-                componentName: 'Oversikt',
-                componentUrl: '/dimensions/projects/overview',
-                moduleID: UniModules.Projects
+                name: '',
+                links: [
+                    // {name: 'Firmaoppsett', url: '/settings/company'},
+                    // {name: 'Nummerserier', url: '/settings/numberseries'},
+                    // {name: 'Team', url: '/settings/teams'},
+                    // {name: 'Altinn', url: '/settings/altinn'},
+                    // {name: 'Integrasjon', url: '/settings/webhooks'},
+                    {name: 'Firmaoppsett', url: '/settings/company'},
+                    {name: 'Lønnsinnstillinger', url: '/settings/aga-and-subentities'},
+                    {name: 'Integrasjon', url: '/settings/webhooks'},
+                    {name: 'Brukere', url: '/settings/users'},
+                    {name: 'Team', url: '/settings/teams'},
+                    {name: 'Altinn', url: '/settings/altinn'},
+                    {name: 'Nummerserier', url: '/settings/numberseries'},
+                    {name: 'Betingelser', url: '/settings/terms'},
+                    {name: 'Dimensjoner', url: '/settings/dimensions'},
+                ]
             },
             {
-                componentName: 'Timer',
-                componentUrl: '/dimensions/projects/hours',
-                moduleID: UniModules.Projects
-            },
-        ]
-    },
-    {
-        componentListName: 'Innstillinger',
-        componentListHeader: 'Innstillinger',
-        componentListUrl: '/admin',
-        componentListIcon: 'settings',
-        componentList: [
-            {componentName: 'Firmaoppsett', componentUrl: '/settings/company'},
-            {componentName: 'Nummerserier', componentUrl: '/settings/numberseries'},
-            {componentName: 'Team', componentUrl: '/settings/teams'},
-            {componentName: 'Altinn', componentUrl: '/settings/altinn'},
-            // {componentName: 'Bankinnstillinger', componentUrl: '/settings/banksettings'},
-            {componentName: 'Integrasjon', componentUrl: '/settings/webhooks'},
-            {
-                componentName: 'Regler',
-                componentUrl: '/admin/thresholds',
-                moduleID: UniModules.Thresholds
-            },
-            {
-                componentName: 'Jobber',
-                componentUrl: '/admin/jobs',
-                moduleID: UniModules.Jobs
-            },
-            {
-                componentName: 'Modeller',
-                componentUrl: '/admin/models',
-                moduleID: UniModules.Models
-            },
-            {
-                componentName: 'Roller',
-                componentUrl: '/admin/roles',
-                moduleID: UniModules.Roles
-            },
-            {
-                componentName: 'GDPR List',
-                componentUrl: '/admin/gdpr',
-                moduleID: UniModules.GDPRList
-            },
-            {
-                componentName: 'Versjonsinformasjon',
-                componentUrl: '/about/versions',
-                moduleID: UniModules.Versions
-            },
+                name: 'Admin',
+                links: [
+                    {
+                        name: 'Regler',
+                        url: '/admin/thresholds',
+                        moduleID: UniModules.Thresholds
+                    },
+                    {
+                        name: 'Jobber',
+                        url: '/admin/jobs',
+                        moduleID: UniModules.Jobs
+                    },
+                    {
+                        name: 'Modeller',
+                        url: '/admin/models',
+                        moduleID: UniModules.Models
+                    },
+                    {
+                        name: 'Roller',
+                        url: '/admin/roles',
+                        moduleID: UniModules.Roles
+                    },
+                    {
+                        name: 'GDPR',
+                        url: '/admin/gdpr',
+                        moduleID: UniModules.GDPRList
+                    },
+                ]
+            }
         ]
     }
 ];

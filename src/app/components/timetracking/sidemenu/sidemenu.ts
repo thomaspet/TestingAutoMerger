@@ -1,4 +1,4 @@
-﻿import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+﻿import {Component, Input, Output, EventEmitter, ViewChild, HostBinding} from '@angular/core';
 import {IFilter} from '../../../services/timetracking/workerService';
 import {UniTemplateModal, TemplateCloseOptions, ITemplateReturnObject} from '../components/newtemplatemodal';
 import {UniCalendar} from '../../../../framework/ui/unitable/controls/common/calendar';
@@ -35,22 +35,23 @@ export interface ITemplate {
 })
 
 export class SideMenu {
-
-    private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
-
     @ViewChild(UniTemplateModal) public templateModal: UniTemplateModal;
     @ViewChild(UniCalendar) public calendar: UniCalendar;
+
     @Input() public periode: IFilter;
     @Output() public dateSelected: EventEmitter<Date> = new EventEmitter();
     @Output() public monthChanged: EventEmitter<any> = new EventEmitter();
     @Output() public templateSelected: EventEmitter<any> = new EventEmitter();
-    private sidemenuMinified: boolean = false;
+
+    @HostBinding('class.minimized') public minimized: boolean;
+
+    private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
+    // public sidemenuMinified: boolean = false;
+    private initDate: Date = new Date();
     public calendarConfig: any = {
         allowSelection: true,
         dailyProgress: []
     };
-    private initDate: Date = new Date();
-
 
     constructor(
         private toast: ToastService,
@@ -62,14 +63,19 @@ export class SideMenu {
         if (templates) {
             this.timeTrackingTemplates = templates;
         }
+
+        this.minimized = this.browserStorage.getItemFromCompany('timetracking_sidemenu_minimized');
     }
 
     public ngAfterViewInit() {
         if (window.innerWidth < 1200) {
-            setTimeout(() => {
-                this.hideShowSideMenu();
-            });
+            this.minimized = true;
         }
+    }
+
+    public toggleSidemenu() {
+        this.minimized = !this.minimized;
+        this.browserStorage.setItemOnCompany('timetracking_sidemenu_minimized', this.minimized);
     }
 
     public onTemplateSelected(template: any) {
@@ -147,27 +153,6 @@ export class SideMenu {
         }
         this.initDate = new Date();
         this.dateSelected.emit(new Date());
-    }
-
-    private hideShowSideMenu() {
-        this.sidemenuMinified = !this.sidemenuMinified;
-
-        let element = document.getElementById('sidemenu_timetracking_component');
-        let buttonContainer = document.getElementById('sidemenu_hide_button_container_id');
-        let button = document.getElementById('sidemeny_hide_show_button_id');
-        let containter = document.getElementById('regtime_container_id');
-
-        if (this.sidemenuMinified) {
-            element.style.width = '80px';
-            buttonContainer.style.width = '80px';
-            button.style.transform = 'rotate(-180deg)';
-            containter.classList.add('sidemenu_minified_container_class');
-        } else {
-            element.style.width = '335px';
-            buttonContainer.style.width = '335px';
-            button.style.transform = 'rotate(0deg)';
-            containter.classList.remove('sidemenu_minified_container_class');
-        }
     }
 
     private dummyTemplates(): ITemplate[] {

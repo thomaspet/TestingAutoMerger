@@ -59,7 +59,6 @@ export class TimeTableReport {
             { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear}
         ];
         this.currentFilter = this.filters[0];
-        this.currentFilter.isSelected = true;
     }
 
     private get CurrentRelationID(): number {
@@ -426,16 +425,7 @@ export class TimeTableReport {
     }
 
     private onFilterClick(filter: IFilter) {
-        var f: IFilter;
-        this.filters.forEach( value => {
-            if (value.name === filter.name) {
-                f = value;
-                f.isSelected = true;
-            } else {
-                value.isSelected = false;
-            }
-        });
-        this.currentFilter = f;
+        this.currentFilter = filter;
         this.refreshReport(true);
     }
 

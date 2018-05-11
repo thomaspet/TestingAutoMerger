@@ -65,7 +65,7 @@ export class TofDetailsForm {
         if (this.currencyCodes && this.entity) {
             const fields: UniFieldLayout[] = [
                 <any> {
-                    Legend: 'Detaljer',
+                    // Legend: 'Detaljer',
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,

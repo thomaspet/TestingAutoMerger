@@ -26,6 +26,7 @@ import {
     VatTypeService,
     CompanySettingsService
 } from '../../../services/services';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'vat-report-view',
@@ -47,7 +48,6 @@ export class VatReportView implements OnInit, OnDestroy {
     public vatTypes: VatType[] = [];
     public isBusy: boolean = true;
     public isHistoricData: boolean = false;
-    public showView: string = '';
     private actions: IUniSaveAction[];
     private statusText: string;
     private subs: Subscription[] = [];
@@ -55,6 +55,14 @@ export class VatReportView implements OnInit, OnDestroy {
     private contextMenuItems: IContextMenuItem[] = [];
     private toolbarconfig: IToolbarConfig;
     private periodDateFormat: PeriodDateFormatPipe;
+
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'Kontroll'},
+        {name: 'MVA-melding'},
+        {name: 'Altinn, kvittering/tilbakemelding', hidden: true},
+        {name: 'Oppgjørsbilag', hidden: true},
+    ];
 
     constructor(
         private tabService: TabService,
@@ -306,9 +314,12 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     private setVatreport(vatReport: VatReport) {
-        this.showView = '';
         this.currentVatReport = vatReport;
         this.vatReportService.refreshVatReport(this.currentVatReport);
+
+        this.tabs[2].hidden = !this.isSent();
+        this.tabs[3].hidden = !this.currentVatReport.JournalEntryID;
+        this.tabs = [...this.tabs];
 
         this.vatReportSummary = null;
         this.vatReportService.getVatReportSummary(vatReport.ID, vatReport.TerminPeriodID)
@@ -409,7 +420,6 @@ export class VatReportView implements OnInit, OnDestroy {
 
     public vatReportDidChange(vatReport: VatReport) {
         this.setVatreport(vatReport);
-        this.showView = 'receipt';
     }
 
     public runVatReport(done) {
@@ -496,7 +506,7 @@ export class VatReportView implements OnInit, OnDestroy {
                                         ['TerminPeriod', 'JournalEntry', 'VatReportArchivedSummary'])
                                         .subscribe(vatreport => {
                                             this.setVatreport(vatreport);
-                                            this.showView = 'receipt';
+                                            this.activeTabIndex = 2;
 
                                             this.toastService.addToast('Signert OK', ToastType.good);
                                             done('Signert OK');
@@ -655,10 +665,10 @@ export class VatReportView implements OnInit, OnDestroy {
         // build string containing combination of vatcode and accountnumber for this vatpost, the result
         // will e.g. be "1|2711,3|2710,5|2702,..."
 
-        let vatCodesAndAccountNos: Array<string> = [];
+        const vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
             vatTypes.forEach(vt => {
-                let vatReportReferences = vt.VatReportReferences
+                const vatReportReferences = vt.VatReportReferences
                     .filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);
                 vatReportReferences
                     .forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));

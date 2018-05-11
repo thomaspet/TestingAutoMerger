@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {IUniTabsRoute} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-marketplace',
@@ -7,12 +7,17 @@ import {IUniTabsRoute} from '../layout/uniTabs/uniTabs';
     <section class="title">
         <span>uni</span><span>Economy</span><span>markedsplass</span>
     </section>
-    <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
-    <router-outlet></router-outlet>
+
+    <section class="application">
+        <uni-tabs [tabs]="childRoutes"></uni-tabs>
+        <section class="uni-container">
+            <router-outlet></router-outlet>
+        </section>
+    </section>
 `
 })
 export class Marketplace {
-    private childRoutes: IUniTabsRoute[];
+    private childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

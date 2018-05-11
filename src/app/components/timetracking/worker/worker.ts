@@ -13,6 +13,7 @@ import {flatten} from '@angular/compiler';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {WorkEditor} from '@app/components/timetracking/components/workeditor';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 export const view = new View('workers', 'Person', 'WorkerDetailview', true, '');
 
@@ -29,13 +30,10 @@ export class WorkerDetailview {
     private hasRelationChanges: boolean = false;
     private employees: Employee[] = [];
 
-    public tabs: Array<any> = [{name: 'details', label: 'Detaljer', isSelected: true},
-    {
-        name: 'balances', label: 'Saldoer',
-        activate: (ts: any, filter: any) => {
-            this.balancesSubView.activate(this.currentId);
-        }
-    }
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'Detaljer'},
+        {name: 'Saldoer'},
     ];
 
     constructor(
@@ -45,6 +43,13 @@ export class WorkerDetailview {
     ) {
         this.employeeObs()
             .subscribe(emps => this.viewconfig = this.createFormConfig(emps));
+    }
+
+    public onTabActivated(index: number) {
+        this.activeTabIndex = index;
+        if (index === 1) {
+            this.balancesSubView.activate(this.currentId);
+        }
     }
 
     public canDeactivate() {
@@ -72,7 +77,6 @@ export class WorkerDetailview {
         } else {
             info.promise = this.saveOrUpdateBalanceView(info.entity.ID);
         }
-
     }
 
     private saveOrUpdateBalanceView(workerId: number): Promise<IResult> {
@@ -88,18 +92,6 @@ export class WorkerDetailview {
                 resolve( { success: true });
             }
         });
-    }
-
-    public onTabClick(tab: any) {
-        if (tab.isSelected) { return; }
-        this.tabs.forEach((t: any) => {
-            if (t.name !== tab.name) { t.isSelected = false; }
-        });
-        tab.isSelected = true;
-        if (tab.activate) {
-            tab.activate();
-            tab.activated = true;
-        }
     }
 
     private createFormConfig(empSource: any[]): IViewConfig {

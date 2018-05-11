@@ -30,14 +30,20 @@ const BASE = environment.BASE_URL;
             <span>Faktura</span>
         </section>
         <section class="text-container">
-            <p>Salgsfaktura i {{accountingYear}} sum og antall</p>
-            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
-                {{viewData[0].sumtaxexclusiveamount | unicurrency}} kr ({{viewData[0].countid}})
-            </a>
-            <p>Forfalte ubetalte faktura</p>
-            <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
-                {{viewData[1]  | unicurrency}} kr
-            </a>
+            <p>
+                Salgsfaktura i {{accountingYear}}:
+                <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+                    {{viewData[0].sumtaxexclusiveamount | unicurrency}} kr
+                </a>
+                ({{viewData[0].countid}} stk)
+            </p>
+
+            <p>
+                Forfalte ubetalte faktura:
+                <a (click)="navigateToCompanyUrl('/sales/invoices?filter=all_invoices')">
+                    {{viewData[1]  | unicurrency}} kr
+                </a>
+            </p>
         </section>
     </section>
     <section class="tab-part">
@@ -46,10 +52,12 @@ const BASE = environment.BASE_URL;
             <span>Ordre</span>
         </section>
         <section class="text-container">
-            <p>Ordrereserve</p>
-            <a (click)="navigateToCompanyUrl('/sales/orders')">
-                {{viewData[2] | unicurrency}} kr
-            </a>
+            <p>
+                Ordrereserve
+                <a (click)="navigateToCompanyUrl('/sales/orders')">
+                    {{viewData[2] | unicurrency}} kr
+                </a>
+            </p>
         </section>
     </section>
 </section>`

@@ -1,9 +1,10 @@
-<section class="application">
+<section class="uni-container">
     <ul class="mvachecklist">
         <li *ngFor="let item of vatReportMessagesImportant" class="{{levelToClass(item.Level)}}">
             {{item.Message}}
         </li>
     </ul>
+
     <table>
         <thead>
             <tr>

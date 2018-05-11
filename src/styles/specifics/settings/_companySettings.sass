@@ -2,24 +2,9 @@
     @include unigrid(4, 2, 2)
     float: left
 
-.company-logo uni-image
-    @include unigrid(4, 2, 2, 1)
-
 settings
     uni-field
         @include labelLength(15rem)
-
-    .poster_overview,
-    .company-logo,
-    .reminders
-        max-width: pxToRem(1340)
-        margin: 0 auto
-
-        @include media('650px', 'max-width')
-            max-width: pxToRem(650)
-
-        @include media('128em', 'min-width')
-            max-width: 128rem
 
     .poster_overview
         margin-bottom: 1.5rem

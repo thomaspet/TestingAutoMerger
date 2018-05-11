@@ -5,7 +5,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig, ICommentsConfig} from './../../common/toolbar/toolbar';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
+import {IUniTab} from '../../layout/uniTabs/uniTabs';
 import {ProductCategory} from '../../../unientities';
 import {TreeComponent} from 'angular-tree-component';
 import {

@@ -1,24 +1,21 @@
 uni-marketplace
-    uni-tabs.horizontal_nav
-        ul
-            background-color: transparent
-
-        li a
-            color: $uni-color-c2a
-
-        li a.router-link-active
-            font-weight: bold
-            background-color: transparent
-            border-bottom: 0.2rem solid $uni-color-warn
-
     color: $uni-color-c2a
+
+    .uni-container
+        margin-right: 0
+        router-outlet,
+        uni-marketplace-add-ons,
+        uni-marketplace-webinars,
+        uni-marketplace-integrations
+            display: block
+            padding: 0 !important
 
     a
         cursor: pointer
         text-decoration: underline
 
     .title
-        margin-top: -4.5rem
+        margin-top: -5.5rem
         padding-bottom: 2rem
         padding-top: 1.9rem
         display: flex
@@ -28,6 +25,7 @@ uni-marketplace
         align-content: center
         align-items: center
         background-color: #FFFFFF
+        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
 
         span
             height: 2rem
@@ -69,7 +67,6 @@ uni-marketplace
         flex-wrap: wrap
         justify-content: center
         align-items: stretch
-        background-color: #f8f9fD
 
     .app-container
         margin-top: -7.5rem

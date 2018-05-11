@@ -1,12 +1,12 @@
 import {Component} from '@angular/core';
-import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
+import {IUniTab} from '../../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'journal-entry',
     templateUrl: './journalentry.html'
 })
 export class JournalEntry {
-    private childRoutes: IUniTabsRoute[];
+    private childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

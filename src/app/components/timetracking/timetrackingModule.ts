@@ -33,7 +33,7 @@ import {UniTimeModal} from './components/popupeditor';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
-import {UniFileImport} from './components/popupfileimport';
+import {TimeentryImportModal} from './components/file-import-modal';
 import {PopupMenu} from './timeentry/timetable/popupmenu';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
@@ -44,6 +44,8 @@ import {WorkitemTransferWizardProducts} from './invoice-hours/transfer-wizard-pr
 import {WorkitemTransferWizardPreview} from './invoice-hours/transfer-wizard-preview';
 import {InvoiceHours} from './invoice-hours/invoice-hours';
 
+import {MatSelectModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -51,6 +53,7 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
         ReactiveFormsModule,
         HttpModule,
         AppPipesModule,
+        MatSelectModule,
 
         RouterModule.forChild(timetrackingRoutes),
 
@@ -84,7 +87,7 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
         TeamworkReport,
         // ApproveDetails,
         TimeApproveModal,
-        UniFileImport,
+        TimeentryImportModal,
         ReportWorkflow,
         PopupMenu,
         UniApproveTaskModal,
@@ -100,6 +103,7 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
         ReportWorkflow
     ],
     entryComponents: [
+        TimeentryImportModal,
         UniTemplateModal,
         UniTimeModal,
         TimetrackingDashboard,

@@ -15,6 +15,7 @@ import {
     CompanySettingsService,
     EmailService
 } from '../../../../services/services';
+import {IUniSaveAction} from '@uni-framework/save/save';
 
 @Component({
     selector: 'quote-list',
@@ -51,6 +52,11 @@ export class QuoteList implements OnInit {
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
     public printStatusPrinted: string = '200';
+
+    public createNewAction: IUniSaveAction = {
+        label: 'Nytt tilbud',
+        action: () => this.createQuote()
+    };
 
     constructor(
         private uniHttpService: UniHttp,

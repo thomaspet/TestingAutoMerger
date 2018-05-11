@@ -1,53 +1,36 @@
-<uni-toolbar [config]="{title: 'Jobber', omitFinalCrumb: true}"></uni-toolbar>
-
-<header class="horizontal_nav no-print">
-    <ul>
-        <li *ngFor="let tab of filterTabs">
-            <a (click)="onTabChange(tab)" [ngClass]="{'router-link-active': tab === activeTab}">
-                {{tab.label}}&nbsp;
-                <span *ngIf="tab.count" class="tab_counter tab_counter_passive">{{tab.count}}</span>
-            </a>
-        </li>
-    </ul>
-</header>
+<uni-toolbar [config]="{title: 'Jobber', hideBreadcrumbs: true}"></uni-toolbar>
 
 <section class="application">
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-    <article *ngIf="activeTab.id === 1">
+    <section class="uni-container">
+        <ng-template [ngIf]="activeTabIndex === 0">
+            <h2>
+                Sist kjørte jobber
+                <i class="material-icons" role="button" (click)="refresh()">refresh</i>
+            </h2>
 
-        <table class="title-button-bar" >
-            <tr><td><h2>Sist kjørte jobber</h2></td>        
-            <td><button class="good" (click)="refresh()">Oppdater</button></td>
-            </tr>
-        </table>
+            <uni-table
+                [resource]="jobRuns"
+                [config]="jobRunsConfig"
+                (rowSelected)="onJobRunSelected($event)">
+            </uni-table>
+        </ng-template>
 
-        <uni-table [attr.aria-busy]="busy" [resource]="jobRuns" [config]="jobRunsConfig" (rowSelected)="onJobRunSelected($event)">
-        </uni-table>
+        <ng-template [ngIf]="activeTabIndex === 1">
+            <h2>Alle jobber</h2>
 
-    </article>
-
-    <article *ngIf="activeTab.id === 2">
-
-        <h2>{{activeTab.label}}</h2>
-
-        <table class="jobList">
-            <th>
-                Jobb
-            </th>
-            <tr *ngFor="let item of jobs">
-                <td>
-                    <a href="/#/admin/job-details/{{item.name}}">
-                        {{item.name}}
+            <ul class="job-list">
+                <li *ngFor="let job of jobs">
+                    <a [routerLink]="['/admin/job-details']" [queryParams]="{jobName: job.name}">
+                        {{job.name}}
                     </a>
-                </td>
-            </tr>
-        </table>
+                </li>
+            </ul>
 
-    </article>
+        </ng-template>
 
-    <article *ngIf="activeTab.id === 3">
-        <saft-import-view></saft-import-view>
-    </article>
-    
+        <saft-import-view *ngIf="activeTabIndex === 2"></saft-import-view>
+    </section>
 
 </section>

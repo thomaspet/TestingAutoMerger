@@ -1,12 +1,11 @@
-<uni-ticker-predefined-filters
-    *ngIf="ticker?.Filters"
-    [filtersAsNavbar]="filtersAsNavbar"
-    [ticker]="ticker"
-    [filters]="ticker.Filters"
-    [expressionFilters]="expressionFilters"
-    [selectedFilter]="selectedFilter"
-    (filterSelected)="onFilterSelected($event)">
-</uni-ticker-predefined-filters>
+<uni-tabs
+    *ngIf="filters?.length > 1"
+    [tabs]="filters"
+    [labelProperty]="'Name'"
+    [counterProperty]="'CurrentCount'"
+    [activeIndex]="selectedFilterIndex"
+    (activeIndexChange)="onFilterSelected($event)">
+</uni-tabs>
 
 <section *ngIf="ticker" class="ticker-container"
     [ngClass]="{'detail-visible': showSubTickers && ticker?.SubTickers?.length}">

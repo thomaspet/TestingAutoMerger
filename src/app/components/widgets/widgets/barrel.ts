@@ -1,11 +1,8 @@
-import {UniShortcutWidget} from './shortcut';
-import {UniCounterWidget} from './counter';
 import {UniChartWidget} from './chart';
 import {UniRSSWidget} from './rss';
 import {UniClockWidget} from './clock';
 import {UniCompanyLogoWidget} from './companyLogo';
 import {UniSumWidget} from './sumWidget';
-import {UniKPIWidget} from './kpi';
 import {UniFlexWidget} from './flex';
 import {UniTransactionsWidget} from './transactions';
 import {UniShortcutListWidget} from './shortcutList';
@@ -14,15 +11,19 @@ import {UniCurrencyWidget} from './currency';
 import {UniTopTenWidget} from './topten';
 import {UniIntegrationCounterWidget} from './integrationCounter';
 
+import {UniCountersWidget} from './counters';
+import {UniShortcutWidget} from './shortcuts';
+import {UniKpiWidget} from './kpi-widget';
+
 export const UNI_WIDGETS = [
+    UniCountersWidget,
+    UniKpiWidget,
     UniShortcutWidget,
-    UniCounterWidget,
     UniChartWidget,
     UniRSSWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
-    UniKPIWidget,
     UniFlexWidget,
     UniTransactionsWidget,
     UniShortcutListWidget,
@@ -32,12 +33,12 @@ export const UNI_WIDGETS = [
     UniIntegrationCounterWidget,
 ];
 
-export * from './shortcut';
-export * from './counter';
+export * from './counters';
+export * from './kpi-widget';
+export * from './shortcuts';
 export * from './chart';
 export * from './rss';
 export * from './clock';
-export * from './kpi';
 export * from './companyLogo';
 export * from './sumWidget';
 export * from './flex';

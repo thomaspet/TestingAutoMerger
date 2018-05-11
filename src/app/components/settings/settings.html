@@ -3,10 +3,7 @@
     [saveactions]="settingsService.saveActions$ | async">
 </uni-toolbar>
 
-<uni-poster [widgets]="widgets" *ngIf="widgets"></uni-poster>
-
-<uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
-
-<article class="application settings_content">
+<article class="application">
+    <uni-tabs [tabs]="childRoutes"></uni-tabs>
     <router-outlet></router-outlet>
 </article>

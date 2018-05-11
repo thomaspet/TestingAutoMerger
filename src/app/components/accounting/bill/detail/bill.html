@@ -1,74 +1,71 @@
-<uni-toolbar [config]="toolbarConfig"
-             [saveactions]="actions"
-             [commentsConfig]="commentsConfig"
-             class="no-print">
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="actions"
+    [commentsConfig]="commentsConfig"
+    class="no-print">
 </uni-toolbar>
 
-<section class="uni-split-view-container" [attr.aria-busy]="loadingForm">
-    <section class="left-side">
+<section class="application">
 
-        <uni-form
-            [attr.aria-busy]="loadingForm"
-            [config]="formConfig$"
-            [fields]="fields$"
-            [model]="current"
-            (readyEvent)="onFormReady($event)"
-            (changeEvent)="onFormChange($event)"
-            (inputEvent)="onFormInput($event)"
-            (focusEvent)="onFocusEvent($event)">
-        </uni-form>
+    <section class="bill-left-side">
 
-        <section class="tabs">
-            <button (click)="setTab('posts')" [ngClass]="{'active': currentTab === 'posts'}">
-                Kontering
-            </button>
-
-            <button (click)="setTab('history')" [ngClass]="{'active': currentTab === 'history'}">
-                Leverandørhistorikk
-            </button>
+        <section class="uni-container">
+            <header>Detaljer</header>
+            <uni-form
+                [config]="formConfig$"
+                [fields]="fields$"
+                [model]="current"
+                (readyEvent)="onFormReady($event)"
+                (changeEvent)="onFormChange($event)"
+                (inputEvent)="onFormInput($event)"
+                (focusEvent)="onFocusEvent($event)">
+            </uni-form>
         </section>
 
-        <section class="journal-entry" *ngIf="currentTab === 'posts'">
-            <journal-entry-manual
-                *ngIf="(current | async)"
-                [mode]="2"
-                [editmode]="false"
-                [journalEntryID]="(current | async)?.JournalEntryID"
-                [runAsSubComponent]="true"
-                [singleRowMode]="true"
-                [doValidateBalance]="false"
-                [defaultRowData]="defaultRowData"
-                (dataChanged)="onJournalEntryManualChange($event)"
-                (dataLoaded)="onJournalEntryManualDataLoaded($event)">
-            </journal-entry-manual>
+        <section class="uni-container" style="margin-bottom: 0">
+            <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-            <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
-                <tr>
-                    <td>Differanse</td>
-                    <td [class.warning]="sumRemainder" *ngIf="sumRemainder != null">{{ sumRemainder | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
-                    <td *ngIf="sumRemainder == null">-</td>
-                    <td>Sum Mva</td>
-                    <td *ngIf="sumVat != null">{{ sumVat | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
-                    <td *ngIf="sumVat == null">-</td>
-                </tr>
-                <tr *ngIf="current.CurrencyExchangeRate">
-                    <td>Valutakurs: {{current.CurrencyExchangeRate}}</td>
-                </tr>
-            </table>
+            <ng-template [ngIf]="activeTabIndex === 0">
+                <journal-entry-manual
+                    *ngIf="(current | async)"
+                    [mode]="2"
+                    [editmode]="false"
+                    [journalEntryID]="(current | async)?.JournalEntryID"
+                    [runAsSubComponent]="true"
+                    [singleRowMode]="true"
+                    [doValidateBalance]="false"
+                    [defaultRowData]="defaultRowData"
+                    (dataChanged)="onJournalEntryManualChange($event)"
+                    (dataLoaded)="onJournalEntryManualDataLoaded($event)">
+                </journal-entry-manual>
 
-        </section>
+                <table *ngIf="!(current | async)?.JournalEntry?.JournalEntryNumber" class="compact-summary">
+                    <tr>
+                        <td>Differanse</td>
+                        <td [class.warning]="sumRemainder" *ngIf="sumRemainder != null">{{ sumRemainder | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+                        <td *ngIf="sumRemainder == null">-</td>
+                        <td>Sum Mva</td>
+                        <td *ngIf="sumVat != null">{{ sumVat | unicurrency}} {{current?.CurrencyCode?.ShortCode}}</td>
+                        <td *ngIf="sumVat == null">-</td>
+                    </tr>
+                    <tr *ngIf="current.CurrencyExchangeRate">
+                        <td>Valutakurs: {{current.CurrencyExchangeRate}}</td>
+                    </tr>
+                </table>
 
-        <section class="bill-history" *ngIf="currentTab === 'history'">
+            </ng-template>
+
             <uni-bill-history
-                [isActive]="true"
+                *ngIf="activeTabIndex === 1"
                 [supplierID]="(current | async)?.SupplierID"
                 [parentID]="(current | async)?.ID">
             </uni-bill-history>
-        </section>
 
+        </section>
     </section>
-    <section class="right-side journalentry-image-area">
-        <legend>Dokument ({{this.files?.length || 0}})</legend>
+
+    <section class="bill-right-side uni-container">
+        <header>Dokument ({{this.files?.length || 0}})</header>
         <uni-image
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
@@ -83,7 +80,7 @@
             (imageClicked)="onImageClicked($event)"
             (useWord)="onUseWord($event)">
         </uni-image>
-        <button *ngIf="!(current | async)?.ID" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
+        <button *ngIf="!(current | async)?.ID" class="good document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
     </section>
 
 </section>

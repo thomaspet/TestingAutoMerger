@@ -6,11 +6,7 @@ uni-section
 
 .collapsable
     display: block
-    max-width: 81.25rem !important
-    margin: 0 auto
-
-    @include media('650px', 'max-width')
-        max-width: pxToRem(650)
+    box-sizing: border-box
 
     & > h4
         margin-bottom: 1rem
@@ -23,6 +19,7 @@ uni-section
         cursor: pointer
         width: 100%
         display: block
+        box-sizing: border-box
 
     & > .collapsable-content
         display: none

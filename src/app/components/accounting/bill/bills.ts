@@ -47,7 +47,6 @@ interface ILocalValidation {
 interface IFilter {
     name: string;
     label: string;
-    isSelected?: boolean;
     count?: number;
     total?: number;
     filter?: string;
@@ -87,10 +86,6 @@ export class BillsView implements OnInit {
     private hasQueriedTotals: boolean = false;
     private startupPage: number = 0;
 
-    public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
     private currentUserFilter: string;
@@ -98,13 +93,38 @@ export class BillsView implements OnInit {
     private fileID: any;
     private currentFiles: any;
 
+    private previewVisible: boolean;
+
+    public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
+    public assigneeFilterField: any = {
+        Property: 'ID',
+        FieldType: FieldType.AUTOCOMPLETE,
+        Placeholder: 'Tildelt til',
+        Options: {
+            displayProperty: 'DisplayName',
+            valueProperty: 'ID',
+            minLength: 0,
+            debounceTime: 200,
+            getDefaultData: () => {
+                const params = this.pageStateService.getPageState();
+                if (params && params.assignee) {
+                    return this.userService.Get(params.assignee).map(user => [user]);
+                }
+                return Observable.of([]);
+            },
+            search: (query: string) => {
+                return this.userService.GetAll(`filter=contains(DisplayName, '${query}')`);
+            },
+        }
+    };
+
+    public activeFilterIndex: number;
     public filters: Array<IFilter> = [
         {
             label: 'Innboks',
             name: 'Inbox',
             route: 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox',
             onDataReady: (data) => this.onInboxDataReady(data),
-            isSelected: true,
             hotCounter: true
         },
         {
@@ -113,14 +133,14 @@ export class BillsView implements OnInit {
                 + StatusCodeSupplierInvoice.Draft
                 + ') eq '
                 + StatusCodeSupplierInvoice.Draft,
-            isSelected: false, passiveCounter: true
+            passiveCounter: true
         },
         {
             label: 'Avvist',
             name: 'Rejected',
             filter: 'isnull(statuscode,' +
             StatusCodeSupplierInvoice.Rejected + ') eq ' +
-            StatusCodeSupplierInvoice.Rejected, isSelected: false,
+            StatusCodeSupplierInvoice.Rejected,
             passiveCounter: true
         },
         {
@@ -220,8 +240,6 @@ export class BillsView implements OnInit {
             }
             this.updateSaveActions(0);
 
-            this.fields$.next(this.getLayout().Fields);
-
             this.searchControl.valueChanges
                 .debounceTime(300)
                 .subscribe((value: string) => {
@@ -235,6 +253,7 @@ export class BillsView implements OnInit {
 
 
     public onFormFilterChange(event) {
+        console.log(event);
         this.currentUserFilter = event.ID.currentValue;
         this.refreshList(this.currentFilter, true, null, this.currentUserFilter);
 
@@ -343,7 +362,7 @@ export class BillsView implements OnInit {
     public onFileSplitCompleted() {
         // the previously selected file will be deleted after splitting it, so reset the file selection
         this.fileID = null;
-        this.hidePreview();
+        this.previewVisible = false;
 
         // also refresh the list, because we will most likely have multiple new files now
         this.refreshList(this.currentFilter);
@@ -819,7 +838,7 @@ export class BillsView implements OnInit {
             }),
         ];
         const cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
-            .setSearchable(false)
+            .setSearchable(true)
             .setMultiRowSelect(false)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
@@ -850,7 +869,7 @@ export class BillsView implements OnInit {
                 const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;
                 this.filters[ixAll].total = total;
-                this.totals.grandTotal = this.filters.find(x => x.isSelected).total;
+                this.totals.grandTotal = this.filters[this.activeFilterIndex].total;
             }, err => this.errorService.handle(err));
     }
 
@@ -904,7 +923,7 @@ export class BillsView implements OnInit {
                 }).setWidth('8%'),
         ];
         return new UniTableConfig('accounting.bills.mainTable', false, true)
-            .setSearchable(false)
+            .setSearchable(true)
             .setMultiRowSelect(true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
@@ -940,8 +959,8 @@ export class BillsView implements OnInit {
                 modal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
                         if (this.fileID && this.fileID[0] === fileId) {
+                            this.previewVisible = false;
                             this.fileID = null;
-                            this.hidePreview();
                         }
                         this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
                             res => {
@@ -970,17 +989,20 @@ export class BillsView implements OnInit {
 
     public onFilterClick(filter: IFilter, searchFilter?: string) {
         if (filter.name !== 'Inbox') {
-            this.hidePreview();
+            this.previewVisible = false;
             this.fileID = null;
         }
-        this.filters.forEach(f => f.isSelected = false);
+
         this.refreshList(filter, !this.hasQueriedTotals, searchFilter);
-        filter.isSelected = true;
         if (searchFilter) {
             this.pageStateService.setPageState('search', this.startupWithSearchText);
         } else {
             this.pageStateService.setPageState('filter', filter.name);
-            this.browserStorage.setItem('bills.defaultFilter', filter.name);
+            const index = this.filters.findIndex(f => f.name === filter.name);
+            if (index >= 0) {
+                this.activeFilterIndex = index;
+                this.browserStorage.setItem('bills.defaultFilterIndex', index);
+            }
         }
     }
 
@@ -989,10 +1011,10 @@ export class BillsView implements OnInit {
     private checkPath() {
         const params = this.pageStateService.getPageState();
         if (params.filter) {
-            this.currentFilter = this.filters.find(x => x.name === params.filter);
-            if (this.currentFilter) {
-                this.filters.forEach(x => x.isSelected = false);
-                this.currentFilter.isSelected = true;
+            const filterIndex = this.filters.findIndex(f => f.name === params.filter);
+            if (filterIndex >= 0) {
+                this.activeFilterIndex = filterIndex;
+                this.currentFilter = this.filters[filterIndex];
             }
         }
 
@@ -1020,29 +1042,17 @@ export class BillsView implements OnInit {
 
         // Default-filter?
         if (this.currentFilter === undefined) {
-            const filterName = this.browserStorage.getItem('bills.defaultFilter') || 'Inbox';
-            this.filters.forEach(x => {
-                if (x.name === filterName) {
-                    this.currentFilter = x;
-                    x.isSelected = true;
-                } else {
-                    x.isSelected = false;
-                }
-            });
-            if (!this.currentFilter) {
-                this.currentFilter = this.filters[0];
-            }
+            const filterIndex = this.browserStorage.getItem('bills.defaultFilterIndex') || 0;
+            this.activeFilterIndex = filterIndex;
+            this.currentFilter = this.filters[filterIndex] || this.filters[0];
         }
     }
 
     private previewDocument(item) {
-        document.getElementById('preview_container_id').style.display = 'block';
+        // document.getElementById('preview_container_id').style.display = 'block';
+        this.previewVisible = true;
         this.loadingPreview = true;
         this.fileID = [item.ID];
-    }
-
-    private hidePreview() {
-        document.getElementById('preview_container_id').style.display = 'none';
     }
 
     public onFileListReady(event) {
@@ -1077,68 +1087,5 @@ export class BillsView implements OnInit {
         pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
 
         return pageSize;
-    }
-
-    private getLayout() {
-        const params = this.pageStateService.getPageState();
-        return {
-            Name: 'Assignees',
-            BaseEntity: 'User',
-            StatusCode: 0,
-            Deleted: false,
-            CreatedAt: null,
-            UpdatedAt: null,
-            CreatedBy: null,
-            UpdatedBy: null,
-            ID: 1,
-            CustomFields: null,
-            Fields: [
-                {
-                    ComponentLayoutID: 1,
-                    EntityType: 'User',
-                    Property: 'ID',
-                    Placement: 4,
-                    Hidden: false,
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    ReadOnly: false,
-                    LookupField: false,
-                    Label: 'Filtrer på tildelt/godkjent av:',
-                    Description: '',
-                    HelpText: '',
-                    FieldSet: 0,
-                    Section: 0,
-                    Placeholder: null,
-                    LineBreak: null,
-                    Combo: null,
-                    Legend: '',
-                    StatusCode: 0,
-                    ID: 1,
-                    Deleted: false,
-                    CreatedAt: null,
-                    UpdatedAt: null,
-                    CreatedBy: null,
-                    UpdatedBy: null,
-                    CustomFields: null,
-                    Options: {
-                        getDefaultData: () => {
-                            if (params.assignee) {
-                             return this.userService.Get(params.assignee).map(user => [user]);
-                            }
-                            return Observable.of([]);
-                        },
-
-                        search: (query: string) => {
-                            return this.userService.GetAll(null);
-
-                        },
-                        displayProperty: 'DisplayName',
-                        valueProperty: 'ID',
-                        minLength: 0,
-                        debounceTime: 200
-                    }
-
-                }
-            ]
-        };
     }
 }

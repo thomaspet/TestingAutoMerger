@@ -1,119 +1,96 @@
 <uni-toolbar
     *ngIf="!modalMode"
-    [statustrack]="statustrack"
     [config]="toolbarconfig"
     [saveactions]="saveactions"
+    [subheads]="toolbarSubheads"
     [commentsConfig]="commentsConfig"
     [selectConfig]="selectConfig"
+    [validationMessages]="toolbarStatusValidation"
     (selectValueChanged)="numberSeriesChange($event)">
 </uni-toolbar>
 
-<uni-poster [widgets]="customerWidgets" *ngIf="customerWidgets && (customer$|async)?.ID"></uni-poster>
-
-<header class="customer_poster">
-
-    <div class="horizontal_nav" *ngIf="(customer$|async)?.ID">
-        <ul>
-            <li>
-                <a [class]="activeTab === 'details' ? 'router-link-active' : ''"
-                   (click)="showTab('details')">
-                   Detaljer
-                </a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'reconciliation' ? 'router-link-active' : ''"
-                   (click)="showTab('reconciliation')">
-                    Åpne poster
-                </a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'productssold' ? 'router-link-active' : ''"
-                   (click)="showTab('productssold')">
-                    Produkter solgt
-                </a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'attachments' ? 'router-link-active' : ''"
-                   (click)="showTab('attachments')">
-                    Dokumenter
-                </a>
-            </li>
-            <li *ngFor="let link of reportLinks">
-                <a
-                        [class]="activeTab === 'report' && showReportWithID == link.id ? 'router-link-active' : ''"
-                        (click)="showTab('report', link.id)"
-                >{{link.name}}</a>
-            </li>
-            <li>
-                <a [class]="activeTab === 'subcompany' ? 'router-link-active' : ''"
-                   (click)="showTab('subcompany')">
-                    Selskap
-                </a>
-            </li>
-        </ul>
-    </div>
-
-</header>
 <section class="customer-details application">
-    <uni-form *ngIf="activeTab === 'details'"
-              [config]="config$"
-              [fields]="fields$"
-              [model]="customer$"
-              (changeEvent)="onChange($event)">
-    </uni-form>
-    <article class="collapsable" [ngClass]="{'-is-open': showSellerSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
-        <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
-        <div class="collapsable-content">
-            <seller-links
-                [parent]="(customer$ | async)"
-                (sellerChanged)="onChange($event)"
-                (deleted)="onSellerLinkDeleted($event)">
-            </seller-links>
-        </div>
-    </article>
-    <article class="collapsable" [ngClass]="{'-is-open': showContactSection}" *ngIf="activeTab === 'details' && (customer$|async)?.ID">
-        <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
-        <div class="collapsable-content">
-            <contacts
-                [parentBusinessRelation]="(customer$ | async)?.Info"
-                (contactChanged)="onContactChanged($event)">
-            </contacts>
-        </div>
-    </article>
-    <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}" *ngIf="activeTab === 'details'">
-        <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
-        <div class="collapsable-content">
-            <reminder-settings
-                [settings]="(customer$ | async)?.CustomerInvoiceReminderSettings">
-            </reminder-settings>
-        </div>
-    </article>
-    <ledger-account-reconciliation *ngIf="activeTab === 'reconciliation'"
+    <uni-tabs [tabs]="tabs" (activeIndexChange)="showTab($event)"></uni-tabs>
+
+    <!-- Details tab -->
+    <ng-template [ngIf]="activeTabIndex === 0">
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="customer$"
+            (changeEvent)="onChange($event)">
+        </uni-form>
+
+        <ng-template [ngIf]="(customer$ | async)?.ID">
+            <article class="collapsable" [ngClass]="{'-is-open': showSellerSection}">
+                <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
+                <div class="collapsable-content">
+                    <seller-links
+                        [parent]="(customer$ | async)"
+                        (sellerChanged)="onChange($event)"
+                        (deleted)="onSellerLinkDeleted($event)">
+                    </seller-links>
+                </div>
+            </article>
+
+            <article class="collapsable" [ngClass]="{'-is-open': showContactSection}">
+                <h4 (click)="showContactSection = !showContactSection">Kontakter</h4>
+                <div class="collapsable-content">
+                    <contacts
+                        [parentBusinessRelation]="(customer$ | async)?.Info"
+                        (contactChanged)="onContactChanged($event)">
+                    </contacts>
+                </div>
+            </article>
+        </ng-template>
+
+        <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
+            <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
+            <div class="collapsable-content">
+                <reminder-settings
+                    [settings]="(customer$ | async)?.CustomerInvoiceReminderSettings">
+                </reminder-settings>
+            </div>
+        </article>
+    </ng-template>
+
+    <!-- Reconciliation tab -->
+    <section *ngIf="activeTabIndex === 1" class="uni-container">
+        <ledger-account-reconciliation
             [customerID]="(customer$ | async)?.ID">
-    </ledger-account-reconciliation>
-    <customer-products-sold *ngIf="activeTab === 'productssold'"
-            [customerID]="(customer$ | async)?.ID">
+        </ledger-account-reconciliation>
+    </section>
+
+    <!-- Products sold tab -->
+    <customer-products-sold *ngIf="activeTabIndex === 2"
+        [customerID]="(customer$ | async)?.ID">
     </customer-products-sold>
-    <uni-attachments *ngIf="activeTab === 'attachments'"
-        id="attachments"
-        [entity]="'Customer'"
-        [entityID]="(customer$ | async)?.ID"
-        [hideLabel]="true">
-    </uni-attachments>
-    <div *ngFor="let link of reportLinks">
-        <uni-query-read-only
-                *ngIf="showReportWithID === link.id"
-                [ngClass]="{'hidden': showReportWithID != link.id}"
-                [queryDefinitionID]="link.id"
-                [customerID]="(customer$ | async)?.ID"
-                [externalID]="(customer$ | async)?.ID"
-                [projectID]="(customer$ | async)?.Dimensions?.ProjectID || 0">
-        </uni-query-read-only>
-    </div>
 
-    <subcompanycomponent [hidden]="activeTab !== 'subcompany'" [customer]="customer$" (change)="onSubCompanyChange($event)" >
+    <!-- Attachments tab -->
+    <section *ngIf="activeTabIndex === 3" class="uni-container">
+        <uni-attachments
+            id="attachments"
+            [entity]="'Customer'"
+            [entityID]="(customer$ | async)?.ID">
+        </uni-attachments>
+    </section>
 
+    <!-- Company tab -->
+    <subcompanycomponent
+        [hidden]="activeTabIndex !== 4"
+        [customer]="customer$"
+        (change)="onSubCompanyChange($event)">
     </subcompanycomponent>
+
+    <!-- TOF tabs  -->
+    <section *ngIf="showReportWithID" class="uni-container">
+        <uni-query-read-only
+            [queryDefinitionID]="showReportWithID"
+            [customerID]="(customer$ | async)?.ID"
+            [externalID]="(customer$ | async)?.ID"
+            [projectID]="(customer$ | async)?.Dimensions?.ProjectID || 0">
+        </uni-query-read-only>
+    </section>
 
 </section>
 

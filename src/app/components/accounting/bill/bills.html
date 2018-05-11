@@ -1,45 +1,29 @@
 <uni-toolbar
     [config]="toolbarConfig"
     [saveactions]="saveActions">
-
 </uni-toolbar>
 
-<section class="supplierinvoice-listview">
+<section class="application">
+    <uni-tabs
+        [tabs]="filters"
+        [labelProperty]="'label'"
+        [(activeIndex)]="activeFilterIndex"
+        (tabClick)="onFilterClick($event)">
+    </uni-tabs>
 
-    <header class="horizontal_nav no-print">
-        <ul>
-            <li *ngFor="let filter of filters">
-                <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >
-                    {{filter.label}}&nbsp;
-                    <span *ngIf="filter.count" [class.tab_counter_passive]="filter.passiveCounter" [class.tab_counter_hot]="filter.hotCounter" class="tab_counter">{{filter.count}}</span>
-                </a>
-            </li>
-        </ul>
-    </header>
+    <section class="bill-container">
+        <!-- List -->
+        <section class="uni-container bill-list">
+            <uni-autocomplete-input
+                *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
+                class="assignee-filter"
+                [field]="assigneeFilterField"
+                [model]="searchParams$"
+                (changeEvent)="onFormFilterChange($event)">
+            </uni-autocomplete-input>
 
-    <header class="application">
-        <table class='toolbar' style="float: left">
-            <tr>
-                <td>
-                    <input type="search" placeholder="Søk" [formControl]="searchControl" ><button class="good" (click)="onAddNew()">Nytt fakturamottak</button>
-                </td>
-                <td>
-                    <uni-form *ngIf="!(filters[0].isSelected || filters[1].isSelected)" [config]="config$"
-                        [fields]="fields$"
-                        [model]="searchParams$"
-                        (changeEvent)="onFormFilterChange($event)">
-                    </uni-form>
-                </td>
-            </tr>
-        </table>
-        <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(true)">Bruk i fakturamottak</a>
-        <a *ngIf="fileID" class="accounting_preview_links" (click)="documentSelected(false)">Bruk i bilagsregistrering</a>
-    </header>
-
-    <article class="application accounting_inbox_container" [attr.aria-busy]="busy">
-        <!--Article container for the table-->
-        <article class="accounting_inbox_list_container">
-            <uni-table [resource]="listOfInvoices"
+            <uni-table
+                [resource]="listOfInvoices"
                 [config]="tableConfig"
                 (rowSelected)="onRowSelected($event)"
                 (rowDeleted)="onRowDeleted($event.rowModel)"
@@ -53,11 +37,15 @@
             <div class="right total" *ngIf="this.currentFilter.name !== 'Inbox'">
                 Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
             </div>
+        </section>
 
-        </article>
+        <!-- Detail -->
+        <section class="uni-container bill-preview" *ngIf="previewVisible">
+            <section *ngIf="fileID" class="accounting-preview-links">
+                <a (click)="documentSelected(true)">Bruk i fakturamottak</a>
+                <a (click)="documentSelected(false)">Bruk i bilagsregistrering</a>
+            </section>
 
-        <!--Article container for the preview -->
-        <article class="preview_container" id="preview_container_id" [attr.aria-busy]="loadingPreview">
             <uni-image
                 [splitFileDialogAllowed]="true"
                 [rotateAllowed]="true"
@@ -68,6 +56,6 @@
                 (fileListReady)="onFileListReady($event)"
                 (fileSplitCompleted)="onFileSplitCompleted()">
             </uni-image>
-        </article>
-    </article>
+        </section>
+    </section>
 </section>

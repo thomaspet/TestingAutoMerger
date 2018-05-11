@@ -1,9 +1,201 @@
 export const SHORTCUT_LISTS = [
     {
-        id: 'shortcut_list_accounting',
+        id: 'shortcuts_main',
+        description: 'Snarveier - Hjem',
+        width: 6,
+        height: 1,
+        widgetType: 'shortcuts',
+        config: {
+            shortcuts: [
+                {
+                    label: 'Regnskap',
+                    url: '/accounting',
+                    icon: 'library_books'
+                },
+                {
+                    label: 'Salg',
+                    url: '/sales',
+                    icon: 'shopping_cart'
+                },
+                {
+                    label: 'Lønn',
+                    url: '/salary',
+                    icon: 'group'
+                },
+                {
+                    label: 'Bank',
+                    url: '/bank',
+                    icon: 'account_balance'
+                },
+                {
+                    label: 'Timer',
+                    url: '/timetracking',
+                    icon: 'watch_later'
+                },
+                {
+                    label: 'Oversikt',
+                    url: '/overview',
+                    icon: 'search'
+                },
+            ]
+        }
+    },
+
+    {
+        id: 'shortcuts_accounting',
         description: 'Snarveier - Regnskap',
+        width: 6,
+        height: 1,
+        widgetType: 'shortcuts',
+        config: {
+            shortcuts: [
+                {
+                    label: 'Bilagsføring',
+                    url: '/accounting/journalentry/manual',
+                    icon: 'chrome_reader_mode'
+                },
+                {
+                    label: 'Fakturamottak',
+                    url: '/accounting/bills',
+                    icon: 'description'
+                },
+                {
+                    label: 'Bilagssøk',
+                    url: '/accounting/transquery',
+                    icon: 'search'
+                },
+                {
+                    label: 'Rapporter',
+                    url: '/accounting/accountingreports/result',
+                    icon: 'insert_chart'
+                },
+                {
+                    label: 'MVA-melding',
+                    url: '/accounting/vatreport',
+                    icon: 'assignment'
+                },
+            ]
+        }
+    },
+    {
+        id: 'shortcuts_sales',
+        description: 'Snarveier - Salg',
+        width: 6,
+        height: 1,
+        widgetType: 'shortcuts',
+        config: {
+            shortcuts: [
+                {
+                    label: 'Tilbud',
+                    url: '/sales/quotes',
+                    letterIcon: 'T'
+                },
+                {
+                    label: 'Ordre',
+                    url: '/sales/orders',
+                    letterIcon: 'O'
+                },
+                {
+                    label: 'Faktura',
+                    url: '/sales/invoices',
+                    letterIcon: 'F'
+                },
+                {
+                    label: 'Kunder',
+                    url: '/sales/customer',
+                    icon: 'group'
+                },
+                {
+                    label: 'Produkter',
+                    url: '/sales/products',
+                    icon: 'shopping_cart'
+                },
+                {
+                    label: 'Oversikt',
+                    url: '/overview',
+                    icon: 'search'
+                },
+            ]
+        }
+    },
+    {
+        id: 'shortcuts_salary',
+        description: 'Snarveier - Lønn',
+        width: 6,
+        height: 1,
+        widgetType: 'shortcuts',
+        config: {
+            shortcuts: [
+                {
+                    label: 'Ansatte',
+                    url: '/salary/employees',
+                    icon: 'group'
+                },
+                {
+                    label: 'Lønnsarter',
+                    url: '/salary/wagetypes',
+                    icon: 'dns'
+                },
+                {
+                    label: 'Lønnsavregning',
+                    url: '/salary/payrollrun',
+                    icon: 'account_balance_wallet'
+                },
+                {
+                    label: 'A-melding',
+                    url: '/salary/amelding',
+                    icon: 'description'
+                },
+                {
+                    label: 'Altinn',
+                    url: '/salary/altinnoverview',
+                    icon: 'search'
+                }
+            ]
+        }
+    },
+    {
+        id: 'shortcuts_timetracking',
+        description: 'Snarveier - Timeføring',
+        width: 5,
+        height: 1,
+        widgetType: 'shortcuts',
+        config: {
+            shortcuts: [
+                {
+                    label: 'Timeføring',
+                    url: '/timetracking/timeentry',
+                    icon: 'watch_later'
+                },
+                {
+                    label: 'Timearter',
+                    url: '/timetracking/worktypes',
+                    icon: 'dns'
+                },
+                {
+                    label: 'Personer',
+                    url: '/timetracking/workers',
+                    icon: 'group'
+                },
+                {
+                    label: 'Fakturere timer',
+                    url: '/timetracking/invoice-hours',
+                    icon: 'description'
+                },
+                {
+                    label: 'Rapporter',
+                    url: '/reports?category=timetracking',
+                    icon: 'insert_chart'
+                },
+            ]
+        }
+    },
+
+    {
+        id: 'shortcut_list_accounting',
+        description: 'Snartvei liste - Regnskap',
         width: 2,
-        height: 3,
+        height: 4,
         widgetType: 'shortcutlist',
         config: {
             header: 'Snarveier',
@@ -53,7 +245,7 @@ export const SHORTCUT_LISTS = [
     },
     {
         id: 'shortcut_list_sales',
-        description: 'Snarveier - Salg',
+        description: 'Snartvei liste - Salg',
         width: 2,
         height: 3,
         widgetType: 'shortcutlist',
@@ -95,9 +287,9 @@ export const SHORTCUT_LISTS = [
     },
     {
         id: 'shortcut_list_salary',
-        description: 'Snarveier - Lønn',
-        width: 2,
-        height: 3,
+        description: 'Snartvei liste - Lønn',
+        width: 3,
+        height: 4,
         widgetType: 'shortcutlist',
         config: {
             header: 'Snarveier',
@@ -142,7 +334,7 @@ export const SHORTCUT_LISTS = [
     },
     {
         id: 'shortcut_list_timetracking',
-        description: 'Snarveier - Timeføring',
+        description: 'Snartvei liste - Timeføring',
         permissions: ['ui_timetracking_workers', 'ui_timetracking_worktypes'],
         width: 2,
         height: 3,
@@ -153,11 +345,6 @@ export const SHORTCUT_LISTS = [
                 {
                     label: 'Registrere timer',
                     link: '/timetracking/timeentry',
-                    urlToNew: ''
-                },
-                {
-                    label: 'Fakturere timer',
-                    link: '/timetracking/invoice-hours',
                     urlToNew: ''
                 },
                 {

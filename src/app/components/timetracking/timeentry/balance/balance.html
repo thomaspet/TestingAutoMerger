@@ -1,6 +1,3 @@
-<h2>Timesaldo - <span *ngIf="currentBalance && currentBalance.WorkRelation">{{currentBalance.WorkRelation.Description}} - {{currentBalance.WorkRelation.WorkPercentage}}% stilling</span></h2>
-<article *ngIf="currentBalance && currentBalance.WorkRelation">
-
 <h3 *ngIf="currentBalance.relationIsClosed">
     Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}}
     <div class="bad">Stillingen har sluttdato: {{currentBalance.WorkRelation.EndTime | date: 'dd.MM.yyyy'}}</div>
@@ -13,7 +10,7 @@
 <section [attr.aria-busy]="busy" >
 
     <article [hidden]="!isDetailView">
-        <button class="normal good" (click)="onShowDetails(false)">Vis oppsummering</button>
+        <button class="good" (click)="onShowDetails(false)">Vis oppsummering</button>
         <table class="flex-detail">
             <thead>
                 <tr>
@@ -54,7 +51,7 @@
     </article>
 
     <article [hidden]="isDetailView">
-        <button class="normal primary" (click)="onShowDetails(true)">Vis detaljert</button>
+        <button class="primary" (click)="onShowDetails(true)">Vis detaljert</button>
         <table class="flex-table">
             <tbody>
                 <tr>

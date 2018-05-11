@@ -62,7 +62,6 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
-import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
@@ -75,7 +74,7 @@ import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 declare var _;
 
@@ -118,7 +117,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private vatTypes: VatType[];
     private toolbarconfig: IToolbarConfig;
     private contextMenuItems: IContextMenuItem[] = [];
-    public summary: ISummaryConfig[] = [];
+
+    public currencyInfo: string;
+    public summaryLines: ISummaryLine[];
 
     public selectedNumberSeries: NumberSeries;
     public selectedNumberSeriesTaskID: number;
@@ -207,7 +208,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     ) { }
 
     public ngOnInit() {
-        this.setSums();
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
             if (quoteitems.length) {
@@ -951,17 +951,24 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.updateShareActions();
     }
 
-    public recalcItemSums(quoteItems: any) {
-        if (!quoteItems) {
-            return;
+    public recalcItemSums(quoteItems: CustomerQuoteItem[]) {
+        const items = quoteItems && quoteItems.filter(item => !item.Deleted);
+        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+
+        this.itemsSummaryData = items && items.length
+            ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)
+            : undefined;
+
+        if (this.itemsSummaryData) {
+            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
         }
 
-        this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(
-            quoteItems,
-            this.companySettings.RoundingNumberOfDecimals
-        );
+        if (this.currencyCodeID && this.currencyExchangeRate) {
+            this.currencyInfo = `${this.getCurrencyCode(this.currencyCodeID)} `
+                + `(kurs: ${this.numberFormat.asMoney(this.currencyExchangeRate)})`;
+        }
+
         this.updateToolbar();
-        this.setSums();
     }
 
     private handleSaveError(error, donehandler) {
@@ -1317,44 +1324,5 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
-    }
-
-    private setSums() {
-        this.summary = [
-            {
-                value: this.getCurrencyCode(this.currencyCodeID),
-                title: 'Valuta:',
-            description: this.currencyExchangeRate ?
-                'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
-            },
-            {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : '',
-                title: 'Avgiftsfritt',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : '',
-                title: 'Avgiftsgrunnlag',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : '',
-                title: 'Sum rabatt',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : '',
-                title: 'Nettosum',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : '',
-                title: 'Mva',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : '',
-                title: 'Øreavrunding',
-            }, {
-            value: this.itemsSummaryData ?
-                this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : '',
-                title: 'Totalsum',
-            }];
     }
 }

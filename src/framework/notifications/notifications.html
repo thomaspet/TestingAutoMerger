@@ -1,6 +1,7 @@
-<button class="notifications_toggle"
-        type="button"
-        (click)="toggle($event)">Varsler</button>
+<i class="material-icons notifications-toggle" role="button" (click)="toggle($event)">
+    notifications
+</i>
+
 <span class="notifications_count" *ngIf="unreadCount > 0">
     {{unreadCount}}
 </span>

@@ -1,36 +1,27 @@
 <uni-toolbar [config]="{title: 'Rapportoversikt', omitFinalCrumb: true}"></uni-toolbar>
 
-<section class="horizontal_nav">
-    <ul>
-        <li *ngFor="let tab of mainGroups, let idx = index">
-            <a (click)="activeTabIndex = idx; onTabChange(tab, idx)" [ngClass]="{'router-link-active': activeTabIndex === idx}">
-                {{tab.label}}
-            </a>
-        </li>
-    </ul>
-</section>
+<section class="application">
+    <uni-tabs
+        [tabs]="mainGroups"
+        [labelProperty]="'label'"
+        [(activeIndex)]="activeTabIndex">
+    </uni-tabs>
 
-<div class="report_overview_page application">
-    <figure [attr.aria-busy]="busy" class="report_group_card" *ngFor="let group of mainGroups[activeTabIndex].groups">
-        <h1>{{ group.label }}</h1>
-        <div *ngFor="let report of group.reports">
-            <!-- Uni Query -->
-            <div *ngIf="report.IsQuery">
-                <a (click)="showUniQuery(report)">
-                    <h4 class="report_name">{{report.Name}} <small>(uttrekk)</small></h4>
-                    <p>{{report.Description}}</p>
-                </a>
-            </div>
-            <!-- Reports -->
-            <div [class.waiting]="report.busy" *ngIf="report.IsReport">
-                <a (click)="showReportParams(report)">
-                    <h4 [class.waiting]="report.busy" class="report_name">{{report.Name}}</h4>
-                    <p>{{report.Description}}</p>                    
-                </a>
-            </div>
-        </div>
-    </figure>
-</div>
+    <section class="report-groups">
+        <section class="uni-container report-group" *ngFor="let group of mainGroups[activeTabIndex].groups">
+            <header>{{group.label}}</header>
+
+            <section *ngFor="let report of group.reports" (click)="showReport(report)" class="report">
+                <strong>
+                    {{report.Name}}
+                    <small *ngIf="report.IsQuery"> (uttrekk)</small>
+                </strong>
+
+                <p>{{report.Description}}</p>
+            </section>
+        </section>
+    </section>
+</section>
 
 <balance-report-filter-modal></balance-report-filter-modal>
 <account-report-filter-modal></account-report-filter-modal>

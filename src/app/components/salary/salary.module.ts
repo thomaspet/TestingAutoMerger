@@ -46,7 +46,6 @@ import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsS
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
-import {PayrollRunPoster} from './payrollrun/poster/payrollRunPoster';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
@@ -151,7 +150,6 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         PostingSummaryModal,
         PaycheckSending,
         PaycheckSenderModal,
-        PayrollRunPoster,
         TimeTransferComponent,
 
         // Salarytrans
@@ -257,7 +255,6 @@ import {EmpCanActivateGuard} from './employee/empGuard';
         PostingSummaryModal,
         PaycheckSending,
         PaycheckSenderModal,
-        PayrollRunPoster,
         TimeTransferComponent,
 
         // Salarytrans

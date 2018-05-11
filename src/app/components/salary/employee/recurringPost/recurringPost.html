@@ -1,14 +1,8 @@
-<article class="application" *ngIf="recurringPosts">
+<ng-template [ngIf]="recurringPosts">
     <small *ngIf="!employeeID">Ansatt må lagres før faste poster kan registreres<br><br></small>
     <small *ngIf="unsavedEmployments$ | async">
         Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>
-
-    <!-- <uni-table class="salaryTransTable"
-        [resource]="filteredPosts"
-        [config]="tableConfig"
-        (rowDeleted)="onRowDeleted($event)">
-    </uni-table> -->
 
     <ag-grid-wrapper
         [(resource)]="recurringPosts"
@@ -16,4 +10,4 @@
         (rowDelete)="onRowDeleted()"
     ></ag-grid-wrapper>
 
-</article>
+</ng-template>

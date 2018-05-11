@@ -1,5 +1,8 @@
 $table-border-style: 1px solid $uni-color-scale9
 
+ag-grid-wrapper
+    display: block
+
 ag-grid-angular
     width: 100%
     height: 100%
@@ -39,13 +42,11 @@ ag-grid-wrapper:not(.selection-list)
     .ag-header-container .ag-header-cell
         border-left: $table-border-style
 
+
 ag-grid-wrapper.selection-list
-    .ag-header:hover // show resize guides on hover
+    .ag-header:hover // resize guide on hover
         .ag-header-cell:not(:first-of-type)
             border-left: $table-border-style
-
-    .ag-row
-        cursor: pointer
 
 ag-grid-angular.col-menu-hidden
     .ag-header
@@ -58,7 +59,12 @@ ag-grid-angular.col-menu-hidden
 
 // Header & cell styling
 .ag-header
-    background: #ebeef5
+    background: #fff
+    color: $uni-color-scale5
+
+    // .ag-header-cell-text
+    //     color: $uni-color-scale5
+
 .ag-cell
     line-height: 35px
 .ag-header-cell
@@ -284,3 +290,35 @@ ag-grid-wrapper
         input, button
             height: 35px !important
             width: 100%
+
+
+// Paging
+.ag-paging-panel
+    display: none
+.pagination
+    display: flex
+    justify-content: flex-end
+    margin-top: .5rem
+
+    i.material-icons
+        vertical-align: middle
+        user-select: none
+        cursor: pointer
+        margin-top: 2px
+        font-size: 21px
+
+    .pagination-info
+        margin: 0 1rem
+        font-size: 14px
+
+        input
+            width: 46px
+            height: 20px
+            margin: 0 5px
+            text-align: center
+
+    @media (max-width: 1300px)
+        .pagination-info
+            font-size: 12px
+        i.material-icons
+            font-size: 19px

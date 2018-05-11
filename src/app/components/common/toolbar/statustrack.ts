@@ -32,7 +32,9 @@ export interface IStatus {
 
                 <span class="statustrack_title"
                     (click)="selectStatus(status)"
-                    [attr.data-badge]="status.badge">{{status.title}}</span>
+                    [attr.data-badge]="status.badge">
+                    {{status.title}}
+                </span>
 
                 <ol *ngIf="status.substatusList?.length >= 2 || status.forceSubstatus "
                     class="statustrack_substati">

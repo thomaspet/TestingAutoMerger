@@ -15,14 +15,14 @@ import {
 // Import known widgets. Loading third party stuff needs to be solved
 // for all appfrontend, not just widgets.
 import {
+    UniCountersWidget,
+    UniKpiWidget,
     UniShortcutWidget,
-    UniCounterWidget,
     UniChartWidget,
     UniRSSWidget,
     UniClockWidget,
     UniCompanyLogoWidget,
     UniSumWidget,
-    UniKPIWidget,
     UniFlexWidget,
     UniTransactionsWidget,
     UniShortcutListWidget,
@@ -53,13 +53,13 @@ export interface IUniWidget {
 }
 
 export const WIDGET_MAP = {
-    shortcut: UniShortcutWidget,
-    counter: UniCounterWidget,
+    counters: UniCountersWidget,
+    overview: UniKpiWidget,
+    shortcuts: UniShortcutWidget,
     chart: UniChartWidget,
     rss: UniRSSWidget,
     clock: UniClockWidget,
     sum: UniSumWidget,
-    kpi: UniKPIWidget,
     companyLogo: UniCompanyLogoWidget,
     flex: UniFlexWidget,
     transaction: UniTransactionsWidget,

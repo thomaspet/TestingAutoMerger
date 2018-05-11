@@ -105,7 +105,7 @@ export class CanvasHelper {
             return;
         }
 
-        const layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
+        const layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
         if (layoutStore && layoutStore[name]) {
             const layout: ISavedLayout = layoutStore[name];
             if (this.verifyCustomLayout(layout)) {

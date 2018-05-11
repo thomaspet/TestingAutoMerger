@@ -1,10 +1,5 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [saveactions]="saveactions">
-</uni-toolbar>
-<article class="application">
-    <uni-table [attr.aria-busy]="busy"
-        [resource]="salesList"
-        [config]="salesTableConfig">
-    </uni-table>
-</article>
+<uni-table
+    [attr.aria-busy]="busy"
+    [resource]="salesList"
+    [config]="salesTableConfig">
+</uni-table>

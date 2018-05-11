@@ -9,16 +9,32 @@
     (tagsChange)="filterChange($event)">
 </uni-toolbar>
 
-<payroll-run-poster
-    [payrollRun]="posterPayrollRun$ | async"
-    [employees]="posterEmps$ | async"
-    (payStatus)="setPaymentStatus($event)">
-</payroll-run-poster>
-
 <section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
     <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)"></uni-form>
 </section>
 
-<section class="content" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
+<section class="application" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
+    <section class="payroll-info">
+        <span>
+            <i class="material-icons">date_range</i>
+            Periode: <strong>15.01.2018 - 21.01.2018</strong>
+        </span>
+
+        <span>
+            <i class="material-icons">date_range</i>
+            Utbetalingsdato: <strong>15.03.2018</strong>
+        </span>
+
+        <span>
+            <i class="material-icons">people</i>
+            4 ansatte i lønnsavregningen
+        </span>
+
+        <span>
+            <i class="material-icons">attach_money</i>
+            Beløp til utbetaling: <strong>500,00</strong>
+        </span>
+    </section>
+
     <salarytrans></salarytrans>
 </section>

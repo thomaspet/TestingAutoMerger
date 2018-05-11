@@ -18,40 +18,47 @@ uni-ticker-container
     position: relative
     font-size: 0.9rem
 
+    uni-tabs
+        margin-bottom: 0
+
     .ticker-container
-        // margin-top: 1rem
         display: flex
         flex-direction: row
+        margin-top: .75rem
         width: calc(100% - #{pxToRem(1)}) // Or else it overflows in Canary for some reason.
 
-    .ticker-predefined-filters
-        display: inline-block
-        list-style: none
-        border-bottom: 1px solid $uni-color-scale8
+    // .ticker-predefined-filters
+    //     display: inline-block
+    //     list-style: none
+    //     border-bottom: 1px solid $uni-color-scale8
 
-        li
-            @extend h3
-            display: inline-block
-            margin-right: 1.25rem
-            padding: 0 .25rem
-            color: $uni-color-scale5
-            cursor: pointer
+    //     li
+    //         @extend h3
+    //         display: inline-block
+    //         margin-right: 1.25rem
+    //         padding: 0 .25rem
+    //         color: $uni-color-scale5
+    //         cursor: pointer
 
-            &[aria-selected]:not([aria-selected=false])
-                border-bottom: pxToRem(3) solid $uni-color-c2a
+    //         &[aria-selected]:not([aria-selected=false])
+    //             border-bottom: pxToRem(3) solid $uni-color-c2a
 
-            &:last-of-type
-                margin-right: 0
+    //         &:last-of-type
+    //             margin-right: 0
 
-            .ticker-filter-count
-                font-size: 1.15rem
-                color: $uni-color-c2a
+    //         .ticker-filter-count
+    //             font-size: 1.15rem
+    //             color: $uni-color-c2a
 
-uni-ticker-wrapper
-    position: absolute
-    width: 100%
+// uni-ticker-wrapper
+//     position: absolute
+//     width: 100%
 
-    .ticker-container
-        box-sizing: border-box
-        margin: 1rem
-        width: calc(100% - 2rem)
+    // .ticker-predefined-filters
+    //     margin: 1rem 2rem
+    //     width: calc(100% - 4rem)
+
+    // .ticker-container
+    //     box-sizing: border-box
+    //     margin: 0 2rem
+    //     width: calc(100% - 4rem)

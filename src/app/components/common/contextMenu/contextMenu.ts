@@ -5,7 +5,7 @@ import {GuidService} from '../../../../app/services/services';
 @Component({
     selector: 'uni-context-menu',
     template: `
-    <span (clickOutside)="close()" *ngIf="actions && actions.length">
+    <section (clickOutside)="close()" *ngIf="actions && actions.length">
         <button type="button"
             class="contextmenu_button"
             [id]="guid + '-btn'"
@@ -27,7 +27,7 @@ import {GuidService} from '../../../../app/services/services';
                {{action.label}}
            </li>
        </ul>
-    </span>
+    </section>
     `
 })
 export class ContextMenu {

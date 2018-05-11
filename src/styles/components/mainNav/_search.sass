@@ -10,9 +10,9 @@
         box-sizing: border-box
         padding-right: 2rem
         font-weight: 400
-        height: 1.8rem
+        height: 2rem
         text-overflow: ellipsis
-        width: 100%
+        width: 15rem
 
         &:focus
             min-width: 15rem
@@ -24,6 +24,7 @@
         box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
         border-radius: pxToRem(3)
         box-sizing: border-box
+        color: $uni-color-positive
 
         display: block
         position: absolute
@@ -46,35 +47,32 @@
                 background: $uni-color-c2a
                 color: $uni-color-negative
 
-@media screen and (max-width: 1515px)
-    uni-navbar-search
-        flex-grow: 0
-        flex-shrink: 0
-        flex-basis: 2rem !important
-        height: 2.5rem
+uni-navbar-search.collapsed
+    flex-grow: 0
+    flex-shrink: 0
+    flex-basis: 2rem !important
 
+    .navbar_search
+        margin-left: 0
 
-        .navbar_search
-            margin-left: 0
+        div
+            position: absolute
+            top: .35rem
+            right: 0
 
-            div
-                position: absolute
-                top: .35rem
-                right: 0
+        .search_input
+            background-color: transparent
+            max-width: 2rem
+            position: relative
+            transition: all 300ms ease
+            padding: 0
+            text-indent: 3rem
+            border-color: transparent
 
-            .search_input
-                background-color: transparent
-                max-width: 2rem
-                position: relative
-                transition: all 300ms ease
-                padding: 0
-                text-indent: 3rem
-                border-color: transparent
-
-                &:focus,
-                &:hover
-                    background-color: #fff
-                    padding-left: .5rem
-                    max-width: 15rem
-                    min-width: 15rem
-                    text-indent: 0
+            &:focus,
+            &:hover
+                background-color: #fff
+                padding-left: .5rem
+                max-width: 15rem
+                min-width: 15rem
+                text-indent: 0

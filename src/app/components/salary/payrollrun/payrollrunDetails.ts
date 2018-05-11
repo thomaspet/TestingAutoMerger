@@ -42,6 +42,7 @@ const PAYROLL_RUN_KEY: string = 'payrollRun';
 @Component({
     selector: 'payrollrun-details',
     templateUrl: './payrollrunDetails.html',
+    styleUrls: ['./payrollRunDetails.sass']
 })
 
 export class PayrollrunDetails extends UniView implements OnDestroy {

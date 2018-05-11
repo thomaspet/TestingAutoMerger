@@ -1,10 +1,14 @@
-<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveActions">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions">
 </uni-toolbar>
 
 <section class="application">
-    <uni-table [resource]="overrides" [attr.aria-busy]="isBusy"
-               [config]="overridesTable"
-               (rowChanged)="rowChanged($event)">
-    </uni-table>
+    <section class="uni-container">
+        <uni-table
+            [resource]="overrides"
+            [config]="overridesTable"
+            (rowChanged)="rowChanged($event)">
+        </uni-table>
+    </section>
 </section>

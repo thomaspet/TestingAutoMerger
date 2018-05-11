@@ -1,7 +1,6 @@
 import {Routes} from '@angular/router';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
-import {UserSettings} from './userSettings/userSettings';
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
@@ -36,11 +35,6 @@ export const settingsRoutes: Routes = [{
         {
             path: 'webhooks',
             component: IntegrationSettings, // WebHookSettings,
-            canDeactivate: [CanDeactivateGuard]
-        },
-        {
-            path: 'user',
-            component: UserSettings,
             canDeactivate: [CanDeactivateGuard]
         },
         {

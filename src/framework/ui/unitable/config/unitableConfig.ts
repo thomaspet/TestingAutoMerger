@@ -59,6 +59,7 @@ export interface IUniTableConfig {
     allowEditToggle?: boolean;
     headerVisible?: boolean;
     rowDraggable?: boolean;
+    autofocus?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -110,6 +111,7 @@ export class UniTableConfig implements IUniTableConfig {
 
     public beforeEdit: (event: IEditorData) => IEditorData;
     public headerVisible: boolean;
+    public autofocus: boolean;
 
     /**
      * @constructor
@@ -137,6 +139,11 @@ export class UniTableConfig implements IUniTableConfig {
 
         this.copyFromCellAbove = true;
         this.headerVisible = true;
+    }
+
+    public setAutofocus(autofocus: boolean) {
+        this.autofocus = autofocus;
+        return this;
     }
 
     public setHeaderVisible(visible: boolean) {

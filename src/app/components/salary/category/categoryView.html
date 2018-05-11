@@ -1,6 +1,11 @@
-<uni-toolbar [config]="toolbarConfig" [saveactions]="saveActions" [searchConfig]="searchConfig$ | async"></uni-toolbar>
-<article [attr.aria-busy]="busy">
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions"
+    [searchConfig]="searchConfig$ | async">
+</uni-toolbar>
+
+<article class="application" [attr.aria-busy]="busy">
     <!-- Child component navigation and outlet -->
-    <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+    <uni-tabs [tabs]="childRoutes"></uni-tabs>
     <router-outlet></router-outlet>
 </article>

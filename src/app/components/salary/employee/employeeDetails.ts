@@ -10,7 +10,14 @@ import {
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IAutoCompleteConfig, IToolbarSearchConfig, UniToolbar} from '../../common/toolbar/toolbar';
+import {
+    IToolbarConfig,
+    IAutoCompleteConfig,
+    IToolbarSearchConfig,
+    IToolbarValidation,
+    UniToolbar
+} from '../../common/toolbar/toolbar';
+
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {IPosterWidget} from '../../common/poster/poster';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -75,8 +82,11 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private projects: Project[];
     private departments: Department[];
     private saveActions: IUniSaveAction[];
+
     private toolbarConfig: IToolbarConfig;
     private toolbarSearchConfig: IToolbarSearchConfig;
+    private toolbarValidation: IToolbarValidation[];
+
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
     private activeYear$: ReplaySubject<number> = new ReplaySubject(1);
@@ -99,48 +109,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     };
 
     @ViewChild(UniToolbar) public toolbar: UniToolbar;
-
-    private employeeWidgets: IPosterWidget[] = [
-        {
-            type: 'contact',
-            config: {
-                contacts: []
-            }
-        },
-        {
-            type: 'text',
-            size: 'small',
-            config: {
-                mainText: {text: ''}
-            }
-        },
-        {
-            type: 'alerts',
-            config: {
-                alerts: [{
-                    text: '',
-                    class: ''
-                },
-                {
-                    text: '',
-                    class: ''
-                },
-                {
-                    text: '',
-                    class: ''
-                }]
-            }
-        },
-        {
-            type: 'text',
-            size: 'small',
-            config: {
-                mainText: {text: ''},
-            }
-        }
-    ];
-
-    private employeeSearch: IAutoCompleteConfig;
 
     private expandOptionsNewTaxcardEntity: Array<string> = [
         'loennFraHovedarbeidsgiver',
@@ -192,28 +160,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             {name: 'Permisjon', path: 'employee-leave'}
         ];
 
-        // TODO: remove me!
-        this.employeeSearch = {
-            events: {
-                select: (model, value: Employee) => {
-                    if (value) {
-                        this.router.navigate(['salary/employees/' + value.ID]);
-                    }
-                }
-            },
-            valueProperty: 'ID',
-            template: (obj: Employee) =>
-                obj
-                    ? `${obj.EmployeeNumber} - ${obj.BusinessRelationInfo ? obj.BusinessRelationInfo.Name : ''}`
-                    : '',
-            search: (query) => this.employeeService
-                .GetAll(
-                `filter=startswith(EmployeeNumber, '${query}') `
-                + `or (BusinessRelationID gt 0 and contains(BusinessRelationInfo.Name, '${query}'))`
-                + `&top50`, ['BusinessrelationInfo'])
-                .debounceTime(200)
-        };
-
         this.subscriptions
             .push(this.yearService
                 .getActiveYear()
@@ -223,49 +169,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
             this.tagConfig.readOnly = !this.employeeID;
-
-            if (!this.employeeID) {
-                // If we're dealing with a new employee, just fire up an empty state poster
-                this.employeeWidgets = [
-                    {
-                        type: 'contact',
-                        config: {
-                            contacts: [{value: 'Ny ansatt'}]
-                        }
-                    },
-                    {
-                        type: 'text',
-                        size: 'small',
-                        config: {
-                            topText: [{text: 'Ingen lønn utbetalt'}]
-                        }
-                    },
-                    {
-                        type: 'alerts',
-                        config: {
-                            alerts: [{
-                                text: '',
-                                class: ''
-                            },
-                            {
-                                text: '',
-                                class: ''
-                            },
-                            {
-                                text: '',
-                                class: ''
-                            }]
-                        }
-                    },
-                    {
-                        type: 'text',
-                        size: 'small',
-                        config: {
-                            topText: [{text: 'Ingen aktive arbeidsforhold'}]
-                        }
-                    }
-                ];
-            }
 
             // Update cache key and clear data variables when employee ID is changed
             super.updateCacheKey(this.router.url);
@@ -307,6 +210,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     };
 
                     this.toolbarSearchConfig = this.employeeDetailsService.setupToolbarSearchConfig(employee);
+                    this.setToolbarValidation(this.employee, this.employeeTaxCard);
 
                     this.saveActions = [{
                         label: 'Lagre',
@@ -314,20 +218,16 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         main: true,
                         disabled: true
                     }];
-                    this.updatePosterEmployee(this.employee);
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
 
             super.getStateSubject(EMPLOYMENTS_KEY)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe((employments) => {
+                .subscribe((employments: Employment[]) => {
                     this.employments = employments;
                     this.posterEmployee.employments = employments;
                     this.posterEmployee = _.cloneDeep(this.posterEmployee);
                     this.checkDirty();
-                    if (this.employeeID) {
-                        this.updatePosterEmployments(employments);
-                    }
                 });
 
             super.getStateSubject(SALARYBALANCES_KEY)
@@ -366,7 +266,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             super.getStateSubject(EMPLOYEE_TAX_KEY)
                 .subscribe((employeeTaxCard: EmployeeTaxCard) => {
                     this.employeeTaxCard = employeeTaxCard;
-                    this.updateTaxAlerts(employeeTaxCard);
+                    this.setToolbarValidation(this.employee, this.employeeTaxCard);
+                    // this.updateTaxAlerts(employeeTaxCard);
                     this.checkDirty();
                 });
 
@@ -523,148 +424,39 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         return action;
     }
 
-    public updatePosterEmployee(employee: Employee) {
-        if (employee.ID !== 0) {
 
-            // Scaffold our employee widgets
-            const posterContact = {
-                type: 'contact',
-                config: {
-                    contacts: []
-                }
-            },
-                posterSalary = {
-                    type: 'text',
-                    config: {
-                        topText: [
-                            {text: 'Nettolønn', class: 'large'},
-                            {text: 'utbetalt hittil i år', class: 'small'}
-                        ],
-                        mainText: {text: ''}
-                    }
-                };
+    private setToolbarValidation(employee: Employee, taxCard: EmployeeTaxCard) {
+        const validationMessages: IToolbarValidation[] = [];
 
-            // Add email, if any
-            if (employee.BusinessRelationInfo.Emails && employee.BusinessRelationInfo.Emails[0]) {
-                posterContact.config.contacts.push({value: employee.BusinessRelationInfo.Emails[0].EmailAddress});
-            }
-            // Add phone number, if any
-            if (employee.BusinessRelationInfo.Phones && employee.BusinessRelationInfo.Phones[0]) {
-                posterContact.config.contacts.push({value: employee.BusinessRelationInfo.Phones[0].Number});
-            }
-
-            // Activate the contact widget
-            this.employeeWidgets[0] = posterContact;
-
-            if (employee.ID) {
-                this.getFinancialYearObs()
-                    .switchMap(year => this.salarySumsService.getSumsInYear(year, this.employeeID))
-                    .subscribe((data) => {
-                        if (data.netPayment) {
-                            const add = Math.floor(data.netPayment / 80);
-                            let netPaidThisYear: number = 0;
-                            const interval = setInterval(() => {
-                                netPaidThisYear += add;
-                                posterSalary.config.mainText.text = this.numberformat.asMoney(netPaidThisYear);
-                                if (netPaidThisYear >= data.netPayment) {
-                                    clearInterval(interval);
-                                    posterSalary.config.mainText.text = this.numberformat.asMoney(data.netPayment);
-                                }
-                                this.employeeWidgets[1] = posterSalary;
-                            }, 10);
-                        } else {
-                            posterSalary.config.mainText.text = this.numberformat.asMoney(0);
-                            this.employeeWidgets[1] = posterSalary;
-                        }
-                    }, err => this.errorService.handle(err));
-            }
-        }
-
-        // Check if the alerts are all a-OK!
-        this.updateEmployeeAlerts(employee);
-    }
-
-    private updatePosterEmployments(employments) {
-        // Scaffold the employments-widget
-        const employmentWidget = {
-            type: 'text',
-            config: {
-                topText: [{text: '', class: 'large'}],
-                mainText: {text: ''},
-                bottomText: [{text: 'Ingen aktive arbeidsforhold'}]
-            }
-        };
-
-        // Add employments
-        if (employments.length > 0) {
-            let standardIndex = 0;
-            let actives = 0;
-            for (let i = 0; i < employments.length; i++) {
-                const active = !employments[i].EndDate || new Date(employments[i].EndDate) > new Date();
-                if (active) {
-                    actives++;
-                }
-                if (employments[i].Standard) {
-                    standardIndex = i;
-                }
-            }
-
-            if (actives > 0) {
-                employmentWidget.config.topText[0].text = employments[standardIndex].JobName;
-                if (employments[standardIndex].WorkPercent > 0) {
-                    employmentWidget.config.mainText.text =
-                        this.numberformat.asPercentage(employments[standardIndex].WorkPercent);
-                }
-
-                if (actives > 1) {
-                    employmentWidget.config.bottomText[0].text = '+' + (actives - 1) +
-                        (actives > 2 ? ' stillinger' : ' stilling');
-                } else {
-                    employmentWidget.config.bottomText[0].text = '';
-                }
-            } else {
-                employmentWidget.config.bottomText[0].text = 'Ingen aktive arbeidsforhold';
-            }
-
-        }
-
-        // Send the widget to the poster
-        this.employeeWidgets[3] = employmentWidget;
-    }
-
-    private updateEmployeeAlerts(employee: Employee) {
-        const alerts = this.employeeWidgets[2].config.alerts;
-        const checks = this.employeeBoolChecks(employee);
-
-        // Bank acct ok?
-        alerts[0] = {
-            text: checks.hasAccountNumber ? 'Kontonummer ok' : 'Kontonummer mangler',
-            class: checks.hasAccountNumber ? 'success' : 'error'
-        };
-
-        // SSN ok?
-        alerts[2] = {
-            text: checks.hasSSN ? 'Fødselsnummer ok' : 'Fødselsnummer mangler',
-            class: checks.hasSSN ? 'success' : 'error'
-        };
-    }
-
-    private updateTaxAlerts(employeeTaxCard: EmployeeTaxCard) {
-        const alerts = this.employeeWidgets[2].config.alerts;
-        this.getFinancialYearObs()
-            .subscribe((year: number) => {
-                const hasTaxCard = this.employeeTaxCardService.hasTaxCard(employeeTaxCard, year);
-                // Tax info ok?
-                alerts[1] = {
-                    text: hasTaxCard
-                        ? 'Skattekort ok'
-                        : 'Skattekort mangler',
-                    class: hasTaxCard
-                        ? 'success'
-                        : 'error'
-                };
+        if (employee) {
+            validationMessages.push({
+                label: 'Kontonummer',
+                type: employee.BusinessRelationInfo.DefaultBankAccountID >= 0
+                    ? 'good' : 'bad',
+                link: 'personal-details'
             });
+
+            validationMessages.push({
+                label: 'Fødselsnummer',
+                type: this.modulusService.validSSN(employee.SocialSecurityNumber)
+                    ? 'good' : 'bad',
+                link: 'personal-details'
+            });
+        }
+
+        if (taxCard) {
+            const currentYear = new Date().getFullYear();
+            validationMessages.push({
+                label: 'Skattekort',
+                type: this.employeeTaxCardService.hasTaxCard(taxCard, currentYear)
+                    ? 'good' : 'bad',
+                link: 'employee-tax'
+            });
+        }
+
+        this.toolbarValidation = validationMessages;
     }
+
 
     private checkDirty() {
         if (this.saveActions) {
@@ -674,14 +466,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 this.saveActions[0].disabled = true;
             }
         }
-    }
-
-    // Dummy check to see is user has Tax Card, social security number and account number
-    private employeeBoolChecks(employee: Employee): {hasSSN: boolean, hasAccountNumber: boolean} {
-        return {
-            hasSSN: this.modulusService.validSSN(employee.SocialSecurityNumber),
-            hasAccountNumber: employee.BusinessRelationInfo.DefaultBankAccountID !== null
-        };
     }
 
     public nextEmployee() {

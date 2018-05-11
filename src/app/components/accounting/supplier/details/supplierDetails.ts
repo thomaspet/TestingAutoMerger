@@ -8,7 +8,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
@@ -50,6 +50,7 @@ import {
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 declare const _; // lodash
 
@@ -88,13 +89,18 @@ export class SupplierDetails implements OnInit {
     public searchText: string;
 
     private emptyBankAccount: BankAccount;
-    public reportLinks: IReference[];
-    private activeTab: string = 'details';
-    public showReportWithID: number;
+
     public showContactSection: boolean = true; // used in template
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     private selectConfig: any;
+
+    public reportLinks: IReference[];
+    public showReportWithID: number;
+    public tabs: IUniTab[];
+    public activeTabIndex: number = 0;
+
+    private activeTab: string = 'details';
 
     private expandOptions: Array<string> = [
         'Info',
@@ -131,17 +137,10 @@ export class SupplierDetails implements OnInit {
         }
     ];
 
-    public statusTypes: Array<any> = [
-        { Code: StatusCode.Active, Text: 'Aktiv' },
-        { Code: StatusCode.InActive, Text: 'Deaktivert' },
-        { Code: StatusCode.Deleted, Text: 'Slettet' },
-    ];
-
-    public statustrack: IStatus[];
+    public supplierStatusValidation: IToolbarValidation[];
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Leverandør',
-        statustrack: null,
         navigation: {
             prev: this.previousSupplier.bind(this),
             next: this.nextSupplier.bind(this),
@@ -193,6 +192,12 @@ export class SupplierDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
+        this.tabs = [
+            {name: 'Detaljer'},
+            {name: 'Åpne poster'},
+            {name: 'Dokumenter'}
+        ];
+
         if (!this.modalMode) {
             this.route.params.subscribe(params => {
                 this.supplierID = +params['id'];
@@ -209,7 +214,10 @@ export class SupplierDetails implements OnInit {
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
-                    links => this.reportLinks = links,
+                    links => {
+                        this.reportLinks = links;
+                        this.tabs = [...this.tabs, ...links];
+                    },
                     err => this.errorService.handle(err)
                 );
             });
@@ -218,14 +226,14 @@ export class SupplierDetails implements OnInit {
 
     private activateSupplier(customerID: number) {
         this.supplierService.activateSupplier(customerID).subscribe(
-            res => this.statustrack = this.getStatustrackConfig(30001),
+            res => this.setSupplierStatusInToolbar(30001),
             err => this.errorService.handle(err)
         );
     }
 
     private deactivateSupplier(customerID: number) {
         this.supplierService.deactivateSupplier(customerID).subscribe(
-            res => this.statustrack = this.getStatustrackConfig(50001),
+            res => this.setSupplierStatusInToolbar(50001),
             err => this.errorService.handle(err)
         );
     }
@@ -323,16 +331,12 @@ export class SupplierDetails implements OnInit {
         this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
     }
 
-    public showTab(tab: string, reportid: number = null) {
-        if (this.activeTab === 'reconciliation'
-            && this.ledgerAccountReconciliation
-            && this.ledgerAccountReconciliation.isDirty) {
+    public showTab(index: number) {
+        this.activeTabIndex = index;
+        const tab = this.tabs[index];
 
-            this.activeTab = tab;
-            this.showReportWithID = reportid;
-        } else {
-            this.activeTab = tab;
-            this.showReportWithID = reportid;
+        if (this.tabs[index]) {
+            this.showReportWithID = this.tabs[index]['id'];
         }
     }
 
@@ -403,7 +407,7 @@ export class SupplierDetails implements OnInit {
                 ).ID;
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
-                this.statustrack = this.getStatustrackConfig();
+                this.setSupplierStatusInToolbar();
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.supplierID, this.numberSeries, 'Supplier number series'
@@ -420,7 +424,7 @@ export class SupplierDetails implements OnInit {
                 this.supplier$.next(supplier);
                 this.setTabTitle();
                 this.showHideNameProperties();
-                this.statustrack = this.getStatustrackConfig();
+                this.setSupplierStatusInToolbar();
             }, err => this.errorService.handle(err));
         }
     }
@@ -447,7 +451,7 @@ export class SupplierDetails implements OnInit {
             supplierName.Hidden = false;
             this.fields$.next(fields);
             setTimeout(() => {
-                if (this.form.field('Info.Name')) {
+                if (this.form && this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
            });
@@ -456,7 +460,7 @@ export class SupplierDetails implements OnInit {
             supplierName.Hidden = true;
             this.fields$.next(fields);
             setTimeout(() => {
-                if (this.form.field('_SupplierSearchResult')) {
+                if (this.form && this.form.field('_SupplierSearchResult')) {
                     this.form.field('_SupplierSearchResult').focus();
                 }
             });
@@ -847,32 +851,31 @@ export class SupplierDetails implements OnInit {
         return uniSearchConfig;
     }
 
-    private getStatustrackConfig(statusCode?: number) {
-        const statustrack: IStatus[] = [];
-        const activeStatus = statusCode || this.supplier$.value.StatusCode;
+    private setSupplierStatusInToolbar(statusCode?: number) {
+        const activeStatusCode = statusCode || this.supplier$.value.StatusCode;
+        let type, label;
 
-        this.statusTypes.forEach((status) => {
-            let _state: STATUSTRACK_STATES;
+        switch (activeStatusCode) {
+            case StatusCode.Active:
+                label = 'Aktiv';
+                type = 'good';
+            break;
+            case StatusCode.InActive:
+                label = 'Inaktiv';
+                type = 'bad';
+            break;
+            case StatusCode.Deleted:
+                label = 'Slettet';
+                type = 'bad';
+            break;
+        }
 
-            if (!activeStatus) {
-               _state = STATUSTRACK_STATES.Disabled;
-            }
-
-            if (status.Code > activeStatus) {
-                _state = STATUSTRACK_STATES.Future;
-            } else if (status.Code < activeStatus) {
-                _state = STATUSTRACK_STATES.Completed;
-            } else if (status.Code === activeStatus) {
-                _state = STATUSTRACK_STATES.Active;
-            }
-
-            statustrack.push({
-                title: status.Text,
-                state: _state,
-                code: status.Code
-            });
-        });
-        return statustrack;
+        if (label && type) {
+            this.supplierStatusValidation = [{
+                label: label,
+                type: type
+            }];
+        }
     }
 
     // TODO: change to 'ComponentLayout' when object respects the interface

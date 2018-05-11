@@ -37,59 +37,39 @@ export class UniSalary {
             {
                 x: 0,
                 y: 0,
-                widgetID: 'shortcut_salary_employees',
-            },
-
-            {
-                x: 1,
-                y: 0,
-                widgetID: 'shortcut_salary_wagetypes',
-            },
-
-            {
-                x: 2,
-                y: 0,
-                widgetID: 'shortcut_salary_payrollrun',
-            },
-
-            {
-                x: 3,
-                y: 0,
-                widgetID: 'shortcut_salary_amelding',
+                widgetID: 'shortcuts_salary'
             },
             {
-                x: 4,
+                x: 6,
                 y: 0,
                 widgetID: 'counter_salary_travels'
             },
             {
-                x: 5,
+                x: 9,
                 y: 0,
-                widgetID: 'clock',
+                widgetID: 'shortcut_list_salary',
+            },
+            // {
+            //     x: 8,
+            //     y: 0,
+            //     widgetID: 'info_shortcut_videos',
+            // },
+            // {
+            //     x: 10,
+            //     y: 0,
+            //     widgetID: 'info_shortcut_overview',
+            // },
+            {
+                x: 0,
+                y: 1,
+                widgetID: 'transaction_salary',
             },
             {
                 x: 0,
                 y: 4,
                 widgetID: 'chart_employees_per_employment',
             },
-            {
-                x: 2,
-                y: 1,
-                widgetID: 'transaction_salary',
-            },
-            {
-                x: 0,
-                y: 1,
-                widgetID: 'shortcut_list_salary',
-            },
-            {
-                x: 4,
-                y: 4,
-                widgetID: 'info_shortcut_overview',
-            },
-            {
-                widgetID: 'rss',
-            },
+
         ];
     }
 }

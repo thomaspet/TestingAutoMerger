@@ -1,11 +1,74 @@
-﻿$primaryBorder: pxToRem(1) solid $uni-color-c2a
+﻿timeentry .uni-container
+    padding-bottom: 0
+    margin-right: 0
+    margin-bottom: 0
+
+workeditor
+    display: block
+
+timetracking-timetable,
+regtimetotals,
+regtimebalance,
+vacation,
+teamwork-report
+    display: block
+    padding-bottom: 2rem !important
+
+.timeentry-split-view
+    display: flex
+    flex-flow: row wrap
+    padding: 0 !important
+
+    sidemenu
+        flex: 0 0 auto
+
+    .timeentry-detail
+        flex: 1
+        padding: 0 .25rem
+
+        .header
+            display: flex
+            box-sizing: border-box
+
+            .header-left
+                flex: 1
+                strong
+                    font-size: 18px
+                    font-weight: 400
+                    color: $uni-color-c2a
+                    display: block
+
+                progress
+                    float: left
+                    margin-top: .7rem
+                p
+                    display: inline-block
+                    margin: 0
+
+            .header-right
+                flex: 0 0 auto
+                margin-left: auto
+
+
+regtimebalance
+    button
+        height: 2rem
+        line-height: 0
+        margin: 1rem 0 !important
+
+    > h3
+        margin: 0
+
+// END NEW
+
+$primaryBorder: pxToRem(1) solid $uni-color-c2a
 @media print
     .no-print, .no-print *
         display: none !important
 
-.regtimecontainer
-    margin-bottom: 4rem
-    margin-top: 0.6rem
+// .regtimecontainer
+//     margin-bottom: 4rem
+//     margin-top: 0.6rem
 
 .regtimetitle
     padding: 1rem 1rem 1rem 0
@@ -21,9 +84,9 @@
     padding-right: pxToRem(7)
     font-size: 1rem
 
-.regtimetabtip
-    color: $uni-color-scale4
-    margin-left: pxToRem(-15)
+// .regtimetabtip
+//     color: $uni-color-scale4
+//     margin-left: pxToRem(-15)
 
 .timeentry_toolbar button
     margin-left: 0
@@ -251,11 +314,8 @@ div.bad
 .plus
     color: $uni-color-plus
 
-button.normal
-    margin-left: 0
-
 .datebox
-    position: absolute;
+    position: absolute
     top: pxToRem(-7)
     right: pxToRem(1)
     letter-spacing: 0
@@ -317,10 +377,10 @@ button.normal
     td.good
         color: $uni-color-good
 
-.wideapplication
-    margin-left: 1em
-    margin-right: 1em
-    position: relative
+// .wideapplication
+//     margin-left: 1em
+//     margin-right: 1em
+//     position: relative
 
 .clickablecell
     @extend %clickable
@@ -368,67 +428,68 @@ uni-file-import input
     width: 100%
     height: 2rem
 
-.timetracking_periode_selector
-    list-style: none
-    float: right
-    border-radius: pxToRem(3)
-    position: absolute
-    top: 0
-    right: 0
+// .timetracking_periode_selector
+//     list-style: none
+//     // float: right
+//     border-radius: pxToRem(3)
+//     margin: 0
+//     // position: absolute
+//     // top: 0
+//     // right: 0
 
-    &:after
-        clear: both
+//     // &:after
+//     //     clear: both
 
-    li
-        float: left
-        width: pxToRem(105)
-        text-align: center
-        height: 1.5rem
-        line-height: 1.5rem
-        vertical-align: middle
-        border-top: $primaryBorder
-        border-bottom: $primaryBorder
-        border-left: $primaryBorder
-        color: $uni-color-c2a
-        font-size: 0.8rem
+//     li
+//         float: left
+//         width: pxToRem(105)
+//         text-align: center
+//         height: 1.5rem
+//         line-height: 1.5rem
+//         vertical-align: middle
+//         border-top: $primaryBorder
+//         border-bottom: $primaryBorder
+//         border-left: $primaryBorder
+//         color: $uni-color-c2a
+//         font-size: 0.8rem
 
-        &:first-of-type
-            border-top-left-radius: pxToRem(4)
-            border-bottom-left-radius: pxToRem(4)
+//         &:first-of-type
+//             border-top-left-radius: pxToRem(4)
+//             border-bottom-left-radius: pxToRem(4)
 
-        &:last-of-type
-            border-right: $primaryBorder
-            border-top-right-radius: pxToRem(4)
-            border-bottom-right-radius: pxToRem(4)
+//         &:last-of-type
+//             border-right: $primaryBorder
+//             border-top-right-radius: pxToRem(4)
+//             border-bottom-right-radius: pxToRem(4)
 
-        @media screen and (max-width: 1250px)
-            float: none
-            border: none
-            border-bottom: none
-            border-radius: pxToRem(4)
-            height: pxToRem(20)
-            line-height: pxToRem(20)
-            vertical-align: middle
+//         @media screen and (max-width: 1250px)
+//             float: none
+//             border: none
+//             border-bottom: none
+//             border-radius: pxToRem(4)
+//             height: pxToRem(20)
+//             line-height: pxToRem(20)
+//             vertical-align: middle
 
-            &:last-of-type
-                border-right: none
+//             &:last-of-type
+//                 border-right: none
 
-        &:after
-            clear: both
+//         &:after
+//             clear: both
 
-        &.timetracking_periode_selected
-            background-color: $uni-color-c2a
-            color: #fff
+//         &.timetracking_periode_selected
+//             background-color: $uni-color-c2a
+//             color: #fff
 
-        &:hover
-            cursor: pointer
-            background-color: $uni-color-c2a
-            color: #fff
+//         &:hover
+//             cursor: pointer
+//             background-color: $uni-color-c2a
+//             color: #fff
 
-.timeentry_biglabel
-    font-weight: 400
-    color: $uni-color-c2a
-    margin-bottom: 0
+// .timeentry_biglabel
+//     font-weight: 400
+//     color: $uni-color-c2a
+//     margin-bottom: 0
 
 .timetracking_progress_bar
     -webkit-appearance: none
@@ -436,9 +497,9 @@ uni-file-import input
     border-radius: 9rem
     height: .3rem
     width: 5rem
-    border: pxToRem(1) solid $uni-color-negative
-    box-shadow: 0 0 0 pxToRem(1) $uni-color-c2a
-    float: left
+    border: 1px solid $uni-color-negative
+    box-shadow: 0 0 0 1px #60656a
+    // float: left
     margin-right: 1rem
 
     &::-webkit-progress-bar
@@ -456,22 +517,12 @@ uni-file-import input
         &::-webkit-progress-value
             background: $uni-color-good
 
-.timetracking_worked_today_text
-    margin-top: pxToRem(-11)
-    color: $uni-color-c2a
-
-.horizontal_nav li
-    white-space: nowrap
-
-.app-splitview
-    width: calc(100% - #{pxToRem(400)})
-    float: left
-
 .vacation_section
     .splitview_list
         min-width: 40%
     .splitview_detail
-        min-width: 60%
+        min-width: 50%
+        padding: 1rem
 
     .vacation-buttons
         button
@@ -479,6 +530,3 @@ uni-file-import input
             height: 2rem
             line-height: 0
             min-width: 8rem
-
-        @include media(1400px)
-            margin-left: 7.25%

@@ -23,11 +23,11 @@ import {
     StatisticsService,
     JournalEntryLineService
 } from '../../../services/services';
+import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 interface IFilter {
     name: string;
     label: string;
-    isSelected?: boolean;
     count?: number;
     showStatus?: boolean;
     passiveCounter?: boolean;
@@ -68,10 +68,10 @@ export class PostPost {
     ];
 
     private currentFilter: string = 'OPEN';
-    private showoptions: Array<IFilter> = [
-        { label: 'Åpne poster', name: 'OPEN', isSelected: true },
-        { label: 'Lukkede poster', name: 'MARKED', isSelected: false },
-        { label: 'Alle poster', name: 'ALL', isSelected: false }
+    private tabs: IUniTab[] = [
+        {name: 'Åpne poster', value: 'OPEN'},
+        {name: 'Lukkede poster', value: 'MARKED'},
+        {name: 'Alle poster', value: 'ALL'}
     ];
 
     // List table
@@ -270,6 +270,7 @@ export class PostPost {
 
     private setupToolbarConfig() {
         this.toolbarconfig = {
+            title: 'Åpne poster',
             navigation: {
                 prev: this.previousAccount.bind(this),
                 next: this.nextAccount.bind(this)
@@ -351,10 +352,9 @@ export class PostPost {
         this.reloadRegister();
     }
 
-    public onFilterClick(filter: IFilter, searchFilter?: string) {
-        this.showoptions.forEach(f => f.isSelected = f === filter);
-        this.postpost.showHideEntries(filter.name);
-        this.currentFilter = filter.name;
+    public onFilterClick(tab: IUniTab) {
+        this.postpost.showHideEntries(tab.value);
+        this.currentFilter = tab.value;
         this.setupSaveActions();
         this.reloadRegister();
     }

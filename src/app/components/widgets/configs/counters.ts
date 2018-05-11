@@ -2,80 +2,42 @@ import {TypeOfIntegration} from '@uni-entities';
 
 export const COUNTERS = [
     {
-        id: 'counter_email',
-        description: 'Antall eposter i innboks',
-        permissions: ['ui_accounting_bills'],
-        width: 1,
+        id: 'counters_supplierinvoice',
+        description: 'Tellere - fakturamottak',
+        width: 4,
         height: 1,
-        widgetType: 'counter',
+        widgetType: 'counters',
         config: {
-            label: 'Epost',
-            icon: 'letter',
-            link: '/accounting/bills?filter=Inbox',
-            dataEndpoint: '/api/biz/filetags/IncomingMail/0?action=get-supplierInvoice-inbox-count',
-            valueKey: null,
-            amount: 0,
-            class: 'uni-widget-notification-orange'
-        }
-    },
-    {
-        id: 'counter_ehf',
-        description: 'Antall EHF i innboks',
-        permissions: ['ui_accounting_bills'],
-        width: 1,
-        height: 1,
-        widgetType: 'counter',
-        config: {
-            label: 'EHF',
-            icon: 'ehf',
-            link: '/accounting/bills?filter=Inbox',
-            dataEndpoint: '/api/biz/filetags/IncomingEHF/0?action=get-supplierInvoice-inbox-count',
-            valueKey: null,
-            amount: 0,
-            class: 'uni-widget-notification-orange'
-        }
-    },
-    {
-        id: 'counter_assigned_invoices',
-        description: 'Tildelte faktura',
-        permissions: ['ui_accounting_bills'],
-        width: 1,
-        height: 1,
-        widgetType: 'counter',
-        config: {
-            label: 'Tildelte',
-            icon: 'pdf',
-            link: '/accounting/bills?filter=ForApproval&page=1',
-            dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as '
-                + 'count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
-            valueKey: 'Data[0].count',
-            amount: 0,
-            class: 'uni-widget-notification-orange'
+            counters: [
+                {
+                    label: 'Innboks',
+                    url: '/accounting/bills?filter=Inbox',
+                    dataEndpoint: '/api/biz/filetags/IncomingMail/0?action=get-supplierInvoice-inbox-count'
+                },
+                {
+                    label: 'EHF',
+                    url: '/accounting/bills?filter=Inbox',
+                    dataEndpoint: '/api/biz/filetags/IncomingEHF/0?action=get-supplierInvoice-inbox-count'
+                },
+                {
+                    label: 'Tildelt',
+                    url: '/accounting/bills?filter=ForApproval&page=1',
+                    dataEndpoint: '/api/statistics/?model=SupplierInvoice&select=count(ID) as '
+                        + 'count&filter=( isnull(deleted,0) eq 0 ) and ( statuscode eq 30102 )',
+                    valueKey: 'Data[0].count'
+                }
+            ]
         }
     },
     {
         id: 'counter_salary_travels',
+        description: 'Reiser',
         permissions: ['ui_salary_employees'],
-        width: 1,
+        width: 2,
         height: 1,
         widgetType: 'integrationCounter',
         config: {
             type: TypeOfIntegration.TravelAndExpenses
-        }
-    },
-    {
-        id: 'counter_notifications',
-        description: 'Uleste varlser',
-        width: 1,
-        height: 1,
-        widgetType: 'counter',
-        config: {
-            label: 'Varsler',
-            icon: 'notification',
-            link: '/',
-            dataEndpoint: '/api/biz/notifications?action=count',
-            valueKey: 'Count',
-            class: 'uni-widget-notification-lite-blue'
         }
     },
     {

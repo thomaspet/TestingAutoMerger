@@ -1,7 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -29,10 +28,6 @@ export class BalanceReport implements OnInit {
     private filter: any;
     private yearSelectConfig: ISelectConfig;
     private yearItems: any[];
-
-    public toolbarconfig: IToolbarConfig = {
-        title: 'Balanse'
-    };
 
     private filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: false,

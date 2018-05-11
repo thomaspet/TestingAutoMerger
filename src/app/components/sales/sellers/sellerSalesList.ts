@@ -1,22 +1,25 @@
-import {Component, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Input, Component, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
 import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig
 } from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig} from './../../common/toolbar/toolbar';
-import {StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '../../../unientities';
+
 import {
-    ErrorService,
+    StatusCodeCustomerInvoice,
+    StatusCodeCustomerOrder,
+    StatusCodeCustomerQuote
+} from '../../../unientities';
+
+import {
     StatisticsService,
     SellerService,
     CustomerInvoiceService,
     CustomerOrderService,
     CustomerQuoteService
 } from '../../../services/services';
-
-declare const _;
 
 @Component({
     selector: 'seller-sales-list',
@@ -25,40 +28,26 @@ declare const _;
 export class SellerSalesList {
     @ViewChild(UniTable) public table: UniTable;
 
+    @Input() public mode: string;
+    @Input() public sellerID: number;
+
     private salesTableConfig: UniTableConfig;
-    private toolbarconfig: IToolbarConfig;
-    private sellerId: number;
     private salesList: any;
     private busy: boolean = true;
-    private mode: string;
 
     constructor(
         private router: Router,
-        private route: ActivatedRoute,
-        private errorService: ErrorService,
-        private toastService: ToastService,
-        private tabService: TabService,
         private statisticsService: StatisticsService,
-        private sellerService: SellerService,
         private invoiceService: CustomerInvoiceService,
         private orderService: CustomerOrderService,
         private quoteService: CustomerQuoteService
-    ) {
-    }
+    ) {}
 
-    public ngOnInit() {
-        this.route.params.subscribe(params => {
-            this.mode = params['mode'];
-            this.route.parent.params.subscribe(parent => {
-                this.sellerId = +parent['id'];
-
-                this.setupTable();
-                this.loadSales();
-                this.sellerService.Get(this.sellerId).subscribe(seller => {
-                    this.setupToolbar(seller.Name);
-                });
-            });
-        });
+    public ngOnChanges(changes) {
+        if (this.sellerID && this.mode) {
+            this.setupTable();
+            this.loadSales();
+        }
     }
 
     private loadSales() {
@@ -88,7 +77,7 @@ export class SellerSalesList {
                    `SellerLink.Percent,StatusCode as StatusCode,${type}` +
                    `CustomerID as CustomerID,Customer.CustomerNumber as CustomerNumber,Info.Name as CustomerName&` +
             `join=Customer${entity}.ID eq SellerLink.Customer${entity}ID&` +
-            `filter=SellerLink.SellerID eq ${this.sellerId} and StatusCode ne ${statusDraft}&` +
+            `filter=SellerLink.SellerID eq ${this.sellerID} and StatusCode ne ${statusDraft}&` +
             `orderBy=${entity}Date desc,${entity}Number desc`
         ).subscribe(sales => {
             this.salesList = sales;
@@ -109,46 +98,6 @@ export class SellerSalesList {
 
     }
 
-    private setupToolbar(seller: string) {
-        this.toolbarconfig = {
-            title: this.sellerId > 0 ? seller : '',
-            navigation: {
-                prev: () => this.previousSeller(),
-                next: () => this.nextSeller(),
-                add: () => this.addSeller()
-            }
-        };
-    }
-
-    private previousSeller() {
-        this.sellerService.getPreviousID(this.sellerId)
-            .subscribe(id => {
-                if (id) {
-                    this.router.navigateByUrl('/sales/sellers/' + id + '/sales');
-                } else {
-                    this.toastService.addToast(
-                        'Ingen flere selgere før denne selgeren!', ToastType.warn, ToastTime.short
-                    );
-                }
-            });
-    }
-
-    private nextSeller() {
-        this.sellerService.getNextID(this.sellerId)
-            .subscribe(id => {
-                if (id) {
-                    this.router.navigateByUrl('/sales/sellers/' + id + '/sales');
-                } else {
-                    this.toastService.addToast(
-                        'Ingen flere selgere etter denne selgeren!', ToastType.warn, ToastTime.short
-                    );
-                }
-            });
-    }
-
-    private addSeller() {
-        this.router.navigateByUrl('/sales/sellers/0');
-    }
 
     public onRowSelected(event) {
         this.router.navigateByUrl('/sales/invoices/' + event.rowModel.ID);

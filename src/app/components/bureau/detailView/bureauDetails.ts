@@ -5,6 +5,7 @@ import {BureauSalesTab} from './bureauSalesTab';
 import {BureauHoursTab} from './bureauHoursTab';
 import {BureauCompanyTab} from './bureauCompanyTab';
 import {BureauTaskTab} from './bureauTasksTab';
+import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 export const TABS = [
     BureauTaskTab,
@@ -19,41 +20,17 @@ export const TABS = [
     selector: 'uni-dashboard-detail-view',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-    <header class="horizontal_nav no-print">
-        <ul>
-            <li class="horizontal_nav">
-                <a routerLink="tasks" routerLinkActive="router-link-active">
-                    Oppgaver
-                </a>
-            </li>
-            <li class="horizontal_nav">
-                <a routerLink="company" routerLinkActive="router-link-active">
-                    Firma
-                </a>
-            </li>
-            <li class="horizontal_nav">
-                <a routerLink="accounting" routerLinkActive="router-link-active">
-                    Regnskap
-                </a>
-            </li>
-            <li class="horizontal_nav">
-                <a routerLink="sales" routerLinkActive="router-link-active">
-                    Salg
-                </a>
-            </li>
-            <li class="horizontal_nav">
-                <a routerLink="salary" routerLinkActive="router-link-active">
-                    Lønn
-                </a>
-            </li>
-            <li class="horizontal_nav">
-                <a routerLink="hours" routerLinkActive="router-link-active">
-                    Time
-                </a>
-            </li>
-        </ul>
-    </header>
-    <ng-content></ng-content>
-`
+        <uni-tabs [tabs]="tabs"></uni-tabs>
+        <ng-content></ng-content>
+    `
 })
-export class BureauDetails {}
+export class BureauDetails {
+    public tabs: IUniTab[] = [
+        {name: 'Oppgaver', path: 'tasks'},
+        {name: 'Firma', path: 'company'},
+        {name: 'Regnskap', path: 'accounting'},
+        {name: 'Salg', path: 'sales'},
+        {name: 'Lønn', path: 'salary'},
+        {name: 'Time', path: 'hours'},
+    ];
+}

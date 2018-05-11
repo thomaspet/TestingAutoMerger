@@ -14,6 +14,7 @@ import {
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 import {UniDimensionTOFView} from './dimensionForm';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 declare var _;
 
@@ -41,11 +42,26 @@ export class TofHead implements OnChanges {
     @Output() public dataChange: EventEmitter<any> = new EventEmitter();
     @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
-    public tabs: string[] = ['Detaljer', 'Betingelser og levering', 'Fritekst', 'Selgere', 'Dokumenter', 'Dimensjoner'];
+    public tabs: IUniTab[];
     public activeTabIndex: number = 0;
 
     private freeTextControl: FormControl = new FormControl('');
     private commentControl: FormControl = new FormControl('');
+
+    public ngOnInit() {
+        this.tabs = [
+            {name: 'Detaljer'},
+            {name: 'Betingelser og levering'},
+            {name: 'Fritekst'},
+            {name: 'Selgere'},
+            {name: 'Dokumenter'},
+            {name: 'Dimensjoner'}
+        ];
+
+        if (this.entityName === 'CustomerInvoice') {
+            this.tabs.push({name: 'Purringer'});
+        }
+    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (this.data) {
@@ -77,12 +93,6 @@ export class TofHead implements OnChanges {
         }
         this.sellerDelete.emit(sellerLink);
         this.dataChange.emit(this.data);
-    }
-
-    public ngOnInit() {
-        if (this.entityName === 'CustomerInvoice') {
-            this.tabs.push('Purringer');
-        }
     }
 
     public focus() {

@@ -2,51 +2,31 @@
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import {WorkerService, IFilter, IFilterInterval} from '../../../services/timetracking/workerService';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
-import { TimesheetService, TimeSheet, ValueItem } from '../../../services/timetracking/timesheetService';
 import {IsoTimePipe} from '../../common/utils/pipes';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {Lookupservice, BrowserStorageService, ProjectService, Dimension} from '../../../services/services';
+import {IUniSaveAction} from '@uni-framework/save/save';
 import {RegtimeTotals} from './totals/totals';
 import {TimeTableReport} from './timetable/timetable';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ErrorService} from '../../../services/services';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {WorkEditor} from '../components/workeditor';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
-import {UniFileImport} from '../components/popupfileimport';
-import {UniHttp} from '../../../../framework/core/http/http';
+import {TimeentryImportModal} from '../components/file-import-modal';
+import {UniHttp} from '@uni-framework/core/http/http';
+
+import {WorkerService, IFilter, IFilterInterval} from '@app/services/timetracking/workerService';
+import {TimesheetService, TimeSheet, ValueItem} from '@app/services/timetracking/timesheetService';
+import {ProjectService, ErrorService} from '@app/services/services';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+
 import * as moment from 'moment';
-import { Project } from '@app/components/dimensions/project/project';
-import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
-
-interface ITab {
-    name: string;
-    label: string;
-    isSelected?: boolean;
-    activate?: (ts: TimeSheet, filter: IFilter) => void;
-}
-
-interface ISettings {
-    useDayBrowser: boolean;
-}
-
-export enum TimeTrackingPeriodes {
-    Day = 0,
-    Week,
-    Month,
-    TwoMonths,
-    Year,
-    Everything
-}
 
 export const view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
@@ -60,15 +40,11 @@ export class TimeEntry {
     public userName: string = '';
     public workRelations: Array<WorkRelation> = [];
     private timeSheet: TimeSheet = new TimeSheet();
-    private currentFilter: IFilter;
-    public currentPeriode: TimeTrackingPeriodes = 0;
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
     public percentage: number = 0;
-    private settings: ISettings = {
-        useDayBrowser: false
-    };
+
     private workedToday: string = '';
     private customDateSelected: Date = null;
     private currentDate: Date = new Date();
@@ -80,7 +56,7 @@ export class TimeEntry {
     @ViewChild(DayBrowser) private dayBrowser: DayBrowser;
     @ViewChild(SideMenu) private sideMenu: SideMenu;
     @ViewChild(TeamworkReport) private teamreport: TeamworkReport;
-    @ViewChild(UniFileImport) private fileImport: UniFileImport;
+    @ViewChild(TimeentryImportModal) private fileImport: TimeentryImportModal;
 
     public preSaveConfig: IPreSaveConfig = {
         askSave: () => this.checkSave(),
@@ -91,54 +67,53 @@ export class TimeEntry {
         { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
     ];
 
-    public tabs: Array<any> = [{ name: 'timeentry', label: 'Registrering', isSelected: true },
-    {
-        name: 'timesheet', label: 'Timeliste', activate: (ts: any, filter: any) =>
-            this.timeTable.activate()
-    },
-    {
-        name: 'totals', label: 'Totaler', activate: (ts: any, filter: any) =>
-            this.regtimeTotals.activate(ts, filter)
-    },
-    { name: 'flex', label: 'Timesaldo', counter: 0 },
-    {
-        name: 'vacation', label: 'Ferie', activate: (ts: any, filter: any) => {
-            this.tabs[4].activated = true;
-        }
-    },
-    ];
-    public tabPositions: Array<number> = [0, 1, 2, 3, 4];
-
     public toolbarConfig: any = {
         title: 'Registrere timer', omitFinalCrumb: true
     };
 
     private initialContextMenu: Array<any> = [
-        { label: 'Import', action: (done) => this.import(done), disabled: () => !this.isEntryTab },
-        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.isEntryTab }
+        { label: 'Import', action: (done) => this.import(done), disabled: () => !this.registrationViewActive },
+        { label: 'Eksport', action: (done) => this.export(done), disabled: () => !this.registrationViewActive }
     ];
-    private isEntryTab: boolean = true;
+
+    private registrationViewActive: boolean = true;
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {
+            name: 'Registrering',
+            onClick: () => this.registrationViewActive = true
+        },
+        {
+            name: 'Timeliste',
+            onClick: () => this.timeTable.activate()
+        },
+        {
+            name: 'Totaler',
+            onClick: () => this.regtimeTotals.activate(this.timeSheet, this.currentFilter)
+        },
+        {name: 'Timesaldo', count: 0},
+        {name: 'Ferie'},
+    ];
+
+    public currentFilter: IFilter;
     private project;
 
-    public filters: Array<IFilter>;
+    public filters: IFilter[];
 
     constructor(
         private tabService: TabService,
         private service: WorkerService,
         private timesheetService: TimesheetService,
-        private lookup: Lookupservice,
         private toast: ToastService,
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private router: Router,
-        private localStore: BrowserStorageService,
         private changeDetectorRef: ChangeDetectorRef,
         private http: UniHttp,
         private modalService: UniModalService,
         private projectService: ProjectService
     ) {
 
-        this.loadSettings();
         this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
@@ -158,7 +133,6 @@ export class TimeEntry {
             }
         });
 
-        this.initTabPositions();
         this.approvalCheck();
     }
 
@@ -190,10 +164,8 @@ export class TimeEntry {
                 this.timeSheet.currentRelationId = id;
                 this.updateToolbar();
                 this.loadItems();
-                // Refresh timesheet?
-                const index = this.indexOfTab('timesheet');
-                if (index >= 0 && this.tabs[index].isSelected) {
-                    this.tabs[index].activate(this.timeSheet, this.currentFilter);
+                if (this.timeTable) {
+                    this.timeTable.activate();
                 }
             }
         });
@@ -213,7 +185,6 @@ export class TimeEntry {
                     toDate = event.date;
                     fromDate = event.firstDate;
                 }
-                // this.currentFilter.isSelected = false;
                 this.currentFilter.bigLabel = moment(fromDate).format('DD.MM.YYYY')
                     + '  -  ' + moment(toDate).format('DD.MM.YYYY');
                 this.customDateSelected = new Date(fromDate);
@@ -302,22 +273,6 @@ export class TimeEntry {
         this.changeDetectorRef.markForCheck();
     }
 
-    private indexOfTab(name: string): number {
-        return this.tabs.findIndex(x => x.name === name);
-    }
-
-    public onTabClick(tab: ITab) {
-        if (tab.isSelected) { return; }
-        this.tabs.forEach((t: any) => {
-            if (t.name !== tab.name) { t.isSelected = false; }
-        });
-        tab.isSelected = true;
-        if (tab.activate) {
-            tab.activate(this.timeSheet, this.currentFilter);
-        }
-        this.isEntryTab = tab.name === 'timeentry';
-    }
-
     public onAddNew() {
         this.workEditor.editRow(this.timeSheet.items.length - 1);
     }
@@ -327,21 +282,12 @@ export class TimeEntry {
             this.checkSave().then((canDeactivate) => {
                 if (canDeactivate) {
                     this.loadItems();
-                    this.reloadSums();
                 }
             });
         } else {
             this.loadItems();
-            this.reloadSums();
             this.reloadFlex();
         }
-    }
-
-    private reloadSums() {
-        // if (this.settings.useDayBrowser) {
-        //     this.dayBrowser.reloadSums();
-        // }
-        return;
     }
 
     public onRowActionClicked(rowIndex: number, item: any) {
@@ -437,7 +383,10 @@ export class TimeEntry {
     }
 
     private loadItems(date?: Date, toDate?: Date) {
-        this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
+        if (this.workEditor) {
+            this.workEditor.EmptyRowDetails.Date = new LocalDate(date);
+        }
+
         if (this.timeSheet.currentRelation && this.timeSheet.currentRelation.ID) {
             let obs: any;
             let dt: Date;
@@ -455,9 +404,6 @@ export class TimeEntry {
             }
             obs.subscribe((itemCount: number) => {
                 if (this.workEditor) { this.workEditor.closeEditor(); }
-                // if (this.settings.useDayBrowser) {
-                //     this.dayBrowser.current = new Day(dt, true, this.timeSheet.totals.Minutes);
-                // }
                 this.flagUnsavedChanged(true, false);
                 this.busy = false;
             }, err => this.errorService.handle(err));
@@ -487,7 +433,7 @@ export class TimeEntry {
     }
 
     public onBalanceChanged(value: number) {
-        this.tabs[3].counter = value;
+        this.tabs[3].count = value;
     }
 
     private loadFlex(rel: WorkRelation) {
@@ -583,58 +529,35 @@ export class TimeEntry {
 
     public import(done?: (msg?: string) => void) {
         this.checkSave().then(() => {
-            this.fileImport.open().then( (success) => {
-                if (success) {
-                    const ts = this.timeSheet.clone();
-                    const importedList = this.fileImport.getWorkItems();
-                    if (importedList && importedList.length > 0) {
+            this.modalService.open(TimeentryImportModal, {}).onClose.subscribe(
+                workItems => {
+                    if (workItems && workItems.length) {
+                        const timeSheet = this.timeSheet.clone();
                         const types = this.workEditor.getWorkTypes();
-                        importedList.forEach( (x, index) => {
-                            if (x && x.Worktype && x.Worktype.Name ) {
-                                x.Worktype = types.find( t => t.Name === x.Worktype.Name);
+
+                        workItems.forEach((item, index) => {
+                            if (item && item.Worktype && item.Worktype.Name ) {
+                                item.Worktype = types.find(t => t.Name === item.Worktype.Name);
                             }
-                            // x.Worktype = x.Worktype || types[0];
-                            x.WorkTypeID = x.Worktype && x.Worktype.ID ? x.Worktype.ID : x.WorkTypeID;
-                            if (x.Minutes && !isNaN(x.Minutes)) {
-                                ts.addItem(x, false);
+
+                            item.WorkTypeID = item.Worktype && item.Worktype.ID ? item.Worktype.ID : item.WorkTypeID;
+                            if (item.Minutes && !isNaN(item.Minutes)) {
+                                timeSheet.addItem(item, false);
                             }
                         });
-                        ts.recalc();
-                        this.timeSheet = ts;
+
+                        timeSheet.recalc();
+                        this.timeSheet = timeSheet;
                         this.flagUnsavedChanged();
                     }
-                }
-                if (done) { done(); }
-            });
+                },
+                err => console.error(err)
+            );
         });
-    }
-
-    // private switchView(done) {
-    //     this.checkSave().then((canDeactivate) => {
-    //         if (canDeactivate) {
-    //             this.settings.useDayBrowser = !this.settings.useDayBrowser;
-    //             this.saveSettings();
-    //             setTimeout( () => this.refreshViewItems(), 50 );
-    //         }
-    //     });
-    // }
-
-    public saveSettings() {
-        this.localStore.setItem('timeentry.settings', this.settings);
-    }
-
-    private loadSettings() {
-        const settings = this.localStore.getItem('timeentry.settings');
-        if (settings) {
-            this.settings = settings;
-        }
     }
 
     private flagUnsavedChanged(reset = false, updateCounter: boolean = false) {
         this.actions[0].disabled = reset;
-        // if (updateCounter && this.settings.useDayBrowser) {
-        //     this.dayBrowser.setDayCounter( this.dayBrowser.current.date, this.timeSheet.totals.Minutes);
-        // }
     }
 
     public onClickDay(event: Day) {
@@ -684,9 +607,6 @@ export class TimeEntry {
         const result:  { ok: boolean, message?: string, row?: number, fld?: string } = this.timeSheet.validate();
         if (!result.ok) {
             this.toast.addToast('Feil', ToastType.bad, 5, result.message );
-            if (result !== undefined && result.row >= 0) {
-                // todo: focus cell that needs input
-            }
             return false;
         }
         return true;
@@ -727,53 +647,46 @@ export class TimeEntry {
         });
     }
 
-    public mapTabPosition(index: number) {
-        return this.tabPositions[index];
-    }
-
-    private initTabPositions() {
-        const positions = [];
-        this.tabs.forEach( (x, i) => positions.push(i) );
-        this.tabPositions = positions;
-    }
-
     private approvalCheck() {
         this.timesheetService.workerService.get('teams?action=my-teams')
             .subscribe( (result: Array<Team>) => {
+                console.log(result);
                 if (result && result.length > 0) {
                     this.teams = result;
                     const newKey = this.tabs.length;
                     const newPos = 2;
-                    this.tabs.push({
-                        name: 'approval', label: 'Godkjenning', counter: this.teams.length,
-                        activate: (ts: any, filter: any) => {
+
+                    const approvalTab = {
+                        name: 'Godkjenning',
+                        count: this.teams.length,
+                        onClick: () => {
                             if (!this.teamreport.isInitialized) {
-                                this.teamreport.initialize(<any>this.teams);
+                                this.teamreport.initialize(this.teams);
                             }
                         }
-                    });
-                    this.tabPositions.splice(newPos, 0, newKey);
+                    };
+
+                    this.tabs = [...this.tabs, approvalTab];
                 }
             });
     }
 
     public onFilterClick(filter: IFilter) {
-        if (filter.isSelected) {
+        if (filter === this.currentFilter) {
             return;
         }
+
         this.checkSave().then((success: boolean) => {
-            if (!success) { return; }
-            filter.bigLabel = this.service.getBigLabel(filter.interval, this.currentDate || new Date());
-            this.filters.forEach((value: any) => value.isSelected = false);
-            filter.isSelected = true;
-            filter.date = this.currentDate;
-            this.currentFilter = filter;
-            this.busy = true;
-            this.sideMenu.calendar.onFilterChange(this.currentFilter);
-            // If customer date is selected, use this to show filter
-            this.loadItems();
-            this.customDateSelected = null;
-            this.showProgress();
+            if (success) {
+                filter.bigLabel = this.service.getBigLabel(filter.interval, this.currentDate || new Date());
+                filter.date = this.currentDate;
+                this.currentFilter = filter;
+                this.busy = true;
+                this.sideMenu.calendar.onFilterChange(this.currentFilter);
+                this.loadItems();
+                this.customDateSelected = null;
+                this.showProgress();
+            }
         });
     }
 

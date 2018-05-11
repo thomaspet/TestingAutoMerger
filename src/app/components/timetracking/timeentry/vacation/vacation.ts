@@ -1,6 +1,6 @@
 ﻿import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {WorkerService} from '../../../../services/timetracking/workerService';
-import {WorkTimeOff} from '../../../../unientities';
+import {WorkTimeOff, FieldType} from '../../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
 import {ChangeMap} from '../../../common/utils/utils';
@@ -29,7 +29,6 @@ export class View {
     private initialized: boolean = false;
     public hasUnsavedChanges: boolean = false;
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public layout$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     public parentId: number = 0;
@@ -57,7 +56,7 @@ export class View {
     public onChange(event: any) {
         const currentValue = this.current$.getValue();
         this.valueChange.emit(currentValue);
-        var ix = this.items.indexOf(currentValue);
+        const ix = this.items.indexOf(currentValue);
         this.changeMap.add(ix, currentValue);
         this.hasUnsavedChanges = true;
         const fom = currentValue.FromDate;
@@ -79,7 +78,7 @@ export class View {
     }
 
     public onAddNew() {
-        var item: WorkTimeOff = this.layout$.getValue().data.factory();
+        const item: WorkTimeOff = this.layout$.getValue().data.factory();
         item.TimeoffType = 2; // Vacation
         item.Description = 'Ny ferie';
         item.WorkRelationID = this.parentId;
@@ -95,7 +94,7 @@ export class View {
     }
 
     public onDelete() {
-        var rel = this.current$.getValue();
+        const rel = this.current$.getValue();
         if (rel) {
             if (rel.ID) {
                 this.changeMap.addRemove(rel.ID, rel);
@@ -106,7 +105,7 @@ export class View {
             }
         }
         if (rel) {
-            var ix = this.items.indexOf(rel);
+            const ix = this.items.indexOf(rel);
             this.items.splice(ix, 1);
             if (this.items.length > ix + 1) {
                 this.onItemClicked(this.items[ix]);
@@ -127,7 +126,7 @@ export class View {
     public saveChanges(parentID: number): Promise<IResult> {
         this.busy = true;
         return new Promise((resolve, reject) => {
-            var result = this.save(parentID);
+            const result = this.save(parentID);
             if (result === null) {
                 this.afterSaveCompleted();
                 resolve({success: true});
@@ -151,22 +150,22 @@ export class View {
     }
 
     private save(parentID: number): Observable<any> {
-        var items = this.changeMap.getValues();
+        const items = this.changeMap.getValues();
         if (items.length > 0) {
             items.forEach( item => item.WorkerID = parentID );
         }
 
-        var removables = this.changeMap.getRemovables();
+        const removables = this.changeMap.getRemovables();
         if (items.length === 0 && removables.length === 0) {
             return null;
         }
 
-        var obs = this.saveAndDelete('worktimeoff', items, removables);
+        const obs = this.saveAndDelete('worktimeoff', items, removables);
         return Observable.forkJoin(obs);
     }
 
     private saveAndDelete(route: string, items: Array<any>, deletables?: any[]): Observable<any> {
-        var obsSave = Observable.from(items).switchMap((item: any) => {
+        const obsSave = Observable.from(items).switchMap((item: any) => {
             this.validateItem(item);
             return this.workerService.saveByID<any>(item, route).map((savedItem: WorkTimeOff) => {
                 this.changeMap.remove(item._rowIndex, true);
@@ -175,7 +174,7 @@ export class View {
         });
 
         if (deletables) {
-            let obsDel = Observable.from(deletables).switchMap( (item: any) => {
+            const obsDel = Observable.from(deletables).switchMap( (item: any) => {
                 return this.workerService.deleteByID(item.ID, route).map((event) => {
                     this.changeMap.removables.remove(item.ID, false);
                 });
@@ -188,7 +187,7 @@ export class View {
     }
 
     private validateItem(item: WorkTimeOff) {
-        var today = new Date();
+        const today = new Date();
         item.ID = item.ID || 0;
         item.TimeoffType = item.TimeoffType || 2; // Vacation
         item.FromDate = item.FromDate || today;
@@ -217,11 +216,10 @@ export class View {
     }
 
     private createLayout() {
-
-        var layout = {
+        const layout = {
             data: {
                 route: 'worktimeoff',
-                factory: () => { return new WorkTimeOff(); }
+                factory: () =>  new WorkTimeOff()
             },
             Fields: [
                 createFormField('Description', 'Beskrivelse av ferie/fri', ControlTypes.TextInput, FieldSize.Full),

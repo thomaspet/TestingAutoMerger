@@ -40,25 +40,35 @@ export class UniBreadcrumbs {
             const parentApp = linkSections[moduleIndex];
             const crumbs: {title: string, url: string}[] = [];
 
-            if (!parentApp) {
-                return;
-            }
-
-            crumbs.push({
-                title: parentApp.componentListName,
-                url: '/#' + parentApp.componentListUrl
-            });
-
-            if (!this.omitFinalCrumb) {
-                const finalComponent = parentApp.componentList.find((component) => {
-                    return component.moduleID === this.moduleID;
+            if (parentApp) {
+                crumbs.push({
+                    title: parentApp.name,
+                    url: '/#' + parentApp.url
                 });
 
-                if (finalComponent) {
-                    crumbs.push({
-                        title: finalComponent.componentName,
-                        url: '/#' + finalComponent.componentUrl
+                if (!this.omitFinalCrumb) {
+                    parentApp.linkGroups.find(group => {
+                        const moduleParent = group.links.find(link => link.moduleID === this.moduleID);
+                        if (moduleParent) {
+                            crumbs.push({
+                                title: moduleParent.name,
+                                url: '/#' + moduleParent.url
+                            });
+
+                            return true;
+                        }
                     });
+
+                    // const finalComponent = parentApp.componentList.find((component) => {
+                    //     return component.moduleID === this.moduleID;
+                    // });
+
+                    // if (finalComponent) {
+                    //     crumbs.push({
+                    //         title: finalComponent.componentName,
+                    //         url: '/#' + finalComponent.componentUrl
+                    //     });
+                    // }
                 }
             }
 

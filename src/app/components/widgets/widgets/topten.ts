@@ -16,7 +16,7 @@ import {WidgetDataService} from '../widgetDataService';
                     <tr>
                         <th class="thirtyfive-width-start"></th>
                         <th class="twenty-width-right">Salg {{ currentYear }}</th>
-                        <th class="twenty-width-right">Salg {{ previousYear }}</th>
+                        <th class="previous-year twenty-width-right">Salg {{ previousYear }}</th>
                         <th class="twenty-width-right">Forfalt</th>
                         <th class="five-width-end"></th>
                     </tr>
@@ -30,7 +30,7 @@ import {WidgetDataService} from '../widgetDataService';
                             {{ customer.Name }}
                         </td>
                         <td class="twenty-width-right">{{ numberToMoney(customer.SumThisYear) }}</td>
-                        <td class="twenty-width-right">{{ numberToMoney(customer.SumPreviousYear) }}</td>
+                        <td class="previous-year  twenty-width-right">{{ numberToMoney(customer.SumPreviousYear) }}</td>
                         <td class="twenty-width-right">{{ numberToMoney(customer.SumRest) }}</td>
                         <td class="five-width-end">
                             <a (click)="hideShowContextMenu(customer)" class="context-menu-link">...</a>

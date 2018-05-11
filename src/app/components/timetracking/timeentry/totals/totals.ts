@@ -10,7 +10,6 @@ interface IStatSource {
     label: string;
     join?: string;
     filter?: string;
-    isSelected?: boolean;
     pivotResultColName?: string;
     expand?: string;
 }
@@ -43,47 +42,55 @@ export class RegtimeTotals {
             this.currentFilter = this.filters[3];
             this.currentSource = this.sources[1];
         }
+
         this.timesheet = ts;
-        this.onFilterClick( this.currentFilter );
+        this.queryTotals();
     }
 
     private initSources(ts: TimeSheet) {
         this.sources = [
             {
-                name: 'customers', label: 'Kunder (dine)',
-                pivotColName: 'Info.Name', isSelected: false, pivotResultColName: 'InfoName',
+                name: 'customers',
+                label: 'Kunder (dine)',
+                pivotColName: 'Info.Name',
+                pivotResultColName: 'InfoName',
                 expand: 'worktype,customer.info',
                 filter: 'customerid gt 0 and workrelationid eq ' + ts.currentRelation.ID
             }, {
-                name: 'orders', label: 'Ordre (dine)',
-                pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName',
-                isSelected: true,
+                name: 'orders',
+                label: 'Ordre (dine)',
+                pivotColName: 'CustomerOrder.CustomerName',
+                pivotResultColName: 'CustomerOrderCustomerName',
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id',
                 filter: 'customerorder.ordernumber gt 0 and workrelationid eq ' + ts.currentRelation.ID
             }, {
-                name: 'ordersAll', label: 'Ordre (alle)',
-                pivotColName: 'CustomerOrder.CustomerName', pivotResultColName: 'CustomerOrderCustomerName',
-                isSelected: false,
+                name: 'ordersAll',
+                label: 'Ordre (alle)',
+                pivotColName: 'CustomerOrder.CustomerName',
+                pivotResultColName: 'CustomerOrderCustomerName',
                 join: 'workitem.worktypeid eq worktype.id and workitem.customerorderid eq customerorder.id',
                 filter: 'customerorder.ordernumber gt 0'
             }, {
-                name: 'projects', label: 'Prosjekter (dine)',
-                pivotColName: 'Project.Name', pivotResultColName: 'ProjectName',
-                isSelected: false,
+                name: 'projects',
+                label: 'Prosjekter (dine)',
+                pivotColName: 'Project.Name',
+                pivotResultColName: 'ProjectName',
                 join: 'workitem.worktypeid eq worktype.id '
                     + 'and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
                 filter: 'dimensions.projectid gt 0 and workrelationid eq ' + ts.currentRelation.ID
             }, {
-                name: 'projectsAll', label: 'Prosjekter (alle)',
-                pivotColName: 'Project.Name', pivotResultColName: 'ProjectName',
-                isSelected: false,
+                name: 'projectsAll',
+                label: 'Prosjekter (alle)',
+                pivotColName: 'Project.Name',
+                pivotResultColName: 'ProjectName',
                 join: 'workitem.worktypeid eq worktype.id '
                     + 'and workitem.dimensionsid eq dimensions.id and dimensions.projectid eq project.id',
                 filter: 'dimensions.projectid gt 0'
             }, {
-                name: 'tags', label: 'Merke/etikett',
-                pivotColName: 'Label', pivotResultColName: 'WorkItemLabel',
-                isSelected: false,
+                name: 'tags',
+                label: 'Merke/etikett',
+                pivotColName: 'Label',
+                pivotResultColName: 'WorkItemLabel',
                 join: 'workitem.worktypeid eq worktype.id',
                 filter: '( not isnull(label,\'\') eq \'\' ) and workrelationid eq ' + ts.currentRelation.ID
             }
@@ -91,30 +98,12 @@ export class RegtimeTotals {
     }
 
     private onFilterClick(filter: IFilter) {
-        let f: IFilter;
-        this.filters.forEach((value: any) => {
-            if (value.name === filter.name) {
-                f = value;
-                f.isSelected = true;
-            } else {
-                value.isSelected = false;
-            }
-        });
-        this.currentFilter = f;
+        this.currentFilter = filter;
         this.queryTotals();
     }
 
-    public onSourceClick(src: IStatSource) {
-        let f: IStatSource;
-        this.sources.forEach((value: any) => {
-            if (value.name === src.name) {
-                f = value;
-                f.isSelected = true;
-            } else {
-                value.isSelected = false;
-            }
-        });
-        this.currentSource = f;
+    public onSourceClick(source: IStatSource) {
+        this.currentSource = source;
         this.queryTotals();
     }
 

@@ -9,12 +9,13 @@ import * as moment from 'moment';
     selector: 'uni-flex',
     template: `
         <div class="positive-negative-widget"
-             [ngClass]="negative ? 'negative' : 'positive'"
              (click)="onClickNavigate()"
              title="Totalsum flexiid">
 
-            <span class="title">Timesaldo</span>
-            <span class="value">{{displayValue}}</span>
+            <span>Timesaldo</span>
+            <span class="value" [ngClass]="{'bad': needsAttention}">
+                {{displayValue || '-'}}
+            </span>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -23,7 +24,7 @@ export class UniFlexWidget {
     public widget: IUniWidget;
 
     private displayValue: string;
-    private negative: boolean;
+    public needsAttention: boolean;
 
     constructor(
         private router: Router,
@@ -52,7 +53,7 @@ export class UniFlexWidget {
         this.timesheetService.getFlexBalance(relationID).subscribe(
             (res: any) => {
                 if (res.WorkRelation && res.WorkRelation.EndTime) {
-                    var et = moment(res.WorkRelation.EndTime);
+                    let et = moment(res.WorkRelation.EndTime);
                     if (et.year() > 1980) {
                         if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
                         if (et.year() > 1980 && et < moment(res.BalanceDate)) {
@@ -65,8 +66,8 @@ export class UniFlexWidget {
 
                 const minutes = res.Minutes - (res.LastDayActual - res.LastDayExpected);
                 const hours  = (minutes / 60);
-                this.displayValue = hours.toFixed(1) + ' timer';
-                this.negative = hours < 0;
+                this.displayValue = hours.toFixed(1);
+                this.needsAttention = hours < 0;
                 this.cdr.markForCheck();
             },
             err => {}

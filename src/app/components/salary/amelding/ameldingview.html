@@ -57,42 +57,64 @@
         </article>
 
     </section>
-
-    <div class="horizontal_nav">
-        <ul>
-            <!--<li>
-                <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
-            </li>-->
-            <li (click)="showView = ''" [class.router-link-active]="showView == ''">
-                <a>Oppsummering</a>
-                <uni-helptext [text]="summaryHelptext">{{summaryHelptext}}</uni-helptext>
-            </li>
-            <li (click)="showView = 'aga'" [class.router-link-active]="showView == 'aga'">
-                <a>Arbeidsgiveravgift</a>
-                <uni-helptext [text]="agaHelptext"></uni-helptext>
-            </li>
-            <li (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">
-                <a>Tilbakemelding</a>
-                <uni-helptext [text]="receiptHelptext"></uni-helptext>
-            </li>
-            <li (click)="showView = 'periodsummary'" [class.router-link-active]="showView == 'periodsummary'">
-                <a>Periodeoppsummering</a>
-                <uni-helptext [text]="periodHelptext"></uni-helptext>
-            </li>
-            <!--<li>
-                <a (click)="showView = 'avstem'" [class.router-link-active]="showView == 'avstem'">Avstemming</a>
-            </li>-->
-        </ul>
-    </div>
 </header>
 
-<section class="application" [attr.aria-busy]="busy">
+<section class="application">
 
-    <!--<amelding-control-view *ngIf="showView == 'control'"></amelding-control-view>-->
-    <amelding-summary-view *ngIf="showView == ''" [currentSumUp]="currentSumUp" [currentAMelding]="currentAMelding"></amelding-summary-view>
-    <amelding-aga-view *ngIf="showView == 'aga'" [currentSumUp]="currentSumUp"></amelding-aga-view>
-    <amelding-receipt-view *ngIf="showView == 'receipt'" [currentAMelding]="currentAMelding" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-receipt-view>
-    <amelding-periodsummary-view *ngIf="showView == 'periodsummary'" [currentAMelding]="currentAMelding" [systemData]="currentSumsInPeriod" [aMeldingerInPeriod]="aMeldingerInPeriod"></amelding-periodsummary-view>
-    <!--<amelding-avstem-view *ngIf="showView == 'avstem'"></amelding-avstem-view>-->
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
+    <section [ngSwitch]="activeTabIndex">
+        <amelding-summary-view
+            *ngSwitchCase="0"
+            [currentSumUp]="currentSumUp"
+            [currentAMelding]="currentAMelding">
+        </amelding-summary-view>
+
+        <amelding-aga-view
+            *ngSwitchCase="1"
+            [currentSumUp]="currentSumUp">
+        </amelding-aga-view>
+
+        <amelding-receipt-view
+            *ngSwitchCase="2"
+            [currentAMelding]="currentAMelding"
+            [aMeldingerInPeriod]="aMeldingerInPeriod">
+        </amelding-receipt-view>
+
+        <amelding-periodsummary-view
+            *ngSwitchCase="3"
+            [currentAMelding]="currentAMelding"
+            [systemData]="currentSumsInPeriod"
+            [aMeldingerInPeriod]="aMeldingerInPeriod">
+        </amelding-periodsummary-view>
+
+    </section>
+
+    <!-- <mat-tab-group class="uni-tabs" [@.disabled]="true">
+        <mat-tab label="Oppsummering">
+            <amelding-summary-view
+                [currentSumUp]="currentSumUp"
+                [currentAMelding]="currentAMelding">
+            </amelding-summary-view>
+        </mat-tab>
+
+        <mat-tab label="Arbeidsgiveravgift">
+            <amelding-aga-view [currentSumUp]="currentSumUp"></amelding-aga-view>
+        </mat-tab>
+
+        <mat-tab label="Tilbakemelding">
+            <amelding-receipt-view
+                [currentAMelding]="currentAMelding"
+                [aMeldingerInPeriod]="aMeldingerInPeriod">
+            </amelding-receipt-view>
+        </mat-tab>
+
+        <mat-tab label="Periodeoppsummering">
+            <amelding-periodsummary-view
+                [currentAMelding]="currentAMelding"
+                [systemData]="currentSumsInPeriod"
+                [aMeldingerInPeriod]="aMeldingerInPeriod">
+            </amelding-periodsummary-view>
+        </mat-tab>
+    </mat-tab-group> -->
 </section>

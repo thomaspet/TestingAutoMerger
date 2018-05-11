@@ -184,20 +184,21 @@ export class TabService {
             this.tabs.map(tab => tab.active = false);
             this.currentActiveIndex = undefined;
             this.currentActiveTab = undefined;
+            this.activeTab$.next(this.currentActiveTab);
         } else {
             // If we're not going home, find the correct tab and activate it
-            let index = this.tabs.findIndex(tab => tab.url === event.url);
-            if (index >= 0) {
+            const index = this.tabs.findIndex(tab => tab.url === event.url);
+            if (index >= 0 && index !== this.currentActiveIndex) {
                 this.tabs.map(tab => tab.active = false);
                 this.tabs[index].active = true;
                 this.currentActiveIndex = index;
                 this.currentActiveTab = this.tabs[index];
+
+                this.updateTabStorage();
+                this.tabs$.next(this.tabs);
+                this.activeTab$.next(this.currentActiveTab);
             }
         }
-
-        this.updateTabStorage();
-        this.tabs$.next(this.tabs);
-        this.activeTab$.next(this.currentActiveTab);
 
         // Set document title so browser history makes sense
         const documentTitle = this.currentActiveTab
@@ -259,6 +260,43 @@ export class TabService {
             // If tab is not active we don't have to check anything, just remove it
             removeAndUpdate(closeIndex);
         }
+    }
+
+    public closeLeftOf(index: number) {
+        if (index === 0) {
+            return;
+        }
+
+        this.tabs.splice(0, index);
+        this.tabs$.next(this.tabs);
+        this.updateTabStorage();
+
+        if (this.currentActiveIndex <= index) {
+            this.activateTab(0);
+        }
+    }
+
+    public closeRightOf(index: number) {
+        if (index === this.tabs.length - 1) {
+            return;
+        }
+
+        this.tabs.splice(index + 1);
+        this.tabs$.next(this.tabs);
+        this.updateTabStorage();
+
+        if (this.currentActiveIndex > index) {
+            this.activateTab(index);
+        }
+    }
+
+    public closeAllOthers(index: number) {
+        const tab = this.tabs[index];
+        this.tabs = [tab];
+        this.tabs$.next(this.tabs);
+        this.updateTabStorage();
+
+        this.activateTab(0);
     }
 
     public removeAllTabs() {

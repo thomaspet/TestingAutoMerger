@@ -12,52 +12,32 @@ uni-company-dropdown
     &:focus
         background: darken($navbarBackground, 10%)
 
-.navbar_company_title
+.navbar-company-info
     @extend %clickable
     display: inline-block
-    padding: .5rem .5rem 0 .5rem
+    padding: 0 .5rem
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    max-width: 15rem
     position: relative
+    line-height: 2.5rem
 
-    &:after
+    .company-name
+        overflow: hidden
+        text-overflow: ellipsis
+
+    .active-year
+        opacity: .75
         display: inline-block
-        height: .6rem
-        width: .6rem
-        content: ''
-        background-image: unicon-chevron-down($navbarTextColor)
-        background-size: contain
-        background-repeat: no-repeat
-        position: relative
-        top: .1rem
+        margin: 0 .5rem
 
-    &:before
-        $size: .5rem
-        $color: #fff
-        content: ''
-        display: block
-        position: absolute
-        height: 0
-        width: 0
-        top: -#{$size}
-        right: 1rem
-        border-bottom: $size solid $color
-        border-left: $size solid transparent
-        border-right: $size solid transparent
+    > i.material-icons
+        vertical-align: middle
+        font-size: 21px
 
-.navbar_company_title_name
-    max-width: calc(100% - 3.5rem)
-    display: block
-    overflow: hidden
-    text-overflow: ellipsis
-    float: left
+    .user-dropdown
+        margin-left: .5rem
 
-.navbar_company_title_year
-    opacity: .75
-    display: inline-block
-    margin: 0 .5rem
 
 .navbar_company_dropdown
     @extend %mainNavDropdown
@@ -68,57 +48,67 @@ uni-company-dropdown
     right: 0
     top: 1rem
     text-align: left
-    min-width: 15rem
-    max-width: 20rem
+    width: 18rem
     z-index: map-get($zindex, hamburger)
-    padding: .5rem 1rem
+    padding: 0
+    border: none
+    border-radius: 3px
 
 
     &[aria-expanded=true]
         display: block
 
-    h2
-        font-weight: 400
-        font-size: 1.2rem
-        line-height: 1.5rem
-        width: 100%
-        overflow: hidden
-        white-space: nowrap
-        text-overflow: ellipsis
-        margin: .5rem 0 0
+    // h2
+    //     font-weight: 400
+    //     font-size: 1.2rem
+    //     line-height: 1.5rem
+    //     width: 100%
+    //     overflow: hidden
+    //     white-space: nowrap
+    //     text-overflow: ellipsis
+    //     margin: .5rem 0
+
+    // .user-info
+    //     padding: 1rem
+    //     box-sizing: border-box
+    //     dl
+    //         margin-bottom: .25rem
+
+    .company-info
+        padding: 1rem 1rem 1px
+        // background: $uni-color-negative
+        // border-top: 1px solid $uni-color-scale9
 
     dl
-        @include clearfix
-        background: $uni-color-negative
-        border: pxToRem(1) solid $uni-color-scale9
-        border-width: pxToRem(1) 0
-        width: 100%
-        margin-left: -1rem
-        padding: 1rem
+        &:after
+            display: block
+            content: ''
+            clear: both
 
-    dt, dd
-        font-style: normal
-        line-height: 1.5rem
+        dt, dd
+            font-style: normal
+            line-height: 1.5rem
 
-    dt
-        display: inline-block
-        float: left
-        clear: both
-        font-weight: 400
+        dt
+            display: inline-block
+            float: left
+            clear: both
+            font-weight: 400
 
-    dd
-        float: right
-        margin: 0 0 0 .5rem
-        font-weight: 400
+        dd
+            float: right
+            margin: 0 0 0 .5rem
+            font-weight: 400
+
 
 .navbar_company_select
     .uniSelect
         margin-bottom: .5rem
 
-    .uniSelect > .uniSelect_input[role=combobox][aria-readonly],
-    .uniSelect_dropdown
-        width: calc(100% + 1rem)
-        margin-left: -.5rem
+    // .uniSelect > .uniSelect_input[role=combobox][aria-readonly],
+    // .uniSelect_dropdown
+        // width: calc(100% + 1rem)
+        // margin-left: -.5rem
 
     .uniSelect > .uniSelect_input[role=combobox][aria-readonly]
         margin-top: .3rem
@@ -148,18 +138,18 @@ uni-company-dropdown
         width: 6.2rem
 
 
-button.navbar_company_logout
-    &,
-    &:focus,
-    &:hover
-    background: none
-    box-shadow: none
-    text-shadow: none
-    margin: 0
-    padding: 0
-    color: $uni-color-bad
-    float: right
+// button.navbar_company_logout
+//     &,
+//     &:focus,
+//     &:hover
+//     background: none
+//     box-shadow: none
+//     text-shadow: none
+//     margin: 0
+//     padding: 0
+//     color: $uni-color-bad
+//     float: right
 
-    &:focus,
-    &:hover
-        text-decoration: underline
+//     &:focus,
+//     &:hover
+//         text-decoration: underline

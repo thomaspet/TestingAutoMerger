@@ -17,7 +17,7 @@ import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 
 import {
-    SHORTCUTS,
+    // SHORTCUTS,
     SHORTCUT_LISTS,
     INFO_SHORTCUTS,
 
@@ -169,10 +169,10 @@ export class UniWidgetCanvas {
         let size;
         let numCols;
 
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 900) {
             size = 'small';
             numCols = LAYOUT_WIDTH.small;
-        } else if (window.innerWidth <= 1200) {
+        } else if (window.innerWidth <= 1300) {
             size = 'medium';
             numCols = LAYOUT_WIDTH.medium;
         } else {
@@ -180,7 +180,7 @@ export class UniWidgetCanvas {
             numCols = LAYOUT_WIDTH.large;
         }
 
-        this.widgetMargin = window.innerWidth <= 1500 ? 10 : 13;
+        this.widgetMargin = window.innerWidth <= 1500 ? 10 : 25;
 
         if (this.currentSize !== size) {
             this.currentSize = size;
@@ -429,19 +429,19 @@ export class UniWidgetCanvas {
     }
 
     private initWidgetSelector() {
-        const shortcuts = [...SHORTCUTS, ...INFO_SHORTCUTS];
+        const shortcuts = [...SHORTCUT_LISTS, ...INFO_SHORTCUTS];
         this.widgetSelectorItems = [
             {
                 label: 'Tellere',
                 items: COUNTERS
             },
+            // {
+            //     label: 'Snarveier',
+            //     items: shortcuts
+            // },
             {
                 label: 'Snarveier',
                 items: shortcuts
-            },
-            {
-                label: 'Snarvei-lister',
-                items: SHORTCUT_LISTS
             },
             {
                 label: 'Diagram',

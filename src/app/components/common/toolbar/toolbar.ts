@@ -3,22 +3,28 @@ import {IUniSaveAction, UniSave} from './../../../../framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs/Observable';
 import {IUniTagsConfig, ITag} from './tags';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {VideoMappingService} from '../../../services/services';
 import {IToolbarSearchConfig} from './toolbarSearch';
+import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
+import {Observable} from 'rxjs/Observable';
 declare const _; // lodash
 
+export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
+
+export interface IToolbarSubhead {
+    label?: string;
+    title: string;
+    classname?: string;
+    link?: string;
+    event?: () => void;
+}
+
 export interface IToolbarConfig {
     title?: string;
-    subheads?: {
-        title: string;
-        classname?: string;
-        link?: string;
-        event?: () => void;
-    }[];
+    subheads?: IToolbarSubhead[];
     statustrack?: IStatus[];
     navigation?: {
         find?: (query: string) => void;
@@ -61,9 +67,9 @@ export interface IShareAction {
     selector: 'uni-toolbar',
     templateUrl: './toolbar.html'
 })
-export class UniToolbar implements OnInit, OnChanges, AfterViewInit {
-    @ViewChild('toolbarExtras')
-    private extrasElement: ElementRef;
+export class UniToolbar implements OnInit, OnChanges {
+    @ViewChild('toolbarRight') private toolbarRight;
+
     @ViewChild(UniSave) private save: UniSave;
 
     @Input() public tags: ITag[];
@@ -77,7 +83,9 @@ export class UniToolbar implements OnInit, OnChanges, AfterViewInit {
     @Input() public autocompleteConfig: IAutoCompleteConfig;
     @Input() public autocompleteModel: any = {};
     @Input() public searchConfig: IToolbarSearchConfig;
-    @Input() public selectConfig: any = {};
+    @Input() public selectConfig: any;
+    @Input() public subheads: IToolbarSubhead[];
+    @Input() public validationMessages: IToolbarValidation[];
 
     @Output()
     public tagsChange: EventEmitter<any> = new EventEmitter();
@@ -99,22 +107,39 @@ export class UniToolbar implements OnInit, OnChanges, AfterViewInit {
 
     private autocompleteField: UniFieldLayout;
     public videoURLResolver: Promise<string|null>;
+    public searchVisible: boolean;
 
     public uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
-        searchable: false
+        searchable: false,
+        hideDeleteButton: true
     };
 
     constructor(private videoMappingService: VideoMappingService) {}
 
     public ngOnInit() {
         this.videoURLResolver = this.videoMappingService.getVideo(window.location.href);
+
+        Observable.fromEvent(window, 'resize')
+            .throttleTime(200)
+            .subscribe(event => {
+                if (window.innerWidth <= 1100 && this.toolbarRight) {
+                    const container = this.toolbarRight.nativeElement;
+                    const tools = container.querySelector('#toolbar-tools');
+                    const save = container.querySelector('#toolbar-save');
+
+                    const width = Math.max(
+                        tools && tools.clientWidth,
+                        save && save.clientWidth
+                    );
+
+                    container.setAttribute('style', `flex-basis: ${width + 'px'};`);
+                }
+            });
     }
 
     public ngOnChanges(change) {
         if (this.config) {
-            this.checkExtrasOverflow();
-
             if (this.config.saveactions) {
                 console.warn(`
                     ATTN. DEVELOPERS
@@ -142,20 +167,9 @@ export class UniToolbar implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    public ngAfterViewInit() {
-        Observable.fromEvent(window, 'resize')
-            .throttleTime(250)
-            .subscribe(() => {
-                this.checkExtrasOverflow();
-            });
-    }
-
-    public checkExtrasOverflow() {
-        const extras: HTMLElement = this.extrasElement && this.extrasElement.nativeElement;
-        if (extras && extras.scrollHeight > extras.clientHeight) {
-            extras.style.position = 'absolute';
-            extras.style.top = '0';
-            extras.style.left = '18%';
+    public toggleSearch() {
+        if (this.searchConfig) {
+            this.searchVisible = !this.searchVisible;
         }
     }
 

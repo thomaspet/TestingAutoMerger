@@ -48,7 +48,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             {
                 items: numberSeries,
                 selectedItem: numberSeries.find(x => x.Name === numberSerieName),
-                label: 'Nummerserie:'
+                label: 'Nummerserie'
             } : null;
     }
 

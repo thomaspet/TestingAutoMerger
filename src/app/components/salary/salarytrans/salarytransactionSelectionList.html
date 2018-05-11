@@ -1,31 +1,34 @@
-<section class="splitview">
-    <nav class="splitview_list">
+<section class="salarytrans-splitview">
+    <section class="uni-container salarytrans-list">
         <ag-grid-wrapper
             [config]="salarytransSelectionTableConfig"
             [resource]="employeeList"
             (rowSelectionChange)="rowSelected($event)"
             (dataLoaded)="focusRow(0)">
         </ag-grid-wrapper>
-    </nav>
-    <main class="splitview_detail">
-        <fieldset *ngIf="employeeList?.length">
-            <legend *ngIf="employeeList[selectedIndex] && agaZone">
-                {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
-                Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
-                <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
+    </section>
 
-                <nav class="detail_header_navigation" *ngIf="employeeList.length">
-                    <a (click)="goToPreviousEmployee()" class="previous">Forrige</a>
-                    <a (click)="goToNextEmployee()" class="next">Neste</a>
-                </nav>
-            </legend>
+    <section class="uni-container salarytrans-details">
+        <header *ngIf="employeeList?.length && employeeList[selectedIndex] && agaZone">
+            {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
+            Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
+            <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
 
-            <link-menu [menu]="linkMenu$ | async"></link-menu>
-            <salary-transactions-employee *ngIf="selectedIndex !== undefined" [employee]="employeeList[selectedIndex]"></salary-transactions-employee>
-            <section class="detail_tables" *ngIf="employeeList && employeeList[selectedIndex]">
-                <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
+
+            <section class="navigation-buttons">
+                <i class="material-icons" role="button" (click)="goToPreviousEmployee()">
+                    keyboard_arrow_left
+                </i>
+                <i class="material-icons" role="button" (click)="goToNextEmployee()">
+                    keyboard_arrow_right
+                </i>
             </section>
+        </header>
 
-        </fieldset>
-    </main>
+        <link-menu [menu]="linkMenu$ | async"></link-menu>
+        <salary-transactions-employee *ngIf="selectedIndex !== undefined" [employee]="employeeList[selectedIndex]"></salary-transactions-employee>
+        <section class="detail_tables" *ngIf="employeeList && employeeList[selectedIndex]">
+            <uni-summary [configs]="summary" [ngClass]="{'-is-dirty':hasDirty()}"></uni-summary>
+        </section>
+    </section>
 </section>

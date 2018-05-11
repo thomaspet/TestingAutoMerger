@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
-import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
@@ -56,10 +55,6 @@ export class ResultReport implements OnInit {
 
     public activeDistributionElement: string = 'Resultat';
     public distributionPeriodAccountIDs: Array<number> = [];
-
-    public toolbarconfig: IToolbarConfig = {
-        title: 'Resultat'
-    };
 
     private filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: true,

@@ -1,14 +1,26 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Project, Department, Team, User, Employee, Seller} from '../../../unientities';
-import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {Observable} from 'rxjs/Observable';
-import {UniModalService} from '../../../../framework/uni-modal';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+import {UniForm, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {IUniSaveAction} from '@uni-framework/save/save';
+
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {IToolbarConfig, IToolbarSubhead} from './../../common/toolbar/toolbar';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+
+import {
+    Project,
+    Department,
+    Team,
+    User,
+    Employee,
+    Seller,
+    StatusCodeCustomerInvoice
+} from '@app/unientities';
 import {
     ErrorService,
     ProjectService,
@@ -16,21 +28,22 @@ import {
     TeamService,
     SellerService,
     UserService,
-    EmployeeService
-} from '../../../services/services';
+    EmployeeService,
+    NumberFormat,
+    StatisticsService
+} from '@app/services/services';
 
 declare const _;
 
 @Component({
-    selector: 'seller-list',
+    selector: 'seller-details',
     templateUrl: './sellerDetails.html',
 })
 export class SellerDetails {
-    @Input()
-    public sellerId: any;
-
     @ViewChild(UniForm)
     public form: UniForm;
+
+    public sellerID: number;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -38,7 +51,16 @@ export class SellerDetails {
     public isDirty: boolean = false;
 
     private expandOptions: Array<string> = ['DefaultDimensions', 'User'];
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
+    public toolbarSubheads: IToolbarSubhead[];
+
+    public activeTab: IUniTab;
+    public tabs: IUniTab[] = [
+        {name: 'Detaljer'},
+        {name: 'Tilbud', value: 'quotes'},
+        {name: 'Ordre', value: 'orders'},
+        {name: 'Faktura', value: 'invoices'},
+    ];
 
     private projects: Project[];
     private departments: Department[];
@@ -48,30 +70,46 @@ export class SellerDetails {
 
     private formIsInitialized: boolean = false;
 
-    public saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveSeller(completeEvent),
-             main: true,
-             disabled: false
-         }
-    ];
+    public saveactions: IUniSaveAction[] = [{
+        label: 'Lagre',
+        action: (completeEvent) => this.saveSeller().subscribe(
+            res => completeEvent('Selger lagret'),
+            err => {
+                completeEvent('Lagring feilet');
+                this.errorService.handle(err);
+            }
+        ),
+        main: true,
+        disabled: false
+    }];
 
-    constructor(private router: Router,
-                private route: ActivatedRoute,
-                private errorService: ErrorService,
-                private toastService: ToastService,
-                private tabService: TabService,
-                private projectService: ProjectService,
-                private departmentService: DepartmentService,
-                private teamService: TeamService,
-                private sellerService: SellerService,
-                private userService: UserService,
-                private employeeService: EmployeeService,
-                private modalService: UniModalService) {
-        this.route.parent.params.subscribe(params => {
-            this.sellerId = +params['id'];
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private tabService: TabService,
+        private projectService: ProjectService,
+        private departmentService: DepartmentService,
+        private teamService: TeamService,
+        private sellerService: SellerService,
+        private userService: UserService,
+        private employeeService: EmployeeService,
+        private modalService: UniModalService,
+        private numberFormat: NumberFormat,
+        private statisticsService: StatisticsService
+    ) {
+        this.route.params.subscribe(params => {
+            this.sellerID = +params['id'];
+            this.tabService.addTab({
+                name: 'Selger',
+                url: '/sales/sellers/' + this.sellerID,
+                active: true,
+                moduleID: UniModules.Sellers
+            });
+
             this.setupForm();
+            this.loadSalesSums();
         });
     }
 
@@ -80,14 +118,22 @@ export class SellerDetails {
             return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose;
+        return this.modalService.openUnsavedChangesModal().onClose.switchMap(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                return this.saveSeller().map(
+                    savedSeller => true,
+                    error => false
+                );
+            } else if (res === ConfirmActions.REJECT) {
+                return Observable.of(true);
+            } else {
+                return Observable.of(false);
+            }
+        });
     }
-
-    // Load
 
     private setupForm() {
         if (!this.formIsInitialized) {
-            this.setupFields();
             Observable.forkJoin(
                 this.projectService.GetAll(null),
                 this.departmentService.GetAll(null),
@@ -108,8 +154,8 @@ export class SellerDetails {
                 this.employees.unshift(null);
 
                 this.formIsInitialized = true;
-                this.extendFormConfig();
 
+                this.fields$.next(this.getFormFields());
                 this.loadSeller();
             });
         } else {
@@ -119,8 +165,8 @@ export class SellerDetails {
 
     private loadSeller() {
         let subject = null;
-        if (this.sellerId > 0) {
-            subject = this.sellerService.Get(this.sellerId, this.expandOptions);
+        if (this.sellerID) {
+            subject = this.sellerService.Get(this.sellerID, this.expandOptions);
         } else {
             subject = this.sellerService.GetNewEntity();
         }
@@ -131,46 +177,31 @@ export class SellerDetails {
         });
     }
 
-    // Save
-
-    private saveSeller(complete) {
-        let seller = this.seller$.getValue();
+    private saveSeller(): Observable<Seller> {
+        const seller = this.seller$.getValue();
         if (seller.DefaultDimensions && (!seller.DefaultDimensions.ID || seller.DefaultDimensions.ID === 0)) {
             seller.DefaultDimensions['_createguid'] = this.sellerService.getNewGuid();
         }
 
-        if (this.sellerId > 0) {
-            this.sellerService.Put(seller.ID, seller).subscribe(
-                (updated) => {
-                    complete('Selger lagret');
-                    this.isDirty = false;
-                    this.loadSeller();
-                },
-                (err) => {
-                    complete('Feil oppstod ved lagring');
-                    this.errorService.handle(err);
-                }
-            );
-        } else {
-            this.sellerService.Post(seller).subscribe(
-                (newSeller) => {
-                    complete('Selger lagret');
-                    this.isDirty = false;
-                    this.router.navigateByUrl('/sales/sellers/' + newSeller.ID);
-                },
-                (err) => {
-                    complete('Feil oppstod ved lagring');
-                    this.errorService.handle(err);
-                }
-            );
-        }
-    }
+        const saveRequest = this.sellerID
+            ? this.sellerService.Put(seller.ID, seller)
+            : this.sellerService.Post(seller);
 
-    // Navigation
+        return saveRequest.map(res => {
+            this.isDirty = false;
+            if (this.sellerID) {
+                this.loadSeller();
+            } else {
+                this.router.navigateByUrl('/sales/sellers/' + res.ID);
+            }
+
+            return res;
+        });
+    }
 
     private setupToolbar() {
         this.toolbarconfig = {
-            title: this.sellerId > 0 ? this.seller$.getValue().Name : 'Ny selger',
+            title: this.sellerID ? this.seller$.getValue().Name : 'Ny selger',
             navigation: {
                 prev: () => this.previousSeller(),
                 next: () => this.nextSeller(),
@@ -213,143 +244,113 @@ export class SellerDetails {
         this.isDirty = true;
     }
 
-    // Layout
+    private loadSalesSums() {
+        this.statisticsService.GetAllUnwrapped(
+             `model=CustomerInvoice&select=sum(TaxInclusiveAmount) as TotalAmount,`
+             + `sum(TaxInclusiveAmount mul casewhen(SellerLink.Percent gt 0,`
+             + `SellerLink.Percent,100) div 100) as SellerTotalAmount,count(ID) as TotalCount`
+             + `&join=CustomerInvoice.ID eq SellerLink.CustomerInvoiceID`
+             + `&filter=SellerLink.SellerID eq ${this.sellerID} and StatusCode ne ${StatusCodeCustomerInvoice.Draft} `
+             + `and year(InvoiceDate) eq thisyear()`
+         ).subscribe(response => {
+             const sums = response[0];
+             this.toolbarSubheads = [
+                 {
+                     label: 'Totalsum i år',
+                     title: this.numberFormat.asMoney(sums.TotalAmount || 0),
+                 },
+                 {
+                     label: 'Selgersum i år',
+                     title: this.numberFormat.asMoney(sums.SellerTotalAmount || 0),
+                 },
+                 {
+                     label: 'Antall salg i år',
+                     title: sums.TotalCount || 0,
+                 },
+             ];
 
-    private extendFormConfig() {
-        let project: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'DefaultDimensions.ProjectID');
-        project.Options = {
-            source: this.projects,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
-            },
-            debounceTime: 200
-        };
+         });
+     }
 
-        let department: UniFieldLayout = this.fields$.getValue().find(
-            x => x.Property === 'DefaultDimensions.DepartmentID'
-        );
-        department.Options = {
-            source: this.departments,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
-            },
-            debounceTime: 200
-        };
-
-        let user: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'UserID');
-        user.Options = {
-            source: this.users,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.ID + ': ' + item.DisplayName) : '';
-            },
-            debounceTime: 200
-        };
-
-        let team: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'TeamID');
-        team.Options = {
-            source: this.teams,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.ID + ': ' + item.Name) : '';
-            },
-            debounceTime: 200
-        };
-
-        let employee: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'EmployeeID');
-        employee.Options = {
-            source: this.employees,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.EmployeeNumber + ': ' + item.BusinessRelationInfo.Name) : '';
-            },
-            debounceTime: 200
-        };
-    }
-
-    private setupFields() {
-        let fields: UniFieldLayout[] = [
+    private getFormFields(): UniFieldLayout[] {
+        return [
             <any> {
                 Legend: 'Detaljer',
                 FieldSet: 1,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'Name',
-                Placement: 2,
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
-                Description: '',
-                HelpText: '',
-                Section: 0
             },
             <any> {
-                Legend: 'Detaljer',
                 FieldSet: 1,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'UserID',
-                Placement: 2,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Bruker',
-                Description: '',
-                HelpText: '',
-                Section: 0,
+                Options: {
+                    source: this.users,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.ID + ': ' + item.DisplayName) : '';
+                    },
+                    debounceTime: 200
+                }
             },
             <any> {
-                Legend: 'Detaljer',
                 FieldSet: 1,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'EmployeeID',
-                Placement: 2,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Ansatt',
-                Description: '',
-                HelpText: '',
-                Section: 0,
+                Options: {
+                    source: this.employees,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.EmployeeNumber + ': ' + item.BusinessRelationInfo.Name) : '';
+                    },
+                    debounceTime: 200
+                }
             },
             <any> {
-                Legend: 'Detaljer',
                 FieldSet: 1,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'TeamID',
-                Placement: 2,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Team',
-                Description: '',
-                HelpText: '',
-                Section: 0,
+                Options: {
+                    source: this.teams,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.ID + ': ' + item.Name) : '';
+                    },
+                    debounceTime: 200
+                }
             },
             <any> {
                 Legend: 'Dimensjoner',
                 FieldSet: 2,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'DefaultDimensions.ProjectID',
-                Placement: 4,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Prosjekt',
-                Description: '',
-                HelpText: '',
-                Section: 0
+                Options: {
+                    source: this.projects,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+                    },
+                    debounceTime: 200
+                }
             },
             <any> {
-                Legend: 'Dimensjoner',
                 FieldSet: 2,
-                FieldSetColumn: 1,
-                EntityType: 'Seller',
                 Property: 'DefaultDimensions.DepartmentID',
-                Placement: 4,
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Avdeling',
-                Description: '',
-                HelpText: '',
-                Section: 0
+                Options: {
+                    source: this.departments,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+                    },
+                    debounceTime: 200
+                }
             }];
-
-        this.fields$.next(fields);
     }
 }

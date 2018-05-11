@@ -1,79 +1,49 @@
 uni-bill
-	fieldset
+	.application
+		display: flex
+		flex-wrap: wrap
+		justify-content: center
 		width: 100%
-		flex-basis: 100%
-		max-width: none
-		box-sizing: border-box
+		padding: 0 1rem
+		margin: 1.5rem 0
 
-		@include media(1100px)
+		.bill-left-side,
+		.bill-right-side
+			flex: 1
 			min-width: 35rem
-			margin: 0 auto 1rem
+			margin: 0 .5rem
+			.uni-container
+				margin-right: 0
 
-		label span
-			width: 9rem
+	// Remove margin/padding/shadow that is on journal entry by default
+	journal-entry-manual .uni-container
+		margin: 0
+		box-shadow: none
+		.journalentry-input-components
+			padding: 0
 
-		label span+*
-			width: calc(100% - 9rem)
+	fieldset
+		flex: 1
+		max-width: none
+
+	uni-bill-history
+		display: block
 
 	uni-field
 		max-width: 100%
+
+	.dimension-field
+		@inclue labelLength(10rem)
 
 	uni-image
 		picture
 			display: inline-block
 
-	.journal-entry
-		margin: 0.5rem
 
 	.journalentry-input-components
 		min-width: auto
 
-	.bill-history
-		margin-top: 1rem
-		margin-left: 0.5rem
-		margin-right: 0.5rem
-
-	.uni-split-view-container
-		margin-left: 1rem
-		margin-right: 2rem
-
-		.left-side
-			flex: 1 0 50%
-
-		.right-side
-			flex: 1 0 50%
-
-	.tabs
-		padding-top: 1rem
-		margin-left: 0.5rem
-		display: block
-
-		button
-            margin: 0
-            border-radius: 0
-            background-color: $uni-color-negative
-            color: $uni-color-c2a
-            border: 1px solid $uni-color-c2a
-            text-shadow: none
-            box-shadow: none
-            margin-right: -4px
-            width: 10rem
-
-            &.active
-                background-color: $uni-color-c2a
-                color: $uni-color-negative
-
-            &:first-of-type
-                border-top-left-radius: .2rem
-                border-bottom-left-radius: .2rem
-                border-right: none
-
-            &:last-of-type
-                border-top-right-radius: .2rem
-                border-bottom-right-radius: .2rem
-                border-left: none
-
-@media all and (min-width: 1500px)
+@media all and (min-width: 1700px)
 	.bill-small-field
 		display: inline-block
 		width: calc(50% - 2px)
@@ -129,39 +99,39 @@ supplier-invoice-table-minus
 		color: red
 		font-weight: 600
 
-@media all and (max-width: 800px)
-	uni-bill .horizontal_nav ul
-		justify-content: flex-start
-
-.toolbar
-	button
-		margin: 0 0 pxToRem(7) pxToRem(7)
-
-	input
-		margin: 0
-		margin-bottom: pxToRem(7)
-
-
-
 /* BILLS (listview)  */
+.bill-container
+	display: flex
+	flex-wrap: wrap
+	margin: 0
 
-@media all and (max-width: 800px)
-	uni-bills .horizontal_nav ul
-		justify-content: flex-start
+	.bill-list
+		flex: 1
+		position: relative
 
-.tab_counter_passive
-	background: $navbarBackground
-	border: 1px solid darken(mix($uni-color-scale9, $navbarBackground, 40%), 15%)
+		.assignee-filter
+			display: inline-block
+			width: 15rem
+			position: absolute
+			top: .4rem
+			left: 20rem
+			z-index: 300
 
-.tab_counter_hot
-	color: $navbarBackground
-	background: lighten($uni-color-scale9, 10%)
+	.bill-preview
+		flex: 1
 
-.supplierinvoice-listview li a
-	white-space: nowrap
+		.accounting-preview-links
+			margin-bottom: .5rem
 
-.supplierinvoice-listview header:nth-of-type(2)
-	margin-top: pxToRem(10) !important
+			a
+				background: unicon-share($uni-color-c2a) no-repeat left
+				background-size: .7rem
+				padding-left: 1.25rem
+				margin-right: 2rem
+				color: #60656a
+
+				&:hover, &:focus
+					color: darken(#60656a, 10%)
 
 .multiselectListElement
     list-style: none
@@ -268,12 +238,8 @@ supplier-invoice-table-minus
     color: $uni-color-negative
     background-color: $uni-color-c2a
 
-.document_from_flow_button
-    margin-left: 1rem
-    background-color: $uni-color-good
-
-    &:hover
-        background-color: #006700
+button.document_from_flow_button
+    margin: 1rem 0
 
 .confirm_modal_list
 
@@ -295,38 +261,4 @@ supplier-invoice-table-minus
 	    position: relative
 	    top: -2px
 
-.accounting_inbox_container
-    box-sizing: border-box
-    display: flex
-    flex-direction: row
-    align-items: flex-start
-    margin: 0
-    width: 100%
 
-.accounting_inbox_list_container
-	height: 34rem
-	flex: 1 0 55%
-
-#preview_container_id
-	flex: 1 0 45%
-	margin-left: 0
-	display: none
-	height: 34rem
-	overflow-y: scroll
-	overflow-x: hidden
-
-.accounting_preview_links
-    float: right
-    background-color: transparent
-    background-size: .7rem
-    background-position: left
-    background-repeat: no-repeat
-    background-image: unicon-share($uni-color-c2a)
-    padding-left: 1rem
-    margin-left: 2rem
-    transition: .1s linear
-
-    &:hover, &:active, &:focus
-        color: darken($uni-color-c2a, 50%)
-        cursor: pointer
-        background-size: .9rem

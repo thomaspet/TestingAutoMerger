@@ -1,22 +1,7 @@
 <uni-toolbar [config]="{title: 'Dine oppgaver og godkjenninger', omitFinalCrumb: true}"></uni-toolbar>
-<aside class="horizontal_nav no-print">
-    <ul>
-        <li>
-            <a routerLink="./tasks" routerLinkActive="router-link-active">
-                Oppgaver
-                <span class='tab_counter' *ngIf="taskCount >= 0">{{taskCount}}</span>
-            </a>
-        </li>
-        <li>
-            <a routerLink="./approvals" routerLinkActive="router-link-active">
-                Godkjenninger
-                <span class='tab_counter' *ngIf="approvalCount >= 0">{{approvalCount}}</span>
-            </a>
-        </li>
-    </ul>
-</aside>
 
-<section class="assignments">
+<section class="application">
+    <uni-tabs [tabs]="tabs"></uni-tabs>
     <router-outlet></router-outlet>
 </section>
 

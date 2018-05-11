@@ -1,40 +1,85 @@
-import {Component, Input} from '@angular/core';
-import {Router, Event} from '@angular/router';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Router, ActivatedRoute, Event, NavigationEnd} from '@angular/router';
 
-export interface IUniTabsRoute {
+export interface IUniTab {
     name: string;
-    path: string;
+    path?: string;
+    hidden?: boolean;
+    tooltip?: string;
+    value?: any;
+    count?: number;
+    onClick?: () => void;
 }
 
 @Component({
     selector: 'uni-tabs',
     template: `
-        <ul>
-            <li *ngFor="let route of routes">
-                <a
-                    [routerLink]="[route.path]"
-                    [queryParamsHandling]="queryParamsHandling"
-                    routerLinkActive="router-link-active">
-                        {{route.name}} <!-- TODO: i18n -->
-                </a>
-            </li>
-        </ul>
+        <mat-tab-group
+            [(selectedIndex)]="activeIndex"
+            (selectedIndexChange)="onTabActivated($event)">
+
+            <mat-tab *ngFor="let tab of filteredTabs">
+                <ng-template mat-tab-label>
+                    {{tab[labelProperty]}}
+                    <strong>{{tab[counterProperty]}}</strong>
+
+                    <i class="material-icons tab-tooltip" *ngIf="tab.tooltip" matTooltip="{{tab.tooltip}}">
+                        info
+                    </i>
+                </ng-template>
+            </mat-tab>
+        </mat-tab-group>
     `
 })
 export class UniTabs {
-    @Input() public routes: IUniTabsRoute[];
-    @Input() public queryParamsHandling: string = '';
+    @Input() public tabs: IUniTab[];
+    @Input() public queryParamsHandling: 'merge' | 'preserve' | '' = '';
+    @Input() public labelProperty: string = 'name';
+    @Input() public counterProperty: string = 'count';
 
-    constructor(router: Router) {
-        // When the user navigates we force routerLink to refresh
-        // due to 'this.routes' getting a new memory address.
-        // This fixes issue where navigating to the same component with different
-        // route param would cause routerLink to point to the wrong param
-        // f.ex employees/4 when we navigated back to employees/3
-        router.events.subscribe((event: Event) => {
-            if (this.routes) {
-                this.routes = JSON.parse(JSON.stringify(this.routes));
+    @Input() public activeIndex: number;
+
+    @Output() public activeIndexChange: EventEmitter<number> = new EventEmitter(false);
+    @Output() public tabClick: EventEmitter<IUniTab> = new EventEmitter(false);
+
+    public filteredTabs: IUniTab[];
+
+    constructor(private router: Router, private route: ActivatedRoute) {}
+
+    public ngOnChanges(changes) {
+        if (changes['tabs'] && this.tabs) {
+            this.filteredTabs = this.tabs.filter(tab => !tab.hidden);
+
+            if (this.tabs.some(tab => !!tab.path)) {
+                const url = window.location.href;
+                const activeIndex = this.filteredTabs.findIndex(route => {
+                    return url.includes(route.path);
+                });
+
+                this.activeIndex = activeIndex >= 0 ? activeIndex : 0;
             }
-        });
+        }
+    }
+
+    public onTabActivated(index: number) {
+        const tab = this.filteredTabs[index];
+
+        if (!tab) {
+            return;
+        }
+
+        if (tab.path) {
+            this.router.navigate([tab.path], {
+                relativeTo: this.route,
+                queryParamsHandling: this.queryParamsHandling
+            });
+        } else {
+            this.activeIndexChange.emit(index);
+            this.tabClick.emit(tab);
+        }
+
+        if (tab.onClick) {
+            setTimeout(() => tab.onClick());
+        }
     }
 }

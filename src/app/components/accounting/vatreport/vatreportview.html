@@ -77,64 +77,62 @@
         </article>
 
     </section>
-
-    <div class="horizontal_nav">
-        <ul>
-            <li>
-                <a (click)="showView = 'control'" [class.router-link-active]="showView == 'control'">Kontroll</a>
-            </li>
-            <li>
-                <a (click)="showView = ''" [class.router-link-active]="showView == ''">MVA-melding</a>
-            </li>
-            <li *ngIf="isSent()">
-                <a (click)="showView = 'receipt'" [class.router-link-active]="showView == 'receipt'">Altinn, kvittering/tilbakemelding</a>
-            </li>
-            <li *ngIf="currentVatReport?.JournalEntryID">
-                <a (click)="showView = 'journal'" [class.router-link-active]="showView == 'journal'">Oppgjørsbilag</a>
-            </li>
-
-        </ul>
-    </div>
 </header>
 
 <create-corrected-vatreport-modal></create-corrected-vatreport-modal>
 
 <section class="application" [attr.aria-busy]="isBusy">
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-    <vatreport-checklist-view *ngIf="showView == 'control'"
-                              [attr.aria-busy]="!reportMessages"
-                              [vatReportMessages]="reportMessages"></vatreport-checklist-view>
-    <vat-summary-per-post *ngIf="showView == ''"
-                          [attr.aria-busy]="!reportSummaryPerPost"
-                          [reportSummaryPerPost]="reportSummaryPerPost"
-                          [period]="currentVatReport?.TerminPeriod"
-                          [vatTypes]="vatTypes"
-                          [isHistoricData]="isHistoricData"
-                          [vatReportID]="currentVatReport.ID"
-                          [vatReportMessages]="reportMessages">
-    </vat-summary-per-post>
-    <vatreport-receipt-view *ngIf="showView == 'receipt'"
-                            [vatReport]="currentVatReport"
-                            [reportSummaryPerPost]="reportSummaryPerPost"
-                            (vatReportDidChange)="vatReportDidChange($event)">
+    <vatreport-checklist-view
+        *ngIf="activeTabIndex === 0"
+        [attr.aria-busy]="!reportMessages"
+        [vatReportMessages]="reportMessages">
+    </vatreport-checklist-view>
+
+    <ng-template [ngIf]="activeTabIndex === 1">
+        <vat-summary-per-post
+            [attr.aria-busy]="!reportSummaryPerPost"
+            [reportSummaryPerPost]="reportSummaryPerPost"
+            [period]="currentVatReport?.TerminPeriod"
+            [vatTypes]="vatTypes"
+            [isHistoricData]="isHistoricData"
+            [vatReportID]="currentVatReport.ID"
+            [vatReportMessages]="reportMessages">
+        </vat-summary-per-post>
+
+        <div class="comment commentToSend">
+            <label>Kommenter til Altinn</label>
+            <textarea
+                [formControl]="externalComment"
+                [ngModel]="currentVatReport.Comment"
+                [disabled]="currentVatReport?.ID == 0 || isSent()">
+            </textarea>
+        </div>
+
+        <div class="comment internalComment">
+            <label>Intern kommentar</label>
+            <textarea
+                [formControl]="internalComment"
+                [ngModel]="currentVatReport.InternalComment"
+                [disabled]="currentVatReport?.ID == 0">
+            </textarea>
+        </div>
+    </ng-template>
+
+    <vatreport-receipt-view
+        *ngIf="activeTabIndex === 2"
+        [vatReport]="currentVatReport"
+        [reportSummaryPerPost]="reportSummaryPerPost"
+        (vatReportDidChange)="vatReportDidChange($event)">
     </vatreport-receipt-view>
-    <vatreport-journal-entry *ngIf="showView == 'journal'"
-                             [vatReport]="currentVatReport">
+
+    <vatreport-journal-entry
+        *ngIf="activeTabIndex === 3"
+        [vatReport]="currentVatReport">
     </vatreport-journal-entry>
 
-    <div *ngIf="showView == ''" class="comment commentToSend">
-        <label>Kommenter til Altinn</label>
-        <textarea [formControl]="externalComment"
-                  [ngModel]="currentVatReport.Comment"
-                  [disabled]="currentVatReport?.ID == 0 || isSent()"></textarea>
-    </div>
 
-    <div *ngIf="showView == ''" class="comment internalComment">
-        <label>Intern kommentar</label>
-        <textarea [formControl]="internalComment"
-                  [ngModel]="currentVatReport.InternalComment"
-                  [disabled]="currentVatReport?.ID == 0"></textarea>
-    </div>
 </section>
 
 

@@ -28,7 +28,7 @@ import {AuthService} from '../../../authService';
             class="uni-widget-content info_shortcut_section"
             (click)="onShortcutClick()" >
 
-            <img src="{{widget.config.imageLink}}" style="width: 100%; height: 50%; opacity: 0.5;">
+            <img src="{{widget.config.imageLink}}">
 
             <div>
                 <p>

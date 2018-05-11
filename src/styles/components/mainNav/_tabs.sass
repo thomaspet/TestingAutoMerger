@@ -1,16 +1,59 @@
-uni-tabstrip
-    position: relative
+$tabstrip-background: $uni-color-toolbar // #194b85
+$active-tab-background: darken($tabstrip-background, 5%) // #2a71cb
+$tab-color: #fff
+$active-tab-color: $tab-color
+
+.tab-strip
+    // position: relative
+
+    display: flex
+    width: 100%
+    height: 2rem
+    background: $tabstrip-background
+    padding: 0 2rem 0 .75rem
+    box-sizing: border-box
+
+    &.sidebar-expanded
+        padding-left: 15rem
+    &.sidebar-collapsed
+        padding-left: 4rem
+
+    uni-tabstrip-help
+        color: $tab-color
+
+.tab-context-menu
+    position: absolute
+    width: 11rem
+    margin: 0
+    box-sizing: border-box
+    list-style: none
+    background: #fff
+    z-index: 999
+    border: 1px solid $uni-color-scale8
+    border-radius: 2px
+
+    li
+        padding: 4px 10px
+        font-size: 15px
+        cursor: pointer
+        + li
+            border-top: 1px solid $uni-color-scale9
+
+        &:hover
+            background: $uni-color-scale9
+
 
 .collapsed-tab-container
     position: relative
-    padding: .5rem 2.5rem .5rem .5rem
+    color: $uni-color-c2a
+    padding-right: 2rem !important
 
     &:after
         content: ''
         background: unicon-chevron-down($uni-color-negative) center no-repeat
         background-size: .6rem
         width: 2rem
-        height: 2.5rem
+        height: 2rem
         display: block
         position: absolute
         top: 0
@@ -23,8 +66,8 @@ uni-tabstrip
     .collapsed-tab-list
         @extend %mainNavDropdown
         position: fixed
-        top: 2.5rem
-        margin-left: -0.7rem
+        top: 4.5rem
+        left: 3.5rem
         min-width: 12rem
         list-style: none
         background: #fff
@@ -37,115 +80,54 @@ uni-tabstrip
             color: $uni-color-positive
             text-align: left
 
+            + li
+                border-top: 1px solid $uni-color-scale9
+
             &:hover,
             &.active
                 background: transparentize($uni-color-c2a, .9)
+
+            .close-tab
+                float: right
 
 .navbar_tabs
     margin: 0
     white-space: nowrap
     display: flex
-
-    & + button.small
-        position: fixed
-        bottom: 1rem
-        right: 1rem
-
-    a
-        &:not(:first-of-type) li
-            border-left: .1rem solid transparentize($navbarActive, .8)
-
-        &.router-link-active li
-            background: $uni-color-negative
-            color: $navbarBackground
-
-            .close
-                border: pxToRem(1) solid $navbarBackground
-                background-image: unicon-close($uni-color-negative), linear-gradient(to top, $navbarBackground 0, $navbarBackground 100%)
-                opacity: .8
+    list-style: none
 
     li
         @extend %navbarText
         @extend %clickable
-        padding: .5rem .7rem
-        margin: 0
-        text-align: center
-        max-width: pxToRem(200)
-        padding-right: 2.2rem
-        white-space: nowrap
         display: inline-block
+        height: 2rem // calc(2rem - 1px)
+        line-height: 2rem
+        padding: 0 1rem
+        margin: 0 //.5rem 0 0
+        text-align: center
+        font-size: 15px
+        max-width: 15rem
+        min-width: 4rem
+        white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
         position: relative
         flex-shrink: 1
+        color: $tab-color !important
 
-
-        &.router-tab-active,
-        &.router-tab-active:hover,
-        &.router-tab-active:focus
-            background: $navbarActive
-            color: $navbarTextColor
-
-            .close
-                border: pxToRem(1) solid mix($navbarBackground, $navbarBackground, 70%)
-                background-image: unicon-close($uni-color-negative)
-                opacity: .8
-
-                &:focus,
-                &:hover
-                    opacity: 1
-
-        &:first-of-type
-            border-left: none
-
-        &:last-of-type
-            border-right: none
-
-        &:before
-            content: ''
-            display: none
-
-        .close
-            display: inline-block
-            height: .75rem
-            width: .75rem
-            right: .7rem
-            top: calc(50% - .37rem)
-            position: absolute
-            border-radius: pxToRem(3)
-            border: pxToRem(1) solid transparent
-            background-image: unicon-close($uni-color-negative)
-            background-color: mix($uni-color-positive, $navbarBackground, 25%)
-            background-position: center center
-            background-repeat: no-repeat
-            background-size: .4rem, contain
-
-            &:hover,
-            &:focus
-                border: pxToRem(1) solid $navbarBackground
+        .close-tab
+            vertical-align: middle
+            font-size: 13px
+            margin-left: .5rem
+            line-height: 2rem
+            &:hover
+                font-size: 15px
 
         &:hover,
-        &:focus
-            background: darken($navbarBackground, 10%)
+        &.router-tab-active
+            background: $active-tab-background
+            color: $active-tab-color !important
 
-    li.home-tab
-        @extend %hideText
-        background: unicon-home($uni-color-negative) no-repeat center center
-        background-size: 1.1rem
-        height: 2.5rem
-        padding-top: 0
-        padding-bottom: 0
-
-        span.close
-            display: none
-
-        &:hover,
-        &:focus
-            background-color: darken($navbarBackground, 10%)
-
-        &.router-tab-active,
-        &.router-tab-active:hover,
-        &.router-tab-active:focus
-            background: unicon-home($uni-color-negative) no-repeat center center
-            background-size: 1.1rem
-            background-color: $navbarActive
+        // &.router-tab-active
+        //     border-bottom: 2px solid $uni-color-c2a
+        //     height: calc(2rem - 2px)

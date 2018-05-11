@@ -1,18 +1,38 @@
+$toolbar-grey: $uni-color-scale6
+
 @import 'breadcrumbs'
 @import 'statustrack'
 @import 'toolbarTools'
 @import 'toolbarSearch'
 @import 'tags'
 
+.sidebar-hidden uni-toolbar
+    padding-left: 1.75rem
+
 uni-toolbar
     position: fixed
-    top: 2.5rem
+    top: $reserved-height-for-navbar
     width: 100%
-    height: 4.6rem
+    height: 5.5rem
     box-sizing: border-box
-    background: $uni-color-toolbar
-    color: white
+    padding: .25rem 1.5rem //.25rem 2rem
+    display: flex
+    flex-direction: row
+
+    background: #fff
+    color: $toolbar-grey
+    // border-bottom: 1px solid $uni-color-scale9
+    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.14)
     z-index: map-get($zindex, toolbar)
+
+    .toolbar-title
+        color: #1d2b33 // $uni-color-c2a
+        font-size: 1.45rem
+        font-weight: 600
+        .material-icons
+            font-size: 22px
+            margin-top: 3px
+
 
 .toolbar-dropdown-list
     @extend %contextMenu
@@ -28,174 +48,135 @@ uni-toolbar
         padding: .35rem .5rem
 
 .toolbar-content
-    @include unigrid-flush(14)
-    margin: 0 auto
-    padding: 0 .5rem 0 1rem
+    width: 100%
+    margin: 0
+    padding: 0
+    display: flex
+    flex-direction: row
+    flex-wrap: nowrap
+    height: 100%
+
+.toolbar-left,
+.toolbar-center,
+.toolbar-right
+    background: #fff
+    height: 100%
+
+.toolbar-left
+    flex: 0 0 auto
+    margin-right: 3rem
     display: flex
     flex-direction: column
-    flex-wrap: nowrap
-
-.toolbar-top-row
-    order: 1
-    flex: 0 1 2rem
-    display: flex
-    flex-direction: row
-    font-size: 14px
+    justify-content: center
 
     uni-breadcrumbs
-        order: 1
-        flex: 0 1 auto
-        margin: auto 0
-        padding: 0
-        .breadcrumbs
-            padding: 0
+        flex: 0 0 auto
+        font-size: 14px
+        line-height: 14px
+        margin-bottom: .25rem
 
-    uni-toolbar-help
-        order: 2
-        flex: 0 1 auto
-        margin: auto 0 auto auto
-        display: block
-        position: relative
-
-        .toolbar-dropdown-list
-            top: 0.7rem
-
-        a
-            color: $uni-color-negative
-            cursor: pointer
-            user-select: none
-
-            &:after
-                content: ''
-                height: 1rem
-                width: 1rem
-                background: unicon-chevron-down($uni-color-negative) center center no-repeat
-                background-size: .45rem
-                float: right
-                margin-top: .3rem
-            &:hover
-                color: darken($uni-color-negative, 10%)
-
-
-
-.toolbar-bottom-row
-    order: 2
-    flex: 0 1 2rem
-    display: flex
-    flex-direction: row
-    flex-wrap: nowrap
-
-    h1
-        order: 1
-        flex: 0 1 auto
-        line-height: inherit
-        margin: 0
+    .toolbar-header
+        flex: 0 0 auto
         max-width: 25rem
-        overflow: hidden
-        text-overflow: ellipsis
-        white-space: nowrap
 
-    uni-toolbar-search
-        order: 1
-        flex: 0 1 15rem
+        h1, uni-toolbar-search
+            line-height: inherit
+            margin: 0
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+            padding: 0 0 .15rem 0 // padding bottom to avoid letter clipping
+
+        i.material-icons
+            float: right
+            margin-left: .5rem
+            color: $uni-color-scale7
+            cursor: pointer
+
+
+.toolbar-center
+    flex: 2
+    display: flex
+    flex-flow: row wrap
+    margin-right: .5rem
+
+    @include media(860px)
+        uni-tags,
+        uni-statustrack .completed,
+        uni-statustrack .future
+            display: none
+
+    @include media(650px)
+        display: none
+
     uni-statustrack
-        order: 2
-        margin: .1rem 0 .1rem 1.5rem
+        flex: 0 0 auto
+        margin: auto 0
+        margin-right: 1rem
 
     .toolbar-extras
-        order: 3
-        margin: .1rem 0
-        flex: 0 1 auto
-        overflow: visible
+        flex: 0 0 auto
+        margin: auto 0
 
-        small
+        > *
+            margin-right: 1rem
+
+        .toolbar-subhead
+            color: $uni-color-scale3
             font-size: 16px
-            color: transparentize(white, .2)
-            flex-basis: fit-content
-            margin: 0 0 0 1rem
-            white-space: nowrap
+            @include media(1300px)
+                font-size: 15px
 
+            .subhead-label
+                color: $toolbar-grey
+                font-size: inherit
+                text-transform: uppercase
 
-        a:link,
-        a:visited,
-            font-size: 16px
-            color: transparentize(white, .2)
-            border-color: transparentize(white, .2)
+            &.bad
+                color: $uni-color-bad
 
         .toolbar_uniselect
-            margin-left: 1rem
+            margin-left: 1.5rem
             font-size: 1rem
-            font-weight: 300
 
-            .uniSelect
+            uni-select
+                display: inline-block
                 width: 12rem
+                margin-left: .25rem
 
                 .uniSelect_input
                     height: 1.75rem
-                    color: white
-                    background: transparentize($uni-color-c2a, .5) unicon-chevron-down($uni-color-scale9) center right .5rem no-repeat !important
+                    color: $uni-color-scale5
+                    background: #fff unicon-chevron-down($uni-color-scale8) center right .5rem no-repeat !important
                     background-size: auto .5rem !important
-                    border-color: transparentize($uni-color-negative, .5)
+                    border-color: $uni-color-scale8
 
                 .uniSelect_dropdown_list
-                    color: black
+                    color: $uni-color-positive
+                    li
+                        min-height: unset
 
+.toolbar-extras, .toolbar-left
+    small
+        font-size: 16px
+        color: $toolbar-grey
+        flex-basis: fit-content
+        white-space: nowrap
 
-    .toolbar_tools
-        order: 4
+    a:link,
+    a:visited,
+        font-size: 16px
+        color: $uni-color-link
+
+.toolbar-right
+    flex: 0 1 auto
+    display: flex
+    flex-flow: row wrap
+    justify-content: flex-end
+    text-align: right
+    margin-left: auto
+
+    .toolbar_tools, uni-save
         flex: 0 0 auto
-        margin: auto 0 auto auto
-
-    uni-save
-        order: 5
-        flex: 0 0 auto
-        margin: auto 0 auto 1rem
-
-@media screen and (max-width: 600px)
-    .toolbar-content
-        padding-left: .5rem
-
-    .toolbar-title,
-    .comments_toggle,
-    uni-toolbar-search,
-    uni-statustrack,
-        display: none !important
-
-    .toolbar-bottom-row .toolbar_tools
-        margin-left: 0
-        margin-right: auto
-
-    .toolbar-dropdown-list
-        position: fixed
-        top: 6rem
-        left: 2.5%
-        width: 95%
-        text-align: center
-        li
-            width: 100%
-            box-sizing: border-box
-
-    uni-toolbar-help .toolbar-dropdown-list
-        top: 3.5rem !important
-
-@media screen and (max-width: 768px)
-    .toolbar-extras
-        display: none
-
-    .toolbar-title
-        font-size: 1.25rem
-
-@media screen and (max-width: 1000px)
-    .toolbar_tools
-        min-width: 5rem
-        .next, .previous
-            display: none
-
-    uni-statustrack
-        li.active
-            border-radius: pxToRem(5) !important
-            &:after
-                display: none
-
-        li:not(.active)
-            display: none
+        margin: auto 0 auto .5rem
+        height: 2rem

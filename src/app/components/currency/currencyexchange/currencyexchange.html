@@ -1,13 +1,17 @@
-<uni-toolbar [config]="toolbarconfig">
-</uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="application">
-    <uni-form [config]="config$"
-              [fields]="fields$"
-              [model]="filter$"
-              (changeEvent)="onFormFilterChange($event)">
-    </uni-form>
-    <uni-table [resource]="exchangelist" [attr.aria-busy]="isBusy"
-               [config]="exchangeTable">
-    </uni-table>
+    <section class="uni-container">
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="filter$"
+            (changeEvent)="onFormFilterChange($event)">
+        </uni-form>
+
+        <uni-table
+            [resource]="exchangelist"
+            [config]="exchangeTable">
+        </uni-table>
+    </section>
 </section>

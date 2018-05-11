@@ -24,6 +24,7 @@ import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
+import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'amelding-view',
@@ -56,16 +57,14 @@ export class AMeldingView implements OnInit {
 
     private legalEntityNo: string;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
-    public showView: string = '';
     private toolbarConfig: IToolbarConfig;
     private toolbarSearchConfig: IToolbarSearchConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
-    private summaryHelptext: string;
-    private agaHelptext: string;
-    private receiptHelptext: string;
-    private periodHelptext: string;
+
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[];
 
     constructor(
         private _tabService: TabService,
@@ -86,6 +85,13 @@ export class AMeldingView implements OnInit {
             moduleID: UniModules.Amelding,
             active: true
         });
+
+        this.tabs = [
+            {name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary')},
+            {name: 'Arbeidsgiveravgift', tooltip: this._ameldingService.getHelptext('aga')},
+            {name: 'Tilbakemelding', tooltip: this._ameldingService.getHelptext('receipt')},
+            {name: 'Periodeoppsummering', tooltip: this._ameldingService.getHelptext('period')}
+        ];
 
         this.contextMenuItems = [
             {
@@ -283,7 +289,7 @@ export class AMeldingView implements OnInit {
     }
 
     public setAMelding(amelding: AmeldingData) {
-        this.showView = '';
+        this.activeTabIndex = 0;
         this._ameldingService
         .getAMeldingWithFeedback(amelding.ID)
         .finally(() => this.initialized = true)
@@ -302,7 +308,6 @@ export class AMeldingView implements OnInit {
             } else {
                 this.feedbackObtained = false;
             }
-            this.setHelptext();
             this.updateToolbar();
             this.updateSaveActions();
             this.setStatusForPeriod();
@@ -555,7 +560,6 @@ export class AMeldingView implements OnInit {
                         this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                     } else {
                         this.initialized = true;
-                        this.setHelptext();
                         this.updateToolbar();
                         this.updateSaveActions();
                         this.getSumsInPeriod();
@@ -620,13 +624,6 @@ export class AMeldingView implements OnInit {
             default:
                 break;
         }
-    }
-
-    private setHelptext() {
-        this.summaryHelptext = this._ameldingService.getHelptext('summary');
-        this.agaHelptext = this._ameldingService.getHelptext('aga');
-        this.receiptHelptext = this._ameldingService.getHelptext('receipt');
-        this.periodHelptext = this._ameldingService.getHelptext('period');
     }
 
     private getAvvikRec(obj) {
@@ -721,7 +718,7 @@ export class AMeldingView implements OnInit {
             .subscribe((response: AmeldingData) => {
                 if (response) {
                     this.getAMeldingForPeriod();
-                    this.showView = 'receipt';
+                    this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
                     done('Feilet ved henting av tilbakemelding');

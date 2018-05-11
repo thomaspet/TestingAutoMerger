@@ -1,14 +1,14 @@
 import {Component} from '@angular/core';
-import {IUniTabsRoute} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '../layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'uni-currency-component',
     template: `
-    <uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
+    <uni-tabs class="application" [tabs]="childRoutes"></uni-tabs>
     <router-outlet></router-outlet>`
 })
 export class CurrencyComponent {
-    private childRoutes: IUniTabsRoute[];
+    private childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

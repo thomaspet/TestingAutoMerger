@@ -517,22 +517,20 @@ export class ReminderSending implements OnInit {
             BaseEntity: 'CustomerInvoiceReminder',
             Fields: [
                 {
-                    EntityType: 'CustomerInvoiceReminder',
+                    Label: 'Velg jobb',
                     Property: 'RunNumber',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Velg jobb',
-                    FieldSet: 0,
-                    Section: 0,
                     Options: {
                         source: this.runNumbers,
                         valueProperty: 'RunNumber',
                         template: (run: IRunNumberData) => {
                             return run
-                            ? `Purrejobbnr. ${run.RunNumber}: `
-                                + `${moment(run.RemindedDate).format('lll')} - ${run.CreatedBy}`
-                            : '';
+                                ? `Purrejobbnr. ${run.RunNumber}: `
+                                    + `${moment(run.RemindedDate).format('lll')} - ${run.CreatedBy}`
+                                : '';
                         },
-                        debounceTime: 200
+                        debounceTime: 200,
+                        hideDeleteButton: true
                     }
                 }
             ]

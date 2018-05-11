@@ -115,8 +115,11 @@ export class TableDataService {
                     res => {
                         let totalRowCount, data;
                         if (res.json) {
-                            totalRowCount = res.headers && res.headers.get('count');
                             data = res.json();
+                            totalRowCount = res.headers && res.headers.get('count');
+                            if (!totalRowCount) {
+                                totalRowCount = data.length;
+                            }
                         } else {
                             data = res;
                         }

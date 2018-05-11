@@ -28,29 +28,11 @@ uni-bureau-dashboard
         hr
             border-color: $uni-color-positive
 
-uni-dashboard-detail-view
-    .horizontal_nav ul
-        justify-content: flex-start
-    .detail-tab
-        display: block
-        height: 100%
-        border: solid $uni-color-legend 0.5rem
-        background-color: white
-
-    .tab-parts
-        display: flex
-        flex-direction: row
-        justify-content: center
-        align-items: center
-        flex-wrap: wrap
-        padding-top: 0.5rem
-
-
+.bureau-company-details
     .tab-part
         margin: 0.5rem
-        width: 45%
-        min-width: 15rem
-        height: 9rem
+        width: calc(100% - 1rem)
+        height: 7rem
         display: flex
         flex-direction: row
         align-items: center
@@ -76,13 +58,14 @@ uni-dashboard-detail-view
 
         .text-container
             font-size: 0.9rem
+            margin-left: .75rem
             p
                 margin: 0
                 white-space: normal
                 padding-right: 0.5rem
             a
-                font-weight: bold
-                color: $uni-color-legend2
+                text-decoration: underline
+                margin-left: .25rem
 
     .invoice-icon
         content: unicon-supplierinvoice($uni-color-legend2)

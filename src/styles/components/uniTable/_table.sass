@@ -1,9 +1,11 @@
 $cellpadding: pxToRem(3) pxToRem(10)
 
+$unitable-border: 1px solid $uni-color-scale9
+
 %unitable-selected-cell
-    box-shadow: inset 0 0 0 pxToRem(1) $uni-color-c2a
+    box-shadow: inset 0 0 0 1px $uni-color-c2a
     padding: $cellpadding
-    margin: pxToRem(1)
+    margin: 1px
     min-height: calc(1.5rem + #{pxToRem(10)})
 
 .uni-table:not(.editable-table) tr
@@ -33,11 +35,25 @@ table.uni-table
         display: block
 
     thead
-        position: -webkit-sticky // You had one job, autoprefixer! 😿
-        position: sticky
-        top: 0
         z-index: map-get($zindex, picker - 1)
-        border: pxToRem(1) solid $uni-color-scale9
+        border: $unitable-border
+
+        th:not(:last-of-type)
+            border-right: $unitable-border
+
+        th.context-menu-column
+            padding: 0
+            unitable-column-menu
+                display: block
+
+    tbody
+        border: $unitable-border
+        border-top: none
+        tr
+            border-bottom: $unitable-border
+            td:not(:last-of-type)
+                border-right: $unitable-border
+
 
     tfoot
         tr, tr:hover, tr:focus
@@ -50,14 +66,10 @@ table.uni-table
 
     td, th
         padding: $cellpadding
-        border-left: pxToRem(1) solid $uni-color-scale9
         height: calc(1.5rem + #{pxToRem(10)})
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
-
-        &:last-of-type
-            border-right: pxToRem(1) solid $uni-color-scale9
 
         &.noTruncation
             text-overflow: clip
@@ -84,11 +96,10 @@ table.uni-table
 
     tr
         box-sizing: border-box
-        background: #fff
-        border-bottom: 1px solid $uni-color-scale9
+        background: $uni-color-negative // #fff
 
         &:nth-of-type(even)
-            background: $uni-color-negative
+            background: #fff
 
         &[aria-readonly]:not([aria-readonly=false])
             $disabled-stripe1: mix($uni-color-scale9, $uni-color-negative, 60%)
@@ -100,8 +111,8 @@ table.uni-table
             background: #d4dfee
 
     th
-        border-bottom: none
-        background: mix($uni-color-scale9, $uni-color-negative, 60%)
+        background: #fff // mix($uni-color-scale9, $uni-color-negative, 60%)
+        height: 2.5rem
         margin-bottom: pxToRem(-1)
         color: $uni-color-positive
         font-weight: 600
@@ -135,19 +146,11 @@ table.uni-table
             background: #d4dfee
 
     th:last-of-type
-        position: relative
-
         unitable-column-menu
-            position: absolute
             width: 100%
             height: 100%
-            top: 0
-            left: 0
 
             .column-menu-toggle
-                position: absolute
-                top: 0
-                float: none
                 height: 100%
                 width: 100%
                 margin: 0
@@ -187,7 +190,7 @@ unitable-editor
 
 .unitable_autocomplete_results
     background: $uni-color-negative
-    border: pxToRem(1) solid $uni-color-scale8
+    border: 1px solid $uni-color-scale8
     box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
     border-radius: pxToRem(3)
     box-sizing: border-box

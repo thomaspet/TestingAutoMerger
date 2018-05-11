@@ -23,28 +23,31 @@ export interface IUploadConfig {
 @Component({
     selector: 'uni-attachments',
     template: `
-        <label *ngIf="!hideLabel">{{headerText}}</label>
-        <article>
-            <section class="file-name-list" *ngIf="showFileList">
-                <uni-table
-                    [resource]="files"
-                    [config]="tableConfig$ | async"
-                    (rowDeleted)="onRowDeleted($event)"
-                    (rowSelected)="onRowSelected($event)"
-                    (rowSelectionChanged)="onRowSelectionChanged($event)">
-                </uni-table>
-            </section>
-            <section class="upload" *ngIf="!readonly && !uploadConfig?.isDisabled" [attr.aria-busy]="uploading">
-                <label class="uni-image-upload"
-                       [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
-                       (drop)="onDrop($event, dropData)">
-                    <input type="file"
-                        (change)="uploadFileChange($event)"
-                        [attr.aria-disabled]="uploadConfig?.isDisabled"
-                        [disabled]="uploadConfig?.isDisabled">
-                </label>
-            </section>
-        </article>
+        <label *ngIf="!readonly && !uploadConfig?.isDisabled"
+            class="upload-input"
+            [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
+            (drop)="onDrop($event, dropData)">
+
+            <i class="material-icons">cloud_upload</i>
+            <span>Last opp dokument</span>
+
+            <input type="file"
+                (change)="uploadFileChange($event)"
+                [attr.aria-disabled]="uploadConfig?.isDisabled"
+                [disabled]="uploadConfig?.isDisabled"
+            />
+        </label>
+
+        <uni-table
+            *ngIf="showFileList"
+            [resource]="files"
+            [config]="tableConfig$ | async"
+            (rowDeleted)="onRowDeleted($event)"
+            (rowSelected)="onRowSelected($event)"
+            (rowSelectionChanged)="onRowSelectionChanged($event)">
+        </uni-table>
+
+
     `,
 })
 export class UniAttachments {
@@ -58,8 +61,6 @@ export class UniAttachments {
     @Input() public showFileList: boolean = true;
     @Input() public uploadWithoutEntity: boolean = false;
     @Input() public downloadAsAttachment: boolean = false;
-    @Input() public headerText: string = 'Vedlegg';
-    @Input() public hideLabel: boolean;
 
     @Output() public fileUploaded: EventEmitter<File> = new EventEmitter<File>();
 

@@ -2,7 +2,7 @@
 import {URLSearchParams} from '@angular/http';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Project as ProjectModel} from '../../../unientities';
-import {IUniTabsRoute} from '../../layout/uniTabs/uniTabs';
+import {IUniTab} from '../../layout/uniTabs/uniTabs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ProjectService, ErrorService, UserService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
@@ -29,7 +29,7 @@ export class Project {
     @ViewChild(UniTable)
     private table: UniTable;
     public busy: boolean = true;
-    private childRoutes: IUniTabsRoute[];
+    private childRoutes: IUniTab[];
     private activeProjectID: any = '';
     private currentPage: number = 1;
     private isStart: boolean = true;

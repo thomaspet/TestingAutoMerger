@@ -31,44 +31,35 @@ export class UniSales {
     private getDefaultLayout(): any[] {
         return [
             {
-                x: 3,
-                y: 0,
-                widgetID: 'shortcut_sales_customers',
-            },
-            {
-                x: 4,
-                y: 0,
-                widgetID: 'shortcut_sales_products',
-            },
-            {
-                x: 5,
-                y: 0,
-                widgetID: 'shortcut_overview',
-            },
-            {
                 x: 0,
                 y: 0,
-                widgetID: 'shortcut_sales_quotes',
-            },
-            {
-                x: 1,
-                y: 0,
-                widgetID: 'shortcut_sales_orders',
-            },
-            {
-                x: 2,
-                y: 0,
-                widgetID: 'shortcut_sales_invoices',
+                widgetID: 'shortcuts_sales'
             },
             {
                 x: 6,
                 y: 0,
+                widgetID: 'currency',
+            },
+            {
+                x: 8,
+                y: 0,
                 widgetID: 'sum_overdue_invoices',
             },
             {
-                x: 9,
+                x: 10,
                 y: 0,
-                widgetID: 'clock',
+                widgetID: 'sum_order_reserves',
+            },
+
+            {
+                x: 0,
+                y: 1,
+                widgetID: 'transaction_sales',
+            },
+            {
+                x: 8,
+                y: 1,
+                widgetID: 'topten_customers',
             },
             {
                 x: 0,
@@ -78,30 +69,7 @@ export class UniSales {
             {
                 x: 4,
                 y: 4,
-                widgetID: 'topten_customers',
-            },
-            {
-                x: 0,
-                y: 1,
-                widgetID: 'transaction_sales',
-            },
-            {
-                x: 8,
-                y: 1,
                 widgetID: 'shortcut_list_sales',
-            },
-            {
-                x: 10,
-                y: 1,
-                widgetID: 'currency',
-            },
-            {
-                x: 10,
-                y: 2,
-                widgetID: 'sum_order_reserves',
-            },
-            {
-                widgetID: 'rss',
             },
         ];
     }

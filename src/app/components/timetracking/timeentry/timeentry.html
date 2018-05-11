@@ -1,34 +1,21 @@
 ﻿<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
 
-<aside class="horizontal_nav no-print" [hidden]="missingWorker">
-    <ul>
-        <li *ngFor="let tab of tabPositions">
-            <a (click)="onTabClick(tabs[tab])" [ngClass]="{'router-link-active': tabs[tab]?.isSelected}">
-                {{tabs[tab].label}}
-                <span class='tab_counter' *ngIf="tabs[tab]?.counter">{{tabs[tab].counter}}</span>
-            </a>
-        </li>
-    </ul>
-</aside>
+<section class="application">
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-<sidemenu [hidden]="missingWorker || !tabs[0].isSelected"
-          [(periode)]="currentFilter"
-          id="sidemenu_timetracking_component"
-          (dateSelected)="onDateSelected($event)"
-          (monthChanged)="onMonthChanged($event)"
-          (templateSelected)="onTemplateSelected($event)">
-</sidemenu>
+    <section class="timeentry-split-view" *ngIf="activeTabIndex === 0">
+        <sidemenu
+            [(periode)]="currentFilter"
+            id="sidemenu_timetracking_component"
+            (dateSelected)="onDateSelected($event)"
+            (monthChanged)="onMonthChanged($event)"
+            (templateSelected)="onTemplateSelected($event)">
+        </sidemenu>
 
-<section class='regtimecontainer' [class.app-splitview]="tabs[0]!.isSelected" id="regtime_container_id">
-    <section class="regtime_tabs">
-
-        <section [hidden]="missingWorker || !tabs[0].isSelected" class="wideapplication">
-
-            <header>
-                <section class="timetracking_progress_section" id="timetracker_date_and_progress">
-                    <h2 class="timeentry_biglabel">
-                        {{ currentFilter.bigLabel }}
-                    </h2>
+        <section class="uni-container timeentry-detail">
+            <section class="header">
+                <section class="header-left">
+                    <strong>{{currentFilter.bigLabel}}</strong>
 
                     <progress class="timetracking_progress_bar"
                         [value]="percentage" max="100"
@@ -43,62 +30,47 @@
                     </p>
                 </section>
 
-                <ul class="timetracking_periode_selector" id="timetracking_periode_selector_id">
-                    <li *ngFor="let periode of filters"
-                        [ngClass]="{'timetracking_periode_selected': periode.isSelected}"
-                        (click)="onFilterClick(periode)">
-                        {{ periode.label }}
-                    </li>
-                </ul>
-
-
-                <!--<daybrowser *ngIf="settings.useDayBrowser"
-                            (clickday)="onClickDay($event)"
-                            (requestsums)="onRequestDaySums($event)"
-                            (navigate)="onNavigateDays($event)">
-                </daybrowser>
-
-                <aside *ngIf="!settings.useDayBrowser" class="regtime_filters no-print">
-                    <br/>
-                    <ul>
-                        <li *ngFor="let filter of filters">
-                            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
-                        </li>
-                    </ul>
-                </aside>-->
-
-            </header>
+                <section class="header-right">
+                    <mat-form-field>
+                        <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Visning">
+                            <mat-option *ngFor="let periode of filters" [value]="periode">
+                                {{ periode.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </section>
+            </section>
 
             <workeditor [timesheet]="timeSheet" (rowDeleted)="onEditChanged(true)"
                 (valueChanged)="onEditChanged(true,$event)" >
             </workeditor>
-
         </section>
+    </section>
 
-        <section class="application" [hidden]="!tabs[1].isSelected">
-            <timetracking-timetable [lazy]="true" [workrelation]="this.timeSheet?.currentRelation" [eventcfg]="preSaveConfig"></timetracking-timetable>
-        </section>
+    <section class="uni-container">
+        <timetracking-timetable
+            *ngIf="activeTabIndex === 1"
+            [lazy]="true"
+            [workrelation]="this.timeSheet?.currentRelation"
+            [eventcfg]="preSaveConfig">
+        </timetracking-timetable>
 
-        <section class="application" [hidden]="!tabs[2].isSelected">
-            <regtimetotals></regtimetotals>
-        </section>
+        <regtimetotals [hidden]="activeTabIndex !== 2"></regtimetotals>
 
-        <section class="application" [hidden]="!tabs[3].isSelected">
-            <regtimebalance [eventcfg]="preSaveConfig" [workrelation]="this.timeSheet?.currentRelation" (valueChange)="onBalanceChanged($event)" ></regtimebalance>
-        </section>
+        <regtimebalance
+            [hidden]="activeTabIndex !== 3"
+            [eventcfg]="preSaveConfig"
+            [workrelation]="this.timeSheet?.currentRelation"
+            (valueChange)="onBalanceChanged($event)" >
+        </regtimebalance>
 
-        <section class="application" [hidden]="!tabs[4].isSelected">
-            <vacation *ngIf="tabs[4].activated" (saved)="reloadFlex()" [workrelationid]="timeSheet.currentRelation.ID"></vacation>
-        </section>
+        <vacation
+            *ngIf="activeTabIndex === 4"
+            (saved)="reloadFlex()"
+            [workrelationid]="timeSheet.currentRelation.ID">
+        </vacation>
 
-        <div class="application" *ngIf="this.mapTabPosition(5)">
-            <section [hidden]="!tabs[5].isSelected">
-                <teamwork-report></teamwork-report>
-            </section>
-        </div>
-
+        <teamwork-report *ngIf="activeTabIndex === 5"></teamwork-report>
     </section>
 
 </section>
-
-<uni-file-import></uni-file-import>

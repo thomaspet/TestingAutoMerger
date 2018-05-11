@@ -1,12 +1,20 @@
 <h3 *ngIf="config">{{config.title}}</h3>
 
-<aside class="regtime_filters no-print">
+<!-- <aside class="regtime_filters no-print">
     <ul>
         <li *ngFor="let filter of filters">
             <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
         </li>
     </ul>
-</aside>
+</aside> -->
+
+<mat-form-field>
+    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
+        <mat-option *ngFor="let filter of filters" [value]="filter">
+            {{ filter.label }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
 
 <section *ngIf="report" [attr.aria-busy]="busy">
 
@@ -75,7 +83,7 @@
                     <div [class.good]="month.Sums.Flextime > 0" [class.bad]="month.Sums.Flextime < 0" >
                         <span >{{month.Sums.Flextime | hours}}</span>
                     </div>
-                </td>                
+                </td>
                 <td class="s1 timecell">{{month.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
                 <td class="s1 timecell">{{month.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
                 <td>&nbsp;</td>

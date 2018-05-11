@@ -9,7 +9,7 @@ import {CommentService} from '../../../../framework/comments/commentService';
 import * as moment from 'moment';
 
 @Component({
-    selector: 'uni-tasks-new',
+    selector: 'uni-tasks',
     templateUrl: './tasks.html'
 })
 export class UniTasks {
@@ -72,17 +72,18 @@ export class UniTasks {
 
         this.userSelectConfig = {
             displayProperty: 'DisplayName',
-            searchable: true
+            searchable: true,
+            hideDeleteButton: true
         };
      }
 
      private addTaskMetadata(task: Task): Task {
-        let assignedBy = this.users.find(u => u.GlobalIdentity === task.CreatedBy);
+        const assignedBy = this.users.find(u => u.GlobalIdentity === task.CreatedBy);
         if (assignedBy) {
             task['_assignedBy'] = assignedBy.DisplayName;
         }
 
-        let assignedTo = this.users.find(u => u.ID === task.UserID);
+        const assignedTo = this.users.find(u => u.ID === task.UserID);
         if (assignedTo) {
             task['_assignedTo'] = assignedTo.DisplayName;
         }

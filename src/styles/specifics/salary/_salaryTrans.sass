@@ -1,71 +1,33 @@
-salarytrans
-    display: block
-
-    .splitview
-        @include unigrid-flush(14)
-
-        .splitview_list
-            .icon-column
-                font-size: 0
-                height: 1rem
-
-            th:last-child,
-            td:last-child
-                border-left: none
-
-
-.detail_header_navigation
-    position: absolute
-    top: .2rem
-    right: .5rem
-    min-width: auto
-
-    .previous,
-    .next
-        @extend %hideText
-        display: inline-block
-        min-height: .1rem
-        height: 1.4rem
-        width: 3rem
-        background: $uni-color-c2a
-        border-radius: pxToRem(2)
-        border: pxToRem(1) solid $uni-color-legend2
-        background-position: center center
-        background-repeat: no-repeat
-        background-size: auto .7rem
-
-        &:hover,
-        &:focus
-            border-color: mix($uni-color-c2a, $uni-color-negative, 50%)
-
-    .previous
-        background-image: unicon-prev($uni-color-negative)
-
-    .next
-        background-image: unicon-next($uni-color-negative)
-
-    a, button
-        min-height: 2rem
-
-salarytrans .detail_tables
+.salarytrans-splitview
+    display: flex
+    flex-flow: row wrap
     margin-top: 1rem
 
-    .maintable
-        font-size: .9rem
-        font-weight: 400
+    .salarytrans-list
+        flex: 1
+        min-width: 20rem
+
+        .pagination
+            justify-content: center
+
+    .salarytrans-details
+        flex: 3
+        min-width: 50rem
+        margin-right: 0
+
+        .navigation-buttons
+            float: right
+            i.material-icons
+                vertical-align: middle
+                cursor: pointer
+
+
+        link-menu, salary-transactions-employee
+            display: block
 
 
 salarytrans
-    .splitview_list
-        min-width: 20%
-        max-width: 20%
-
-        @include media(small)
-            width: 100%
-
-    .splitview_detail
-        max-width: 80%
-        min-width: 80%
+    display: block
 
 payrollrun-details .entityDetails
     uni-section
@@ -76,10 +38,3 @@ payrollrun-details .entityDetails
         width: 32rem
         left: calc(12.5rem - 17.7rem)
 
-.salaryTransTable
-    .icon-column
-        font-size: 0
-        height: 1
-        display: flex
-        justify-content: center
-        align-content: center

@@ -1,8 +1,7 @@
-$statustrack-background: #fff
+$statustrack-background: $uni-color-scale9
 $statustrack-height: 1.5rem
 $statustrack-border: .0625rem
 
-.poster_statustrack,
 uni-statustrack > ol
     display: flex
     border-radius: pxToRem(3)
@@ -24,10 +23,9 @@ uni-statustrack > ol
         &:last-of-type
             border-radius: 0 pxToRem(3) pxToRem(3) 0
 
-        &.completed
-            background: mix($uni-color-c2a, #fff, 20%)
-
+        &.completed,
         &.future
+            background: $uni-color-scale9
             color: $uni-color-scale5
 
         &.active,
@@ -48,7 +46,7 @@ uni-statustrack > ol
                 border-left-color: $uni-color-scale7
 
             &.completed:after
-                border-left-color: mix($uni-color-c2a, #fff, 20%)
+                border-left-color: $uni-color-scale9
 
             &.active:after
                 border-left-color: $uni-color-c2a
@@ -80,14 +78,15 @@ uni-statustrack > ol
             z-index: #{map-get($zindex, toolbar) + 3}
             right: -.5rem
 
+
 .statustrack_title[data-badge]:after
     content: attr(data-badge)
     display: block
     position: absolute
     top: -.5rem
     right: -.5rem
-    background: $uni-color-negative
-    color: $uni-color-c2a
+    background: lighten($uni-color-toolbar, 5%)
+    color: #fff
     border-radius: 99rem
     min-width: 1.2rem
     line-height: 1.2rem

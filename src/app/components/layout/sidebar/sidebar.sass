@@ -1,0 +1,122 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+@import '~src/styles/unibase/icons/__icons.sass'
+@import '~src/styles/unibase/helpers/_zindex.sass'
+
+$sidebar-background: #fff
+$sidebar-text-color: $uni-color-scale2
+$active-section-background: #eef2f6
+$link-hover-background: $uni-color-toolbar
+
+// Host is the selector to style the component itself instead of it's content
+// So this is styling uni-sidebar
+\:host
+    position: relative
+    height: 100%
+    max-height: 100%
+    display: block
+    box-sizing: border-box
+    margin: 0
+    padding: 0 0 1rem
+    background: $sidebar-background
+    color: $uni-color-negative
+    overflow: hidden
+    font-family: 'Roboto', sans-serif
+
+    z-index: #{map-get($zindex, 'toolbar') + 1}
+    box-shadow: 1px 0px 4px 0 rgba(0, 0, 0, 0.14)
+
+
+#scroll-container
+    height: calc(100% - 2rem)
+    position: relative
+
+ul.sidebar-menu
+    color: $sidebar-text-color
+    max-width: 100%
+
+    list-style: none
+    user-select: none
+    margin-top: 0
+
+    &.collapsed > li
+        text-align: center
+        .sidebar-section-header
+            border-bottom: 1px solid $uni-color-scale9
+            i.material-icons
+                margin-right: 0
+
+        &[aria-expanded]:not([aria-expanded=false])
+            background: none
+
+    > li
+        .sidebar-section-header
+            cursor: pointer
+            padding: .75rem 1rem
+            line-height: 2rem
+
+            i.material-icons
+                vertical-align: middle
+                margin-top: -4px
+                margin-right: .5rem
+                color: $uni-color-toolbar
+
+        .sidebar-link-group
+            display: none // hide until section is expanded
+            margin: 0
+
+            &:last-of-type
+                margin-top: .75rem
+                padding-bottom: 1rem
+
+            > span
+                padding-left: 2.2rem
+                text-transform: uppercase
+                font-size: 14px
+                font-weight: 600
+                color: $uni-color-toolbar
+
+            ul.sidebar-sub-menu
+                padding: 0
+                list-style: none
+                li
+                    position: relative
+                    font-size: 15px
+
+                    a
+                        display: block
+                        color: $sidebar-text-color
+                        text-decoration: none
+                        padding: 3px 1rem 3px 3.2rem
+                        cursor: pointer
+                        &:hover,
+                        &.active-sidebar-link
+                            background: lighten($uni-color-toolbar, 5%) // #e3e3e3
+                            color: #fff
+
+        &[aria-expanded]:not([aria-expanded=false])
+            background: $active-section-background
+
+            .sidebar-link-group
+                display: block
+
+.sidebar-tools
+    width: 100%
+    height: 32px
+    position: absolute
+    left: 0
+    bottom: 0
+    background: $sidebar-background
+    color: $sidebar-text-color
+    border-top: 1px solid $uni-color-scale9
+
+    .material-icons
+        cursor: pointer
+        line-height: 32px
+
+        &:first-of-type
+            margin-left: .25rem
+            font-size: 19px
+
+        &:last-of-type
+            float: right
+            margin-right: .25rem

@@ -82,6 +82,7 @@ export interface IUniTableColumn {
     isSumColumn?: boolean;
     tooltipResolver?: (rowModel) => IColumnTooltip;
     linkResolver?: (rowModel) => string;
+    linkClick?: (rowModel) => void;
     maxLength?: number;
     resizeable?: boolean;
 }
@@ -103,6 +104,7 @@ export class UniTableColumn implements IUniTableColumn {
     public headerCls: string;
 
     public linkResolver: (rowModel) => string;
+    public linkClick: (rowModel) => void;
     public tooltipResolver: (rowModel) => IColumnTooltip;
     public template: (rowModel: any) => string;
     public format: string;
@@ -271,6 +273,13 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setLinkResolver(linkResolver: (rowModel) => string) {
         this.linkResolver = linkResolver;
+        this.setAlignment('center');
+        this.cls += ' link-cell';
+        return this;
+    }
+
+    public setLinkClick(clickHandler: (rowModel) => void) {
+        this.linkClick = clickHandler;
         this.setAlignment('center');
         this.cls += ' link-cell';
         return this;

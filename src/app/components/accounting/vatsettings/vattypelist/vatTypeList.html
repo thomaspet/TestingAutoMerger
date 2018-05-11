@@ -1,1 +1,11 @@
-<uni-table [resource]="lookupFunction" [config]="vatTableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
+<!-- <uni-table
+    [resource]="lookupFunction"
+    [config]="vatTableConfig"
+    (rowSelected)="onRowSelected($event)">
+</uni-table> -->
+
+<ag-grid-wrapper
+    [resource]="lookupFunction"
+    [config]="vatTableConfig"
+    (rowSelectionChange)="onRowSelected($event)">
+</ag-grid-wrapper>

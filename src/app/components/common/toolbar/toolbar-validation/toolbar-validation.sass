@@ -1,0 +1,29 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+\:host
+    flex: 0 0 auto
+    margin: auto 0
+    margin-right: .5
+
+.validation-item
+    display: inline-block
+    margin-right: .75rem
+    color: $uni-color-scale5
+    outline: none
+    cursor: default
+
+    &.interactive
+        cursor: pointer
+
+    .validation-icon
+        font-size: 21px
+        vertical-align: middle
+        margin-top: -4px
+
+        &.good
+            color: $uni-color-good
+        &.bad
+            color: $uni-color-bad
+            transform: rotate(45deg) // because the icon used is a + not an x
+        &.warn
+            color: $uni-color-warn

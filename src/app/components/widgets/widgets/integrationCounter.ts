@@ -13,28 +13,25 @@ interface IIntegrationConfig {
     label: string;
     icon: string;
     desciption: string;
-    class: string;
 }
 @Component({
     selector: 'uni-integration-counter-widget',
     template: `
-        <div *ngIf="config$ | async"
-            [ngClass]="(config$ | async).class"
-            class="uni-widget-notification-tile uni-widget-tile-content"
-            (click)="onClickNavigate()"
-            title="{{ (config$ | async).description }}">
-            <a class="{{ (config$ | async).icon !== '' ? getIconClass() : 'dashboard-shortcut-icon-fallback' }}">Link</a><br />
-            <h2> {{count$ | async}} </h2>
-            <p>{{(config$ | async).label}}</p>
-        </div>
+        <section class="positive-negative-widget" (click)="onClickNavigate()">
+            <span>{{(config$ | async)?.label}}</span>
+            <span class="value" [ngClass]="{'bad': (count$ | async) > 0}">
+                {{count$ | async}}
+            </span>
+        </section>
     `
 })
 
 export class UniIntegrationCounterWidget {
     @Input() public widget: IUniWidget;
-    public counterWidget: IUniWidget;
+
     public count$: BehaviorSubject<number> = new BehaviorSubject(null);
     public config$: BehaviorSubject<IIntegrationConfig> = new BehaviorSubject(null);
+
     constructor(
         private apiKeyService: ApiKeyService,
         private travelService: TravelService,
@@ -48,6 +45,7 @@ export class UniIntegrationCounterWidget {
         if (!this.widget) {
             return;
         }
+
         this.getData(this.widget);
         this.config$.next(this.getConfig(this.widget.config.type));
     }
@@ -56,10 +54,9 @@ export class UniIntegrationCounterWidget {
         this.apiKeyService
             .getApiKey(widget.config.type)
             .do(key => {
-                if (!!key) {
-                    return;
+                if (!key) {
+                    this.count$.next(0);
                 }
-                this.count$.next(0);
             })
             .filter(key => !!key)
             .switchMap(key => this.beforeCount(key, widget))
@@ -94,7 +91,6 @@ export class UniIntegrationCounterWidget {
         return {
             label: this.getLabel(integrationType),
             icon: this.getIcon(integrationType),
-            class: this.getClass(integrationType),
             desciption: this.getDescription(integrationType)
         };
     }
@@ -121,15 +117,6 @@ export class UniIntegrationCounterWidget {
         switch (integrationType) {
             case TypeOfIntegration.TravelAndExpenses:
                 return 'Reiser';
-            default:
-                return '';
-        }
-    }
-
-    private getClass(integrationType: TypeOfIntegration): string {
-        switch (integrationType) {
-            case TypeOfIntegration.TravelAndExpenses:
-                return 'uni-widget-notification-orange';
             default:
                 return '';
         }
@@ -163,12 +150,8 @@ export class UniIntegrationCounterWidget {
     }
 
     public onClickNavigate() {
-        if (!this.counterWidget._editMode) {
+        if (!this.widget._editMode) {
             this.router.navigateByUrl(this.getLink(this.widget.config.type));
         }
-    }
-
-    public getIconClass() {
-        return 'dashboard-notification-icon dashboard-notification-icon-' + this.config$.getValue().icon;
     }
 }

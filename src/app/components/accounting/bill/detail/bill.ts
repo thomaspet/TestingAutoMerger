@@ -79,6 +79,7 @@ import {
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
+import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 declare var _;
 
 interface ITab {
@@ -126,7 +127,6 @@ export class BillView implements OnInit {
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
     public hasStartupFileID: boolean = false;
-    public historyCount: number = 0;
     public ocrData: any;
     public ocrWords: Array<any>;
     public startUpFileID: Array<number> = [];
@@ -156,7 +156,6 @@ export class BillView implements OnInit {
         CreditAccount: null,
         CreditAccountID: null
     };
-    private currentTab: string = 'posts';
     private sumRemainder: number = null;
     private sumVat: number = null;
     private customDimensions: any;
@@ -176,12 +175,10 @@ export class BillView implements OnInit {
         'CurrencyCode'
     ];
 
-    public tabs: Array<ITab> = [
-        { label: lang.tab_invoice, name: 'head', isHidden: true },
-        { label: lang.tab_document, name: 'docs', isSelected: true },
-        { label: lang.tab_journal, name: 'journal', isHidden: true },
-        { label: lang.tab_items, name: 'items', isHidden: true },
-        { label: lang.tab_history, name: 'history' }
+    public activeTabIndex: number = 0;
+    public tabs: IUniTab[] = [
+        {name: 'Kontering'},
+        {name: 'Leverandørhistorikk'}
     ];
 
     public actions: IUniSaveAction[];
@@ -265,10 +262,6 @@ export class BillView implements OnInit {
 
     public canDeactivate() {
         return this.checkSave();
-    }
-
-    public setTab(tab: string) {
-        this.currentTab = tab;
     }
 
     private get currentID(): number {
@@ -366,10 +359,8 @@ export class BillView implements OnInit {
                     FieldType: FieldType.DROPDOWN,
                     Data: [],
                     Section: 1,
-                    FieldSet: 1,
                     Sectionheader: 'Egendefinerte dimensjoner',
                     Classes: 'bill-small-field',
-                    Legend: 'Egendefinerte dimensjoner'
                 });
                 queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
             });
@@ -418,7 +409,6 @@ export class BillView implements OnInit {
                 Property: 'Supplier',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Leverandør',
-                FieldSet: 1,
                 Legend: 'Kjøpsfaktura',
                 Section: 0
             },
@@ -427,7 +417,6 @@ export class BillView implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
@@ -435,7 +424,6 @@ export class BillView implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
@@ -443,14 +431,12 @@ export class BillView implements OnInit {
                 FieldType: FieldType.TEXT,
                 Label: 'Fakturanummer',
                 Classes: 'bill-small-field',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
                 Property: 'BankAccountID',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Bankkonto',
-                FieldSet: 1,
                 Classes: 'bill-small-field right',
                 Section: 0
             },
@@ -458,7 +444,6 @@ export class BillView implements OnInit {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
@@ -466,7 +451,6 @@ export class BillView implements OnInit {
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fakturabeløp',
                 Classes: 'bill-amount-field',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
@@ -474,14 +458,12 @@ export class BillView implements OnInit {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
                 Classes: 'bill-currency-field right',
-                FieldSet: 1,
                 Section: 0
             },
             <any> {
                 Property: 'DefaultDimensions.DepartmentID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Avdeling',
-                FieldSet: 1,
                 Classes: 'bill-small-field',
                 Section: 0
             },
@@ -489,7 +471,6 @@ export class BillView implements OnInit {
                 Property: 'DefaultDimensions.ProjectID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Prosjekt',
-                FieldSet: 1,
                 Classes: 'bill-small-field',
                 Section: 0
             }
@@ -607,7 +588,7 @@ export class BillView implements OnInit {
                             this.runOcrOrEHF(files);
                         } else {
                             this.companySettingsService.PostAction(1, 'ocr-trial-used')
-                                .subscribe(result => {
+                                .subscribe(success => {
                                     // this is set through the ocr-trial-used, but set it in the local object as well to
                                     // avoid displaying the same message multiple times
                                     this.companySettings.UseOcrInterpretation = false;
@@ -693,8 +674,10 @@ export class BillView implements OnInit {
                 invoice.Supplier.Info.BankAccounts.forEach(b => {
                     if (b.IBAN === bankaccount.IBAN) {
                         b = invoice.BankAccount;
-                        if (invoice.Supplier.Info.DefaultBankAccount
-                            && invoice.Supplier.Info.DefaultBankAccount.IBAN === bankaccount.IBAN) {
+                        if (
+                            invoice.Supplier.Info.DefaultBankAccount
+                            && invoice.Supplier.Info.DefaultBankAccount.IBAN === bankaccount.IBAN
+                        ) {
                             invoice.Supplier.Info.DefaultBankAccount = b;
                         }
                     }
@@ -720,9 +703,11 @@ export class BillView implements OnInit {
 
                 modal.onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
-
-                        if (invoice.Supplier.Info && invoice.Supplier.Info.BankAccounts && invoice.Supplier.Info.DefaultBankAccount)
-                        {
+                        if (
+                            invoice.Supplier.Info
+                            && invoice.Supplier.Info.BankAccounts
+                            && invoice.Supplier.Info.DefaultBankAccount
+                        ) {
                             invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b =>
                                 (b.AccountNumber && b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber) ||
                                 (b.IBAN && b.IBAN != invoice.Supplier.Info.DefaultBankAccount.IBAN)
@@ -1426,8 +1411,6 @@ export class BillView implements OnInit {
     }
 
     private setSupplier(result: Supplier, updateCombo = true) {
-
-
         const current: SupplierInvoice = this.current.getValue();
         this.currentSupplierID = result.ID;
         current.Supplier = result;
@@ -1455,35 +1438,6 @@ export class BillView implements OnInit {
         this.current.next(current);
 
         this.setupToolbar();
-        this.fetchHistoryCount(this.currentSupplierID);
-    }
-
-    private fetchHistoryCount(supplierId: number) {
-        const current: SupplierInvoice = this.current.getValue();
-        if (current.StatusCode >= StatusCodeSupplierInvoice.Payed) {
-            return;
-        }
-        if (!supplierId) {
-            this.setHistoryCounter(0);
-            return;
-        }
-        if (this.historyView) {
-            const tab = this.tabs.find(x => x.name === 'history');
-            if (tab) {
-                this.historyView.getNumberOfInvoices(supplierId, current.ID)
-                    .subscribe(x => this.setHistoryCounter(x));
-            }
-        }
-    }
-
-    private setHistoryCounter(value: number) {
-        const tab = this.tabs.find(x => x.name === 'history');
-        if (tab) {
-            tab.count = value;
-        }
-        if (value > 0) {
-            this.lookupHistory();
-        }
     }
 
     private newInvoice(isInitial: boolean) {
@@ -1520,7 +1474,6 @@ export class BillView implements OnInit {
         this.resetDocuments();
         this.files = [];
         this.startUpFileID = [];
-        this.setHistoryCounter(0);
         this.busy = false;
 
         if (!isInitial) {
@@ -2108,7 +2061,6 @@ export class BillView implements OnInit {
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
-        this.setHistoryCounter(0);
         return new Promise((resolve, reject) => {
             this.supplierInvoiceService.Get(
                 id,
@@ -2136,7 +2088,6 @@ export class BillView implements OnInit {
 
                 this.updateJournalEntryManualSupplier(invoice, true);
 
-                this.fetchHistoryCount(invoice.SupplierID);
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
                 if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID > 0) {
                     this.expandProjectSection();
@@ -2158,15 +2109,15 @@ export class BillView implements OnInit {
     private updateSummary(lines) {
         if (!lines) { lines = []; }
 
-        let sumAmountCurrency = lines.reduce((sum, line) => {
+        const sumAmountCurrency = lines.reduce((sum, line) => {
             return sum + (line.AmountCurrency || 0);
         }, 0);
-        let sumNetAmountCurrency = lines.reduce((sum, line) => {
+        const sumNetAmountCurrency = lines.reduce((sum, line) => {
             return sum + (line.NetAmountCurrency || 0);
         }, 0);
-        let sumVatAmountCurrency = sumAmountCurrency - sumNetAmountCurrency;
-        let invoice = this.current.getValue();
-        let sumInvoice = invoice.TaxInclusiveAmountCurrency || 0;
+        const sumVatAmountCurrency = sumAmountCurrency - sumNetAmountCurrency;
+        const invoice = this.current.getValue();
+        const sumInvoice = invoice.TaxInclusiveAmountCurrency || 0;
 
         this.sumRemainder = sumInvoice - sumAmountCurrency;
         this.sumVat = sumVatAmountCurrency;
@@ -2189,11 +2140,11 @@ export class BillView implements OnInit {
                 changes = line.Description != '';
             }
 
-            if(!line.Dimensions) {
+            if (!line.Dimensions) {
                 line.Dimensions = {};
             }
 
-            let current = this.current.getValue();
+            const current = this.current.getValue();
 
             if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
                 line.Dimensions.Project = current.DefaultDimensions.Project;
@@ -2259,7 +2210,7 @@ export class BillView implements OnInit {
 
         if (updatelines) {
             if (this.journalEntryManual) {
-                let lines = this.journalEntryManual.getJournalEntryData();
+                const lines = this.journalEntryManual.getJournalEntryData();
                 lines.map(line => {
                     line.FinancialDate = invoice.InvoiceDate;
                     line.VatDate = invoice.InvoiceDate;
@@ -2279,7 +2230,7 @@ export class BillView implements OnInit {
             // update existing lines
             if (updatelines) {
                 if (this.journalEntryManual) {
-                    let lines = this.journalEntryManual.getJournalEntryData();
+                    const lines = this.journalEntryManual.getJournalEntryData();
                     lines.map(line => {
                         line.CreditAccount = supplierAccount;
                         line.CreditAccountID = supplierAccount.ID;
@@ -2446,7 +2397,7 @@ export class BillView implements OnInit {
                 if (current.ID) {
                     // if the journalentry is already booked, clear the object before saving as we don't
                     // want to resave a booked journalentry
-                    if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0){
+                    if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                       current.JournalEntry = null;
                     }
 
@@ -2581,7 +2532,7 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         if (!current.Supplier && !current.InvoiceNumber) { return ''; }
 
-        let supplierDescription =
+        const supplierDescription =
             (current.Supplier ? current.Supplier.SupplierNumber : '') +
             (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
 
@@ -2605,13 +2556,13 @@ export class BillView implements OnInit {
             // Update draftlines, but dont do anything if any draftlines is already
             // booked - because then we wont save any changes anyway (and the )
             if (this.journalEntryManual) {
-                let lines = this.journalEntryManual.getJournalEntryData();
+                const lines = this.journalEntryManual.getJournalEntryData();
                 var draftlines = [];
 
                 // Add draft lines
                 lines.forEach(line => {
                     const draft = new JournalEntryLineDraft();
-                    draft["_createguid"] = this.journalEntryService.getNewGuid();
+                    draft['_createguid'] = this.journalEntryService.getNewGuid();
 
                     // Debit
                     draft.AccountID = line.DebitAccountID;
@@ -2643,7 +2594,7 @@ export class BillView implements OnInit {
                         // in the put method - the JournalEntryLineDraftHandler will override the values
                         // here before saving, using an existing version of the combination of dimensions
                         // if that exists
-                        draft.Dimensions["_createguid"] = this.journalEntryService.getNewGuid();
+                        draft.Dimensions['_createguid'] = this.journalEntryService.getNewGuid();
                     }
 
                     if (line.JournalEntryDataAccrual) {
@@ -2653,10 +2604,10 @@ export class BillView implements OnInit {
                         // more correct, because the journalentrydraftline will replace the original journalentrydraftline
                         // as well
                         draft.Accrual.ID = 0;
-                        draft.Accrual["_createguid"] = this.journalEntryService.getNewGuid();
+                        draft.Accrual['_createguid'] = this.journalEntryService.getNewGuid();
                         draft.Accrual.Periods.forEach(p => {
                             p.AccrualID = 0;
-                            p["_createguid"] = this.journalEntryService.getNewGuid();
+                            p['_createguid'] = this.journalEntryService.getNewGuid();
                         });
 
                     }

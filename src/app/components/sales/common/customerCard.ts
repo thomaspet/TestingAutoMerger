@@ -19,48 +19,44 @@ import * as moment from 'moment';
 @Component({
     selector: 'tof-customer-card',
     template: `
-        <fieldset>
-            <legend>Kunde</legend>
+        <label class="customer-input">
+            <!--<span>Kunde</span>-->
+            <uni-search
+                [config]="uniSearchConfig"
+                (changeEvent)="customerSelected($event)"
+                [disabled]="readonly">
+            </uni-search>
 
-            <label class="customer-input">
-                <!--<span>Kunde</span>-->
-                <uni-search
-                    [config]="uniSearchConfig"
-                    (changeEvent)="customerSelected($event)"
-                    [disabled]="readonly">
-                </uni-search>
-
-                <section class="addressCard" [attr.aria-readonly]="readonly">
-                    <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
-                    <section class="sharing-badges">
-                        <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
-                        <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
-                        <span [attr.title]="emailTitle" [ngClass]="emailClass">EPOST</span>
-                        <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
-                    </section>
-                    <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
-                    <br><span *ngIf="entity?.InvoiceAddressLine1">
-                        {{entity?.InvoiceAddressLine1}}
-                    </span>
-                    <br><span *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
-                        {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
-                    </span>
-                    <br><span *ngIf="entity?.InvoiceCountry">
-                        {{entity?.InvoiceCountry}}
-                    </span>
-                    <span class="emailInfo" *ngIf="entity?.Customer?.Info?.Emails">
-                        {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
-                    </span>
-                    <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                        <a href="#/sales/customer/{{entity?.Customer?.ID}}">
-                            Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
-                            forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
-                            faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
-                        </a>
-                    </div>
+            <section class="addressCard" [attr.aria-readonly]="readonly">
+                <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
+                <section class="sharing-badges">
+                    <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
+                    <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
+                    <span [attr.title]="emailTitle" [ngClass]="emailClass">EPOST</span>
+                    <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                 </section>
-            </label>
-        </fieldset>
+                <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
+                <br><span *ngIf="entity?.InvoiceAddressLine1">
+                    {{entity?.InvoiceAddressLine1}}
+                </span>
+                <br><span *ngIf="entity?.InvoicePostalCode || entity?.InvoiceCity">
+                    {{entity?.InvoicePostalCode}} {{entity?.InvoiceCity}}
+                </span>
+                <br><span *ngIf="entity?.InvoiceCountry">
+                    {{entity?.InvoiceCountry}}
+                </span>
+                <span class="emailInfo" *ngIf="entity?.Customer?.Info?.Emails">
+                    {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
+                </span>
+                <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
+                    <a href="#/sales/customer/{{entity?.Customer?.ID}}">
+                        Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
+                        forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
+                        faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
+                    </a>
+                </div>
+            </section>
+        </label>
     `
 })
 export class TofCustomerCard implements AfterViewInit, OnChanges {

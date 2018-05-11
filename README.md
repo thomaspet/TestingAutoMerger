@@ -6,17 +6,15 @@ Uni Economy Angular2 version
 
 1. Clone this repo
 
-2. Install libraries `npm install` or `npm i`
+2. Install libraries `yarn install` or `npm install`
 
-3. Update entities `gulp entities`
+3. Deploy app and watch for changes
 
-4. Deploy app and watch for changes
+`yarn start` / `npm run start` to start with dev config</br>
+`yarn start.local` / `npm run start.local` to start with local backend</br>
+`yarn start.pilot` / `npm run start.pilot` to start app with proxy to prod api</br>
 
-`npm run start` / `npm run start.dev` will start and watch with AppConfig-dev </br>
-`npm run start.local` will start and watch with AppConfig-local </br>
-`npm run start.pilot` will start and watch with AppConfig-pilot </br>
-
-All of these tasks also runs webpack-dev-server. When the compile is finished, open up localhost:3000 to run app. </br>
+The app will run on localhost:3000</br>
 
 # Type checking
 
@@ -29,10 +27,12 @@ Start tasks covered in previous section. </br>
 
 `build.dev`, `build.test`, `build.pilot`, `build.prod` are just building sass + ts once, no watchers and no dev server. These tasks are for deployment, and probably wont be used in a dev enviroment. </br>
 
-`entities` updates the unientites.ts file. You need to say which server you want to download unientites from with environment variables. 
+`yarn entities` / `npm run entities` updates the unientites.ts file. You need to say which server you want to download unientites from with environment variables.
 I.g.
 Windows `set SERVER_URL=https://devapi.unieconomy.no&&npm run entities`
 git bash/*nix `export SERVER_URL=https://devapi.unieconomy.no && npm run entities`
+
+Note that && to chain commands does not work in powershell, so use cmd.
 
 # Name issues
 

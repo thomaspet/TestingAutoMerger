@@ -24,7 +24,6 @@ export class SalaryTransViewService {
         return new UniTableColumn('Supplements', 'T', UniTableColumnType.Text, false)
             .setWidth(40)
             .setResizeable(false)
-            .setCls('icon-column')
             .setOnCellClick((rowModel: SalaryTransaction) => {
                 if (!rowModel.Supplements || !rowModel.Supplements.filter(x => !x.Deleted).length) {
                     return;

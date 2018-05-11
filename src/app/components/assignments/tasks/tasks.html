@@ -1,5 +1,5 @@
 <!-- Selection list -->
-<section class="assignment-list">
+<section class="uni-container assignment-list">
     <section class="assignment-filters">
         <button (click)="setShowOnlyMine(true)" [ngClass]="{'active-filter': showOnlyMine}">
             Mine oppgaver
@@ -20,7 +20,7 @@
         </section>
     </section>
 
-    <ul #taskList>
+    <ul class="task-list" #taskList>
         <li *ngFor="let task of tasks" (click)="selectedTask = task" [attr.aria-selected]="selectedTask?.ID === task.ID">
             <section class="assignment-info">
                 <p>{{task.Title}}</p>
@@ -33,11 +33,13 @@
             </section>
 
             <section class="assignment-buttons">
-                <button class="c2a"
-                        *ngIf='!task._completed && !task._activeApproval'
-                        (click)="completeTask(task)">
-                    Fullfør
-                </button>
+                <i class="material-icons complete-task"
+                    role="button"
+                    title="Fullfør oppgave"
+                    *ngIf="!task._completed && !task._activeApproval"
+                    (click)="completeTask(task)">
+                    check_circle
+                </i>
             </section>
         </li>
     </ul>
@@ -58,15 +60,15 @@
             </uni-select>
         </label>
 
-        <button class="good" (click)="addTask()" [disabled]="!isValidInput()">Legg til</button>
+        <button class="good" (click)="addTask()" [disabled]="!isValidInput()">
+            Bekreft
+        </button>
     </section>
 </section>
 
 <!-- Details -->
-<section class="assignment-details">
-    <section class="assignment-details-header">
-        <h2>{{selectedTask?.Title}}</h2>
-    </section>
+<section class="uni-container assignment-details">
+    <header>Kommentarer</header>
 
     <section class="assignment-details-content">
         <uni-comments

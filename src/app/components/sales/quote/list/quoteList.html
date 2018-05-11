@@ -1,4 +1,7 @@
-<uni-toolbar [config]="{title: 'Tilbud', omitFinalCrumb: true}"></uni-toolbar>
+<uni-toolbar
+    [config]="{title: 'Tilbud', omitFinalCrumb: true}"
+    [saveactions]="[createNewAction]">
+</uni-toolbar>
 
 <uni-ticker-wrapper
     [tickerCode]="tickercode"

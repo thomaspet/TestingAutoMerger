@@ -41,97 +41,31 @@ export class Dashboard {
             {
                 x: 0,
                 y: 0,
-                widgetID: 'shortcut_accounting'
+                widgetID: 'overview-widget',
             },
             {
-                x: 1,
-                y: 0,
-                widgetID: 'shortcut_sales'
-            },
-            {
-                x: 2,
-                y: 0,
-                widgetID: 'shortcut_salary'
-            },
-            {
-                x: 3,
-                y: 0,
-                widgetID: 'shortcut_bank'
-            },
-            {
-                x: 4,
-                y: 0,
-                widgetID: 'shortcut_timetracking'
-            },
-            {
-                x: 5,
-                y: 0,
-                widgetID: 'shortcut_overview'
+                x: 0,
+                y: 1,
+                widgetID: 'shortcuts_main',
             },
             {
                 x: 6,
-                y: 0,
-                widgetID: 'clock'
-            },
-            {
-                x: 9,
-                y: 0,
-                widgetID: 'companylogo',
-            },
-            {
-                x: 8,
                 y: 1,
-                widgetID: 'counter_email',
-            },
-            {
-                x: 9,
-                y: 1,
-                widgetID: 'counter_ehf',
+                widgetID: 'counters_supplierinvoice',
             },
             {
                 x: 10,
                 y: 1,
-                widgetID: 'counter_assigned_invoices',
-            },
-            {
-                x: 11,
-                y: 1,
-                widgetID: 'counter_notifications',
-            },
-            {
-                x: 8,
-                y: 2,
-                widgetID: 'sum_hours',
-            },
-            {
-                x: 10,
-                y: 2,
-                widgetID: 'sum_overdue_invoices',
+                widgetID: 'sum_hours'
             },
             {
                 x: 0,
-                y: 1,
+                y: 2,
                 widgetID: 'chart_operating_profits',
             },
             {
-                x: 4,
-                y: 1,
-                widgetID: 'kpi',
-            },
-            {
-                x: 0,
-                y: 4,
-                widgetID: 'chart_employees_per_employment'
-            },
-
-            {
-                x: 4,
-                y: 4,
-                widgetID: 'chart_restamount_per_customer',
-            },
-            {
-                x: 8,
-                y: 3,
+                x: 7,
+                y: 2,
                 widgetID: 'rss',
             },
         ];

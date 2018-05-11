@@ -70,7 +70,6 @@ export class UniDimensionTOFView implements OnInit {
             }
             fields.push(
                 {
-                    Legend: 'Dimensjoner',
                     FieldSet: 1,
                     FieldSetColumn: fieldsetIndex,
                     EntityType: this.entityType,

@@ -8,17 +8,17 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {Router, ActivatedRoute, ParamMap} from '@angular/router';
+import {UniTicker} from '../ticker/ticker';
+import {YearService, StatisticsService} from '@app/services/services';
+import {AuthService} from '@app/authService';
 import {
+    UniTickerService,
     Ticker,
     TickerFilter,
     IExpressionFilterValue,
     ITickerActionOverride,
     ITickerColumnOverride
-} from '../../../services/common/uniTickerService';
-import {UniTicker} from '../ticker/ticker';
-import {UniTickerPredefinedFilters} from '../filters/predefinedFilters';
-import {YearService} from '../../../services/services';
-import {AuthService} from '../../../authService';
+} from '@app/services/common/uniTickerService';
 
 @Component({
     selector: 'uni-ticker-container',
@@ -27,7 +27,6 @@ import {AuthService} from '../../../authService';
 })
 export class UniTickerContainer {
     @ViewChild(UniTicker) public mainTicker: UniTicker;
-    @ViewChild(UniTickerPredefinedFilters) public tickerFilters: UniTickerPredefinedFilters;
 
     @Input() public ticker: Ticker;
     @Input() public showActions: boolean;
@@ -40,7 +39,9 @@ export class UniTickerContainer {
     @Output() public rowSelectionChange: EventEmitter<any[]> = new EventEmitter();
 
     public showSubTickers: boolean;
+    public filters: TickerFilter[];
     public selectedFilter: TickerFilter;
+    public selectedFilterIndex: number;
 
     private selectedRow: any;
     private expressionFilters: Array<IExpressionFilterValue> = [];
@@ -50,11 +51,13 @@ export class UniTickerContainer {
     constructor(
         private authService: AuthService,
         private yearService: YearService,
+        private statisticsService: StatisticsService,
+        private tickerService: UniTickerService,
         private router: Router,
         private route: ActivatedRoute,
         private cdr: ChangeDetectorRef
     ) {
-        let token = this.authService.getTokenDecoded();
+        const token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
 
@@ -79,8 +82,13 @@ export class UniTickerContainer {
         if (changes['ticker'] && this.ticker) {
             this.selectedRow = undefined;
             this.showSubTickers = false;
-            if (this.ticker.Filters) {
+
+            const previousTicker = changes['ticker'].previousValue;
+            if (!previousTicker || previousTicker.Code !== this.ticker.Code) {
+                this.filters = (this.ticker && this.ticker.Filters) || [];
                 this.selectedFilter = this.ticker.Filters[0];
+                this.selectedFilterIndex = 0;
+                this.getFilterCounts();
             }
         }
     }
@@ -100,7 +108,9 @@ export class UniTickerContainer {
 
     private setFilterFromFilterCode(filterCode: string, retryCount: number) {
         if (this.ticker) {
-            this.selectedFilter = this.ticker.Filters.find(f => f.Code === filterCode);
+            this.selectedFilterIndex = this.ticker.Filters.findIndex(f => f.Code === filterCode);
+            this.selectedFilter = this.ticker.Filters[this.selectedFilterIndex];
+
             this.cdr.markForCheck();
         } else if (retryCount <= 5) {
             setTimeout(() => {
@@ -137,12 +147,60 @@ export class UniTickerContainer {
         }
     }
 
-    public onFilterSelected(filter: TickerFilter) {
-        if (filter !== this.selectedFilter) {
+    public onFilterSelected(index: number) {
+        const filter = this.filters && this.filters[index];
+        if (filter && filter !== this.selectedFilter) {
             this.selectedFilter = filter;
             this.selectedRow = null;
             this.showSubTickers = false;
             this.updateQueryParams();
+        }
+    }
+
+    public getFilterCounts() {
+        if (!this.ticker || !this.ticker.Filters) {
+            return;
+        }
+
+        const filters = this.ticker.Filters;
+        const selectQueries = filters.map((filter, index) => {
+            let filterString;
+            if (filter.FilterGroups && filter.FilterGroups.length) {
+                filterString = this.tickerService.getFilterString(
+                    filter.FilterGroups,
+                    this.expressionFilters,
+                    filter.UseAllCriterias,
+                    this.ticker.Model
+                );
+            }
+
+            if (!filterString) {
+                filterString = filter.Filter  || 'ID gt 0';
+            }
+
+            return `sum(casewhen(${filterString}\\,1\\,0)) as FilterCount${index}`;
+        });
+
+
+        if (selectQueries.length) {
+            const query = `model=${this.ticker.Model}`
+                + `&select=${selectQueries.join(',')}`
+                + `&expand=${this.ticker.CountExpand || this.ticker.Expand}`;
+
+            this.statisticsService.GetAll(query).subscribe(
+                res => {
+                    if (res.Data && res.Data.length > 0) {
+                        const counters = res.Data[0];
+                        for (let i = 0; i < filters.length; i++) {
+                            const filter = filters[i];
+                            filter.CurrentCount = counters['FilterCount' + i];
+                        }
+
+                        this.cdr.markForCheck();
+                    }
+                },
+                err => {/* fail silently */}
+            );
         }
     }
 

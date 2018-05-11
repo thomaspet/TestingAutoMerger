@@ -1,3 +1,7 @@
-<!-- Child component navigation -->
-<uni-tabs [routes]="childRoutes" class="horizontal_nav"></uni-tabs>
-<router-outlet></router-outlet>
+<uni-toolbar [config]="{title: 'Resultat og balanse'}"></uni-toolbar>
+
+<section class="application">
+    <uni-tabs [tabs]="childRoutes"></uni-tabs>
+    <router-outlet></router-outlet>
+</section>
+

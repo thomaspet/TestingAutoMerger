@@ -1,16 +1,21 @@
-<table class="title-button-bar">
-    <tr>
-        <td><h2>Import av SAF-T (auditfile)</h2></td>
-        <td><button class="good" (click)="refresh()">Oppdater</button></td>
-    </tr>
-</table>
+<h2>Import av SAF-T (auditfile)
+    <i class="material-icons"
+        style="cursor: pointer"
+        (click)="refresh()">
+        refresh
+    </i>
+</h2>
 
-<table>
-    <tr>
-        <td><input type="file" #fileInput accept=".xml"></td>
-        <td><button [attr.aria-busy]="busy" class="good" (click)="onUploadClick()">Last opp</button></td>
-    </tr>
-</table>
+<label class="upload-input">
+    <i class="material-icons">cloud_upload</i>
+    <span>Last opp fil</span>
+
+    <input type="file" accept=".xml"
+        (change)="uploadFile($event)"
+        [attr.aria-disabled]="busy"
+        [disabled]="busy"
+    />
+</label>
 
 <table [attr.aria-busy]="busyFetch" class="simple">
     <thead>

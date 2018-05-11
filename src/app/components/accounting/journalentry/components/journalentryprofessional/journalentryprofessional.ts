@@ -281,12 +281,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         setTimeout(() => {
             if (this.currentRowIndex >= 0) {
-                if (this.table) {
+                if (this.table && this.mode !== 2) {
                     this.table.blur();
                     this.table.focusRow(this.currentRowIndex);
                 } else {
                     setTimeout(() => {
-                        if (this.table) {
+                        if (this.table && this.mode !== 2) {
                             this.table.blur();
                             this.table.focusRow(this.currentRowIndex);
                         }
@@ -1617,14 +1617,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         setTimeout(() => {
             this.setupSameNewAlternatives();
 
-            if (!this.table) {
-                // if for some reason unitable has not loaded yet, wait 500 ms and try again one last time
-                setTimeout(() => {
-                    if (this.table) {
-                        this.table.focusRow(0);
-                    }
-                }, 500);
-            } else {
+            if (this.table && this.mode !== 2) {
                 this.table.focusRow(0);
             }
         });
@@ -2373,7 +2366,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                     this.setupSameNewAlternatives();
 
-                    if (this.table) {
+                    if (this.table && this.mode !== 2) {
                         this.table.focusRow(0);
                     }
                 },

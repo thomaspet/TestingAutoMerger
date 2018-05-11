@@ -1,13 +1,30 @@
-<h2 class="application">Altinn Systempålogging</h2>
-<article class="application">
-    <uni-form *ngIf="(altinn$ | async)"
+<section class="uni-container">
+    <h2>Altinn Systempålogging</h2>
+    <article class="application">
+        <uni-form
+            *ngIf="(altinn$ | async)"
             [config]="formConfig$"
             [fields]="fields$"
             [model]="altinn$"
-            (changeEvent)="change($event)"
-    >
-    </uni-form>
-    <a href="https://www.altinn.no/ui/profile" target="_blank"> Har du ikke Id eller er usikker på om systemet er satt opp mot Altinn, trykk her </a>
-    <br/><br/><button [attr.aria-busy]="busy" (click)="check()" [disabled]="!altinn$.getValue() || !altinn$.getValue().HasSystemPw || isDirty || !onlyOnce" alt="Test kommunikasjon mot altinn">Test login</button>
-    <section class="info"> {{loginErr}} </section>
-</article>
+            (changeEvent)="change($event)">
+        </uni-form>
+
+        <a href="https://www.altinn.no/ui/profile" target="_blank">
+            Har du ikke Id eller er usikker på om systemet er satt opp mot Altinn, trykk her
+        </a>
+
+        <br/><br/>
+
+        <button
+            [attr.aria-busy]="busy"
+            (click)="check()"
+            [disabled]="!altinn$.getValue() || !altinn$.getValue().HasSystemPw || isDirty || !onlyOnce"
+            alt="Test kommunikasjon mot altinn">
+            Test login
+        </button>
+
+        <section class="info"> {{loginErr}} </section>
+    </article>
+
+</section>
+

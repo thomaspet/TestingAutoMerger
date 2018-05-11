@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {GuidService} from '../../../services/services';
+import {GuidService, NumberFormat} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
     Project,
@@ -9,10 +9,20 @@ import {
     VatType,
     LocalDate
 } from '../../../unientities';
+import * as _ from 'lodash';
+
+export interface ISummaryLine {
+    label: string;
+    value: string | number;
+    isTotalSum?: boolean;
+}
 
 @Injectable()
 export class TradeItemHelper  {
-    constructor(private guidService: GuidService) {}
+    constructor(
+        private guidService: GuidService,
+        private numberFormat: NumberFormat,
+    ) {}
 
     public prepareItemsForSave(items) {
         return items
@@ -293,6 +303,109 @@ export class TradeItemHelper  {
         rowModel.SumVatCurrency = (rowModel.SumTotalIncVatCurrency - rowModel.SumTotalExVatCurrency) || 0;
     }
 
+    public getSummaryLines(items: any[]) {
+        const sums = items.reduce(
+            // Reducer
+            (totals, item) => {
+                totals.totalExVat += item.SumTotalExVatCurrency || 0;
+                totals.totalIncVat += item.SumTotalIncVatCurrency || 0;
+                totals.sumVat += item.SumVatCurrency || 0;
+                return totals;
+            },
+            // Init values
+            {
+                totalExVat: 0,
+                totalIncVat: 0,
+                sumVat: 0
+            }
+        );
+
+        // Decimal rounding
+        const roundedAmount = Math.round(+sums.totalIncVat);
+        sums.decimalRounding = roundedAmount - sums.totalIncVat;
+        sums.totalIncVat = roundedAmount;
+
+
+        // Generate summary lines
+        const summaryLines: ISummaryLine[] = [];
+
+        if (sums.totalExVat) {
+            summaryLines.push({
+                label: 'Nettosum',
+                value: this.numberFormat.asMoney(sums.totalExVat || 0)
+            });
+        }
+
+        if (sums.sumVat) {
+            let vatPercents = items.map(item => {
+                return item.VatPercent ? item.VatPercent + '%' : '';
+            });
+
+            vatPercents = _.uniq(vatPercents.filter(vatPercent => !!vatPercent));
+            summaryLines.push({
+                label: `Mva (${vatPercents.join(', ')})`,
+                value: this.numberFormat.asMoney(sums.sumVat)
+            });
+        }
+
+        if (sums.decimalRounding) {
+            summaryLines.push({
+                label: 'Øreavrunding',
+                value: this.numberFormat.asMoney(sums.decimalRounding)
+            });
+        }
+
+        if (sums.totalIncVat) {
+            summaryLines.push({
+                label: 'Totalsum',
+                value: this.numberFormat.asMoney(sums.totalIncVat),
+                isTotalSum: true
+            });
+        }
+
+        return summaryLines;
+    }
+
+    public getSummaryLines2(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
+        const summaryLines: ISummaryLine[] = [];
+
+        if (sums.SumTotalExVat) {
+            summaryLines.push({
+                label: 'Nettosum',
+                value: this.numberFormat.asMoney(sums.SumTotalExVat || 0)
+            });
+        }
+
+        if (sums.SumVatCurrency) {
+            let vatPercents = items.map(item => {
+                return item.VatPercent ? item.VatPercent + '%' : '';
+            });
+
+            vatPercents = _.uniq(vatPercents.filter(vatPercent => !!vatPercent));
+            summaryLines.push({
+                label: `Mva (${vatPercents.join(', ')})`,
+                value: this.numberFormat.asMoney(sums.SumVatCurrency)
+            });
+        }
+
+        if (sums.DecimalRoundingCurrency) {
+            summaryLines.push({
+                label: 'Øreavrunding',
+                value: this.numberFormat.asMoney(sums.DecimalRoundingCurrency)
+            });
+        }
+
+        if (sums.SumTotalIncVatCurrency) {
+            summaryLines.push({
+                label: 'Totalsum',
+                value: this.numberFormat.asMoney(sums.SumTotalIncVatCurrency),
+                isTotalSum: true
+            });
+        }
+
+        return summaryLines;
+    }
+
     public calculateTradeItemSummaryLocal(items: Array<any>, decimals: number): TradeHeaderCalculationSummary {
         const sum: TradeHeaderCalculationSummary = new TradeHeaderCalculationSummary();
         sum.SumTotalExVat = 0;
@@ -332,7 +445,7 @@ export class TradeItemHelper  {
             sum.DecimalRounding = sum.SumTotalIncVat - roundedAmount;
 
             roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
-            sum.DecimalRoundingCurrency = sum.SumTotalIncVatCurrency - roundedAmount;
+            sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
         }
 

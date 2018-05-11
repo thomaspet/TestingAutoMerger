@@ -3,82 +3,25 @@ uni-attachments
     display: inline-block
     width: 100%
     height: 100%
+    box-sizing: border-box
 
-    .uni-image-upload
-        display: block
-        height: 100%
-        min-width: 3rem
-        border-radius: pxToRem(5)
-        box-sizing: border-box
-        cursor: pointer
-        background: unicon-plus($uni-color-scale8) center center no-repeat
-        background-size: 1rem
+.upload-input
+    display: inline-block
+    box-sizing: border-box
+    cursor: pointer
+    margin-left: .1rem
+    margin-bottom: 1rem
+    color: #60656a
 
-        &[aria-disabled]:not([aria-disabled=false])
-            cursor: not-allowed
+    .material-icons
+        color: $uni-color-c2a
+        vertical-align: middle
+        margin-top: -4px
+        margin-right: .5rem
 
-        input[type=file]
-            // "visible" only for screen readers
-            @extend %visuallyHidden
+    &[aria-disabled]:not([aria-disabled=false])
+        cursor: not-allowed
 
-    >label
-        float: left
-        margin-left: 1rem
-
-    >article
-        width: calc(100% - 2rem - 2px)
-        height: calc(100% - 2rem - 2px)
-        border: 1px dashed $uni-color-scale8
-        border-radius: pxToRem(5)
-        margin: 2rem 0 2rem 1rem
-
-    .file-name-list
-        overflow: auto
-        display: block
-        width: calc(80% - 1px)
-        height: 100%
-        float: left
-
-        ul
-            margin-top: 0.5rem
-
-        li
-            list-style: none
-            display: inline-flex
-            width: 100%
-            a
-                overflow: hidden
-                text-overflow: ellipsis
-                white-space: nowrap
-                max-width: calc(100% - 40px)
-                cursor: pointer
-
-
-        li:before
-            content: ''
-            display: inline-block
-            height: 25px
-            width: 20px
-            background-size: 20px
-            background-image: unicon-paperclip($uni-color-scale1)
-            background-repeat: no-repeat
-            background-position: center center
-            margin-left: 10px
-            margin-right: 10px
-
-        button.removeDocumentButton
-            width: 2rem
-            margin: 0 0 0 pxToRem(2)
-            padding: 0 pxToRem(2) pxToRem(7) pxToRem(2)
-            background: lighten($uni-color-scale6, 37%) unicon-trash($uni-color-scale3) center center no-repeat
-            background-size: 0.9rem
-            box-shadow: none
-            height: 1em
-
-    .upload
-        height: 100%
-        width: calc(20% - 1px)
-        display: flex
-        border-left: 1px dashed $uni-color-scale8
-        flex-direction: column
-        justify-content: center
+    input[type=file]
+        // "visible" only for screen readers
+        @extend %visuallyHidden

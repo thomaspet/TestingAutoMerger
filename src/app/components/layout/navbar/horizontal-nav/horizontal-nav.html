@@ -1,0 +1,38 @@
+<section class="navbar-link-toggle" (clickOutside)="close()">
+    <i
+        class="material-icons hamburger-toggle"
+        role="button"
+        (click)="isExpanded = !isExpanded">
+        menu
+    </i>
+</section>
+
+<!-- Link dropdown -->
+<section class="navbar-link-dropdown" *ngIf="isExpanded">
+    <section class="link-groups">
+
+        <section class="link-group" *ngFor="let section of linkSections">
+            <span>{{section.name}}</span>
+            <ul class="link-list">
+                <ng-template ngFor let-group [ngForOf]="section.linkGroups">
+                    <li *ngFor="let link of group.links" (click)="isExpanded = false">
+                        <a [routerLink]="link.url">{{link.name}}</a>
+                    </li>
+                    <br>
+                </ng-template>
+            </ul>
+        </section>
+    </section>
+
+    <section class="navbar-options">
+        <section class="toggle-navbar-mode" (click)="toggleSidebar()">
+            <img src="../../../../../assets/navbar-icons/dock_side.png"
+                alt="Bytt menyposisjon"
+                [ngClass]="{'dock-top': sidebarVisible}"
+            />
+
+            {{sidebarVisible ? 'Skul sidemeny' : 'Vis sidemeny'}}
+        </section>
+    </section>
+
+</section>

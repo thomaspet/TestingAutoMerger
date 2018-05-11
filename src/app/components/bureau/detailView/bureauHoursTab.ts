@@ -30,10 +30,12 @@ const BASE = environment.BASE_URL;
             <span>Timeføring</span>
         </section>
         <section class="text-container">
-            <p>Sum i {{accountingYear}} (Antall timeføringer)</p>
-            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">
-                {{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})
-            </a>
+            <p>
+                Antall timeføringer i {{accountingYear}}:
+                <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">
+                    {{round(viewData[0].sum/60, 1)}} timer ({{viewData[0].counter}})
+                </a>
+            </p>
         </section>
     </section>
     <section class="tab-part">
@@ -42,10 +44,15 @@ const BASE = environment.BASE_URL;
             <span>Fakturering</span>
         </section>
         <section class="text-container">
-            <p>Ufakturerte (fakturerbare) timer</p>
-            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[1]}}</a>
-            <p>Fakturerte timer</p>
-            <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[2]}}</a>
+            <p>
+                Ufakturerte (fakturerbare) timer:
+                <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[1]}}</a>
+            </p>
+
+            <p>
+                Fakturerte timer:
+                <a (click)="navigateToCompanyUrl('/timetracking/timeentry')">{{viewData[2]}}</a>
+            </p>
         </section>
     </section>
 </section>`

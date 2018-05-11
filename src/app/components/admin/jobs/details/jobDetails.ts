@@ -1,20 +1,14 @@
-// angular
 import {Component, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-// app
+import {Router, ActivatedRoute} from '@angular/router';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
 import {ErrorService, JobService} from '../../../../services/services';
-// admin module
 import {Job} from '../../../../models/admin/jobs/job';
 
-// this is different from the JobMode
 enum JobStartMode {
     Now,
-// this will be supported later
-//    Date,
     Delay
 }
 
@@ -26,7 +20,7 @@ enum TimeUnit {
     DayOfWeek
 }
 
-class ScheduleHelper {
+class JobSchedule {
     public id: string = '';
     public period: string = '';
     public unit: TimeUnit = TimeUnit.Min;
@@ -37,89 +31,68 @@ class ScheduleHelper {
     templateUrl: './jobDetails.html'
 })
 export class JobDetails {
-    @ViewChild(UniSelect)
-
     public saveActions: IUniSaveAction[] = [];
     private toolbarconfig: IToolbarConfig;
-    private delayTimeUnitSelectConfig: ISelectConfig;
-    private scheduleTimeUnitSelectConfig: ISelectConfig;
-    private jobStartModeSelectConfig: ISelectConfig;
 
-    // job
-    private job: Job;
+    private job: Partial<Job>;
     private isNewJob: boolean = true;
 
-    // job start
-    private jobStartModes: any[];
-    private jobStartMode: JobStartMode = JobStartMode.Now;
-
-    // delayed start
-    private delayTimeUnits: any[];
-    private delayTimeUnit: TimeUnit = TimeUnit.Min;
     private delay: string = '';
 
-
-    // schedules
+    private scheduleTimeUnitSelectConfig: ISelectConfig;
     private scheduleTimeUnits: any[];
-    private newSchedule: ScheduleHelper = new ScheduleHelper();
-    private schedules: ScheduleHelper[] = [];
+    private newSchedule: JobSchedule = new JobSchedule();
+    private schedules: JobSchedule[] = [];
 
     public lastExecutionTime: string = 'Aldri kjørt';
 
     constructor(
         private tabService: TabService,
+        private router: Router,
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private jobService: JobService
     ) {
-         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({ url: '/admin/jobs/', name: 'Jobber', active: true, moduleID: UniModules.Jobs });
+        this.tabService.addTab({
+            url: '/admin/jobs/',
+            name: 'Jobbdetaljer',
+            active: true,
+            moduleID: UniModules.Jobs
+        });
    }
 
     public ngOnInit() {
-        this.initJob();
         this.initDropDownLists();
-        this.updateTabTitle();
-        this.updateToolBar();
 
-        if (!this.isNewJob) {
-            this.getSchedules();
-        }
+        this.route.queryParamMap.subscribe(paramMap => {
+            const job: Partial<Job> = {};
+            job.ID = 0;
+            job.Name = paramMap.get('jobName');
+            job.IsEnabled = true;
+
+            this.job = job;
+            this.isNewJob = !job.Name;
+
+            this.toolbarconfig = {
+                title: (job && job.Name) || 'Ny jobb',
+                hideBreadcrumbs: true
+            };
+
+            if (this.isNewJob) {
+                this.schedules = [];
+            } else {
+                this.getSchedules();
+            }
+        });
     }
 
     private initDropDownLists() {
-        // init job mode list
-        this.jobStartModeSelectConfig = {
-            displayProperty: 'name',
-            placeholder: 'Velg trigger modus',
-            searchable: false
-        };
-
-        this.jobStartModes = [
-            {name: 'Nå', mode: JobStartMode.Now },
-            // 'Date' will be supported later.
-            // {name: 'I et tidspunkt', mode: JobStartMode.Date },
-            {name: 'Med utsettelse', mode: JobStartMode.Delay }
-        ];
-
-        // init list of unit of measurement
-        this.delayTimeUnitSelectConfig = {
-            displayProperty: 'name',
-            placeholder: 'Velg måleenhet',
-            searchable: false
-        };
-
         this.scheduleTimeUnitSelectConfig = {
             displayProperty: 'name',
             placeholder: 'Velg måleenhet',
-            searchable: false
+            searchable: false,
+            hideDeleteButton: true
         };
-
-        this.delayTimeUnits = [
-            { name: 'min', unit: TimeUnit.Min },
-            { name: 'time', unit: TimeUnit.Hour },
-            { name: 'dag', unit: TimeUnit.Day }
-        ];
 
         this.scheduleTimeUnits = [
             { name: 'min', unit: TimeUnit.Min },
@@ -130,132 +103,27 @@ export class JobDetails {
         ];
     }
 
-    private initJob() {
-        this.route.params.subscribe((params) => {
-                this.job = new Job();
-                this.job.ID = 0;
-
-                this.job.Name = params['id'];
-                this.job.IsEnabled = true;
-                this.isNewJob = params['id'] === '';
-
-                if (this.job.Name.length > 0) {
-                    this.getSchedules();
-                } else {
-                    this.schedules = [];
-                }
-            },
-                err => this.errorService.handle(err)
-            );
-    }
-
-    private updateTabTitle() {
-        let tabTitle = this.isNewJob ? 'Ny jobb' : "Jobb '" + this.job.Name + "'";
-
-        this.tabService.addTab(
-            {
-                url: '/admin/job-details/' + this.job.Name,
-                name: tabTitle,
-                active: true,
-                moduleID: UniModules.Jobs,
-            });
-    }
-
-    private updateToolBar() {
-        if (!this.isNewJob) {
-            this.toolbarconfig = {
-                title: this.job.Name,
-                omitFinalCrumb: false
-            };
-        } else {
-            this.toolbarconfig = {
-                title: 'Legg til ny jobb',
-                omitFinalCrumb: false
-            };
-        }
-    }
-
-    public toggleJob() {
-        this.job.IsEnabled = !this.job.IsEnabled;
-    }
-
-    public startJob() {
-        switch (this.jobStartMode) {
-            case JobStartMode.Now:
-                this.startJobNow();
-                break;
-            case JobStartMode.Delay:
-                this.startDelayedJob();
-                break;
-            /* 'Date' will be supported later.
-            case JobStartMode.Date:
-                break;
-                */
-            default:
-                break;
-        }
-    }
-
-    private startJobNow() {
+    private startJob() {
         this.jobService.startJob(this.job.Name).subscribe(
             result => {},
             err => this.errorService.handle(err)
         );
     }
 
-    private startDelayedJob() {
-        let delay: number = Number(this.delay);
-
-        if (!isNaN(delay)) {
-            switch (this.delayTimeUnit) {
-                case TimeUnit.Hour:
-                    delay *= 60;
-                    break;
-                case TimeUnit.Day:
-                    delay *= 60 * 24;
-                    break;
-                default:
-                     break;
-            }
-
-            this.jobService.startJob(this.job.Name, delay).subscribe(
-                result => {},
-                err => this.errorService.handle(err));
-        }
-    }
-
-    public onJobStartModeChanged(event) {
-        this.jobStartMode = event.mode;
-    }
-
-    public onDelayTimeUnitChanged(event) {
-        this.delayTimeUnit = event.unit;
-    }
 
     public onNewScheduleTimeUnitChanged(event) {
         this.newSchedule.unit = event.unit;
     }
 
-    public onScheduleTimeUnitChanged(event, item: ScheduleHelper) {
+    public onScheduleTimeUnitChanged(event, item: JobSchedule) {
         item.unit = event.unit;
         this.updateSchedule(item);
-    }
-
-    public isJobStartDisabled(): Boolean {
-        return this.isNewJob
-            ||
-                (
-                    this.jobStartMode === JobStartMode.Delay
-                    && !this.isNumber(this.delay)
-                );
-            // 'Date' will be supported later.
-            // || (this.jobStartMode === JobStartMode.Date && )
     }
 
     public addNewSchedule() {
         this.jobService.createSchedule(this.job.Name, this.convertObjectToCronExp(this.newSchedule)).subscribe(
             result => {
-                this.newSchedule = new ScheduleHelper();
+                this.newSchedule = new JobSchedule();
                 this.getSchedules();
             },
             err => this.errorService.handle(err)
@@ -275,7 +143,7 @@ export class JobDetails {
         );
     }
 
-    private updateSchedule(item: ScheduleHelper) {
+    private updateSchedule(item: JobSchedule) {
         this.jobService.modifySchedule(this.job.Name, item.id, this.convertObjectToCronExp(item)).subscribe(
             res => this.getSchedules(),
             err => this.errorService.handle(err)
@@ -285,10 +153,10 @@ export class JobDetails {
     private getSchedules() {
         this.jobService.getSchedules(this.job.Name).subscribe(
             schedules => {
-                let tmpArray = [];
-                let tmp: ScheduleHelper;
+                const tmpArray = [];
+                let tmp: JobSchedule;
                 // tslint:disable-next-line:forin
-                for (let key in schedules) {
+                for (const key in schedules) {
                     tmp = this.convertCronExpToObject(schedules[key]);
                     tmp.id = key;
 
@@ -300,9 +168,9 @@ export class JobDetails {
         );
     }
 
-    private convertObjectToCronExp(helper: ScheduleHelper): string {
+    private convertObjectToCronExp(helper: JobSchedule): string {
         let cronExp: string = '0 0 1 1 1 ';
-        let index: number = helper.unit * 2;
+        const index: number = helper.unit * 2;
 
         for (let i = index + 2; i < cronExp.length; i += 2) {
             cronExp = cronExp.substr(0, i) + '* ' + cronExp.substr(i + 2);
@@ -313,34 +181,30 @@ export class JobDetails {
         return cronExp;
     }
 
-    private convertCronExpToObject(cronExp: string): ScheduleHelper {
-        let scheduleHelper: ScheduleHelper = new ScheduleHelper();
+    private convertCronExpToObject(cronExp: string): JobSchedule {
+        const schedule: JobSchedule = new JobSchedule();
 
         cronExp = cronExp.replace('*/', '');
 
-        let items = cronExp.match(/\S+/g) || [];
-        let defaultValues = [ '0', '0', '1', '1', '1' ];
+        const items = cronExp.match(/\S+/g) || [];
+        const defaultValues = [ '0', '0', '1', '1', '1' ];
 
         for (let i = 0; i < items.length; ++i) {
             if (this.isNumber(items[i]) && items[i] !== defaultValues[i]) {
-                scheduleHelper.period = items[i];
-                scheduleHelper.unit = i;
+                schedule.period = items[i];
+                schedule.unit = i;
                 break;
             }
         }
-        return scheduleHelper;
+        return schedule;
     }
 
-    public getScheduleTimeUnit(schedule: any) {
-        let length: number = this.scheduleTimeUnits.length;
-        let obj: any;
+    public getTimeUnitName(schedule): string {
+        const timeUnit = this.scheduleTimeUnits && this.scheduleTimeUnits.find(tu => {
+            return tu.unit === schedule.unit;
+        });
 
-        for (let i = 0; i < length; ++i) {
-            if (this.scheduleTimeUnits[i].unit === schedule.unit) {
-                obj = this.scheduleTimeUnits[i];
-            }
-        }
-        return obj;
+        return timeUnit && timeUnit.name;
     }
 
     private isNumber(str: string): boolean {

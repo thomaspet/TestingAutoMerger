@@ -15,7 +15,8 @@
         (fileUploaded)="onFileUpload($event, main)">
     </uni-upload-file-save>
 
-    <button class="toolbar-save-toggle" *ngIf="actions?.length > 1"
+    <button class="toolbar-save-toggle"
+        *ngIf="actions?.length > 1"
         (click)="open = !open"
         (clickOutside)="close()"
         aria-owns="saveActionMenu"

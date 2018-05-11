@@ -1,53 +1,58 @@
-<button class="manage-products-button" (click)="editPurchases()">Administrer brukertilganger til produkter</button>
+<section class="users-splitview">
 
-<form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
-    <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
-    <input type="email"
-        formControlName="Email"
-        placeholder="Inviter bruker (epost)"
-    />
-    <button [attr.aria-busy]="busy"
-            [disabled]="!f.form.valid || busy"
-            type="submit"
-            class="c2a">
-        Inviter
-    </button>
-</form>
+    <section class ="uni-container user-list">
+        <section class="user-administration">
+            <form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
+                <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
+                <input type="email"
+                    formControlName="Email"
+                    placeholder="Inviter bruker (epost)"
+                />
 
-<section class="splitview">
-    <nav class ="splitview_list">
+                <button [attr.aria-busy]="busy"
+                        [disabled]="!f.form.valid || busy"
+                        type="submit"
+                        class="c2a">
+                    Inviter
+                </button>
+            </form>
+
+            <span class="user-access" (click)="editPurchases()">
+                <i class="material-icons">vpn_key</i>
+                Administrer brukertilganger
+            </span>
+        </section>
+
         <uni-table *ngIf="users?.length"
                 [config]="userTableConfig"
                 [resource]="users"
                 (rowSelected)="onUserSelected($event)">
         </uni-table>
-    </nav>
+    </section>
 
-    <main class= "splitview_detail">
-        <fieldset>
-            <legend>Bruker</legend>
+    <section class= "uni-container user-detail">
+        <header>Brukerdetaljer</header>
 
-            <section class="sharing-badges" *ngIf="selectedUser?.BankIntegrationUserName">
-                <span class="badge-available">Bankbruker</span>
-            </section>
+        <section class="sharing-badges" *ngIf="selectedUser?.BankIntegrationUserName">
+            <span class="badge-available">Bankbruker</span>
+        </section>
 
-            <uni-form
-                [config]="formConfig$"
-                [fields]="formFields$"
-                [model]="formModel$"
-                (changeEvent)="onFormChange($event)">
-            </uni-form>
+        <uni-form
+            [config]="formConfig$"
+            [fields]="formFields$"
+            [model]="formModel$"
+            (changeEvent)="onFormChange($event)">
+        </uni-form>
 
-            <uni-role-selector *ngIf="roles"
-                [role]="roles"
-                (roleSelected)="onRoleAdded($event)">
-            </uni-role-selector>
+        <uni-role-selector *ngIf="roles"
+            [role]="roles"
+            (roleSelected)="onRoleAdded($event)">
+        </uni-role-selector>
 
-            <uni-table *ngIf="userRoles?.length"
-                        [config]="roleTableConfig"
-                        [resource]="userRoles"
-                        (rowDeleted)="onRoleDeleted($event)">
-            </uni-table>
-        </fieldset>
-    </main>
+        <uni-table *ngIf="userRoles?.length"
+                    [config]="roleTableConfig"
+                    [resource]="userRoles"
+                    (rowDeleted)="onRoleDeleted($event)">
+        </uni-table>
+    </section>
 </section>

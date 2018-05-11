@@ -1,8 +1,0 @@
-﻿<article *ngIf="user$ | async">
-    <uni-form class="userSettings"
-            [config]="formConfig$"
-            [fields]="formFields$"
-            [model]="user$"
-            (changeEvent)="onFormChange($event)">
-    </uni-form>
-</article>

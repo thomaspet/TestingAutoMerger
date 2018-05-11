@@ -1,4 +1,11 @@
-﻿import {Component, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef} from '@angular/core';
+﻿import {
+    Component,
+    AfterViewInit,
+    ElementRef,
+    ViewChild,
+    ChangeDetectorRef,
+    HostBinding,
+} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
@@ -11,36 +18,34 @@ import 'rxjs/add/operator/debounceTime';
 @Component({
     selector: 'uni-navbar-search',
     template: `
-        <nav class="navbar_search">
-            <div >
-                <input #searchInput
-                    class="search_input"
-                    type="search"
-                    placeholder="Søk etter tema eller funksjon"
-                    aria.autocomplete="inline"
-                    role="combobox"
-                    (blur)="close()"
-                    (keydown)="onKeyDown($event)"
-                    [formControl]="inputControl"
-                />
+        <nav class="navbar_search" (clickOutside)="close()">
 
-                <ul #resultList
-                    class="search_results"
-                    role="listbox"
-                    tabindex="-1"
-                    [attr.aria-expanded]="isExpanded">
+            <input #searchInput
+                class="search_input"
+                type="search"
+                placeholder="Søk etter tema eller funksjon"
+                aria.autocomplete="inline"
+                role="combobox"
+                (keydown)="onKeyDown($event)"
+                [formControl]="inputControl"
+            />
 
-                    <li role="option"
-                        class="autocomplete_result"
-                        [attr.aria-selected]="selectedIndex === idx"
-                        (mouseover)="onMouseover(idx)"
-                        (click)="confirmSelection()"
-                        *ngFor="let result of searchResults; let idx = index"
-                        style="cursor: pointer">
-                        {{result.componentName}}
-                    </li>
-                </ul>
-            </div>
+            <ul #resultList
+                class="search_results"
+                role="listbox"
+                tabindex="-1"
+                [attr.aria-expanded]="isExpanded">
+
+                <li role="option"
+                    class="autocomplete_result"
+                    [attr.aria-selected]="selectedIndex === idx"
+                    (mouseover)="onMouseover(idx)"
+                    (click)="confirmSelection()"
+                    *ngFor="let result of searchResults; let idx = index"
+                    style="cursor: pointer">
+                    {{result.name}}
+                </li>
+            </ul>
         </nav>
     `,
 })
@@ -51,12 +56,14 @@ export class NavbarSearch implements AfterViewInit {
     @ViewChild('resultList')
     private listElement: ElementRef;
 
+    @HostBinding('class.collapsed') searchCollapsed: boolean;
+
     private inputControl: FormControl = new FormControl('');
     private searchResults: any[] = [];
     private isExpanded: boolean = false;
     private selectedIndex: number;
     private focusPositionTop: number = 0;
-    private componentLookupSource: {componentName: string, componentUrl: string}[] = [];
+    private componentLookupSource: {name: string, url: string}[] = [];
 
     constructor(
         private http: UniHttp,
@@ -66,8 +73,23 @@ export class NavbarSearch implements AfterViewInit {
         navbarLinkService: NavbarLinkService
     ) {
         navbarLinkService.linkSections$.subscribe(linkSections => {
+            this.componentLookupSource = [];
             linkSections.forEach(section => {
-                this.componentLookupSource.push(...section.componentList);
+                section.linkGroups.forEach(group => {
+                    this.componentLookupSource.push(...group.links);
+                });
+            });
+        });
+
+        this.checkNavbarWidth();
+        Observable.fromEvent(window, 'resize')
+            .throttleTime(250)
+            .filter(() => !this.searchCollapsed)
+            .subscribe(e => this.checkNavbarWidth());
+
+        navbarLinkService.sidebarState$.subscribe(() => {
+            setTimeout(() => {
+                this.checkNavbarWidth();
             });
         });
     }
@@ -96,6 +118,20 @@ export class NavbarSearch implements AfterViewInit {
                 this.componentLookup(query);
             }
         });
+    }
+
+    public checkNavbarWidth() {
+        const elements = document.getElementsByClassName('navbar');
+        const navbar = elements && elements[0];
+        if (navbar) {
+            const diff = navbar.scrollWidth - navbar.clientWidth;
+
+            const collapsed = diff > 0;
+            if (collapsed !== this.searchCollapsed) {
+                this.searchCollapsed = collapsed;
+                this.cdr.markForCheck();
+            }
+        }
     }
 
     public onMouseover(index) {
@@ -163,14 +199,14 @@ export class NavbarSearch implements AfterViewInit {
 
     private confirmSelection() {
         if (!this.searchResults[this.selectedIndex]) { return; }
-        const url = this.searchResults[this.selectedIndex].componentUrl;
-        this.close();
+        const url = this.searchResults[this.selectedIndex].url;
         this.router.navigateByUrl(url);
+        this.close();
     }
 
     private tabSelect() {
         if (!this.searchResults[this.selectedIndex]) { return; }
-        const name = this.searchResults[this.selectedIndex].componentName;
+        const name = this.searchResults[this.selectedIndex].name;
 
         if (['faktura', 'tilbud', 'ordre'].indexOf(name.toLowerCase()) >= 0) {
             this.inputControl.setValue(name + ' ', { emitEvent: true });
@@ -190,10 +226,12 @@ export class NavbarSearch implements AfterViewInit {
         const results = [];
 
         this.componentLookupSource.forEach((component) => {
-            if (component.componentName.toLocaleLowerCase().indexOf(query) !== -1) {
+            const name = component && component.name;
+            if (name && name.toLowerCase().indexOf(query) !== -1) {
                 results.push(component);
             }
         });
+
         this.searchResults = results;
         this.isExpanded = true;
     }
@@ -219,8 +257,8 @@ export class NavbarSearch implements AfterViewInit {
                         }
 
                         results.push({
-                            componentName: tof[filterKey] + ' - ' + tof.CustomerName,
-                            componentUrl: '/sales/' + modulePlural + '/' + tof.ID
+                            name: tof[filterKey] + ' - ' + tof.CustomerName,
+                            url: '/sales/' + modulePlural + '/' + tof.ID
                         });
                     });
 

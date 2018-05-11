@@ -6,13 +6,16 @@ import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
+
+// REVISIT: toolbar should be a module (maybe even in framework?)
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
 import {StatusTrack} from './toolbar/statustrack';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
-import {UniToolbarHelp} from './toolbar/help';
 import {UniToolbarShare} from './toolbar/share';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
+import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
+
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
@@ -59,9 +62,9 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniBreadcrumbs,
         StatusTrack,
         UniToolbar,
-        UniToolbarHelp,
         UniToolbarShare,
         UniToolbarSearch,
+        UniToolbarValidation,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

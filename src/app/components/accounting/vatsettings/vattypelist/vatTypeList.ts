@@ -42,7 +42,7 @@ export class VatTypeList implements OnInit, AfterViewInit {
     }
 
     public onRowSelected (event) {
-        this.uniVatTypeChange.emit(event.rowModel);
+        this.uniVatTypeChange.emit(event);
     }
 
     public refresh() {
@@ -107,7 +107,7 @@ export class VatTypeList implements OnInit, AfterViewInit {
             .setFilterOperator('eq');
 
         // Setup table
-        this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, false)
+        this.vatTableConfig = new UniTableConfig('accounting.vatsettings.vattypeList', false, false, 15)
             .setSearchable(true)
             .setColumns([groupCol, codeCol, nameCol, incomingAccountCol, outgoingAccountCol, percentCol])
             .setDataMapper((data: Array<VatType>) => {

@@ -1,5 +1,4 @@
-<section [ngClass]="{'journalentry-input-area-full': !journalEntrySettings.AttachmentsVisible, 'journalentry-input-area': journalEntrySettings.AttachmentsVisible}">
-
+<section class="uni-container">
     <div class="journalentry-input-components">
         <journal-entry-professional
             (dataLoaded)="onDataLoaded($event)"
@@ -20,94 +19,115 @@
             [vattypes]="vatTypes"
             [selectedNumberSeries]="selectedNumberSeries">
         </journal-entry-professional>
-        <div class="validation_messages_container"
-            [attr.aria-visible]="validationResult && validationResult.Messages.length > 0">
-            <strong
-                *ngFor="let message of validationResult?.Messages"
-                class="journalEntry_validation validation {{getValidationLevelCss(message.Level)}}"
-                [attr.aria-visible]="true"
-                [ngClass]="{
-                    simplemode: journalEntryMode === 'SIMPLE',
-                    promode: journalEntryMode != 'SIMPLE',
-                    runassubcomponent: runAsSubComponent
-                }">
+
+        <div class="validation_messages_container" *ngIf="validationResult?.Messages?.length">
+            <section *ngFor="let message of validationResult?.Messages">
+                <i class="material-icons" [ngClass]="getValidationLevelCss(message.Level)">
+                    {{getValidationIcon(message.Level)}}
+                </i>
                 {{message.Message}}
-            </strong>
+            </section>
         </div>
         <uni-summary [configs]="summary" *ngIf="itemsSummaryData && mode !== 2" [attr.aria-busy]="busy"></uni-summary>
 
-        <section class="account_summary_container" *ngIf="mode !== 2">
-            <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
-                <tr>
-                    <th class="first_col"></th>
-                    <th class="other_cols">Debet</th>
-                    <th class="other_cols">Kredit</th>
-                </tr>
-                <tr>
-                    <td>Kontonavn</td>
-                    <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
-                    <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
-                </tr>
-                <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
-                    <td>Fradragsprosent MVA</td>
-                    <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-                    <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-                </tr>
-                <tr>
-                    <td>Saldo ({{currentFinancialYear.Year}})</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.debitOriginalBalance) }}</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.creditOriginalBalance) }}</td>
-                </tr>
-                <tr>
-                    <td>Nettobeløp</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.debitNetChangeCurrentLine) }}</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.creditNetChangeCurrentLine) }}</td>
-                </tr>
-                <tr>
-                    <td>Inng. mva</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.debitIncomingVatCurrentLine) }}</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.creditIncomingVatCurrentLine) }}</td>
-                </tr>
-                <tr>
-                    <td>Utg. mva</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.debitOutgoingVatCurrentLine) }}</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.creditOutgoingVatCurrentLine) }}</td>
-                </tr>
-                <tr>
-                    <td>Ny saldo</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.debitNewBalance) }}</td>
-                    <td>{{ getFormattedNumber(itemAccountInfoData.creditNewBalance) }}</td>
-                </tr>
-            </table>
-        </section>
+        <section class="summary-and-postpost">
+            <section class="account_summary_container" *ngIf="mode !== 2">
+                <table class="account_summary_info" *ngIf="itemAccountInfoData && currentFinancialYear">
+                    <tr>
+                        <th class="first_col"></th>
+                        <th class="other_cols">Debet</th>
+                        <th class="other_cols">Kredit</th>
+                    </tr>
+                    <tr>
+                        <td>Kontonavn</td>
+                        <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
+                        <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
+                    </tr>
+                    <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
+                        <td>Fradragsprosent MVA</td>
+                        <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                        <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                    </tr>
+                    <tr>
+                        <td>Saldo ({{currentFinancialYear.Year}})</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.debitOriginalBalance) }}</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.creditOriginalBalance) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Nettobeløp</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.debitNetChangeCurrentLine) }}</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.creditNetChangeCurrentLine) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Inng. mva</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.debitIncomingVatCurrentLine) }}</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.creditIncomingVatCurrentLine) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Utg. mva</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.debitOutgoingVatCurrentLine) }}</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.creditOutgoingVatCurrentLine) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Ny saldo</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.debitNewBalance) }}</td>
+                        <td>{{ getFormattedNumber(itemAccountInfoData.creditNewBalance) }}</td>
+                    </tr>
+                </table>
+            </section>
 
-         <section class="openposts_container" *ngIf="mode !== 2">
-             <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
-             <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
-                 Ingen åpne poster funnet for valgt rad
-             </p>
-             <div class="openposts_wrapper"
-                *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0">
-                <uni-table
-                    [resource]="openPostsForSelectedRow"
-                    [config]="openPostTableConfig"
-                    (rowSelectionChanged)="openPostSelected($event)">
-                </uni-table>
-             </div>
+                <section class="openposts_container" *ngIf="mode !== 2">
+                    <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
+                    <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
+                        Ingen åpne poster funnet for valgt rad
+                    </p>
+                    <div class="openposts_wrapper"
+                    *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0">
+                    <uni-table
+                        [resource]="openPostsForSelectedRow"
+                        [config]="openPostTableConfig"
+                        (rowSelectionChanged)="openPostSelected($event)">
+                    </uni-table>
+                    </div>
+            </section>
         </section>
     </div>
+
 </section>
 
-<section *ngIf="journalEntrySettings && journalEntrySettings.AttachmentsVisible" class="journalentry-image-area">
-    <span>
-        Vedlegg for bilagsnr {{showImagesForJournalEntryNo ? showImagesForJournalEntryNo : "(nytt bilag)"}}
+<section *ngIf="journalEntrySettings && journalEntrySettings.AttachmentsVisible"
+    class="uni-container journalentry-image-area"
+    [ngClass]="{
+        'minimized': attachmentsMinimized,
+        'stacked': attachmentsStacked
+    }">
 
-        <uni-image
-            [uploadWithoutEntity]="true"
-            [rotateAllowed]="true"
-            [fileIDs]="currentJournalEntryImages"
-            (fileListReady)="onFileListReady($event)">
-        </uni-image>
-        <button *ngIf="currentJournalEntryImages?.length <= 0" class="document_from_flow_button" (click)="openAddFileModal()"> Hent fra innboks</button>
-    </span>
+    <header>
+        <i class="material-icons minimize-toggle"
+            *ngIf="currentJournalEntryImages?.length"
+            (click)="attachmentsMinimized = !attachmentsMinimized">
+            {{attachmentsMinimized ? 'expand_less' : 'expand_more'}}
+        </i>
+
+        Vedlegg
+
+        <i class="material-icons stack-toggle"
+            *ngIf="currentJournalEntryImages?.length"
+            (click)="attachmentsStacked = !attachmentsStacked">
+            {{attachmentsStacked ? 'expand_less' : 'expand_more'}}
+        </i>
+    </header>
+
+    <uni-image
+        [uploadWithoutEntity]="true"
+        [rotateAllowed]="true"
+        [fileIDs]="currentJournalEntryImages"
+        (fileListReady)="onFileListReady($event)">
+    </uni-image>
+
+    <button *ngIf="currentJournalEntryImages?.length <= 0"
+        class="good document_from_flow_button"
+        (click)="openAddFileModal()">
+        Hent fra innboks
+    </button>
 </section>

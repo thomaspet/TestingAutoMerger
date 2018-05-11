@@ -29,63 +29,19 @@ export class UniAccounting {
             {
                 x: 0,
                 y: 0,
-                widgetID: 'shortcut_accounting_journalentry',
-            },
-            {
-                x: 1,
-                y: 0,
-                widgetID: 'shortcut_accounting_bills',
-            },
-            {
-                x: 2,
-                y: 0,
-                widgetID: 'shortcut_accounting_transquery',
-            },
-            {
-                x: 3,
-                y: 0,
-                widgetID: 'shortcut_accounting_accountingreports',
-            },
-            {
-                x: 4,
-                y: 0,
-                widgetID: 'shortcut_accounting_vatreport',
-            },
-            {
-                x: 5,
-                y: 0,
-                widgetID: 'shortcut_overview',
+                widgetID: 'shortcuts_accounting',
             },
             {
                 x: 6,
                 y: 0,
-                widgetID: 'counter_email',
+                widgetID: 'counters_supplierinvoice'
             },
             {
-                x: 7,
+                x: 10,
                 y: 0,
-                widgetID: 'counter_ehf',
+                widgetID: 'currency',
             },
-            {
-                x: 8,
-                y: 0,
-                widgetID: 'counter_assigned_invoices',
-            },
-            {
-                x: 9,
-                y: 0,
-                widgetID: 'counter_notifications',
-            },
-            {
-                x: 4,
-                y: 4,
-                widgetID: 'chart_operating_profits',
-            },
-            {
-                x: 0,
-                y: 4,
-                widgetID: 'kpi',
-            },
+
             {
                 x: 0,
                 y: 1,
@@ -98,17 +54,9 @@ export class UniAccounting {
             },
             {
                 x: 10,
-                y: 0,
-                widgetID: 'info_shortcut_overview',
-            },
-            {
-                x: 10,
-                y: 2,
+                y: 1,
                 widgetID: 'info_shortcut_videos',
             },
-            {
-                widgetID: 'rss',
-            }
         ];
     }
 

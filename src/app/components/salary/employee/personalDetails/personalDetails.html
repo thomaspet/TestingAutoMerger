@@ -1,8 +1,6 @@
-<article class="application" [attr.aria-busy]="busy">
-    <uni-form [config]="config$"
-              [fields]="fields$"
-              [model]="employee$"
-              (changeEvent)="onFormChange($event)"
-              (readyEvent)="onFormReady($event)">
-    </uni-form>
-</article>
+<uni-form [config]="config$"
+            [fields]="fields$"
+            [model]="employee$"
+            (changeEvent)="onFormChange($event)"
+            (readyEvent)="onFormReady($event)">
+</uni-form>

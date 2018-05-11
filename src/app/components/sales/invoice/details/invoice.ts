@@ -74,8 +74,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {StatusTrack, IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {roundTo} from '../../../common/utils/utils';
 
@@ -87,7 +86,7 @@ import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -122,7 +121,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private departments: Department[];
     private currentDefaultProjectID: number;
     private readonly: boolean;
-    private summaryFields: ISummaryConfig[];
+
+    private currencyInfo: string;
+    private summaryLines: ISummaryLine[];
 
     private contextMenuItems: IContextMenuItem[] = [];
     private companySettings: CompanySettings;
@@ -130,6 +131,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private saveActions: IUniSaveAction[] = [];
     private shareActions: IShareAction[];
     private toolbarconfig: IToolbarConfig;
+    private toolbarSubheads: IToolbarSubhead[];
 
     private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
@@ -1172,9 +1174,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
-            subheads: [
-                { title: reminderStopText }
-            ],
+            subheads: this.getToolbarSubheads(),
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousInvoice.bind(this),
@@ -1186,23 +1186,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             entityType: 'CustomerInvoice'
         };
 
+        this.updateShareActions();
+        this.toolbarconfig = toolbarconfig;
+    }
+
+    private getToolbarSubheads() {
+        if (!this.invoice) {
+            return;
+        }
+
+        const subheads: IToolbarSubhead[] = [];
+
+        if (this.invoice.DontSendReminders) {
+            subheads.push({title: 'Purrestopp'});
+        }
+
         if (this.invoice.InvoiceType === InvoiceTypes.CreditNote && this.invoice.InvoiceReference) {
-            toolbarconfig.subheads.push({
+            subheads.push({
                 title: `Kreditering av faktura nr. ${this.invoice.InvoiceReference.InvoiceNumber}`,
                 link: `#/sales/invoices/${this.invoice.InvoiceReference.ID}`
             });
         }
 
         if (this.invoice.JournalEntry) {
-            toolbarconfig.subheads.push({
+            subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
                 link: `#/accounting/transquery;JournalEntryNumber=`
-                + `${this.invoice.JournalEntry.JournalEntryNumber}`
+                    + `${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
 
-        this.updateShareActions();
-        this.toolbarconfig = toolbarconfig;
+        if (this.invoice.RestAmountCurrency) {
+            subheads.push({
+                label: this.invoice.RestAmountCurrency > 0
+                    ? 'Restbeløp' : 'Overbetalt beløp',
+                title: this.numberFormat.asMoney(Math.abs(this.invoice.RestAmountCurrency))
+            });
+        }
+
+        return subheads;
     }
 
     // Save actions
@@ -1747,74 +1769,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     // Summary
     public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
-        if (invoiceItems) {
-            this.itemsSummaryData = this.tradeItemHelper.calculateTradeItemSummaryLocal(
-                invoiceItems, this.companySettings.RoundingNumberOfDecimals
-            );
-            this.updateSaveActions();
-            this.updateToolbar();
-        } else {
-            this.itemsSummaryData = null;
+        const items = invoiceItems && invoiceItems.filter(line => !line.Deleted);
+        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
 
+        this.itemsSummaryData = items && items.length
+            ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)
+            : undefined;
+
+        if (this.itemsSummaryData) {
+            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
         }
 
-        this.summaryFields = [
-            {
-                value: !this.itemsSummaryData ?
-                    '' : this.getCurrencyCode(this.currencyCodeID),
-                title: 'Valuta:',
-                description: this.currencyExchangeRate ?
-                    'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate)
-                    : ''
-            },
-            {
-                title: 'Avgiftsfritt',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency)
-            },
-            {
-                title: 'Avgiftsgrunnlag',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency)
-            },
-            {
-                title: 'Sum rabatt',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency)
-            },
-            {
-                title: 'Nettosum',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency)
-            },
-            {
-                title: 'Mva',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency)
-            },
-            {
-                title: 'Øreavrunding',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency)
-            },
-            {
-                title: 'Totalsum',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency)
-            },
-            {
-                title: this.itemsSummaryData && this.invoice.RestAmountCurrency < 0 ? 'Overbetalt beløp' : 'Restbeløp',
-                value: !this.itemsSummaryData ?
-                    this.numberFormat.asMoney(0)
-                    : !this.invoice.ID ? 0 : this.numberFormat.asMoney(Math.abs(this.invoice.RestAmountCurrency))
-            },
-        ];
+        if (this.currencyCodeID && this.currencyExchangeRate) {
+            this.currencyInfo = `${this.getCurrencyCode(this.currencyCodeID)} `
+                + `(kurs: ${this.numberFormat.asMoney(this.currencyExchangeRate)})`;
+        }
     }
 }

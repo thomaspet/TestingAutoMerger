@@ -70,8 +70,11 @@ import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLin
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 
+import {MatTabsModule} from '@angular/material';
+
 @NgModule({
     imports: [
+        MatTabsModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,

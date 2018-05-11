@@ -1,23 +1,20 @@
 .toolbar-save-button-upload
     display: inline-block
-    height: calc(1.75rem + 1px)
+    height: 2rem
 
     label
-        color: #f8f9fD
-        background-color: #009a00
+        color: #fff
+        background: lighten($uni-color-good, 5%)
         text-shadow: none
-        border: 1px solid rgba(248,249,253,.5)
-        font-size: 1rem
+        border-radius: 3px
         cursor: pointer
-        -webkit-appearance: none
         min-width: 8rem
         box-sizing: border-box
-        height: calc(1.75rem + 1px)
+        height: 2rem
         padding: 4px 16px
 
         &:hover
-            border-color: #f8f9fD
-            background: #009a00
+            background: $uni-color-good
 
         input[type=file]
             @extend %visuallyHidden

@@ -37,7 +37,8 @@ import {
     ColumnResizedEvent,
     ColumnMovedEvent,
     RowClickedEvent,
-    RowDragEndEvent
+    RowDragEndEvent,
+    PaginationChangedEvent
 } from 'ag-grid';
 
 import {Observable} from 'rxjs/Observable';
@@ -72,10 +73,12 @@ export class AgGridWrapper {
 
     private configStoreKey: string;
     private agGridApi: GridApi;
-    private rowModelType: 'inMemory' | 'infinite';
+    public rowModelType: 'inMemory' | 'infinite';
     public domLayout: string;
     public tableHeight: string;
-    private selectionMode: string = 'single';
+    public usePagination: boolean;
+    public selectionMode: string = 'single';
+    public paginationInfo: any;
 
     private columns: UniTableColumn[];
     private agColDefs: any[];
@@ -127,11 +130,13 @@ export class AgGridWrapper {
                 this.domLayout = 'autoHeight';
                 this.tableHeight = undefined;
                 this.rowModelType = 'inMemory';
+                this.usePagination = this.config.pageable;
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
                 this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
+
 
             if (this.agGridApi) {
                 if (this.agGridApi.getSelectedRows().length) {
@@ -171,10 +176,16 @@ export class AgGridWrapper {
             if (loaded) {
                 this.onDataLoaded(event.api);
                 this.dataLoaded.emit();
+                if (this.config.autofocus) {
+                    this.focusRow(0);
+                }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
             this.dataLoaded.emit();
+            if (this.config.autofocus) {
+                this.focusRow(0);
+            }
         }
     }
 
@@ -188,6 +199,8 @@ export class AgGridWrapper {
                 } else {
                     this.tableHeight = '95px';
                 }
+            } else {
+                this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
 
             api.doLayout();
@@ -294,6 +307,34 @@ export class AgGridWrapper {
         });
     }
 
+    public paginate(action: 'next' | 'prev' | 'first' | 'last') {
+        switch (action) {
+            case 'next':
+                this.agGridApi.paginationGoToNextPage();
+            break;
+            case 'prev':
+                this.agGridApi.paginationGoToPreviousPage();
+            break;
+            case 'first':
+                this.agGridApi.paginationGoToFirstPage();
+            break;
+            case 'last':
+                this.agGridApi.paginationGoToLastPage();
+            break;
+        }
+    }
+
+    public paginationInputChange(pageNumber: number) {
+        this.agGridApi.paginationGoToPage(pageNumber - 1);
+    }
+
+    public onPaginationChange(event: PaginationChangedEvent) {
+        this.paginationInfo = {
+            currentPage: event.api.paginationGetCurrentPage() + 1,
+            pageCount: event.api.paginationGetTotalPages()
+        };
+    }
+
     public onFiltersChange(event) { // TODO: typeme
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
@@ -371,6 +412,11 @@ export class AgGridWrapper {
     }
 
     public onLinkClick(column: UniTableColumn, row) {
+        if (column.linkClick) {
+            column.linkClick(row);
+            return;
+        }
+
         let url = column.linkResolver(row);
 
         if (url && url.length) {
@@ -483,7 +529,7 @@ export class AgGridWrapper {
                 agCol.suppressAutoSize = true;
             }
 
-            if (col.linkResolver) {
+            if (col.linkResolver || col.linkClick) {
                 agCol.cellRenderer = CellRenderer.getLinkColumn(this.onLinkClick.bind(this));
             }
 

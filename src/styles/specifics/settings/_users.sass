@@ -1,26 +1,62 @@
 ﻿uni-users
-    .invite_users_form
-        input
-            min-width: 15rem
-        button
-            margin-left: .5rem
-            height: 2rem
-            line-height: 0
-            min-width: 6rem
+    .users-splitview
+        display: flex
+        flex-flow: row wrap
+        width: 100%
 
-        @include media(1400px)
-            margin-left: 7.25%
+        .user-list
+            flex: 1
+            min-width: 25rem
+        .user-detail
+            flex: 1
+            min-width: 25rem
+            header
+                height: 3.5rem
+                line-height: 3.5rem
+                font-size: 20px
 
-    .splitview
-        margin: 1rem auto
+            uni-form
+                @include labelLength(10rem)
 
-    .splitview_detail
-        margin-top: 3.15rem
-        uni-role-selector
-            display: block
-            width: 20rem
-            height: 2rem
-            margin: 2rem 0 1rem
+    .user-administration
+        display: flex
+        flex-flow: row wrap
+        height: 4rem
+        padding: 0 1rem !important
+
+        .invite_users_form
+            margin: auto auto auto 0
+            white-space: nowrap
+
+            input
+                min-width: 15rem
+                height: 2.25rem
+            button
+                margin-left: .5rem
+                height: 2.25rem
+                line-height: 0
+                min-width: 6rem
+
+        .user-access
+            color: #60656a
+            white-space: nowrap
+            margin: auto 0
+            cursor: pointer
+            &:hover
+                text-decoration: underline
+
+            i.material-icons
+                vertical-align: middle
+                margin-right: .25rem
+                margin-top: -4px
+                color: $uni-color-toolbar
+
+
+    uni-role-selector
+        display: block
+        width: 20rem
+        height: 2rem
+        margin: 2rem 0 1rem
 
 .sharing-badges
     float: right
@@ -36,6 +72,3 @@
 
 .badge-available
     background-color: $uni-color-positive
-
-.manage-products-button
-    float: right

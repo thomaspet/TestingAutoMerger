@@ -23,7 +23,9 @@ export interface IToolbarSearchConfig {
         <input type="search" #inputElement
             (keydown)="onKeyDown($event)"
             [formControl]="searchControl"
-            (focus)="markText()" />
+            (focus)="markText()"
+            autocorrect="off"
+        />
 
         <ul class="toolbar-dropdown-list"
             [attr.aria-expanded]="expanded"
@@ -78,6 +80,10 @@ export class UniToolbarSearch {
                         }
                     });
             });
+
+        if (this.input) {
+            this.input.nativeElement.focus();
+        }
     }
 
     public onKeyDown(event: KeyboardEvent) {

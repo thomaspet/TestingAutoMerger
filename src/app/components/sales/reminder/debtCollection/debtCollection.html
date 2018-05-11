@@ -1,13 +1,22 @@
-<uni-toolbar *ngIf="!modalMode" [config]="toolbarconfig"
-             [saveactions]="saveactions">
+<uni-toolbar
+    *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
 </uni-toolbar>
 
 <section [ngClass]="{'application': !modalMode}">
-    <section *ngIf="remindersToDebtCollect">
-        <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
-        <label class="reminder_stop_filter" for="purrestopp">
-            Vis faktura med purrestopp
-        </label>
+    <section *ngIf="remindersToDebtCollect" class="uni-container">
+
+        <section class="uni-checkbox" style="margin-bottom: 1rem;">
+            <input id="purrestopp"
+                type="checkbox"
+                [(ngModel)]="showInvoicesWithReminderStop"
+                (change)="updateReminderTable()"
+            />
+            <label for="purrestopp">
+                Vis faktura med purrestopp
+            </label>
+        </section>
 
         <b>{{remindersToDebtCollect.length}} purringer er klar til inkasso</b><br />
 

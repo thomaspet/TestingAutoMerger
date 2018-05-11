@@ -21,7 +21,6 @@ import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCo
 
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
-import {UserSettings} from './userSettings/userSettings';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
@@ -59,7 +58,6 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
         CompanySettingsComponent,
         Users,
         Teams,
-        UserSettings,
         NumberSeries,
         UniTerms,
         UniBankSettings,
@@ -92,7 +90,6 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
         AltinnSettings,
         CompanySettingsComponent,
         Users,
-        UserSettings,
         UniTerms,
         UniBankSettings,
         ChangeCompanySettingsPeriodSeriesModal,

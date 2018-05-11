@@ -1,151 +1,46 @@
-<uni-toolbar [config]="toolbarconfig">
-</uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="application">
 
-    <table class="jobDetailTable">
-        <tr>
-            <td class="colContent">
-                En jobb er en handling som Uni Economy kan kjøre på dine vegne, enten automatisk på et gitt tidspunkt, eller når noe skjer i systemet.
-                <br/><br/>
-                Dokumentasjon for hvordan du skriver en jobbkonfigurasjon finner du i vårt API-senter,
-                eller du kan ta kontakt med en av våre konsulenter,
-                så kan vi hjelpe med oppsett av jobber skreddesydd for din bedrift.
-            </td>
-            <td class="colSeparator">
-            </td>
-            <td class="colContent">
-                <table class="embeddedJobDetailTable">
-                    <tr>
-                        <td colspan="3" valign="top">
-                            <label>
-                                Navn
-                                <input type="text" id="name" [(ngModel)]="job.Name" style="width:100%">
-                            </label>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="buttonCol">
-                            <button class="runJob" [disabled]="isJobStartDisabled()" (click)="startJob()">Kjør</button>
-                        </td>
-                        <td class="dropDownCol">
-                            <label>
-                                Utføres
-                                <uni-select [config]="jobStartModeSelectConfig"
-                                            [items]="jobStartModes"
-                                            (valueChange)="onJobStartModeChanged($event)">
-                                </uni-select>
-                            </label>
-                        </td>
+    <section>
+        En jobb er en handling som Uni Economy kan kjøre på dine vegne, enten automatisk på et gitt tidspunkt, eller når noe skjer i systemet.
+        <br/>
+        Dokumentasjon for hvordan du skriver en jobbkonfigurasjon finner du i vårt API-senter,
+        eller du kan ta kontakt med en av våre konsulenter,
+        så kan vi hjelpe med oppsett av jobber skreddesydd for din bedrift.
+    </section>
 
-                        <td class="dynamic">
-                            <table class="dynamicContainer">
-                                <tr>
-                                    <td class="dyn1" *ngIf="jobStartMode === 1">
-                                        <label>
-                                        Med utsettelse
-                                        <input type="text" [(ngModel)]="delay">
-                                    </label>
-                                    </td>
-                                    <td class="dyn2" *ngIf="jobStartMode === 1">
-                                        <label>
-                                            <uni-select [config]="delayTimeUnitSelectConfig"
-                                                        [items]="delayTimeUnits"
-                                                        (valueChange)="onDelayTimeUnitChanged($event) ">
-                                            </uni-select>
-                                        </label>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
+    <button class="c2a start-job-button" (click)="startJob()">Kjør jobb nå</button>
 
-                    </tr>
-                </table>
-            </td>
-            <td class="colSeparator">
-            </td>
-            <td class="colContent">
-            </td>
-        </tr>
-    </table>
+    <section class="new-new-schedule">
+        <h2>Intervallbasert kjøring</h2>
 
+        <label>Hver</label>
 
-    <div>
-        <h2>Tidsplan</h2>
-        <table class="newScheduleTable">
-            <tr>
-                <td class="scheduleContainer">
-                    <table class="scheduleContainerTable">
-                        <tr>
-                            <td class="period">
-                                <label>
-                                    Hver
-                                    <input type="text" [(ngModel)]="newSchedule.period">
-                                </label>
-                            </td>
-                            <td class="colSeparator">
-                            </td>
-                            <td class="unit">
-                                <label>
-                                    <uni-select
-                                        [config]="scheduleTimeUnitSelectConfig"
-                                        [items]="scheduleTimeUnits"
-                                        (valueChange)="onNewScheduleTimeUnitChanged($event) ">
-                                    </uni-select>
-                                </label>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td class="newSchedule">
-                    <button class="new-schedule" (click)="addNewSchedule()" [disabled]="!isNumber(newSchedule.period)">Legg til</button>
-                </td>
-                <td class="colSeparator">
-                    For øyeblikket støtter vi bare én tidsplan.
-                </td>
-            </tr>
-        </table>
-    </div>
-    <hr>
-    <div>
-        <table class="scheduleTable">
-            <tr *ngFor="let item of schedules">
-                <td class="scheduleContainer">
-                    <table class="scheduleContainerTable">
-                        <tr>
-                            <td class="period">
-                                <label>
-                                    Hver
-                                    <input type="text" [(ngModel)]="item.period" (blur)="updateSchedule(item)">
-                                </label>
-                            </td>
-                            <td class="colSeparator">
-                            </td>
-                            <td class="unit">
-                                <label>
-                                    <uni-select [config]="scheduleTimeUnitSelectConfig"
-                                                [items]="scheduleTimeUnits"
-                                                (valueChange)="onScheduleTimeUnitChanged($event, item)"
-                                                [value]="getScheduleTimeUnit(item)">
-                                    </uni-select>
-                                </label>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-                <td class="colSeparatorShort">
-                </td>
-                <td class="delete-schedule">
-                    <button class="delete-schedule" (click)="deleteSchedule(item.id)"></button>
-                </td>
-                <td class="colSeparatorShort2">
-                </td>
-                <td class="static">
-                </td>
-                <td class="colSeparator">
-                </td>
-            </tr>
-        </table>
-    </div>
+        <input type="tel"
+            [(ngModel)]="newSchedule.period"
+            class="schedule-period-input"
+        />
 
+        <uni-select
+            [config]="scheduleTimeUnitSelectConfig"
+            [items]="scheduleTimeUnits"
+            (valueChange)="onNewScheduleTimeUnitChanged($event)">
+        </uni-select>
+
+        <button class="good add-schedule-button"
+            (click)="addNewSchedule()"
+            [disabled]="!isNumber(newSchedule?.period) || !newSchedule?.unit">
+            Legg til intervall
+        </button>
+    </section>
+
+    <ul class="new-schedule-list">
+        <li *ngFor="let schedule of schedules">
+            Kjør hver {{schedule.period}} {{getTimeUnitName(schedule)}}
+            <i class="material-icons" (click)="deleteSchedule(schedule.id)">
+                delete
+            </i>
+        </li>
+    </ul>
 </section>

@@ -24,8 +24,6 @@ export class SaftExportView implements OnInit {
     private busyFetch: boolean = false;
     private files: Array<ISaftFileInfo> = [];
     private currentFileId: number;
-    private activeCompany: any;
-    private token: string;
     private subscription: any;
     public jobName: string = JOBNAME;
     private baseUrl: string = environment.BASE_URL_FILES;
@@ -37,18 +35,11 @@ export class SaftExportView implements OnInit {
         private ngHttp: Http,
         private authService: AuthService,
         private modalService: UniModalService
-    ) {
-        // Subscribe to authentication/activeCompany changes
-        authService.authentication$.subscribe((authDetails) => {
-            this.activeCompany = authDetails.activeCompany;
-        });
-
-        authService.filesToken$.subscribe(token => this.token = token);
-    }
+    ) {}
 
     public ngOnInit() {
         this.loadList();
-        let timer = TimerObservable.create(5000, 5000);
+        const timer = TimerObservable.create(5000, 5000);
         this.subscription = timer.subscribe( t => {
             if (this.busy) { return; }
             if (this.files.find( x => x.busyFetch)) {
@@ -85,7 +76,7 @@ export class SaftExportView implements OnInit {
                 const details = {
                     FileID: file.FileID,
                     FileName: file.FileName,
-                    CompanyKey: this.activeCompany.Key,
+                    CompanyKey: this.authService.getCompanyKey(),
                     IncludeStartingBalance: response.IncludeStartingBalance,
                     ReuseExistingNumbers: response.ReuseExistingNumbers,
                     UpdateExistingData: response.UpdateExistingData
@@ -123,8 +114,8 @@ export class SaftExportView implements OnInit {
     }
 
     private removeFile(fileId: number) {
-        let ix = this.files.findIndex( x => x.FileID === fileId );
-        if (ix >= 0) { this.files.splice(ix, 1); }
+        const index = this.files.findIndex( x => x.FileID === fileId );
+        if (index >= 0) { this.files.splice(index, 1); }
     }
 
     private loadList() {
@@ -132,7 +123,7 @@ export class SaftExportView implements OnInit {
         this.files = [];
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
             + ',filetag.tagname as tag,filetag.status as status'
-            + "&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')"
+            + `&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
             + '&join=file.id eq filetag.fileid&top=10&orderby=id desc')
             .finally( () => this.busyFetch = false)
             .subscribe( data => {
@@ -143,10 +134,10 @@ export class SaftExportView implements OnInit {
     }
 
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {
-        var n = list.length;
-        for (var i = n - 1; i > 0; i--) {
-            let item2 = list[i];
-            let item1 = list[i - 1];
+        const n = list.length;
+        for (let i = n - 1; i > 0; i--) {
+            const item2 = list[i];
+            const item1 = list[i - 1];
             if (i > 0 && item1.FileID === item2.FileID) {
                 item1.jobid = item1.tag === 'jobid' ? item1.status : item2.tag === 'jobid' ? item2.status : 0;
                 item1.tags = `${item1.tag}=${item1.status},${item2.tag}=${item2.status}`;
@@ -175,10 +166,10 @@ export class SaftExportView implements OnInit {
                         file.disabled = false;
                         file.hasActiveJob = false;
                     } else {
-                        var lastProgress = x.Progress && x.Progress.length > 0 ?
+                        const lastProgress = x.Progress && x.Progress.length > 0 ?
                             moment(x.Progress[0].Created) : moment();
-                        var diff = moment.duration(moment().diff(moment(lastProgress)));
-                        file.diff = parseInt(diff.asMinutes().toFixed(0));
+                        const diff = moment.duration(moment().diff(moment(lastProgress)));
+                        file.diff = parseInt(diff.asMinutes().toFixed(0), 10);
                         file.hasActiveJob = file.diff < 6;
                         file.disabled = file.hasActiveJob;
                     }
@@ -191,36 +182,18 @@ export class SaftExportView implements OnInit {
             });
     }
 
-    public onUploadClick(authenticated = false) {
+    public uploadFile(event, triedReAuthenticating?: boolean) {
+        const source = event.srcElement || event.target;
+        const file: IFile = source.files && source.files[0];
 
-        if (!authenticated) {
-            this.busy = true;
-            this.authService.authenticateUniFiles()
-            .then(
-                value => {
-                    this.busy = false;
-                    this.onUploadClick(true);
-                },
-                err => {
-                    this.busy = false;
-                    this.errorService.handle(err);
-                }
-            );
-            return;
-        }
-
-        let ip: any = this.fileInput.nativeElement;
-        if (ip && ip.files && ip.files.length > 0) {
-            let f: IFile = <IFile>ip.files[0];
+        if (file) {
             this.busy = true;
 
-            let data = new FormData();
-            data.append('Token', this.token);
-            data.append('Key', this.activeCompany.Key);
-            data.append('Caption', ''); // where should we get this from the user?
-            data.append('File', <any>f);
-
-
+            const data = new FormData();
+            data.append('Token', this.authService.filesToken);
+            data.append('Key', this.authService.getCompanyKey());
+            data.append('Caption', '');
+            data.append('File', <any> file);
 
             this.ngHttp.post(this.baseUrl + '/api/file', data)
                 .map(res => res.json())
@@ -229,14 +202,27 @@ export class SaftExportView implements OnInit {
                     // references the file in UE - get the UE file and add that to the
                     // collection
                     this.fileService.Get(res.ExternalId)
-                        .subscribe(newFile => {
-                            this.fileService.tag(newFile.ID, 'SAFT', 1).subscribe(
-                                x => this.refresh()
-                            );
-                            this.currentFileId = newFile.ID;
-                            this.busy = false;
-                        }, err => this.errorService.handle(err));
-                }, err => this.errorService.handle(err));
+                        .finally(() => this.busy = false)
+                        .subscribe(
+                            newFile => {
+                                this.fileService.tag(newFile.ID, 'SAFT', 1).subscribe(
+                                    x => this.refresh()
+                                );
+                                this.currentFileId = newFile.ID;
+                            },
+                            err => this.errorService.handle(err)
+                        );
+                }, err => {
+                    if (triedReAuthenticating) {
+                        this.busy = false;
+                        this.errorService.handle(err);
+                    } else {
+                        this.authService.authenticateUniFiles().then(() => {
+                            this.uploadFile(event, true);
+                        });
+                    }
+                }
+            );
         }
     }
 }

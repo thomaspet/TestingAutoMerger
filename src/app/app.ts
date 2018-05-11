@@ -9,6 +9,7 @@ import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgre
 import {UniConfirmModalV2} from '@uni-framework/uni-modal/modals/confirmModal';
 import {UserDto} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 
 @Component({
     selector: 'uni-app',
@@ -24,6 +25,7 @@ export class App {
         private toastService: ToastService,
         private uniHttp: UniHttp,
         private errorService: ErrorService,
+        private navbarService: NavbarLinkService
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {

@@ -22,10 +22,9 @@ import {
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {IPosterWidget} from '../../../common/poster/poster';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
-import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IToolbarSubhead, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {
     DepartmentService,
     ProjectService,
@@ -59,7 +58,7 @@ import {UniHttp} from '../../../../../framework/core/http/http';
 import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 @Component({
     selector: 'customer-details',
@@ -92,7 +91,7 @@ export class CustomerDetails implements OnInit {
     public emptyEmail: Email;
     public emptyAddress: Address;
     public reportLinks: IReference[];
-    private activeTab: string = 'details';
+
     public showReportWithID: number;
     private isDisabled: boolean = true;
     private commentsConfig: ICommentsConfig;
@@ -101,18 +100,14 @@ export class CustomerDetails implements OnInit {
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
 
-     public statusTypes: Array<any> = [
-        { Code: StatusCode.Pending, Text: 'Lead' },
-        { Code: StatusCode.Active, Text: 'Aktiv' },
-        { Code: StatusCode.InActive, Text: 'Deaktivert' },
-        { Code: StatusCode.Deleted, Text: 'Slettet' },
-    ];
+    private toolbarSubheads: IToolbarSubhead[];
+    public toolbarStatusValidation: IToolbarValidation[];
 
-    public statustrack: IStatus[];
+    public tabs: IUniTab[];
+    public activeTabIndex: number = 0;
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
-        statustrack: null,
         navigation: {
             prev: this.previousCustomer.bind(this),
             next: this.nextCustomer.bind(this),
@@ -151,42 +146,6 @@ export class CustomerDetails implements OnInit {
             }
         ]
     };
-
-    private customerWidgets: IPosterWidget[] = [
-        {
-            type: 'text',
-            size: 'small',
-            config: {
-                mainText: { text: '-' },
-                topText: [
-                    { text: 'Totalt fakturert', class: 'large' },
-                    { text: '(eks. mva)', class: 'small'}
-                ]
-            }
-        },
-        {
-            type: 'text',
-            size: 'small',
-            config: {
-                mainText: { text: '-' },
-                topText: [
-                    { text: 'Åpne ordre', class: 'large' },
-                    { text: '(eks. mva)', class: 'small'}
-                ]
-            }
-        },
-        {
-            type: 'text',
-            size: 'small',
-            config: {
-                mainText: { text: '-', class: '' },
-                topText: [
-                    { text: 'Utestående', class: 'large' },
-                    { text: '', class: 'small' }
-                ]
-            }
-        }
-    ];
 
     private customerStatisticsData: any;
 
@@ -261,6 +220,14 @@ export class CustomerDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
+        this.tabs = [
+            {name: 'Detaljer'},
+            {name: 'Åpne poster'},
+            {name: 'Produkter solgt'},
+            {name: 'Dokumenter'},
+            {name: 'Selskap'},
+        ];
+
         this.setupSaveActions();
         if (!this.modalMode) {
             this.route.params.subscribe((params) => {
@@ -276,22 +243,27 @@ export class CustomerDetails implements OnInit {
                 );
                 this.setup();
 
-                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers)
-                    .subscribe(links => this.reportLinks = links, err => this.errorService.handle(err));
+                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                    links => {
+                        this.reportLinks = links;
+                        this.tabs = [...this.tabs, ...links];
+                    },
+                    err => this.errorService.handle(err)
+                );
             });
         }
     }
 
     private activateCustomer(customerID: number) {
         this.customerService.activateCustomer(customerID).subscribe(
-            res => this.statustrack = this.getStatustrackConfig(30001),
+            res => this.setCustomerStatusOnToolbar(30001),
             err => this.errorService.handle(err)
         );
     }
 
     private deactivateCustomer(customerID: number) {
         this.customerService.deactivateCustomer(customerID).subscribe(
-            res => this.statustrack = this.getStatustrackConfig(50001),
+            res => this.setCustomerStatusOnToolbar(50001),
             err => this.errorService.handle(err)
         );
     }
@@ -350,7 +322,7 @@ export class CustomerDetails implements OnInit {
 
     public addCustomer() {
         this.formIsInitialized = false;
-        this.showTab('details');
+        this.activeTabIndex = 0;
         this.router.navigateByUrl('/sales/customer/0');
         this.reset();
     }
@@ -376,8 +348,9 @@ export class CustomerDetails implements OnInit {
             moduleID: UniModules.Customers
         });
 
-        this.toolbarconfig.title = customer.ID ? customer.Info.Name : 'Ny kunde';
-        this.toolbarconfig.subheads = customer.ID ? [{title: 'Kundenr. ' + customer.CustomerNumber}] : [];
+        this.toolbarconfig.title = customer.ID
+            ? [customer.CustomerNumber, customer.Info.Name].join(' - ')
+            : 'Ny kunde';
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
@@ -405,19 +378,15 @@ export class CustomerDetails implements OnInit {
         });
     }
 
-    public showTab(tab: string, reportid: number = null) {
-        if (this.activeTab === 'reconciliation'
-            && this.ledgerAccountReconciliation
-            && this.ledgerAccountReconciliation.isDirty) {
+    public showTab(index: number) {
+        this.activeTabIndex = index;
 
-            this.activeTab = tab;
-            this.showReportWithID = reportid;
-        } else {
-            this.activeTab = tab;
-            this.showReportWithID = reportid;
-            if (this.activeTab === 'subcompany') {
-                this.subCompany.activate();
-            }
+        const tab = this.tabs[index];
+        this.showReportWithID = tab['id'];
+
+
+        if (tab.name === 'Selskap') {
+            this.subCompany.activate();
         }
     }
 
@@ -484,11 +453,10 @@ export class CustomerDetails implements OnInit {
                 this.sellers = response[11];
 
                 const customer: Customer = response[2];
-                customer.SubAccountNumberSeriesID =
-                    this.numberSeries.find(x => x.Name === 'Customer number series').ID;
+                customer.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Customer number series').ID;
                 this.setMainContact(customer);
                 this.customer$.next(customer);
-                this.statustrack = this.getStatustrackConfig();
+                this.setCustomerStatusOnToolbar();
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
@@ -501,10 +469,11 @@ export class CustomerDetails implements OnInit {
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
                 );
+
+                this.toolbarSubheads = this.getToolbarSubheads(this.customerStatisticsData);
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();
-                this.updateCustomerWidgets();
 
                 this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
@@ -533,10 +502,10 @@ export class CustomerDetails implements OnInit {
                 }
 
                 this.customer$.next(customer);
+                this.toolbarSubheads = this.getToolbarSubheads(this.customerStatisticsData);
                 this.setTabTitle();
                 this.showHideNameProperties();
-                this.updateCustomerWidgets();
-                this.statustrack = this.getStatustrackConfig();
+                this.setCustomerStatusOnToolbar();
             }, err => this.errorService.handle(err));
         }
     }
@@ -555,55 +524,55 @@ export class CustomerDetails implements OnInit {
         }
     }
 
-    private getStatustrackConfig(statusCode?: number) {
-        const statustrack: IStatus[] = [];
-        const activeStatus = statusCode || this.customer$.value.StatusCode;
+    private setCustomerStatusOnToolbar(statusCode?: number) {
+        const activeStatusCode = statusCode || this.customer$.value.StatusCode;
 
-        this.statusTypes.forEach((status) => {
-            let _state: STATUSTRACK_STATES;
+        let type: 'good' | 'bad' | 'warn';
+        let label: string;
 
-            if (!activeStatus) {
-               _state = STATUSTRACK_STATES.Disabled;
-            }
+        switch (activeStatusCode) {
+            case StatusCode.Pending:
+                type = 'warn';
+                label = 'Lead';
+            break;
+            case StatusCode.Active:
+                type = 'good';
+                label = 'Aktiv';
+            break;
+            case StatusCode.InActive:
+                type = 'bad';
+                label = 'Inaktiv';
+            break;
+            case StatusCode.Deleted:
+                type = 'bad';
+                label = 'Slettet';
+            break;
+        }
 
-            if (status.Code > activeStatus) {
-                _state = STATUSTRACK_STATES.Future;
-            } else if (status.Code < activeStatus) {
-                _state = STATUSTRACK_STATES.Completed;
-            } else if (status.Code === activeStatus) {
-                _state = STATUSTRACK_STATES.Active;
-            }
-
-            statustrack.push({
-                title: status.Text,
-                state: _state,
-                code: status.Code
-            });
-        });
-        return statustrack;
+        if (type && label) {
+            this.toolbarStatusValidation = [{
+                label: label,
+                type: type
+            }];
+        }
     }
 
-    public updateCustomerWidgets() {
-        if (this.customerStatisticsData) {
-            this.customerWidgets[0].config.mainText.text =
-                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumInvoicedExVat);
-
-            this.customerWidgets[1].config.mainText.text =
-                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumOpenOrdersExVat);
-
-            this.customerWidgets[2].config.mainText.text =
-                'kr. ' + this.numberFormat.asMoney(this.customerStatisticsData.SumDueInvoicesRestAmount);
-            this.customerWidgets[2].config.topText[1].text =
-                this.customerStatisticsData.NumberOfDueInvoices + ' forfalte fakturaer';
-
-            if (this.customerStatisticsData.NumberOfDueInvoices > 0) {
-                this.customerWidgets[2].config.mainText.class = 'bad';
-                this.customerWidgets[2].config.topText[1].class = 'small bad';
-            } else {
-                this.customerWidgets[2].config.mainText.class = '';
-                this.customerWidgets[2].config.topText[1].class = 'small';
+    public getToolbarSubheads(statisticsData): IToolbarSubhead[] {
+        return statisticsData && [
+            {
+                label: 'Ordre',
+                title: this.numberFormat.asMoney(statisticsData.SumOpenOrdersExVat)
+            },
+            {
+                label: 'Fakturert',
+                title: this.numberFormat.asMoney(statisticsData.SumInvoicedExVat)
+            },
+            {
+                label: 'Utestående',
+                title: this.numberFormat.asMoney(statisticsData.SumDueInvoicesRestAmount),
+                classname: statisticsData.SumDueInvoicesRestAmount > 0 ? 'bad' : ''
             }
-        }
+        ];
     }
 
     public extendFormConfig() {
@@ -775,7 +744,7 @@ export class CustomerDetails implements OnInit {
             customerName.Hidden = false;
             this.fields$.next(fields);
             setTimeout(() => {
-                if (this.form.field('Info.Name')) {
+                if (this.form && this.form.field('Info.Name')) {
                     this.form.field('Info.Name').focus();
                 }
             });
@@ -784,7 +753,7 @@ export class CustomerDetails implements OnInit {
             customerName.Hidden = true;
             this.fields$.next(fields);
             setTimeout(() => {
-                if (this.form.field('_CustomerSearchResult')) {
+                if (this.form && this.form.field('_CustomerSearchResult')) {
                     this.form.field('_CustomerSearchResult').focus();
                 }
             });

@@ -1,14 +1,17 @@
-<section class="application">
+<section class="uni-container">
     <section class="pointintime-filter">
         <localdate-picker-input
-                [field]="datefieldFrom"
-                (changeEvent)="onDateFromChanged($event)">
+            [field]="datefieldFrom"
+            (changeEvent)="onDateFromChanged($event)">
         </localdate-picker-input>
+
         <localdate-picker-input
-                [field]="datefieldTo"
-                (changeEvent)="onDateToChanged($event)">
+            style="margin-left: 1rem;"
+            [field]="datefieldTo"
+            (changeEvent)="onDateToChanged($event)">
         </localdate-picker-input>
     </section>
+
     <uni-table
         [config]="tableConfig"
         [resource]="(products$ | async)">

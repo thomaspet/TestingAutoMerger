@@ -1,183 +1,3 @@
-.jobDetailTable
-    width: 100%
-    height: 100%
-    table-layout: fixed
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    border-spacing: 0px 5px
-
-.jobDetailTable td.colContent
-    width: 30%
-    vertical-align: top
-
-.jobDetailTable td.colSeparator
-    width: 5%
-
-.embeddedJobDetailTable
-    width: 100%
-    height: 100%
-    table-layout: auto
-    cursor: pointer
-    margin-top: 0
-    border-spacing: 0px
-    vertical-align: bottom
-    border-collapse: separate
-
-
-.embeddedJobDetailTable td.buttonCol
-    width: 15%
-    vertical-align: bottom
-    horizontal-align: left
-
-.embeddedJobDetailTable td.dropDownCol
-    width: 35%
-    vertical-align: bottom
-
-.embeddedJobDetailTable td.dynamic
-    width: 40%
-    vertical-align: bottom
-
-.embeddedJobDetailTable button.runJob
-    background-color: $uni-color-c2a
-    margin: 0px
-
-.dynamicContainer
-    width: 100%
-    height: 100%
-    table-layout: auto
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    border-spacing: 0px
-    vertical-align: bottom
-
-.dynamicContainer td
-    padding: 0px
-    vertical-align: bottom
-
-.dynamicContainer td.dyn1
-    width: 20%
-
-.dynamicContainer td.dyn2
-    width: 70%
-
-.newScheduleTable
-    width: 100%
-    height: 100%
-    table-layout: auto
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    margin-bottom: 0
-    border-spacing: 0px
-    vertical-align: bottom
-
-.newScheduleTable td.scheduleContainer
-    width: 15%
-    vertical-align: bottom
-
-.newScheduleTable td.newSchedule
-    width: 15%
-    vertical-align: bottom
-    text-align: right
-
-.newScheduleTable td.colSeparator
-    width: 70%
-    vertical-align: bottom
-
-.newScheduleTable button.new-schedule
-    @extend .good
-    vertical-align: bottom
-    margin-bottom: 0
-
-.scheduleTable
-    width: 100%
-    height: 100%
-    table-layout: auto
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    margin-bottom: 0
-    border-spacing: 0px
-    vertical-align: bottom
-
-.scheduleTable td.scheduleContainer
-    width: 15%
-    vertical-align: bottom
-
-.scheduleTable td.colSeparatorShort
-    width: auto
-    vertical-align: bottom
-
-.scheduleTable td.delete-schedule
-    width: 1rem
-    padding-top: 1.3rem
-    padding-left: 0
-    vertical-align: bottom
-
-.scheduleTable td.colSeparatorShort2
-    width: 5%
-    vertical-align: bottom
-
-.scheduleTable td.static
-    width: 30%
-    vertical-align: bottom
-
-.scheduleTable td.colSeparator
-    width: 35%
-    vertical-align: bottom
-
-.scheduleTable button.delete-schedule
-    width: 100%
-    margin: 0 0 0 0
-    padding: 0 0 0 0
-    background: lighten($uni-color-scale6, 34%) unicon-trash($uni-color-scale3) center center no-repeat
-    background-size: 0.9rem
-    box-shadow: none
-    height: 1em
-
-.scheduleTable tr:hover button.delete-schedule
-    background: lighten($uni-color-scale6, 34%) unicon-trash(red) center center no-repeat
-    background-size: 0.8rem
-    box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
-
-.scheduleContainerTable
-    width: 100%
-    height: 100%
-    table-layout: auto
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    border-spacing: 0px 0px
-
-.scheduleContainerTable td
-    padding: 0px
-    vertical-align: bottom
-
-.scheduleContainerTable td.period
-    width: 15%
-    vertical-align: bottom
-
-.scheduleContainerTable td.unit
-    width: 20%
-    vertical-align: bottom
-
-.scheduleContainerTable td.colSeparator
-    width: 5%
-
-.jobList
-    width: 100%
-    height: 100%
-    table-layout: fixed
-    border-collapse: separate
-    cursor: pointer
-    margin-top: 0
-    border-spacing: 0px 0px
-
-.jobList th
-    text-align: left
-
 .jobLog
     width: 100%
     height: 100%
@@ -186,13 +6,13 @@
     cursor: pointer
     margin-top: 0
     border-spacing: 10px 10px
-    border: 1px solid grey;
+    border: 1px solid grey
 
 /* Simple td-helpers */
 
 td.ellipsis
-    white-space: nowrap;
-    overflow-x: hidden;
+    white-space: nowrap
+    overflow-x: hidden
     text-overflow: ellipsis
     margin-right: 1em
 
@@ -202,15 +22,55 @@ td.size-1, th.size-1
 td.size-2, th.size-2
     width: 10em
 
-table.title-button-bar
-    width: 100%
-    td:last-of-type
-        text-align: right
-    button
-        margin-left: 0
-        margin-right: 0
+recently-executed-jobs
     h2
         margin: 0
+        i.material-icons
+            vertical-align: middle
+            margin-left: .25rem
+            margin-top: -1px
+            cursor: pointer
+
+    ul.job-list
+        list-style: none
+
+job-details
+    .start-job-button
+        margin: 1rem 0
+        min-width: 10rem
+
+    .new-new-schedule
+        .schedule-period-input
+            width: 5rem
+            margin: 0 .5rem
+
+        uni-select
+            display: inline-block
+            width: 10rem
+
+        .add-schedule-button
+            height: 2rem
+            line-height: 0
+            margin: 0 .5rem
+
+    .new-schedule-list
+        list-style: none
+        margin-top: 1rem
+        li
+            width: 20rem
+            height: 2rem
+            line-height: 2rem
+            background: #fff
+            border: 1px solid $uni-color-scale8
+            border-radius: 3px
+            padding: 0 .5rem 0 .75rem
+            i.material-icons
+                float: right
+                line-height: 2rem
+                cursor: pointer
+
+saft-import-view
+    display: block
 
 saft-import-modal uni-form
     @include labelLength(20rem)

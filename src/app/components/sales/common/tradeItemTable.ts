@@ -189,8 +189,13 @@ export class TradeItemTable {
         if (this.foreignVatType) {
             const isBaseCurrencyUsed: Boolean = (currencyCodeID === this.settings.BaseCurrencyCodeID) ? true : false;
             this.items.forEach(item => {
-                item.VatTypeID = isBaseCurrencyUsed ? item.Product.VatTypeID : this.foreignVatType.ID;
-                item.VatType = isBaseCurrencyUsed ? item.Product.VatType : this.foreignVatType;
+                if (isBaseCurrencyUsed) {
+                    item.VatTypeID = (item.Product && item.Product.VatTypeID) || null;
+                    item.VatType = (item.Product && item.Product.VatType) || null;
+                } else {
+                    item.VatTypeID = this.foreignVatType.ID;
+                    item.VatType = this.foreignVatType;
+                }
             });
         }
     }

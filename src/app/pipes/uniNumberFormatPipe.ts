@@ -17,26 +17,30 @@ export class UniNumberFormatPipe implements PipeTransform {
         );
     }
 
-    public transform(value: number, format: string): string {
+    public transform(value: number, format: string, numberOfDecimals: number): string {
         try {
             if (!value) {
                 return '';
             }
 
             let numberFormatOptions;
-            if (this.settings) {
+            if (numberOfDecimals >= 0) {
+                numberFormatOptions = {
+                    decimalLength: numberOfDecimals
+                };
+            } else if (this.settings) {
                 numberFormatOptions = {
                     decimalLength: this.settings.ShowNumberOfDecimals
                 };
             }
-            
+
             switch (format) {
                 case 'percentage':
                     return this.numberFormat.asPercentage(value);
                 case 'percentagewithdecimal':
                     numberFormatOptions = {
                         decimalLength: 1
-                    }
+                    };
                     return this.numberFormat.asPercentage(value, numberFormatOptions);
                 case 'money':
                     return this.numberFormat.asMoney(value, numberFormatOptions);

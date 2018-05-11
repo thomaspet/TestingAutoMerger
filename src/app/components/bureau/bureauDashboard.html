@@ -3,7 +3,39 @@
     [saveactions]="saveActions">
 </uni-toolbar>
 
-<section class="list-content application" [attr.aria-busy]="busy">
+
+<section class="application bureau-splitview">
+
+    <section class="uni-container bureau-company-list">
+        <uni-tabs [tabs]="allTags"></uni-tabs>
+
+        <input class="bureau-search-input"
+            [formControl]="searchControl"
+            type="search"
+            placeholder="Filtrer selskaper"
+        />
+
+        <ag-grid-wrapper
+            [config]="tableConfig"
+            [resource]="filteredCompanies"
+            (rowSelectionChange)="onRowClick($event)">
+        </ag-grid-wrapper>
+    </section>
+
+    <section class="uni-container bureau-company-details">
+        <header>{{highlightedCompany?.Name}}</header>
+        <uni-tabs [tabs]="detailsTabs"></uni-tabs>
+
+        <router-outlet></router-outlet>
+
+        <!-- <uni-dashboard-detail-view *ngIf="highlightedCompany">
+            <router-outlet></router-outlet>
+        </uni-dashboard-detail-view> -->
+    </section>
+
+</section>
+
+<!-- <section class="list-content application" [attr.aria-busy]="busy">
     <ul class="bureau-predefined-filters">
         <li [routerLink]="[]"
             routerLinkActive="router-link-active"
@@ -32,7 +64,11 @@
 
     <section class="uni-split-view-container">
         <section class="left-side">
-            <table class="uni-table">
+            <ag-grid-wrapper
+                [config]="tableConfig"
+                [resource]="filteredCompanies">
+            </ag-grid-wrapper> -->
+            <!-- <table class="uni-table">
                 <section [ngClass]="{hidden: !contextMenuCompany}" #contextMenu class="unitable-contextmenu bureau-context-menu">
                     <ul>
                         <li (click)="addLabel(contextMenuCompany)">Editer filter</li>
@@ -79,8 +115,8 @@
                         </td>
                     </tr>
                 </ng-container>
-            </table>
-        </section>
+            </table> -->
+        <!-- </section>
         <section class="right-side" *ngIf="!!highlightedCompany">
             <uni-dashboard-detail-view>
                 <router-outlet></router-outlet>
@@ -88,3 +124,4 @@
         </section>
     </section>
 </section>
+-->

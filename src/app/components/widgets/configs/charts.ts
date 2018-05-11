@@ -38,7 +38,7 @@ export const CHARTS = [
         id: 'transaction_accounting',
         description: 'Transaksjoner - Regnskap',
         width: 8,
-        height: 3,
+        height: 4,
         widgetType: 'transaction',
         config: {
             dashboard: 'Accounting' // Identifyer for which fields to show.. fix while not dynamic
@@ -68,8 +68,8 @@ export const CHARTS = [
         id: 'chart_operating_profits',
         description: 'Driftsresultater',
         permissions: ['ui_accounting_accountingreports'],
-        width: 4,
-        height: 3,
+        width: 7,
+        height: 5,
         widgetType: 'chart',
         config: {
             chartType: 'line',

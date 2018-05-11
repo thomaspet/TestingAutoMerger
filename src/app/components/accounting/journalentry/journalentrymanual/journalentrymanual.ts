@@ -107,6 +107,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public saveactions: IUniSaveAction[];
     public isDirty: boolean = false;
+    public attachmentsMinimized: boolean;
+    public attachmentsStacked: boolean;
 
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
@@ -837,6 +839,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
             return 'warn';
         }
         return 'good';
+    }
+
+    public getValidationIcon(validationLevel: number): string {
+        const type = this.getValidationLevelCss(validationLevel);
+        if (type === 'good') {
+            return 'check_circle';
+        } else {
+            return type === 'error' ? 'error' : 'warning';
+        }
     }
 
     public getFormattedNumber(num): string {

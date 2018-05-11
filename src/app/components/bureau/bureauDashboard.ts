@@ -20,6 +20,9 @@ import {Router, ActivationEnd} from '@angular/router';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+
 enum KPI_STATUS {
     StatusUnknown = 0,
     StatusInProgress = 1,
@@ -27,9 +30,9 @@ enum KPI_STATUS {
     StatusReady = 3,
 }
 
-export type AllTagsType = {
-    name: string,
-    count: number,
+interface AllTagsType {
+    name: string;
+    count: number;
 }
 
 @Component({
@@ -50,10 +53,22 @@ export class BureauDashboard {
     public currentSortField: string;
     public sortIsDesc: boolean = true;
     public companyTags: BureauTagsDictionary = {};
+
     public allTags: AllTagsType[];
     public activeTag: string;
-    public contextMenuCompany: KpiCompany;
+
     @ViewChild('contextMenu') private contextMenu: ElementRef;
+
+    public tableConfig: UniTableConfig = this.getTableConfig();
+    public detailsTabs: IUniTab[] = [
+        {name: 'Oppgaver', path: 'tasks'},
+        {name: 'Firma', path: 'company'},
+        {name: 'Regnskap', path: 'accounting'},
+        {name: 'Salg', path: 'sales'},
+        {name: 'Lønn', path: 'salary'},
+        {name: 'Time', path: 'hours'},
+    ];
+
 
     constructor(
         private errorService: ErrorService,
@@ -81,12 +96,13 @@ export class BureauDashboard {
     }
 
     public ngOnInit() {
-        let userPreferences = this.getUserPreferences();
+        const userPreferences = this.getUserPreferences();
         this.searchControl = new FormControl(userPreferences.filterString || '');
         this.sortIsDesc = userPreferences.sortIsDesc || true;
         this.currentSortField = userPreferences.sortField;
         this.companyTags = userPreferences.tagsForCompany || {};
         this.allTags = this.generateAllTags(this.companyTags);
+
         this.authService.authentication$
             .asObservable()
             .filter(auth => !!auth.user)
@@ -107,6 +123,12 @@ export class BureauDashboard {
             .do(() => this.busy = false)
             .subscribe(
                 res => {
+                    // const bigData = [];
+                    // for (let i = 0; i < 40; i++) {
+                    //     bigData.push(...res);
+                    // }
+
+                    // this.companies = this.mapKpiCounts(bigData);
                     this.companies = this.mapKpiCounts(res);
                     if (this.companies.length > 0) {
                         this.setCurrentCompany(this.companies[0]);
@@ -118,27 +140,71 @@ export class BureauDashboard {
             );
         this.router.events
             .filter((event) => event instanceof ActivationEnd)
-            .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag'])
+            .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag']);
+    }
+
+    private getTableConfig(): UniTableConfig {
+        const companyNameCol = new UniTableColumn('Name', 'Selskap', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setWidth(240);
+            // .setLinkClick(row => this.onCompanyNameClick(row))
+            // .setAlignment('left');
+
+        const orgnrCol = new UniTableColumn('OrganizationNumber', 'Org.nr');
+
+        const inboxCol =  new UniTableColumn('_inboxCount', 'Fakturainnboks', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setAlignment('center');
+            // .setLinkClick(row => this.onCompanyInboxClick(row));
+
+        const approvalCol = new UniTableColumn('_approvedCount', 'Godkjente faktura', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            // .setLinkClick(row => this.onCompanyApprovalsClick(row));
+            .setAlignment('center');
+            // .setOnCellClick(row => this.onCompanyApprovalsClick(row));
+
+        companyNameCol.linkClick = row => this.onCompanyNameClick(row);
+        inboxCol.linkClick = row => this.onCompanyInboxClick(row);
+        approvalCol.linkClick = row => this.onCompanyApprovalsClick(row);
+
+        return new UniTableConfig('bureau_company_list', false, true, 15)
+            .setAutofocus(true)
+            .setColumnMenuVisible(true)
+            .setColumns([companyNameCol, orgnrCol, inboxCol, approvalCol])
+            .setContextMenu([
+                {
+                    label: 'Legg til i filter',
+                    action: item => this.addLabel(item)
+                },
+                {
+                    label: 'Administrer produkter',
+                    action: item => this.editPurchases(item)
+                }
+            ]);
     }
 
     public generateAllTags(companyTags: BureauTagsDictionary): AllTagsType[] {
         const tags = Object.keys(companyTags)
             .map(key => this.companyTags[key])
-            .reduce(
-                (allTags, tags) => {
-                    for (const tag of tags) {
-                        allTags[tag] = (allTags[tag] || []);
-                        allTags[tag].push(tag);
-                    }
-                    return allTags;
+            .reduce((allTags, tags) => {
+                for (const tag of tags) {
+                    allTags[tag] = (allTags[tag] || []);
+                    allTags[tag].push(tag);
                 }
-                ,{}
-            );
-        return Object.keys(tags)
-            .map(key => <AllTagsType>{
-                name: key,
-                count: tags[key].length,
-            });
+                return allTags;
+            }, {});
+
+        const tagList =  Object.keys(tags).map(key => <AllTagsType>{
+            name: key,
+            count: tags[key].length,
+        });
+
+        tagList.unshift({
+            name: 'Alle',
+            count: this.filteredCompanies && this.filteredCompanies.length
+        });
+
+        return tagList;
     }
 
     public ngOnDestroy() {
@@ -165,6 +231,10 @@ export class BureauDashboard {
             });
         } else {
             this.filteredCompanies = this.companies;
+        }
+
+        if (this.allTags && this.allTags[0]) {
+            this.allTags[0].count = this.filteredCompanies.length;
         }
 
         this.sortBy(this.currentSortField);
@@ -195,7 +265,7 @@ export class BureauDashboard {
         return '';
     }
 
-    public startCompanyCreation(doneCallback: (string)=>void) {
+    public startCompanyCreation(doneCallback: (string) => void) {
         this.uniModalService.open(UniNewCompanyModal).onClose
             .subscribe(company => {
                 if (!company) {
@@ -232,11 +302,11 @@ export class BureauDashboard {
         });
     }
 
-    public getSortArrow(key: string) {
-        if (this.currentSortField === key) {
-            return this.sortIsDesc ? '▼' : '▲';
-        }
-    }
+    // public getSortArrow(key: string) {
+    //     if (this.currentSortField === key) {
+    //         return this.sortIsDesc ? '▼' : '▲';
+    //     }
+    // }
 
     public onCompanyNameClick(company: KpiCompany) {
         this.redirectToCompanyUrl(company);
@@ -280,23 +350,6 @@ export class BureauDashboard {
         return preferences || <BureauPreferences>{};
     }
 
-    public openContextMenu(event: any, company: KpiCompany) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.contextMenuCompany = company;
-        const offsetTop = (event.target.parentElement.offsetTop + event.target.parentElement.offsetHeight) + 'px';
-        this.contextMenu.nativeElement.style = `top: ${offsetTop}`;
-        const that = this;
-        this.elementRef.nativeElement.addEventListener('click', function listener(event) {
-            that.closeContextMenu();
-            that.elementRef.nativeElement.removeEventListener(event.type, listener);
-        });
-    }
-
-    private closeContextMenu() {
-        this.contextMenuCompany = null;
-    }
-
     public addLabel(company: KpiCompany) {
         const tags = this.companyTags[company.ID] || [];
         this.modalService
@@ -308,7 +361,6 @@ export class BureauDashboard {
             .onClose
             .subscribe(
                 newTagString => {
-                    this.closeContextMenu();
                     if (!isNullOrUndefined(newTagString)) {
                         const newLabels = newTagString.split(',')
                             .map(tag => tag.trim())
@@ -317,22 +369,20 @@ export class BureauDashboard {
                         this.allTags = this.generateAllTags(this.companyTags);
                     }
                 }
-            )
+            );
     }
 
     public editPurchases(company: KpiCompany) {
-        this.modalService
-            .open(ManageProductsModal, {
-                header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
-                data: {companyKey: company.Key},
-            })
+        this.modalService.open(ManageProductsModal, {
+            header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
+            data: {companyKey: company.Key},
+        });
     }
 
     public companyHasTag(company: KpiCompany, tag: string): boolean {
         if (!tag) {
             return true; // show everything if there is no active tag
         }
-        return (this.companyTags[company.ID] || [])
-                .some(tag => tag === this.activeTag);
+        return (this.companyTags[company.ID] || []).some(tag => tag === this.activeTag);
     }
 }

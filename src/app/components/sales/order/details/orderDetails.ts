@@ -62,7 +62,6 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
-import {ISummaryConfig} from '../../../common/summary/summary';
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
@@ -75,7 +74,7 @@ import {UniTofSelectModal} from '../../common/tofSelectModal';
 
 import {StatusCode} from '../../salesHelper/salesEnums';
 import {TofHelper} from '../../salesHelper/tofHelper';
-import {TradeItemHelper} from '../../salesHelper/tradeItemHelper';
+import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
 import * as moment from 'moment';
@@ -101,7 +100,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private contextMenuItems: IContextMenuItem[] = [];
     private shareActions: IShareAction[];
     private saveActions: IUniSaveAction[] = [];
-    public summary: ISummaryConfig[] = [];
+
+    public currencyInfo: string;
+    public summaryLines: ISummaryLine[];
+
     private toolbarconfig: IToolbarConfig;
     private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
@@ -216,7 +218,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
    ) {}
 
     public ngOnInit() {
-        this.setSums();
+        // this.setSums();
 
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((orderItems) => {
@@ -1080,15 +1082,23 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     private recalcItemSums(orderItems: any) {
-        if (!orderItems || !orderItems.length) {
-            return;
+        const items = orderItems && orderItems.filter(item => !item.Deleted);
+        const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
+
+        this.itemsSummaryData = items && items.length
+            ? this.tradeItemHelper.calculateTradeItemSummaryLocal(items, decimals)
+            : undefined;
+
+        if (this.itemsSummaryData) {
+            this.summaryLines = this.tradeItemHelper.getSummaryLines2(items, this.itemsSummaryData);
         }
 
-        this.order.Items = orderItems;
-        this.itemsSummaryData = this.tradeItemHelper
-            .calculateTradeItemSummaryLocal(orderItems, this.companySettings.RoundingNumberOfDecimals);
+        if (this.currencyCodeID && this.currencyExchangeRate) {
+            this.currencyInfo = `${this.getCurrencyCode(this.currencyCodeID)} `
+                + `(kurs: ${this.numberFormat.asMoney(this.currencyExchangeRate)})`;
+        }
+
         this.updateToolbar();
-        this.setSums();
     }
 
     private newBasedOn(): Promise<any> {
@@ -1278,42 +1288,5 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
-    }
-
-    private setSums() {
-        this.summary = [{
-            value: this.getCurrencyCode(this.currencyCodeID),
-            title: 'Valuta:',
-                description: this.currencyExchangeRate ?
-                'Kurs: ' + this.numberFormat.asMoney(this.currencyExchangeRate) : ''
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumNoVatBasisCurrency) : null,
-            title: 'Avgiftsfritt',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumVatBasisCurrency) : null,
-            title: 'Avgiftsgrunnlag',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumDiscountCurrency) : null,
-            title: 'Sum rabatt',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumTotalExVatCurrency) : null,
-            title: 'Nettosum',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumVatCurrency) : null,
-            title: 'Mva',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.DecimalRoundingCurrency) : null,
-            title: 'Øreavrunding',
-        }, {
-                value: this.itemsSummaryData ?
-                    this.numberFormat.asMoney(this.itemsSummaryData.SumTotalIncVatCurrency) : null,
-            title: 'Totalsum',
-        }];
     }
 }

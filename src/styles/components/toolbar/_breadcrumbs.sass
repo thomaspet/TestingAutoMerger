@@ -1,12 +1,11 @@
 .breadcrumbs,
 uni-breadcrumbs
-    margin: 0 auto
-    padding: .5rem 1rem 0
+    margin: 0
+    padding: 0
     list-style: none
 
     li
         display: inline-block
-        color: rgba(255,255,255,.8)
 
         &:before
             display: none
@@ -15,33 +14,17 @@ uni-breadcrumbs
         &:not(:last-child):after
             content: '\203A'
             display: inline-block
+            font-size: 19px
             padding: 0 .3rem
-            color:  rgba(255,255,255,.5)
-
-        a:link.home
-            @extend %hideText
-            display: inline-block
-            height: 1rem
-            width: 1rem
-            background: unicon-home(rgba(255,255,255,1)) center center no-repeat
-            background-size: 1rem
-            position: relative
-            top: .2rem
-            border-bottom-color: transparent
-
-            &:hover,
-            &:focus
-                background-image: unicon-home-filled(rgba(255,255,255,1))
-                border-bottom-color: transparent
-
+            color: $toolbar-grey
 
         a:link,
         a:visited
+            text-transform: uppercase
             text-decoration: none
-            color:  rgba(255,255,255,.8)
-            border-bottom: pxToRem(1) solid rgba(255,255,255,.2)
+            color: $toolbar-grey
+            font-size: 13px
 
         a:hover,
         a:focus
-            color:  rgba(255,255,255,1)
-            border-bottom-color: white
+            color: lighten($toolbar-grey, 10%)

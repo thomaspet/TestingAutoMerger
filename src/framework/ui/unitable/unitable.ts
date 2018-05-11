@@ -775,20 +775,25 @@ export class UniTable implements OnChanges {
     }
 
     private getLocalDataColumnSums() {
+        this.columnSums = undefined;
         const sumColumns = this.tableColumns.filter(col => col.get('isSumColumn')).toJS() || [];
-        const sums = {};
 
-        sumColumns.forEach((col: UniTableColumn, index: number) => {
-            sums[col.field] = this.tableData.reduce((sum, row) => {
-                return sum += parseInt(row.get(col.field), 10) || 0;
-            }, 0);
-        });
+        if (sumColumns && sumColumns.length) {
+            const sums = {};
+            sumColumns.forEach((col: UniTableColumn, index: number) => {
+                sums[col.field] = this.tableData.reduce((sum, row) => {
+                    return sum += parseInt(row.get(col.field), 10) || 0;
+                }, 0);
+            });
 
-        this.columnSums = sums;
+            this.columnSums = sums;
+        }
+
         this.cdr.markForCheck();
     }
 
     private getColumnSums() {
+        this.columnSums = undefined;
         let sumColumns = this.tableColumns.filter(col => col.get('isSumColumn')).toJS();
 
         if (!this.config.entityType || !sumColumns || !sumColumns.length) {
@@ -816,7 +821,7 @@ export class UniTable implements OnChanges {
                     columnSums[col.field] = sums[col._selectAlias];
                 });
 
-                this.columnSums = columnSums;
+                this.columnSums = Object.keys(columnSums).length ? columnSums : undefined;
                 this.cdr.markForCheck();
             });
     }

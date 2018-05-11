@@ -1,7 +1,9 @@
 import {Component, ViewChild, OnInit, Type} from '@angular/core';
+import {Router, ActivatedRoute} from '@angular/router';
+
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {ReportDefinition, UniQueryDefinition} from '../../unientities';
-import {ReportDefinitionService, UniQueryDefinitionService, ErrorService, PageStateService} from '../../services/services';
+import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../services/services';
 import {Report} from '../../models/reports/report';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
 import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
@@ -18,7 +20,6 @@ import {
     ReconciliationListParamsModalComponent
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
-import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
@@ -39,7 +40,8 @@ interface ISubGroup {
 
 @Component({
     selector: 'uni-reports',
-    templateUrl: './reports.html'
+    templateUrl: './reports.html',
+    styleUrls: ['./reports.sass']
 })
 export class UniReports implements OnInit {
 
@@ -109,9 +111,9 @@ export class UniReports implements OnInit {
         private reportDefinitionService: ReportDefinitionService,
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private router: Router,
+        private route: ActivatedRoute,
         private errorService: ErrorService,
         private uniModalService: UniModalService,
-        private pageStateService: PageStateService
     ) {
         this.tabService.addTab({
             name: 'Rapportoversikt',
@@ -119,6 +121,27 @@ export class UniReports implements OnInit {
             moduleID: UniModules.Reports,
             active: true
         });
+
+        this.route.queryParamMap.subscribe(paramMap => {
+            const category = paramMap.get('category');
+            if (category) {
+                const tabIndex = this.mainGroups.findIndex(group => {
+                    return group.name.toLowerCase() === category.toLowerCase();
+                });
+
+                if (tabIndex >= 0) {
+                    this.activeTabIndex = tabIndex;
+                }
+            }
+        });
+    }
+
+    public showReport(report: any) {
+        if (report.IsQuery) {
+            this.showUniQuery(report);
+        } else {
+            this.showReportParams(report);
+        }
     }
 
     public showReportParams(report: ReportDefinition) {
@@ -207,7 +230,6 @@ export class UniReports implements OnInit {
 
     public ngOnInit() {
         this.busy = true;
-        this.checkPageState();
         Observable.forkJoin(
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
@@ -225,20 +247,6 @@ export class UniReports implements OnInit {
                 this.placeReport(<Report>element);
             }
         });
-    }
-
-    private checkPageState() {
-        const state = this.pageStateService.getPageState();
-        if (state.category) {
-            const index = this.mainGroups.findIndex(x => x.name.toLowerCase() === state.category);
-            if (index >= 0) {
-                this.activeTabIndex = index;
-            }
-        }
-    }
-
-    private onTabChange(tab: IMainGroup, idx: number) {
-        this.pageStateService.setPageState('category', tab.name.toLowerCase());
     }
 
     private placeReport(report: Report) {

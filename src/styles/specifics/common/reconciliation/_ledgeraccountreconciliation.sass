@@ -1,18 +1,22 @@
 ledger-account-reconciliation
+    display: block
+
     .action-buttons
-        margin-top: 0.5rem
+        margin-bottom: 1rem
         float: right
 
         button
-            margin-top: 0
-            margin-right: 0
+            margin: 0 0 0 .5rem
+            height: 2.25rem
+            line-height: 0
+            min-width: 6rem
+            color: #fff
 
         select
             width: auto
+            height: 2.25rem
+            border-radius: 3px
 
-    h2
-        display: inline-block
-        margin-top: 0rem
 
     .reconciliation-marked-row
         font-style: italic
@@ -24,13 +28,3 @@ ledger-account-reconciliation
     .reconciliation-likely-match
         background-color: transparentize($uni-color-good, .7)
         opacity: 0.6
-
-    uni-summary
-        position: fixed
-        bottom: pxToRem(0)
-        padding-left: 0rem !important
-        padding-right: 2rem !important
-
-
-    button
-        color: white !important

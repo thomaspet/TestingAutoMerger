@@ -3,18 +3,20 @@
 </uni-toolbar>
 
 <section class="application">
-    <section class="uni-checkbox">
-        <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
-        <label class="reminder_stop_filter" for="purrestopp">
-            Vis faktura med purrestopp
-        </label>
-    </section>
+    <section class="uni-container">
+        <section class="uni-checkbox">
+            <input id="purrestopp" type="checkbox" [(ngModel)]="showInvoicesWithReminderStop" (change)="updateReminderTable()" />
+            <label class="reminder_stop_filter" for="purrestopp">
+                Vis faktura med purrestopp
+            </label>
+        </section>
 
-    <ag-grid-wrapper
-        [resource]="reminderList"
-        [config]="reminderTable"
-        (rowSelectionChange)="onRowSelectionChange($event)">
-    </ag-grid-wrapper>
-    <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+        <ag-grid-wrapper
+            [resource]="reminderList"
+            [config]="reminderTable"
+            (rowSelectionChange)="onRowSelectionChange($event)">
+        </ag-grid-wrapper>
+        <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+    </section>
 </section>
 

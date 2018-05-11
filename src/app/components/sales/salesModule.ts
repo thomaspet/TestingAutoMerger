@@ -14,6 +14,7 @@ import {CustomerProductsSold} from './customer/customerDetails/customerProductsS
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
+import {AppPipesModule} from '@app/pipes/appPipesModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
@@ -51,7 +52,6 @@ import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerLinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
-import {SellerDetailsComponent} from './sellers/sellerDetailsComponent';
 import {UniDimensionTOFView} from './common/dimensionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
@@ -66,7 +66,7 @@ import {KIDSettings} from './kidSettings/kidSettings';
         RouterModule.forChild(salesRoutes),
 
         UniFrameworkModule,
-
+        AppPipesModule,
         WidgetModule,
         LayoutModule,
         AppCommonModule,
@@ -121,8 +121,6 @@ import {KIDSettings} from './kidSettings/kidSettings';
         SellerLinks,
         SellerDetails,
         SellerSalesList,
-        SellerDetailsComponent,
-
         KIDSettings,
     ],
     entryComponents: [

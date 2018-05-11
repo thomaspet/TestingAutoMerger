@@ -1,25 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {SupplierService, ErrorService, CompanySettingsService, StatisticsService} from '../../../../services/services';
-import {Supplier, CompanySettings} from '../../../../unientities';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable/index';
+import {SupplierService, ErrorService, CompanySettingsService, StatisticsService} from '@app/services/services';
+import {Supplier, CompanySettings} from '@app/unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-
-interface IFilter {
-    name: string;
-    label: string;
-    isSelected?: boolean;
-    count?: number;
-    total?: number;
-    filter?: string;
-    showStatus?: boolean;
-    showJournalID?: boolean;
-    route?: string;
-    onDataReady?: (data) => void;
-    passiveCounter?: boolean;
-    hotCounter?: boolean;
-}
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniSaveAction} from '@uni-framework/save/save';
 
 @Component({
     selector: 'supplier-list',
@@ -30,31 +17,18 @@ export class SupplierList implements OnInit {
     private companySettings: CompanySettings;
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
-    private filter: string = 'statuscode ne 50001';
 
-    public filters: IFilter[] = [
-         {
-            label: 'Aktiv',
-            name: 'Active',
-            filter: 'statuscode ne 50001',
-            isSelected: true,
-            count: 0,
-        },
-        {
-            label: 'Inaktiv',
-            name: 'Inactive',
-            filter: 'statuscode eq 50001',
-            passiveCounter: true,
-            count: 0,
-        },
-        {
-            label: 'Alle',
-            name: 'All',
-            filter: '',
-            passiveCounter: true,
-            count: 0,
-        },
+    private filter: string = 'statuscode ne 50001';
+    public tabs: IUniTab[] = [
+        {name: 'Aktiv', value: 'statuscode ne 50001'},
+        {name: 'Inaktiv', value: 'statuscode eq 50001'},
+        {name: 'Alle', value: ''},
     ];
+
+    public createNewAction: IUniSaveAction = {
+        label: 'Ny leverandør',
+        action: () => this.createSupplier()
+    };
 
     constructor(
         private router: Router,
@@ -65,7 +39,10 @@ export class SupplierList implements OnInit {
         private statisticsService: StatisticsService,
     ) {
         this.tabService.addTab({
-            name: 'Leverandører', url: '/accounting/suppliers', active: true, moduleID: UniModules.Suppliers
+            name: 'Leverandører',
+            url: '/accounting/suppliers',
+            active: true,
+            moduleID: UniModules.Suppliers
         });
     }
 
@@ -75,21 +52,19 @@ export class SupplierList implements OnInit {
             `&select=sum(casewhen((Supplier.StatusCode ne '50001')\,1\,0)) as Active,` +
             `sum(casewhen((Supplier.StatusCode eq '50001')\,1\,0)) as Inactive,` +
             `sum(casewhen(ID gt 0\,1\,0)) as AllSuppliers`
-        )
-            .subscribe(
-                res => {
-                    this.filters[0].count = res.Data[0].Active;
-                    this.filters[1].count = res.Data[0].Inactive;
-                    this.filters[2].count = res.Data[0].AllSuppliers;
-                },
-                err => this.errorService.handle(err)
-            );
+        ).subscribe(
+            res => {
+                this.tabs[0].count = res.Data[0].Active;
+                this.tabs[1].count = res.Data[0].Inactive;
+                this.tabs[2].count = res.Data[0].AllSuppliers;
+            },
+            err => this.errorService.handle(err)
+        );
 
-        this.companySettingsService.Get(1)
-            .subscribe(settings => {
-                this.companySettings = settings;
-                this.setupSupplierTable();
-            }, err => this.errorService.handle(err));
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.companySettings = settings;
+            this.setupSupplierTable();
+        }, err => this.errorService.handle(err));
     }
 
     public createSupplier() {
@@ -100,10 +75,8 @@ export class SupplierList implements OnInit {
         this.router.navigateByUrl('/accounting/suppliers/' + event.rowModel.ID);
     }
 
-     public onFilterClick(filter: IFilter, searchFilter?: string) {
-        this.filters.forEach(f => f.isSelected = false);
-        filter.isSelected = true;
-        this.filter = filter.filter;
+     public onFilterClick(filter: IUniTab) {
+        this.filter = filter.value;
         this.setupSupplierTable();
     }
 

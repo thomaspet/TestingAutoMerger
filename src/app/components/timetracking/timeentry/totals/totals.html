@@ -1,19 +1,23 @@
-<h2>Totaler</h2>
-<aside class="regtime_filters">
-    <ul>
-        <li *ngFor="let src of sources">
-            <a (click)="onSourceClick(src)" [ngClass]="{'router-link-active': src.isSelected}" >{{src.label}}</a> 
-        </li>
-    </ul>       
-    <ul>
-        <li *ngFor="let filter of filters">
-            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a> 
-        </li>
-    </ul>    
-</aside>
+<!-- Source select -->
+<mat-form-field style="margin-right: 1rem;">
+    <mat-select [value]="currentSource" (valueChange)="onSourceClick($event)" placeholder="Visning">
+        <mat-option *ngFor="let source of sources" [value]="source">
+            {{ source.label }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
 
-<section class="timeentry-scrollview" *ngIf="config" [attr.aria-busy]="busy">
-    <table class="timeentriesTable">
+<!-- Period select -->
+<mat-form-field>
+    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
+        <mat-option *ngFor="let filter of filters" [value]="filter">
+            {{ filter.label }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+
+<section class="timeentry-scrollview" [attr.aria-busy]="busy">
+    <table class="timeentriesTable" *ngIf="config?.items?.length">
         <thead><tr>
             <th> </th>
             <th class="right" *ngFor="let col of config.columns">{{col.label}}</th>
@@ -32,4 +36,9 @@
             </tr>
         </tbody>
     </table>
+
+    <small *ngIf="!config?.items?.length">
+        Ingenting å vise
+    </small>
 </section>
+

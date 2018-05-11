@@ -5,7 +5,7 @@ import {WidgetDataService} from '../widgetDataService';
 @Component({
     selector: 'uni-rss',
     template: `
-        <section class="uni-widget-header">Nytt om Uni Economy</section>
+        <section class="uni-widget-header">Nyhetsbrev</section>
         <ul>
             <li *ngFor="let item of rssFeed" class="rss-item">
                 <img *ngIf="item.Image" [src]="item.Image" />

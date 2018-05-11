@@ -2,35 +2,41 @@
     [config]="toolbarconfig"
     [saveactions]="saveActions">
 </uni-toolbar>
-<section class="horizontal_nav">
-    <ul>
-        <li *ngFor="let tab of tabs; let idx = index">
-            <a (click)="changeTab(idx)" [ngClass]="{'router-link-active': activeTabIndex === idx}">
-                {{tab}}
-            </a>
-        </li>
-    </ul>
-</section>
-<section style="margin-top: 2rem">
-    <div style="float: left; width: 20%; padding: 0 2%; box-sizing: border-box;">
-        <select
-            #selectElem (change)="dimChange(selectElem.value)"
-            style="margin-bottom: 2rem; display: inline-block; height: 2rem; padding: 0.187rem 0.5rem; background-color: #fff; border: 0.0625rem solid #C3CAD9; border-radius: 0.125rem; font-weight: 400;">
-            <option *ngFor="let dim of dimensionMetaData" [value]="dim.Dimension" [selected]="dim.Dimension == currentDimension" style="color: #1d4882; ">
+
+<section class="application">
+
+    <section class="dimension-list uni-container">
+        <select #selectElem (change)="dimChange(selectElem.value)">
+            <option *ngFor="let dim of dimensionMetaData"
+                [value]="dim.Dimension"
+                [selected]="dim.Dimension == currentDimension">
                 {{ dim.Label }}
             </option>
         </select>
-        <uni-table [resource]="dimensionList" [config]="tableConfig" (rowSelected)="onRowSelected($event)"></uni-table>
-    </div>
-    <div class="uni-dimension-form-class" style="float: left; width: 79%;">
+
+        <uni-table
+            [resource]="dimensionList"
+            [config]="tableConfig"
+            (rowSelected)="onRowSelected($event)">
+        </uni-table>
+    </section>
+
+    <section class="dimension-details uni-container">
+        <uni-tabs [tabs]="tabs" (activeIndexChange)="changeTab($event)"></uni-tabs>
+
         <uni-form
-        *ngIf="activeTabIndex === 0"
+            *ngIf="activeTabIndex === 0"
             [config]="{}"
             [fields]="fields$"
             [model]="model$">
         </uni-form>
-        <h3 *ngIf="activeTabIndex > 0 && !currentItem?.ID" style="font-size: 1.8rem; font-weight: 100; margin-top: 0;"> Ingenting å vise </h3>
-        <h3 *ngIf="activeTabIndex > 0 && currentItem?.ID" style="font-size: 1.8rem; font-weight: 100; margin-top: 0;"> {{ currentItem[numberKey] }} - {{ currentItem.Name }} </h3>
-        <uni-table *ngIf="activeTabIndex > 0" [resource]="lookupFunction" [config]="TOFTableConfig" (rowSelected)="onTOFRowSelected($event)"></uni-table>
-    </div>
+
+        <uni-table
+            *ngIf="activeTabIndex > 0"
+            [resource]="lookupFunction"
+            [config]="TOFTableConfig"
+            (rowSelected)="onTOFRowSelected($event)">
+        </uni-table>
+    </section>
+
 </section>

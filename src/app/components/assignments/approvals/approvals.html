@@ -1,5 +1,5 @@
 <!-- Selection list -->
-<section class="assignment-list">
+<section class="uni-container assignment-list">
     <section class="assignment-filters">
         <section class="uni-checkbox">
             <input type="checkbox" class="toggle"
@@ -22,47 +22,41 @@
             </section>
 
             <section class="assignment-buttons">
-                <button *ngIf="approval._activeApproval" class="bad" (click)="approveOrReject(approval, false)">
-                    Avvis
-                </button>
+                <i class="material-icons approve-approval"
+                    role="button"
+                    title="Godkjenn"
+                    *ngIf="approval._activeApproval"
+                    (click)="approveOrReject(approval, true)">
+                    check_circle
+                </i>
 
-                <button *ngIf="approval._activeApproval" class="good" (click)="approveOrReject(approval, true)">
-                    Godkjenn
-                </button>
+                <i class="material-icons reject-approval"
+                    role="button"
+                    title="Avvis"
+                    *ngIf="approval._activeApproval"
+                    (click)="approveOrReject(approval, false)">
+                    add_circle
+                </i>
             </section>
         </li>
     </ul>
 </section>
 
 <!-- Details -->
-<section class="assignment-details">
+<section class="uni-container assignment-details">
+    <header>
+        {{title}}
+    </header>
 
-    <table class="header">
-        <tr><td><h2>{{title}}</h2></td>
-        <td class="right"><uni-comments
-            *ngIf="selectedApproval"
-            [entity]="entityType"
-            [entityID]="entityID"
-            [toggleMode]="true">
-        </uni-comments></td>
-        </tr>
-    </table>
+    <section *ngIf="selectedApproval" class="assignment-details-content">
+        <supplier-invoice-preview
+            *ngIf="entityType==='SupplierInvoice'"
+            [task]="selectedApproval?.Task">
+        </supplier-invoice-preview>
 
-    <section class="assignment-details-content">
-        <!-- Hard coded or nothing now -->
-        <!-- Can backend tell us the entity type? -->
-        <article *ngIf="selectedApproval">
-
-            <supplier-invoice-preview
-                *ngIf="entityType==='SupplierInvoice'"
-                [task]="selectedApproval?.Task">
-            </supplier-invoice-preview>
-
-            <work-approval-preview
-                *ngIf="entityType==='WorkItemGroup'"
-                [task]="selectedApproval?.Task">
-            </work-approval-preview>
-
-        </article>
+        <work-approval-preview
+            *ngIf="entityType==='WorkItemGroup'"
+            [task]="selectedApproval?.Task">
+        </work-approval-preview>
     </section>
 </section>

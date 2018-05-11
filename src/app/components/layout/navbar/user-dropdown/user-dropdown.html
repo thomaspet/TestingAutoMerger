@@ -1,0 +1,25 @@
+<i class="material-icons" [matMenuTriggerFor]="userMenu">
+    account_circle
+</i>
+
+<mat-menu #userMenu="matMenu" yPosition="below" [overlapTrigger]="false">
+    <ng-template matMenuContent>
+        <section class="navbar-user-dropdown">
+            <h2>{{user?.DisplayName}}</h2>
+
+            <p>{{user?.Email}}</p>
+            <p>{{user?.PhoneNumber}}</p>
+
+            <span class="user-license">Lisens: {{licenseRole}}</span>
+
+            <a (click)="openUserSettingsModal()">
+                <i class="material-icons">settings</i>
+                Brukerinnstillinger
+            </a>
+            <a (click)="logOut()">
+                <i class="material-icons">exit_to_app</i>
+                Logg ut
+            </a>
+        </section>
+    </ng-template>
+</mat-menu>

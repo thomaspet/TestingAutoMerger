@@ -1,6 +1,9 @@
 <uni-toolbar [config]="{title: 'Saldoliste'}"></uni-toolbar>
-<salarybalances
-    [salarybalances]="salaryBalances$ | async"
-    (selectedSalarybalance)="handleSelectRow($event)"
-    (createSalaryBalance)="handleCreateSalaryBalance()">
-</salarybalances>
+
+<section class="application">
+    <salarybalances
+        [salarybalances]="salaryBalances$ | async"
+        (selectedSalarybalance)="handleSelectRow($event)"
+        (createSalaryBalance)="handleCreateSalaryBalance()">
+    </salarybalances>
+</section>

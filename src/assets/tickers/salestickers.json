@@ -56,14 +56,6 @@
                 "Type": "new"
             },
             {
-                "Name": "Åpne kunde",
-                "Code": "open_customer",
-                "Type": "details",
-                "DisplayInContextMenu": true,
-                "ExecuteWithoutSelection": true,
-                "DisplayInActionBar": true
-            },
-            {
                 "Name": "Eksporter",
                 "Code": "export_customers",
                 "Type": "export",

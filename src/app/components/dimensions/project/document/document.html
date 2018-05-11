@@ -4,7 +4,6 @@
     <article *ngIf="project">
         <uni-attachments [entity]="'Project'" *ngIf="project"
                          [entityID]="project?.ID"
-                         [hideLabel]="true"
                          [showFileList]="false"
                          (fileUploaded)="onFileUploaded()">
         </uni-attachments>

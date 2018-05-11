@@ -7,12 +7,13 @@ import {Router} from '@angular/router';
     selector: 'uni-sum-widget',
     template: `
         <div class="positive-negative-widget"
-            [ngClass]="positive ? 'positive' : 'negative'"
             (click)="onClickNavigate()"
             title="{{ widget.description }}">
 
-            <span class="title">{{ widget.config.title}}</span>
-            <span class="value">{{ displayValue | uninumberformat: 'money' }}</span>
+            <span>{{ widget.config.title}}</span>
+            <span class="value" [ngClass]="{'bad': needsAttention}">
+                {{ displayValue | uninumberformat: 'money' }}
+            </span>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -21,7 +22,7 @@ import {Router} from '@angular/router';
 export class UniSumWidget implements AfterViewInit {
     public widget: IUniWidget;
     public displayValue: string = '-';
-    public positive: boolean;
+    public needsAttention: boolean;
 
     constructor(
         private widgetDataService: WidgetDataService,
@@ -39,9 +40,9 @@ export class UniSumWidget implements AfterViewInit {
 
                     const sum = res.Data[0] && (res.Data[0].sum || 0);
                     if (this.widget.config.positive) {
-                        this.positive = sum >= 0;
+                        this.needsAttention = sum <= 0;
                     } else {
-                        this.positive = sum <= 0;
+                        this.needsAttention = sum >= 0;
                     }
                     this.displayValue = sum;
 

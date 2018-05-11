@@ -1,12 +1,33 @@
 <uni-toolbar
     [config]="toolbarconfig"
-    [saveactions]="saveactions">
+    [saveactions]="saveactions"
+    [subheads]="toolbarSubheads">
 </uni-toolbar>
-<section *ngIf="(seller$ | async)" class="seller-details application">
+
+<section class="application">
+    <!--
+        Anders 13.04
+
+        This is a pretty weird way to do tabs..
+        Should be refactored to use mat-tabs directly once
+        lazy loading tab content is available
+        (coming in version 6, currently in release candidate)
+    -->
+    <uni-tabs [tabs]="tabs" (tabClick)="activeTab = $event"></uni-tabs>
+
     <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="seller$"
-            (changeEvent)="onFormChange($event)">
+        *ngIf="!activeTab?.value"
+        [config]="config$"
+        [fields]="fields$"
+        [model]="seller$"
+        (changeEvent)="onFormChange($event)">
     </uni-form>
+
+    <section *ngIf="activeTab?.value" class="uni-container">
+        <seller-sales-list
+            style="display: block;"
+            [sellerID]="sellerID"
+            [mode]="activeTab.value">
+        </seller-sales-list>
+    </section>
 </section>

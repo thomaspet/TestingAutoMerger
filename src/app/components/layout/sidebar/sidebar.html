@@ -1,0 +1,53 @@
+<section id="scroll-container">
+    <ul class="sidebar-menu"
+        [ngClass]="{'collapsed': state === 'collapsed'}"
+        (clickOutside)="collapseMeMaybe()">
+
+        <li *ngFor="let section of navbarLinkSections; let idx = index"
+            [attr.aria-expanded]="expandedSectionIndex === idx">
+
+            <section class="sidebar-section-header" (click)="toggleSection(idx)">
+                <i class="material-icons" *ngIf="section.mdIcon">{{section.mdIcon}}</i>
+                <span *ngIf="state === 'expanded'">{{section.name}}</span>
+            </section>
+
+            <ng-template [ngIf]="state === 'expanded'">
+
+                <section *ngFor="let group of section.linkGroups" class="sidebar-link-group">
+                    <!-- <span *ngIf="group.name">{{group.name}}</span> -->
+
+                    <ul class="sidebar-sub-menu">
+                        <li *ngFor="let link of group.links">
+
+                            <a [routerLink]="link.url"
+                                routerLinkActive="active-sidebar-link"
+                                [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}"
+                                (click)="collapseMeMaybe()">
+
+                                {{link.name}}
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+
+            </ng-template>
+        </li>
+    </ul>
+
+</section>
+
+<section class="sidebar-tools">
+    <i class="material-icons"
+        role="button"
+        title="Skjul sidemeny"
+        (click)="hideSidebar()">
+        vertical_align_top
+    </i>
+
+    <i class="material-icons"
+        role="button"
+        title="Minimer sidemeny"
+        (click)="toggleState()">
+        {{state === 'expanded' ? 'keyboard_arrow_left' : 'keyboard_arrow_right'}}
+    </i>
+</section>
