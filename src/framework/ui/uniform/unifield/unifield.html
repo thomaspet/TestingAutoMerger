@@ -37,15 +37,15 @@
                       (inputEvent)="onInputHandler($event)"
                       (focusEvent)="onFocusHandler($event)"
     ></uni-select-input>
-    <uni-checkbox-input #selectedComponent *ngIf="field?.FieldType === 5"
-                        [field]="field"
-                        [model]="model"
-                        [asideGuid]="asideGuid"
-                        (readyEvent)="onReadyHandler($event)"
-                        (changeEvent)="onChangeHandler($event)"
-                        (inputEvent)="onInputHandler($event)"
-                        (focusEvent)="onFocusHandler($event)"
-    ></uni-checkbox-input>
+
+    <uni-checkbox-input #selectedComponent
+        *ngIf="field?.FieldType === 5"
+        [field]="field"
+        [model]="model"
+        (readyEvent)="onReadyHandler($event)"
+        (changeEvent)="onChangeHandler($event)">
+    </uni-checkbox-input>
+
     <uni-numeric-input #selectedComponent *ngIf="field?.FieldType === 6"
                        [field]="field"
                        [model]="model"
@@ -64,15 +64,14 @@
                      (inputEvent)="onInputHandler($event)"
                      (focusEvent)="onFocusHandler($event)"
     ></uni-radio-input>
-    <uni-checkboxgroup-input #selectedComponent *ngIf="field?.FieldType === 8"
-                             [field]="field"
-                             [model]="model"
-                             [asideGuid]="asideGuid"
-                             (readyEvent)="onReadyHandler($event)"
-                             (changeEvent)="onChangeHandler($event)"
-                             (inputEvent)="onInputHandler($event)"
-                             (focusEvent)="onFocusHandler($event)"
-    ></uni-checkboxgroup-input>
+
+    <uni-checkboxgroup-input #selectedComponent
+        *ngIf="field?.FieldType === 8"
+        [field]="field"
+        [model]="model"
+        (readyEvent)="onReadyHandler($event)"
+        (changeEvent)="onChangeHandler($event)">
+    </uni-checkboxgroup-input>
 
     <uni-radiogroup-input #selectedComponent *ngIf="field?.FieldType === 9"
                           [field]="field"

@@ -15,14 +15,9 @@ import * as _ from 'lodash';
 export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
-    @Input() public control: FormControl;
-    @Input() public asideGuid: string;
 
     @Output() public readyEvent: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
-    @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
-    @Output() public focusEvent: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
-
 
     private items: any[] = [];
     private selectedItems: any[] = [];

@@ -1,16 +1,40 @@
 $radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
 
 uni-checkbox-input
-    min-width: 100% // Overrides uni-field label>span+* which is set by `width`
+    width: 100% !important
 
-uni-checkbox-input label,
+
+.mat-checkbox-label,
+.mat-checkbox-disabled .mat-checkbox-label
+    font-family: $uni-stack
+    font-size: 16px
+    color: $uni-color-positive
+
+.mat-checkbox-label-before .mat-checkbox-inner-container
+    margin-left: 0 !important
+
+.mat-checkbox-frame
+    border-width: 1px !important
+    border-color: $uni-color-scale7
+
+
+.mat-checkbox-checked .mat-checkbox-background
+    background-color: $uni-color-c2a !important
+
+.mat-checkbox-ripple .mat-ripple-element
+    background-color: transparentize($uni-color-c2a, .85) !important
+
+// uni-checkbox-input
+//     min-width: 100% // Overrides uni-field label>span+* which is set by `width`
+
+// uni-checkbox-input label,
 uni-radio-input label,
 uni-radiogroup-input,
 uni-checkboxgroup-input,
 .uni-checkbox label,
     width: 100%
 
-uni-checkbox-input,
+// uni-checkbox-input,
 uni-radio-input,
 uni-radiogroup-input,
 uni-checkboxgroup-input,
@@ -199,7 +223,7 @@ uni-checkboxgroup-input,
         &:after
             opacity: 0
 
-uni-checkbox-input,
+// uni-checkbox-input,
 .uni-checkbox
     display: block
 

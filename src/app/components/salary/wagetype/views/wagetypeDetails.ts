@@ -123,7 +123,6 @@ export class WagetypeDetail extends UniView {
                         if (!wageType.ID) {
                             this.setDefaultValues(wageType);
                         }
-                        wageType['_baseOptions'] = this.getBaseOptions(wageType);
 
                         return this.setup(wageType);
                     } else {
@@ -131,6 +130,7 @@ export class WagetypeDetail extends UniView {
                     }
                 })
                 .subscribe((wageType: WageType) => {
+                    wageType['_baseOptions'] = this.getBaseOptions(wageType);
                     this.wageType$.next(wageType);
                 }, err => this.errorService.handle(err));
         });

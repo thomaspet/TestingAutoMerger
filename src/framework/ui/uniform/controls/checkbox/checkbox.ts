@@ -1,5 +1,14 @@
 import {
-    Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, ViewChild, SimpleChanges, OnChanges
+    Component,
+    Input,
+    Output,
+    ElementRef,
+    EventEmitter,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    ViewChild,
+    OnChanges,
+    SimpleChanges
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {BaseControl} from '../baseControl';
@@ -11,43 +20,29 @@ import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces';
     templateUrl: './checkbox.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniCheckboxInput extends BaseControl implements OnChanges {
+export class UniCheckboxInput extends BaseControl {
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
-    @Input() public control: FormControl;
-    @Input() public asideGuid: string;
 
-    @Output() public readyEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
-    @Output() public focusEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>(true);
-    @Output() public inputEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>();
+    @Output() public readyEvent: EventEmitter<UniCheckboxInput> = new EventEmitter<UniCheckboxInput>();
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
 
-    @ViewChild('query') private inputElement: ElementRef;
+    public checked: boolean;
 
-    constructor() {
+    constructor(private cdr: ChangeDetectorRef) {
         super();
     }
 
     public ngOnChanges() {
-        this.createControl();
-    }
-
-    public focus() {
-        this.inputElement.nativeElement.focus();
-        return this;
-    }
-
-    public checkIt() {
-        if (this.field.ReadOnly) {
-            return;
+        if (this.model && this.field) {
+            this.checked = _.get(this.model, this.field.Property);
         }
-        _.set(this.model, this.field.Property, !this.isChecked());
-        this.emitChange(!this.isChecked(), this.isChecked());
-        this.emitInstantChange(!this.isChecked(), this.isChecked(), true);
     }
 
-    public isChecked() {
-        const modelValue = _.get(this.model, this.field.Property);
-        return modelValue;
+    public onChange(event) {
+        const checked = event.checked;
+        _.set(this.model, this.field.Property, checked);
+        this.emitChange(!checked, checked);
+        this.emitInstantChange(!checked, checked, true);
     }
 }

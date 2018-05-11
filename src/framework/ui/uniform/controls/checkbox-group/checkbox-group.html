@@ -1,16 +1,8 @@
-<ng-template ngFor let-item [ngForOf]="items" let-i="index">
-    <input
-        #rd
-        [attr.aria-describedby]="asideGuid"
-        type="checkbox"
-        [readonly]="readOnly$ | async"
-        [placeholder]="field?.Placeholder || ''"
-        [checked]="isChecked(item)"
-        [value]="getValue(item)"
-        [name]="getValue(item)"
-        (focus)="focusHandler()"
-        tabindex="-1"
-    />
-    <label (click)="toggleCheckbox(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
-    <ng-content></ng-content>
-</ng-template>
+<mat-checkbox
+    *ngFor="let item of items"
+    [checked]="isChecked(item)"
+    (change)="toggleCheckbox(item)"
+    [disableRipple]="true"
+    [disabled]="field?.ReadOnly">
+    {{getLabel(item)}}
+</mat-checkbox>
