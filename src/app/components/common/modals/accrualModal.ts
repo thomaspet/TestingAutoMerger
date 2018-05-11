@@ -603,9 +603,9 @@ export class AccrualModal implements IUniModal {
 
         const messages: Array<string> = new Array<string>();
 
-        if (this.modalConfig.model.Periods.length < 2 ||
+        if (this.modalConfig.model.Periods.length < 1 ||
             this.isAccrualPeriodsEqualOrLessThan24(this.modalConfig.model.Periods) === false) {
-            messages.push('Periodisering må være minst 2 perioder, og maks 24 perioder frem fra første periode');
+            messages.push('Periodisering må være minst 1 periode, og maks 24 perioder frem fra første periode');
         }
 
         if (!this.modalConfig.model.BalanceAccountID) {
