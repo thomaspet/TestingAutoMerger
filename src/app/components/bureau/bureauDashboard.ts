@@ -114,7 +114,15 @@ export class BureauDashboard {
         });
 
         this.busy = true;
-        this.subscription = this.uniHttp
+        this.loadCompanies();
+
+        this.router.events
+            .filter((event) => event instanceof ActivationEnd)
+            .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag']);
+    }
+
+    private loadCompanies() {
+        this.uniHttp
             .asGET()
             .usingRootDomain()
             .withEndPoint('kpi/companies')
@@ -123,45 +131,30 @@ export class BureauDashboard {
             .do(() => this.busy = false)
             .subscribe(
                 res => {
-                    // const bigData = [];
-                    // for (let i = 0; i < 40; i++) {
-                    //     bigData.push(...res);
-                    // }
-
-                    // this.companies = this.mapKpiCounts(bigData);
                     this.companies = this.mapKpiCounts(res);
                     if (this.companies.length > 0) {
                         this.setCurrentCompany(this.companies[0]);
                     }
                     this.filterCompanies(this.searchControl.value || '');
-                    this.sortBy(this.currentSortField);
                 },
                 err => this.errorService.handle(err)
             );
-        this.router.events
-            .filter((event) => event instanceof ActivationEnd)
-            .subscribe((change: ActivationEnd) => this.activeTag = change.snapshot.queryParams['tag']);
     }
 
     private getTableConfig(): UniTableConfig {
         const companyNameCol = new UniTableColumn('Name', 'Selskap', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setWidth(240);
-            // .setLinkClick(row => this.onCompanyNameClick(row))
-            // .setAlignment('left');
 
         const orgnrCol = new UniTableColumn('OrganizationNumber', 'Org.nr');
 
         const inboxCol =  new UniTableColumn('_inboxCount', 'Fakturainnboks', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setAlignment('center');
-            // .setLinkClick(row => this.onCompanyInboxClick(row));
 
         const approvalCol = new UniTableColumn('_approvedCount', 'Godkjente faktura', UniTableColumnType.Link)
             .setCls('bureau-link-col')
-            // .setLinkClick(row => this.onCompanyApprovalsClick(row));
             .setAlignment('center');
-            // .setOnCellClick(row => this.onCompanyApprovalsClick(row));
 
         companyNameCol.linkClick = row => this.onCompanyNameClick(row);
         inboxCol.linkClick = row => this.onCompanyInboxClick(row);
@@ -236,8 +229,6 @@ export class BureauDashboard {
         if (this.allTags && this.allTags[0]) {
             this.allTags[0].count = this.filteredCompanies.length;
         }
-
-        this.sortBy(this.currentSortField);
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
@@ -272,41 +263,12 @@ export class BureauDashboard {
                     doneCallback('Oppretting av selskap avbrutt');
                 } else {
                     this.companies.unshift(company);
+                    this.companies = [...this.companies];
+                    this.filterCompanies(this.searchControl.value || '');
                     doneCallback(`Selskap ${company.Name} opprettet`);
                 }
             });
     }
-
-    public sortBy(key: string, toggleDirection?: boolean) {
-        if (!key || !key.length) {
-            return;
-        }
-
-        if (toggleDirection && this.currentSortField === key) {
-            this.sortIsDesc = !this.sortIsDesc;
-        }
-
-        this.currentSortField = key;
-        this.filteredCompanies.sort((a, b) => {
-            a = typeof a[key] === 'string' ? a[key].toLowerCase() : a[key];
-            b = typeof b[key] === 'string' ? b[key].toLowerCase() : b[key];
-
-            if (a > b) {
-                return this.sortIsDesc ? -1 : 1;
-            }
-            if (a < b) {
-                return this.sortIsDesc ? 1 : -1;
-            }
-
-            return 0;
-        });
-    }
-
-    // public getSortArrow(key: string) {
-    //     if (this.currentSortField === key) {
-    //         return this.sortIsDesc ? '▼' : '▲';
-    //     }
-    // }
 
     public onCompanyNameClick(company: KpiCompany) {
         this.redirectToCompanyUrl(company);
