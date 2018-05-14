@@ -165,6 +165,10 @@ export class TransqueryDetails implements OnInit {
         // If search in unitable filter is text
         } else if (isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
             filters[0] = `contains(Description, '${searchValue}') or contains(Account.AccountName, '${searchValue}')`;
+        } else if (!isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
+            filters[0] = `(contains(JournalEntryNumberNumeric,'${searchValue}') or ` +
+                `contains(JournalEntryNumber,'${searchValue}') or ` +
+                `Account.AccountNumber eq '${searchValue}')`;
         } else {
             if (filters && filters.length > 0) {
                 const newFilters = [];
