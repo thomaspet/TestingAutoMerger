@@ -469,6 +469,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     public onOrderChange(order) {
         const inactive = 50001;
+        const active = 30001;
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
@@ -480,7 +481,11 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.customerService.activateCustomer(order.CustomerID).subscribe(
-                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            response => {
+                                order.Customer.StatusCode = active;
+                                this.onOrderChange(order);
+                                this.toastService.addToast('Kunde aktivert', ToastType.good);
+                            },
                             err => this.errorService.handle(err)
                         );
                     }

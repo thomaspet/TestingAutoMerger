@@ -582,12 +582,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
             const inactive = 50001;
+            const active = 30001;
             if (invoice.Customer.StatusCode === inactive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.customerService.activateCustomer(invoice.CustomerID).subscribe(
-                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            response => {
+                                invoice.Customer.StatusCode = active;
+                                this.onInvoiceChange(invoice);
+                                this.toastService.addToast('Kunde aktivert', ToastType.good);
+                            },
                             err => this.errorService.handle(err)
                         );
                     }

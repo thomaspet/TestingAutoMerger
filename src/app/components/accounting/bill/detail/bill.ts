@@ -1283,12 +1283,16 @@ export class BillView implements OnInit {
 
         if (change['Supplier'])  {
             const inactive = 50001;
+            const active = 30001;
             if (model.Supplier.StatusCode === inactive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.supplierService.activateSupplier(model.SupplierID).subscribe(
-                            response => this.toast.addToast('Leverandør aktivert', ToastType.good),
+                            response => {
+                                model.Supplier.StatusCode = active;
+                                this.toast.addToast('Leverandør aktivert', ToastType.good);
+                        },
                             err => this.errorService.handle(err)
                         );
                     }

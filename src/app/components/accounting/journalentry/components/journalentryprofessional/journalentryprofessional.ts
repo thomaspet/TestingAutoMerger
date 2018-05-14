@@ -178,6 +178,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private blocked = 90001;
     private inactive = 50001;
+    private active = 30001;
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -2694,7 +2695,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
                     this.customerService.activateCustomer(event.newValue.CustomerID).subscribe(
-                        response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                        response => {
+                            const account = tableData[0].CreditAccount || tableData[0].DebitAccount;
+                            account.StatusCode = this.active;
+                            this.toastService.addToast('Kunde aktivert', ToastType.good);
+                        },
                         err => this.errorService.handle(err)
                     );
                 }
@@ -2707,7 +2712,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
                     this.supplierService.activateSupplier(event.newValue.SupplierID).subscribe(
-                        response => this.toastService.addToast('Leverandør aktivert', ToastType.good),
+                        response => {
+                            const account = tableData[0].CreditAccount || tableData[0].DebitAccount;
+                            account.StatusCode = this.active;
+                            this.toastService.addToast('Leverandør aktivert', ToastType.good);
+                        },
                         err => this.errorService.handle(err)
                     );
                 }

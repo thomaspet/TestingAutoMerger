@@ -462,12 +462,17 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (this.didCustomerChange(quote)) {
             const inactive = 50001;
+            const active = 30001;
             if (quote.Customer.StatusCode === inactive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.customerService.activateCustomer(quote.CustomerID).subscribe(
-                            response => this.toastService.addToast('Kunde aktivert', ToastType.good),
+                            response => {
+                                quote.Customer.StatusCode = active;
+                                this.toastService.addToast('Kunde aktivert', ToastType.good);
+                                this.onQuoteChange(quote);
+                            },
                             err => this.errorService.handle(err)
                         );
                     }
