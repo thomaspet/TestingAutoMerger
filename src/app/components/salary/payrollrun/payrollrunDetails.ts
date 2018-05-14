@@ -1004,6 +1004,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .take(1)
             .switchMap(run => this.savePayrollrun(run, done))
             .do(() => this._salaryTransactionService.invalidateCache())
+            .do(() => this._wageTypeService.invalidateCache())
             .filter(() => updateView)
             .switchMap((payrollRun: PayrollRun) => {
                 this.payrollrun$.next(payrollRun);
