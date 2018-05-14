@@ -910,7 +910,14 @@ export class UniTicker {
                             }
                         }
 
-                        columns.push(col);
+                        // Add functionality to only show fields on given Filters
+                        // Dont add columns that have filter lock and is not visible (filter is not correct)
+                        if (!column.ShowOnlyOnThisFilter || (column.ShowOnlyOnThisFilter &&
+                            this.ticker.Filters.length > column.ShowOnlyOnThisFilter
+                            && this.ticker.Filters[column.ShowOnlyOnThisFilter].IsActive)) {
+                            columns.push(col);
+                        }
+
                     }
                 }
 

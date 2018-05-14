@@ -251,6 +251,12 @@
                 "FilterOperator": "contains"
             },
             {
+                "Header": "Statustekst",
+                "Field": "StatusText",
+                "FilterOperator": "contains",
+                "ShowOnlyOnThisFilter": 4
+            },
+            {
                 "Header": "Status",
                 "Field": "StatusCode",
                 "FilterOperator": "contains"

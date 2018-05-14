@@ -1013,6 +1013,7 @@ export class TickerColumn {
     public Width?: string;
     public Resizeable?: boolean;
     public DefaultHidden?: boolean;
+    public ShowOnlyOnThisFilter?: number;
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
