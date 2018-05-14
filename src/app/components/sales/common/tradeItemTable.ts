@@ -173,7 +173,7 @@ export class TradeItemTable {
 
                     item.VatPercent = item.VatType ? item.VatType.VatPercent : 0;
 
-                    this.tradeItemHelper.calculatePriceIncVat(item);
+                    this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
                     this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
                     this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
                 });
@@ -385,7 +385,15 @@ export class TradeItemTable {
 
         const unitCol = new UniTableColumn('Unit', 'Enhet');
 
-        const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris', UniTableColumnType.Money)
+        const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris eks. mva', UniTableColumnType.Money)
+            .setNumberFormat({
+                thousandSeparator: ' ',
+                decimalSeparator: ',',
+                decimalLength: this.settings.ShowNumberOfDecimals,
+                postfix: undefined
+            });
+        const incVatCol = new UniTableColumn('PriceIncVatCurrency', 'Pris ink. mva', UniTableColumnType.Money)
+            .setVisible(false)
             .setNumberFormat({
                 thousandSeparator: ' ',
                 decimalSeparator: ',',
@@ -471,7 +479,8 @@ export class TradeItemTable {
                 }
             });
 
-        const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent);
+        const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent)
+            .setTemplate(row => this.tradeItemHelper.round(row.DiscountPercent, 2).toString());
 
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
@@ -563,13 +572,13 @@ export class TradeItemTable {
             .setVisible(false);
 
         const sumTotalIncVatCol = new UniTableColumn(
-            'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, false
+            'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, true
         );
 
         this.tableConfig = new UniTableConfig(this.configStoreKey, !this.readonly)
             .setColumns([
                 sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
-                exVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
+                exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
                 projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
             ].concat(dimensionCols))
             .setColumnMenuVisible(true)

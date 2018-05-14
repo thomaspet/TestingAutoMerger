@@ -60,8 +60,8 @@
                 "FilterOperator": "contains"
             },
             {
-                "Header": "Ocr Konto fra",
-                "Field": "OcrFromBankAccountNumber",
+                "Header": "Ekstern konto fra",
+                "Field": "ExternalBankAccountNumber",
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
@@ -254,6 +254,13 @@
                 "Header": "Status",
                 "Field": "StatusCode",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Ekstern konto fra",
+                "Field": "ExternalBankAccountNumber",
+                "FilterOperator": "contains",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "Actions": [

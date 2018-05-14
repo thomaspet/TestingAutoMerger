@@ -775,7 +775,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private recalcPriceAndSumsBasedOnSetPrices(item, newCurrencyRate) {
         item.PriceExVat = this.tradeItemHelper.round(item.PriceExVatCurrency * newCurrencyRate, 4);
 
-        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculatePriceIncVat(item, newCurrencyRate);
         this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }
@@ -797,7 +797,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             item.PriceSetByUser = false;
         }
 
-        this.tradeItemHelper.calculatePriceIncVat(item);
+        this.tradeItemHelper.calculatePriceIncVat(item, newCurrencyRate);
         this.tradeItemHelper.calculateBaseCurrencyAmounts(item, newCurrencyRate);
         this.tradeItemHelper.calculateDiscount(item, newCurrencyRate);
     }

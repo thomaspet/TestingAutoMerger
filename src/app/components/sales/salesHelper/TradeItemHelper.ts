@@ -185,9 +185,35 @@ export class TradeItemHelper  {
             } else {
                 newRow.PriceExVat = 0;
             }
+            this.calculatePriceIncVat(newRow, currencyExchangeRate);
         }
 
-        this.calculatePriceIncVat(newRow);
+        if (event.field === 'PriceIncVatCurrency') {
+            newRow.PriceSetByUser = true;
+            if (newRow.PriceIncVatCurrency) {
+                if (currencyExchangeRate) {
+                    newRow.PriceIncVat = newRow.PriceIncVatCurrency * currencyExchangeRate;
+                } else {
+                    newRow.PriceIncVat = newRow.PriceIncVatCurrency;
+                }
+            } else {
+                newRow.PriceIncVat = 0;
+            }
+            this.calculatePriceExVat(newRow, currencyExchangeRate);
+        }
+
+        if (event.field === 'VatType') {
+            this.calculatePriceIncVat(newRow, currencyExchangeRate);
+        }
+
+        if (event.field === 'SumTotalIncVatCurrency') {
+            const total = newRow.SumTotalIncVatCurrency;
+            const theoricalTotal = newRow.NumberOfItems * newRow.PriceIncVatCurrency;
+            const difference = theoricalTotal - total;
+            const discount = difference / theoricalTotal;
+            const normalizedDisccount = this.round(discount * 100, 4);
+            newRow['DiscountPercent'] = normalizedDisccount;
+        }
         this.calculateBaseCurrencyAmounts(newRow, currencyExchangeRate);
         this.calculateDiscount(newRow, currencyExchangeRate);
 
@@ -269,10 +295,22 @@ export class TradeItemHelper  {
         }
     }
 
-    public calculatePriceIncVat(rowModel) {
+    public calculatePriceExVat(rowModel, currencyExchangeRate) {
+        const vatPercent = rowModel.VatPercent || 0;
+        const priceIncVatCurrency = rowModel['PriceIncVatCurrency'] || 0;
+        const taxPercentage = (100 + vatPercent) / 100;
+        const price = priceIncVatCurrency / taxPercentage;
+        rowModel['PriceExVatCurrency'] = this.round(price, 4);
+        rowModel['PriceExVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
+    }
+
+    public calculatePriceIncVat(rowModel, currencyExchangeRate) {
         const vatPercent = rowModel.VatPercent || 0;
         const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
-        rowModel['PriceIncVatCurrency'] = this.round((priceExVatCurrency * (100 + vatPercent)) / 100, 4);
+        const taxPercentage = (100 + vatPercent) / 100;
+        const price = priceExVatCurrency * taxPercentage;
+        rowModel['PriceIncVatCurrency'] = this.round(price, 4);
+        rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {
