@@ -25,7 +25,7 @@ import {ClickOutsideDirective} from './shared/clickOutside';
 
 import {UniSearchModule} from '../unisearch/index';
 import {UniTooltipModule} from '../tooltip/tooltip.module';
-import {MatCheckboxModule, MatRadioModule} from '@angular/material';
+import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -35,7 +35,8 @@ import {MatCheckboxModule, MatRadioModule} from '@angular/material';
         UniSearchModule,
         UniTooltipModule,
         MatCheckboxModule,
-        MatRadioModule
+        MatRadioModule,
+        MatSlideToggleModule
     ],
     declarations: [
         UniForm,

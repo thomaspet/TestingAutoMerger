@@ -12,7 +12,8 @@ mat-checkbox
     font-size: 16px
     color: $uni-color-positive
 
-.mat-checkbox-label-before .mat-checkbox-inner-container
+.mat-checkbox-label-before .mat-checkbox-inner-container,
+.mat-slide-toggle-bar
     margin-left: 0 !important
 
 .mat-checkbox-frame
@@ -37,7 +38,13 @@ mat-radio-button
     .mat-radio-ripple .mat-ripple-element
         background-color: transparentize($uni-color-c2a, .85) !important
 
-
+// Slide toggle
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar
+    background-color: transparentize($uni-color-c2a, .65) !important
+.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-thumb
+    background-color: $uni-color-c2a !important
+.mat-slide-toggle-ripple .mat-ripple-element
+    background-color: transparentize($uni-color-c2a, .85) !important
 
 // uni-checkbox-input
 //     min-width: 100% // Overrides uni-field label>span+* which is set by `width`

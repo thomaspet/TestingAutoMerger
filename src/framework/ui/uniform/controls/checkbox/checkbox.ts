@@ -53,6 +53,7 @@ export class UniCheckboxInput extends BaseControl {
     public onChange(event) {
         const checked = event.checked;
         _.set(this.model, this.field.Property, checked);
+
         this.emitChange(!checked, checked);
         this.emitInstantChange(!checked, checked, true);
     }

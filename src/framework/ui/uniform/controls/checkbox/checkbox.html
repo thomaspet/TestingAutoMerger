@@ -1,9 +1,20 @@
-<mat-checkbox
-    tabindex="-1"
+<mat-slide-toggle
+    *ngIf="field?.Options?.slideToggle; else checkbox"
     [checked]="checked"
-    (change)="onChange($event)"
     [labelPosition]="'before'"
-    [disableRipple]="true"
-    [disabled]="field?.ReadOnly">
+    (change)="onChange($event)">
     {{field?.Label}}
-</mat-checkbox>
+</mat-slide-toggle>
+
+<ng-template #checkbox>
+    <mat-checkbox
+        tabindex="-1"
+        [checked]="checked"
+        (change)="onChange($event)"
+        [labelPosition]="'before'"
+        [disableRipple]="true"
+        [disabled]="field?.ReadOnly">
+        {{field?.Label}}
+    </mat-checkbox>
+</ng-template>
+

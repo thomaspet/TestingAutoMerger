@@ -345,8 +345,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         sixthWeekField.EntityType = 'vacationHeaderModel';
         sixthWeekField.Property = 'SixthWeek';
         sixthWeekField.Label = 'Inkluder 6.ferieuke';
-        sixthWeekField.Options = null;
-        sixthWeekField.Classes = 'vacationpay_sixthWeek';
+        sixthWeekField.Options = {slideToggle: true};
         sixthWeekField.LineBreak = true;
 
         const percentField = new UniFieldLayout();
