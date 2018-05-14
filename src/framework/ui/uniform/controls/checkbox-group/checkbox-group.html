@@ -1,4 +1,5 @@
 <mat-checkbox
+    tabindex="-1"
     *ngFor="let item of items"
     [checked]="isChecked(item)"
     (change)="toggleCheckbox(item)"

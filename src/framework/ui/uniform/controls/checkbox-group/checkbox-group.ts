@@ -1,10 +1,19 @@
 import {
-    Component, Input, Output, ElementRef, EventEmitter,
-    ChangeDetectionStrategy, SimpleChanges, OnChanges
+    Component,
+    Input,
+    Output,
+    ElementRef,
+    EventEmitter,
+    ChangeDetectionStrategy,
+    SimpleChanges,
+    OnChanges,
+    ViewChildren,
+    QueryList
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {BaseControl} from '../baseControl';
+import {MatCheckbox} from '@angular/material';
 import * as _ from 'lodash';
 
 @Component({
@@ -13,6 +22,7 @@ import * as _ from 'lodash';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
+    @ViewChildren(MatCheckbox) public checkboxes: QueryList<MatCheckbox>;
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
 
@@ -27,9 +37,17 @@ export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
     }
 
     public focus() {
-        this.elementRef.nativeElement.focus();
+        // Proper focus in checkbox group is kind of impossible with the way
+        // uniform focus currently works. Should try to refactor it
+        // into using standard tabindex, instead of key listeners
+        // that focus the next/prev field
+        if (this.checkboxes && this.checkboxes.length) {
+            this.checkboxes.first.focus();
+        }
+
         return this;
     }
+
 
     public ngOnChanges(changes) {
         if (changes['field']) {
