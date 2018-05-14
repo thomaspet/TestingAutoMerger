@@ -6,8 +6,8 @@ uni-checkbox-input
 mat-checkbox
     outline: none !important
 
-.mat-checkbox-label,
-.mat-checkbox-disabled .mat-checkbox-label
+.mat-checkbox-label, .mat-checkbox-disabled .mat-checkbox-label,
+.mat-radio-label, .mat-radio-disabled .mat-radio-label
     font-family: $uni-stack
     font-size: 16px
     color: $uni-color-positive
@@ -25,6 +25,19 @@ mat-checkbox
 
 .mat-checkbox-ripple .mat-ripple-element
     background-color: transparentize($uni-color-c2a, .85) !important
+
+// Radio
+mat-radio-button
+    display: block !important
+
+    .mat-radio-outer-circle
+        border-color: $uni-color-scale6 !important
+    .mat-radio-inner-circle
+        background-color: $uni-color-c2a !important
+    .mat-radio-ripple .mat-ripple-element
+        background-color: transparentize($uni-color-c2a, .85) !important
+
+
 
 // uni-checkbox-input
 //     min-width: 100% // Overrides uni-field label>span+* which is set by `width`

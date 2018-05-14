@@ -1,16 +1,9 @@
-<ng-template ngFor let-item [ngForOf]="items" let-i="index">
-    <input
-        #rd
-        type="radio"
-        [attr.aria-describedby]="asideGuid"
-        [readonly]="readOnly$ | async"
-        [placeholder]="field?.Placeholder || ''"
-        [checked]="isChecked(item)"
-        [value]="getValue(item)"
-        [name]="field?.Property"
-        (focus)="focusHandler()"
-        tabindex="-1"
-    />
-    <label (click)="checkIt(item)" [title]="getLabel(item)">{{getLabel(item)}}</label>
-</ng-template>
-<ng-content></ng-content>
+<mat-radio-group [value]="initValue" (change)="onChange($event)">
+    <mat-radio-button
+        *ngFor="let item of items"
+        [value]="getRadioButtonValue(item)"
+        [disabled]="readOnly$ | async">
+
+        {{getRadioButtonLabel(item)}}
+    </mat-radio-button>
+</mat-radio-group>

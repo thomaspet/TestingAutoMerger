@@ -24,6 +24,7 @@ export class UniRadiogroupInput extends BaseControl implements OnChanges {
     @Output() public focusEvent: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
 
     private items: any[] = [];
+    public initValue: any;
 
     constructor(public elementRef: ElementRef) {
         super();
@@ -48,27 +49,26 @@ export class UniRadiogroupInput extends BaseControl implements OnChanges {
                 // TODO: manage lookup url;
             }
         }
+
+        if (this.field && this.model) {
+            this.initValue = _.get(this.model, this.field.Property);
+        }
     }
 
-    public getValue(item) {
+    public onChange(event) {
+        const previousValue = _.get(this.model, this.field.Property);
+
+        _.set(this.model, this.field.Property, event.value);
+
+        this.emitChange(previousValue, event.value);
+        this.emitInstantChange(previousValue, event.value, true);
+    }
+
+    public getRadioButtonValue(item) {
         return _.get(item, this.field.Options.valueProperty);
     }
-    public getLabel(item) {
+    public getRadioButtonLabel(item) {
         return _.get(item, this.field.Options.labelProperty);
-    }
-
-    public checkIt(item) {
-        const previousValue = _.get(this.model, this.field.Property);
-        const itemValue = _.get(item, this.field.Options.valueProperty);
-        if (this.isChecked(item)) { // uncheck
-            _.set(this.model, this.field.Property, null);
-            this.emitChange(previousValue, null);
-            this.emitInstantChange(previousValue, null, true);
-            return;
-        }
-        _.set(this.model, this.field.Property, itemValue);
-        this.emitChange(previousValue, itemValue);
-        this.emitInstantChange(previousValue, itemValue, true);
     }
 
     public isChecked(item) {
