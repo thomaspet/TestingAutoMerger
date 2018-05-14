@@ -1,33 +1,31 @@
-import {Component, ViewChild, AfterViewInit, OnInit, OnDestroy} from '@angular/core';
+import {Component, ViewChild, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {EmploymentService} from '../../../../services/services';
 import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../framework/ui/unitable/index';
-import {Employee, Employment, SubEntity, Project, Department} from '../../../../unientities';
+import {Employee, Employment, SubEntity, Project, Department, EmploymentValidValues} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import * as _ from 'lodash';
+import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'employments',
     templateUrl: './employments.html'
 })
-export class Employments extends UniView implements OnInit, OnDestroy, AfterViewInit {
+export class Employments extends UniView implements OnInit, OnDestroy {
     @ViewChild(UniTable) private table: UniTable;
-    private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
 
     private employee: Employee;
     private employments: Employment[] = [];
-    private employments$: BehaviorSubject<Employment[]> = new BehaviorSubject([]);
     private selectedIndex: number;
     private tableConfig: UniTableConfig;
     private subEntities: SubEntity[];
     private projects: Project[];
     private departments: Department[];
-    private cachedEmployments: ReplaySubject<Employment[]> = new ReplaySubject<Employment[]>(1);
     private employeeID: number;
     private selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
 
@@ -49,77 +47,60 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
     }
 
     public ngOnInit() {
-        this.route
-            .parent
-            .params
-            .do((paramsChange) => {
-                super.updateCacheKey(this.router.url);
-                this.employeeID = +paramsChange['id'];
-                this.selectedIndex = 0;
-                this.cachedEmployments.next([]);
-            })
-            .subscribe(() => {
-                super.getStateSubject('subEntities')
-                    .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
+        Observable.combineLatest(
+            this.route.parent.params,
+            this.route.queryParams
+        ).subscribe(res => {
+            const [params, queryParams] = res;
 
-                super.getStateSubject('employee')
-                    .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
+            super.updateCacheKey(this.router.url);
+            this.employeeID = +params['id'];
+            this.selectedIndex = undefined;
 
-                super.getStateSubject('projects')
-                    .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
+            super.getStateSubject('subEntities')
+                .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
 
-                super.getStateSubject('departments')
-                    .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+            super.getStateSubject('employee')
+                .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
 
-                super.getStateSubject('employments')
-                    .subscribe((employments: Employment[]) => {
-                        this.cachedEmployments.next(employments);
-                    });
+            super.getStateSubject('projects')
+                .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
+
+            super.getStateSubject('departments')
+                .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
+
+            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
+                this.employments = employments || [];
+
+                if (employments && employments.length) {
+                    const employmentID = +queryParams['EmploymentID'];
+
+                    // Only find row to focus if selectedIndex is not set
+                    // We need this check because the state subject emits on every form change,
+                    // and we dont want to lose focus in the details form every time we made changes
+                    if (!this.selectedIndex && this.selectedIndex !== 0) {
+                        let index;
+                        if (employmentID) {
+                            index = employments.findIndex(e => e.ID === employmentID);
+                        } else {
+                            index = employments.findIndex(e => e.Standard);
+                        }
+
+                        this.selectedIndex = index >= 0 ? index : 0;
+                        this.selectedEmployment$.next(employments[this.selectedIndex]);
+
+                        setTimeout(() => {
+                            if (this.table) {
+                                this.table.focusRow(this.selectedIndex);
+                            }
+                        });
+                    }
+                } else {
+                    this.newEmployment();
+                }
             });
 
-        this.route
-            .queryParams
-            .subscribe((paramsChange) => {
-                this.cachedEmployments
-                    .asObservable()
-                    .do(employments => {
-                        if (this.employments.some(x => x.EmployeeID === this.employeeID)) {
-                            return;
-                        }
-                        const id = +paramsChange['EmploymentID'] || 0;
-                        if (!id) {
-                            return;
-                        }
-                        const empIndex = employments.findIndex(x => x.ID === id);
-                        if (!empIndex || empIndex < 0) {
-                            return;
-                        }
-                        this.selectedIndex = empIndex;
-                    })
-                    .do(employments => this.refreshEmployments(employments))
-                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                    .subscribe(employments => {
-                        this.employments = employments || [];
-                        this.employments$.next(this.employments);
-                        if (employments && !employments.length && this.employeeID) {
-                            this.newEmployment();
-                            return;
-                        }
-                    });
         });
-    }
-
-    private refreshEmployments(employments: Employment[]) {
-        if (!employments) {
-            return;
-        }
-        this.employments = _.cloneDeep(employments);
-        this.employments$.next(this.employments);
-        this.selectStandardEmployment(this.employments);
-    }
-
-    public ngAfterViewInit() {
-        this.table$.next(this.table);
     }
 
     public ngOnDestroy() {
@@ -168,21 +149,12 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
                 newEmployment['_createguid'] = this.employmentService.getNewGuid();
 
                 this.employments.push(newEmployment);
-                this.addAndFocusRow(newEmployment, this.employments);
-            }, err => this.errorService.handle(err));
-    }
-
-    private addAndFocusRow(employment: Employment, employments: Employment[]) {
-        setTimeout(() => this.table$
-            .asObservable()
-            .filter(table => !!table)
-            .take(1)
-            .subscribe(table => {
-                if (table.getTableData().length !== employments.length) {
-                    table.addRow(employment);
+                if (this.table) {
+                    this.table.addRow(newEmployment);
+                    this.table.focusRow(this.employments.length - 1);
                 }
-                table.focusRow(employments.length - 1);
-            }));
+
+            }, err => this.errorService.handle(err));
     }
 
     public onEmploymentChange(employment: Employment) {
@@ -198,33 +170,19 @@ export class Employments extends UniView implements OnInit, OnDestroy, AfterView
         }
         this.employments[index] = _.cloneDeep(employment);
         this.selectedEmployment$.next(employment);
-        this.employments$.next(this.employments);
         super.updateState('employments', this.employments, true);
     }
 
     public onRowSelected(event) {
-        this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
-        this.selectedIndex = event.rowModel['_originalIndex'];
-        this.selectedEmployment$.next(this.employments[this.selectedIndex]);
-    }
-
-    private selectStandardEmployment(employments: Employment[]) {
-        if (!employments.length) {
-            return;
+        const selectedIndex = event.rowModel['_originalIndex'];
+        if (selectedIndex !== this.selectedIndex) {
+            this.table.updateRow(this.selectedIndex, this.employments[this.selectedIndex]);
+            this.selectedIndex = selectedIndex;
+            this.selectedEmployment$.next(this.employments[this.selectedIndex]);
         }
-        this.setEmployment(employments[this.selectedIndex]);
-    }
-
-    public setEmployment(employment: Employment) {
-        if (!employment) {
-            return;
-        }
-        this.focusRow(employment.ID || this.employments.length - 1);
-        this.selectedEmployment$.next(employment);
     }
 
     public btnDisabled(): boolean {
-        const cnt = this.employments$.getValue().filter(e => e.ID === 0);
-        return cnt.length > 0 ? true : false;
+        return this.employments && this.employments.some(e => !e.ID);
     }
 }
