@@ -359,6 +359,10 @@ export class AuthService {
     }
 
     public hasUIPermission(user: UserDto, permission: string) {
+        if (!user) {
+            return false;
+        }
+
         // Treat missing or empty permissions array as access to everything
         const userPermissions = user['Permissions'] || [];
         if (!userPermissions.length) {
