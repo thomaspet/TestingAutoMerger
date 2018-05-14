@@ -204,6 +204,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports
                     },
+                    {
+                        name: 'Søk på bilag',
+                        url: '/accounting/transquery',
+                        moduleID: UniModules.TransqueryDetails
+                    },
+                    {
+                        name: 'Søk på konto',
+                        url: '/accounting/accountquery',
+                        moduleID: UniModules.AccountQuery
+                    }
                 ]
             },
             {
