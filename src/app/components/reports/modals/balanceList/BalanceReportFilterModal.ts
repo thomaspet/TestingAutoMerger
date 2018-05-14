@@ -64,8 +64,8 @@ export class BalanceReportFilterForm implements OnInit {
                 Property: 'toPeriod'
             },
             <any>{
-                FieldType: FieldType.RADIO,
-                Label: 'Inkluder kontoer med saldo = 0',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Inkl. kontoer med saldo 0',
                 Property: 'includeZeroBalance'
             }
         ];

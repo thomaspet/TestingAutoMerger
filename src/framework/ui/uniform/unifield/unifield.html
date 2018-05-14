@@ -55,15 +55,6 @@
                        (inputEvent)="onInputHandler($event)"
                        (focusEvent)="onFocusHandler($event)"
     ></uni-numeric-input>
-    <uni-radio-input #selectedComponent *ngIf="field?.FieldType === 7"
-                     [field]="field"
-                     [model]="model"
-                     [asideGuid]="asideGuid"
-                     (readyEvent)="onReadyHandler($event)"
-                     (changeEvent)="onChangeHandler($event)"
-                     (inputEvent)="onInputHandler($event)"
-                     (focusEvent)="onFocusHandler($event)"
-    ></uni-radio-input>
 
     <uni-checkboxgroup-input #selectedComponent
         *ngIf="field?.FieldType === 8"
@@ -73,15 +64,17 @@
         (changeEvent)="onChangeHandler($event)">
     </uni-checkboxgroup-input>
 
-    <uni-radiogroup-input #selectedComponent *ngIf="field?.FieldType === 9"
-                          [field]="field"
-                          [model]="model"
-                          [asideGuid]="asideGuid"
-                          (readyEvent)="onReadyHandler($event)"
-                          (changeEvent)="onChangeHandler($event)"
-                          (inputEvent)="onInputHandler($event)"
-                          (focusEvent)="onFocusHandler($event)"
-    ></uni-radiogroup-input>
+    <uni-radiogroup-input #selectedComponent
+        *ngIf="field?.FieldType === 9"
+        [field]="field"
+        [model]="model"
+        [asideGuid]="asideGuid"
+        (readyEvent)="onReadyHandler($event)"
+        (changeEvent)="onChangeHandler($event)"
+        (inputEvent)="onInputHandler($event)"
+        (focusEvent)="onFocusHandler($event)">
+    </uni-radiogroup-input>
+
     <uni-text-input #selectedComponent *ngIf="field?.FieldType === 10"
                     [field]="field"
                     [model]="model"

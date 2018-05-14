@@ -79,16 +79,17 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
                 Options: {
                     source: this.typeOfReportFor,
                     valueProperty: 'ID',
-                    displayProperty: 'Label'
+                    displayProperty: 'Label',
+                    hideDeleteButton: true
                 }
             },
             <any>{
-                FieldType: FieldType.RADIO,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Vis forside',
                 Property: 'showFrontPage',
             },
             <any>{
-                FieldType: FieldType.RADIO,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Vis fjorårets tall',
                 Property: 'showLastYear'
             },
@@ -128,7 +129,7 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
                 Property: 'toDepartmentNo'
             },
             <any>{
-                FieldType: FieldType.RADIO,
+                FieldType: FieldType.CHECKBOX,
                 Label: 'Vis udisp. beløp som del av EK',
                 Property: 'showUnallocated'
             }

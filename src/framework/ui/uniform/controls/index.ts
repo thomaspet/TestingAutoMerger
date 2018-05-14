@@ -12,7 +12,6 @@ export * from './multivalue/multivalue';
 export * from './radio-group/radio-group';
 export * from './checkbox-group/checkbox-group';
 export * from './checkbox/checkbox';
-export * from './radio/radio';
 export * from './button/button';
 export * from './local-date-picker/local-date-picker';
 export * from './uni-search-wrapper/uni-search-wrapper';
@@ -31,7 +30,6 @@ import {UniMultivalueInput} from './multivalue/multivalue';
 import {UniRadiogroupInput} from './radio-group/radio-group';
 import {UniCheckboxgroupInput} from './checkbox-group/checkbox-group';
 import {UniCheckboxInput} from './checkbox/checkbox';
-import {UniRadioInput} from './radio/radio';
 import {UniButtonInput} from './button/button';
 import {LocalDatePickerInput} from './local-date-picker/local-date-picker';
 import {UniSearchWrapper} from './uni-search-wrapper/uni-search-wrapper';
@@ -44,7 +42,6 @@ export const CONTROLS = [
     UniSelectInput, // UniMaskedInput, // 4 - masked
     UniCheckboxInput, // 5 - checkbox
     UniNumericInput, // 6 - numeric
-    UniRadioInput, // 7 - radio
     UniCheckboxgroupInput, // 8 - checkbox group
     UniRadiogroupInput, // 9 - radio group
     UniTextInput, // 10 - text
@@ -66,7 +63,6 @@ export enum CONTROLS_ENUM {
     MASKED = 4, // 4 - masked
     CHECKBOX = 5, // 5 - checkbox
     NUMERIC = 6, // 6 - numeric
-    RADIO = 7, // 7 - radio
     CHECKBOX_GROUP = 8, // 8 - checkbox group
     RADIO_GROUP = 9, // 9 - radio group
     TEXT = 10, // 10 - text

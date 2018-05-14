@@ -118,18 +118,6 @@ export class AccountReportFilterForm implements OnInit {
                     displayProperty: 'Label'
                 }
             }
-            // TODO. These controls to be included?
-            // ,
-            // <any>{
-            //    FieldType: FieldType.RADIO,
-            //    Label: 'Vis kontoer uten bevegelse',
-            //    Property: 'ShowAccountsWithoutDetails',
-            // },
-            // <any>{
-            //    FieldType: FieldType.RADIO,
-            //    Label: 'Vis kontoer uten saldo',
-            //    Property: 'ShowAccountsWithoutBalance',
-            // }
         ];
     }
 }

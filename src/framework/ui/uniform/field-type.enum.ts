@@ -6,7 +6,6 @@ export enum FieldType {
 	MASKED = 4,
 	CHECKBOX = 5,
 	NUMERIC = 6,
-	RADIO = 7,
 	CHECKBOXGROUP = 8,
 	RADIOGROUP = 9,
 	TEXT = 10,
