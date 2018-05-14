@@ -17,6 +17,8 @@ import {UniApprovals} from './approvals/approvals';
 import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
 import {WorkApprovalPreview} from './previews/workapprovalpreview';
 
+import {MatSlideToggleModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -29,6 +31,7 @@ import {WorkApprovalPreview} from './previews/workapprovalpreview';
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
+        MatSlideToggleModule
     ],
     declarations: [
         UniAssignments,

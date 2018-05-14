@@ -147,11 +147,6 @@ export class UniApprovals {
         }, err => this.errorService.handle(err));
     }
 
-    public toggleShowCompleted() {
-        this.showCompleted = !this.showCompleted;
-        this.loadApprovals();
-    }
-
     private scrollToListItem(index: number): void {
         setTimeout(() => {
             const list = this.approvalList.nativeElement || {children: []};

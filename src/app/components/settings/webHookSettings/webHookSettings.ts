@@ -253,8 +253,8 @@ export class WebHookSettings {
     }
 
 
-    public onToggle(subscription: IUmhSubscription) {
-        subscription.Enabled = !subscription.Enabled;
+    public onToggle(subscription: IUmhSubscription, event) {
+        subscription.Enabled = event.checked;
         this.updateSubscription(subscription);
     }
 

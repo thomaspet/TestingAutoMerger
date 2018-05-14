@@ -1,12 +1,12 @@
 <article *ngIf="salaryBalance">
     <small *ngIf="showDescriptionText">{{ description$ | async }}</small>
     <header>
-        <section class="uni-checkbox">
-            <input type="checkbox" class="toggle" [placeholder]="'Vis alle poster'" [checked]="showAllLines" />
-            <label (click)="toggleShowAllLines()" class="toggle" tabindex="-1">
-                Vis alle poster
-            </label>
-        </section>
+        <mat-slide-toggle
+            [checked]="showAllLines"
+            (change)="toggleShowAllLines($event)"
+            [labelPosition]="'before'">
+            Vis alle poster
+        </mat-slide-toggle>
 
         <button class="add-manual-post" (click)="activateEditMode()">
             Legg til manuell post

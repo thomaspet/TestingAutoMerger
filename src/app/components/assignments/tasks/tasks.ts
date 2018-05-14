@@ -153,11 +153,6 @@ export class UniTasks {
         this.loadTasks();
     }
 
-    public toggleShowCompleted() {
-        this.showCompleted = !this.showCompleted;
-        this.loadTasks();
-    }
-
     public completeTask(task: Task) {
         this.taskService.PostAction(task.ID, 'complete').subscribe(
             res => this.loadTasks(),

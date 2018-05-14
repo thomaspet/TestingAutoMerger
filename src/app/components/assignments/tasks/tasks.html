@@ -9,15 +9,13 @@
             Alle oppgaver
         </button>
 
-        <section class="uni-checkbox">
-            <input type="checkbox" class="toggle"
-                [placeholder]="'Vis fullførte'"
-                [checked]="showCompleted"
-            />
-            <label (click)="toggleShowCompleted()" class="toggle" tabindex="-1">
-                Vis fullførte
-            </label>
-        </section>
+        <mat-slide-toggle
+            style="margin-top: .25rem; margin-left: 1rem;"
+            [(ngModel)]="showCompleted"
+            (change)="loadTasks()"
+            [labelPosition]="'before'">
+            Vis fullførte
+        </mat-slide-toggle>
     </section>
 
     <ul class="task-list" #taskList>

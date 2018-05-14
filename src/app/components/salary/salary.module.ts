@@ -96,12 +96,15 @@ import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-d
 import {TimeTransferComponent} from './payrollrun/modals/time-transfer/time-transfer.component';
 import {EmpCanActivateGuard} from './employee/empGuard';
 
+import {MatSlideToggleModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
+        MatSlideToggleModule,
 
         RouterModule.forChild(salaryRoutes),
 

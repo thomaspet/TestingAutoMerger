@@ -12,12 +12,13 @@
         <fieldset>
             <legend>{{currentSerie?.Name}}</legend>
 
-            <section class="uni-checkbox">
-                <input type="checkbox" class="toggle" [checked]="allYears" />
-                <label (click)="toggleAllYears()" class="toggle" tabindex="-1">
-                    Vis alle regnskapsår
-                </label>
-            </section>
+            <mat-slide-toggle
+                style="margin-bottom: 1rem;"
+                [(ngModel)]="allYears"
+                (change)="toggleAllYears($event)"
+                [labelPosition]="'before'">
+                Vis alle regnskapsår
+            </mat-slide-toggle>
 
             <uni-table
                 [config]="listTableConfig"

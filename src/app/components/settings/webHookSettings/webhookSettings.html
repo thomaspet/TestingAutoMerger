@@ -94,15 +94,12 @@
                             <table class="embeddedWebHookTable">
                                 <tr>
                                     <td class="col5a">
-                                        <section class="uni-checkbox">
-                                            <input class="toggle"
-                                                type="checkbox"
-                                                id="{{item.id}}"
-                                                [ngModel]="item.Enabled"
-                                                (ngModelChange)="onToggle(item)"
-                                            />
-                                            <label attr.for="{{item.id}}" class="toggle">&nbsp;</label>
-                                        </section>
+                                        <mat-slide-toggle
+                                            [checked]="item.Enabled"
+                                            (change)="onToggle(item, $event)"
+                                            [labelPosition]="'before'">
+                                            Aktiv
+                                        </mat-slide-toggle>
                                     </td>
                                     <td class="col5b">
                                         <button class="delete-webhook" (click)="onDeleteSubscription(item) ">&nbsp;</button>

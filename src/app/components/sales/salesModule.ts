@@ -56,12 +56,15 @@ import {UniDimensionTOFView} from './common/dimensionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 
+import {MatSlideToggleModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
+        MatSlideToggleModule,
 
         RouterModule.forChild(salesRoutes),
 

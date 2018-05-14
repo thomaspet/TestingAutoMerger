@@ -37,6 +37,8 @@ import {UniRegisterBankUserModal} from '@app/components/settings/users/register-
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
 
+import {MatSlideToggleModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -48,6 +50,7 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
         CommonServicesModule,
         LayoutModule,
         AppCommonModule,
+        MatSlideToggleModule
     ],
     declarations: [
         Settings,

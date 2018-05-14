@@ -157,8 +157,8 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         this.tableModel$.next(this.getTableLines(salaryBalanceLines));
     }
 
-    public toggleShowAllLines() {
-        this.showAllLines = !this.showAllLines;
+    public toggleShowAllLines(event) {
+        this.showAllLines = event.checked;
         this.showAllLinesModel = {
             showAll: this.showAllLines
         };

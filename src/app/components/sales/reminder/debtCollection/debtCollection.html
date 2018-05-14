@@ -6,17 +6,12 @@
 
 <section [ngClass]="{'application': !modalMode}">
     <section *ngIf="remindersToDebtCollect" class="uni-container">
-
-        <section class="uni-checkbox" style="margin-bottom: 1rem;">
-            <input id="purrestopp"
-                type="checkbox"
-                [(ngModel)]="showInvoicesWithReminderStop"
-                (change)="updateReminderTable()"
-            />
-            <label for="purrestopp">
-                Vis faktura med purrestopp
-            </label>
-        </section>
+        <mat-slide-toggle
+            [(ngModel)]="showInvoicesWithReminderStop"
+            (change)="updateReminderTable()"
+            [labelPosition]="'before'">
+            Vis faktura med purrestopp
+        </mat-slide-toggle>
 
         <b>{{remindersToDebtCollect.length}} purringer er klar til inkasso</b><br />
 

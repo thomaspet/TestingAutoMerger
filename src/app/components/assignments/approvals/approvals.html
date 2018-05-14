@@ -1,15 +1,12 @@
 <!-- Selection list -->
 <section class="uni-container assignment-list">
     <section class="assignment-filters">
-        <section class="uni-checkbox">
-            <input type="checkbox" class="toggle"
-                [placeholder]="'Vis fullførte'"
-                [checked]="showCompleted"
-            />
-            <label (click)="toggleShowCompleted()" class="toggle" tabindex="-1">
-                Vis fullførte
-            </label>
-        </section>
+        <mat-slide-toggle
+            [(ngModel)]="showCompleted"
+            (change)="loadApprovals()"
+            [labelPosition]="'before'">
+            Vis fullførte
+        </mat-slide-toggle>
     </section>
 
     <span class="no-approvals-message" *ngIf="!approvals?.length">Du har ingenting å godkjenne akkurat nå</span>

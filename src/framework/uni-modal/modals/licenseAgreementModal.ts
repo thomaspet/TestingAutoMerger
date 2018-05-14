@@ -18,14 +18,13 @@ import {IUniModal, ConfirmActions} from '../interfaces';
                   alt : <a href="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf">License.pdf</a>
                 </object>
 
-                <section class="uni-checkbox">
-                    <input type="checkbox" id="agreement-checkbox" [(ngModel)]="licenceAgreement" />
-                    <label for="agreement-checkbox">Godta lisensavtale</label>
-                </section>
+                <mat-checkbox [(ngModel)]="licenseAgreement">
+                    Godta lisensavtale
+                </mat-checkbox>
 
             </article>
             <footer>
-                <button class="good" (click)="confirm()">Bekreft</button>
+                <button class="good" (click)="confirm()" [disabled]="!licenseAgreement">Bekreft</button>
                 <button class="bad" (click)="reject()">Avbryt</button>
             </footer>
         </section>
@@ -34,10 +33,10 @@ import {IUniModal, ConfirmActions} from '../interfaces';
 export class LicenseAgreementModal implements IUniModal {
     @Output() public onClose: EventEmitter<ConfirmActions> = new EventEmitter<ConfirmActions>();
 
-    public licenceAgreement: boolean = false;
+    public licenseAgreement: boolean = false;
 
     public confirm() {
-        if (this.licenceAgreement) {
+        if (this.licenseAgreement) {
             this.onClose.emit(ConfirmActions.ACCEPT);
         } else {
             window.alert('Du må godta avtalen før du kan gå videre');
