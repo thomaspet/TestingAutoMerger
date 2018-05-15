@@ -29,7 +29,8 @@ import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     YearService, ErrorService, EmployeeCategoryService, FileService,
-    JournalEntryService, PayrollRunPaymentStatus, SupplementService
+    JournalEntryService, PayrollRunPaymentStatus, SupplementService,
+    SalarySumsService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -46,16 +47,19 @@ const PAYROLL_RUN_KEY: string = 'payrollRun';
 })
 
 export class PayrollrunDetails extends UniView implements OnDestroy {
+    @ViewChild(ControlModal) public controlModal: ControlModal;
+    @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
+    @ViewChild(UniForm) public uniform: UniForm;
+
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
-    @ViewChild(UniForm) public uniform: UniForm;
+
     private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
-    @ViewChild(ControlModal) public controlModal: ControlModal;
-    @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
+
     private busy: boolean = false;
     private url: string = '/salary/payrollrun/';
     private contextMenuItems: IContextMenuItem[] = [];
@@ -88,8 +92,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     };
 
-    private posterEmps$: ReplaySubject<Employee[]> = new ReplaySubject(1);
-    private posterPayrollRun$: ReplaySubject<PayrollRun> = new ReplaySubject(1);
+    private paymentSum: number;
 
     constructor(
         private route: ActivatedRoute,
@@ -112,7 +115,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private journalEntryService: JournalEntryService,
         private modalService: UniModalService,
         private payrollRunDetailsService: PayrollRunDetailsService,
-        private supplementService: SupplementService
+        private supplementService: SupplementService,
+        private salarySumsService: SalarySumsService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -154,13 +158,15 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.toggleReadOnlyOnCategories(this.salaryTransactions, payrollRun);
                     }
                 })
-                .do(payrollRun => {
-                    if (!super.isDirty(PAYROLL_RUN_KEY)) {
-                        this.posterPayrollRun$.next(payrollRun);
-                    }
-                    this.searchConfig$.next(this.payrollRunDetailsService.setupSearchConfig(payrollRun));
-                })
                 .subscribe((payrollRun: PayrollRun) => {
+                    this.searchConfig$.next(this.payrollRunDetailsService.setupSearchConfig(payrollRun));
+
+                    if (payrollRun.ID) {
+                        this.salarySumsService.getFromPayrollRun(payrollRun.ID).subscribe(sums => {
+                            this.paymentSum = sums && sums.netPayment;
+                        });
+                    }
+
                     if (payrollRun['_IncludeRecurringPosts'] === undefined) {
                         payrollRun['_IncludeRecurringPosts'] = !payrollRun.ExcludeRecurringPosts;
                     }
@@ -207,16 +213,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         this.setEditMode(payrollRun);
                     }
                     changedPayroll = false;
-
                 }, err => this.errorService.handle(err));
 
-            employeesSubject
-                .do(employees => {
-                    if (!super.isDirty('employees')) {
-                        this.posterEmps$.next(employees);
-                    }
-                })
-                .subscribe((employees: Employee[]) => this.employees = employees);
+            employeesSubject.subscribe(employees => this.employees = employees);
 
             super.getStateSubject('salaryTransactions')
                 .map((transes: SalaryTransaction[]) => {
