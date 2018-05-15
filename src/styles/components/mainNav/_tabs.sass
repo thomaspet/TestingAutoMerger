@@ -76,16 +76,11 @@ $active-tab-color: $tab-color
 
         li
             display: block
-            padding: .25rem .5rem .25rem .8rem
             color: $uni-color-positive
             text-align: left
 
             + li
                 border-top: 1px solid $uni-color-scale9
-
-            &:hover,
-            &.active
-                background: transparentize($uni-color-c2a, .9)
 
             .close-tab
                 float: right
@@ -100,10 +95,10 @@ $active-tab-color: $tab-color
         @extend %navbarText
         @extend %clickable
         display: inline-block
-        height: 2rem // calc(2rem - 1px)
+        height: 2rem
         line-height: 2rem
         padding: 0 1rem
-        margin: 0 //.5rem 0 0
+        margin: 0
         text-align: center
         font-size: 15px
         max-width: 15rem
@@ -113,7 +108,7 @@ $active-tab-color: $tab-color
         text-overflow: ellipsis
         position: relative
         flex-shrink: 1
-        color: $tab-color !important
+        color: $tab-color
 
         .close-tab
             vertical-align: middle
@@ -126,7 +121,7 @@ $active-tab-color: $tab-color
         &:hover,
         &.router-tab-active
             background: $active-tab-background
-            color: $active-tab-color !important
+            color: $active-tab-color
 
         // &.router-tab-active
         //     border-bottom: 2px solid $uni-color-c2a
