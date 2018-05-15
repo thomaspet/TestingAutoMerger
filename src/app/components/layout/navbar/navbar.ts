@@ -15,9 +15,7 @@ import {User} from '@uni-entities';
                     [routerLink]="'/'"
                 />
 
-                <!--<uni-hamburger-menu></uni-hamburger-menu>-->
-
-                <uni-horizontal-navbar></uni-horizontal-navbar>
+                <uni-hamburger-menu></uni-hamburger-menu>
             </section>
 
             <section class="navbar-right">

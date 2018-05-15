@@ -9,7 +9,6 @@ $navbarActive: $uni-color-toolbar
     box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
     border-radius: 0 0 pxToRem(3) pxToRem(3)
 
-@import 'hamburger'
 @import 'tabs'
 @import 'search'
 @import 'company'
@@ -92,8 +91,8 @@ navbar-create-new
         line-height: 2.5rem
         vertical-align: middle
 
-uni-hamburger-menu
-    flex-grow: 0
+// uni-hamburger-menu
+//     flex-grow: 0
 
 uni-tabstrip
     flex-grow: 1
@@ -148,8 +147,8 @@ uni-company-dropdown
 
 // Mobile styling
 @include media(small, max-width)
-    .hamburger
-        padding: 0 .5rem !important
+    // .hamburger
+    //     padding: 0 .5rem !important
 
     uni-navbar-search
         display: none

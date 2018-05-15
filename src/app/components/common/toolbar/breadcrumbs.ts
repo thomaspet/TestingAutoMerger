@@ -1,5 +1,4 @@
 import {Component, Input} from '@angular/core';
-import {HamburgerMenu} from '../../layout/navbar/hamburgerMenu/hamburgerMenu';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
 
@@ -58,17 +57,6 @@ export class UniBreadcrumbs {
                             return true;
                         }
                     });
-
-                    // const finalComponent = parentApp.componentList.find((component) => {
-                    //     return component.moduleID === this.moduleID;
-                    // });
-
-                    // if (finalComponent) {
-                    //     crumbs.push({
-                    //         title: finalComponent.componentName,
-                    //         url: '/#' + finalComponent.componentUrl
-                    //     });
-                    // }
                 }
             }
 

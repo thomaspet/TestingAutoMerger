@@ -4,23 +4,25 @@ import {
     ChangeDetectorRef,
     Input
 } from '@angular/core';
+import {Router} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
 import {NavbarLinkService, INavbarLinkSection} from '../navbar-link-service';
 
 @Component({
-    selector: 'uni-horizontal-navbar',
-    templateUrl: './horizontal-nav.html',
-    styleUrls: ['./horizontal-nav.sass'],
+    selector: 'uni-hamburger-menu',
+    templateUrl: './hamburger.html',
+    styleUrls: ['./hamburger.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HorizontalNavbar {
+export class UniHamburgerMenu {
     public linkSections: INavbarLinkSection[];
     public isExpanded: boolean = false;
     public sidebarVisible: boolean;
 
     constructor(
         private navbarService: NavbarLinkService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private router: Router
     ) {
         this.navbarService.linkSections$.subscribe(sections => {
             this.linkSections = sections.filter(section => !section.hidden);
@@ -31,6 +33,12 @@ export class HorizontalNavbar {
             this.sidebarVisible = state !== 'hidden';
             this.cdr.markForCheck();
         });
+    }
+
+    public navigateToSection(url: string) {
+        if (url) {
+            this.router.navigateByUrl(url);
+        }
     }
 
     public close() {

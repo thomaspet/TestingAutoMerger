@@ -98,12 +98,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {
-                        name: 'Salgsmodul',
-                        url: '/sales/',
-                        moduleID: UniModules.Sales,
-                        routerLinkActiveExact: true
-                    },
-                    {
                         name: 'Faktura',
                         url: '/sales/invoices',
                         moduleID: UniModules.Invoices
@@ -173,12 +167,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 name: '',
                 links: [
-                    {
-                        name: 'Regnskapsmodul',
-                        url: '/accounting/',
-                        moduleID: UniModules.Accounting,
-                        routerLinkActiveExact: true
-                    },
                     {
                         name: 'Bilagsføring',
                         url: '/accounting/journalentry',
@@ -276,12 +264,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {
-                        name: 'Lønnsmodul',
-                        url: '/salary/',
-                        moduleID: UniModules.Salary,
-                        routerLinkActiveExact: true
-                    },
-                    {
                         name: 'Lønnsavregning',
                         url: '/salary/payrollrun',
                         moduleID: UniModules.Payrollrun
@@ -346,12 +328,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 name: '',
                 links: [
-                    {
-                        name: 'Timemodul',
-                        url: '/timetracking/',
-                        moduleID: UniModules.Timesheets,
-                        routerLinkActiveExact: true
-                    },
                     {
                         name: 'Timeregistrering',
                         url: '/timetracking/timeentry',
@@ -421,11 +397,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 name: '',
                 links: [
-                    // {name: 'Firmaoppsett', url: '/settings/company'},
-                    // {name: 'Nummerserier', url: '/settings/numberseries'},
-                    // {name: 'Team', url: '/settings/teams'},
-                    // {name: 'Altinn', url: '/settings/altinn'},
-                    // {name: 'Integrasjon', url: '/settings/webhooks'},
                     {name: 'Firmaoppsett', url: '/settings/company'},
                     {name: 'Lønnsinnstillinger', url: '/settings/aga-and-subentities'},
                     {name: 'Integrasjon', url: '/settings/webhooks'},

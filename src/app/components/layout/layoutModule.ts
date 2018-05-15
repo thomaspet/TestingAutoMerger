@@ -6,8 +6,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
 import {UniSidebar} from './sidebar/sidebar';
-import {HamburgerMenu, RemoveHidden} from './navbar/hamburgerMenu/hamburgerMenu';
-import {HorizontalNavbar} from './navbar/horizontal-nav/horizontal-nav';
+import {UniHamburgerMenu} from './navbar/hamburger/hamburger';
 import {NavbarCreateNew} from './navbar/create-new/navbar-create-new';
 import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabStrip';
@@ -45,12 +44,10 @@ import {
         AppPipesModule
     ],
     declarations: [
-        HorizontalNavbar,
+        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
-        HamburgerMenu,
-        RemoveHidden,
         NavbarCreateNew,
         NavbarSearch,
         UniTabStrip,
@@ -69,12 +66,10 @@ import {
         UserSettingsModal
     ],
     exports: [
-        HorizontalNavbar,
+        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
-        HamburgerMenu,
-        RemoveHidden,
         NavbarCreateNew,
         NavbarSearch,
         UniTabStrip,

@@ -7,7 +7,12 @@
             [attr.aria-expanded]="expandedSectionIndex === idx">
 
             <section class="sidebar-section-header" (click)="toggleSection(idx)">
-                <i class="material-icons" *ngIf="section.mdIcon">{{section.mdIcon}}</i>
+                <i class="material-icons"
+                    *ngIf="section.mdIcon"
+                    [ngClass]="{'sidebar-link-icon': section.url}"
+                    (click)="navigateToSectionUrl(section.url)">
+                    {{section.mdIcon}}
+                </i>
                 <span *ngIf="state === 'expanded'">{{section.name}}</span>
             </section>
 

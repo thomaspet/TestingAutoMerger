@@ -53,6 +53,10 @@ export class UniSidebar {
         });
     }
 
+    public ngAfterViewInit() {
+        this.scrollbar = new PerfectScrollbar('#scroll-container');
+    }
+
     public getActiveSection() {
         try {
             const rootRoute = this.router.url.split('/')[1];
@@ -66,10 +70,6 @@ export class UniSidebar {
         } catch (e) {
             console.error(e);
         }
-    }
-
-    public ngAfterViewInit() {
-        this.scrollbar = new PerfectScrollbar('#scroll-container');
     }
 
     public toggleSection(index) {
@@ -87,6 +87,13 @@ export class UniSidebar {
 
         if (this.scrollbar) {
             setTimeout(() => this.scrollbar.update());
+        }
+    }
+
+    public navigateToSectionUrl(url: string) {
+        // Icon clicks on collapsed sidebar should not navigate
+        if (url && this.state !== 'collapsed') {
+            this.router.navigateByUrl(url);
         }
     }
 
