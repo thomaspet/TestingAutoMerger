@@ -53,7 +53,7 @@ export class TableDataService {
 
             this.gridApi.setRowData(filteredData);
             const lastRow = filteredData.length && filteredData[filteredData.length - 1];
-            if (this.config.editable && (!lastRow || !lastRow['_isEmpty'])) {
+            if (this.config.autoAddNewRow && this.config.editable && (!lastRow || !lastRow['_isEmpty'])) {
                 this.addRow();
             }
         } else {
@@ -226,7 +226,7 @@ export class TableDataService {
 
         if (this.originalData.length) {
             this.refreshData();
-        } else {
+        } else if (this.config.autoAddNewRow) {
             this.addRow();
         }
     }
