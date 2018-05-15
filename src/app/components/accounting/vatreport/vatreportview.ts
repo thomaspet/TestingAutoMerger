@@ -56,7 +56,7 @@ export class VatReportView implements OnInit, OnDestroy {
     private toolbarconfig: IToolbarConfig;
     private periodDateFormat: PeriodDateFormatPipe;
 
-    public activeTabIndex: number = 0;
+    public activeTabIndex: number = 1;
     public tabs: IUniTab[] = [
         {name: 'Kontroll'},
         {name: 'MVA-melding'},
