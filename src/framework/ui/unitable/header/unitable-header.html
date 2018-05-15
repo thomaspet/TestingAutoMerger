@@ -20,6 +20,9 @@
     {{column.get('header')}}
 </th>
 
+<!-- Add an empty header cell if we have both delete button and context menu -->
+<th *ngIf="config?.contextMenu?.items?.length && config.deleteButton" class="context-menu-column"></th>
+
 <th class="context-menu-column"
     *ngIf="config?.columnMenuVisible || config?.contextMenu?.items?.length || config.deleteButton"
     [ngClass]="{'text-menu': !config?.contextMenu?.showDropdownOnSingleItem}">
