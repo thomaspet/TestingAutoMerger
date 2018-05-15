@@ -92,6 +92,10 @@ export class UniTasks {
             task['_createdDate'] = moment(task.CreatedAt).format('DD. MMM YYYY');
         }
 
+        if (task.StatusCode === 50030) {
+            task['_completed'] = true;
+        }
+
         return task;
     }
 
