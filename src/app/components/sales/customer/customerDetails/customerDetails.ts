@@ -453,7 +453,12 @@ export class CustomerDetails implements OnInit {
                 this.sellers = response[11];
 
                 const customer: Customer = response[2];
-                customer.SubAccountNumberSeriesID = this.numberSeries.find(x => x.Name === 'Customer number series').ID;
+
+                const numberSerie = this.numberSeries.find(x => x.Name === 'Customer number series');
+                if (numberSerie) {
+                    customer.SubAccountNumberSeriesID = numberSerie.ID;
+                }
+
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
