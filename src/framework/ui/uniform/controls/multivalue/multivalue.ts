@@ -144,8 +144,8 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
     private open() {
         this.isOpen = true;
-        this.filter = "";
-        let listProperty = this.field.Options.listProperty || this.field.Property;
+        this.filter = '';
+        const listProperty = this.field.Options.listProperty || this.field.Property;
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
         setTimeout(() => this.filterInput.nativeElement.focus());
     }
@@ -230,6 +230,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
         const listProperty = this.field.Options.listProperty || this.field.Property;
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
+        const oldRows = this.rows;
 
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
@@ -243,7 +244,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                         return this.rows;
                     }
 
-                    let index = this.rows.findIndex(r => r === row);
+                    const index = this.rows.findIndex(r => r === row);
                     if (index >= 0) {
                         this.rows[index] = editedEntity;
                         this.selectRow(editedEntity);
@@ -255,8 +256,9 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 })
                 .then(rows => this.filteredRows = rows)
                 .then(rows => {
-                    let listProperty = this.field.Options.listProperty || this.field.Property;
+                    // let listProperty = this.field.Options.listProperty || this.field.Property;
                     _.set(this.model, listProperty, rows);
+                    this.emitChange(oldRows, rows);
                 })
                 .catch((err) => {
                     this.editorIsOpen = false;
@@ -338,7 +340,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 }
                 let selectedRowIndexDown = this.filteredRows.findIndex(row => row === this.focusedRow);
                 selectedRowIndexDown = selectedRowIndexDown === undefined ? 0 : selectedRowIndexDown;
-                if (selectedRowIndexDown < this.filteredRows.length -1) {
+                if (selectedRowIndexDown < this.filteredRows.length - 1) {
                     this.focusedRow = this.filteredRows[selectedRowIndexDown + 1];
                 }
                 break;
