@@ -230,6 +230,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
         const listProperty = this.field.Options.listProperty || this.field.Property;
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
+        const oldRows = this.rows;
 
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
@@ -257,6 +258,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 .then(rows => {
                     let listProperty = this.field.Options.listProperty || this.field.Property;
                     _.set(this.model, listProperty, rows);
+                    this.emitChange(oldRows, rows);
                 })
                 .catch((err) => {
                     this.editorIsOpen = false;

@@ -75,12 +75,12 @@ export class UniModalService {
         });
     }
 
-    public openUnsavedChangesModal(): IUniModal {
+    public openUnsavedChangesModal(acceptButtonText: string = 'Lagre'): IUniModal {
         return this.confirm({
             header: 'Ulagrede endringer',
             message: 'Du har ulagrede endringer. Ønsker du å lagre?',
             buttonLabels: {
-                accept: 'Lagre',
+                accept: acceptButtonText,
                 reject: 'Forkast',
                 cancel: 'Avbryt'
             },
