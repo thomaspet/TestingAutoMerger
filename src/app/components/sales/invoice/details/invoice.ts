@@ -466,6 +466,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.dimensionTypes = [{
             Label: 'Avdeling',
             Dimension: 2,
+            IsActive: true,
             Property: 'DefaultDimensions.DepartmentID',
             Data: this.departments
         }];
@@ -476,6 +477,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.dimensionTypes.push({
                 Label: dim.Label,
                 Dimension: dim.Dimension,
+                IsActive: dim.IsActive,
                 Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
                 Data: []
             });

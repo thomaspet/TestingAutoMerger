@@ -1212,6 +1212,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.dimensionTypes.forEach((type, index) => {
             const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
             .setVisible(false)
+            .setEditable(type.IsActive)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions['Dimension' + type.Dimension]) {
                     const dim = rowModel.Dimensions['Dimension' + type.Dimension];

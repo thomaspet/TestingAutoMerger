@@ -645,7 +645,7 @@ export class BillView implements OnInit {
                 const title = `${lang.create_supplier} '${invoice.InvoiceReceiverName}' ?`;
                 const msg = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
                     + ` ${lang.org_number}: ${invoice.Supplier.OrgNumber}`;
-                this.toast.clear();                
+                this.toast.clear();
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: title,
                     message: msg,
@@ -2168,7 +2168,6 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
-        this.checkLockStatus();
     }
 
     private updateJournalEntryManualFinancialDate(invoice: SupplierInvoice, updatelines: boolean) {
@@ -2253,6 +2252,7 @@ export class BillView implements OnInit {
         }
 
         this.uniForm.editMode();
+
         this.supplierIsReadOnly = false;
     }
 

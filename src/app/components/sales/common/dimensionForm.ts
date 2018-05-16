@@ -68,6 +68,7 @@ export class UniDimensionTOFView implements OnInit {
             } else {
                 fieldsetIndex = 1;
             }
+            console.log(dim);
             fields.push(
                 {
                     Legend: 'Dimensjoner',
@@ -77,6 +78,7 @@ export class UniDimensionTOFView implements OnInit {
                     Property: dim.Property,
                     FieldType: FieldType.DROPDOWN,
                     Label: dim.Label,
+                    ReadOnly: !dim.IsActive,
                     Section: 0,
                     Options: {
                         source: dim.Data,
