@@ -466,10 +466,10 @@ export class TransqueryDetails implements OnInit {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: {VatDate: item.JournalEntryLineVatDate.split('T')[0]}
+            data: {JournalEntryID: item.JournalEntryID}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.input)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
                     .subscribe(
                         res => {
                             this.toastService.addToast(

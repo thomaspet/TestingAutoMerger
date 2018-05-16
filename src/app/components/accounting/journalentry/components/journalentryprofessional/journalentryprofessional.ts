@@ -2547,11 +2547,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
-                completeCallback('Feil ved lagring av bilag');
+                // call with empty string to avoid clearing the grid
+                // if an error occurs
+                completeCallback('');
                 this.errorService.handle(err);
             }
         );
 
+    }
+
+    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number, creditDate?: LocalDate) {
+        const tableData = this.table.getTableData();
+
+        tableData.forEach(data => {
+            data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+        });
+
+        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID, creditDate)
+            .subscribe(data => {
+                this.toastService.addToast(
+                    'Lagring var vellykket.',
+                    ToastType.good, 10);
+
+                completeCallback('Lagret og bokført');
+
+                // Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+
+                this.setupJournalEntryNumbers(false);
+
+                this.dataChanged.emit(this.journalEntryLines);
+            },
+            err => {
+                // call with empty string to avoid clearing the grid
+                // if an error occurs
+                completeCallback('');
+                this.errorService.handle(err);
+            }
+        );
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {

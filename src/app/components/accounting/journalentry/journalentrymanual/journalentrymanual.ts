@@ -9,7 +9,8 @@ import {
     JournalEntryLine,
     NumberSeriesTask,
     VatType,
-    NumberSeries
+    NumberSeries,
+    LocalDate
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData} from '../../../../models/models';
@@ -20,6 +21,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniAddFileModal} from '../../bill/detail/addFileModal';
 import {Observable} from 'rxjs/Observable';
+import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 import {
     ToastService,
     ToastType,
@@ -61,6 +63,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public mode: number;
     @Input() public disabled: boolean = false;
     @Input() public editmode: boolean = false;
+    @Input() public creditDate: LocalDate = null;
     @Input() public singleRowMode: boolean = false; // used if you dont want debit/credit, just rows
     @Input() public doValidateBalance: boolean = true;
     @Input() public defaultRowData: JournalEntryData;
@@ -200,6 +203,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.showImagesForJournalEntryNo = null;
         this.currentJournalEntryImages = [];
         this.validationResult = null;
+        this.creditDate = null;
         this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
         this.currentJournalEntryData = null;
         this.accountBalanceInfoData = new Array<AccountBalanceInfo>();
@@ -225,7 +229,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         this.saveJournalEntryDraft(completeEvent);
                     },
                     main: true,
-                    disabled: !this.isDirty
+                    disabled: !this.isDirty || this.editmode
                 }
             ];
 
@@ -275,6 +279,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         } else {
                             this.disabled = !this.editmode;
                         }
+
                         this.setJournalEntryData(serverLines);
 
                         this.dataLoaded.emit(serverLines);
@@ -397,15 +402,25 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
         if (this.editmode) {
             // copies lines from the original array and lets you edit them as a template
-            // for the journalentry.
+            // for the journalentry. Only copy lines that are not already credited
+            lines = lines.filter(x => !x.JournalEntryDrafts.find(y => y.StatusCode === 34002));
             const copiedArray = [...lines];
 
             copiedArray.map(line => {
                 line.StatusCode = null;
+                line['_editmode'] = true;
                 return line;
             });
 
             lines = copiedArray;
+        } else {
+            // if the data has been saved to sessionStorage the binding for this.editmode
+            // might not be correct when reentering the view, so check if any of the lines
+            // has _editmode set - if so we are editing an existing journalentry, so update
+            // the flag to make the other things work as expected
+            if (lines.filter(x => x['_editmode']).length > 0) {
+                this.editmode = true;
+            }
         }
 
         this.journalEntryProfessional.setJournalEntryData(lines);
@@ -608,10 +623,18 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.lastRetrievedOpenPostsExpectedPositive = expectPositiveAmount;
                     this.openPostsForSelectedRow = null;
 
+                    // if we are showing the postpost when doing corrections, the post isnt actually open, but
+                    // include it in the results anyway because it will cause problems otherwise
+                    let extraFilter = '';
+                    if (this.currentJournalEntryData.PostPostJournalEntryLineID) {
+                        extraFilter = ` or ID eq ${this.currentJournalEntryData.PostPostJournalEntryLineID}`;
+                    }
 
                     this.journalEntryLineService.GetAll(
                         `expand=CurrencyCode&orderby=ID desc&filter=SubAccountID eq ${ledgerAccountID} `
-                        + `and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0`
+                        + `and RestAmountCurrency ${expectPositiveAmount ? 'gt' : 'lt'} 0 `
+                        + `and (StatusCode eq 31001 or StatusCode eq 31002)`
+                        + `${extraFilter}`
                     ).subscribe(lines => {
                         let line: JournalEntryLine = null;
                         if (this.currentJournalEntryData) {
@@ -768,16 +791,51 @@ export class JournalEntryManual implements OnChanges, OnInit {
         setTimeout(() => {
             this.canPostData().subscribe((canPost: boolean) => {
                 if (canPost && this.journalEntryProfessional) {
-                    this.journalEntryProfessional.postJournalEntryData((result: string) => {
-                        completeCallback(result);
+                    if (!this.editmode) {
+                        // this is a new journalentry, just book it
+                        this.journalEntryProfessional.postJournalEntryData((result: string) => {
+                            completeCallback(result);
 
-                        if (result && result !== '') {
-                            this.onDataChanged([]);
-                            this.clear();
-                        }
-                    });
+                            if (result && result !== '') {
+                                this.onDataChanged([]);
+                                this.clear();
+                            }
+                        });
 
-                    this.onShowImageForJournalEntry(null);
+                        this.onShowImageForJournalEntry(null);
+                    } else {
+                        // we are editing a journalentry, check what date the existing data will be credited
+                        const modalParams = {
+                            JournalEntryID: this.journalEntryID
+                        };
+
+                        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+                            header: `Opprinnelige bilagslinjer blir kreditert`,
+                            message: 'Når du lagrer vil de opprinnelige bilagslinjene krediteres.',
+                            buttonLabels: {
+                                accept: 'Fortsett',
+                                cancel: 'Avbryt'
+                            },
+                            data: modalParams
+                        }).onClose.subscribe(response => {
+                            if (response && response.action === ConfirmActions.ACCEPT) {
+                                const creditDate = response.creditDate;
+
+                                this.journalEntryProfessional.creditAndPostCorrectedJournalEntryData((result: string) => {
+                                    completeCallback(result);
+
+                                    if (result && result !== '') {
+                                        this.onDataChanged([]);
+                                        this.clear();
+                                    }
+                                }, this.journalEntryID, creditDate);
+
+                                this.onShowImageForJournalEntry(null);
+                            } else {
+                                completeCallback('Lagring avbrutt');
+                            }
+                        });
+                    }
                 } else {
                     completeCallback('Lagring avbrutt');
                 }

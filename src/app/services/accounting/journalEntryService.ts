@@ -123,6 +123,38 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.json());
     }
 
+    public getMinDatesForJournalEntry(journalEntryID: number): Observable<any> {
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(
+                '/api/statistics?model=journalentryline' +
+                '&select=JournalEntryNumber as JournalEntryNumber,min(VatDate) as MinVatDate,min(FinancialDate) as MinFinancialDate' +
+                '&filter=JournalEntryID eq ' + journalEntryID
+            )
+            .send()
+            .map(response => response.json())
+            .map(data => data.Data && data.Data.length > 0 ? data.Data[0] : null);
+    }
+
+    public getRelatedAccrualJournalEntries(journalEntryAccrualID: number): Observable<any> {
+        if (!journalEntryAccrualID) {
+            return Observable.empty();
+        }
+
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(
+                '/api/statistics?model=JournalEntry' +
+                '&select=JournalEntryNumber as JournalEntryNumber' +
+                '&filter=JournalEntryAccrualID eq ' + journalEntryAccrualID
+            )
+            .send()
+            .map(response => response.json())
+            .map(data => data.Data);
+    }
+
     public getNextJournalEntryNumber(journalentry: JournalEntryData): Observable<any> {
         return this.http
             .asPOST()
@@ -185,7 +217,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
     }
 
-    public postJournalEntryData(journalEntryData: Array<JournalEntryData>, id?: number): Observable<any> {
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<any> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
@@ -207,6 +239,31 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         } else {
             const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
             return this.bookJournalEntries(journalEntries);
+        }
+    }
+
+    public creditAndPostCorrectedJournalEntryData(journalEntryData: Array<JournalEntryData>, journalEntryID: number, creditDate?: LocalDate)
+        : Observable<any> {
+
+        // dont post any rows that are already booked, they will be credited with by the action
+        const journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
+
+        const journalEntryDataWithJournalEntryID =
+            journalEntryDataNew.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
+        const existingJournalEntryIDs: Array<number> = [];
+        journalEntryDataWithJournalEntryID.forEach(line => {
+            existingJournalEntryIDs.push(line.JournalEntryID);
+        });
+
+        if (existingJournalEntryIDs.length) {
+            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
+                .flatMap(existingJournalEntries => {
+                    const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
+                    return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID, creditDate);
+                });
+        } else {
+            const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
+            return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID, creditDate);
         }
     }
 
@@ -234,6 +291,19 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalEntries)
             .withEndPoint(this.relativeURL + '?action=book-journal-entries')
+            .send()
+            .map(response => response.json());
+    }
+
+    private creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number, creditDate?: LocalDate)
+    : Observable<any> {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(journalEntries)
+            .withEndPoint(
+                this.relativeURL + '?action=credit-and-book-journal-entry&journalEntryID=' + journalEntryID +
+                (creditDate ? '&creditDate=' + creditDate : ''))
             .send()
             .map(response => response.json());
     }
@@ -273,7 +343,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                             journalEntries.push(je);
                         } else {
                             // this shouldnt happen, so just throw an exception here
-                            throw 'No journalentry found for ID ' + line.JournalEntryID;
+                            throw Error('No journalentry found for ID ' + line.JournalEntryID);
                         }
                     }
                 }
@@ -874,6 +944,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (!jed.DueDate && line.DueDate) {
             jed.DueDate = line.DueDate;
+        }
+
+        if (!jed.PostPostJournalEntryLineID && line.PostPostJournalEntryLineID) {
+            jed.PostPostJournalEntryLineID = line.PostPostJournalEntryLineID;
         }
 
         jed.JournalEntryDraftIDs.push(line.ID);

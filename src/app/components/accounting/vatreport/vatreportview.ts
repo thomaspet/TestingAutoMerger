@@ -96,14 +96,11 @@ export class VatReportView implements OnInit, OnDestroy {
         let journalEntryID;
         let year;
 
-        if (this.vatReportsInPeriod && this.vatReportsInPeriod[0] && this.vatReportsInPeriod[0].JournalEntry) {
-            year = this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber.split('-')[1];
+        if (this.currentVatReport && this.currentVatReport.JournalEntry) {
+            year = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1];
 
-            journalEntryNumber = this.vatReportsInPeriod[0].JournalEntry
-                ? this.vatReportsInPeriod[0].JournalEntry.JournalEntryNumber
-                : null;
-
-            journalEntryID = this.vatReportsInPeriod[0].JournalEntryID;
+            journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber;
+            journalEntryID = this.currentVatReport.JournalEntryID;
         }
 
         const journalEntryLink = journalEntryNumber && journalEntryID

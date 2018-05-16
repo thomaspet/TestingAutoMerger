@@ -1,18 +1,21 @@
 import {Component, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
-import {LocalDate} from '@uni-entities';
+import {LocalDate, CompanySettings} from '@uni-entities';
+import {FieldType} from '../../../../framework/ui/uniform/index';
+import { JournalEntryService } from '@app/services/services';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',
     template: `
         <section role="dialog" class="uni-modal"
-            (clickOutside)="cancel()"
-            (keydown.esc)="cancel()">
+            (keydown.esc)="cancel($event)">
             <header>
                 <h1 class="new">{{options.header}}</h1>
-                <button class="modal-close-button" (click)="cancel()"></button>
+                <button class="modal-close-button" (click)="cancel($event)"></button>
             </header>
 
             <article>
@@ -20,23 +23,27 @@ import {LocalDate} from '@uni-entities';
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
-                <br>
-                <p *ngIf="vatLockedDateReformatted">Mva er låst til dato: {{vatLockedDateReformatted}}</p>
-                <p *ngIf="accountingLockedDateReformatted">Regnskap er låst til dato: {{accountingLockedDateReformatted}}</p>
-                <br>
-                <p>{{message}} </p>
-                <br>
-                <p>Velg dato:</p>
-                <input type="date" [(ngModel)]="input">
-                <p *ngIf="requiredInput" style="color:red">Fyll ut dato</p>
+                <p *ngIf="vatLockedDateReformatted && showVatLockedDateInfo">MVA er låst til dato: {{vatLockedDateReformatted}}</p>
+                <p *ngIf="accountingLockedDateReformatted && showAccountingLockedInfo">
+                    Regnskap er låst til dato: {{accountingLockedDateReformatted}}
+                </p>
+                <p>{{message}}</p>
+                <br/>
+                <uni-form
+                    [config]="config$"
+                    [fields]="fields$"
+                    [model]="creditingData$">
+                </uni-form>
+                <br/>
+                <p *ngIf="relatedJournalEntriesMessage">{{relatedJournalEntriesMessage}}</p>
             </article>
 
             <footer>
-                <button class="good" id="good_button_ok" (click)="accept()">
+                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
                     {{options.buttonLabels.accept}}
                 </button>
 
-                <button class="cancel" (click)="cancel()">
+                <button class="cancel" (click)="cancel($event)">
                     {{options.buttonLabels.cancel}}
                 </button>
             </footer>
@@ -55,8 +62,19 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public vatLockedDateReformatted: string;
     public accountingLockedDateReformatted: string;
     public message: string;
+    public relatedJournalEntriesMessage: string;
 
-    constructor(private companySettingsService: CompanySettingsService) {}
+    private creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+
+    private showVatLockedDateInfo: boolean = false;
+    private showAccountingLockedInfo: boolean = false;
+
+    private formReady: boolean = false;
+
+    constructor(private companySettingsService: CompanySettingsService, private journalEntryService: JournalEntryService) {}
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {
@@ -78,80 +96,153 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     }
 
     private findNonLockedDate() {
-        this.companySettingsService.getCompanySettings().subscribe(x => {
-            const today = moment(new Date()).format('YYYY-MM-DD');
-            let date: Date | string, greatestLockedDate: Date |LocalDate | string, message: string;
+        const requests = [];
+        requests.push(this.companySettingsService.getCompanySettings());
+
+        // if the journalentryid is defined, get the minimum dates used on journalentrylines
+        // for that journalentry - this is used to give the user better information about
+        // what will happen if any of the dates are from before one of the lockdates
+        if (this.options && this.options.data && this.options.data.JournalEntryID) {
+            requests.push(this.journalEntryService.getMinDatesForJournalEntry(this.options.data.JournalEntryID));
+            requests.push(this.journalEntryService.Get(this.options.data.JournalEntryID));
+        }
+
+        console.log('this.options.data', this.options.data);
+
+        Observable.forkJoin(requests).subscribe(results => {
+            const companySettings = <CompanySettings>results[0];
+
+            let minVatDate = null;
+            let minFinancialDate = null;
+            let journalEntryNumber = null;
+
+            console.log('results:', results);
+
+            if (results.length > 1 && results[1]) {
+                minVatDate = (<any>results[1]).MinVatDate;
+                minFinancialDate = (<any>results[1]).MinFinancialDate;
+                journalEntryNumber = (<any>results[1]).JournalEntryNumber;
+            }
+
+            let relatedJournalEntryNumbersAccruals = null;
+            this.relatedJournalEntriesMessage = null;
+
+            if (results.length > 2 && (<any>results[2]).JournalEntryAccrualID) {
+                this.journalEntryService
+                    .getRelatedAccrualJournalEntries((<any>results[2]).JournalEntryAccrualID)
+                    .subscribe(res => {
+                        const allAccrualJournalEntries = <Array<any>>results[2];
+                        console.log('allAccrualJournalEntries', allAccrualJournalEntries);
+
+                        // Get an array of distinct journalentrynumbers not like the current journalentry.
+                        // We need this to show a message to the user that he/she might also need to credit other
+                        relatedJournalEntryNumbersAccruals =
+                                Array.from(new Set(
+                                    allAccrualJournalEntries
+                                        .filter(x => x.JournalEntryNumber !== journalEntryNumber)
+                                        .map(x => x.JournalEntryNumber)
+                                ));
+
+                        if (relatedJournalEntryNumbersAccruals.length > 0) {
+                            this.relatedJournalEntriesMessage =
+                                'OBS! Bilaget er periodisert, og følgende relatert bilag må eventuelt krediteres manuelt: '
+                                + relatedJournalEntryNumbersAccruals.join(', ');
+                        }
+                    });
+            }
+
+            let message: string;
 
             // reformat the dates so its easier to read for the users(used in html)
-            this.vatLockedDateReformatted = x.VatLockedDate ? moment(x.VatLockedDate).format('DD-MM-YYYY') : null;
-            this.accountingLockedDateReformatted = x.AccountingLockedDate ? moment(x.AccountingLockedDate).format('DD-MM-YYYY') : null;
+            this.vatLockedDateReformatted =
+                companySettings.VatLockedDate ? moment(companySettings.VatLockedDate).format('DD.MM.YYYY') : null;
+            this.accountingLockedDateReformatted =
+                companySettings.AccountingLockedDate ? moment(companySettings.AccountingLockedDate).format('DD.MM.YYYY') : null;
 
-            if (x.VatLockedDate && x.AccountingLockedDate) {
-                // find greatest of the two locked dates if they exist
-                greatestLockedDate = moment(x.VatLockedDate) > moment(x.AccountingLockedDate) ? x.VatLockedDate : x.AccountingLockedDate;
+            this.showAccountingLockedInfo = false;
+            this.showVatLockedDateInfo = false;
+
+            // check if any daters
+            if (minVatDate && minFinancialDate && companySettings.VatLockedDate && companySettings.AccountingLockedDate
+                && moment(minVatDate) <= moment(companySettings.VatLockedDate)
+                && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
+                message = 'Bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showAccountingLockedInfo = true;
+                this.showVatLockedDateInfo = true;
+            } else if (minFinancialDate && companySettings.AccountingLockedDate
+                && moment(minFinancialDate) <= moment(companySettings.AccountingLockedDate)) {
+                message = 'Bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showAccountingLockedInfo = true;
+            } else if (minVatDate && companySettings.VatLockedDate
+                && moment(minVatDate) <= moment(companySettings.VatLockedDate)) {
+                message = 'Bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showVatLockedDateInfo = true;
+            } else if (!minVatDate && !minFinancialDate && companySettings.AccountingLockedDate && companySettings.VatLockedDate) {
+                message = 'Eventuelle bilagslinjer med regnskapsdato/MVA-dato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showAccountingLockedInfo = true;
+                this.showVatLockedDateInfo = true;
+            } else if (!minFinancialDate && companySettings.AccountingLockedDate) {
+                message = 'Eventuelle bilagslinjer med regnskapsdato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showAccountingLockedInfo = true;
+            } else if (!minVatDate && companySettings.VatLockedDate) {
+                message = 'Eventuelle bilagslinjer med MVA dato før låsedato vil krediteres på dagen etter låsedato. ' +
+                    'Du kan overstyre krediteringsdato for alle bilagslinjene ved å velge en dato under';
+
+                this.showVatLockedDateInfo = true;
             }
 
-            if (this.options && this.options.data && this.options.data.VatDate) {
-                // choose the greatest of the two dates as a suggestion to the user
-                if (greatestLockedDate) {
-                    message = moment(this.options.data.VatDate) > moment(greatestLockedDate)
-                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
-                        : 'Dato er satt til låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(this.options.data.VatDate) > moment(greatestLockedDate)
-                        ? this.options.data.VatDate
-                        : moment(greatestLockedDate).add('days', 1).format('YYYY-MM-DD');
-
-                } else if (!x.VatLockedDate && x.AccountingLockedDate) {
-                    message = moment(this.options.data.VatDate) > moment(greatestLockedDate)
-                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
-                        : 'Dato er satt til regnskaps-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(this.options.data.VatDate) > moment(x.AccountingLockedDate)
-                        ? this.options.data.VatDate
-                        : moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
-
-                } else if (!x.AccountingLockedDate && x.VatLockedDate) {
-                    message = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
-                        ? 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.'
-                        : 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(this.options.data.VatDate) > moment(x.VatLockedDate)
-                        ? this.options.data.VatDate
-                        : moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
-                } else {
-                    message = 'Dato er satt til opprinnelig bilagsdato, du kan overstyre denne om du ønsker.';
-                    date = this.options.data.VatDate;
-                }
-            } else {
-                // choose a date 1 day after the locked period if no other date is selected already
-                if (greatestLockedDate) {
-                    message = 'Dato er satt til låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(greatestLockedDate).add('days', 1).format('YYYY-MM-DD');
-                } else if (!x.VatLockedDate && x.AccountingLockedDate) {
-                    message = 'Dato er satt til mva.-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(x.AccountingLockedDate).add('days', 1).format('YYYY-MM-DD');
-                } else if (!x.AccountingLockedDate && x.VatLockedDate) {
-                    message = 'Dato er satt til regnskaps-låsedato + 1 dag, du kan overstyre denne om du ønsker.';
-                    date = moment(x.VatLockedDate).add('days', 1).format('YYYY-MM-DD');
-                }
-            }
-
-            if (!date) {
+            if (!message) {
                 // set todays date if no date is set already
-                message = 'Dato er satt til dagens dato, du kan overstyre denne om du ønsker.';
-                date = today;
+                message = 'Bilaget vil bli kreditert på samme dato som bilagsdatoen. ' +
+                    'Du kan overstyre denne ved å velge en dato under.';
             }
+
             this.message = message;
-            this.input = date;
+
+            const data = {
+                creditDate: null
+            };
+
+            this.formReady = true;
+
+            this.creditingData$.next(data);
+            this.fields$.next(this.getLayout().Fields);
         });
     }
 
-    public accept() {
-        if (this.input) {
-            return this.onClose.emit({input: this.input, action: ConfirmActions.ACCEPT});
-        }
-        return this.requiredInput = true;
+    public accept(event) {
+        const current = this.creditingData$.getValue();
+        return this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.ACCEPT});
     }
 
-    public cancel() {
-        this.onClose.emit({input: this.input, action: ConfirmActions.CANCEL});
+    public cancel(event) {
+        const current = this.creditingData$.getValue();
+        this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.CANCEL});
+    }
+
+    private getLayout() {
+        return {
+            Name: 'TransqueryList',
+            BaseEntity: 'Account',
+            Fields: [
+                {
+                    EntityType: 'CreditData',
+                    Property: 'creditDate',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Krediteringsdato',
+                    Placeholder: 'Krediteringsdato'
+                }
+            ]
+        };
     }
 }
