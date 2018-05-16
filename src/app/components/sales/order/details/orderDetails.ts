@@ -1206,6 +1206,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     private saveAndTransferToInvoice(done: any) {
+        if (!this.order.Customer) {
+            this.toastService.addToast('Kan ikke overføre ordre uten kunde', ToastType.warn, 5);
+            done('');
+            return;
+        }
+
         // save order and open modal to select what to transfer to invoice
         this.saveOrder().then(success => {
             done('Ordre lagret');
