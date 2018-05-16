@@ -29,7 +29,7 @@ import {User} from '@uni-entities';
                 <uni-company-dropdown></uni-company-dropdown>
                 <uni-notifications></uni-notifications>
 
-                <section class="navbar-settings">
+                <section class="navbar-settings" *ngIf="settingsLinks?.length || adminLinks?.length">
                     <i
                         role="button"
                         class="material-icons"
