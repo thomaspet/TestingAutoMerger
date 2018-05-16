@@ -980,7 +980,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private setEditMode(payrollRun: PayrollRun) {
-        this.fields$.getValue().map(field => field.ReadOnly = payrollRun.StatusCode);
+        this.fields$.getValue().map(field => field.ReadOnly = !!payrollRun.StatusCode);
         this.findByProperty('ID').ReadOnly = true;
         this.fields$.next(this.fields$.getValue());
     }
