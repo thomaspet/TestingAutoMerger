@@ -194,14 +194,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             super.getStateSubject(EMPLOYEE_KEY)
                 .do(employee => this.updateTabStrip(employee))
                 .do(emp => this.fillInnSubEntityOnEmp(emp))
-                .subscribe((employee) => {
+                .subscribe((employee: Employee) => {
                     this.employee = employee;
                     this.posterEmployee.employee = employee;
                     this.posterEmployee = _.cloneDeep(this.posterEmployee);
 
                     const info = employee && employee.BusinessRelationInfo;
+                    let toolbarTitle = (employee && employee.EmployeeNumber + ' - ') || '';
+                    if (info && info.Name) {
+                        toolbarTitle += info.Name;
+                    }
+
                     this.toolbarConfig = {
-                        title: (info && info.Name) || 'Ny ansatt',
+                        title: toolbarTitle || 'Ny ansatt',
                         navigation: {
                             prev: this.previousEmployee.bind(this),
                             next: this.nextEmployee.bind(this),
