@@ -912,20 +912,6 @@ export class CustomerDetails implements OnInit {
         }, 100);
     }
 
-    private emailValidation(value: any, field: UniFieldLayout): UniFormError | null {
-        // tslint:disable-next-line:max-line-length
-        const validEmail = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-        if (value && !validEmail.test(value)) {
-            return {
-                value: value,
-                errorMessage: `${value} er ikke en gyldig email-adresse.`,
-                field: field,
-                isWarning: false
-            };
-        }
-        return null;
-    }
-
     public onContactChanged(contact: Contact) {
         if (!contact) {
             return;
@@ -1079,7 +1065,9 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.EMAIL,
                     Label: 'Purre-e-postadresse',
                     Section: 0,
-                    Validations: [this.emailValidation]
+                    Validations: [
+                        (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
+                    ]
                 },
 
                 // Fieldset 2 (Kontaktinformasjon)

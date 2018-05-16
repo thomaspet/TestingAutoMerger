@@ -7,6 +7,7 @@ import {SendEmail} from '../../models/sendEmail';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';
 import {environment} from 'src/environments/environment';
+import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -52,7 +53,7 @@ export class EmailService extends BizHttp<Email> {
                     + this.http.authService.getCompanyKey() + '&id=logo'
             });
 
-            let email = {
+            const email = {
                 ToAddresses: [sendemail.EmailAddress],
                 CopyAddress: sendemail.SendCopy ? sendemail.CopyAddress : '',
                 Subject: sendemail.Subject,
@@ -86,5 +87,18 @@ export class EmailService extends BizHttp<Email> {
     public isValidEmailAddress(email: string): boolean {
         // <something>@<something>.<something>
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
+    }
+
+    public emailUniFormValidation(email: string, field: UniFieldLayout): UniFormError | null {
+        if (!email || typeof email !== 'string' || this.isValidEmailAddress(email)) {
+            return null;
+        }
+
+        return {
+            value: email,
+            errorMessage: `Ugyldig e-postadresse.`,
+            field: field,
+            isWarning: true
+        };
     }
 }

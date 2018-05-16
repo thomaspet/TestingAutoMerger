@@ -48,7 +48,7 @@ export class ModulusService {
         return checkSums;
     }
 
-    public isValidKID(KID: string) {
+    public isValidKID(KID: string): boolean {
         if (KID) {
             return !KID
             .split('')
@@ -70,7 +70,7 @@ export class ModulusService {
         };
     }
 
-    public isValidOrgNr(OrgNr: string) {
+    public isValidOrgNr(OrgNr: string): boolean {
         if (OrgNr) {
             return !OrgNr
             .split('')
