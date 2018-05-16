@@ -352,11 +352,13 @@ export class BillView implements OnInit {
 
         if (this.customDimensions && this.customDimensions.length > 0 && !this.hasLoadedCustomDimensions) {
             this.customDimensions.forEach((dim) => {
+
                 customDimensionsFields.push({
                     Label: dim.Label,
                     Dimension: dim.Dimension,
                     Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
                     FieldType: FieldType.DROPDOWN,
+                    ReadOnly: !dim.IsActive,
                     Data: [],
                     Section: 1,
                     Sectionheader: 'Egendefinerte dimensjoner',
@@ -379,16 +381,19 @@ export class BillView implements OnInit {
 
                 this.fields$.next(fields);
                 this.hasLoadedCustomDimensions = true;
+                this.checkLockStatus();
                 this.loadingForm = false;
             }, (err) => {
                 this.toast.addToast('Kunne ikke hente egendefinerte dimensjoner. Prøv å laste inn bilde på nytt', ToastType.bad);
                 this.fields$.next(fields);
+                this.checkLockStatus();
                 this.loadingForm = false;
             });
 
             // fields = fields.concat(customDimensionsFields);
         } else {
             this.fields$.next(fields);
+            this.checkLockStatus();
             this.loadingForm = false;
         }
     }
@@ -2205,7 +2210,6 @@ export class BillView implements OnInit {
 
     public onFormReady() {
         this.formReady = true;
-        this.checkLockStatus();
     }
 
     private updateJournalEntryManualFinancialDate(invoice: SupplierInvoice, updatelines: boolean) {
@@ -2290,6 +2294,18 @@ export class BillView implements OnInit {
         }
 
         this.uniForm.editMode();
+        if (this.hasLoadedCustomDimensions) {
+            this.customDimensions.forEach((dim) => {
+                if (this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`)) {
+                    if (dim.IsActive) {
+                        this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`).editMode();
+                    } else {
+                        this.uniForm.field(`DefaultDimensions.Dimension${dim.Dimension}ID`).readMode();
+                    }
+                }
+            });
+        }
+
         this.supplierIsReadOnly = false;
     }
 

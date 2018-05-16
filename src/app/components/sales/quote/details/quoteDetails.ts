@@ -694,6 +694,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.dimensionTypes = [{
             Label: 'Avdeling',
             Dimension: 2,
+            IsActive: true,
             Property: 'DefaultDimensions.DepartmentID',
             Data: this.departments
         }];
@@ -703,6 +704,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         dims.forEach((dim) => {
             this.dimensionTypes.push({
                 Label: dim.Label,
+                IsActive: dim.IsActive,
                 Dimension: dim.Dimension,
                 Property: 'DefaultDimensions.Dimension' + dim.Dimension + 'ID',
                 Data: []

@@ -548,6 +548,7 @@ export class TradeItemTable {
                 return '';
             })
             .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
+            .setEditable(type.IsActive)
             .setOptions({
                 itemTemplate: (item) => {
                     return (item.Number + ': ' + item.Name);
