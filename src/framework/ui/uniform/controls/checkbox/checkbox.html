@@ -13,7 +13,7 @@
         (change)="onChange($event)"
         [labelPosition]="'before'"
         [disableRipple]="true"
-        [disabled]="field?.ReadOnly">
+        [disabled]="!!field?.ReadOnly">
         {{field?.Label}}
     </mat-checkbox>
 </ng-template>

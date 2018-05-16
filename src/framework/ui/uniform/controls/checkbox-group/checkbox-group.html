@@ -4,6 +4,6 @@
     [checked]="isChecked(item)"
     (change)="toggleCheckbox(item)"
     [disableRipple]="true"
-    [disabled]="field?.ReadOnly">
+    [disabled]="!!field?.ReadOnly">
     {{getLabel(item)}}
 </mat-checkbox>
