@@ -65,7 +65,7 @@ export const settingsRoutes: Routes = [{
             path: 'dimension',
             component: UniDimensionSettings,
             canDeactivate: [CanDeactivateGuard]
-        },
+        }
         // {
         //     path: 'banksettings',
         //     component: UniBankSettings,

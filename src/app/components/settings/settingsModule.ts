@@ -36,6 +36,10 @@ import {RoleSelector} from './users/roleSelector';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
+import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
+import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
+import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
+import { EventplanService } from '@app/components/settings/eventPlans/eventplan.service';
 
 import {MatSlideToggleModule} from '@angular/material';
 
@@ -73,7 +77,10 @@ import {MatSlideToggleModule} from '@angular/material';
         UniRegisterBankUserModal,
         UniAdminPasswordModal,
         UniDimensionModal,
-        IntegrationSettings
+        IntegrationSettings,
+        EventPlans,
+        EventPlansList,
+        EventPlanDetails
     ],
     entryComponents: [
         GrantModal,
@@ -98,12 +105,14 @@ import {MatSlideToggleModule} from '@angular/material';
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         FreeAmountModal,
-        RoleSelector
+        RoleSelector,
+        EventPlans
     ],
     providers: [
         SubEntitySettingsService,
         CompanySettingsViewService,
-        SettingsService
+        SettingsService,
+        EventplanService
     ]
 })
 export class SettingsModule {

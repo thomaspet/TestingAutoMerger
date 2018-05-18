@@ -1,0 +1,28 @@
+<ng-select
+    #input
+    [formControl]="control"
+    [multiple]="true"
+    [items]="field?.Options?.source || []"
+    [bindValue]="field?.Options?.bindValue"
+    [bindLabel]="field?.Options?.bindLabel"
+    [(ngModel)]="tempModel"
+    [placeholder]="field?.Placeholder || ''"
+    [closeOnSelect]="field?.Options?.closeOnSelect || true"
+    [class.has-all-button]="field?.Options?.showAllButton"
+    (focus)="focusHandler($event)"
+    (change)="onChange($event)"
+>
+    <ng-template ng-option-tmp let-item="item" *ngIf="field?.Options?.showCheckbox">
+        <input type="checkbox" [checked]="tempModel.indexOf(item[field?.Options?.bindValue]) > -1"/>
+        {{item[field?.Options?.bindLabel]}}
+    </ng-template>
+</ng-select>
+<mat-checkbox *ngIf="field?.Options?.showAllButton"
+    tabindex="-1"
+    [labelPosition]="'after'"
+    [disableRipple]="true"
+    [disabled]="!!field?.ReadOnly"
+    (change)="toggleSelectAll($event)">
+    Alle
+</mat-checkbox>
+<ng-content></ng-content>

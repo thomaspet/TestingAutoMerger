@@ -26,7 +26,8 @@ const PUBLIC_ROOT_ROUTES = [
     'uniqueries',
     'sharings',
     'marketplace',
-    'predefined-descriptions'
+    'predefined-descriptions',
+    'settings'
 ];
 
 const PUBLIC_ROUTES = [];

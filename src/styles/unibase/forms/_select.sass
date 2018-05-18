@@ -4,9 +4,34 @@ select
 
     &[readonly]
         opacity: .6
-
 uni-select
     & .uniSelect
         width: 100%
         & input
             width: 100%
+uni-multi-select-input
+    display: flex
+    align-items: center
+    .mat-checkbox
+        margin-left: 0.5rem
+        .mat-checkbox-label
+            width: 2rem
+    ng-select
+        width: 100%
+        .ng-select-container
+            border-radius: pxToRem(2) !important
+            border: pxToRem(1) solid $uni-color-scale8 !important
+    ng-select.ng-select.has-all-button
+        width: calc(100% - 4rem)
+        display: inline-block
+        .ng-select-container
+            min-height: pxToRem(32px)
+    .ng-select.ng-select-multiple
+        .ng-select-container
+            .ng-value-container
+                max-width: 92%
+    .ng-select.ng-select-disabled
+        .ng-select-container,
+        .ng-select-container.ng-has-value
+            min-height: pxToRem(32px)
+            font-size: 0.7rem

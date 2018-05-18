@@ -1,0 +1,35 @@
+event-plans
+    event-plan-details
+        width: 100%
+        header
+            height: 3.5rem !important
+            position: relative
+            display: flex
+            align-items: center
+            span
+                display: inline-block
+            .save-eventplan-button
+                position: absolute
+                right: 1rem
+                top: 0
+                margin: .75rem 0
+                height: 2rem
+                line-height: 0
+    fieldset
+        padding: 0
+        margin: 0
+    fieldset:nth-child(odd)
+        margin-right: 3rem !important
+    fieldset:nth-child(even)
+        margin-left: 3rem !important
+    uni-field label > span
+        width: 10rem
+    uni-field label > span + *
+        width: calc(100% - 10rem)
+    .splitview
+        .splitview_list
+            min-width: 25%
+        .splitview_detail
+            min-width: 75%
+            background: none
+            border: 0

@@ -161,6 +161,15 @@
                         (inputEvent)="onInputHandler($event)"
                         (focusEvent)="onFocusHandler($event)"
     ></uni-search-wrapper>
+    <uni-multi-select-input #selectedComponent *ngIf="field?.FieldType === 19"
+                        [field]="field"
+                        [model]="model"
+                        [asideGuid]="asideGuid"
+                        (readyEvent)="onReadyHandler($event)"
+                        (changeEvent)="onChangeHandler($event)"
+                        (inputEvent)="onInputHandler($event)"
+                        (focusEvent)="onFocusHandler($event)"
+    ></uni-multi-select-input>
 
 
     <ng-template ngFor let-error [ngForOf]="errorMessages" let-k="index">

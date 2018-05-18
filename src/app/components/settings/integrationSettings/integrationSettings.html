@@ -5,8 +5,11 @@
     </div>
 </article>
 <article class="collapsable" [ngClass]="{'-is-open': showWebhooksSection}">
-    <h4 (click)="showWebhooksSection = !showWebhooksSection">Webhooks</h4>
+    <h4 (click)="showWebhooksSection = !showWebhooksSection">Flyt</h4>
     <div class="collapsable-content">
-        <webhook-settings></webhook-settings>
+        <div style="width: 100%">
+        <!--<webhook-settings></webhook-settings>-->
+        <event-plans></event-plans>
+        </div>
     </div>
 </article>

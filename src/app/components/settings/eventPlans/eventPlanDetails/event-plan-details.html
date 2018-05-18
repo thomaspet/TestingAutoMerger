@@ -1,0 +1,18 @@
+<section class="uni-container">
+    <header>
+        <span>{{eventplan?.Name || 'Ny flyt'}}</span>
+        <button class="good save-eventplan-button" (click)="onClickSaveEventplanButton()" [disabled]="!isTouched">Lagre flyt</button>
+    </header>
+    <uni-form
+        [config]="formConfig"
+        [fields]="fields$ | async"
+        [model]="eventplan"
+        (inputEvent)="onFormInput($event)">
+    </uni-form>
+    <ag-grid-wrapper
+        [config]="tableConfig"
+        [(resource)]="eventplan.Subscribers"
+        (rowChange)="onRowChange($event)"
+        (rowDelete)="onRowDeleted($event)">
+    </ag-grid-wrapper>
+</section>

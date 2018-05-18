@@ -1,0 +1,26 @@
+<section class="splitview">
+
+    <nav class ="splitview_list">
+        <button class="good add-new-eventplan-button" (click)="onAddNewEventplan()" [disabled]="!currentEventplan?.ID">
+            Ny flyt
+        </button>
+        <event-plans-list
+            [data]="data"
+            (eventplanSelected)="onEventplanSelected($event)"
+            (eventplanDeleted)="onDeleteEventplan($event)"
+        ></event-plans-list>
+    </nav>
+
+    <main class="splitview_detail">
+        <event-plan-details
+            [eventplan]="currentEventplan"
+            [isTouched]="areDetailsTouched"
+            (saveEventplan)="onSaveEventplan($event)"
+            (deleteEventplan)="onDeleteEventplan($event)"
+            (addSubscriber)="onAddSubscriber($event)"
+            (updateSubscriber)="onUpdateSubscriber($event)"
+            (deleteSubscriber)="onDeleteSubscriber($event)"
+            (touched)="onDetailsTouched($event)"
+        ></event-plan-details>
+    </main>
+</section>
