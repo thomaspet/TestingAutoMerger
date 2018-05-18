@@ -80,6 +80,9 @@ export class UniBankAccountModal implements IUniModal {
         }
         this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
             accountInfo['BankList'] = banks;
+            if (accountInfo.BankID && !accountInfo.Bank) {
+                accountInfo.Bank = banks.find(x => x.ID === accountInfo.BankID);
+            }
             this.formModel$.next(accountInfo);
             this.formFields$.next(this.getFormFields());
         });

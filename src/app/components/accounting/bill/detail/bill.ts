@@ -19,7 +19,8 @@ import {
     Project, Department, User, ApprovalStatus, Approval,
     UserRole,
     TaskStatus,
-    Dimensions
+    Dimensions,
+    BankData
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -1047,9 +1048,33 @@ export class BillView implements OnInit {
         };
 
         if (bankAccount) {
-            sup.Info.DefaultBankAccount = <any>{ AccountNumber: bankAccount, BankAccountType: 'supplier' };
+            if (isNaN(Number(bankAccount))) {
+                // We are dealing with a IBAN
+                this.bankService.validateIBANUpsertBank(bankAccount).subscribe(bankData => {
+                    sup.Info.DefaultBankAccount = <BankAccount> {
+                        AccountNumber: bankData.IBAN, // only use iban in this case, since returned accountnumber unreliable
+                        IBAN: bankData.IBAN,
+                        BankAccountType: 'supplier',
+                        BankID: bankData.Bank.ID
+                    };
+                    this.postSupplier(sup);
+                });
+            } else {
+                // We are dealing with a Norwegian bankaccount
+                this.bankService.getIBANUpsertBank(bankAccount).subscribe(bankData => {
+                    sup.Info.DefaultBankAccount = <BankAccount> {
+                        AccountNumber: bankAccount,
+                        IBAN: bankData.IBAN,
+                        BankAccountType: 'supplier',
+                        BankID: bankData.Bank.ID
+                    };
+                    this.postSupplier(sup);
+                });
+            }
         }
+    }
 
+    private postSupplier(sup) {
         this.supplierService.Post(sup).subscribe(x => {
             this.fetchNewSupplier(x.ID, true);
         }, err => this.errorService.handle(err));
