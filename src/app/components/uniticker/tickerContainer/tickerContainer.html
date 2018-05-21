@@ -10,20 +10,23 @@
 <section *ngIf="ticker" class="ticker-container"
     [ngClass]="{'detail-visible': showSubTickers && ticker?.SubTickers?.length}">
 
-    <uni-ticker
-        [ticker]="ticker"
-        [selectedFilter]="selectedFilter"
-        [expressionFilters]="expressionFilters"
-        [actionOverrides]="actionOverrides"
-        [columnOverrides]="columnOverrides"
-        [unitableSearchVisible]="true"
-        (rowSelected)="onRowSelected($event)"
-        (editModeToggled)="editModeChanged($event)"
-        (rowSelectionChange)="rowSelectionChange.emit($event)">
-    </uni-ticker>
+    <section class="main-ticker-container">
+        <uni-ticker
+            [ticker]="ticker"
+            [selectedFilter]="selectedFilter"
+            [expressionFilters]="expressionFilters"
+            [actionOverrides]="actionOverrides"
+            [columnOverrides]="columnOverrides"
+            [unitableSearchVisible]="true"
+            (rowSelected)="onRowSelected($event)"
+            (editModeToggled)="editModeChanged($event)"
+            (rowSelectionChange)="rowSelectionChange.emit($event)">
+        </uni-ticker>
+    </section>
 
     <uni-sub-ticker-container
         *ngIf="showSubTickers && ticker?.SubTickers?.length"
+        (clickOutside)="hideSubTickers()"
         (close)="hideSubTickers()"
         [parentModel]="selectedRow"
         [parentTicker]="ticker"
