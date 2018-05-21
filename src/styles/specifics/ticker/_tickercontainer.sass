@@ -1,22 +1,31 @@
 .ticker-container
     uni-ticker
         width: 100%
-        margin-right: 1rem
 
-    uni-sub-ticker-container
-        margin-top: 3.2rem
+.main-ticker-container
+    width: 100%
+    overflow: auto
+    uni-ticker
+        display: block
+        max-width: 100%
+        overflow: visible
 
-    &.detail-visible
-        uni-ticker
-            width: 55%
-        uni-sub-ticker-container
-            width: 45%
-
+$subticker-top: $reserved-height-for-navbar
+uni-sub-ticker-container
+    position: fixed
+    top: $subticker-top
+    right: 0
+    height: calc(100vh - #{$subticker-top})
+    box-shadow: -1px 0px 1px 0 rgba(0, 0, 0, 0.14)
+    width: 40vw
+    min-width: 45rem
+    z-index: 999
+    background-color: #fafafa
+    padding: 1rem
 
 uni-ticker-container
     width: 100%
     position: relative
-    font-size: 0.9rem
 
     uni-tabs
         margin-bottom: 0
@@ -26,39 +35,3 @@ uni-ticker-container
         flex-direction: row
         margin-top: .75rem
         width: calc(100% - #{pxToRem(1)}) // Or else it overflows in Canary for some reason.
-
-    // .ticker-predefined-filters
-    //     display: inline-block
-    //     list-style: none
-    //     border-bottom: 1px solid $uni-color-scale8
-
-    //     li
-    //         @extend h3
-    //         display: inline-block
-    //         margin-right: 1.25rem
-    //         padding: 0 .25rem
-    //         color: $uni-color-scale5
-    //         cursor: pointer
-
-    //         &[aria-selected]:not([aria-selected=false])
-    //             border-bottom: pxToRem(3) solid $uni-color-c2a
-
-    //         &:last-of-type
-    //             margin-right: 0
-
-    //         .ticker-filter-count
-    //             font-size: 1.15rem
-    //             color: $uni-color-c2a
-
-// uni-ticker-wrapper
-//     position: absolute
-//     width: 100%
-
-    // .ticker-predefined-filters
-    //     margin: 1rem 2rem
-    //     width: calc(100% - 4rem)
-
-    // .ticker-container
-    //     box-sizing: border-box
-    //     margin: 0 2rem
-    //     width: calc(100% - 4rem)

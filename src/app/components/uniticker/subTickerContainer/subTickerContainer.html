@@ -1,6 +1,8 @@
+<i class="material-icons sub-ticker-close-icon" (click)="closeSubtickers()">close</i>
 
 <section *ngIf="subTickers?.length && parentModel" class="sub-ticker-container">
-    <button (click)="closeSubtickers()" class="closeBtn">close</button>
+    <!-- <button (click)="closeSubtickers()" class="closeBtn">close</button> -->
+
     <uni-ticker
         *ngFor="let subTicker of subTickers"
         [ticker]="subTicker"
