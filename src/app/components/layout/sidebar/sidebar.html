@@ -9,6 +9,7 @@
             <section class="sidebar-section-header" (click)="toggleSection(idx)">
                 <i class="material-icons"
                     *ngIf="section.mdIcon"
+                    [title]="section.name"
                     [ngClass]="{'sidebar-link-icon': section.url}"
                     (click)="navigateToSectionUrl(section.url)">
                     {{section.mdIcon}}
