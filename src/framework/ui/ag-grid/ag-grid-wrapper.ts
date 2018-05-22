@@ -130,13 +130,12 @@ export class AgGridWrapper {
                 this.domLayout = 'autoHeight';
                 this.tableHeight = undefined;
                 this.rowModelType = 'inMemory';
-                this.usePagination = this.config.pageable;
+                this.usePagination = this.config.pageable && !this.config.editable;
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
                 this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
-
 
             if (this.agGridApi) {
                 if (this.agGridApi.getSelectedRows().length) {
@@ -621,8 +620,10 @@ export class AgGridWrapper {
         if (this.config.rowDraggable && this.config.editable) {
             colDefs.unshift({
                 rowDrag: true,
-                width: 36,
+                width: 45,
                 suppressResize: true,
+                suppressAutoSize: true,
+                suppressSizeToFit: true,
                 valueGetter: () => 'Flytt rad',
             });
         }
