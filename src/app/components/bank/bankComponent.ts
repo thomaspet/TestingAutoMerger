@@ -69,12 +69,14 @@ import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCus
                 <button class="good" (click)="openAutobankAgreementModal()"> Ny autobankavtale </button>
             </section>
 
-            <uni-ticker-container
-                [ticker]="selectedTicker"
-                [actionOverrides]="actionOverrides"
-                [columnOverrides]="columnOverrides"
-                (rowSelectionChange)="onRowSelectionChanged($event)">
-            </uni-ticker-container>
+            <section class="overview-ticker-section">
+                <uni-ticker-container
+                    [ticker]="selectedTicker"
+                    [actionOverrides]="actionOverrides"
+                    [columnOverrides]="columnOverrides"
+                    (rowSelectionChange)="onRowSelectionChanged($event)">
+                </uni-ticker-container>
+            </section>
         </section>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

@@ -1,13 +1,13 @@
 import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTickerService, CustomerInvoiceService} from '../../../services/services';
-import {Ticker, TickerGroup} from '../../../services/common/uniTickerService';
+import {Ticker, TickerGroup, TickerAction} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniTickerContainer} from '../tickerContainer/tickerContainer';
-import { ITickerActionOverride } from '../../../services/common/uniTickerService';
+import {ITickerActionOverride} from '../../../services/common/uniTickerService';
 
 declare const _; // lodash
 
@@ -26,18 +26,9 @@ export class UniTickerOverview {
 
     private actionOverrides: Array<ITickerActionOverride>;
 
-    private toolbarConfig: IToolbarConfig = {
-        title: 'Oversikt',
-        omitFinalCrumb: true,
-        contextmenu: []
-    };
-
-    public saveactions: IUniSaveAction[] = [{
-        label: 'Eksporter til Excel',
-        action: (completeEvent) => this.exportToExcel(completeEvent),
-        main: true,
-        disabled: false
-    }];
+    public tickerTitle: string;
+    public createNewAction: TickerAction;
+    public exportBusy: boolean;
 
     constructor(
         private tabService: TabService,
@@ -92,37 +83,17 @@ export class UniTickerOverview {
         });
     }
 
-    private updateToolbar() {
-        let title = 'Oversikt';
-        if (this.selectedTicker) {
-            title += ': ' + this.selectedTicker.Name;
-        }
-
-        const config: IToolbarConfig = {
-            title: title,
-            omitFinalCrumb: true,
-            contextmenu: []
-        };
-
-        if (this.selectedTicker && this.selectedTicker.Actions) {
-            const newAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
-            if (!!newAction) {
-                config.navigation = {
-                    add: () => {
-                        this.tickerContainer.runAction(newAction);
-                    }
-                };
-            }
-        }
-
-        this.toolbarConfig = config;
-    }
-
     private navigateToTicker(ticker: Ticker) {
         this.router.navigate(['/overview'], {
             queryParams: { code: ticker.Code },
             skipLocationChange: false
         });
+    }
+
+    public onCreateNewClick() {
+        if (this.tickerContainer && this.createNewAction) {
+            this.tickerContainer.runAction(this.createNewAction);
+        }
     }
 
     private selectTicker(selectedTickerCode: string) {
@@ -134,7 +105,14 @@ export class UniTickerOverview {
         }
 
         this.updateTab();
-        this.updateToolbar();
+
+        if (this.selectedTicker) {
+            this.tickerTitle = this.selectedTicker.Name;
+            this.createNewAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
+        } else {
+            this.tickerTitle = undefined;
+            this.createNewAction = undefined;
+        }
 
         this.cdr.markForCheck();
     }
@@ -143,7 +121,14 @@ export class UniTickerOverview {
         this.updateTab();
     }
 
-    private exportToExcel(completeEvent) {
-        this.tickerContainer.exportToExcel(completeEvent);
+    private exportToExcel() {
+        if (this.exportBusy) {
+            return;
+        }
+
+        this.exportBusy = true;
+        this.tickerContainer.exportToExcel(() => {
+            this.exportBusy = false;
+        });
     }
 }
