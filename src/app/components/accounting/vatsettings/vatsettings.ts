@@ -37,6 +37,8 @@ export class VatSettings {
             moduleID: UniModules.Vatsettings,
             active: true
         });
+
+        this.onTabIndexChange(0);
     }
 
     public onTabIndexChange(index: number) {
