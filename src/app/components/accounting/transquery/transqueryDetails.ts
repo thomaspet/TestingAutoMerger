@@ -743,7 +743,8 @@ export class TransqueryDetails implements OnInit {
             const modalOptions = {
                 entity: JournalEntry.EntityType,
                 entityID: event.row.JournalEntryID,
-                singleImage: false
+                singleImage: false,
+                fileIDs: []
             };
 
             this.modalService.open(ImageModal, {data: modalOptions});
