@@ -208,9 +208,6 @@ export class SupplierDetails implements OnInit {
                     entityID: this.supplierID
                 };
 
-                this.selectConfig = this.numberSeriesService.getSelectConfig(
-                    this.supplierID, this.numberSeries, 'Supplier number series'
-                );
                 this.setup();
 
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
@@ -402,15 +399,17 @@ export class SupplierDetails implements OnInit {
                     supplier.Info = <BusinessRelation>{'Name': this.supplierNameFromUniSearch};
                 }
 
-                supplier.SubAccountNumberSeriesID = this.numberSeries.find(
-                    x => x.Name === 'Supplier number series'
-                ).ID;
+                const subAccount = this.numberSeries.find(x => x.Name === 'Supplier number series') || this.numberSeries[0];
+
+                if (subAccount) {
+                    supplier.SubAccountNumberSeriesID = subAccount.ID;
+                }
+
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setSupplierStatusInToolbar();
-
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
-                    this.supplierID, this.numberSeries, 'Supplier number series'
+                    this.supplierID, this.numberSeries, subAccount.Name
                 );
                 this.setTabTitle();
                 this.extendFormConfig();
