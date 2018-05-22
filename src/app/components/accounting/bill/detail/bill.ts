@@ -817,7 +817,7 @@ export class BillView implements OnInit {
         if ((!this.files) || (!files)) { return true; }
         if (this.files.length !== files.length) { return true; }
         for (let i = 0; i < files.length; i++) {
-            if (files[i].id !== this.files[i].id) { return true; }
+            if (files[i].ID !== this.files[i].ID) { return true; }
         }
         return false;
     }
@@ -826,7 +826,11 @@ export class BillView implements OnInit {
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
         if (!this.hasChangedFiles(files)) { return; }
-        this.files = files;
+
+        // use concat to get a new reference, otherwise the changes made by
+        // the uni image component will not be detected by hasChangedFiles
+        this.files = files.concat();
+
         if (files && files.length) {
             if (this.files.length !== this.numberOfDocuments) {
                 this.hasUploaded = true;
