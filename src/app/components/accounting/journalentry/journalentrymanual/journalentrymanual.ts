@@ -194,6 +194,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public clear() {
         this.disabled = false;
+        this.editmode = false;
         this.journalEntryID = 0;
         this.clearJournalEntryInfo();
         this.dataCleared.emit();
@@ -238,6 +239,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public loadData() {
+
+
         this.clearJournalEntryInfo();
         this.hasLoadedData = true;
 
@@ -408,6 +411,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
             copiedArray.map(line => {
                 line.StatusCode = null;
+
+                line.JournalEntryDataAccrual = null;
                 line['_editmode'] = true;
                 return line;
             });

@@ -131,7 +131,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
                 this.journalEntryService
                     .getRelatedAccrualJournalEntries((<any>results[2]).JournalEntryAccrualID)
                     .subscribe(res => {
-                        const allAccrualJournalEntries = <Array<any>>results[2];
+                        const allAccrualJournalEntries = res;
                         console.log('allAccrualJournalEntries', allAccrualJournalEntries);
 
                         // Get an array of distinct journalentrynumbers not like the current journalentry.
