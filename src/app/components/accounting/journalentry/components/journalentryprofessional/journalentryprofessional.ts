@@ -837,7 +837,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         // (and if account is defined, filter on account)
         if (row.InvoiceNumber && row.InvoiceNumber !== '') {
             let filter = `expand=Account,SubAccount,CurrencyCode&filter=InvoiceNumber eq `
-                + `'${row.InvoiceNumber}' and RestAmount ne 0`;
+                + `'${row.InvoiceNumber}' and RestAmount ne 0 and (StatusCode eq 31001 or StatusCode eq 31002)`;
 
             if (row.DebitAccount || row.CreditAccount) {
                 let accountFilter = '';
