@@ -23,7 +23,7 @@ const sourceColumn = new UniTableColumn(
     'Kilde',
     UniTableColumnType.Text);
 
-export const tableConfig =  new UniTableConfig(configStoreKey, false, true, 10)
+export const tableConfig =  new UniTableConfig(configStoreKey, false, false)
     .setSearchable(false)
     .setSortable(true)
     .setColumns([
