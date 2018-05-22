@@ -1,10 +1,4 @@
-<uni-toolbar
-    [config]="toolbarConfig"
-    [saveactions]="saveactions">
-</uni-toolbar>
-
 <section class="ticker-overview">
-    <!-- REVISIT: Should this be a component? -->
     <ul class="ticker-list">
         <li *ngFor="let group of tickerGroups">
             {{group.Name}}
@@ -18,9 +12,26 @@
         </li>
     </ul>
 
-    <uni-ticker-container
-        [ticker]="selectedTicker"
-        [actionOverrides]="actionOverrides"
-        (urlParamsChange)="onTickerParamsChange($event)">
-    </uni-ticker-container>
+    <section class="overview-ticker-section">
+        <section class="overview-ticker-header">
+            <span class="ticker-title">{{tickerTitle || 'Oversikt'}}</span>
+
+            <span class="ticker-create-new">
+                <i class="material-icons">add_circle</i>
+                Opprett ny
+            </span>
+
+            <span class="ticker-export">
+                <i class="material-icons">cloud_download</i>
+                Eksporter til excel
+            </span>
+        </section>
+
+        <uni-ticker-container
+            [ticker]="selectedTicker"
+            [actionOverrides]="actionOverrides"
+            (urlParamsChange)="onTickerParamsChange($event)">
+        </uni-ticker-container>
+    </section>
+
 </section>

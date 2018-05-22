@@ -623,7 +623,7 @@
                 "Type": "date"
             },
             {
-                "FieldSetColumn": 2,
+                "FieldSetColumn": 1,
                 "Header": "Sum fil",
                 "Field": "TotalAmount",
                 "Type": "number"

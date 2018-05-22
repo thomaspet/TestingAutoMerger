@@ -22,7 +22,7 @@ uni-ticker
         display: none
 
     .uni-ag-wrapper
-        max-height: calc(100vh - 17rem) !important
+        max-height: calc(100vh - 17.5rem) !important
         font-size: 14px
 
 uni-ticker-detail-view
@@ -85,8 +85,10 @@ uni-sub-ticker-container
         padding: 1rem
 
         uni-ticker
-            margin-bottom: 1rem
             position: relative
+
+            + uni-ticker
+                margin-top: 2rem
 
             header.sub-ticker-header
                 display: flex
@@ -103,7 +105,7 @@ uni-sub-ticker-container
                 .toolbar-dropdown-list
                     left: 0
                     right: unset
-                
+
                 .sub-ticker-open-button
                     padding: 0 .5rem 0 1.5rem
                     background: transparent
@@ -114,7 +116,7 @@ uni-sub-ticker-container
                     background-size: 1rem
 
         .ticker-data
-            padding: 1rem 0 2rem
+            padding: 1rem 0 0
 
     uni-ticker
         width: 100%

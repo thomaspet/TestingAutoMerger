@@ -1,18 +1,27 @@
+uni-ticker-overview
+    display: block
+    position: absolute
+    top: 0
+    width: 100%
+    height: 100%
+
 .ticker-overview
     display: flex
     flex-direction: row
     width: 100%
-    height: 100%
     box-sizing: border-box
     padding: 0
-    margin: 0
+
+    height: calc(100% - 2rem)
+    margin: 1rem 0
 
     .ticker-list
         flex: 0 0 12rem
         box-sizing: border-box
         list-style: none
         padding: .5rem 1.5rem
-        margin-top: .25rem
+        margin: 0
+        overflow-y: auto
 
         > li
             font-weight: bold
@@ -32,9 +41,54 @@
                 &[aria-selected]:not([aria-selected=false])
                     background: mix($uni-color-c2a, $uni-color-negative, 10%)
 
-    uni-ticker-container
-        flex:  0 0 calc(100% - 12rem)
+    .overview-ticker-section
+        flex:  0 0 calc(100% - 13rem)
         background: #fff
         padding: .5rem 1.5rem 0 1.5rem
         box-sizing: border-box
         overflow: hidden
+        box-shadow: 0 1px 4px 0 rgba(0,0,0,0.1)
+
+        .overview-ticker-header
+            display: flex
+            height: 2rem
+            line-height: 2rem
+            margin: .5rem 0 1rem
+            font-family: 'Roboto', sans-serif
+
+            span.ticker-title
+                font-size: 26px
+                margin-right: 1.5rem
+
+            .ticker-create-new, .ticker-export
+                line-height: 2rem
+                margin: 0 .5rem
+                color: $uni-color-scale3
+                font-size: 14px
+                cursor: pointer
+
+                &:hover
+                    color: $uni-color-link
+
+                i.material-icons
+                    vertical-align: middle
+                    font-size: 21px
+                    margin-top: -4px
+                    margin-right: 2px
+
+            .ticker-create-new i.material-icons
+                color: $uni-color-good
+            .ticker-export i.material-icons
+                color: $uni-color-toolbar
+
+            button
+                float: right
+                height: 2rem
+                line-height: 2rem
+                padding: 0 .75rem
+                margin: 0 0 0 .75rem
+                i.material-icons
+                    vertical-align: middle
+                    font-size: 22px
+                    margin-top: -4px
+                    margin-right: .25rem
