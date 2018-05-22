@@ -8,6 +8,7 @@
         "Group": "Bank",
         "Model": "Payment",
         "OrderBy":"PaymentDate desc",
+        "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount",
         "Columns": [
             {
@@ -58,6 +59,14 @@
                 "Header": "Status",
                 "Field": "StatusCode",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Bilagnr.",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "ExternalModel": "JournalEntry",
+                "FilterOperator": "contains",
+                "LinkNavigationProperty": "JournalEntryID",
+                "Type": "link"
             },
             {
                 "Header": "Ekstern konto fra",
@@ -185,6 +194,7 @@
         "MultiRowSelect": true,
         "Group": "Bank",
         "Model": "Payment",
+        "Joins": "Payment.JournalEntryID eq JournalEntry.ID",
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode",
         "Columns": [
             {
@@ -260,6 +270,14 @@
                 "Header": "Status",
                 "Field": "StatusCode",
                 "FilterOperator": "contains"
+            },
+            {
+                "Header": "Bilagnr.",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "ExternalModel": "JournalEntry",
+                "FilterOperator": "contains",
+                "LinkNavigationProperty": "JournalEntryID",
+                "Type": "link"
             },
             {
                 "Header": "Ekstern konto fra",
