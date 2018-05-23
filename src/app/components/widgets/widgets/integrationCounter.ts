@@ -98,7 +98,7 @@ export class UniIntegrationCounterWidget {
     private getLink(integrationType: TypeOfIntegration): string {
         switch (integrationType) {
             case TypeOfIntegration.TravelAndExpenses:
-                return '/';
+                return '/salary/travels';
             default:
                 return '/';
         }

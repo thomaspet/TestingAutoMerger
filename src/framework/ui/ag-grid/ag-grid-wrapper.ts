@@ -81,7 +81,7 @@ export class AgGridWrapper {
     public paginationInfo: any;
 
     private columns: UniTableColumn[];
-    private agColDefs: any[];
+    private agColDefs: ColDef[];
 
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
@@ -682,8 +682,30 @@ export class AgGridWrapper {
         }
     }
 
+    public selectRow(index: number) {
+        try {
+            const rowNode = this.agGridApi.getDisplayedRowAtIndex(index || 0);
+            if (rowNode) {
+                rowNode.setSelected(true);
+            }
+        } catch (e) {
+            console.error('Error in ag-grid-wrapper selectRow()');
+        }
+    }
+
     public focusRow(index: number) {
         if (!this.agGridApi) {
+            return;
+        }
+
+        if (this.config.multiRowSelect) {
+            try {
+                const col = this.agColDefs.find(colDef => !colDef.hide);
+                this.agGridApi.setFocusedCell(index, col.colId);
+            } catch (e) {
+                console.error('Error in ag-grid-wrapper focusRow()');
+            }
+
             return;
         }
 

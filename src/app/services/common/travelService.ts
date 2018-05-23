@@ -1,13 +1,24 @@
 import { Injectable } from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
-import {Travel, ApiKey} from '@uni-entities';
+import {Travel, ApiKey, FieldType, Status, state, costtype, Employee, TypeOfIntegration, File} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {EmployeeService} from '../salary/employee/employeeService';
+import {ApiKeyService} from '../common/apikeyService';
+import {FileService} from '../common/fileService';
 
 @Injectable()
 export class TravelService extends BizHttp<Travel> {
 
-    constructor(protected http: UniHttp) {
+    private emps$: BehaviorSubject<Employee[]> = new BehaviorSubject(null);
+
+    constructor(
+        protected http: UniHttp,
+        private employeeService: EmployeeService,
+        private apiKeyService: ApiKeyService,
+        private fileService: FileService,
+    ) {
         super(http);
         this.entityType = Travel.EntityType;
         this.relativeURL = Travel.RelativeUrl;
@@ -17,6 +28,175 @@ export class TravelService extends BizHttp<Travel> {
         if (!apiKey) {
             return Observable.of([]);
         }
-        return super.PostAction(apiKey.ID, 'traveltext', `ID=${apiKey.ID}`);
+        return super.PostAction(null, 'traveltext', `apikeyID=${apiKey.ID}`);
+    }
+
+    public save(travel: Travel): Observable<Travel> {
+        return travel.ID ? super.Put(travel.ID, travel) : super.Post(travel);
+    }
+
+    public statusText(status: state) {
+        switch (status) {
+            case state.Received:
+                return 'Mottatt';
+            case state.PartlyProcessed:
+                return 'Delvis godkjent';
+            case state.Processed:
+                return 'Godkjent';
+            case state.Rejected:
+                return 'Avvist';
+            default:
+                return '';
+        }
+    }
+
+    public typeText(type: costtype) {
+        switch (type) {
+            case costtype.Expense:
+                return 'Utlegg';
+            case costtype.Travel:
+                return 'Reise';
+            default:
+                return '';
+        }
+    }
+
+    private getEmps(filter: (emp: Employee) => boolean): Observable<Employee[]> {
+        return this.emps$
+            .take(1)
+            .switchMap(emps => emps
+                ? Observable.of(emps)
+                : this.employeeService
+                    .GetAll('', ['BusinessRelationInfo'])
+                    .do(e => this.emps$.next(e)))
+            .map(emps => emps.filter(emp => filter(emp)));
+    }
+
+    private getEmpOptions(travel$: BehaviorSubject<Travel>) {
+        let currTravel: Travel = null;
+        return {
+            getDefaultData: () => {
+                return travel$
+                    .take(1)
+                    .filter(travel => !currTravel || currTravel.ID !== travel.ID)
+                    .do(travel => currTravel = travel)
+                    .switchMap(travel => this.getEmps(x => x.EmployeeNumber === travel.EmployeeNumber));
+            },
+            valueProperty: 'EmployeeNumber',
+            template: (emp: Employee) => emp ? `${emp.EmployeeNumber} - ${emp.BusinessRelationInfo.Name}` : '',
+            search: (query: string) => this.getEmps(emp =>
+                emp.EmployeeNumber.toString().startsWith(query)
+                || emp.BusinessRelationInfo.Name.toLowerCase().includes(query))
+        };
+    }
+
+    public getFiles(travel: Travel): Observable<File[]> {
+        return this.fileService
+            .getFilesOn('Travel', travel.ID)
+            .switchMap(files => {
+                if (!!files && !!files.length) {
+                    return Observable.of(files);
+                }
+                return this.importPdf(travel);
+            });
+    }
+
+    public importPdf(travel: Travel): Observable<File[]> {
+        return this.apiKeyService
+            .getApiKey(TypeOfIntegration.TravelAndExpenses)
+            .switchMap(key => key
+                ? super.PutAction(null, 'ttpdf', `apikeyID=${key.ID}&ID=${travel.ID}`)
+                    .map((file: File) => file ? [file] : [])
+                : Observable.of([]));
+    }
+
+    public layout(travel$: BehaviorSubject<Travel>): Observable<any> {
+        return Observable.from([
+            {
+                Name: 'travels',
+                BaseEntity: 'Travel',
+                Fields: [
+                    {
+                        EntityType: 'Travel',
+                        Property: 'TravelIdentificator',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Reiseid',
+                        ReadOnly: true,
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'Name',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Person',
+                        ReadOnly: true,
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'Email',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Epost',
+                        ReadOnly: true,
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'EmployeeNumber',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Ansatt',
+                        Options: this.getEmpOptions(travel$),
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: '_statusText',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Status',
+                        ReadOnly: true,
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: '_sum',
+                        FieldType: FieldType.NUMERIC,
+                        Options: {
+                            format: 'money'
+                        },
+                        Label: 'Totalsum',
+                        ReadOnly: true,
+                        classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: '_fromDate',
+                        FieldType: FieldType.DATE_TIME_PICKER,
+                        Label: 'Fra dato',
+                        ReadOnly: true,
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: '_toDate',
+                        FieldType: FieldType.DATE_TIME_PICKER,
+                        Label: 'Til dato',
+                        ReadOnly: true,
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'Description',
+                        FieldType: FieldType.TEXTAREA,
+                        Label: 'Beskrivelse',
+                        ReadOnly: true,
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'Purpose',
+                        FieldType: FieldType.TEXTAREA,
+                        Label: 'Formål',
+                        ReadOnly: true,
+                    }
+                ]
+            }
+        ]);
     }
 }

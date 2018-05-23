@@ -37,6 +37,7 @@ export class ApikeyLine implements OnInit {
                     ? this.apikeyService.Put(apikeyline.ID, apikeyline)
                     : this.apikeyService.Post(apikeyline);
             })
+            .switchMap((savedKey) => this.apikeyService.setIntegrationKey(savedKey.ID, this.apikeyLine$.value.IntegrationKey))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe(() => this.keySaved.emit(true));
     }

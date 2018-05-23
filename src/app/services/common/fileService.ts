@@ -4,6 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import 'rxjs/add/operator/switchMap';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class FileService extends BizHttp<File> {
@@ -15,6 +16,10 @@ export class FileService extends BizHttp<File> {
         this.relativeURL = 'files';
         this.entityType = File.EntityType;
         this.DefaultOrderBy = null;
+    }
+
+    public getFilesOn(entity: string, id: number): Observable<File[]> {
+        return super.GetAll(`filter=EntityLinks.EntityType eq '${entity}' and EntityLinks.EntityID eq ${id}`, ['EntityLinks']);
     }
 
     public printFile(fileID: number) {

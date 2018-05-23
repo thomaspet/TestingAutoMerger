@@ -1,0 +1,13 @@
+<uni-toolbar [saveactions]="saveActions$ | async" [config]="{title: 'Import av reiser/utlegg'}"></uni-toolbar>
+<article class="application">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-travel-filter [travels]="travels$ | async" (selectedFilterChange)="filterChange($event)"></uni-travel-filter>
+            <uni-travel-list [travels]="filteredTravels$ | async" (selectedTravel)="selectedTravel($event)" (updatedList)="updatedList($event)" (selectionChange)="selectionChange($event)"></uni-travel-list>
+        </nav>
+        <main class="splitview_detail">
+            <uni-travel-details *ngIf="selectedTravel$ | async" [travel]="selectedTravel$ | async" (travelChange)="travelChange($event)"></uni-travel-details>
+        </main>
+    </section>
+</article>
+

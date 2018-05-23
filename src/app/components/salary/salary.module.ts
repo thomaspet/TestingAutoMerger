@@ -95,6 +95,11 @@ import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-o
 import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
 import {TimeTransferComponent} from './payrollrun/modals/time-transfer/time-transfer.component';
 import {EmpCanActivateGuard} from './employee/empGuard';
+import { TravelComponent } from './travel/travel.component';
+import { TravelListComponent } from './travel/travel-list/travel-list.component';
+import { TravelDetailsComponent } from './travel/travel-details/travel-details.component';
+import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
+import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
 import {MatSlideToggleModule} from '@angular/material';
 
@@ -192,6 +197,13 @@ import {MatSlideToggleModule} from '@angular/material';
         ReconciliationResponseModalComponent,
         AltinnOverviewComponent,
         AltinnOverviewDetailsComponent,
+
+        // Travel
+        TravelComponent,
+        TravelListComponent,
+        TravelDetailsComponent,
+        TravelLinesComponent,
+        TravelFilterComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -288,7 +300,13 @@ import {MatSlideToggleModule} from '@angular/material';
         SalarybalanceLine,
         SalaryBalanceLineModal,
         AnnualStatementSenderComponent,
-        EmployeeReportPickerListComponent
+        EmployeeReportPickerListComponent,
+
+        // Travel
+        TravelComponent,
+        TravelListComponent,
+        TravelDetailsComponent,
+        TravelLinesComponent
     ]
 })
 export class SalaryModule {}

@@ -1,0 +1,5 @@
+<ag-grid-wrapper
+    [resource]="travels"
+    [config]="config"
+    (rowClick)="rowSelected($event)"
+    (rowSelectionChange)="selectionChanged($event)"></ag-grid-wrapper>

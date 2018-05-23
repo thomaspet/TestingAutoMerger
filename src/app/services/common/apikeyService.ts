@@ -37,6 +37,10 @@ export class ApiKeyService extends BizHttp<ApiKey> {
         }
     }
 
+    public setIntegrationKey(id: number, key: string) {
+        return super.PutAction(null, 'setintegrationkey', `integrationID=${id}&integrationkey=${key}`);
+    }
+
     public save(apikey: ApiKey): Observable<ApiKey> {
         return apikey.ID ? super.Put(apikey.ID, apikey) : super.Post(apikey);
     }
