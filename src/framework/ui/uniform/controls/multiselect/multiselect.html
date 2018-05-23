@@ -11,6 +11,8 @@
     [class.has-all-button]="field?.Options?.showAllButton"
     (focus)="focusHandler($event)"
     (change)="onChange($event)"
+    (keydown.enter)="onEnter($event)"
+    (keydown.tab)="onTab($event)"
 >
     <ng-template ng-option-tmp let-item="item" *ngIf="field?.Options?.showCheckbox">
         <input type="checkbox" [checked]="tempModel.indexOf(item[field?.Options?.bindValue]) > -1"/>

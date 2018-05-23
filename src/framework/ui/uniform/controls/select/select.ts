@@ -245,6 +245,8 @@ export class UniSelect implements OnChanges, AfterViewInit {
         }
         if (this.focusedIndex > -1) {
             this.selectedItem = this.filteredItems[this.focusedIndex];
+        } else {
+            return;
         }
         this.focusedIndex = this.filteredItems.indexOf(this.selectedItem);
         this.initialItem = this.selectedItem;

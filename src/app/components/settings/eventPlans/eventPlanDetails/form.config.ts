@@ -148,9 +148,12 @@ export default function createFormConfig(models, jobs) {
             FieldSet: 2,
             Hidden: true,
             Options: {
+                bindValue: 'ID',
+                bindLabel: 'Name',
                 source: jobs,
                 showAllButton: false,
                 OptionsToModel: (selectedItems, config, items) => {
+                    // const labels = selectedItems.map(opt => opt[config.Options.bindLabel]);
                     if (selectedItems.length === 0) {
                         return '*';
                     }
@@ -164,7 +167,7 @@ export default function createFormConfig(models, jobs) {
                         return [];
                     }
                     const labels = model.split(',');
-                    return labels || [];
+                    return labels.map((x, i) => ({ID: i, Name: x}));
                 },
             }
         },

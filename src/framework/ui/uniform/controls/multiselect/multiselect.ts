@@ -8,7 +8,6 @@ import { FormControl } from '@angular/forms';
 import * as _ from 'lodash';
 import { NgSelectComponent } from '@ng-select/ng-select';
 import { Observable } from 'rxjs/Observable';
-import { allSettled } from 'q';
 
 @Component({
     selector: 'uni-multi-select-input',
@@ -34,6 +33,7 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<any> = new EventEmitter<any>(true);
+    @Output() public moveForwardEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
 
     @ViewChild('input') private inputElement: NgSelectComponent;
@@ -47,6 +47,7 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
     }
 
     public focus() {
+        this.inputElement.focus();
         this.inputElement.focus();
     }
 
@@ -66,7 +67,8 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
             this.items = x;
             let initialObjects;
             if (this.field.Options.ModelToOptions) {
-                initialObjects = this.field.Options.ModelToOptions(_.get(this.model, this.field.Property), this.field, this.items);
+                const data = _.get(this.model, this.field.Property);
+                initialObjects = this.field.Options.ModelToOptions(data, this.field, this.items);
             } else {
                 initialObjects = _.get(this.model, this.field.Property) || [];
             }
@@ -106,6 +108,23 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
             this.control.setValue([]);
             this.lastControlValue = [];
         }
+    }
+
+    onEnter(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.moveForwardEvent.emit({
+            event: event,
+                field: this.field
+        });
+    }
+    onTab(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.moveForwardEvent.emit({
+            event: event,
+            field: this.field
+        });
     }
     // onOpen(event) { console.log('onOpen', event); }
     // onClose(event) { console.log('onClose', event); }
