@@ -428,7 +428,7 @@ export class TradeItemTable {
                     const filtered = this.vatTypes.filter((vatType) => {
                         return vatType.VatCode.toLowerCase().startsWith(query)
                             || vatType.Name.toLowerCase().indexOf(query) > -1
-                            || vatType.VatPercent.toString() === query;
+                            || vatType.VatPercent.toString().indexOf(query) > -1;
                     });
 
                     return filtered;

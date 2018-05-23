@@ -207,7 +207,7 @@ export class UnitableAutocomplete implements OnInit {
             this.emptySearchString = 'Søker...';
             this.busy = true;
             if (value) {
-                this.selectedIndex = 0;
+                this.selectedIndex = this.groupConfig ? 1 : 0;
             } else {
                 this.selectedIndex = -1;
             }

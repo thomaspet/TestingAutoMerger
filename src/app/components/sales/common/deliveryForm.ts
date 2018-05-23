@@ -265,7 +265,9 @@ export class TofDeliveryForm implements OnInit {
                 Label: 'KID',
                 Section: 0,
                 Options: {
-                    source: this.paymentInfoTypes.filter((item) => item.StatusCode === 42400 && !item.Locked),
+                    source: this.paymentInfoTypes.length > 0
+                        ? this.paymentInfoTypes.filter((item) => item.StatusCode === 42400 && !item.Locked)
+                        : [],
                     valueProperty: 'ID',
                     template: (item) => {
                         return item.Name;
