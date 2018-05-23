@@ -719,6 +719,8 @@ export class UniImage {
                         this.loadThumbnails();
                     }
 
+                    // emit change to parent component in case it is referencing the file ids
+                    // (which will now have been updated)
                     this.fileListReady.emit(this.files);
                 } else {
                     // increase wait time by 10 ms for each attempt, starting at 50 ms, making

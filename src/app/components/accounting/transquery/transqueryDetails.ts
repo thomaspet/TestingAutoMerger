@@ -472,7 +472,7 @@ export class TransqueryDetails implements OnInit {
                 accept: 'Krediter',
                 cancel: 'Avbryt'
             },
-            data: {JournalEntryID: item.JournalEntryID, JournalEntryAccrualID: item.JournalEntryJournalEntryAccrualID}
+            data: {JournalEntryID: item.JournalEntryID}
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
@@ -743,7 +743,8 @@ export class TransqueryDetails implements OnInit {
             const modalOptions = {
                 entity: JournalEntry.EntityType,
                 entityID: event.row.JournalEntryID,
-                singleImage: false
+                singleImage: false,
+                fileIDs: []
             };
 
             this.modalService.open(ImageModal, {data: modalOptions});

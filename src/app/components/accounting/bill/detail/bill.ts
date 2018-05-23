@@ -817,7 +817,7 @@ export class BillView implements OnInit {
         if ((!this.files) || (!files)) { return true; }
         if (this.files.length !== files.length) { return true; }
         for (let i = 0; i < files.length; i++) {
-            if (files[i].id !== this.files[i].id) { return true; }
+            if (files[i].ID !== this.files[i].ID) { return true; }
         }
         return false;
     }
@@ -826,7 +826,11 @@ export class BillView implements OnInit {
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
         if (!this.hasChangedFiles(files)) { return; }
-        this.files = files;
+
+        // use concat to get a new reference, otherwise the changes made by
+        // the uni image component will not be detected by hasChangedFiles
+        this.files = files.concat();
+
         if (files && files.length) {
             if (this.files.length !== this.numberOfDocuments) {
                 this.hasUploaded = true;
@@ -2600,9 +2604,10 @@ export class BillView implements OnInit {
         if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length === 0) {
             // Update draftlines, but dont do anything if any draftlines is already
             // booked - because then we wont save any changes anyway (and the )
+            let draftlines = [];
+
             if (this.journalEntryManual) {
                 const lines = this.journalEntryManual.getJournalEntryData();
-                var draftlines = [];
 
                 // Add draft lines
                 lines.forEach(line => {
@@ -2654,13 +2659,11 @@ export class BillView implements OnInit {
                             p.AccrualID = 0;
                             p['_createguid'] = this.journalEntryService.getNewGuid();
                         });
-
                     }
 
                     draftlines.push(draft);
                 });
             }
-
 
             // Add draftlines to be deleted
             const deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);

@@ -838,7 +838,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         // (and if account is defined, filter on account)
         if (row.InvoiceNumber && row.InvoiceNumber !== '') {
             let filter = `expand=Account,SubAccount,CurrencyCode&filter=InvoiceNumber eq `
-                + `'${row.InvoiceNumber}' and RestAmount ne 0`;
+                + `'${row.InvoiceNumber}' and RestAmount ne 0 and (StatusCode eq 31001 or StatusCode eq 31002)`;
 
             if (row.DebitAccount || row.CreditAccount) {
                 let accountFilter = '';
@@ -2546,11 +2546,44 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.dataChanged.emit(this.journalEntryLines);
             },
             err => {
-                completeCallback('Feil ved lagring av bilag');
+                // call with empty string to avoid clearing the grid
+                // if an error occurs
+                completeCallback('');
                 this.errorService.handle(err);
             }
         );
 
+    }
+
+    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number, creditDate?: LocalDate) {
+        const tableData = this.table.getTableData();
+
+        tableData.forEach(data => {
+            data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+        });
+
+        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID, creditDate)
+            .subscribe(data => {
+                this.toastService.addToast(
+                    'Lagring var vellykket.',
+                    ToastType.good, 10);
+
+                completeCallback('Lagret og bokført');
+
+                // Empty list
+                this.journalEntryLines = new Array<JournalEntryData>();
+
+                this.setupJournalEntryNumbers(false);
+
+                this.dataChanged.emit(this.journalEntryLines);
+            },
+            err => {
+                // call with empty string to avoid clearing the grid
+                // if an error occurs
+                completeCallback('');
+                this.errorService.handle(err);
+            }
+        );
     }
 
     public removeJournalEntryData(completeCallback, isDirty) {

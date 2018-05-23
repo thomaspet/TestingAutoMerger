@@ -39,7 +39,7 @@ import { Observable } from 'rxjs/Observable';
             </article>
 
             <footer>
-                <button class="good" id="good_button_ok" (click)="accept($event)">
+                <button class="good" id="good_button_ok" (click)="accept($event)" [disabled]="!formReady">
                     {{options.buttonLabels.accept}}
                 </button>
 
@@ -66,8 +66,11 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
+
     private showVatLockedDateInfo: boolean = false;
     private showAccountingLockedInfo: boolean = false;
+
+    private formReady: boolean = false;
 
     constructor(private companySettingsService: CompanySettingsService, private journalEntryService: JournalEntryService) {}
 
@@ -99,10 +102,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
         // what will happen if any of the dates are from before one of the lockdates
         if (this.options && this.options.data && this.options.data.JournalEntryID) {
             requests.push(this.journalEntryService.getMinDatesForJournalEntry(this.options.data.JournalEntryID));
-
-            if (this.options.data.JournalEntryAccrualID) {
-                requests.push(this.journalEntryService.getRelatedAccrualJournalEntries(this.options.data.JournalEntryAccrualID));
-            }
+            requests.push(this.journalEntryService.Get(this.options.data.JournalEntryID));
         }
 
         Observable.forkJoin(requests).subscribe(results => {
@@ -119,27 +119,33 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             }
 
             let relatedJournalEntryNumbersAccruals = null;
-            if (results.length > 2) {
-                const allAccrualJournalEntries = <Array<any>>results[2];
+            this.relatedJournalEntriesMessage = null;
 
-                // Get an array of distinct journalentrynumbers not like the current journalentry.
-                // We need this to show a message to the user that he/she might also need to credit other
-                relatedJournalEntryNumbersAccruals =
-                        Array.from(new Set(
-                            allAccrualJournalEntries.filter(x => x.JournalEntryNumber !== journalEntryNumber).map(x => x.JournalEntryNumber)
-                        ));
+            if (results.length > 2 && (<any>results[2]).JournalEntryAccrualID) {
+                this.journalEntryService
+                    .getRelatedAccrualJournalEntries((<any>results[2]).JournalEntryAccrualID)
+                    .subscribe(res => {
+                        const allAccrualJournalEntries = res;
 
+                        // Get an array of distinct journalentrynumbers not like the current journalentry.
+                        // We need this to show a message to the user that he/she might also need to credit other
+                        relatedJournalEntryNumbersAccruals =
+                                Array.from(new Set(
+                                    allAccrualJournalEntries
+                                        .filter(x => x.JournalEntryNumber !== journalEntryNumber)
+                                        .map(x => x.JournalEntryNumber)
+                                ));
 
-                if (relatedJournalEntryNumbersAccruals.length > 0) {
-                    this.relatedJournalEntriesMessage =
-                        'OBS! Bilaget er periodisert, og følgende relatert bilag må eventuelt krediteres manuelt: '
-                        + relatedJournalEntryNumbersAccruals.join(', ');
-                }
+                        if (relatedJournalEntryNumbersAccruals.length > 0) {
+                            this.relatedJournalEntriesMessage =
+                                'OBS! Bilaget er periodisert, og følgende relatert bilag må eventuelt krediteres manuelt: '
+                                + relatedJournalEntryNumbersAccruals.join(', ');
+                        }
+                    });
             }
 
             let message: string;
 
-            // reformat the dates so its easier to read for the users(used in html)
             this.vatLockedDateReformatted =
                 companySettings.VatLockedDate ? moment(companySettings.VatLockedDate).format('DD.MM.YYYY') : null;
             this.accountingLockedDateReformatted =
@@ -198,6 +204,8 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
             const data = {
                 creditDate: null
             };
+
+            this.formReady = true;
 
             this.creditingData$.next(data);
             this.fields$.next(this.getLayout().Fields);

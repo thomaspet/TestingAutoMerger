@@ -229,7 +229,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public isOCR(file: any): boolean {
-        if (!file.Name) { return false; }
+        if (!file || !file.Name) { return false; }
 
         if (file.ContentType) {
             if (file.ContentType === 'application/xml') { return false; }

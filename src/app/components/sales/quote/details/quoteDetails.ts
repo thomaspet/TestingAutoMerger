@@ -1246,6 +1246,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     }
 
     private saveQuoteTransition(done: any, transition: string, doneText: string) {
+        if (!this.quote.Customer) {
+            this.toastService.addToast('Kan ikke overføre tilbud uten kunde', ToastType.warn, 5);
+            done('');
+            return;
+        }
+
         this.saveQuote().then(quote => {
             this.isDirty = false;
             this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(

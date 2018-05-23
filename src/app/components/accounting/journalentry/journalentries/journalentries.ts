@@ -12,7 +12,7 @@ import {
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {NumberSeriesTask, NumberSeries, JournalEntry, JournalEntryLineDraft} from '../../../../unientities';
+import {NumberSeriesTask, NumberSeries, JournalEntry, JournalEntryLineDraft, LocalDate} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -45,6 +45,7 @@ export class JournalEntries {
     private currentJournalEntryNumber: string;
     private currentJournalEntryID: number;
     public editmode: boolean = false;
+    public creditDate: LocalDate = null;
     private selectedNumberSeries: NumberSeries;
     private selectedNumberSeriesID: number;
     private selectedNumberSeriesTaskID: number;
@@ -430,38 +431,7 @@ export class JournalEntries {
     }
 
     private editJournalEntry(data?: JournalEntry) {
-        this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
-            header: `Bilag ${this.currentJournalEntryNumber} blir kreditert før du korrigerer.`,
-            message: 'Vil du kreditere hele dette bilaget?',
-            buttonLabels: {
-                accept: 'Krediter',
-                cancel: 'Avbryt'
-            },
-            data: {JournalEntryID: data ? data.ID : null, JournalEntryAccrualID: data ? data.JournalEntryAccrualID : null}
-        }).onClose.subscribe(response => {
-            if (response && response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
-                    .subscribe(
-                        res => {
-                            this.toastService.addToast(
-                                'Kreditering utført',
-                                ToastType.good,
-                                ToastTime.short
-                            );
-
-                            this.editmode = true;
-                        },
-                        err => {
-                            this.errorService.handle(err);
-                            this.editmode = false;
-                        }
-                    );
-            } else if (response && response.action === ConfirmActions.CANCEL) {
-                this.editmode = false;
-            } else {
-                this.editmode = false;
-            }
-        });
+        this.editmode = true;
     }
 
      private creditJournalEntry() {
@@ -473,10 +443,7 @@ export class JournalEntries {
                 cancel: 'Avbryt'
             },
             data: {
-                JournalEntryID: this.currentJournalEntryID,
-                JournalEntryAccrualID: this.journalEntryManual.currentJournalEntryData ?
-                    this.journalEntryManual.currentJournalEntryData.JournalEntryDataAccrualID
-                    : null
+                JournalEntryID: this.currentJournalEntryID
             }
         }).onClose.subscribe(response => {
             if (response.action === ConfirmActions.ACCEPT) {
