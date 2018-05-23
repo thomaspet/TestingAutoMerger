@@ -562,13 +562,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     public canDeactivate(): Observable<boolean> {
+        const saveButtonLabel = this.invoice.ID && this.invoice.StatusCode > 42001 ? 'Lagre' : 'Lagre som kladd';
         return !this.isDirty
             ? Observable.of(true)
             : this.modalService
-                .openUnsavedChangesModal()
+                .openUnsavedChangesModal(saveButtonLabel)
                 .onClose
                 .map(result => {
                     if (result === ConfirmActions.ACCEPT) {
+                        if (!this.invoice.ID && !this.invoice.StatusCode) {
+                            this.invoice.StatusCode = StatusCode.Draft;
+                        }
                         this.saveInvoice();
                     }
 

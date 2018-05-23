@@ -17,8 +17,7 @@ export class TofHelper {
             const emails = customer.Info.Emails || [];
             const addresses = customer.Info.Addresses || [];
 
-            entity.EmailAddress = customer.Info.DefaultEmailID
-                && emails.find(email => email.ID === customer.Info.DefaultEmailID).EmailAddress;
+            entity.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress;
 
             if (customer.Info.InvoiceAddressID) {
                 this.addressService.addressToInvoice(

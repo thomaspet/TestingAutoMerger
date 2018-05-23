@@ -602,7 +602,7 @@ export class UniQueryDetails {
                 f.Alias = field.alias;
                 f.Header = field.header;
                 f.SumFunction = field.sumFunction;
-                f.Width = field.width.toString();
+                f.Width = field.width ? field.width.toString() : null;
                 f.Index = field.index;
                 f.FieldType = field.type;
 
