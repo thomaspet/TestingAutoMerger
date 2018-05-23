@@ -48,7 +48,6 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
 
     public focus() {
         this.inputElement.focus();
-        this.inputElement.focus();
     }
 
     public ngOnChanges() {
@@ -76,6 +75,7 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
             const initialValue = initialObjects.map(y => y[this.field.Options.bindValue]);
             this.lastControlValue = <any>initialValue;
             this.control = new FormControl(initialValue);
+            this.tempModel = this.control.value;
             this.allSelected ? this.control.disable() : this.control.enable();
             this.readOnly$.next(this.field.ReadOnly);
         });

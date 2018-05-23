@@ -140,24 +140,24 @@ export default function createFormConfig(models, jobs) {
             FieldSet: 1
         },
         {
+            Placeholder: '',
             EntityType: 'Eventplan',
             Property: 'JobNames',
             FieldType: FieldType.UNI_MULTISELECT,
-            Label: 'JobNames',
+            Label: 'Job Names',
             Section: 0,
             FieldSet: 2,
-            Hidden: true,
             Options: {
+                source: jobs,
                 bindValue: 'ID',
                 bindLabel: 'Name',
-                source: jobs,
                 showAllButton: false,
                 OptionsToModel: (selectedItems, config, items) => {
-                    // const labels = selectedItems.map(opt => opt[config.Options.bindLabel]);
-                    if (selectedItems.length === 0) {
+                    const labels = selectedItems.map(opt => opt[config.Options.bindLabel]);
+                    if (labels.length === 0) {
                         return '*';
                     }
-                    return selectedItems.join(',');
+                    return labels.join(',');
                 },
                 ModelToOptions: (model, config, items) => {
                     if (!model) {
@@ -167,7 +167,7 @@ export default function createFormConfig(models, jobs) {
                         return [];
                     }
                     const labels = model.split(',');
-                    return labels.map((x, i) => ({ID: i, Name: x}));
+                    return labels.map(x => items.find(it => it[config.Options.bindLabel] === x));
                 },
             }
         },

@@ -36,7 +36,8 @@ export class EventPlanDetails {
         ])
         .subscribe(data => {
             const [models, jobs] = data;
-            this.fields$.next(formFields(models, jobs));
+            const mappedJobs = jobs.map((job, index) => ({ID: index, Name: job}));
+            this.fields$.next(formFields(models, mappedJobs));
         }, () => {
             this.fields$.next(formFields([], []));
         });
