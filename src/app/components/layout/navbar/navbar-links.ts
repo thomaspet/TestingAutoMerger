@@ -312,6 +312,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Altinn oversikt',
                         url: '/salary/altinnoverview',
                         moduleID: UniModules.AltinnOverview
+                    },
+                    {
+                        name: 'Reisetyper',
+                        url: 'salary/traveltypes',
+                        moduleID: UniModules.Travel
                     }
                 ]
             }

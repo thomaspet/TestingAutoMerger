@@ -197,7 +197,6 @@ export class CommonServicesModule {
                 DimensionSettingsService,
                 CustomDimensionService,
                 ApiKeyService,
-                TravelService,
             ]
         };
     }

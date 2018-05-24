@@ -102,6 +102,7 @@ import { TravelLinesComponent } from './travel/travel-details/travel-lines/trave
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
 import {MatSlideToggleModule} from '@angular/material';
+import { TraveltypeComponent } from './travel/travel-type/traveltype.component';
 
 @NgModule({
     imports: [
@@ -198,6 +199,9 @@ import {MatSlideToggleModule} from '@angular/material';
         AltinnOverviewComponent,
         AltinnOverviewDetailsComponent,
 
+
+        // Travel
+        TraveltypeComponent,
         // Travel
         TravelComponent,
         TravelListComponent,

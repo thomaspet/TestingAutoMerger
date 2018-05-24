@@ -24,6 +24,7 @@ import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
 import {EmpCanActivateGuard} from '@app/components/salary/employee/empGuard';
+import { TraveltypeComponent } from '@app/components/salary/travel/travel-type/traveltype.component';
 import {TravelComponent} from '@app/components/salary/travel/travel.component';
 
 export const salaryRoutes: Routes = [
@@ -100,6 +101,11 @@ export const salaryRoutes: Routes = [
         component: AltinnOverviewComponent
     },
     {
+        path: 'traveltypes',
+        component: TraveltypeComponent,
+        canDeactivate: [CanDeactivateGuard]
+	},
+	{
         path: 'travels',
         component: TravelComponent
     }
