@@ -2604,6 +2604,8 @@ export class BillView implements OnInit {
         if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length === 0) {
             // Update draftlines, but dont do anything if any draftlines is already
             // booked - because then we wont save any changes anyway (and the )
+            let draftlines = [];
+
             if (this.journalEntryManual) {
                 const lines = this.journalEntryManual.getJournalEntryData();
 
@@ -2657,13 +2659,11 @@ export class BillView implements OnInit {
                             p.AccrualID = 0;
                             p['_createguid'] = this.journalEntryService.getNewGuid();
                         });
-
                     }
 
                     draftlines.push(draft);
                 });
             }
-
 
             // Add draftlines to be deleted
             const deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);
