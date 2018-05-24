@@ -127,7 +127,7 @@
             "Filters": [
                 {
                     "Name": "Alle",
-                    "Code": "all_sharingings",
+                    "Code": "all_sharings",
                     "UseAllCriterias": true,
                     "FilterGroups": [{
                             "UseAllCriterias": false,

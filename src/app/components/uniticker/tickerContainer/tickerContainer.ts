@@ -57,10 +57,8 @@ export class UniTickerContainer {
         private route: ActivatedRoute,
         private cdr: ChangeDetectorRef
     ) {
-        const token = this.authService.getTokenDecoded();
-        if (token) {
-            this.currentUserGlobalIdentity = token.nameid;
-
+        this.authService.authentication$.subscribe(authDetails => {
+            this.currentUserGlobalIdentity = authDetails.user && authDetails.user.GlobalIdentity;
             this.yearService.getActiveYear().subscribe(activeyear => {
                 this.currentAccountingYear = activeyear.toString();
 
@@ -69,13 +67,13 @@ export class UniTickerContainer {
                     Expression: 'currentuserid',
                     Value: this.currentUserGlobalIdentity
                 });
-
+    
                 this.expressionFilters.push({
                     Expression: 'currentaccountingyear',
                     Value: this.currentAccountingYear
                 });
             });
-        }
+        });
     }
 
     public ngOnChanges(changes) {
