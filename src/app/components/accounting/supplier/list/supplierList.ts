@@ -19,9 +19,9 @@ export class SupplierList implements OnInit {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
-    private filter: string = `(StatusCode eq ${StatusCode.Draft} or StatusCode eq null)`;
+    private filter: string = `(StatusCode eq ${StatusCode.Pending} or StatusCode eq null)`;
     public tabs: IUniTab[] = [
-        {name: 'Kladd', value: `(StatusCode eq ${StatusCode.Draft} or StatusCode eq null)`},
+        {name: 'Kladd', value: `(StatusCode eq ${StatusCode.Pending} or StatusCode eq null)`},
         {name: 'Aktiv', value: `StatusCode eq ${StatusCode.Active}`},
         {name: 'Inaktiv', value: `StatusCode eq ${StatusCode.InActive}`},
         {name: 'Alle', value: `(StatusCode ne ${StatusCode.Deleted} or StatusCode eq null)`},
@@ -52,7 +52,7 @@ export class SupplierList implements OnInit {
         this.statisticsService.GetAll(
             `model=Supplier` +
             `&select=sum(casewhen((Supplier.StatusCode eq '${StatusCode.Active}')\,1\,0)) as Active,` +
-            `sum(casewhen(((isnull(Supplier.StatusCode, 0) eq 0) or Supplier.StatusCode eq '${StatusCode.Draft}')\,1\,0)) as Draft,` +
+            `sum(casewhen(((isnull(Supplier.StatusCode, 0) eq 0) or Supplier.StatusCode eq '${StatusCode.Pending}')\,1\,0)) as Draft,` +
             `sum(casewhen((Supplier.StatusCode eq '${StatusCode.InActive}')\,1\,0)) as Inactive,` +
             `sum(casewhen(isnull(StatusCode, 0) ne ${StatusCode.Deleted}\,1\,0)) as AllSuppliers`
         ).subscribe(
