@@ -470,21 +470,19 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     public onOrderChange(order) {
-        const inactive = 50001;
-        const active = 30001;
         this.isDirty = true;
         this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
-            if (order.Customer.StatusCode === inactive) {
+            if (order.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.customerService.activateCustomer(order.CustomerID).subscribe(
                             response => {
-                                order.Customer.StatusCode = active;
+                                order.Customer.StatusCode = StatusCode.Active;
                                 this.onOrderChange(order);
                                 this.toastService.addToast('Kunde aktivert', ToastType.good);
                             },

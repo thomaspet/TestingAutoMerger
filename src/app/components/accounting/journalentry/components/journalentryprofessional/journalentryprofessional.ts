@@ -42,6 +42,7 @@ import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
 import {AddPaymentModal} from '../../../../common/modals/addPaymentModal';
+import {StatusCode} from '../../../../sales/salesHelper/salesEnums';
 import {
     AccountService,
     JournalEntryService,
@@ -175,10 +176,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private currentRowIndex: number = 0;
     private currentFileIDs = [];
     private users: any[] = [];
-
-    private blocked = 90001;
-    private inactive = 50001;
-    private active = 30001;
 
     constructor(
         private changeDetector: ChangeDetectorRef,
@@ -1986,24 +1983,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (searchValue === '') {
             filter = `Visible eq 'true' and ( isnull(AccountID,0) eq 0 ) ` +
                 `or ( ( isnull(AccountID,0) eq 0 ) ` +
-                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked} ) ` +
-                `or ( Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}) ))`;
+                `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted} ) ` +
+                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
         } else {
 
             if (isNaN(parseInt(searchValue, 10))) {
                 filter = `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
                 `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
                 `or (contains(AccountName\,'${searchValue}') ` +
-                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) ` +
-                `or (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}))) ` +
+                `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountName eq '${searchValue}')`;
             } else {
                 filter = `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
                 `or contains(AccountName\,'${searchValue}')  ) ` +
                 `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
-                `and ((Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) ` +
-                `or (Supplier.Statuscode ne ${this.inactive} and Supplier.Statuscode ne ${this.blocked}))) ` +
+                `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountNumber eq ${searchValue})`;
             }
         }
@@ -2724,14 +2721,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     private rowChanged(event?) {
-        if (event.newValue && event.newValue.CustomerID && event.newValue.StatusCode === this.inactive) {
+        if (event.newValue && event.newValue.CustomerID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
                     this.customerService.activateCustomer(event.newValue.CustomerID).subscribe(
                         response => {
                             const account = tableData[0].CreditAccount || tableData[0].DebitAccount;
-                            account.StatusCode = this.active;
+                            account.StatusCode = StatusCode.Active;
                             this.toastService.addToast('Kunde aktivert', ToastType.good);
                         },
                         err => this.errorService.handle(err)
@@ -2741,14 +2738,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === this.inactive) {
+        if (event.newValue && event.newValue.SupplierID && event.newValue.StatusCode === StatusCode.InActive) {
             const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
             this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
                     this.supplierService.activateSupplier(event.newValue.SupplierID).subscribe(
                         response => {
                             const account = tableData[0].CreditAccount || tableData[0].DebitAccount;
-                            account.StatusCode = this.active;
+                            account.StatusCode = StatusCode.Active;
                             this.toastService.addToast('Leverandør aktivert', ToastType.good);
                         },
                         err => this.errorService.handle(err)

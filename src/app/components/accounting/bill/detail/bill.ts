@@ -23,6 +23,7 @@ import {
     BankData
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
+import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
@@ -716,7 +717,7 @@ export class BillView implements OnInit {
                         ) {
                             invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b =>
                                 (b.AccountNumber && b.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber) ||
-                                (b.IBAN && b.IBAN != invoice.Supplier.Info.DefaultBankAccount.IBAN)
+                                (b.IBAN && b.IBAN !== invoice.Supplier.Info.DefaultBankAccount.IBAN)
                             );
                         }
 
@@ -1316,15 +1317,13 @@ export class BillView implements OnInit {
         }
 
         if (change['Supplier'])  {
-            const inactive = 50001;
-            const active = 30001;
-            if (model.Supplier.StatusCode === inactive) {
+            if (model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
                         this.supplierService.activateSupplier(model.SupplierID).subscribe(
                             response => {
-                                model.Supplier.StatusCode = active;
+                                model.Supplier.StatusCode = StatusCode.Active;
                                 this.toast.addToast('Leverandør aktivert', ToastType.good);
                         },
                             err => this.errorService.handle(err)
@@ -1995,7 +1994,7 @@ export class BillView implements OnInit {
     }
 
     private askWithLabel(header: string, accept: string): Observable<any> {
-        let current = this.current.getValue();
+        const current = this.current.value;
         return this.modalService.open(UniConfirmModalV2, {
             header: header + current.Supplier.Info.Name,
             message: lang.ask_journal_msg + current.TaxInclusiveAmountCurrency.toFixed(2) + '?',
@@ -2058,9 +2057,9 @@ export class BillView implements OnInit {
     private tryJournal(url: string): Promise<ILocalValidation> {
         this.preSave();
         return new Promise((resolve, reject) => {
-            let current = this.current.getValue();
+            let current = this.current.value;
             this.UpdateSuppliersJournalEntry().then(result => {
-                const current = this.current.getValue();
+                current = this.current.value;
 
                 const validation = this.hasValidDraftLines(true);
                 if (!validation.success) {
@@ -2175,7 +2174,7 @@ export class BillView implements OnInit {
 
             if (!line.Description) {
                 line.Description = this.createLineDescription();
-                changes = line.Description != '';
+                changes = line.Description !== '';
             }
 
             if (!line.Dimensions) {
@@ -2289,8 +2288,8 @@ export class BillView implements OnInit {
             switch (safeInt(current.StatusCode)) {
                 case StatusCodeSupplierInvoice.Payed:
                 case StatusCodeSupplierInvoice.PartlyPayed:
-                case 90001: // rejected
-                case 40001: // archived
+                case StatusCode.Deleted: // rejected
+                case StatusCode.Completed: // archived
                     this.uniForm.readMode();
                     return;
 
@@ -2463,7 +2462,7 @@ export class BillView implements OnInit {
                     this.hasUnsavedChanges = false;
                     this.commentsConfig.entityID = result.ID;
                     if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', 40001).then(
+                        this.linkFiles(result.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
                             () => {
                             this.hasStartupFileID = false;
                             this.resetDocuments();
@@ -2592,6 +2591,7 @@ export class BillView implements OnInit {
 
     private preSave(): boolean {
 
+        let draftlines = [];
         let changesMade = false;
         const current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();

@@ -56,6 +56,12 @@
                 "Type": "new"
             },
             {
+                "Name": "Åpne Kunde",
+                "Code": "open_customer",
+                "ExecuteWithoutSelection": true,                
+                "Type": "details"
+            },
+            {
                 "Name": "Eksporter",
                 "Code": "export_customers",
                 "Type": "export",

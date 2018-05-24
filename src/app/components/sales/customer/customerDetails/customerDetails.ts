@@ -256,14 +256,14 @@ export class CustomerDetails implements OnInit {
 
     private activateCustomer(customerID: number) {
         this.customerService.activateCustomer(customerID).subscribe(
-            res => this.setCustomerStatusOnToolbar(30001),
+            res => this.setCustomerStatusOnToolbar(StatusCode.Active),
             err => this.errorService.handle(err)
         );
     }
 
     private deactivateCustomer(customerID: number) {
         this.customerService.deactivateCustomer(customerID).subscribe(
-            res => this.setCustomerStatusOnToolbar(50001),
+            res => this.setCustomerStatusOnToolbar(StatusCode.InActive),
             err => this.errorService.handle(err)
         );
     }

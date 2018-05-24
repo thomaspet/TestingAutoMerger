@@ -7,6 +7,7 @@ import {Supplier, CompanySettings} from '@app/unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {IUniSaveAction} from '@uni-framework/save/save';
+import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 
 @Component({
     selector: 'supplier-list',
@@ -18,12 +19,12 @@ export class SupplierList implements OnInit {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
-    private filter: string = 'StatusCode eq 30001';
+    private filter: string = `(StatusCode eq ${StatusCode.Draft} or StatusCode eq null)`;
     public tabs: IUniTab[] = [
-        {name: 'Kladd', value: 'StatusCode eq null'},
-        {name: 'Aktiv', value: 'StatusCode eq 30001'},
-        {name: 'Inaktiv', value: 'StatusCode eq 50001'},
-        {name: 'Alle', value: '(StatusCode ne 90001 or StatusCode eq null)'},
+        {name: 'Kladd', value: `(StatusCode eq ${StatusCode.Draft} or StatusCode eq null)`},
+        {name: 'Aktiv', value: `StatusCode eq ${StatusCode.Active}`},
+        {name: 'Inaktiv', value: `StatusCode eq ${StatusCode.InActive}`},
+        {name: 'Alle', value: `(StatusCode ne ${StatusCode.Deleted} or StatusCode eq null)`},
     ];
 
     public createNewAction: IUniSaveAction = {
@@ -50,10 +51,10 @@ export class SupplierList implements OnInit {
     public ngOnInit() {
         this.statisticsService.GetAll(
             `model=Supplier` +
-            `&select=sum(casewhen((Supplier.StatusCode eq '30001')\,1\,0)) as Active,` +
-            `sum(casewhen((isnull(Supplier.StatusCode, 0) eq 0)\,1\,0)) as Draft,` +
-            `sum(casewhen((Supplier.StatusCode eq '50001')\,1\,0)) as Inactive,` +
-            `sum(casewhen(isnull(StatusCode, 0) ne 90001\,1\,0)) as AllSuppliers`
+            `&select=sum(casewhen((Supplier.StatusCode eq '${StatusCode.Active}')\,1\,0)) as Active,` +
+            `sum(casewhen(((isnull(Supplier.StatusCode, 0) eq 0) or Supplier.StatusCode eq '${StatusCode.Draft}')\,1\,0)) as Draft,` +
+            `sum(casewhen((Supplier.StatusCode eq '${StatusCode.InActive}')\,1\,0)) as Inactive,` +
+            `sum(casewhen(isnull(StatusCode, 0) ne ${StatusCode.Deleted}\,1\,0)) as AllSuppliers`
         ).subscribe(
             res => {
                 this.tabs[0].count = res.Data[0].Draft;

@@ -226,14 +226,14 @@ export class SupplierDetails implements OnInit {
 
     private activateSupplier(customerID: number) {
         this.supplierService.activateSupplier(customerID).subscribe(
-            res => this.setSupplierStatusInToolbar(30001),
+            res => this.setSupplierStatusInToolbar(StatusCode.Active),
             err => this.errorService.handle(err)
         );
     }
 
     private deactivateSupplier(customerID: number) {
         this.supplierService.deactivateSupplier(customerID).subscribe(
-            res => this.setSupplierStatusInToolbar(50001),
+            res => this.setSupplierStatusInToolbar(StatusCode.InActive),
             err => this.errorService.handle(err)
         );
     }
