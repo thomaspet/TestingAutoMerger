@@ -9,6 +9,7 @@ import {ErrorService} from '../errorService';
 import {IntegrationServerCaller} from '../integrationServerCaller';
 import {BusinessRelationSearch} from '../../../models/Integration/BusinessRelationSearch';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
+import {StatusCode} from '../../../components/sales/salesHelper/salesEnums';
 
 const MAX_RESULTS = 50;
 
@@ -28,9 +29,6 @@ class CustomStatisticsResultItem {
 
 @Injectable()
 export class UniSearchCustomerConfig {
-
-    private blocked = 90001;
-    private inactive = 50001;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -148,11 +146,11 @@ export class UniSearchCustomerConfig {
         const model = 'Customer';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = `contains(Info.Name,'${searchTerm}') and (Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) or (Info.Name eq '${searchTerm}') or (InvoiceAddress.AddressLine1 eq '${searchTerm}')`;
+        let filter = `contains(Info.Name,'${searchTerm}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (Info.Name eq '${searchTerm}') or (InvoiceAddress.AddressLine1 eq '${searchTerm}')`;
         let orderBy = 'Info.Name';
         if (startNumber) {
             filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number', 'Info.Name']
-                .map(x => `startswith(${x},'${startNumber}') and (Customer.Statuscode ne ${this.inactive} and Customer.Statuscode ne ${this.blocked}) or (${x} eq ${startNumber})`).join(' or ');
+                .map(x => `startswith(${x},'${startNumber}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (${x} eq ${startNumber})`).join(' or ');
             orderBy = 'Customer.CustomerNumber';
         }
         const select = [

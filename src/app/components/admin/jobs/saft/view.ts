@@ -10,6 +10,7 @@ import {
 } from '../../../../../framework/uni-modal';
 import {SaftImportModal} from './saftimportmodal';
 import * as moment from 'moment';
+import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 
 const JOBNAME: string = 'ImportSaft';
 const COMPLETEMESSAGE: string = 'Import completed';
@@ -123,7 +124,7 @@ export class SaftExportView implements OnInit {
         this.files = [];
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
             + ',filetag.tagname as tag,filetag.status as status'
-            + `&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
+            + `&filter=statuscode eq ${StatusCode.Draft} and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
             + '&join=file.id eq filetag.fileid&top=10&orderby=id desc')
             .finally( () => this.busyFetch = false)
             .subscribe( data => {

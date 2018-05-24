@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
 import {ErrorService} from '../common/errorService';
 import {UserService} from '../common/userService';
+import {StatusCode} from '../../../app/components/sales/salesHelper/salesEnums';
 
 @Injectable()
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
@@ -21,8 +22,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Betalingsliste', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delbetalt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
-        { Code: 40001, Text: 'Arkivert', isPrimary: false },
-        { Code: 90001, Text: 'Slettet', isPrimary: false }
+        { Code: StatusCode.Completed, Text: 'Arkivert', isPrimary: false },
+        { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
     ];
 
     constructor(http: UniHttp, private errorService: ErrorService, private userService: UserService) {
@@ -38,17 +39,17 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getStatusText(statusCode: number): string {
-        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : 'Udefinert';
-    };
+    }
 
     public getTeamsAndUsers(): Observable<{ teams: Array<Team>, users: Array<User>} >  {
 
-        var obsTeams = this.http.asGET().usingBusinessDomain()
+        const obsTeams = this.http.asGET().usingBusinessDomain()
             .withEndPoint('teams/?expand=positions&hateoas=false&orderby=name&filter=positions.position ge 12').send()
             .map(response => response.json());
 
-        var obsUsers = this.http.asGET().usingBusinessDomain()
+        const obsUsers = this.http.asGET().usingBusinessDomain()
             .withEndPoint('users/?hateoas=false?orderby=displayname&filter=statuscode eq 110001').send()
             .map(response => response.json());
 
@@ -157,7 +158,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             userIDFilter = ' and user.id eq ' + userIDFilter;
         }
 
-        var flds = this.selectBuilder('ID', 'StatusCode',
+        const flds = this.selectBuilder('ID', 'StatusCode',
             'Supplier.SupplierNumber', 'Info.Name', 'PaymentDueDate', 'InvoiceDate',
             'InvoiceNumber', 'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber', 'PaymentInformation',
             'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
@@ -165,7 +166,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'RestAmount', 'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber',
             'CurrencyCodeID', 'CurrencyCode.Code');
-        var route = '?model=SupplierInvoice' +
+        let route = '?model=SupplierInvoice' +
             '&select=' + flds +
             '&join=supplierinvoice.id eq task.entityid and task.id eq approval.taskid and approval.userid eq user.id' +
             '&expand=supplier.info,journalentry,dimensions.project,dimensions.department,bankaccount,CurrencyCode' +
@@ -173,11 +174,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             '&filter=( isnull(deleted,0) eq 0 ' + (userIDFilter === null ? '' : userIDFilter)  + ' )';
 
         if (urlSearchParams) {
-            let filter = urlSearchParams.get('filter');
+            const filter = urlSearchParams.get('filter');
             if (filter) {
                 route += ` and ( ${filter} )`;
             }
-            let top = urlSearchParams.get('top');
+            const top = urlSearchParams.get('top');
             if (top) {
                 route += '&top=' + top;
             }
@@ -190,7 +191,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public getInvoiceListGroupedTotals(userIDFilter: string = ''): Observable<Array<IStatTotal>> {
 
         // tslint:disable-next-line:max-line-length
-        var route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
+        const route = '?model=supplierinvoice&select=count(id),statuscode,sum(TaxInclusiveAmount),sum(RestAmount)' +
         '&filter=isnull(deleted,0) eq 0';
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
@@ -202,7 +203,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public send(route: string, urlSearchParams?: URLSearchParams, method = 'POST', body?: any): Observable<any> {
-        var ht = this.http.asPOST();
+        let ht = this.http.asPOST();
         switch (method.toUpperCase()) {
             case 'GET':
                 ht = this.http.asGET();
@@ -222,8 +223,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     public checkInvoiceData(invoiceNumber: any, supplierID: number) {
         return this.http.asGET()
         .usingStatisticsDomain()
-        .withEndPoint("?model=SupplierInvoice&filter=InvoiceNumber eq '"
-        + invoiceNumber + "' and SupplierID eq '" + supplierID + "'")
+        .withEndPoint(`?model=SupplierInvoice&filter=InvoiceNumber eq '${invoiceNumber}' and SupplierID eq '${supplierID}'`)
         .send()
         .map(response => response.json());
     }
@@ -251,9 +251,9 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     private selectBuilder(...args: any[]): string {
-        var select = '';
-        var alias = '', item = '';
-        for (var i = 0; i < args.length; i++) {
+        let select = '';
+        let alias = '', item = '';
+        for (let i = 0; i < args.length; i++) {
             item = args[i];
             if ((item.indexOf(' as ') < 0) && ((item.indexOf('.') < 0))) {
                 alias = item;
