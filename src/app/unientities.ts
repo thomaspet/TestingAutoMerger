@@ -3806,8 +3806,8 @@ export class Team extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Dimensions: Dimensions;
     public Positions: Array<TeamPosition>;
+    public Dimensions: Dimensions;
     public CustomFields: any;
 }
 
@@ -4830,9 +4830,9 @@ export class JournalEntry extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public FinancialYear: FinancialYear;
     public Lines: Array<JournalEntryLine>;
     public DraftLines: Array<JournalEntryLineDraft>;
+    public FinancialYear: FinancialYear;
     public NumberSeriesTask: NumberSeriesTask;
     public NumberSeries: NumberSeries;
     public JournalEntryAccrual: Accrual;
@@ -5027,11 +5027,13 @@ export class Payment extends UniEntity {
     public Deleted: boolean;
     public Description: string;
     public DueDate: LocalDate;
+    public ExternalBankAccountNumber: string;
     public FromBankAccountID: number;
     public ID: number;
     public InvoiceNumber: string;
     public IsCustomerPayment: boolean;
-    public OcrFromBankAccountNumber: string;
+    public IsExternal: boolean;
+    public JournalEntryID: number;
     public OcrPaymentStrings: string;
     public PaymentBatchID: number;
     public PaymentCodeID: number;
@@ -5166,8 +5168,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -5625,10 +5627,10 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
     public VatCodeGroup: VatCodeGroup;
     public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }

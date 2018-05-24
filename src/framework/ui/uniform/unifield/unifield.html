@@ -171,8 +171,15 @@
                         (focusEvent)="onFocusHandler($event)"
                         (moveForwardEvent)="onMultivalueMoveForward($event)"
     ></uni-multi-select-input>
-
-
+    <uni-static-text-input #selectedComponent *ngIf="field?.FieldType === 20"
+                        [field]="field"
+                        [model]="model"
+                        [asideGuid]="asideGuid"
+                        (readyEvent)="onReadyHandler($event)"
+                        (changeEvent)="onChangeHandler($event)"
+                        (inputEvent)="onInputHandler($event)"
+                        (focusEvent)="onFocusHandler($event)"
+    ></uni-static-text-input>
     <ng-template ngFor let-error [ngForOf]="errorMessages" let-k="index">
         <small role="alert" [class.bad]="!error?.isWarning" [class.warn]="error?.isWarning">
             {{error | uniformErrorTemplate}}

@@ -1,4 +1,3 @@
-import { UniMultiSelectInput } from '@uni-framework/ui/uniform/controls/multiselect/multiselect';
 export * from './text/text';
 export * from './numeric/numeric';
 export * from './password/password';
@@ -34,6 +33,8 @@ import {UniCheckboxInput} from './checkbox/checkbox';
 import {UniButtonInput} from './button/button';
 import {LocalDatePickerInput} from './local-date-picker/local-date-picker';
 import {UniSearchWrapper} from './uni-search-wrapper/uni-search-wrapper';
+import { UniStaticTextInput } from '@uni-framework/ui/uniform/controls/static-text/static-text';
+import { UniMultiSelectInput } from '@uni-framework/ui/uniform/controls/multiselect/multiselect';
 
 export const CONTROLS = [
     UniAutocompleteInput, // 0 - autocomplete
@@ -55,6 +56,7 @@ export const CONTROLS = [
     LocalDatePickerInput, // 17 - unidate
     UniSearchWrapper, // 18 - uni search wrapper
     UniMultiSelectInput, // 19 - uni multy select
+    UniStaticTextInput, // 20 - uni static text
 ];
 
 export enum CONTROLS_ENUM {
@@ -76,5 +78,6 @@ export enum CONTROLS_ENUM {
     TEXTAREA = 16, // 16 - textarea
     LOCAL_DATE = 17, // 17 - unidate
     UNI_SEARCH = 18, // 18 - unisearch wrapper
-    UNI_MULTISELECT = 19 // 19 - multisearch
+    UNI_MULTISELECT = 19, // 19 - multisearch
+    UNI_STATIC_TEXT = 20, // 19 - static text
 }

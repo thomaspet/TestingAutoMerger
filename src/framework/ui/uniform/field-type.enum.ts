@@ -17,5 +17,6 @@ export enum FieldType {
 	TEXTAREA = 16,
 	LOCAL_DATE_PICKER = 17,
 	UNI_SEARCH = 18,
-    UNI_MULTISELECT = 19
+    UNI_MULTISELECT = 19,
+    STATIC_TEXT = 20,
 }
