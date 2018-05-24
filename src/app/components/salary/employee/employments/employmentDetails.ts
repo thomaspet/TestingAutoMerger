@@ -76,6 +76,7 @@ export class EmploymentDetails implements OnChanges {
                 }
             }
 
+
             if (this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
                     .GetAll(
@@ -147,14 +148,6 @@ export class EmploymentDetails implements OnChanges {
                 displayProperty: 'styrk',
                 valueProperty: 'styrk',
                 debounceTime: 200,
-                events: {
-                    select: (model: Employment) => {
-                        this.updateTitle(model.JobCode);
-                    },
-                    enter: (model: Employment) => {
-                        this.updateTitle(model.JobCode);
-                    }
-                }
             };
             const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
             const accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
@@ -238,30 +231,37 @@ export class EmploymentDetails implements OnChanges {
         this.fields$.next(fields);
     }
 
-    public updateTitle(styrk) {
-        if (styrk) {
-            this.statisticsService
-                .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
-                .map(x => x.Data)
-                .subscribe(styrkObjArray => {
-                    if (styrkObjArray && styrkObjArray.length > 0) {
-                        const employment = this.employment$.getValue();
-                        employment.JobName = styrkObjArray[0].tittel;
-                        this.employment$.next(employment);
-
-                        setTimeout(() => {
-                            this.form.field('JobName').focus();
-                        }, 50);
-                    }
-                }, err => this.errorService.handle(err));
-        }
+    public getJobName(styrk) {
+        return this.statisticsService
+            .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
+            .catch((err, source) => this.errorService.handleRxCatch(err, source))
+            .map(x => x.Data)
+            .map(styrkObjArray => {
+                if (styrkObjArray && styrkObjArray.length > 0) {
+                    return styrkObjArray[0].tittel;
+                } else {
+                    return '';
+                }
+            });
     }
 
-    public onFormChange(value: SimpleChanges) {
-        if (!Object.keys(value).some(key => this.hasChanged(value[key]))) {
+    public onFormChange(changes: SimpleChanges) {
+        if (!Object.keys(changes).some(key => this.hasChanged(changes[key]))) {
             return;
         }
-        this.employmentChange.emit(this.employment$.getValue());
+
+        const employment = this.employment$.getValue();
+
+        if (changes['JobCode'] && employment.JobCode) {
+            this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
+                employment.JobName = jobName;
+                this.jobCodeInitValue = Observable.of([{ styrk: employment.JobCode, tittel: employment.JobName }]);
+                this.employment$.next(employment);
+                this.employmentChange.emit(employment);
+            });
+        } else {
+            this.employmentChange.emit(this.employment$.getValue());
+        }
     }
 
     private hasChanged(value: SimpleChange) {
