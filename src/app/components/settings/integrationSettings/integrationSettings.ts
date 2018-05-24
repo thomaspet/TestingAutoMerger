@@ -1,4 +1,6 @@
-import {Component} from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { EventPlans } from '@app/components/settings/eventPlans/event-plans';
+import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'integration-settings',
@@ -7,5 +9,9 @@ import {Component} from '@angular/core';
 export class IntegrationSettings {
     public showWebhooksSection: boolean = true;
     public showIntegrationSection: boolean  = true;
+    @ViewChild('eventplans') eventplans: EventPlans;
     constructor() { }
+    public canDeactivate(): boolean | Observable<boolean> {
+        return this.eventplans.canDeactivate();
+    }
 }

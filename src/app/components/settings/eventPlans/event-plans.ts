@@ -4,6 +4,8 @@ import { EventplanService } from '@app/components/settings/eventPlans/eventplan.
 
 import { ErrorService } from '@app/services/common/errorService';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
+import { Observable } from 'rxjs/Observable';
+import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'event-plans',
@@ -13,11 +15,13 @@ export class EventPlans {
     currentEventplan: Eventplan;
     data: Eventplan[];
     areDetailsTouched = false;
+    selectedIndex: number;
 
     constructor(
         public eventplanService: EventplanService,
         public errorService: ErrorService,
-        public toast: ToastService
+        public toast: ToastService,
+        public modalService: UniModalService
     ) {
         this.onAddNewEventplan();
         this.requestData();
@@ -26,9 +30,14 @@ export class EventPlans {
         this.currentEventplan.Subscribers = [];
     }
 
-    requestData() {
+    requestData(result =  null) {
         this.eventplanService.getData()
-            .subscribe(data => this.data = data);
+            .subscribe(data => {
+                this.data = data;
+                if (result) {
+                    this.currentEventplan = this.data.find(item => item.ID === result.ID);
+                }
+            });
     }
 
     onAddNewEventplan() {
@@ -39,13 +48,38 @@ export class EventPlans {
     }
 
     onEventplanSelected(row) {
-        this.currentEventplan = row;
+        if (!this.areDetailsTouched) {
+            this.currentEventplan = row;
+            this.areDetailsTouched = false;
+        } else {
+            this.modalService.openUnsavedChangesModal().onClose.subscribe((res: any) => {
+                if (res === ConfirmActions.ACCEPT) {
+                    this.eventplanService.save(this.currentEventplan).then((result: any) => {
+                        this.areDetailsTouched = false;
+                        this.eventplanService.getData()
+                            .subscribe(data => {
+                                this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
+                                this.currentEventplan = result;
+                                this.data = data;
+                                this.selectedIndex = this.data.findIndex(item => item.ID === result.ID);
+                            });
+                    }).catch(reason => {
+                        this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
+                    });
+                } else {
+                    if (res !== ConfirmActions.CANCEL) {
+                        this.currentEventplan = row;
+                        this.areDetailsTouched = false;
+                    }
+                }
+            });
+        }
     }
 
     onSaveEventplan(eventplan) {
-        this.eventplanService.save(eventplan).then(() => {
+        this.eventplanService.save(eventplan).then((result) => {
             this.areDetailsTouched = false;
-            this.requestData();
+            this.requestData(result);
             this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
         }).catch(reason => this.toast.addToast(reason, ToastType.bad, ToastTime.medium));
     }
@@ -78,5 +112,35 @@ export class EventPlans {
 
     onDetailsTouched(areTouched) {
         this.areDetailsTouched = areTouched;
+    }
+
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (this.areDetailsTouched === false) {
+            return true;
+        }
+        return this.openUnsavedChangesModal();
+    }
+
+    private openUnsavedChangesModal() {
+        return Observable.create(observer => {
+            this.modalService.openUnsavedChangesModal().onClose.subscribe(res => {
+                if (res === ConfirmActions.ACCEPT) {
+                    this.eventplanService.save(this.currentEventplan).then(() => {
+                        this.areDetailsTouched = false;
+                        this.requestData();
+                        this.toast.addToast('Flyt lagret', ToastType.good, ToastTime.medium);
+                        observer.next(true);
+                        observer.complete();
+                    }).catch(reason => {
+                        this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
+                        observer.next(false);
+                        observer.complete();
+                    });
+                } else {
+                    observer.next(res !== ConfirmActions.CANCEL);
+                    observer.complete();
+                }
+            });
+        });
     }
 }

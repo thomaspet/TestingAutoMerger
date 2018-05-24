@@ -5,6 +5,7 @@
             Ny flyt
         </button>
         <event-plans-list
+            [selectedIndex]="selectedIndex"
             [data]="data"
             (eventplanSelected)="onEventplanSelected($event)"
             (eventplanDeleted)="onDeleteEventplan($event)"
