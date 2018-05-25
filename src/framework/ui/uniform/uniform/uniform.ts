@@ -44,7 +44,7 @@ export class UniForm implements OnChanges, OnInit {
     public hidden: boolean = false;
     public currentComponent: UniField;
     public lastLayout: UniComponentLayout = null;
-    public errorList: {[id: string]: UniFormError} = {};
+    public errorList: {[id: string]: UniFormError[]} = {};
     public propertyKeys: any = Object.keys;
     public valid = true;
 
@@ -394,14 +394,15 @@ export class UniForm implements OnChanges, OnInit {
     }
 
     public onError(event) {
-        _.assign(this.errorList, event);
         this.valid = true;
         for (const error in this.errorList) {
-            if (error.length > 0) {
+            if (this.errorList[error].length > 0) {
                 this.valid = false;
             }
         }
-        this.errorEvent.emit(event);
+        _.assign(this.errorList, event);
+        const eventWithValid = Object.assign({isFormValid: this.valid}, event || {});
+        this.errorEvent.emit(eventWithValid);
     }
 
     public submit(event) {

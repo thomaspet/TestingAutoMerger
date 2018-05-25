@@ -8,6 +8,7 @@ export interface ICheckSums {
 }
 @Injectable()
 export class ModulusService {
+    private isInternationalOrgNr: boolean = false;
     constructor() { }
 
     public validSSN(ssn: string): boolean {
@@ -79,7 +80,14 @@ export class ModulusService {
         return true;
     }
 
-    public orgNrValidationUniForm = (orgNr: any, field: UniFieldLayout): UniFormError | null => {
+    public orgNrValidationUniForm = (orgNr: string, field: UniFieldLayout, international?: boolean): UniFormError | null => {
+        if (international === false) {
+            this.isInternationalOrgNr = false;
+        } else if (international || this.isInternationalOrgNr) {
+            this.isInternationalOrgNr = true;
+            return null;
+        }
+
         if (!orgNr || typeof orgNr !== 'string' || this.isValidOrgNr(orgNr)) {
             return null;
         }
