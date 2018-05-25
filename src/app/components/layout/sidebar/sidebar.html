@@ -1,22 +1,32 @@
-<section id="scroll-container">
-    <ul class="sidebar-menu"
-        [ngClass]="{'collapsed': state === 'collapsed'}"
-        (clickOutside)="collapseMeMaybe()">
+<section id="sidebar-container"
+    (mouseleave)="onMouseLeave()"
+    [ngClass]="{
+        'collapsed': state === 'collapsed',
+        'popover': popover
+    }">
 
-        <li *ngFor="let section of navbarLinkSections; let idx = index"
-            [attr.aria-expanded]="expandedSectionIndex === idx">
+    <section id="scroll-container">
+        <ul class="sidebar-menu"
+            [ngClass]="{'collapsed': state === 'collapsed'}">
 
-            <section class="sidebar-section-header" (click)="toggleSection(idx)">
-                <i class="material-icons"
-                    *ngIf="section.mdIcon"
-                    [ngClass]="{'sidebar-link-icon': section.url}"
-                    (click)="navigateToSectionUrl(section.url)">
-                    {{section.mdIcon}}
-                </i>
-                <span *ngIf="state === 'expanded'">{{section.name}}</span>
-            </section>
+            <li *ngFor="let section of navbarLinkSections; let idx = index"
+                [attr.aria-expanded]="expandedSectionIndex === idx">
 
-            <ng-template [ngIf]="state === 'expanded'">
+                <section class="sidebar-section-header" (click)="toggleSection(idx)">
+                    <i class="material-icons"
+                        *ngIf="section.mdIcon"
+                        [title]="section.name"
+                        [ngClass]="{'sidebar-link-icon': section.url}"
+                        (click)="navigateToSectionUrl(section.url, $event)">
+                        {{section.mdIcon}}
+                    </i>
+                    <span>{{section.name}}</span>
+
+                    <i class="material-icons expanded-section-icon">
+                        {{expandedSectionIndex === idx ? 'expand_more' : 'keyboard_arrow_right'}}
+                    </i>
+                </section>
+
 
                 <section *ngFor="let group of section.linkGroups" class="sidebar-link-group">
                     <!-- <span *ngIf="group.name">{{group.name}}</span> -->
@@ -26,8 +36,7 @@
 
                             <a [routerLink]="link.url"
                                 routerLinkActive="active-sidebar-link"
-                                [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}"
-                                (click)="collapseMeMaybe()">
+                                [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}">
 
                                 {{link.name}}
                             </a>
@@ -35,24 +44,13 @@
                     </ul>
                 </section>
 
-            </ng-template>
-        </li>
-    </ul>
+            </li>
+        </ul>
 
-</section>
+    </section>
 
-<section class="sidebar-tools">
-    <i class="material-icons"
-        role="button"
-        title="Skjul sidemeny"
-        (click)="hideSidebar()">
-        vertical_align_top
-    </i>
-
-    <i class="material-icons"
-        role="button"
-        title="Minimer sidemeny"
-        (click)="toggleState()">
-        {{state === 'expanded' ? 'keyboard_arrow_left' : 'keyboard_arrow_right'}}
-    </i>
+    <section class="mega-menu-toggle" (click)="showMegaMenu()">
+        <i class="material-icons" title="Vis alle menyvalg">apps</i>
+        <span *ngIf="popover || state === 'expanded'">Vis alle menyvalg</span>
+    </section>
 </section>

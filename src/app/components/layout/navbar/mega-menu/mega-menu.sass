@@ -1,0 +1,69 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+\:host
+    position: fixed
+    width: 100vw
+    height: 100vh
+    top: 0
+    left: 0
+    z-index: 999
+    overflow-y: auto
+    background: #fff
+
+.close-icon
+    position: absolute
+    top: 2rem
+    right: 3rem
+    font-size: 36px
+    cursor: pointer
+
+header
+    display: flex
+    flex-direction: column
+    margin-top: 10vh
+
+    img
+        width: 200px
+        margin: 0 auto
+
+    input[type=search]
+        margin: 2rem auto
+        width: 25rem
+        height: 2.5rem
+        font-size: 17px
+
+
+.link-groups
+    display: flex
+    flex-flow: row wrap
+    justify-content: center
+    margin: 2rem 2vw
+
+    .link-group
+        flex: 0 0 12rem
+
+        .hamburger-link-header
+            cursor: pointer
+            &:hover
+                text-decoration: underline
+
+        ul.link-list
+            list-style: none
+
+        > span
+            display: block
+            margin-top: .5rem
+            font-weight: bold
+            font-size: 17px
+            color: $uni-color-c2a
+            text-transform: uppercase
+
+            + ul
+                margin-top: .25rem
+
+    a
+        text-decoration: none
+        color: $uni-color-scale2
+        &:hover
+            text-decoration: underline
+            color: $uni-color-link

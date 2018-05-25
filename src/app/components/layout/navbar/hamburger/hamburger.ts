@@ -47,8 +47,15 @@ export class UniHamburgerMenu {
     }
 
     public toggleSidebar() {
-        if (this.sidebarVisible) {
-            this.navbarService.sidebarState$.next('hidden');
+        // if (this.sidebarVisible) {
+        //     this.navbarService.sidebarState$.next('hidden');
+        // } else {
+        //     this.navbarService.sidebarState$.next('expanded');
+        // }
+
+        const state = this.navbarService.sidebarState$.value;
+        if (state === 'expanded') {
+            this.navbarService.sidebarState$.next('collapsed');
         } else {
             this.navbarService.sidebarState$.next('expanded');
         }

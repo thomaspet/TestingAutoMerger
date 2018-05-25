@@ -21,6 +21,9 @@ import {NavbarLinkService} from './navbar/navbar-link-service';
 
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
 import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
+
+import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
+
 import {
     MatTabsModule,
     MatTooltipModule,
@@ -48,6 +51,7 @@ import {
         UniTabs,
         UniNavbar,
         UniSidebar,
+        UniMegaMenu,
         NavbarCreateNew,
         NavbarSearch,
         UniTabStrip,
