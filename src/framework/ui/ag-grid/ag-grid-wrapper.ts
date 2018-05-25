@@ -78,7 +78,8 @@ export class AgGridWrapper {
     private selectionMode: string = 'single';
 
     private columns: UniTableColumn[];
-    private agColDefs: any[];
+    private agColDefs: ColDef[];
+    public rowClassResolver: (params) => string;
 
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
@@ -116,6 +117,24 @@ export class AgGridWrapper {
         if (changes['config'] && this.config) {
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
+
+            if (this.config.editable || this.config.conditionalRowCls) {
+                this.rowClassResolver = (params) => {
+                    const row = params.data;
+                    const classes = [];
+                    if (this.config.editable && this.config.isRowReadOnly) {
+                        if (this.config.isRowReadOnly(row)) {
+                            classes.push('readonly-row');
+                        }
+                    }
+
+                    if (this.config.conditionalRowCls) {
+                        classes.push(this.config.conditionalRowCls(row));
+                    }
+
+                    return classes.join(' ');
+                };
+            }
         }
 
         if (changes['columnSumResolver'] && this.columnSumResolver) {

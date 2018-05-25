@@ -138,7 +138,6 @@ ag-grid-angular.col-menu-hidden
     text-align: center !important
 
 // Row styling
-
 .ag-row
     &.ag-row-even
         background: #fff
@@ -149,10 +148,17 @@ ag-grid-angular.col-menu-hidden
     &.ag-row-hover
         background: darken($uni-color-negative, 1.5%)
 
-    &.ag-row-focus,
-    &.ag-row-selected,
-    &.ag-row-dragging
+ag-grid-angular:not(.editable)
+    .ag-row-focus,
+    .ag-row-selected,
+    .ag-row-dragging
         background: #d4dfee
+
+ag-grid-angular.editable .readonly-row
+    background: #f0f0f0
+    color: $uni-color-scale5
+    cursor: not-allowed
+
 
 .ag-icon-checkbox-unchecked,
 .ag-icon-checkbox-checked

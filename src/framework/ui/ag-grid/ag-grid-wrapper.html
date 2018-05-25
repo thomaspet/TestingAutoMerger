@@ -30,6 +30,7 @@
             'col-menu-hidden': config && !config.columnMenuVisible
         }"
         [columnDefs]="agColDefs"
+        [getRowClass]="rowClassResolver"
         [pinnedBottomRowData]="dataService?.sumRow$ | async"
 
         [rowModelType]="rowModelType"
