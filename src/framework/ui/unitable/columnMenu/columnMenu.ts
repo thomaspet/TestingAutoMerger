@@ -7,9 +7,7 @@ import * as Immutable from 'immutable';
 @Component({
     selector: 'unitable-column-menu',
     template: `
-        <button class="column-menu-toggle" tabindex="-1" (click)="openMenu()">
-            Column menu
-        </button>
+        <i role="button" class="material-icons" (click)="openMenu()" tabindex="-1">settings</i>
     `,
 })
 export class UniTableColumnMenu {

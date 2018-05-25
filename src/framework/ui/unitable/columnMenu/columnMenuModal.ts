@@ -13,7 +13,7 @@ import * as Immutable from 'immutable';
             <article>
                 <p>Her kan du bestemme synlighet, tittel, rekkefølge og posisjon på kolonnene.</p>
                 <p>"Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.</p>
-                <p>For å endre posisjon på en kolonne drar du <span class="move-icon"></span> ikonet opp eller ned.</p>
+                <p>For å endre posisjon på en kolonne drar du <i class="material-icons move-icon">menu</i> ikonet opp eller ned.</p>
                 <table>
                     <thead>
                         <tr>
@@ -93,7 +93,9 @@ import * as Immutable from 'immutable';
                                 </td>
                             </ng-container>
 
-                            <td class="move-icon"></td>
+                            <td>
+                                <i class="material-icons move-icon">menu</i>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
