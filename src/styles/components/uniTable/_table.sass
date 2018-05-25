@@ -114,8 +114,9 @@ table.uni-table
         background: #fff // mix($uni-color-scale9, $uni-color-negative, 60%)
         height: 2.5rem
         margin-bottom: pxToRem(-1)
-        color: $uni-color-positive
-        font-weight: 600
+        color: #707d90
+        font-weight: 400
+        font-size: 14px
 
         a:link
             color: $uni-color-positive
@@ -145,17 +146,6 @@ table.uni-table
         &:focus:not([aria-readonly=true])
             background: #d4dfee
 
-    th:last-of-type
-        unitable-column-menu
-            width: 100%
-            height: 100%
-
-            .column-menu-toggle
-                height: 100%
-                width: 100%
-                margin: 0
-                border: none
-                padding: 0
 
 uni-table, .uni-table
     input[type=checkbox]
@@ -371,9 +361,6 @@ uni-table .uni-datepicker
             border-right: 1px solid $uni-color-scale9
             &:last-of-type
                 border-right: none
-
-        th
-            font-weight: 600
 
         tr[aria-selected=true]
             background: #d4dfee
