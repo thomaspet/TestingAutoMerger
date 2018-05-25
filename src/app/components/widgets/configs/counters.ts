@@ -32,7 +32,7 @@ export const COUNTERS = [
     {
         id: 'counter_salary_travels',
         description: 'Reiser',
-        permissions: ['ui_salary_employees'],
+        permissions: ['ui_salary_travels'],
         width: 2,
         height: 1,
         widgetType: 'integrationCounter',

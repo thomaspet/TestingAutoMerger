@@ -57,7 +57,7 @@ export class TravelService extends BizHttp<Travel> {
             case costtype.Travel:
                 return 'Reise';
             default:
-                return '';
+                return 'Reise';
         }
     }
 

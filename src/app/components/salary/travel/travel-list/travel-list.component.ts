@@ -50,7 +50,9 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
 
         this.config = new UniTableConfig('salary.travel.travellist', false)
             .setMultiRowSelect(true)
-            .setColumns([typeCol, nameCol, descriptionCol]);
+            .setColumns([typeCol, nameCol, descriptionCol])
+            .setPageSize(12)
+            .setAutoScrollIfNewCellCloseToBottom(true);
     }
 
     public rowSelected(row: Travel) {

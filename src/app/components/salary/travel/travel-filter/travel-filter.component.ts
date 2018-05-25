@@ -45,7 +45,7 @@ export class TravelFilterComponent implements OnInit, OnChanges {
             this.createFilters(this.travels);
 
             this.payrollRunService
-                .getAll(`filter=StatusCode eq null or StatusCode eq 1`)
+                .getAll(`filter=StatusCode eq null or StatusCode eq 0`)
                 .do(runs => this.selectedRun = runs[0])
                 .do(() => this.selectedFilterChange.next({
                     filter: this.selectedFilter.filter,

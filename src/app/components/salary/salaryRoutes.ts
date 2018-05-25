@@ -104,8 +104,8 @@ export const salaryRoutes: Routes = [
         path: 'traveltypes',
         component: TraveltypeComponent,
         canDeactivate: [CanDeactivateGuard]
-	},
-	{
+    },
+    {
         path: 'travels',
         component: TravelComponent
     }

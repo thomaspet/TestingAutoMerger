@@ -279,9 +279,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             .switchMap(year => {
                 let queryList = queryString.split('&');
                 let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
+                filter = filter.toLowerCase();
                 queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
                 if (!filter.toLowerCase().includes('year(paydate)')) {
-                    filter = (filter ? `(${filter}) and ` : 'filter=')
+                    filter = 'filter='
+                        + (filter ? `(${filter.replace('filter=', '')}) and ` : '')
                         + `(year(PayDate) eq ${year})`;
                 }
 
