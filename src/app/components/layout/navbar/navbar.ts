@@ -7,6 +7,8 @@ import {User} from '@uni-entities';
 @Component({
     selector: 'uni-navbar',
     template: `
+        <uni-mega-menu *ngIf="navbarService.megaMenuVisible$ | async"></uni-mega-menu>
+
         <section class="navbar">
             <section class="navbar-left">
                 <img class="ue-logo"

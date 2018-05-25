@@ -99,6 +99,7 @@ export class CustomerDetails implements OnInit {
     private selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
+    private isFormValid: boolean;
 
     private toolbarSubheads: IToolbarSubhead[];
     public toolbarStatusValidation: IToolbarValidation[];
@@ -220,6 +221,7 @@ export class CustomerDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
+        this.modulusService.orgNrValidationUniForm(null, null, false);
         this.tabs = [
             {name: 'Detaljer'},
             {name: 'Åpne poster'},
@@ -274,12 +276,12 @@ export class CustomerDetails implements OnInit {
                  label: 'Lagre',
                  action: (completeEvent) => this.saveCustomer(completeEvent),
                  main: true,
-                 disabled: this.isDisabled
+                 disabled: !this.isFormValid
              },
              {
                  label: 'Lagre som lead',
                  action: (completeEvent) => this.saveCustomer(completeEvent, true),
-                 main: true,
+                 main: false,
                  disabled: this.isDisabled
              }
         ];
@@ -970,6 +972,14 @@ export class CustomerDetails implements OnInit {
         let customer = this.customer$.getValue();
         this.isDirty = true;
 
+        if (changes['Info.InvoiceAddress']
+            && changes['Info.InvoiceAddress'].currentValue
+            && changes['Info.InvoiceAddress'].currentValue.length === 0
+        ) {
+                const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+                this.modulusService.orgNrValidationUniForm(customer.OrgNumber, field, false);
+        }
+
         if (changes['Info.Name']) {
             if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
@@ -998,9 +1008,36 @@ export class CustomerDetails implements OnInit {
             }
         }
 
+        this.form.validateForm();
         this.isDisabled = false;
         this.setupSaveActions();
         this.customer$.next(customer);
+    }
+
+    public onFormError(event) {
+        const customer = this.customer$.value;
+        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+
+        if (event.OrgNumber && event.OrgNumber[0]) {
+            if (!customer.Info.Addresses[0]
+                || (customer.Info.Addresses[0]
+                && customer.Info.Addresses[0].CountryCode === 'NO')
+            ) {
+                const error = this.modulusService.orgNrValidationUniForm(customer.OrgNumber, field, false);
+                if (error && event.isFormValid) {
+                    this.isFormValid = false;
+                } else {
+                    this.isFormValid = event.isFormValid;
+                }
+            } else {
+                this.modulusService.orgNrValidationUniForm(null, null, true);
+                this.isFormValid = true;
+            }
+        } else if (event.ReminderEmailAddress) {
+            this.isFormValid = event.isFormValid;
+        }
+
+        this.setupSaveActions();
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {

@@ -75,31 +75,30 @@ export class SupplierDetails implements OnInit {
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public addressChanged: any;
     public phoneChanged: any;
     public emailChanged: any;
     public bankAccountChanged: any;
     public bankAccountCanceled: any;
-
-    private currencyCodes: Array<CurrencyCode>;
-    private numberSeries: NumberSeries[];
-    private dropdownData: any;
-    private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     public searchText: string;
-
-    private emptyBankAccount: BankAccount;
-
     public showContactSection: boolean = true; // used in template
-    private commentsConfig: ICommentsConfig;
-    private isDirty: boolean = false;
-    private selectConfig: any;
-
     public reportLinks: IReference[];
     public showReportWithID: number;
     public tabs: IUniTab[];
     public activeTabIndex: number = 0;
-
+    public saveactions: IUniSaveAction[];
+    public supplierStatusValidation: IToolbarValidation[];
+    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private emptyBankAccount: BankAccount;
+    private currencyCodes: Array<CurrencyCode>;
+    private numberSeries: NumberSeries[];
+    private dropdownData: any;
+    private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
+    private commentsConfig: ICommentsConfig;
+    private isDirty: boolean = false;
+    private selectConfig: any;
+    private isFormValid: boolean;
+    private formIsInitialized: boolean = false;
     private activeTab: string = 'details';
 
     private expandOptions: Array<string> = [
@@ -120,24 +119,6 @@ export class SupplierDetails implements OnInit {
         'Info.Contacts.Info.DefaultPhone'
     ];
 
-    private formIsInitialized: boolean = false;
-
-    public saveactions: IUniSaveAction[] = [
-        {
-            label: 'Lagre',
-            action: (completeEvent) => this.saveSupplier(completeEvent),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Lagre som kladd',
-            action: (completeEvent) => this.saveSupplier(completeEvent, true),
-            main: true,
-            disabled: false
-        }
-    ];
-
-    public supplierStatusValidation: IToolbarValidation[];
 
     private toolbarconfig: IToolbarConfig = {
         title: 'Leverandør',
@@ -219,6 +200,7 @@ export class SupplierDetails implements OnInit {
                 );
             });
         }
+        this.setupSaveActions();
     }
 
     private activateSupplier(customerID: number) {
@@ -250,6 +232,29 @@ export class SupplierDetails implements OnInit {
                 this.showHideNameProperties(supplier);
             }
         }
+        this.form.validateForm();
+    }
+
+    public onFormError(event) {
+        const supplier = this.supplier$.value;
+        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+
+        if (!supplier.Info.Addresses[0]
+            || (supplier.Info.Addresses[0]
+            && supplier.Info.Addresses[0].CountryCode === 'NO')
+        ) {
+            const error = this.modulusService.orgNrValidationUniForm(supplier.OrgNumber, field, false);
+            if (error && event.isFormValid) {
+                this.isFormValid = false;
+            } else {
+                this.isFormValid = event.isFormValid;
+            }
+        } else {
+            this.isFormValid = true;
+            this.modulusService.orgNrValidationUniForm(null, null, true);
+        }
+
+        this.setupSaveActions();
     }
 
     public resetViewToNewSupplierState() {
@@ -790,6 +795,23 @@ export class SupplierDetails implements OnInit {
                     }
                 );
         }
+    }
+
+    private setupSaveActions() {
+        this.saveactions = [
+            {
+                label: 'Lagre',
+                action: (completeEvent) => this.saveSupplier(completeEvent),
+                main: true,
+                disabled: !this.isFormValid
+            },
+            {
+                label: 'Lagre som kladd',
+                action: (completeEvent) => this.saveSupplier(completeEvent, true),
+                main: true,
+                disabled: false
+            }
+        ];
     }
 
     public onContactChanged(contact: Contact) {

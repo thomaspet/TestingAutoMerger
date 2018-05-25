@@ -13,6 +13,8 @@ import PerfectScrollbar from 'perfect-scrollbar';
 })
 export class UniSidebar {
     public state: SidebarState;
+    public popover: boolean;
+
     public expandedSectionIndex: number = 0;
     public navbarLinkSections: INavbarLinkSection[];
 
@@ -73,16 +75,14 @@ export class UniSidebar {
     }
 
     public toggleSection(index) {
-        if (this.expandedSectionIndex === index) {
+        if (this.expandedSectionIndex === index && (this.state === 'expanded' || this.popover)) {
             this.expandedSectionIndex = undefined;
         } else {
             this.expandedSectionIndex = index;
         }
 
-        // If using collapsed sidebar expand it temporarily
         if (this.state === 'collapsed') {
-            this.temporaryExpandedState = true;
-            this.navbarService.sidebarState$.next('expanded');
+            this.popover = true;
         }
 
         if (this.scrollbar) {
@@ -90,31 +90,24 @@ export class UniSidebar {
         }
     }
 
-    public navigateToSectionUrl(url: string) {
+    public onMouseLeave() {
+        if (this.popover) {
+            this.popover = false;
+            if (this.scrollbar) {
+                setTimeout(() => this.scrollbar.update());
+            }
+        }
+    }
+
+    public navigateToSectionUrl(url: string, clickEvent: MouseEvent) {
         // Icon clicks on collapsed sidebar should not navigate
-        if (url && this.state !== 'collapsed') {
+        if (url && (this.popover || this.state === 'expanded')) {
+            clickEvent.stopPropagation();
             this.router.navigateByUrl(url);
         }
     }
 
-    public collapseMeMaybe() {
-        if (this.temporaryExpandedState) {
-            this.temporaryExpandedState = false;
-            // this.expandedSectionIndex = undefined;
-            this.navbarService.sidebarState$.next('collapsed');
-        }
-    }
-
-    public toggleState() {
-        if (this.state === 'collapsed') {
-            this.navbarService.sidebarState$.next('expanded');
-        } else if (this.state === 'expanded') {
-            // this.expandedSectionIndex = undefined;
-            this.navbarService.sidebarState$.next('collapsed');
-        }
-    }
-
-    public hideSidebar() {
-        this.navbarService.sidebarState$.next('hidden');
+    public showMegaMenu() {
+        this.navbarService.megaMenuVisible$.next(true);
     }
 }

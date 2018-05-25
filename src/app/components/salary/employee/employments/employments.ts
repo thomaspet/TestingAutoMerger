@@ -75,10 +75,9 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 if (employments && employments.length) {
                     const employmentID = +queryParams['EmploymentID'];
 
-                    // Only find row to focus if selectedIndex is not set
-                    // We need this check because the state subject emits on every form change,
-                    // and we dont want to lose focus in the details form every time we made changes
-                    if (!this.selectedIndex && this.selectedIndex !== 0) {
+                    if (this.selectedIndex >= 0) {
+                        this.selectedEmployment$.next(employments[this.selectedIndex]);
+                    } else {
                         let index;
                         if (employmentID) {
                             index = employments.findIndex(e => e.ID === employmentID);

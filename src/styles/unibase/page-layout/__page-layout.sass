@@ -1,8 +1,9 @@
-$reserved-height-for-navbar: 4.75rem
-$reserved-height-for-toolbar: 5.5rem
+@import 'page-layout-variables.sass'
+// $reserved-height-for-navbar: 4.75rem
+// $reserved-height-for-toolbar: 5.5rem
 
-$sidebar-expanded-width: 15rem
-$sidebar-collapsed-width: 4rem
+// $sidebar-expanded-width: 240px
+// $sidebar-collapsed-width: 4rem
 
 body
     height: 100vh
@@ -58,6 +59,13 @@ body
     &.sidebar-collapsed
         uni-sidebar
             flex-basis: $sidebar-collapsed-width
+
+            // &:hover
+            //     position: absolute
+            //     width: $sidebar-expanded-width
+            //     height: calc(100vh - #{$reserved-height-for-navbar})
+            //     left: 0
+            //     top: $reserved-height-for-navbar
 
         #page-content-container,
         uni-toolbar

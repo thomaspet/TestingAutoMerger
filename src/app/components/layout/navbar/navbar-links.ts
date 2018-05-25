@@ -245,11 +245,23 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         mdIcon: 'account_balance',
         linkGroups: [{
             name: '',
-            links: [{
-                name: 'Betalinger',
-                url: '/bank',
-                moduleID: UniModules.Payment
-            }]
+            links: [
+                {
+                    name: 'Innbetalinger',
+                    url: '/bank?code=bank_list',
+                    moduleID: UniModules.Payment
+                },
+                {
+                    name: 'Utbetalinger',
+                    url: '/bank?code=payment_list',
+                    moduleID: UniModules.Payment
+                },
+                {
+                    name: 'Utbetalingsbunter',
+                    url: '/bank?code=payment_batch_list',
+                    moduleID: UniModules.Payment
+                },
+            ]
         }]
     },
 

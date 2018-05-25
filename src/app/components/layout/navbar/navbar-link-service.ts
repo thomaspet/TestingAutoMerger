@@ -16,6 +16,7 @@ export class NavbarLinkService {
     private user: UserDto;
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
 
+    public megaMenuVisible$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public sidebarState$: BehaviorSubject<SidebarState>;
     public dimensions: any[];
 
