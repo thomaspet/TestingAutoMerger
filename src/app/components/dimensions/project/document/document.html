@@ -1,17 +1,16 @@
 <section>
-    <label>Prosjekt dokument:</label>
     <h2 *ngIf="!project">Ingen prosjekt valgt</h2>
     <article *ngIf="project">
-        <uni-attachments [entity]="'Project'" *ngIf="project"
-                         [entityID]="project?.ID"
-                         [showFileList]="false"
-                         (fileUploaded)="onFileUploaded()">
+        <uni-attachments
+            [entity]="'Project'" *ngIf="project"
+            [entityID]="project?.ID"
+            [showFileList]="false"
+            (fileUploaded)="onFileUploaded()">
         </uni-attachments>
 
         <uni-table
             [config]="tableConfig"
             [resource]="(documents$ | async)"
-            (rowSelected)="onRowSelected($event.rowModel)"
             (rowDeleted)="onRowDeleted($event.rowModel)">
         </uni-table>
     </article>

@@ -1,25 +1,56 @@
-﻿<uni-toolbar [config]="projectService?.toolbarConfig | async"
-             [saveactions]="projectService?.saveActions | async"
-             [commentsConfig]="commentsConfig">
+﻿<uni-toolbar
+    [config]="projectService?.toolbarConfig | async"
+    [saveactions]="projectService?.saveActions | async"
+    [commentsConfig]="commentsConfig">
 </uni-toolbar>
 
-<uni-tabs [tabs]="childRoutes" [queryParamsHandling]="'preserve'"></uni-tabs>
+<section class="application">
+    <uni-tabs
+        [tabs]="childRoutes"
+        [queryParamsHandling]="'preserve'">
+    </uni-tabs>
 
-<section class="project-list">
+    <section class="splitview">
+        <nav class="splitview_list">
+            <uni-table
+                [attr.aria-busy]="busy"
+                [resource]="lookupFunction"
+                [config]="tableConfig"
+                (rowSelected)="onRowSelected($event)"
+                (dataLoaded)="onTableReady()"
+                (pageChange)="onPageChange($event)">
+            </uni-table>
+        </nav>
 
-    <header class="mini-nav">
-        <ul>
-            <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
-        </ul>
-    </header>
+        <main class="splitview_detail">
+            <router-outlet></router-outlet>
+        </main>
+    </section>
 
-    <uni-table [attr.aria-busy]="busy"
-        [resource]="lookupFunction"
-        [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)"
-        (dataLoaded)="onTableReady()"
-        (pageChange)="onPageChange($event)">
-    </uni-table>
+
+    <!-- <section class="project-splitview">
+        <section class="uni-container">
+
+            <header class="mini-nav">
+                <ul>
+                    <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
+                </ul>
+            </header>
+
+            <uni-table
+                [attr.aria-busy]="busy"
+                [resource]="lookupFunction"
+                [config]="tableConfig"
+                (rowSelected)="onRowSelected($event)"
+                (dataLoaded)="onTableReady()"
+                (pageChange)="onPageChange($event)">
+            </uni-table>
+        </section>
+
+        <section class="uni-container">
+            <router-outlet></router-outlet>
+        </section>
+
+    </section> -->
 </section>
 
-<router-outlet></router-outlet>

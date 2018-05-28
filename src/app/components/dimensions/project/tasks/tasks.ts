@@ -21,7 +21,6 @@ export class ProjectTasks implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private projectLabel: string;
     public expandOptions: string[] = ['ProjectTasks.ProjectTaskSchedules'];
     public project: Project;
     private tableConfig: UniTableConfig;
@@ -37,12 +36,6 @@ export class ProjectTasks implements OnInit {
             (project) => {
                 if (project && project.ID >= 0) {
                     this.project = project;
-
-                    // ternary that changes h2 title if the projectTasks
-                    // array has any items in it
-                    this.projectLabel = (this.project.ProjectTasks.length > 0)
-                    ? `Rediger oppgave - ${project.Name}`
-                    : `Ny oppgave - ${project.Name}`;
                 }
             }
         );
