@@ -12,7 +12,7 @@ export interface IUpdatedFileListEvent {
 @Component({
     selector: 'image-modal',
     template: `
-        <section role="dialog" class="uni-modal account_detail_modal_size">
+        <section role="dialog" class="uni-modal medium">
             <header><h1>Forhåndsvisning</h1></header>
             <article class="image-modal-body" [attr.aria-busy]="busy">
                 <uni-image *ngIf="options?.data"
