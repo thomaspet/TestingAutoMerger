@@ -34,7 +34,7 @@ export class SalaryBalanceViewService {
             initValue: (!salaryBalance || !salaryBalance.ID)
                 ? 'Nytt forskudd/trekk'
                 : `${salaryBalance.ID} - ${salaryBalance.Name || 'Forskudd/Trekk'}`,
-            onSelect: selected => this.router.navigate(['salary/wagetypes/' + selected.ID])
+            onSelect: selected => this.router.navigate(['salary/salarybalances/' + selected.ID])
         };
     }
 
