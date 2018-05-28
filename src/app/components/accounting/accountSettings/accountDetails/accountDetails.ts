@@ -65,16 +65,16 @@ export class AccountDetails implements OnInit {
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
         const incomingAccount = <Account>changes['inputAccount'].currentValue;
+
         if (!incomingAccount) {
             return;
         } else if (!incomingAccount.ID) {
             this.account$.next(incomingAccount);
         } else {
-            this.getAccount(this.inputAccount.ID)
-                .subscribe(
-                    dataset => this.account$.next(dataset),
-                    err => this.errorService.handle(err)
-                );
+            this.getAccount(this.inputAccount.ID).subscribe(
+                dataset => this.account$.next(dataset),
+                err => this.errorService.handle(err)
+            );
         }
     }
 

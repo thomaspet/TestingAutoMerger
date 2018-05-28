@@ -111,12 +111,12 @@ export class AccountList implements OnInit, AfterViewInit {
                 }
             });
 
-        const lockedCol = new UniTableColumn('Locked', 'Låst',  UniTableColumnType.Boolean)
+        const lockedCol = new UniTableColumn('Locked', 'Sperret',  UniTableColumnType.Boolean)
             .setFilterable(false)
             .setWidth('5rem')
             .setAlignment('center')
             .setConditionalCls(rowModel => {
-                if (rowModel.locked) {
+                if (rowModel.Locked) {
                     return 'is-locked';
                 } else {
                     return 'is-unlocked';
