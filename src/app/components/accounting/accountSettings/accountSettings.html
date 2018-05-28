@@ -6,7 +6,6 @@
 <section class=" application">
     <section class="splitview">
         <nav class="splitview_list">
-            <button class="new-account-btn" (click)="createNew()">Ny konto</button>
             <account-list (uniAccountChange)="changeAccount($event)"></account-list>
         </nav>
         <main class="splitview_detail">
