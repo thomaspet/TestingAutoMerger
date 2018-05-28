@@ -24,6 +24,7 @@ export class SupplierList implements OnInit {
         {name: 'Kladd', value: `(StatusCode eq ${StatusCode.Pending} or StatusCode eq null)`},
         {name: 'Aktiv', value: `StatusCode eq ${StatusCode.Active}`},
         {name: 'Inaktiv', value: `StatusCode eq ${StatusCode.InActive}`},
+        {name: 'Blokkert', value: `StatusCode eq ${StatusCode.Error}`},
         {name: 'Alle', value: `(StatusCode ne ${StatusCode.Deleted} or StatusCode eq null)`},
     ];
 

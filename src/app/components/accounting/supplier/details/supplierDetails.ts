@@ -139,6 +139,11 @@ export class SupplierDetails implements OnInit {
                 disabled: () => !this.supplierID
             },
             {
+                label: 'Blokker leverandør',
+                action: () => this.blockSupplier(this.supplierID),
+                disabled: () => !this.supplierID
+            },
+            {
                 label: 'Slett leverandør',
                 action: () => this.deleteSupplier(this.supplierID),
                 disabled: () => !this.supplierID
@@ -215,6 +220,29 @@ export class SupplierDetails implements OnInit {
             res => this.setSupplierStatusInToolbar(StatusCode.InActive),
             err => this.errorService.handle(err)
         );
+    }
+
+    private blockSupplier(supplierID: number) {
+        const supplierIsBeingBlocked = this.supplier$.getValue().StatusCode !== StatusCode.Error;
+        this.supplierService.blockSupplier(supplierID).subscribe((res) => {
+            const supplier = this.supplier$.getValue();
+            if (supplierIsBeingBlocked) {
+                this.setSupplierStatusInToolbar(StatusCode.Error);
+                this.updateToolbarContextMenuLabel(StatusCode.Error);
+                supplier.StatusCode = StatusCode.Error;
+                this.toastService.addToast('Leverandør blokkert', ToastType.bad, 5);
+            } else {
+                this.setSupplierStatusInToolbar(StatusCode.Active);
+                this.updateToolbarContextMenuLabel(StatusCode.Active);
+                supplier.StatusCode = StatusCode.Active;
+                this.toastService.addToast('Leverandør låst opp', ToastType.good, 5);
+            }
+            this.supplier$.next(supplier);
+        });
+    }
+
+    private updateToolbarContextMenuLabel(code) {
+        this.toolbarconfig.contextmenu[2].label = code === 70001 ? 'Lås opp leverandør' : 'Blokker leverandør';
     }
 
     public supplierDetailsChange(changes: SimpleChanges) {
@@ -393,6 +421,7 @@ export class SupplierDetails implements OnInit {
             ).subscribe(response => {
 
                 const supplier: Supplier = response[0];
+                this.updateToolbarContextMenuLabel(supplier.StatusCode);
 
                 this.dropdownData = [response[1], response[2]];
                 this.emptyBankAccount = response[3];
@@ -880,15 +909,19 @@ export class SupplierDetails implements OnInit {
             case StatusCode.Active:
                 label = 'Aktiv';
                 type = 'good';
-            break;
+                break;
             case StatusCode.InActive:
                 label = 'Inaktiv';
                 type = 'bad';
-            break;
+                break;
+            case StatusCode.Error:
+                label = 'Blokkert';
+                type = 'bad';
+                break;
             case StatusCode.Deleted:
                 label = 'Slettet';
                 type = 'bad';
-            break;
+                break;
         }
 
         if (label && type) {

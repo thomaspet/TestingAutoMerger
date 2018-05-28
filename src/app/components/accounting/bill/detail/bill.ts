@@ -907,7 +907,7 @@ export class BillView implements OnInit {
                             return;
                         }
 
-
+                        console.log(result);
                         const supplier = result[0];
 
                         if (ocr.BankAccountCandidates.length > 0) {
@@ -1473,6 +1473,12 @@ export class BillView implements OnInit {
 
         // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
+
+        // Should check here for customer status, and suggest to reject when status is BLOCKED!
+        console.log(current);
+        if (current.Supplier.StatusCode === 50001) {
+            this.toast.addToast('Innaktiv kunde', ToastType.bad, 5, 'Kunde er innaktiv');
+        }
 
         this.setupToolbar();
     }

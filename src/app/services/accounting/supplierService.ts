@@ -24,7 +24,7 @@ export class SupplierService extends BizHttp<Supplier> {
             .asPUT()
             .withDefaultHeaders()
             .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)
+            .withEndPoint(`${this.relativeURL}?action=delete&ID=${id}`)
             .send();
     }
 
@@ -43,6 +43,14 @@ export class SupplierService extends BizHttp<Supplier> {
             .withDefaultHeaders()
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=deactivate&ID=${id}`)
+            .send();
+    }
+
+    public blockSupplier(id: number) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)
             .send();
     }
 
