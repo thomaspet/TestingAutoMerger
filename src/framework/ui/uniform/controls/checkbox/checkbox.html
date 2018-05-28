@@ -9,7 +9,7 @@
 <ng-template #checkbox>
     <mat-checkbox
         tabindex="-1"
-        [checked]="checked"
+        [(ngModel)]="checked"
         (change)="onChange($event)"
         [labelPosition]="'before'"
         [disableRipple]="true"

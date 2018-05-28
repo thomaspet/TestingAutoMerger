@@ -36,9 +36,9 @@ export class UniCheckboxInput extends BaseControl {
         super();
     }
 
-    public ngOnChanges() {
+    public ngOnChanges(changes) {
         if (this.model && this.field) {
-            this.checked = _.get(this.model, this.field.Property);
+            this.checked = !!(_.get(this.model, this.field.Property));
         }
     }
 
