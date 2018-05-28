@@ -30,7 +30,12 @@
 
             <fieldset>
                 <legend>Produktbilde</legend>
-                <uni-image [entity]="'product'" [entityID]="(product$ | async)?.ID" [uploadConfig]="imageUploadConfig"></uni-image>
+                <small *ngIf="!(product$ | async)?.ID">Produktet må lagres før bilde kan lastes opp</small>
+                <uni-image
+                    [entity]="'product'"
+                    [entityID]="(product$ | async)?.ID"
+                    [uploadConfig]="imageUploadConfig">
+                </uni-image>
             </fieldset>
         </div>
     </article>

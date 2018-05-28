@@ -1,8 +1,8 @@
 <div *ngIf="account$ | async">
      <uni-form
-             [config]="config$"
-             [fields]="fields$"
-             [model]="account$">
+        [config]="config$"
+        [fields]="fields$"
+        [model]="account$">
     </uni-form>
 </div>
 <div *ngIf="!(account$ | async)">

@@ -34,7 +34,7 @@
                     <ul class="sidebar-sub-menu">
                         <li *ngFor="let link of group.links">
 
-                            <a [routerLink]="link.url"
+                            <a (click)="navigate(link.url)"
                                 routerLinkActive="active-sidebar-link"
                                 [routerLinkActiveOptions]="{exact: link.routerLinkActiveExact}">
 

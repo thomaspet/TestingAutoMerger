@@ -99,6 +99,10 @@ export class UniSidebar {
         }
     }
 
+    public navigate(url: string) {
+        this.router.navigateByUrl(url);
+    }
+
     public navigateToSectionUrl(url: string, clickEvent: MouseEvent) {
         // Icon clicks on collapsed sidebar should not navigate
         if (url && (this.popover || this.state === 'expanded')) {
