@@ -3,33 +3,28 @@ import {Component, Input, Output, OnChanges, EventEmitter} from '@angular/core';
 @Component({
     selector: 'unitable-pagination',
     template: `
-        <nav role="navigation">
-        <ul>
-            <li>
-                <button class="pagination_prev" (click)="previous()" [disabled]="currentPage === 1">Previous page</button>
-            </li>
+        <section class="pagination" *ngIf="pageCount > 1">
+            <i class="material-icons" (click)="paginate('first')">first_page</i>
+            <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 
-            <ul *ngIf="pageCount <= 10">
-                <li *ngFor="let page of pages">
-                    <button class="pagination_page" (click)="goToPage(page)" [ngClass]="{'-is-active': page === currentPage}">{{page}}</button>
-                </li>
-            </ul>
-            <li *ngIf="pageCount > 10">
-                <input class="pagination_goToPage" type="number" #pageInput [ngModel]="currentPage" (keydown.enter)="goToPage(pageInput.value)">
-            </li>
+            <span class="pagination-info">
+                Side
+                <input type="text" #pageInput
+                    [value]="currentPage"
+                    (change)="goToPage(pageInput.value)"
+                />
+                av {{pageCount}}
+            </span>
 
-            <li>
-                <button class="pagination_next" (click)="next()" [disabled]="currentPage === pageCount">Next page</button>
-            </li>
-        </ul>
-
-    </nav>
+            <i class="material-icons" (click)="paginate('next')">keyboard_arrow_right</i>
+            <i class="material-icons" (click)="paginate('last')">last_page</i>
+        </section>
     `,
 })
 export class UniTablePagination implements OnChanges {
     public currentPage: number = 1;
     public pageCount: number;
-    private pages: number[];
+    // private pages: number[];
 
     @Input()
     private pageSize: number;
@@ -44,30 +39,41 @@ export class UniTablePagination implements OnChanges {
     public ngOnChanges() {
         if (this.pageSize && this.rowCount) {
             this.pageCount = Math.ceil(this.rowCount / this.pageSize) || 1;
-            if (this.pageCount <= 10) {
-                this.pages = [];
-                for (let i = 1; i <= this.pageCount; i++) {
-                    this.pages.push(i);
-                }
-            }
-        } else {
-            this.pages = [1];
         }
     }
 
-    public previous() {
-        this.currentPage--;
-        this.pageChange.emit(this.currentPage);
+    public paginate(action: 'next' | 'prev' | 'first' | 'last') {
+        switch (action) {
+            case 'first':
+                if (this.currentPage !== 1) {
+                    this.currentPage = 1;
+                    this.pageChange.emit(this.currentPage);
+                }
+            break;
+            case 'last':
+                if (this.currentPage !== this.pageCount) {
+                    this.currentPage = this.pageCount;
+                    this.pageChange.emit(this.currentPage);
+                }
+            break;
+            case 'next':
+                if (this.currentPage < this.pageCount) {
+                    this.currentPage++;
+                    this.pageChange.emit(this.currentPage);
+                }
+            break;
+            case 'prev':
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.pageChange.emit(this.currentPage);
+                }
+            break;
+        }
     }
-
-    public next() {
-        this.currentPage++;
-        this.pageChange.emit(this.currentPage);
+    public goToPage(page: number) {
+        if (page > 0 && page <= this.pageCount) {
+            this.currentPage = page;
+            this.pageChange.emit(this.currentPage);
+        }
     }
-
-    public goToPage(page) {
-        this.currentPage = page;
-        this.pageChange.emit(page);
-    }
-
 }
