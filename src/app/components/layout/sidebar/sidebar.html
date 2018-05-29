@@ -15,7 +15,10 @@
                 <section class="sidebar-section-header" (click)="toggleSection(idx)">
                     <i class="material-icons"
                         *ngIf="section.mdIcon"
-                        [title]="section.name"
+                        [matTooltip]="section.name"
+                        [matTooltipDisabled]="popover || state === 'expanded'"
+                        matTooltipPosition="right"
+                        matTooltipClass="sidebar-tooltip"
                         [ngClass]="{'sidebar-link-icon': section.url}"
                         (click)="navigateToSectionUrl(section.url, $event)">
                         {{section.mdIcon}}
