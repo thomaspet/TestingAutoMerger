@@ -150,7 +150,8 @@ export class VacationPayModal implements OnInit, IUniModal {
                     .createVacationPay(
                     this.vacationBaseYear,
                     this.options.data.ID,
-                    this.table.getSelectedRows()
+                    this.table.getSelectedRows(),
+                    this.vacationHeaderModel$.getValue().SixthWeek
                     ).do(() => this.closeModal(true));
             })
             .finally(() => this.busy = false)
@@ -452,7 +453,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     private recalcVacationPay(row: VacationPayLine, model: IVacationPayHeader, setmanually: boolean = false) {
         const vacBase = row['ManualVacationPayBase'] + row['SystemVacationPayBase'];
         const limitBasicAmount = this.companysalary['_BasicAmount'] * 6;
-        this.updateAndSetRate(row, setmanually);
+        this.updateAndSetRate(row, model, setmanually);
         if (model.SixthWeek && this.empOver60(row)) {
             row['_IncludeSixthWeek'] = 'Ja';
             if (vacBase > limitBasicAmount) {
@@ -470,10 +471,10 @@ export class VacationPayModal implements OnInit, IUniModal {
         return row;
     }
 
-    private updateAndSetRate(row: VacationPayLine, setManually: boolean) {
+    private updateAndSetRate(row: VacationPayLine, model: IVacationPayHeader, setManually: boolean) {
         const isOver60: boolean = this.empOver60(row);
         if (setManually) { // '_Rate'-column changed
-            if (isOver60) {
+            if (isOver60 && model.SixthWeek) {
                 row['Rate'] = row['_Rate'];
                 row['_Rate'] = row['_Rate'] + this.companysalary['_Rate60'];
                 row['Rate60'] = row['_Rate'];
@@ -482,7 +483,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 row['Rate60'] = row['_Rate'] + this.companysalary['_Rate60'];
             }
         } else {
-            if (isOver60) {
+            if (isOver60 && model.SixthWeek) {
                 row['_Rate'] = row['Rate60'];
             } else {
                 row['_Rate'] = row['Rate'];

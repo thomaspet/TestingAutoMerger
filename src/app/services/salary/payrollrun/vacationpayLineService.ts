@@ -27,13 +27,13 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}`);
     }
 
-    public createVacationPay(year: number, payrun: number, payList: VacationPayLine[]) {
+    public createVacationPay(year: number, payrun: number, payList: VacationPayLine[], hasSixthWeek: boolean) {
         super.invalidateCache();
         this.salaryTransactionService.invalidateCache();
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `?action=pay-fromlines&payrollID=${payrun}&year=${year}`)
+            .withEndPoint(this.relativeURL + `?action=pay-fromlines&payrollID=${payrun}&year=${year}&hasSixthWeek=${hasSixthWeek}`)
             .withBody(payList)
             .send();
     }
