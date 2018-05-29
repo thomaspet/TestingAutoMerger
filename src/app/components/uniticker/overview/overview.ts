@@ -108,7 +108,10 @@ export class UniTickerOverview {
 
         if (this.selectedTicker) {
             this.tickerTitle = this.selectedTicker.Name;
-            this.createNewAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
+            this.createNewAction = undefined;
+            if (this.selectedTicker.Actions) {
+                this.createNewAction = this.selectedTicker.Actions.find(a => a.Type === 'new');
+            }
         } else {
             this.tickerTitle = undefined;
             this.createNewAction = undefined;

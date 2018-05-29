@@ -6,6 +6,7 @@
         "Type": "Table",
         "IsTopLevelTicker": true,
         "Group": "Salg",
+        "DefaultTabIndex": "1",
         "Model": "Customer",
         "Expand": "",
         "Columns": [
@@ -46,6 +47,12 @@
                 "Header": "Sted",
                 "Field": "Info.InvoiceAddress.City",
                 "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Statuskode",
+                "Field": "Customer.StatusCode",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "Actions": [
