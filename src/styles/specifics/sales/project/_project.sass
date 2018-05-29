@@ -1,16 +1,12 @@
-﻿project-document
-    width: calc(100% - 350px)
-    float: left
-    margin: 25px
+﻿uni-project
+    .splitview_list
+        padding: 1rem
+        background: #fff
+        border: 1px solid $uni-color-scale9
+        border-radius: 3px
 
-    uni-attachments
-        position: absolute
-        width: 2rem
-        height: 4rem
-        margin-left: 19rem
-        margin-right: 2rem
-        margin-top: -1.5rem
-        z-index: 101
+    .splitview_detail
+        padding: 1rem
 
 .project-list
     width: pxToRem(220) /*15%*/
@@ -19,7 +15,7 @@
     float: left
     border: 1px solid #c3c3c3
     border-radius: 3px
-    padding: 10px    
+    padding: 10px
 
     h3
         margin: 20px 0 0 20px
@@ -78,10 +74,6 @@
 
 
 .project-router-outlet
-    float: left
-    width: calc(100% - 300px)
-    min-height: 885px
-
     .project-overview-tile
         width: 20%
         margin: 25px
@@ -97,7 +89,7 @@
             margin: 10px 0
 
         .project-overview-company
-            white-space: nowrap;
+            white-space: nowrap
             overflow-x: hidden
 
     .project-overview-chart-tile-container
@@ -135,11 +127,8 @@
                 clear:both
 
     .project-edit-container
-        margin: 25px
-
         h2
             margin: 16px
-            font-weight: 100
             font-size: 2rem
 
     .project-edit-form
@@ -151,12 +140,12 @@
     .project-edit-resources
         width: calc(100% - 33px)
 
-    .project-task-container
-        width: calc(100% - 40px)
-        margin: 25px
-        padding: 20px
-        border: 1px solid #c3c3c3
-        border-radius: 3px
+    // .project-task-container
+    //     width: calc(100% - 40px)
+    //     margin: 25px
+    //     padding: 20px
+    //     border: 1px solid #c3c3c3
+    //     border-radius: 3px
 
     .project-subview
         width: calc(100% - 40px)
@@ -191,7 +180,7 @@
         list-style: none
         display: flex
         flex-direction: row
-        align-items: stretch        
+        align-items: stretch
 
         li
             padding-left: 1em
@@ -207,7 +196,7 @@
                 flex: 1
                 border-radius: 0 7px 0 0
                 border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-            
+
             &.is-active
                 background: $navbarBackground
                 color: $navbarTextColor

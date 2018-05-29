@@ -31,7 +31,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {
-                        name: 'Dashbord',
+                        name: 'Dashboard',
                         url: '/',
                         moduleID: UniModules.Dashboard,
                         routerLinkActiveExact: true

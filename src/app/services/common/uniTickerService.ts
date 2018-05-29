@@ -989,6 +989,7 @@ export class Ticker {
     public EditToggle?: boolean;
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
+    public DefaultTabIndex?: number;
 }
 
 export class TickerFieldFilter {

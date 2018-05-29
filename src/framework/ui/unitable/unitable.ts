@@ -971,7 +971,7 @@ export class UniTable implements OnChanges {
     private outOfPageNavigation(direction: Direction) {
         if (direction === Direction.UP || direction === Direction.LEFT) {
             if (this.pager && this.pager.currentPage > 1) {
-                this.pager.previous();
+                this.pager.paginate('prev');
 
                 setTimeout(() => {
                     const newRow = this.utils.getLastFocusableRow(this.tbody.nativeElement.rows);
@@ -988,7 +988,7 @@ export class UniTable implements OnChanges {
             }
         } else if (direction === Direction.DOWN || direction === Direction.RIGHT) {
             if (this.pager && this.pager.currentPage < this.pager.pageCount) {
-                this.pager.next();
+                this.pager.paginate('next');
 
                 setTimeout(() => {
                     const newRow = this.utils.getFirstFocusableRow(this.tbody.nativeElement.rows);

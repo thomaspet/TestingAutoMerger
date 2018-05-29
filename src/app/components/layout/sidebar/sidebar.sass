@@ -20,7 +20,6 @@ $link-hover-background: $uni-color-toolbar
     padding: 0
     background: $sidebar-background
     color: $uni-color-negative
-    overflow: hidden
     font-family: 'Roboto', sans-serif
 
     z-index: #{map-get($zindex, 'toolbar') + 1}
@@ -135,7 +134,6 @@ ul.sidebar-menu
                             background: darken(#edeeef, 2%)
                             border-radius: 3px
 
-
         &[aria-expanded]:not([aria-expanded=false])
             background: $active-section-background
             border-top: 1px solid #eceff5
@@ -143,8 +141,12 @@ ul.sidebar-menu
 
             .sidebar-link-group
                 display: block
-            .sidebar-section-header
+
+#sidebar-container:not(.collapsed), #sidebar-container.popover
+    .sidebar-link-group[aria-expanded]:not([aria-expanded=false])
+        .sidebar-section-header
                 margin-bottom: 5px
+
 
 .mega-menu-toggle
     position: absolute

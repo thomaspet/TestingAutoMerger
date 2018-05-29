@@ -84,8 +84,11 @@ export class UniTickerContainer {
             const previousTicker = changes['ticker'].previousValue;
             if (!previousTicker || previousTicker.Code !== this.ticker.Code) {
                 this.filters = (this.ticker && this.ticker.Filters) || [];
-                this.selectedFilter = this.ticker.Filters[0];
-                this.selectedFilterIndex = 0;
+                const tabIndex = this.ticker.DefaultTabIndex >= 0 && this.ticker.Filters[this.ticker.DefaultTabIndex]
+                    ? this.ticker.DefaultTabIndex
+                    : 0;
+                this.selectedFilter = this.ticker.Filters[tabIndex];
+                this.selectedFilterIndex = tabIndex;
                 this.getFilterCounts();
             }
         }

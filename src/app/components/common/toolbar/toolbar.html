@@ -98,13 +98,13 @@
         </button>
 
         <button *ngIf="config?.navigation?.add"
-            title="Opprett ny"
+            [title]="config.navigation.add.label || 'Opprett ny'"
             class="new"
             type="button"
-            (click)="navigate('add')">
+            (click)="onCreateNewClick()">
 
             <i class="material-icons">add</i>
-            Opprett ny
+            {{config.navigation.add.label || 'Opprett ny'}}
         </button>
 
         <uni-context-menu *ngIf="contextmenu || config?.contextmenu"

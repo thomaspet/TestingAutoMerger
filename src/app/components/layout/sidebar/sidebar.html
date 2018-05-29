@@ -15,7 +15,10 @@
                 <section class="sidebar-section-header" (click)="toggleSection(idx)">
                     <i class="material-icons"
                         *ngIf="section.mdIcon"
-                        [title]="section.name"
+                        [matTooltip]="section.name"
+                        [matTooltipDisabled]="popover || state === 'expanded'"
+                        matTooltipPosition="right"
+                        matTooltipClass="sidebar-tooltip"
                         [ngClass]="{'sidebar-link-icon': section.url}"
                         (click)="navigateToSectionUrl(section.url, $event)">
                         {{section.mdIcon}}
@@ -49,7 +52,13 @@
 
     </section>
 
-    <section class="mega-menu-toggle" (click)="showMegaMenu()">
+    <section class="mega-menu-toggle"
+        (click)="showMegaMenu()"
+        matTooltip="Vis alle menyvalg"
+        matTooltipPosition="right"
+        matTooltipClass="sidebar-tooltip"
+        [matTooltipDisabled]="popover || state === 'expanded'">
+
         <i class="material-icons" title="Vis alle menyvalg">apps</i>
         <span *ngIf="popover || state === 'expanded'">Vis alle menyvalg</span>
     </section>

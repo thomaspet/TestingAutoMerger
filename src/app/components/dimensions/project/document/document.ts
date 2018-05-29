@@ -88,34 +88,19 @@ export class ProjectDocument {
 
     private setupDocumentsTable() {
         // Define columns to use in the table
-        let nameCol = new UniTableColumn('FileName', 'Navn', UniTableColumnType.Text);
-        let invoiceCol = new UniTableColumn('CustomerInvoiceNumber', 'Faktura', UniTableColumnType.Text)
+        const nameCol = new UniTableColumn('FileName', 'Navn', UniTableColumnType.Text)
+            .setOnCellClick(row => this.previewDocument(row));
+        const invoiceCol = new UniTableColumn('CustomerInvoiceNumber', 'Faktura', UniTableColumnType.Link)
             .setWidth('6rem')
-            .setTemplate((document) => {
-                return document.CustomerInvoiceID ?
-                    `<a href='/#/sales/invoices/${document.CustomerInvoiceID}'>
-                        ${document.CustomerInvoiceNumber || 'kladd'}
-                      </a>`
-                    : '';
-            });
-        let orderCol = new UniTableColumn('CustomerOrderNumber', 'Ordre', UniTableColumnType.Text)
+            .setLinkResolver(row => `/sales/invoices/${row.CustomerInvoiceID}`);
+
+        const orderCol = new UniTableColumn('CustomerOrderNumber', 'Ordre', UniTableColumnType.Link)
             .setWidth('6rem')
-            .setTemplate((document) => {
-                return document.CustomerOrderID ?
-                    `<a href='/#/sales/orders/${document.CustomerOrderID}'>
-                        ${document.CustomerOrderNumber || 'kladd'}
-                    </a>`
-                    : '';
-            });
-        let quoteCol = new UniTableColumn('CustomerQuoteNumber', 'Tilbud', UniTableColumnType.Text)
+            .setLinkResolver(row => `/sales/orders/${row.CustomerOrderID}`);
+
+        const quoteCol = new UniTableColumn('CustomerQuoteNumber', 'Tilbud', UniTableColumnType.Link)
             .setWidth('6rem')
-            .setTemplate((document) => {
-                return document.CustomerQuoteID ?
-                    `<a href='/#/sales/quotes/${document.CustomerQuoteID}'>
-                        ${document.CustomerQuoteNumber || 'kladd'}
-                    </a>`
-                    : '';
-            });
+            .setLinkResolver(row => `/sales/quotes/${row.CustomerQuoteID}`);
 
         // Setup table
         this.tableConfig = new UniTableConfig('sales.project.documents', false, false, 25)
@@ -136,13 +121,13 @@ export class ProjectDocument {
             );
     }
 
-    public onRowSelected(file) {
-        if (file.FileID) {
-            let data = {
-                entity: file.EntityType,
-                entityID: file.EntityID,
+    public previewDocument(row) {
+        if (row.FileID) {
+            const data = {
+                entity: row.EntityType,
+                entityID: row.EntityID,
                 fileIDs: null,
-                showFileID: file.FileID,
+                showFileID: row.FileID,
                 readonly: true,
                 size: UniImageSize.large
             };

@@ -22,6 +22,11 @@ export interface IToolbarSubhead {
     event?: () => void;
 }
 
+export interface IToolbarCreateNewAction {
+    label: string;
+    action: () => void;
+}
+
 export interface IToolbarConfig {
     title?: string;
     subheads?: IToolbarSubhead[];
@@ -30,7 +35,7 @@ export interface IToolbarConfig {
         find?: (query: string) => void;
         prev?: () => void;
         next?: () => void;
-        add?: () => void;
+        add?: IToolbarCreateNewAction | (() => void);
     };
     contextmenu?: IContextMenuItem[];
     saveactions?: IUniSaveAction[];
@@ -170,6 +175,15 @@ export class UniToolbar implements OnInit, OnChanges {
     public toggleSearch() {
         if (this.searchConfig) {
             this.searchVisible = !this.searchVisible;
+        }
+    }
+
+    public onCreateNewClick() {
+        const newAction: IToolbarCreateNewAction | (() => void) = this.config.navigation.add;
+        if (typeof newAction === 'function') {
+            newAction();
+        } else {
+            newAction.action();
         }
     }
 

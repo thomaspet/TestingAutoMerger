@@ -19,7 +19,7 @@ export class SupplierList implements OnInit {
     private supplierTable: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
-    private filter: string = `(StatusCode eq ${StatusCode.Pending} or StatusCode eq null)`;
+    private filter: string = `StatusCode eq ${StatusCode.Active}`;
     public tabs: IUniTab[] = [
         {name: 'Kladd', value: `(StatusCode eq ${StatusCode.Pending} or StatusCode eq null)`},
         {name: 'Aktiv', value: `StatusCode eq ${StatusCode.Active}`},
@@ -112,7 +112,12 @@ export class SupplierList implements OnInit {
         // Define columns to use in the table
         const numberCol = new UniTableColumn(
             'SupplierNumber', 'Leverandørnr', UniTableColumnType.Text
-        ).setWidth('15%').setFilterOperator('contains');
+        ).setWidth('15%').setFilterOperator('contains').setTemplate(x => {
+            if (x.StatusCode === 20001 || !x.StatusCode) {
+                return 'Kladd';
+            }
+            return x.SupplierNumber;
+        });
         const nameCol = new UniTableColumn('Info.Name', 'Navn', UniTableColumnType.Text).setFilterOperator('contains');
         const orgNoCol = new UniTableColumn(
             'OrgNumber', 'Orgnr', UniTableColumnType.Text

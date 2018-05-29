@@ -39,14 +39,14 @@ export interface IStatus {
                 <ol *ngIf="status.substatusList?.length >= 2 || status.forceSubstatus "
                     class="statustrack_substati">
 
-                    <li *ngFor="let substatus of status.substatusList"
-                        [class]="getStatusClass(substatus.state)"
-                        (click)="selectStatus(substatus, status)">
+                    <li *ngFor="let substatus of status.substatusList" (click)="selectStatus(substatus, status)">
                         {{substatus.title}}
+                        <i *ngIf="isActiveSubStatus(substatus)" class="checkmark material-icons">check_circle</i>
 
                         <time [attr.datetime]="substatus.timestamp?.toDateString()">
                             {{formatTime(substatus.timestamp)}}
                         </time>
+
                     </li>
                 </ol>
 
@@ -80,6 +80,10 @@ export class StatusTrack {
 
     public getStatusClass(state: STATUSTRACK_STATES) {
         return STATUSTRACK_STATES[state].toLowerCase();
+    }
+
+    public isActiveSubStatus(status: IStatus) {
+        return status.state === STATUSTRACK_STATES.Active;
     }
 
     public selectStatus(status: IStatus, parent?: IStatus) {

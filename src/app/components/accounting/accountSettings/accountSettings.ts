@@ -20,7 +20,13 @@ export class AccountSettings {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
-        omitFinalCrumb: true
+        omitFinalCrumb: true,
+        navigation: {
+            add: {
+                label: 'Ny konto',
+                action: () => this.account = new Account()
+            }
+        }
     };
 
     public saveactions: IUniSaveAction[] = [
@@ -71,9 +77,5 @@ export class AccountSettings {
 
     private saveSettings(completeEvent) {
         this.accountDetails.saveAccount(completeEvent);
-    }
-
-    public createNew() {
-        this.account = new Account();
     }
 }

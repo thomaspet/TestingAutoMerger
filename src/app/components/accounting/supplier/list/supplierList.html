@@ -4,7 +4,7 @@
 </uni-toolbar>
 
 <section class="application">
-    <uni-tabs [tabs]="tabs" (tabClick)="onFilterClick($event)"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [activeIndex]="1" (tabClick)="onFilterClick($event)"></uni-tabs>
 
     <uni-table
         [resource]="lookupFunction"

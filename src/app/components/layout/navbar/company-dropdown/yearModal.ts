@@ -11,7 +11,7 @@ export interface IChangeYear {
 @Component({
     selector: 'select-year-modal',
     template: `
-        <section role="dialog" class="uni-modal account_detail_modal_size">
+        <section role="dialog" class="uni-modal">
             <header><h1>Velg år</h1></header>
             <article>
                 <uni-form [config]="config$" [fields]="lay$" [model]="yearModel$"></uni-form>

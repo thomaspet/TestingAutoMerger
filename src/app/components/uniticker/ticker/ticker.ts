@@ -124,7 +124,7 @@ export class UniTicker {
             });
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
-            let params = this.getSearchParams(urlParams);
+            const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
                     .GetAllByUrlSearchParams(params, this.ticker.Distinct || false)
@@ -213,7 +213,7 @@ export class UniTicker {
         this.checkCanShowTicker();
 
         if (this.canShowTicker && this.ticker) {
-            let actions = this.getTickerActions();
+            const actions = this.getTickerActions();
             this.contextMenuItems = this.actionsToContextMenuItems(actions);
 
             this.openAction = actions && actions.find(action => {
@@ -228,8 +228,19 @@ export class UniTicker {
             // Consider splitting this function to avoid this later
             this.busy = true;
             this.setupTableConfig().then(() => {
-                let tickerType = this.ticker.Type;
+                const tickerType = this.ticker.Type;
                 if (tickerType === 'table') {
+                    if (this.tableConfig) {
+                        const customerNrCol = this.tableConfig.columns.find(x => x.header === 'Kundenr.');
+                            if (customerNrCol) {
+                                customerNrCol.setTemplate(x => {
+                                if (x.CustomerStatusCode === 20001) {
+                                    return 'Lead';
+                                }
+                                return x.CustomerCustomerNumber;
+                            });
+                        }
+                    }
                     // let uni-table get its own data
                 } else {
                     // get detaildata using the same lookupfunction as uni-table, but no point in
@@ -253,8 +264,8 @@ export class UniTicker {
             return;
         }
 
-        let contextMenuItems = actions.map(action => {
-            let override = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
+        const contextMenuItems = actions.map(action => {
+            const override = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
             if ((action.NeedsActionOverride || action.Type === 'action') && !override) {
                 console.warn(`Ticker action ${action.Code} not available because of missing action override`);
                 return;
@@ -349,14 +360,14 @@ export class UniTicker {
         }
 
         if (this.selectedFilter) {
-            let uniTableFilter = urlParams.get('filter');
+            const uniTableFilter = urlParams.get('filter');
             let newFilter = '';
 
             if (this.selectedFilter.Filter && this.selectedFilter.Filter !== '') {
                 newFilter = this.selectedFilter.Filter;
 
                 if (newFilter.indexOf(':currentuserid') >= 0) {
-                    let expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
+                    const expressionFilterValue = this.expressionFilters.find(x => x.Expression === ':currentuserid');
                     if (expressionFilterValue) {
                         newFilter = newFilter.replace(':currentuserid', `'${expressionFilterValue}'`);
                     }
@@ -390,7 +401,7 @@ export class UniTicker {
             let currentFilter = params.get('filter');
 
             // Parent filter
-            let parentFilter =
+            const parentFilter =
                 `${this.ticker.ParentFilter.Field} ` +
                 `${this.ticker.ParentFilter.Operator} ` +
                 `${this.parentModel[this.ticker.ParentFilter.Value.replace('.', '')]}`;
@@ -406,7 +417,7 @@ export class UniTicker {
 
         // if we have actions that are transitions we need to add hateoas to the data to be able to
         // analyse if a transition is valid
-        let actions = this.getTickerActions();
+        const actions = this.getTickerActions();
         if (actions.filter(x => x.Type === 'transition').length > 0) {
             params.set('hateoas', 'true');
         }
@@ -489,9 +500,9 @@ export class UniTicker {
             throw Error(`No Type defined for action ${action.Name}`);
         }
 
-        let allowMultipleRows =
+        const allowMultipleRows =
             action.ExecuteWithMultipleSelections !== undefined ? action.ExecuteWithMultipleSelections : false;
-        let allowNoRows =
+        const allowNoRows =
             action.ExecuteWithoutSelection !== undefined ?  action.ExecuteWithoutSelection : false;
 
         if (this.ticker.Type === 'details') {
@@ -529,7 +540,7 @@ export class UniTicker {
 
     private startExecuteAction(action: TickerAction, selectedRows: Array<any> ) {
 
-        let actionOverride = this.actionOverrides && this.actionOverrides.find(x => x.Code === action.Code);
+        const actionOverride = this.actionOverrides && this.actionOverrides.find(x => x.Code === action.Code);
 
         if (actionOverride) {
             if (actionOverride.BeforeExecuteActionHandler !== undefined) {
@@ -561,7 +572,7 @@ export class UniTicker {
                     this.afterExecuteAction(action, actionOverride, selectedRows);
                 });
         } else {
-            let actionType = action.Type;
+            const actionType = action.Type;
             let rowIdentifier = 'ID';
             if ((action.Type === 'details' || action.Type === 'print') && action.Options.ParameterProperty !== '') {
                 rowIdentifier = action.Options.ParameterProperty;
@@ -576,7 +587,7 @@ export class UniTicker {
 
                 this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
                     if (report) {
-                        let id = this.ticker.Type === 'details'
+                        const id = this.ticker.Type === 'details'
                             ? this.selectedRow[rowIdentifier]
                             : selectedRows[0][rowIdentifier];
                         report.parameters = [{Name: 'Id', value: id}];
@@ -633,7 +644,7 @@ export class UniTicker {
     }
 
     private statusCodeToText(statusCode: number): string {
-        let text: string = this.statusService.getStatusText(statusCode);
+        const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
     }
 
@@ -686,7 +697,7 @@ export class UniTicker {
                 const configStoreKey = `uniTicker.${this.ticker.Code}`;
 
                 // Define columns to use in the table
-                let columns: UniTableColumn[] = [];
+                const columns: UniTableColumn[] = [];
                 let selects: string[] = [];
                 const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
                 this.headers = '';
@@ -747,7 +758,7 @@ export class UniTicker {
                             }
                         }
 
-                        let col = new UniTableColumn(column.SelectableFieldName, column.Header, colType);
+                        const col = new UniTableColumn(column.SelectableFieldName, column.Header, colType);
                         col.alias = column.Alias;
                         col.width = column.Width;
                         col.isSumColumn = column.SumColumn;
@@ -770,7 +781,7 @@ export class UniTicker {
                             col.displayField = column.DisplayField;
                         }
 
-                        let columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
+                        const columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
                         if (columnOverride) {
                             col.setTemplate(row => {
                                 // use the tickerservice to get and format value based on override template
@@ -900,7 +911,7 @@ export class UniTicker {
                         }
 
                         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-                            let statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
+                            const statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
                             if (statusCodes && statusCodes.length > 0) {
                                 col.selectConfig = {
                                     options: statusCodes,
@@ -924,14 +935,14 @@ export class UniTicker {
                 // if any subtickers exists, and any of them need info from the parent (i.e. this component),
                 // make sure we have this data available in the query. This means that we e.g. add a select
                 // for ID, even though that does not exist in the ticker
-                let subTickersWithParentFilter =
+                const subTickersWithParentFilter =
                     !this.ticker.SubTickers ?
                         []
                         : this.ticker.SubTickers.filter(st => st.ParentFilter && st.ParentFilter.Value);
 
                 subTickersWithParentFilter.forEach(st => {
-                    let paramAlias = st.ParentFilter.Value.replace('.', '');
-                    let paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
+                    const paramAlias = st.ParentFilter.Value.replace('.', '');
+                    const paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
 
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
@@ -961,33 +972,33 @@ export class UniTicker {
                     selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
-                let linkFieldsWithNavigationProperty =
+                const linkFieldsWithNavigationProperty =
                     this.ticker.Columns.filter(x => x.Type === 'link' && x.LinkNavigationProperty);
 
                 linkFieldsWithNavigationProperty.forEach(field => {
-                    let paramSelect = `${field.LinkNavigationProperty} as ${field.LinkNavigationProperty.replace('.', '')}`;
+                    const paramSelect = `${field.LinkNavigationProperty} as ${field.LinkNavigationProperty.replace('.', '')}`;
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
                 });
 
-                let linkFieldWithNavigationProprties = this.ticker.Columns
+                const linkFieldWithNavigationProprties = this.ticker.Columns
                     .filter(x => x.Type === 'link'
                         && x.LinkNavigationProperties
                         && x.LinkNavigationProperties.length);
 
                 linkFieldWithNavigationProprties.forEach(field => {
-                    let paramSelects = field.LinkNavigationProperties.map(prop => {
+                    const paramSelects = field.LinkNavigationProperties.map(prop => {
                         return `${prop} as ${prop.replace('.', '')}`;
                     });
                     selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
                 });
 
-                let linkFieldsWithoutNavigationProperty =
+                const linkFieldsWithoutNavigationProperty =
                     this.ticker.Columns.filter(x => x.Type === 'link' && !x.LinkNavigationProperty);
 
                 linkFieldsWithoutNavigationProperty.forEach(field => {
-                    let paramSelect = 'ID as ID';
+                    const paramSelect = 'ID as ID';
                     if (!selects.find(x => x === paramSelect)) {
                         selects.push(paramSelect);
                     }
@@ -995,15 +1006,18 @@ export class UniTicker {
 
                 this.selects = selects.join(',');
 
-                let contextMenuItems: IContextMenuItem[] = [];
+                const contextMenuItems: IContextMenuItem[] = [];
                 if (this.ticker.Actions) {
                     this.ticker.Actions.forEach(action => {
                         if (action.DisplayInContextMenu) {
                             if (action.Type === 'transition' && !action.Options.Transition) {
-                                throw Error('Cannot add action with Type = transition without specifying which Transition to execute, action: ' + action.Code);
+                                throw Error(
+                                    `Cannot add action with Type = transition without` +
+                                    ` specifying which Transition to execute, action: ${action.Code}`
+                                );
                             }
 
-                            let actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
+                            const actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
                             if (action.NeedsActionOverride && !actionOverride) {
                                 // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
                             } else if (action.Type === 'action' && !actionOverride) {
@@ -1051,7 +1065,7 @@ export class UniTicker {
                     .setContextMenu(contextMenuItems, true, false)
                     .setDataMapper((data) => {
                         if (this.ticker.Model) {
-                            let tmp = data !== null ? data.Data : [];
+                            const tmp = data !== null ? data.Data : [];
 
                             if (data !== null && data.Message !== null && data.Message !== '') {
                                 this.toastService.addToast('Feil ved henting av data, ' + data.Message,
@@ -1099,7 +1113,7 @@ export class UniTicker {
 
         // if field is a function with fields as params, run through all its fields
         if (field.includes('(')) {
-            let fields = field.slice(field.lastIndexOf('(') + 1, field.indexOf(')') - 1).split(',');
+            const fields = field.slice(field.lastIndexOf('(') + 1, field.indexOf(')') - 1).split(',');
             fields.forEach(x => {
                 column.Field = x;
                 this.setExpand(column);
@@ -1164,7 +1178,7 @@ export class UniTicker {
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
         // Remove ID and CustomerID from select if they exist, so it doesn't create columns for them
-        let selectSplit = this.selects.split(',');
+        const selectSplit = this.selects.split(',');
 
         const idIndex = selectSplit.indexOf('ID as ID');
         if (idIndex >= 0) {
