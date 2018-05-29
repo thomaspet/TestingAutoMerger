@@ -163,7 +163,7 @@ export class BankComponent implements AfterViewInit {
         {
             Field: 'ToBankAccount.AccountNumber',
             Template: (row) => {
-                return row.ToBankAccountNumber || row.PaymentExternalBankAccountNumber;
+                return row.ToBankAccountAccountNumber || row.PaymentExternalBankAccountNumber;
             }
         }
     ];
