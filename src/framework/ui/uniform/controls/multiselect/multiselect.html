@@ -24,6 +24,7 @@
     [labelPosition]="'after'"
     [disableRipple]="true"
     [disabled]="!!field?.ReadOnly"
+    [(ngModel)]="cbValue"
     (change)="toggleSelectAll($event)">
     Alle
 </mat-checkbox>

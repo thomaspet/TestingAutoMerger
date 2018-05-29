@@ -17,7 +17,7 @@ export default function createFormConfig(models, jobs) {
             Section: 0,
             FieldSet: 2,
             Options: {
-                showAllButton: false,
+                showAllButton: true,
                 showCheckbox: true,
                 source: [
                     {
@@ -49,10 +49,13 @@ export default function createFormConfig(models, jobs) {
                     if (hasD) {
                         result += 'D';
                     }
+                    if(result === 'CUD') {
+                        return '*';
+                    }
                     return result;
                 },
                 ModelToOptions: (model, config, items) => {
-                    if (!model) {
+                    if (!model || model === '*') {
                         return [];
                     }
                     const hasC = model.indexOf('C') > -1;

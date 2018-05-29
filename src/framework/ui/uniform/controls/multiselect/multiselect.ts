@@ -38,9 +38,10 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
 
     @ViewChild('input') private inputElement: NgSelectComponent;
 
-    private lastControlValue: any;
+    public lastControlValue: any;
     public tempModel: Array<any> = [];
-    private allSelected = false;
+    public allSelected = false;
+    public cbValue = false;
     public items: any;
     constructor() {
         super();
@@ -65,19 +66,25 @@ export class UniMultiSelectInput  extends BaseControl implements OnChanges {
         source.subscribe(x => {
             this.items = x;
             let initialObjects;
+            const data = _.get(this.model, this.field.Property);
             if (this.field.Options.ModelToOptions) {
-                const data = _.get(this.model, this.field.Property);
                 initialObjects = this.field.Options.ModelToOptions(data, this.field, this.items);
             } else {
                 initialObjects = _.get(this.model, this.field.Property) || [];
             }
-
+            if (data === '*') {
+                this.allSelected = true;
+                this.cbValue = true;
+            } else {
+                this.allSelected = false;
+                this.cbValue = false;
+            }
             const initialValue = initialObjects.map(y => y[this.field.Options.bindValue]);
             this.lastControlValue = <any>initialValue;
             this.control = new FormControl(initialValue);
             this.tempModel = this.control.value;
-            this.allSelected ? this.control.disable() : this.control.enable();
-            this.readOnly$.next(this.field.ReadOnly);
+            setTimeout(() => this.allSelected ? this.control.disable() : this.control.enable());
+            this.readOnly$.next(this.field.ReadOnly || false);
         });
     }
 
