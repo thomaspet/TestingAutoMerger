@@ -52,7 +52,13 @@
 
     </section>
 
-    <section class="mega-menu-toggle" (click)="showMegaMenu()">
+    <section class="mega-menu-toggle"
+        (click)="showMegaMenu()"
+        matTooltip="Vis alle menyvalg"
+        matTooltipPosition="right"
+        matTooltipClass="sidebar-tooltip"
+        [matTooltipDisabled]="popover || state === 'expanded'">
+
         <i class="material-icons" title="Vis alle menyvalg">apps</i>
         <span *ngIf="popover || state === 'expanded'">Vis alle menyvalg</span>
     </section>
