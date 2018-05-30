@@ -1,13 +1,19 @@
+.amelding-container
+    margin-right: 0
+
 .amelding_poster
     box-sizing: border-box
     width: 100%
-    padding: 0 6.5%
-    background: lighten($uni-color-scale9, 5%)
+    padding: 0 .5%
+    // background: lighten($uni-color-scale9, 5%)
     display: flex
     justify-content: space-between
     align-items: stretch
     font-size: 1.2rem
     color: $uni-color-scale3
+
+    .amelding_poster_widget, .amelding_poster_details
+        padding: 1rem !important
 
 .amelding_poster_widget
     flex-grow: 1
@@ -44,7 +50,6 @@
 .amelding_poster_figures
     width: 100%
     padding: 1rem
-    border: pxToRem(1) $uni-color-scale9 solid
 
     tr
         height: 2rem
@@ -56,13 +61,13 @@
         max-width: 6rem
 
     th
-        font-weight: 300
+        font-weight: normal
         text-align: left
-        font-size: 1.1rem
+        font-size: 1rem
 
     td
         text-align: right
-        font-size: 1.5rem
+        font-size: 20px
         color: $uni-color-good
 
 .amelding_poster_events
@@ -71,29 +76,37 @@
         border-radius: pxToRem(3)
         display: block
         list-style: none
-        text-align: center
         padding: .2rem 1rem
         font-size: 1rem
+        color: $uni-color-scale2
 
         &:not(:last-of-type)
             margin-bottom: .5rem
 
+        i.material-icons
+            vertical-align: middle
+            margin-top: -4px
+            margin-right: .25rem
+
         &.success
-            color: $uni-color-good
-            border: pxToRem(2) solid $uni-color-good
+            i.material-icons
+                color: $uni-color-good
+            // border: pxToRem(2) solid $uni-color-good
 
         // &.warn
         //     color: $uni-color-bad
         //     border: pxToRem(2) solid $uni-color-bad
 
         &.warn
-            background: $uni-color-bad
-            color: white
-            border: pxToRem(2) solid $uni-color-bad
+            i.material-icons
+                color: $uni-color-warn
+            // color: white
+            // border: pxToRem(2) solid $uni-color-bad
 
         time
-            font-size: 1rem
+            font-size: 14px
+            color: $uni-color-scale5
             display: inline-block
-            margin-left: 1rem
-            opacity: .75
+            margin-left: .75rem
+            // opacity: .75
 
