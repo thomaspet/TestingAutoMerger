@@ -52,7 +52,8 @@ import {
     UniEmailModal,
     UniPhoneModal,
     ConfirmActions,
-    UniBankAccountModal
+    UniBankAccountModal,
+    UniConfirmModalV2,
 } from '../../../../../framework/uni-modal';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {SubCompanyComponent} from './subcompany';
@@ -257,6 +258,26 @@ export class CustomerDetails implements OnInit {
     }
 
     private activateCustomer(customerID: number) {
+        const customer = this.customer$.value;
+        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+        const error = this.modulusService.orgNrValidationUniForm(customer.OrgNumber, field, false);
+        if (error && (customer.StatusCode === StatusCode.Pending || !customer.StatusCode)) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Aktivere leverandør?',
+                message: `Aktivere kunde med ugyldig org.nr. ${customer.OrgNumber}?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.customerService.activateCustomer(customerID).subscribe(
+                        res => this.setCustomerStatusOnToolbar(StatusCode.Active),
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
         this.customerService.activateCustomer(customerID).subscribe(
             res => this.setCustomerStatusOnToolbar(StatusCode.Active),
             err => this.errorService.handle(err)
@@ -1020,8 +1041,8 @@ export class CustomerDetails implements OnInit {
 
         if (event.OrgNumber && event.OrgNumber[0]) {
             if (!customer.Info.Addresses[0]
-                || (customer.Info.Addresses[0]
-                && customer.Info.Addresses[0].CountryCode === 'NO')
+                || (customer.Info.Addresses[0].CountryCode === 'NO'
+                    || !customer.Info.Addresses[0].CountryCode)
             ) {
                 const error = this.modulusService.orgNrValidationUniForm(customer.OrgNumber, field, false);
                 if (error && event.isFormValid) {
@@ -1036,7 +1057,6 @@ export class CustomerDetails implements OnInit {
         } else if (event.ReminderEmailAddress) {
             this.isFormValid = event.isFormValid;
         }
-
         this.setupSaveActions();
     }
 

@@ -7,7 +7,7 @@ import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -45,7 +45,8 @@ import {
     UniEmailModal,
     UniPhoneModal,
     UniBankAccountModal,
-    ConfirmActions
+    ConfirmActions,
+    UniConfirmModalV2
 } from '../../../../../framework/uni-modal';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -208,15 +209,35 @@ export class SupplierDetails implements OnInit {
         this.setupSaveActions();
     }
 
-    private activateSupplier(customerID: number) {
-        this.supplierService.activateSupplier(customerID).subscribe(
+    private activateSupplier(supplierID: number) {
+        const supplier = this.supplier$.value;
+        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+        const error = this.modulusService.orgNrValidationUniForm(supplier.OrgNumber, field, false);
+        if (error && (supplier.StatusCode === StatusCode.Pending || !supplier.StatusCode)) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Aktivere leverandør?',
+                message: `Aktivere leverandør med ugyldig org.nr. ${supplier.OrgNumber}?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.supplierService.activateSupplier(supplierID).subscribe(
+                        res => this.setSupplierStatusInToolbar(StatusCode.Active),
+                        err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
+        this.supplierService.activateSupplier(supplierID).subscribe(
             res => this.setSupplierStatusInToolbar(StatusCode.Active),
             err => this.errorService.handle(err)
         );
     }
 
-    private deactivateSupplier(customerID: number) {
-        this.supplierService.deactivateSupplier(customerID).subscribe(
+    private deactivateSupplier(supplierID: number) {
+        this.supplierService.deactivateSupplier(supplierID).subscribe(
             res => this.setSupplierStatusInToolbar(StatusCode.InActive),
             err => this.errorService.handle(err)
         );
@@ -268,8 +289,8 @@ export class SupplierDetails implements OnInit {
         const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
 
         if (!supplier.Info.Addresses[0]
-            || (supplier.Info.Addresses[0]
-            && supplier.Info.Addresses[0].CountryCode === 'NO')
+            || (supplier.Info.Addresses[0].CountryCode === 'NO'
+                || !supplier.Info.Addresses[0].CountryCode)
         ) {
             const error = this.modulusService.orgNrValidationUniForm(supplier.OrgNumber, field, false);
             if (error && event.isFormValid) {
