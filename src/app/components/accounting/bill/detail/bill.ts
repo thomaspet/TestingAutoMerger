@@ -1335,7 +1335,9 @@ export class BillView implements OnInit {
             }
 
             if (supplier.ID) {
-                if (!this.modulusService.isValidOrgNr(supplier.OrgNumber)) {
+                if (!this.modulusService.isValidOrgNr(supplier.OrgNumber)
+                    && (!supplier.StatusCode || supplier.StatusCode === StatusCode.Pending)
+                ) {
                     return this.modalService.open(UniConfirmModalV2, {
                         header: 'Bekreft leverandør',
                         message: `Ugyldig org.nr. ${supplier.OrgNumber} på leverandør. Vil du fortsette?`,
