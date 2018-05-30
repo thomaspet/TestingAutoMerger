@@ -16,7 +16,7 @@ export interface IDetailsModalInput {
 @Component({
     selector: 'account-details-report-modal',
     template: `
-        <section role="dialog" class="uni-modal account_detail_modal_size">
+        <section role="dialog" class="uni-modal large">
             <header><h1>Forespørsel konto: {{ config?.accountNumber }}</h1></header>
             <article>
                 <accounting-details-report [config]="config"></accounting-details-report>

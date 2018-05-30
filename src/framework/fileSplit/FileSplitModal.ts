@@ -16,7 +16,7 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
     template: `
         <section
             role="dialog"
-            class="uni-modal account_detail_modal_size"
+            class="uni-modal large"
             (keyup)="onKey($event)">
 
             <header><h1>Del opp fil</h1></header>
