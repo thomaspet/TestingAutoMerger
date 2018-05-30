@@ -1317,6 +1317,7 @@ export class BillView implements OnInit {
         }
 
         if (change['Supplier'])  {
+            const supplier = change['Supplier'].currentValue;
             if (model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -1332,9 +1333,31 @@ export class BillView implements OnInit {
                     return;
                 });
             }
-            const newID = change['Supplier'].currentValue.ID;
-            if (newID) {
-                this.fetchNewSupplier(newID);
+
+            if (supplier.ID) {
+                if (!this.modulusService.isValidOrgNr(supplier.OrgNumber)) {
+                    return this.modalService.open(UniConfirmModalV2, {
+                        header: 'Bekreft leverandør',
+                        message: `Ugyldig org.nr. ${supplier.OrgNumber} på leverandør. Vil du fortsette?`,
+                        buttonLabels: {
+                            accept: 'Ja',
+                            cancel: 'Forkast'
+                        }
+                    }).onClose.subscribe(
+                        res => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                this.fetchNewSupplier(supplier.ID);
+                                return this.uniForm.field('InvoiceDate').focus();
+                            }
+                            const current = this.current.value;
+                            current.SupplierID = null;
+                            current.Supplier = null;
+                            this.current.next(current);
+                            return this.uniForm.field('Supplier').focus();
+                        }
+                    );
+                }
+                this.fetchNewSupplier(supplier.ID);
             }
             return;
         }
@@ -1448,7 +1471,7 @@ export class BillView implements OnInit {
     }
 
     private setSupplier(result: Supplier, updateCombo = true) {
-        const current: SupplierInvoice = this.current.getValue();
+        const current: SupplierInvoice = this.current.value;
         this.currentSupplierID = result.ID;
         current.Supplier = result;
 
@@ -2260,6 +2283,7 @@ export class BillView implements OnInit {
         if (!invoice.SupplierID) { return; }
 
         this.accountService.GetAll(`filter=SupplierID eq ${invoice.SupplierID}&top=1`).map(x => x[0]).subscribe(supplierAccount => {
+            if (!supplierAccount) { return; }
             this.defaultRowData.CreditAccount = supplierAccount;
             this.defaultRowData.CreditAccountID = supplierAccount.ID;
 
@@ -2604,8 +2628,6 @@ export class BillView implements OnInit {
         if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length === 0) {
             // Update draftlines, but dont do anything if any draftlines is already
             // booked - because then we wont save any changes anyway (and the )
-            let draftlines = [];
-
             if (this.journalEntryManual) {
                 const lines = this.journalEntryManual.getJournalEntryData();
 
