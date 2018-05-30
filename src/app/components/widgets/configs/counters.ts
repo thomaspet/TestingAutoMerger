@@ -78,7 +78,7 @@ export const COUNTERS = [
             + `&filter=items.statuscode eq 41102 and (statuscode eq 41002 or statuscode eq 41003)&join=&expand=items`,
             title: 'Ordrereserver',
             positive: true,
-            link: '/overview/order_list?filter=order_reserves'
+            link: '/overview?code=order_list&filter=order_reserves'
         }
     },
 ];

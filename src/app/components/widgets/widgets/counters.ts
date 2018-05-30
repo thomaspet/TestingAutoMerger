@@ -19,7 +19,7 @@ interface ICountWidget {
 @Component({
     selector: 'uni-counters-widget',
     template: `
-        <section *ngFor="let counter of counters" class="uni-widget-button">
+        <section *ngFor="let counter of counters" (click)="onCounterClick(counter)" class="uni-widget-button">
             <p>{{counter.label}}</p>
             <span [ngClass]="counter.class">
                 {{counter.count}}
@@ -70,6 +70,12 @@ export class UniCountersWidget {
                 }
             );
         });
+    }
+
+    public onCounterClick(counter: ICountWidget) {
+        if (counter && counter.url) {
+            this.router.navigateByUrl(counter.url);
+        }
     }
 
     private getCounterData(counter: ICountWidget) {
