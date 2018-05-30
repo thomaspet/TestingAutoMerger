@@ -497,12 +497,15 @@ export class UniImage {
     }
 
     public onLoadImageError(error) {
-        this.reauthenticate(() => {
-            setTimeout(() => {
-                // run in setTimeout to allow authService to update the filestoken
-                this.refreshFiles();
+        if (!this.didTryReAuthenticate) {
+            this.didTryReAuthenticate = true;
+            this.reauthenticate(() => {
+                setTimeout(() => {
+                    // run in setTimeout to allow authService to update the filestoken
+                    this.refreshFiles();
+                });
             });
-        });
+        }
     }
 
     public reauthenticate(runAfterReauth) {
