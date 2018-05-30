@@ -111,7 +111,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             payrollRunSubject.subscribe(payrollRun => {
                 this.payrollRun = payrollRun;
                 if (this.salarytransEmployeeTableConfig) {
-                    let isOpenRun = this.payrollRun ? this.payrollRun.StatusCode < 1 : false;
+                    const isOpenRun = this.payrollRun ? this.payrollRun.StatusCode < 1 : false;
                     this.setEditable(isOpenRun);
                     this.salarytransEmployeeTableConfig.setDeleteButton(isOpenRun ? this.deleteButton : false);
                 }
@@ -166,20 +166,20 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private createTableConfig() {
-        let wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text).setWidth('9rem');
-        let fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
-        let toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
-        let rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
-        let amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('5rem');
-        let sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
-        let employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
+        const wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text).setWidth('9rem');
+        const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
+        const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
+        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
+        const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('5rem');
+        const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
+        const employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
             .setTemplate((dataItem) => {
 
                 if (!dataItem['employment'] && !dataItem['EmploymentID']) {
                     return '';
                 }
 
-                let employment = dataItem['employment'] || this.getEmploymentFromEmployee(dataItem.EmploymentID);
+                const employment = dataItem['employment'] || this.getEmploymentFromEmployee(dataItem.EmploymentID);
 
                 dataItem['employment'] = employment;
 
@@ -192,7 +192,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-        let accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
+        const accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
                 return dataItem['Account'] || '';
             })
@@ -209,10 +209,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('4rem');
 
-        let projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
+        const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
-                let project = rowModel['_Project'];
+                const project = rowModel['_Project'];
                 if (!rowModel['_isEmpty'] && project) {
                     return project.ProjectNumber + ' - ' + project.Name;
                 }
@@ -234,10 +234,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-        let departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
+            const departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
-                let department: Department = rowModel['_Department'];
+                const department: Department = rowModel['_Department'];
                 if (!rowModel['_isEmpty'] && department) {
                     return department.DepartmentNumber + ' - ' + department.Name;
                 }
@@ -259,7 +259,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-        let payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
+        const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
                 const wagetype: WageType = dataItem.Wagetype || this.wagetypes
@@ -277,7 +277,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('5.3rem');
 
-        let wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
+        const wageTypeCol = new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
             .setOptions({
                 itemTemplate: (selectedItem: WageType) => {
@@ -295,13 +295,13 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('5rem');
 
-        let fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
+        const fileCol = new UniTableColumn('_FileIDs', PAPERCLIP, UniTableColumnType.Text, false)
             .setTemplate(row => row['_FileIDs'] && row['_FileIDs'].length ? PAPERCLIP : '')
             .setWidth(32)
             .setResizeable(false)
             .setSkipOnEnterKeyNavigation(true);
 
-        let supplementCol = this.salaryTransViewService
+        const supplementCol = this.salaryTransViewService
             .createSupplementsColumn(
                 (trans) => this.onSupplementModalClose(trans),
                 () => this.payrollRun && !!this.payrollRun.StatusCode);
@@ -398,7 +398,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private mapWagetypeToTrans(rowModel) {
-        let wagetype: WageType = rowModel['Wagetype'];
+        const wagetype: WageType = rowModel['Wagetype'];
         if (!wagetype) {
             rowModel['WageTypeID'] = null;
             rowModel['WageTypeNumber'] = null;
@@ -416,14 +416,14 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             rowModel['Amount'] = 1;
         }
         if (this.employee) {
-            let employment = this.employee.Employments.find(emp => emp.Standard === true);
+            const employment = this.employee.Employments.find(emp => emp.Standard === true);
             if (employment) {
                 rowModel['employment'] = employment;
                 this.mapEmploymentToTrans(rowModel);
             }
         }
 
-        let supplements: SalaryTransactionSupplement[] = [];
+        const supplements: SalaryTransactionSupplement[] = [];
 
         if (rowModel['Supplements']) {
             rowModel['Supplements']
@@ -461,11 +461,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         rowModel['EmploymentID'] = (employment) ? employment.ID : null;
 
         if (employment && employment.Dimensions) {
-            let department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
+            const department = this.departments.find(x => x.ID === employment.Dimensions.DepartmentID);
 
             rowModel['_Department'] = department || rowModel['_Department'];
 
-            let project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
+            const project = this.projects.find(x => x.ID === employment.Dimensions.ProjectID);
             rowModel['_Project'] = project || rowModel['_Project'];
 
             this.mapDepartmentToTrans(rowModel);
@@ -474,7 +474,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {
-        let account: Account = rowModel['_Account'];
+        const account: Account = rowModel['_Account'];
         if (!account) {
             rowModel.Account = null;
             return;
@@ -484,7 +484,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private mapProjectToTrans(rowModel: SalaryTransaction) {
-        let project = rowModel['_Project'];
+        const project = rowModel['_Project'];
 
         if (!rowModel.Dimensions) {
             rowModel.Dimensions = new Dimensions();
@@ -499,7 +499,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     private mapDepartmentToTrans(rowModel: SalaryTransaction) {
-        let department: Department = rowModel['_Department'];
+        const department: Department = rowModel['_Department'];
 
         if (!rowModel.Dimensions) {
             rowModel.Dimensions = new Dimensions();
@@ -515,18 +515,18 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     private calcItem(rowModel) {
         let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
-        let amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
+        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
-        let ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        let sum =
+        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        const sum =
             (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
             / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
     }
 
     private checkDates(rowModel) {
-        let fromDate: LocalDate = new LocalDate(rowModel['FromDate'].toString());
-        let toDate: LocalDate = new LocalDate(rowModel['ToDate'].toString());
+        const fromDate: LocalDate = new LocalDate(rowModel['FromDate'].toString());
+        const toDate: LocalDate = new LocalDate(rowModel['ToDate'].toString());
         if (toDate < fromDate) {
             rowModel['ToDate'] = fromDate.toString();
         }
@@ -548,8 +548,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public updateSingleSalaryTransaction(trans: SalaryTransaction) {
         if (trans) {
-            let rows: SalaryTransaction[] = this.table.getTableData();
-            let row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
+            const rows: SalaryTransaction[] = this.table.getTableData();
+            const row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
             if (row) {
                 row.Supplements = trans.Supplements;
                 this.updateSalaryChanged(row, true);
@@ -558,7 +558,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     }
 
     public rowChanged(event) {
-        let row: SalaryTransaction = event.rowModel;
+        const row: SalaryTransaction = event.rowModel;
 
         if (!row.DimensionsID && !row.Dimensions) {
             row.Dimensions = new Dimensions();
@@ -568,7 +568,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private onRowDeleted(row: SalaryTransaction) {
         let hasDirtyRow: boolean = true;
 
-        let transIndex: number = this.getTransIndex(row);
+        const transIndex: number = this.getTransIndex(row);
         if (transIndex >= 0) {
             if (this.salaryTransactions[transIndex].ID) {
                 this.salaryTransactions[transIndex].Deleted = true;
@@ -584,7 +584,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     private updateSalaryChanged(row, updateTable = false) {
         row['_isDirty'] = true;
-        let transIndex = this.getTransIndex(row);
+        const transIndex = this.getTransIndex(row);
 
         if (transIndex !== -1) {
             this.salaryTransactions[transIndex] = row;
@@ -616,7 +616,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     private openDocumentsOnRow(row: SalaryTransaction): void {
         if (row.ID) {
-            let data = {
+            const data = {
                 entity: SalaryTransaction.EntityType,
                 entityID: row.ID,
                 fileIDs: row['_FileIDs'] || []

@@ -6,6 +6,7 @@ import {EmployeeLeave, Leavetype} from '../../../unientities';
 @Injectable()
 export class EmployeeLeaveService extends BizHttp<EmployeeLeave> {
     private leaveTypes: {ID: number, text: string}[] = [
+        {ID: Leavetype.NotSet, text: 'Ikke valgt'},
         {ID: Leavetype.Leave, text: 'Permisjon'},
         {ID: Leavetype.LayOff, text: 'Permittering'},
         {ID: Leavetype.Leave_with_parental_benefit, text: 'Permisjon med foreldrepenger'},

@@ -60,7 +60,7 @@ export class EmployeeLeaves extends UniView {
         const leaveTypeCol = new UniTableColumn('LeaveType', 'Type', UniTableColumnType.Lookup)
             .setTemplate((dataItem: EmployeeLeave) => {
 
-                const leaveType = dataItem.LeaveType
+                const leaveType = dataItem.LeaveType !== null
                     ? this.employeeLeaveService.getOnlyNewTypes().find(lt => +lt.ID === +dataItem.LeaveType)
                     : null;
 
@@ -80,7 +80,7 @@ export class EmployeeLeaves extends UniView {
 
         const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
             .setTemplate((dataItem) => {
-                let employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
+                const employment = this.employments.find(e => e.ID === dataItem.EmploymentID);
                 return employment
                     ? employment.JobName ? `${employment.ID} - ${employment.JobName}` : employment.ID.toString()
                     : '';
@@ -99,7 +99,7 @@ export class EmployeeLeaves extends UniView {
                 leaveTypeCol, employmentIDCol, commentCol
             ])
             .setChangeCallback((event) => {
-                let row: EmployeeLeave = event.rowModel;
+                const row: EmployeeLeave = event.rowModel;
                 if (event.field === '_Employment') {
                     this.mapEmploymentToPermision(row);
                 } else if (this.employments && !row.ID && !row['_isDirty']) {
@@ -129,12 +129,12 @@ export class EmployeeLeaves extends UniView {
     }
 
     private mapEmploymentToPermision(rowModel) {
-        let employment = rowModel['_Employment'];
+        const employment = rowModel['_Employment'];
         rowModel['EmploymentID'] = employment ? employment.ID : 0;
     }
 
     private mapLeavetypeToPermision(rowModel) {
-        let leavetype = rowModel['LeaveType'];
+        const leavetype = rowModel['LeaveType'];
         if (!leavetype) {
             return;
         }
@@ -150,11 +150,11 @@ export class EmployeeLeaves extends UniView {
     }
 
     private onRowDeleted(event) {
-        let row: EmployeeLeave = event.rowModel;
+        const row: EmployeeLeave = event.rowModel;
         if (row['_isEmpty']) {
             return;
         }
-        let deletedIndex = row['_originalIndex'];
+        const deletedIndex = row['_originalIndex'];
         let hasDirtyRow = true;
         if (this.employeeleaveItems[deletedIndex].ID) {
             this.employeeleaveItems[deletedIndex].Deleted = true;
