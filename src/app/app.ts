@@ -3,13 +3,19 @@ import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {LoginModal} from './components/init';
 import {ErrorService} from './services/services';
-import {UniModalService} from '../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
-import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgreementModal';
-import {UniConfirmModalV2} from '@uni-framework/uni-modal/modals/confirmModal';
 import {UserDto} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
+import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {
+    UniModalService,
+    LicenseAgreementModal,
+    UniConfirmModalV2,
+    UniChangelogModal
+} from '@uni-framework/uni-modal';
+
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-app',
@@ -25,7 +31,8 @@ export class App {
         private toastService: ToastService,
         private uniHttp: UniHttp,
         private errorService: ErrorService,
-        private navbarService: NavbarLinkService
+        private navbarService: NavbarLinkService,
+        private browserStorage: BrowserStorageService
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -67,7 +74,10 @@ export class App {
                         this.showCanNotAcceptLicenseModal(authDetails.user);
                     }
                 }
+
+                this.checkForChangelog(authDetails.user);
             }
+
         } /* don't need error handling */);
     }
 
@@ -78,6 +88,28 @@ export class App {
 
     private canAcceptLicense(user: UserDto): boolean {
         return !!user.License.Agreement.CanAgreeToLicense;
+    }
+
+    private checkForChangelog(user: UserDto) {
+        /*
+            This functionality is not implemented yet.
+            It's intended for informing about certain news on first login
+            after the changes. The content (and hasBeenDisplayed check)
+            should come from "the outside", but since the application design
+            goes live in ~2 days we need to hard code something here.
+        */
+        const oldUser = moment(user.CreatedAt).isBefore(moment(new Date('06.01.2018')));
+        const hasSeenDesignChanges = this.browserStorage.getItem('informedAboutDesignChanges');
+
+        if (oldUser && !hasSeenDesignChanges) {
+            this.modalService.open(UniChangelogModal, {
+                closeOnClickOutside: false,
+                closeOnEscape: false,
+                hideCloseButton: true
+            }).onClose.subscribe(() => {
+                this.browserStorage.setItem('informedAboutDesignChanges', true);
+            });
+        }
     }
 
     private showLicenseModal() {
