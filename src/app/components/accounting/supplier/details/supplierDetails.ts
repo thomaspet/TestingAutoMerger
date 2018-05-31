@@ -198,7 +198,12 @@ export class SupplierDetails implements OnInit {
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
                     links => {
                         this.reportLinks = links;
-                        this.tabs = [...this.tabs, ...links];
+                        this.tabs = [
+                            {name: 'Detaljer'},
+                            {name: 'Åpne poster'},
+                            {name: 'Dokumenter'},
+                            ...links
+                        ];
                     },
                     err => this.errorService.handle(err)
                 );

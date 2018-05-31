@@ -249,7 +249,14 @@ export class CustomerDetails implements OnInit {
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
                     links => {
                         this.reportLinks = links;
-                        this.tabs = [...this.tabs, ...links];
+                        this.tabs = [
+                            {name: 'Detaljer'},
+                            {name: 'Åpne poster'},
+                            {name: 'Produkter solgt'},
+                            {name: 'Dokumenter'},
+                            {name: 'Selskap'},
+                            ...links
+                        ];
                     },
                     err => this.errorService.handle(err)
                 );
