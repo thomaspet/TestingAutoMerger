@@ -1,18 +1,24 @@
 ﻿import {Component} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
+import {UniModalService, UniChangelogModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-rss',
     template: `
         <section class="uni-widget-header">Nyhetsbrev</section>
         <ul>
+            <li class="rss-item sticky">
+                <header>Nytt design i Uni Economy</header>
+                <article>Uni Economy har fått nytt design. <a (click)="openChangelogModal()">Se introduksjonsvideo</a>.</article>
+            </li>
             <li *ngFor="let item of rssFeed" class="rss-item">
-                <img *ngIf="item.Image" [src]="item.Image" />
                 <header>
                     {{item.Title}}
                     <small>{{item.PubDate | date: 'dd.MM.yyyy'}}</small>
                 </header>
+                <img *ngIf="item.Image" [src]="item.Image" />
+
                 <article>{{item.Description}}</article>
                 <a target="_blank" href="{{item.Link}}">Les mer</a>
             </li>
@@ -23,11 +29,14 @@ export class UniRSSWidget {
     public widget: IUniWidget;
     private rssFeed: any[] = [];
 
-    constructor(private widgetDataService: WidgetDataService) { }
+    constructor(
+        private widgetDataService: WidgetDataService,
+        private modalService: UniModalService
+    ) {}
 
     public ngAfterViewInit() {
         if (this.widget) {
-            let endpoint = '/api/biz/rss?action=rss';
+            const endpoint = '/api/biz/rss?action=rss';
             this.widgetDataService.getData(endpoint).subscribe(
                 data => {
                     if (data && data.Items) {
@@ -44,6 +53,14 @@ export class UniRSSWidget {
                 err => console.log("Couldn't load the rss feed for the news dashboard widget:", err)
             );
         }
+    }
+
+    public openChangelogModal() {
+        this.modalService.open(UniChangelogModal, {
+            closeOnClickOutside: false,
+            closeOnEscape: false,
+            hideCloseButton: true
+        });
     }
 
     private stripHTML(html: string): string {
