@@ -1178,6 +1178,7 @@ export class UniTicker {
     // fields are already initialized and configured correctly
     public exportToExcel(completeEvent) {
         // Remove ID and CustomerID from select if they exist, so it doesn't create columns for them
+        // Remove code from here after test!!
         const selectSplit = this.selects.split(',');
 
         const idIndex = selectSplit.indexOf('ID as ID');
@@ -1190,8 +1191,34 @@ export class UniTicker {
             selectSplit.splice(customerIDIndex, 1);
         }
 
-        this.selects = selectSplit.join(',');
+        this.selects = selectSplit.join(','); // Remove to here
 
+        const stringSelect = [];
+        const headers = [];
+
+        // Get configs from local storage
+        const configs = JSON.parse(localStorage.getItem('uniTable_column_configs'));
+
+        // See if user has changed the setup of the visible fields. If not, use default config object
+        if (!!configs['uniTicker.' + this.ticker.Code]) {
+            configs['uniTicker.' + this.ticker.Code].forEach((col)  => {
+                if (col.visible) {
+                    stringSelect.push(col.field + ' as ' + col.alias);
+                    headers.push(col.header);
+                }
+            });
+        } else {
+            this.ticker.Columns.forEach((col)  => {
+                if (!col.DefaultHidden) {
+                    stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                    headers.push(col.Header);
+                }
+            });
+        }
+
+        const selectedFieldString = stringSelect.join(',');
+
+        // Remove code after test!
         this.headers = this.headers
             || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
@@ -1204,8 +1231,8 @@ export class UniTicker {
         params = this.getSearchParams(params);
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.ticker.Model, this.selects, params.get('filter'),
-                this.ticker.Expand, this.headers, this.ticker.Joins)
+            .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
+                this.ticker.Expand, headers.join(','), this.ticker.Joins)
                     .subscribe((blob) => {
                         // download file so the user can open it
                         saveAs(blob, 'export.xlsx');
