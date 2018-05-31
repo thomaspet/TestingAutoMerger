@@ -176,25 +176,30 @@ export class UniQueryReadOnly implements OnChanges {
 
     private setupTableConfig() {
         // Define columns to use in the table
-        let columns: Array<UniTableColumn> = [];
-        let expands: Array<string> = [];
-        let selects: Array<string> = [];
+        const columns: Array<UniTableColumn> = [];
+        const expands: Array<string> = [];
+        const selects: Array<string> = [];
         let navigateURL: string;
+        const title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
+
         if (this.queryDefinition.MainModelName.startsWith('Customer')) {
-            var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
             if (title === 'Quote') {
                 this.buttonTitle = 'Nytt tilbud';
-                navigateURL = `/sales/quotes/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/quotes/0;customerID=${this.customerID}`;
             } else if (title === 'Order') {
                 this.buttonTitle = 'Ny ordre';
-                navigateURL = `/sales/orders/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/orders/0;customerID=${this.customerID}`;
             } else if (title === 'Invoice') {
                 this.buttonTitle = 'Ny faktura';
-                navigateURL = `/sales/invoices/0;customerID=${this.customerID};projectID=${this.externalID}`;
+                navigateURL = `/sales/invoices/0;customerID=${this.customerID}`;
             }
+
+            if (this.projectID > 0) {
+                navigateURL += `;projectID=${this.projectID}`;
+            }
+
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
-            var title = this.queryDefinition.MainModelName.slice(8, this.queryDefinition.MainModelName.length);
             if (title === 'Invoice') {
                 this.buttonTitle = 'Nytt fakturamottak';
                 navigateURL = `/accounting/bills/0;projectID=${this.externalID}`;

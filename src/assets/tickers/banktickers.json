@@ -262,7 +262,7 @@
                 "FilterOperator": "contains"
             },
             {
-                "Header": "Ekstern konto fra",
+                "Header": "Ekstern konto til",
                 "Field": "ExternalBankAccountNumber",
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
