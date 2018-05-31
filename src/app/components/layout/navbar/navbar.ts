@@ -71,6 +71,10 @@ import {User} from '@uni-entities';
 
         <section class="tab-strip" *ngIf="tabstripVisible" [ngClass]="'sidebar-' + sidebarState">
             <uni-tabstrip></uni-tabstrip>
+            <a class="tabstrip-feedback" href="mailto:design@unimicro.no">
+                <i class="material-icons">comment</i>
+                Gi tilbakemelding
+            </a>
             <uni-tabstrip-help></uni-tabstrip-help>
         </section>
     `,

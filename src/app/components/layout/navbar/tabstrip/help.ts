@@ -1,6 +1,7 @@
 import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {VideoMappingService} from '@app/services/services';
+import {UniModalService, UniChangelogModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -17,6 +18,7 @@ import {VideoMappingService} from '@app/services/services';
             <li [attr.aria-disabled]="!videoURL?.length" (click)="goToVideo()">Opplæringsvideo for skjermbilde</li>
             <li (click)="goToServiceDesk()">Kundesenter</li>
             <li (click)="goToAbout()">Versjonsinformasjon</li>
+            <li (click)="openChangelogModal()">Hva er nytt?</li>
         </ul>
     `,
     styleUrls: ['./help.sass'],
@@ -28,13 +30,22 @@ export class UniTabstripHelp {
 
     constructor(
         private videoMappingService: VideoMappingService,
-        private router: Router
+        private router: Router,
+        private modalService: UniModalService
     ) {
         router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.videoURL = undefined;
                 this.videoMappingService.getVideo(window.location.href).then(res => this.videoURL = res);
             }
+        });
+    }
+
+    public openChangelogModal() {
+        this.modalService.open(UniChangelogModal, {
+            closeOnClickOutside: false,
+            closeOnEscape: false,
+            hideCloseButton: true
         });
     }
 
