@@ -1325,12 +1325,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
 
         this.saveActions.push({
-            label: 'Send til Vipps',
-            action: (done) => this.sendToVipps(this.invoiceID, done),
-            disabled: false,
-        });
-
-        this.saveActions.push({
             label: 'Registrer betaling',
             action: (done) => this.payInvoice(done),
             disabled: !transitions || !transitions['pay'],
