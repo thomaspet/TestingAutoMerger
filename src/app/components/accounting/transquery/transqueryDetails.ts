@@ -17,6 +17,7 @@ import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
+import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {
@@ -37,7 +38,6 @@ import {
 } from '../../../../framework/uni-modal';
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
-import {FieldType} from '../../../../framework/ui/uniform/index';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as _ from 'lodash';
@@ -46,6 +46,9 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 
 interface ISearchParams {
     AccountYear?: number;
+    JournalEntryNumber?: number;
+    Account?: number;
+    Amount?: number;
 }
 
 @Component({
@@ -56,6 +59,9 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
+    @ViewChild(UniForm)
+    private uniForm: UniForm;
+
     private summaryData: TransqueryDetailsCalculationsSummary;
     private uniTableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
@@ -64,9 +70,10 @@ export class TransqueryDetails implements OnInit {
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
     private dimensionTypes: any[];
+    private searchTimeout;
 
     private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
@@ -148,7 +155,7 @@ export class TransqueryDetails implements OnInit {
     private getTableData(urlParams: URLSearchParams): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
-        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
+        let filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
         const searchParams = _.cloneDeep(this.searchParams$.getValue());
 
         // Find the searchvalue
@@ -160,7 +167,7 @@ export class TransqueryDetails implements OnInit {
         }
 
         // If JournalEntryNumber is specified as urlParams
-        if (splitted[0].includes('JournalEntryNumber ')) {
+        if (splitted[0].includes('JournalEntryNumber ') && !!searchValue) {
             filters[0] = `JournalEntryNumber eq '${searchValue}'`;
         // If search in unitable filter is text
         } else if (isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
@@ -175,7 +182,10 @@ export class TransqueryDetails implements OnInit {
                 const splitFilters = filters[0].split(' and ');
 
                 splitFilters.forEach(x => {
-                    if (!x.includes('Period.AccountYear eq ')) {
+                    if (!x.includes('Period.AccountYear eq ')
+                        && !x.includes('JournalEntryNumberNumeric eq ')
+                        && !x.includes('Account.AccountNumber eq')
+                        && !x.includes('Amount eq')) {
                         newFilters.push(x);
                     }
                 });
@@ -184,18 +194,24 @@ export class TransqueryDetails implements OnInit {
             }
         }
 
+
         const formFilters = [];
         if (this.allowManualSearch) {
             if (searchParams.AccountYear) {
                 formFilters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
             }
+            if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
+                formFilters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
+            }
+            if (searchParams.Account && !isNaN(searchParams.Account)) {
+                formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
+            }
+            if (searchParams.Amount && !isNaN(searchParams.Amount)) {
+                formFilters.push(`Amount eq ${searchParams.Amount}`);
+            }
         }
 
-        let filterString = '';
-        if (formFilters.length > 0) {
-            filterString += '( ' + formFilters.join(' and ') + ' )';
-            filters.push(filterString);
-        }
+        filters = filters.concat(formFilters);
 
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)
@@ -213,7 +229,7 @@ export class TransqueryDetails implements OnInit {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,JournalEntryNumber as JournalEntryNumber,'
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,'
             + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
         let expandString = '';
 
@@ -277,6 +293,33 @@ export class TransqueryDetails implements OnInit {
         } else {
             this.summaryData = null;
         }
+    }
+
+    private onFormReady() {
+        this.uniForm.field('JournalEntryNumber').focus();
+    }
+
+    private onFormInput(input) {
+        clearTimeout(this.searchTimeout);
+
+        const form = this.searchParams$.getValue();
+
+        if (input['JournalEntryNumber']) {
+            form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
+        }
+
+        if (input['Account']) {
+            form['Account'] = input['Account'].currentValue;
+        }
+
+        if (input['Amount']) {
+            form['Amount'] = input['Amount'].currentValue;
+        }
+
+        this.searchTimeout = setTimeout(() => {
+            this.searchParams$.next(form);
+            this.onFormFilterChange(null);
+        }, 300);
     }
 
     private setSums() {
@@ -648,7 +691,8 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.UserDisplayName || null)
                 .setVisible(false),
             new UniTableColumn(
-                'casewhen(isnull(OriginalReferencePost.JournalEntryNumber,0) ne 0,OriginalReferencePost.JournalEntryNumber,ReferenceCreditPost.JournalEntryNumber) as CreditJournalEntryReference',
+                'casewhen(isnull(OriginalReferencePost.JournalEntryNumber,0) ne ' +
+                '0,OriginalReferencePost.JournalEntryNumber,ReferenceCreditPost.JournalEntryNumber) as CreditJournalEntryReference',
                 'Kreditert',
                 UniTableColumnType.Link)
                 .setTemplate(line => line.CreditJournalEntryReference || null)
@@ -709,6 +753,7 @@ export class TransqueryDetails implements OnInit {
             .setColumnMenuVisible(false)
             .setSearchable(this.allowManualSearch)
             .setFilters(unitableFilter)
+            .setIsRowReadOnly(row => row.StatusCode === 31004)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
             .setDataMapper((data) => {
@@ -800,6 +845,27 @@ export class TransqueryDetails implements OnInit {
                         searchable: false,
                         hideDeleteButton: true
                     }
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'JournalEntryNumber',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Bilagsnr',
+                    Placeholder: 'Bilagsnr'
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'Account',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Kontonr',
+                    Placeholder: 'Kontonr'
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'Amount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Beløp',
+                    Placeholder: 'Beløp'
                 }
             ]
         };
