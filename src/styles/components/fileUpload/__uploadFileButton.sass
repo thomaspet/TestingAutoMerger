@@ -4,7 +4,7 @@
 
     label
         color: #fff
-        background: lighten($uni-color-good, 5%)
+        background: $uni-color-good
         text-shadow: none
         border-radius: 3px
         cursor: pointer
@@ -14,7 +14,7 @@
         padding: 4px 16px
 
         &:hover
-            background: $uni-color-good
+            background: darken($uni-color-good, 5%)
 
         input[type=file]
             @extend %visuallyHidden
