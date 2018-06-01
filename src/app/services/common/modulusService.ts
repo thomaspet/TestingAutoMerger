@@ -8,7 +8,6 @@ export interface ICheckSums {
 }
 @Injectable()
 export class ModulusService {
-    private isInternationalOrgNr: boolean = false;
     constructor() { }
 
     public validSSN(ssn: string): boolean {
@@ -71,20 +70,8 @@ export class ModulusService {
         };
     }
 
-    public isValidOrgNr(OrgNr: string): boolean {
-        if (OrgNr) {
-            return !OrgNr
-            .split('')
-            .some(x => isNaN(+x)) && this.modulus11(OrgNr);
-        }
-        return true;
-    }
-
     public orgNrValidationUniForm = (orgNr: string, field: UniFieldLayout, international?: boolean): UniFormError | null => {
-        if (international === false) {
-            this.isInternationalOrgNr = false;
-        } else if (international || this.isInternationalOrgNr) {
-            this.isInternationalOrgNr = true;
+        if (international) {
             return null;
         }
 
@@ -98,6 +85,22 @@ export class ModulusService {
             field: field,
             isWarning: true
         };
+    }
+
+    public isValidOrgNr(orgNr: string): boolean {
+        if (orgNr) {
+            if (isNaN(parseInt(orgNr, 10))) {
+                return false;
+            }
+
+            if (orgNr.length !== 9) {
+                return false;
+            }
+
+            return this.modulus11(orgNr);
+        } else {
+            return true;
+        }
     }
 
     private checkSSNCheckSums(ssn: string) {
@@ -137,21 +140,23 @@ export class ModulusService {
         return !(sum % 10);
     }
 
-    private modulus11(value: string): boolean {
-        let sum: number = 0;
-        let multiplier: number = 2;
-        let checkSum: number;
+    private modulus11(input: string): boolean {
+        let controlNumber = 2,
+            sumForMod = 0,
+            i;
 
-        for (let i: number = value.length - 2; i >= 0; i--) {
-            sum += Number(value[i]) * multiplier;
-            multiplier++;
-            if (multiplier > 7) { multiplier = 2; }
+        for (i = input.length - 2; i >= 0; --i) {
+            sumForMod += (+input.charAt(i)) * controlNumber;
+            if (++controlNumber > 7) {
+                controlNumber = 2;
+            }
         }
 
-        const mod: number = (sum % 11);
-        if (mod === 0 || mod === 1) { checkSum = 0; }
+        let controlDigit = (11 - sumForMod % 11);
+        if (controlDigit === 11) {
+            controlDigit = 0;
+        }
 
-        return 11 - mod === Number(value.charAt(value.length - 1));
+        return controlDigit === parseInt(input.charAt(input.length - 1), 10);
     }
-
 }
