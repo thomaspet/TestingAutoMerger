@@ -84,14 +84,18 @@ export class StatisticsService extends BizHttp<string> {
 
         params.set('model', model);
         params.set('select', selects);
-        params.set('filter', filters);
         params.set('expand', expands);
         params.set('headings', headings);
+
+        // remove empty filters, causes problem on backend
+        if (filters && filters !== '') {
+            params.set('filter', filters);
+        }
+
         if (joins) {
             params.set('join', joins);
         }
 
-        // remove empty filters, causes problem on backend
         return this.http
             .usingRootDomain()
             .asGET()
