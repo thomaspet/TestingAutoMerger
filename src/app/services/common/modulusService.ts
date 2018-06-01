@@ -75,7 +75,8 @@ export class ModulusService {
             return null;
         }
 
-        if (!orgNr || typeof orgNr !== 'string' || this.isValidOrgNr(orgNr)) {
+
+        if (!orgNr || typeof orgNr !== 'string' || this.isValidOrgNr(orgNr.trim())) {
             return null;
         }
 

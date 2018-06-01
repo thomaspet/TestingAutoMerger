@@ -19,12 +19,13 @@ uni-save
         line-height: 0
         margin: 0
         float: left
-        background: lighten($uni-color-good, 5%)
+        background: $uni-color-good
         text-shadow: none
         border-radius: 0
 
         &:hover
-            background: $uni-color-good
+            transition: background .25s ease
+            background: darken($uni-color-good, 5%)
 
     .toolbar-print,
     .toolbar-email
@@ -41,7 +42,7 @@ uni-save
 
     .toolbar-save-toggle
         @extend %hideText
-        background: lighten($uni-color-good, 5%) unicon-chevron-down($uni-color-negative) center center no-repeat
+        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
         background-size: .75rem auto
         border-top-right-radius: 3px
         border-bottom-right-radius: 3px
@@ -50,11 +51,9 @@ uni-save
         border-left: 1px solid #fff
 
         &:hover
-            background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
+            background: darken($uni-color-good, 5%) unicon-chevron-down($uni-color-negative) center center no-repeat
             background-size: .75rem auto
 
-        // border: 1px solid #fafafa
-        // border-left-color: #fff
 
 .uni-save-status
     position: fixed
