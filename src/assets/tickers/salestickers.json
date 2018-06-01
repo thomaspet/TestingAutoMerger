@@ -65,7 +65,9 @@
             {
                 "Name": "Åpne Kunde",
                 "Code": "open_customer",
-                "ExecuteWithoutSelection": true,                
+                "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": true,
+                "DisplayInActionBar": false,
                 "Type": "details"
             },
             {
@@ -93,7 +95,7 @@
                         ]
                     }
                 ]
-            }, 
+            },
             {
                 "Name": "Aktiv",
                 "Code": "active_customers",
