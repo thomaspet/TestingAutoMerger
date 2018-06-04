@@ -151,7 +151,7 @@ export class TableDataService {
                                 this.sumRow$.next(undefined);
                                 return Observable.empty();
                             })
-                            .subscribe(sums => {
+                            .subscribe((sums: {[field: string]: number | boolean}) => {
                                 if (sums) {
                                     sums['_isSumRow'] = true;
                                 }

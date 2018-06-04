@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, keyframes} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import {ApiKey} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniComponentLayout, LayoutBuilder, FieldSize, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
