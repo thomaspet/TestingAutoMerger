@@ -81,7 +81,7 @@ export class NavbarLinkService {
             return this.dimensionSettingsService.GetAll(null).map((dimensions) => {
                 return {
                     name: 'Dimensjoner',
-                    url: '/dimensions/customdimensionlist',
+                    url: '',
                     icon: 'dimension',
                     mdIcon: 'developer_board',
                     linkGroups: [{

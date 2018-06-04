@@ -17,6 +17,7 @@ import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgre
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
+import {UniChangelogModal} from './modals/changelog-modal/changelog-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -39,6 +40,7 @@ export * from './modals/licenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
 export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
+export * from './modals/changelog-modal/changelog-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -59,6 +61,7 @@ export const MODALS = [
     LicenseAgreementModal,
     UniBrRegModal,
     ManageProductsModal,
-    UniBankModal
+    UniBankModal,
+    UniChangelogModal
 ];
 

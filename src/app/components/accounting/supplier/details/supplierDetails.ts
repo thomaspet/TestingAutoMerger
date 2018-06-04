@@ -98,7 +98,6 @@ export class SupplierDetails implements OnInit {
     private commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     private selectConfig: any;
-    private isFormValid: boolean;
     private formIsInitialized: boolean = false;
     private activeTab: string = 'details';
 
@@ -200,7 +199,12 @@ export class SupplierDetails implements OnInit {
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
                     links => {
                         this.reportLinks = links;
-                        this.tabs = [...this.tabs, ...links];
+                        this.tabs = [
+                            {name: 'Detaljer'},
+                            {name: 'Åpne poster'},
+                            {name: 'Dokumenter'},
+                            ...links
+                        ];
                     },
                     err => this.errorService.handle(err)
                 );
@@ -211,9 +215,10 @@ export class SupplierDetails implements OnInit {
 
     private activateSupplier(supplierID: number) {
         const supplier = this.supplier$.value;
-        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
-        const error = this.modulusService.orgNrValidationUniForm(supplier.OrgNumber, field, false);
-        if (error && (supplier.StatusCode === StatusCode.Pending || !supplier.StatusCode)) {
+        const validOrgNumber = this.modulusService.isValidOrgNr(supplier.OrgNumber);
+
+        // Confirm activation if organization number is invalid
+        if (!validOrgNumber) {
             return this.modalService.open(UniConfirmModalV2, {
                 header: 'Aktivere leverandør?',
                 message: `Aktivere leverandør med ugyldig org.nr. ${supplier.OrgNumber}?`,
@@ -229,11 +234,12 @@ export class SupplierDetails implements OnInit {
                     );
                 }
             });
+        } else {
+            this.supplierService.activateSupplier(supplierID).subscribe(
+                res => this.setSupplierStatusInToolbar(StatusCode.Active),
+                err => this.errorService.handle(err)
+            );
         }
-        this.supplierService.activateSupplier(supplierID).subscribe(
-            res => this.setSupplierStatusInToolbar(StatusCode.Active),
-            err => this.errorService.handle(err)
-        );
     }
 
     private deactivateSupplier(supplierID: number) {
@@ -282,28 +288,6 @@ export class SupplierDetails implements OnInit {
             }
         }
         this.form.validateForm();
-    }
-
-    public onFormError(event) {
-        const supplier = this.supplier$.value;
-        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
-
-        if (!supplier.Info.Addresses[0]
-            || (supplier.Info.Addresses[0].CountryCode === 'NO'
-                || !supplier.Info.Addresses[0].CountryCode)
-        ) {
-            const error = this.modulusService.orgNrValidationUniForm(supplier.OrgNumber, field, false);
-            if (error && event.isFormValid) {
-                this.isFormValid = false;
-            } else {
-                this.isFormValid = event.isFormValid;
-            }
-        } else {
-            this.isFormValid = true;
-            this.modulusService.orgNrValidationUniForm(null, null, true);
-        }
-
-        this.setupSaveActions();
     }
 
     public resetViewToNewSupplierState() {
@@ -853,13 +837,11 @@ export class SupplierDetails implements OnInit {
                 label: 'Lagre',
                 action: (completeEvent) => this.saveSupplier(completeEvent),
                 main: true,
-                disabled: !this.isFormValid
             },
             {
                 label: 'Lagre som kladd',
                 action: (completeEvent) => this.saveSupplier(completeEvent, true),
                 main: true,
-                disabled: false
             }
         ];
     }
@@ -953,7 +935,17 @@ export class SupplierDetails implements OnInit {
         }
     }
 
-    // TODO: change to 'ComponentLayout' when object respects the interface
+    public orgNrValidator(orgNr: string, field: UniFieldLayout) {
+        const supplier = this.supplier$.getValue();
+        let isInternational: boolean;
+        try {
+            // Try/catch to avoid having to null guard everything here
+            isInternational = supplier.Info.Addresses[0].CountryCode !== 'NO';
+        } catch (e) {}
+
+        return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternational);
+    }
+
     private getComponentLayout(): any {
         return {
             Name: 'Supplier',
@@ -986,7 +978,9 @@ export class SupplierDetails implements OnInit {
                     EntityType: 'Supplier',
                     Property: 'OrgNumber',
                     FieldType: FieldType.TEXT,
-                    Validations: [this.modulusService.orgNrValidationUniForm],
+                    Validations: [
+                        (value, validatedField) => this.orgNrValidator(value, validatedField)
+                    ],
                     Label: 'Organisasjonsnummer',
                 },
                 {

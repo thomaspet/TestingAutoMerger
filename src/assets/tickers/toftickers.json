@@ -1411,7 +1411,8 @@
             "Alias": "Restsumexmva",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
-            "FilterOperator": "gt"
+            "FilterOperator": "gt",
+            "Type": "money"
         },
         {
             "Header": "Restsum inkl. mva",

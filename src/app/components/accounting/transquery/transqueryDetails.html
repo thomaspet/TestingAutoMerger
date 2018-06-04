@@ -5,7 +5,9 @@
                 [config]="config$"
                 [fields]="fields$"
                 [model]="searchParams$"
+                (readyEvent)="onFormReady($event)"
                 (changeEvent)="onFormFilterChange($event)"
+                (inputEvent)="onFormInput($event)"
                 *ngIf="allowManualSearch">
         </uni-form>
     </article>

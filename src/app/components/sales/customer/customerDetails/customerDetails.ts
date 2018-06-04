@@ -94,13 +94,12 @@ export class CustomerDetails implements OnInit {
     public reportLinks: IReference[];
 
     public showReportWithID: number;
-    private isDisabled: boolean = true;
     private commentsConfig: ICommentsConfig;
-    private isDirty: boolean = false;
     private selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
-    private isFormValid: boolean;
+
+    private isDirty: boolean = false;
 
     private toolbarSubheads: IToolbarSubhead[];
     public toolbarStatusValidation: IToolbarValidation[];
@@ -249,7 +248,14 @@ export class CustomerDetails implements OnInit {
                 this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
                     links => {
                         this.reportLinks = links;
-                        this.tabs = [...this.tabs, ...links];
+                        this.tabs = [
+                            {name: 'Detaljer'},
+                            {name: 'Åpne poster'},
+                            {name: 'Produkter solgt'},
+                            {name: 'Dokumenter'},
+                            {name: 'Selskap'},
+                            ...links
+                        ];
                     },
                     err => this.errorService.handle(err)
                 );
@@ -297,13 +303,13 @@ export class CustomerDetails implements OnInit {
                  label: 'Lagre',
                  action: (completeEvent) => this.saveCustomer(completeEvent),
                  main: true,
-                 disabled: !this.isFormValid
+                 disabled: !this.isDirty
              },
              {
                  label: 'Lagre som lead',
                  action: (completeEvent) => this.saveCustomer(completeEvent, true),
                  main: false,
-                 disabled: this.isDisabled
+                 disabled: !this.isDirty
              }
         ];
     }
@@ -339,7 +345,6 @@ export class CustomerDetails implements OnInit {
 
     public onSubCompanyChange(event) {
         this.isDirty = true;
-        this.isDisabled = false;
         this.setupSaveActions();
     }
 
@@ -392,7 +397,6 @@ export class CustomerDetails implements OnInit {
                     observer.next(res !== ConfirmActions.CANCEL);
                     if (res === ConfirmActions.REJECT) {
                         this.isDirty = false;
-                        this.isDisabled = true;
                         this.setupSaveActions();
                     }
                     observer.complete();
@@ -416,7 +420,6 @@ export class CustomerDetails implements OnInit {
     public reset() {
         this.customerID = 0;
         this.isDirty = false;
-        this.isDisabled = true;
         this.setup();
         this.formIsInitialized = true;
     }
@@ -1002,7 +1005,7 @@ export class CustomerDetails implements OnInit {
         }
 
         if (changes['Info.Name']) {
-            if (this.isDisabled === false && changes['Info.Name'].currentValue === '') {
+            if (this.isDirty && changes['Info.Name'].currentValue === '') {
                 this.toastService.addToast('Navn er påkrevd', ToastType.warn, ToastTime.short);
             }
         }
@@ -1030,34 +1033,21 @@ export class CustomerDetails implements OnInit {
         }
 
         this.form.validateForm();
-        this.isDisabled = false;
         this.setupSaveActions();
         this.customer$.next(customer);
     }
 
-    public onFormError(event) {
-        const customer = this.customer$.value;
-        const field = this.fields$.value.find(x => x.Property === 'OrgNumber');
+    public orgNrValidator(orgNr: string, field: UniFieldLayout) {
+        const customer = this.customer$.getValue();
+        let isInternationalCustomer: boolean;
+        try {
+            // Try/catch to avoid having to null guard everything here
+            // Consider empty contry code norwegian
+            isInternationalCustomer = customer.Info.Addresses[0].CountryCode
+                && customer.Info.Addresses[0].CountryCode !== 'NO';
+        } catch (e) {}
 
-        if (event.OrgNumber && event.OrgNumber[0]) {
-            if (!customer.Info.Addresses[0]
-                || (customer.Info.Addresses[0].CountryCode === 'NO'
-                    || !customer.Info.Addresses[0].CountryCode)
-            ) {
-                const error = this.modulusService.orgNrValidationUniForm(customer.OrgNumber, field, false);
-                if (error && event.isFormValid) {
-                    this.isFormValid = false;
-                } else {
-                    this.isFormValid = event.isFormValid;
-                }
-            } else {
-                this.modulusService.orgNrValidationUniForm(null, null, true);
-                this.isFormValid = true;
-            }
-        } else if (event.ReminderEmailAddress) {
-            this.isFormValid = event.isFormValid;
-        }
-        this.setupSaveActions();
+        return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {
@@ -1070,7 +1060,6 @@ export class CustomerDetails implements OnInit {
         this.customer$.next(customer);
     }
 
-    // TODO: remove later on when backend is fixed - Info.InvoiceAddress vs InvoiceAddress
     private getComponentLayout(): any {
         const layout = {
             Name: 'Customer',
@@ -1104,7 +1093,9 @@ export class CustomerDetails implements OnInit {
                     Property: 'OrgNumber',
                     FieldType: FieldType.TEXT,
                     Label: 'Organisasjonsnummer',
-                    Validations: [this.modulusService.orgNrValidationUniForm],
+                    Validations: [
+                        (value, validatedField) => this.orgNrValidator(value, validatedField)
+                    ],
                     Section: 0
                 },
                 {

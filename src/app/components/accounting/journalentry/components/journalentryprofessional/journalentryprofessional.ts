@@ -1993,7 +1993,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `or (contains(AccountName\,'${searchValue}') ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
                 `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
-                `or (Account.AccountName eq '${searchValue}')`;
+                `or (Account.AccountName eq '${searchValue}' ` +
+                `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             } else {
                 filter = `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
                 `or contains(AccountName\,'${searchValue}')  ) ` +
@@ -2001,7 +2002,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
                 `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
-                `or (Account.AccountNumber eq ${searchValue})`;
+                `or (Account.AccountNumber eq ${searchValue} ` +
+                `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             }
         }
 

@@ -146,11 +146,11 @@ export class UniSearchCustomerConfig {
         const model = 'Customer';
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
-        let filter = `contains(Info.Name,'${searchTerm}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (Info.Name eq '${searchTerm}') or (InvoiceAddress.AddressLine1 eq '${searchTerm}')`;
+        let filter = `contains(Info.Name,'${searchTerm}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (Info.Name eq '${searchTerm}' and Customer.Statuscode ne ${StatusCode.Deleted}) or (InvoiceAddress.AddressLine1 eq '${searchTerm}' and Customer.Statuscode ne ${StatusCode.Deleted})`;
         let orderBy = 'Info.Name';
         if (startNumber) {
             filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number', 'Info.Name']
-                .map(x => `startswith(${x},'${startNumber}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (${x} eq ${startNumber})`).join(' or ');
+                .map(x => `startswith(${x},'${startNumber}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (${x} eq ${startNumber} and Customer.Statuscode ne ${StatusCode.Deleted})`).join(' or ');
             orderBy = 'Customer.CustomerNumber';
         }
         const select = [
