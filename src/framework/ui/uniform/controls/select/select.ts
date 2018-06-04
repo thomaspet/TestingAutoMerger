@@ -1,6 +1,6 @@
 import {
     Component, Input, Output, EventEmitter, ViewChild, ElementRef,
-    Renderer, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, AfterViewInit
+    ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, AfterViewInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
@@ -49,7 +49,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
     public initialItem: any;
     public activeDecentantId: string;
 
-    constructor(public renderer: Renderer, public cd: ChangeDetectorRef, public el: ElementRef) {
+    constructor(public cd: ChangeDetectorRef, public el: ElementRef) {
         // Set a guid for DOM elements, etc.
         this.guid = (new Date()).getTime().toString();
     }

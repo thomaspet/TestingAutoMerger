@@ -1,5 +1,15 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy,
-    Renderer, SimpleChanges} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ElementRef,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    SimpleChanges
+} from '@angular/core';
+
 import {Observable} from 'rxjs/Observable';
 import {BaseControl} from '../baseControl';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -60,7 +70,7 @@ export class UniAutocompleteInput extends BaseControl {
         search: [],
         templates: []
     };
-    constructor(private el: ElementRef, private renderer: Renderer, private cd: ChangeDetectorRef) {
+    constructor(private el: ElementRef, private cd: ChangeDetectorRef) {
         super();
         this.guid = 'autocomplete-' + performance.now();
     }
@@ -172,12 +182,16 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     public focus() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'select', []);
+        try {
+            this.inputElement.nativeElement.focus();
+            this.inputElement.nativeElement.select();
+        } catch (e) {}
     }
 
     public blur() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
+        try {
+            this.inputElement.nativeElement.blur();
+        } catch (e) {}
     }
 
     public onClickOutside() {

@@ -1,4 +1,4 @@
-import {Component, Input, HostListener, ViewChild, ElementRef, Renderer} from '@angular/core';
+import {Component, Input, HostListener, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs/Observable';
 
@@ -62,8 +62,6 @@ export class UnitableSelect {
     public items: any[];
     public focusedIndex: number;
     private selectedItem: any;
-
-    constructor(private renderer: Renderer) {}
 
     public ngOnInit() {
         if (this.column) {

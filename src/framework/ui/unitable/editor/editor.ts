@@ -3,7 +3,6 @@ import {
     ViewChild,
     ApplicationRef,
     Output,
-    Renderer,
     EventEmitter,
     ComponentRef,
     ViewContainerRef,
@@ -72,7 +71,6 @@ export class UnitableEditor {
     constructor(
         private componentFactoryResolver: ComponentFactoryResolver,
         private appRef: ApplicationRef,
-        private renderer: Renderer,
         private el: ElementRef,
         private cdr: ChangeDetectorRef
     ) {}
@@ -104,13 +102,8 @@ export class UnitableEditor {
         // Focus input and select text
         setTimeout(() => {
             try {
-                this.renderer.invokeElementMethod(component.inputElement.nativeElement, 'focus', []);
-            } catch (e) {}
-
-            try {
-                if (this.columnType !== UniTableColumnType.Select) {
-                    this.renderer.invokeElementMethod(component.inputElement.nativeElement, 'select', []);
-                }
+                component.inputElement.nativeElement.focus();
+                component.inputElement.nativeElement.select();
             } catch (e) {}
         });
 

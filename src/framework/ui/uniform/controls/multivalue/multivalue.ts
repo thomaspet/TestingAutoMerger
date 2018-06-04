@@ -6,7 +6,6 @@ import {
     EventEmitter,
     ChangeDetectorRef,
     ViewChild,
-    Renderer,
     SimpleChange,
     SimpleChanges, OnChanges, AfterViewInit
 } from '@angular/core';
@@ -52,7 +51,6 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     public focusedRow: any;
 
     constructor(
-        public renderer: Renderer,
         public el: ElementRef,
         private cd: ChangeDetectorRef,
         private guidService: GuidService
@@ -112,13 +110,13 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     }
 
     public focus() {
-        const input = this.el.nativeElement.querySelector('input');
-        if (input) {
-            this.renderer.invokeElementMethod(input, 'focus', []);
-            this.renderer.invokeElementMethod(input, 'select', []);
+        try {
+            const input = this.el.nativeElement.querySelector('input');
+            input.focus();
+            input.select();
             this.cd.markForCheck();
             return this;
-        }
+        } catch (e) {}
     }
 
     public emitChange(previousValue, currentValue) {
