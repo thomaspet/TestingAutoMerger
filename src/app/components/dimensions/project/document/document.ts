@@ -75,6 +75,10 @@ export class ProjectDocument {
     }
 
     private loadDocumentList() {
+        if (!this.project || !this.project.ID) {
+            return;
+        }
+
         Observable.forkJoin(
             this.loadBasedOn('Invoice'),
             this.loadBasedOn('Order'),

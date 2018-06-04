@@ -12,8 +12,13 @@
 
     <section class="splitview">
         <nav class="splitview_list">
+            <uni-tabs
+                [tabs]="filters"
+                [activeIndex]="activeFilterIndex"
+                (activeIndexChange)="onActiveFilterChange($event)">
+            </uni-tabs>
+
             <uni-table
-                [attr.aria-busy]="busy"
                 [resource]="lookupFunction"
                 [config]="tableConfig"
                 (rowSelected)="onRowSelected($event)"
@@ -26,31 +31,5 @@
             <router-outlet></router-outlet>
         </main>
     </section>
-
-
-    <!-- <section class="project-splitview">
-        <section class="uni-container">
-
-            <header class="mini-nav">
-                <ul>
-                    <li (click)="onFilterClick(item)" *ngFor="let item of filters" [class.is-active]="item.isActive">{{item.label}}</li>
-                </ul>
-            </header>
-
-            <uni-table
-                [attr.aria-busy]="busy"
-                [resource]="lookupFunction"
-                [config]="tableConfig"
-                (rowSelected)="onRowSelected($event)"
-                (dataLoaded)="onTableReady()"
-                (pageChange)="onPageChange($event)">
-            </uni-table>
-        </section>
-
-        <section class="uni-container">
-            <router-outlet></router-outlet>
-        </section>
-
-    </section> -->
 </section>
 

@@ -2,7 +2,6 @@
 import {URLSearchParams} from '@angular/http';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Project as ProjectModel} from '../../../unientities';
-import {IUniTab} from '../../layout/uniTabs/uniTabs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ProjectService, ErrorService, UserService} from '../../../services/services';
 import {ToastService} from '../../../../framework/uniToast/toastService';
@@ -17,7 +16,7 @@ import {
 import {IToolbarConfig, ICommentsConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
-
+import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 declare var _;
 
 @Component({
@@ -28,30 +27,31 @@ declare var _;
 export class Project {
     @ViewChild(UniTable)
     private table: UniTable;
-    public busy: boolean = true;
     private childRoutes: IUniTab[];
     private activeProjectID: any = '';
     private currentPage: number = 1;
     private isStart: boolean = true;
     private currentUser: { DisplayName: string, Email: string, GlobalIdentity: string, ID: number };
 
-    public filters: Array<{ label: string, name: string, isActive: boolean, filter?: string}> = [
-        { label: 'Mine', name: 'mine', isActive: true },
-        { label: 'Aktive', name: 'active', isActive: false, filter: '( statuscode le 42204 )' },
-        { label: 'Alle', name: 'all', isActive: false  }
+    public activeFilterIndex: number = 0;
+    public filters: IUniTab[] = [
+        { name: 'Alle' },
+        { name: 'Aktive', value: '( statuscode le 42204 )' },
+        { name: 'Mine' },  // initFilters function expects this to be the last filter!
     ];
 
-    private get currentFilter(): { name: string, isActive: boolean, filter?: string } {
-        return this.filters.find( x => x.isActive);
-    }
     private tableConfig: UniTableConfig;
     private lookupFunction: (urlParams: URLSearchParams) => any;
+
+    private commentsConfig: ICommentsConfig;
     private toolbarconfig: IToolbarConfig = {
         title: '',
+        hideBreadcrumbs: true,
         navigation: {
             add: this.newProject.bind(this)
         }
     };
+
     public saveActions: IUniSaveAction[];
     private rootActions: IUniSaveAction[] = [
         {
@@ -61,7 +61,6 @@ export class Project {
             disabled: false
         }
     ];
-    private commentsConfig: ICommentsConfig;
 
     constructor(
         private tabService: TabService,
@@ -116,10 +115,9 @@ export class Project {
                 this.projectService
                     .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe(project => {
-                        this.toolbarconfig.title = trimLength(project.Name, 40, true);
-                        this.toolbarconfig.subheads = [
-                            { title: project.ProjectNumber ? `prosjekt nr. ${project.ProjectNumber}` : '' },
-                        ];
+                        const projectNumber = project.ProjectNumber + ' - ' || '';
+                        this.toolbarconfig.title = projectNumber + project.Name;
+
                         this.projectService.currentProject.next(project);
                         this.updateToolbar();
                     }, error => this.newProject());
@@ -177,20 +175,11 @@ export class Project {
     }
 
     private initFilters(user: { GlobalIdentity: string }) {
-        this.filters.forEach( x => {
-            switch (x.name) {
-                case 'mine':
-                    x.filter = `( StatusCode lt 42204 and ( CreatedBy eq '${user.GlobalIdentity}'`
-                        + ` or UpdatedBy eq '${user.GlobalIdentity}' ))`;
-                    break;
-            }
-        });
+        this.filters[this.filters.length - 1].value = `( StatusCode lt 42204 and ( CreatedBy eq '${user.GlobalIdentity}'`
+            + ` or UpdatedBy eq '${user.GlobalIdentity}' ))`;
     }
 
     public onTableReady() {
-
-        this.busy = false;
-
         if (this.currentPage > 1 && this.isStart) {
             this.table.goToPage(this.currentPage);
             this.isStart = false;
@@ -217,7 +206,6 @@ export class Project {
     private newProject() {
         this.projectService.setNew();
         this.toolbarconfig.title = 'Nytt prosjekt';
-        this.toolbarconfig.subheads = [];
         this.router.navigateByUrl('/dimensions/projects/editmode?projectID=0');
         this.updateToolbar();
     }
@@ -226,7 +214,9 @@ export class Project {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources');
-            return this.projectService.FindProjects(urlParams, this.currentFilter.filter)
+
+            const activeFilter = this.filters[this.activeFilterIndex];
+            return this.projectService.FindProjects(urlParams, activeFilter && activeFilter.value)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
@@ -297,10 +287,8 @@ export class Project {
         );
     }
 
-    public onFilterClick(item: { name: string, isActive: boolean }) {
-        this.filters.forEach( x => x.isActive = false);
-        item.isActive = true;
-        this.busy = true;
+    public onActiveFilterChange(index: number) {
+        this.activeFilterIndex = index;
         this.table.refreshTableData();
     }
 
@@ -335,10 +323,8 @@ export class Project {
                 }
         }
 
-        this.busy = true;
         this.projectService.PostAction(this.activeProjectID, key)
             .finally( () => {
-                this.busy = false;
                 done();
             })
             .subscribe( result => {
