@@ -11,8 +11,8 @@ import {ApiKeyService, ErrorService} from '@app/services/services';
 export class ApikeyLine implements OnInit {
     @Output() private keySaved: EventEmitter<any> = new EventEmitter<any>();
 
-    private busy: boolean;
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public busy: boolean;
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private apikeyLine$: BehaviorSubject<ApiKey> = new BehaviorSubject(new ApiKey());
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 

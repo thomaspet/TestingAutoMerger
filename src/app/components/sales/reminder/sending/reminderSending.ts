@@ -55,18 +55,18 @@ export class ReminderSending implements OnInit {
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
         + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
 
-    private currentRunNumber: number = 0;
-    private currentRunNumberData: IRunNumberData;
+    public currentRunNumber: number = 0;
+    public currentRunNumberData: IRunNumberData;
     private runNumbers: IRunNumberData[];
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];
 
     public searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    private saveactions: IUniSaveAction[] = [
+    public saveactions: IUniSaveAction[] = [
          {
              label: 'Send og skriv ut valgte',
              action: (done) => this.sendReminders(done, false),

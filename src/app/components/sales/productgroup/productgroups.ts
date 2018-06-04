@@ -30,9 +30,9 @@ export class ProductGroups {
     private groups: ProductCategory[] = [];
     private activeProductGroupID: any = '';
 
-    private toolbarconfig: IToolbarConfig;
-    private commentsConfig: ICommentsConfig;
-    private contextMenuItems: any;
+    public toolbarconfig: IToolbarConfig;
+    public commentsConfig: ICommentsConfig;
+    public contextMenuItems: any;
 
     private idParam: number;
     private selectedGroup: ProductCategory;

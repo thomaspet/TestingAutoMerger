@@ -33,7 +33,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<ISalaryPaymentModel> = new BehaviorSubject({ RunID: 0, DimensionGrouping: true });
-    private currentYear: number;
+    public currentYear: number;
     constructor(
         private payrollRunService: PayrollrunService,
         private yearService: YearService
@@ -92,7 +92,7 @@ export class SalaryPaymentListReportFilterModal implements OnInit {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private modalConfig: IModalConfig;
+    public modalConfig: IModalConfig;
     public type: Type<any> = SalaryPaymentListReportFilterModalContent;
 
     constructor(

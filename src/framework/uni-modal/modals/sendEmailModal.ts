@@ -43,8 +43,8 @@ export class UniSendEmailModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<SendEmail> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<SendEmail> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     private invalidEmail: boolean;
 

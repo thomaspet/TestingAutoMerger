@@ -32,10 +32,10 @@ export class UniQueryDetails {
 
     private models: any;
     private visibleModels: any;
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public tableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
-    private fields: Array<UniTableColumn> = [];
+    public fields: Array<UniTableColumn> = [];
     private filters: Array<ITableFilter> = [];
     private selects: string;
     private expands: string;
@@ -50,12 +50,12 @@ export class UniQueryDetails {
     private showExternalID: boolean = false;
     private customExternalID: string;
 
-    private currentUserGlobalIdentity: string = '';
+    public currentUserGlobalIdentity: string = '';
 
-    private toolbarconfig: IToolbarConfig = {};
+    public toolbarconfig: IToolbarConfig = {};
 
-    private contextMenuItems: IContextMenuItem[] = [];
-    private saveactions: IUniSaveAction[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
+    public saveactions: IUniSaveAction[] = [];
 
     constructor(
         private uniHttpService: UniHttp,
@@ -445,7 +445,7 @@ export class UniQueryDetails {
         return field.indexOf('(') > -1 && field.indexOf(')') > -1;
     }
 
-    private onRowSelected(event) {
+    public onRowSelected(event) {
         let selectedObject = event.rowModel;
 
         if (this.queryDefinition.ClickUrl) {
@@ -465,7 +465,7 @@ export class UniQueryDetails {
         }
     }
 
-    private onColumnsChange(newColumns: Array<UniTableColumn>) {
+    public onColumnsChange(newColumns: Array<UniTableColumn>) {
         let newColumnSetup: Array<UniTableColumn> = [];
 
         newColumns.forEach((column: UniTableColumn) => {
@@ -508,7 +508,7 @@ export class UniQueryDetails {
         this.setupTableConfig();
     }
 
-    private onFiltersChange(newFilters) {
+    public onFiltersChange(newFilters) {
         this.filterObject = newFilters;
 
         // table may not be fully initialized yet, so run on next cycle to make sure this.table exists
@@ -663,7 +663,7 @@ export class UniQueryDetails {
         completeEvent('');
     }
 
-    private onSaved(savedQueryDefinition: UniQueryDefinition) {
+    public onSaved(savedQueryDefinition: UniQueryDefinition) {
         if (this.queryDefinitionID !== savedQueryDefinition.ID) {
             this.router.navigateByUrl('/uniqueries/details/' + savedQueryDefinition.ID);
         } else {

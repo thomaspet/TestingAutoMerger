@@ -22,8 +22,8 @@ import {ProjectService, ErrorService} from '../../../services/services';
 
 export class ProjectLite {
 
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public tableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(
         private router: Router,

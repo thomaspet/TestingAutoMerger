@@ -31,7 +31,7 @@ export class UniProductDetailsModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     constructor() {}
 

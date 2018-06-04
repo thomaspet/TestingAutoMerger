@@ -23,7 +23,7 @@ import * as moment from 'moment';
 export class UniFlexWidget {
     public widget: IUniWidget;
 
-    private displayValue: string;
+    public displayValue: string;
     public needsAttention: boolean;
 
     constructor(

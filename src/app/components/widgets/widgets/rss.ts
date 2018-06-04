@@ -27,7 +27,7 @@ import {UniModalService, UniChangelogModal} from '@uni-framework/uni-modal';
 })
 export class UniRSSWidget {
     public widget: IUniWidget;
-    private rssFeed: any[] = [];
+    public rssFeed: any[] = [];
 
     constructor(
         private widgetDataService: WidgetDataService,

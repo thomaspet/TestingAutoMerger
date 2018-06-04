@@ -28,9 +28,9 @@ export class TofDeliveryForm implements OnInit {
 
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
-    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model$: BehaviorSubject<any> = new BehaviorSubject({});
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private addressService: AddressService,

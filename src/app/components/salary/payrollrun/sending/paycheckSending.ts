@@ -35,10 +35,10 @@ export class PaycheckSending implements OnInit {
     @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
     @ViewChild(UniTable) public table: UniTable;
 
-    private paychecksEmail: Employee[] = [];
-    private paychecksPrint: Employee[] = [];
-    private employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
-    private tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    public paychecksEmail: Employee[] = [];
+    public paychecksPrint: Employee[] = [];
+    public employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
+    public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
 
     constructor(
         private payrollrunService: PayrollrunService,

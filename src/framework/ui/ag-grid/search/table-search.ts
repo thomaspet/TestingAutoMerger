@@ -135,17 +135,17 @@ export class TableSearch implements OnChanges, AfterViewInit {
     public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
 
     public allowGroupFilter: boolean;
-    private filterableColumns: UniTableColumn[];
+    public filterableColumns: UniTableColumn[];
 
-    private basicSearchControl: FormControl = new FormControl('');
+    public basicSearchControl: FormControl = new FormControl('');
 
     private basicSearchFilters: ITableFilter[];
-    private advancedSearchFilters: ITableFilter[];
+    public advancedSearchFilters: ITableFilter[];
     private emitFiltersTimeout: any;
 
     private tableName: string;
 
-    private savedSearches: ISavedFilter[] = [];
+    public savedSearches: ISavedFilter[] = [];
     public activeSearchName: string;
     public newSearchName: string;
 
@@ -384,7 +384,7 @@ export class TableSearch implements OnChanges, AfterViewInit {
         }
     }
 
-    private newFilter() {
+    public newFilter() {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }

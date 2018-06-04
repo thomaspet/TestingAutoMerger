@@ -20,7 +20,7 @@ import {UniAvatar} from './avatar/uniAvatar';
 import {UniCommentInput} from './comments/commentInput';
 import {UniCommentList} from './comments/commentList';
 
-import {UniSearchModule} from './ui/unisearch/uniSearch.module';
+import {UniSearchModule} from './ui/unisearch/UniSearch.module';
 import {UniFormModule} from './ui/uniform/uniform.module';
 import {UniTableModule} from './ui/unitable/unitableModule';
 

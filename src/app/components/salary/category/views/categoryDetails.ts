@@ -18,7 +18,7 @@ declare var _; // lodash
     templateUrl: './categoryDetails.html'
 })
 export class CategoryDetail extends UniView {
-    private currentCategory$: BehaviorSubject<EmployeeCategory> = new BehaviorSubject(new EmployeeCategory());
+    public currentCategory$: BehaviorSubject<EmployeeCategory> = new BehaviorSubject(new EmployeeCategory());
     private categoryID: number;
     private categoriesUsedInEmployeesConfig: UniTableConfig;
     private categoriesUsedInPayrollrunConfig: UniTableConfig;

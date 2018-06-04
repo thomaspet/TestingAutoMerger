@@ -30,9 +30,9 @@ import { JournalEntryData } from '@app/models/models';
 export class JournalEntries {
     @ViewChild(JournalEntryManual)
     private journalEntryManual: JournalEntryManual;
-    private contextMenuItems: IContextMenuItem[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
 
-    private toolbarConfig: IToolbarConfig = {
+    public toolbarConfig: IToolbarConfig = {
         title: 'Bilagsregistrering',
         navigation: {
             prev: () => this.showPrevious(),
@@ -42,14 +42,14 @@ export class JournalEntries {
         contextmenu: this.contextMenuItems
     };
 
-    private currentJournalEntryNumber: string;
-    private currentJournalEntryID: number;
+    public currentJournalEntryNumber: string;
+    public currentJournalEntryID: number;
     public editmode: boolean = false;
     public creditDate: LocalDate = null;
     private selectedNumberSeries: NumberSeries;
     private selectedNumberSeriesID: number;
     private selectedNumberSeriesTaskID: number;
-    private selectConfig: any;
+    public selectConfig: any;
 
     constructor(
         private route: ActivatedRoute,

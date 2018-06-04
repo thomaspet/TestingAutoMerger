@@ -34,7 +34,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     private suppliers: Supplier[];
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
-    private salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
+    public salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
     private subscriptions: Subscription[] = [];
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});

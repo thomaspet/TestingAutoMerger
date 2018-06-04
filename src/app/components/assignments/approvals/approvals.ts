@@ -17,12 +17,12 @@ export class UniApprovals {
     private approvalList: ElementRef;
 
     private routeParam: number;
-    private approvals: Approval[];
-    private selectedApproval: Approval;
-    private currentUser: User;
+    public currentUser: User;
     private users: User[];
 
-    private showCompleted: boolean;
+    public approvals: Approval[];
+    public selectedApproval: Approval;
+    public showCompleted: boolean;
 
     constructor(
         private tabService: TabService,
@@ -86,7 +86,7 @@ export class UniApprovals {
         );
     }
 
-    private loadApprovals(): void {
+    public loadApprovals(): void {
         this.approvalService.invalidateCache();
         let filterString = 'filter=UserID eq ' + this.currentUser.ID;
         if (!this.showCompleted) {

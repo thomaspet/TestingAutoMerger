@@ -60,9 +60,9 @@ export class NewAccountModal implements IUniModal, AfterViewInit, OnInit, OnChan
 
     public config: any = {};
     public uniSearchConfig: IUniSearchConfig;
-    private model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    public model$: BehaviorSubject<any>= new BehaviorSubject(null);
     public selectedItem: any;
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     public searchCriteria: string = '';
     constructor(

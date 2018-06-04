@@ -157,7 +157,7 @@ export class CompanySettingsComponent implements OnInit {
         {Culture: 'en', Label: 'Engelsk'},
     ];
 
-    private currentYear: number;
+    public currentYear: number;
 
     private invoiceTemplate: CampaignTemplate;
     private orderTemplate: CampaignTemplate;

@@ -22,7 +22,7 @@ import * as moment from 'moment';
     templateUrl: './app.html',
 })
 export class App {
-    private isAuthenticated: boolean = false;
+    public isAuthenticated: boolean = false;
     private loginModalOpen: boolean;
 
     constructor(
@@ -31,7 +31,7 @@ export class App {
         private toastService: ToastService,
         private uniHttp: UniHttp,
         private errorService: ErrorService,
-        private navbarService: NavbarLinkService,
+        public navbarService: NavbarLinkService,
         private browserStorage: BrowserStorageService
     ) {
         // prohibit dropping of files unless otherwise specified

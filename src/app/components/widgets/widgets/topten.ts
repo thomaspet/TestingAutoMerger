@@ -53,7 +53,7 @@ import {WidgetDataService} from '../widgetDataService';
 export class UniTopTenWidget {
 
     private data = [];
-    private currentYear: number;
+    public currentYear: number;
     private previousYear: number;
 
     private numberFormat: any = {

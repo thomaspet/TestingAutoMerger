@@ -97,33 +97,33 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private order: CustomerOrder;
     private orderItems: CustomerOrderItem[];
 
-    private contextMenuItems: IContextMenuItem[] = [];
-    private shareActions: IShareAction[];
-    private saveActions: IUniSaveAction[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
+    public shareActions: IShareAction[];
+    public saveActions: IUniSaveAction[] = [];
 
     public currencyInfo: string;
     public summaryLines: ISummaryLine[];
 
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
     private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
-    private currentCustomer: Customer;
-    private currentDeliveryTerm: Terms;
-    private currentUser: User;
+    public currentCustomer: Customer;
+    public currentDeliveryTerm: Terms;
+    public currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private projects: Project[];
     private departments: Department[];
-    private currentDefaultProjectID: number;
-    private selectConfig: any;
+    public currentDefaultProjectID: number;
+    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    private currentOrderDate: LocalDate;
+    public currentOrderDate: LocalDate;
     private dimensionTypes: any[];
     private paymentInfoTypes: any[];
 
@@ -179,7 +179,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     ];
 
     // New
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 

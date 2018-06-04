@@ -6,7 +6,7 @@ import {IUniTab} from '../../layout/uniTabs/uniTabs';
     templateUrl: './journalentry.html'
 })
 export class JournalEntry {
-    private childRoutes: IUniTab[];
+    public childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

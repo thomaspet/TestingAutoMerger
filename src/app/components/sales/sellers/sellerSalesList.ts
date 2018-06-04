@@ -33,7 +33,7 @@ export class SellerSalesList {
 
     private salesTableConfig: UniTableConfig;
     private salesList: any;
-    private busy: boolean = true;
+    public busy: boolean = true;
 
     constructor(
         private router: Router,

@@ -74,7 +74,7 @@ export class UniAttachments {
 
     private files: File[] = [];
     private fileLinks: FileEntityLink[] = [];
-    private tableConfig$: ReplaySubject<UniTableConfig>;
+    public tableConfig$: ReplaySubject<UniTableConfig>;
 
     constructor(
         private ngHttp: Http,

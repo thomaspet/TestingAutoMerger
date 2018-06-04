@@ -60,12 +60,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private payDate: Date = null;
     private payStatus: string;
 
-    private busy: boolean = false;
+    public busy: boolean = false;
     private url: string = '/salary/payrollrun/';
-    private contextMenuItems: IContextMenuItem[] = [];
-    private toolbarconfig: IToolbarConfig;
+    public contextMenuItems: IContextMenuItem[] = [];
+    public toolbarconfig: IToolbarConfig;
     private disableFilter: boolean;
-    private saveActions: IUniSaveAction[] = [];
+    public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
 
     private employees: Employee[];

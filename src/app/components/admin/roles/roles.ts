@@ -24,20 +24,20 @@ export class UniRoles {
 
     private hasUnsavedChanges: boolean;
 
-    private permissions: Permission[];
-    private roles: any[];
-    private displayRolePermisssions: any[] = [];
+    public permissions: Permission[];
+    public roles: any[];
+    public displayRolePermisssions: any[] = [];
     private selectedRole: Role;
     private selectedIndex: number = 0;
 
-    private rolesTableConfig: UniTableConfig;
-    private permissionsTableConfig: UniTableConfig;
-    private toolbarConfig: IToolbarConfig;
-    private saveActions: IUniSaveAction[];
+    public rolesTableConfig: UniTableConfig;
+    public permissionsTableConfig: UniTableConfig;
+    public toolbarConfig: IToolbarConfig;
+    public saveActions: IUniSaveAction[];
 
-    private formModel$: BehaviorSubject<Role> = new BehaviorSubject(null);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<Role> = new BehaviorSubject(null);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
 
     constructor(
         private roleService: RoleService,

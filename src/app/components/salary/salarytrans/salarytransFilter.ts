@@ -85,7 +85,7 @@ export class SalarytransFilter {
     @Input() public isDisabled: boolean;
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
-    private modalConfig: any = {};
+    public modalConfig: any = {};
     private filters: any[] = [];
     public type: Type<any> = SalarytransFilterContent;
     private filterResultString: string;

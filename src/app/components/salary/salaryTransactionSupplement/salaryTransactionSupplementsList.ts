@@ -27,10 +27,10 @@ export class SalaryTransactionSupplementList implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private model$: Observable<SalaryTransactionSupplement[]>;
-    private tableConfig$: ReplaySubject<UniTableConfig>;
+    public model$: Observable<SalaryTransactionSupplement[]>;
+    public tableConfig$: ReplaySubject<UniTableConfig>;
     private transactions: SalaryTransaction[];
-    private saveActions: IUniSaveAction[] = [{
+    public saveActions: IUniSaveAction[] = [{
         action: this.save.bind(this),
         disabled: true,
         label: 'Lagre',

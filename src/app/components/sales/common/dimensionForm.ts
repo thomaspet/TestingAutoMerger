@@ -23,7 +23,7 @@ export class UniDimensionTOFView implements OnInit {
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     private dimfields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor() {}
 

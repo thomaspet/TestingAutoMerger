@@ -13,8 +13,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 })
 export class ProductList {
     private productTable: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
-    private saveActions: IUniSaveAction[];
+    public lookupFunction: (urlParams: URLSearchParams) => any;
+    public saveActions: IUniSaveAction[];
 
     constructor(
         private router: Router,

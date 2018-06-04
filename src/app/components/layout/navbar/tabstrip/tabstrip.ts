@@ -86,7 +86,7 @@ interface ITabContextMenuData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTabStrip {
-    private tabs: IUniTab[] = [];
+    public tabs: IUniTab[] = [];
     private homeTabActive: boolean;
     private lastActiveTab: IUniTab;
 

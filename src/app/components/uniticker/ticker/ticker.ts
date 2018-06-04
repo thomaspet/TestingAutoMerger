@@ -81,20 +81,20 @@ export class UniTicker {
     private selects: string;
     private headers: string;
     private defaultExpand: string;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private prefetchDataLoaded: boolean = false;
-    private lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
+    public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     private columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
     private selectedRow: any = null;
     private canShowTicker: boolean = true;
 
-    private contextMenuItems: any[];
+    public contextMenuItems: any[];
     private openAction: TickerAction;
 
     private unitableFilter: string;
 
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     constructor(
         private uniHttpService: UniHttp,
@@ -255,11 +255,11 @@ export class UniTicker {
         }
     }
 
-    private onTableReady() {
+    public onTableReady() {
         this.busy = false;
     }
 
-    private actionsToContextMenuItems(actions) {
+    public actionsToContextMenuItems(actions) {
         if (!actions || !actions.length) {
             return;
         }
@@ -471,13 +471,13 @@ export class UniTicker {
         this.rowSelected.emit(this.selectedRow);
     }
 
-    private onRowSelectionChange(selection) {
+    public onRowSelectionChange(selection) {
         if (Array.isArray(selection)) {
             this.rowSelectionChange.emit(selection);
         }
     }
 
-    private onFilterChange(filterChangeEvent) {
+    public onFilterChange(filterChangeEvent) {
         this.unitableFilter = filterChangeEvent.filter;
     }
 
@@ -485,7 +485,7 @@ export class UniTicker {
         this.editModeToggled.emit(event);
     }
 
-    private onColumnsChange(columnsChangeEvent) {
+    public onColumnsChange(columnsChangeEvent) {
         this.ticker.Expand = this.defaultExpand;
         this.setupTableConfig();
     }

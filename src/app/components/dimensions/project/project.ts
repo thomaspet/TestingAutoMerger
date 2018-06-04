@@ -27,11 +27,11 @@ declare var _;
 export class Project {
     @ViewChild(UniTable)
     private table: UniTable;
-    private childRoutes: IUniTab[];
+    public childRoutes: IUniTab[];
     private activeProjectID: any = '';
-    private currentPage: number = 1;
+    public currentPage: number = 1;
     private isStart: boolean = true;
-    private currentUser: { DisplayName: string, Email: string, GlobalIdentity: string, ID: number };
+    public currentUser: { DisplayName: string, Email: string, GlobalIdentity: string, ID: number };
 
     public activeFilterIndex: number = 0;
     public filters: IUniTab[] = [
@@ -40,11 +40,11 @@ export class Project {
         { name: 'Mine' },  // initFilters function expects this to be the last filter!
     ];
 
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public tableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
-    private commentsConfig: ICommentsConfig;
-    private toolbarconfig: IToolbarConfig = {
+    public commentsConfig: ICommentsConfig;
+    public toolbarconfig: IToolbarConfig = {
         title: '',
         hideBreadcrumbs: true,
         navigation: {
@@ -64,7 +64,7 @@ export class Project {
 
     constructor(
         private tabService: TabService,
-        private projectService: ProjectService,
+        public projectService: ProjectService,
         private errorService: ErrorService,
         private router: Router,
         private route: ActivatedRoute,

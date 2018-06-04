@@ -44,8 +44,8 @@ export class UniAddressModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
         private countryService: CountryService,

@@ -71,7 +71,7 @@ import {CategoryViewService} from './category/services/categoryViewService';
 import {CategoryDetail} from './category/views/categoryDetails';
 
 import {SalaryBalanceListContainer} from './salarybalance/salaryBalanceList/salaryBalanceListContainer';
-import {SalarybalanceList} from './salarybalance/salaryBalanceList/salaryBalanceList';
+import {SalarybalanceList} from './salarybalance/salaryBalanceList/salarybalanceList';
 import {SalarybalanceView} from './salarybalance/salarybalanceView';
 import {SalaryBalanceViewService} from './salarybalance/services/salaryBalanceViewService';
 import {SalarybalanceDetail} from './salarybalance/views/salarybalanceDetails';
@@ -296,8 +296,8 @@ import { TraveltypeComponent } from './travel/travel-type/traveltype.component';
         CategoryDetail,
 
         // Salarybalance
-        SalaryBalanceListContainer,
-        SalarybalanceList,
+        // SalaryBalanceListContainer,
+        // SalarybalanceList,
         SalarybalanceView,
         SalarybalanceDetail,
         SalaryBalanceSummary,

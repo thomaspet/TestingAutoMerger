@@ -72,7 +72,7 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
         private authService: AuthService,
         private errorService: ErrorService,
         private userService: UserService,
-        private currentCompanyService: BureauCurrentCompanyService,
+        public currentCompanyService: BureauCurrentCompanyService,
         yearService: YearService,
     ) {
         this.accountingYear = yearService.selectedYear$.getValue();

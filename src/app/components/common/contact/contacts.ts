@@ -28,18 +28,17 @@ export class Contacts implements AfterViewInit {
     @Output() public deleted: EventEmitter<Contact> = new EventEmitter<Contact>();
     @Output() public mainContactSet: EventEmitter<Contact> = new EventEmitter<Contact>();
 
-    private contactTableConfig: UniTableConfig;
-    private contacts: Array<Contact>;
-    private selectedContact: Contact;
+    public contactTableConfig: UniTableConfig;
+    public contacts: Array<Contact>;
+    public selectedContact: Contact;
 
-    constructor(private router: Router,
-                private contactService: ContactService,
-                private errorService: ErrorService,
-                private toastService: ToastService) {
-    }
+    constructor(
+        private router: Router,
+        private contactService: ContactService,
+        private errorService: ErrorService,
+        private toastService: ToastService
+    ) {}
 
-    public ngOnInit() {
-    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['parentBusinessRelation'] && changes['parentBusinessRelation'].currentValue) {

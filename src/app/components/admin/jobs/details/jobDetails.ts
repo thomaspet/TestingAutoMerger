@@ -32,17 +32,15 @@ class JobSchedule {
 })
 export class JobDetails {
     public saveActions: IUniSaveAction[] = [];
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
 
-    private job: Partial<Job>;
+    public job: Partial<Job>;
     private isNewJob: boolean = true;
 
-    private delay: string = '';
-
-    private scheduleTimeUnitSelectConfig: ISelectConfig;
-    private scheduleTimeUnits: any[];
-    private newSchedule: JobSchedule = new JobSchedule();
-    private schedules: JobSchedule[] = [];
+    public scheduleTimeUnitSelectConfig: ISelectConfig;
+    public scheduleTimeUnits: any[];
+    public newSchedule: JobSchedule = new JobSchedule();
+    public schedules: JobSchedule[] = [];
 
     public lastExecutionTime: string = 'Aldri kjørt';
 
@@ -103,7 +101,7 @@ export class JobDetails {
         ];
     }
 
-    private startJob() {
+    public startJob() {
         this.jobService.startJob(this.job.Name).subscribe(
             result => {},
             err => this.errorService.handle(err)
@@ -207,7 +205,7 @@ export class JobDetails {
         return timeUnit && timeUnit.name;
     }
 
-    private isNumber(str: string): boolean {
+    public isNumber(str: string): boolean {
         return str !== undefined && str.length > 0 && !isNaN(Number(str));
     }
 }

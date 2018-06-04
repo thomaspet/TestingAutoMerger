@@ -68,7 +68,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     public busy: boolean;
     private url: string = '/salary/employees/';
-    private childRoutes: any[];
+    public childRoutes: any[];
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
 
     private employeeID: number;
@@ -81,9 +81,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private subEntities: SubEntity[];
     private projects: Project[];
     private departments: Department[];
-    private saveActions: IUniSaveAction[];
+    public saveActions: IUniSaveAction[];
 
-    private toolbarConfig: IToolbarConfig;
+    public toolbarConfig: IToolbarConfig;
     private toolbarSearchConfig: IToolbarSearchConfig;
     private toolbarValidation: IToolbarValidation[];
 

@@ -40,8 +40,8 @@ export class EmploymentDetails implements OnChanges {
 
     private focusJobCode: boolean;
 
-    private config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
     private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];

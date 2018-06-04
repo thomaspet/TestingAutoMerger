@@ -70,7 +70,7 @@ export class BillsView implements OnInit {
     @ViewChild(UniTable) private unitable: UniTable;
     @ViewChild(UniImage) public uniImage: UniImage;
 
-    private searchControl: FormControl = new FormControl('');
+    public searchControl: FormControl = new FormControl('');
 
     public tableConfig: UniTableConfig;
     public listOfInvoices: Array<any> = [];
@@ -88,10 +88,10 @@ export class BillsView implements OnInit {
 
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
-    private currentUserFilter: string;
+    public currentUserFilter: string;
     public selectedItems: SupplierInvoice[];
     private fileID: any;
-    private currentFiles: any;
+    public currentFiles: any;
 
     private previewVisible: boolean;
 
@@ -800,7 +800,7 @@ export class BillsView implements OnInit {
         }
     }
 
-    private onInboxDataReady(data: Array<any>) {
+    public onInboxDataReady(data: Array<any>) {
         this.removeNullItems(data);
         this.listOfInvoices = data;
         const filter = this.getInboxFilter();

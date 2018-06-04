@@ -38,14 +38,14 @@ const PAYROLL_RUN_KEY = 'payrollRun';
 })
 
 export class SalaryTransactionSelectionList extends UniView implements AfterViewInit {
-    private salarytransSelectionTableConfig: UniTableConfig;
-    private employeeList: Employee[] = [];
-    private selectedIndex: number = 0;
-    private agaZone: AGAZone;
+    public salarytransSelectionTableConfig: UniTableConfig;
+    public employeeList: Employee[] = [];
+    public selectedIndex: number = 0;
+    public agaZone: AGAZone;
+    public summary: ISummaryConfig[] = [];
+    public linkMenu$: ReplaySubject<ILinkMenuItem[]>;
     private payrollRunID: number;
     private payrollRun: PayrollRun;
-    private summary: ISummaryConfig[] = [];
-    private linkMenu$: ReplaySubject<ILinkMenuItem[]>;
 
     @Output() public changedPayrollRun: EventEmitter<any> = new EventEmitter<any>(true);
     public busy: boolean;
@@ -133,7 +133,7 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         }
     }
 
-    private tableConfig() {
+    public tableConfig() {
         const employeenumberCol = new UniTableColumn('EmployeeNumber', '#')
             .setWidth('3rem');
         const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn')

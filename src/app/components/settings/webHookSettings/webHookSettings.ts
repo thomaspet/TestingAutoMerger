@@ -27,7 +27,7 @@ export class WebHookSettings {
     private objectiveSelectConfig: ISelectConfig;
 
     private objectives: Array<IUmhObjective> = [];
-    private actions: Array<IUmhAction> = [];
+    public actions: Array<IUmhAction> = [];
 
     private subscription: IUmhSubscription = {};
     private subscriptions: Array<IUmhSubscription> = [];
@@ -35,7 +35,7 @@ export class WebHookSettings {
     private company: Company;
     private isEnabled: boolean = false;
     private isPermitted: boolean = false;
-    private isBusy: boolean = true;
+    public isBusy: boolean = true;
 
     private saveaction: IUniSaveAction = {
         label: 'Lagre',

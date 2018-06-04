@@ -54,7 +54,7 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     private table: UniTable;
 
     private customerInvoices: Array<any> = [];
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private showPaidInvoices: boolean = false;
     private paymentData: any;
     private journalEntryID: number;

@@ -122,7 +122,7 @@ export class UnitableSelect {
     }
 
     @HostListener('keypress', ['$event'])
-    private onKeypress(event) {
+    public onKeypress(event) {
         if (!this.items) {
             return;
         }
@@ -144,7 +144,7 @@ export class UnitableSelect {
         }
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
 
         switch (key) {

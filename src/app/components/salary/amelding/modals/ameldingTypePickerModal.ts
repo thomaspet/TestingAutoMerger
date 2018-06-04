@@ -16,7 +16,7 @@ export interface IAmeldingTypeEvent {
 export class AmeldingTypePickerModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<IAmeldingTypeEvent> = new EventEmitter<IAmeldingTypeEvent>();
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public ameldingModel$: BehaviorSubject<any> = new BehaviorSubject({});
     constructor() { }

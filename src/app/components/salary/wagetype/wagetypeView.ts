@@ -33,12 +33,12 @@ export class WageTypeView extends UniView implements OnDestroy {
 
     private wagetypeID: number;
     private wageType: WageType;
-    private saveActions: IUniSaveAction[];
-    private toolbarConfig: IToolbarConfig;
-    private searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
+    public saveActions: IUniSaveAction[];
+    public toolbarConfig: IToolbarConfig;
+    public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
 
-    private childRoutes: any[];
-    private contextMenuItems$: ReplaySubject<IContextMenuItem[]> = new ReplaySubject<IContextMenuItem[]>(1);
+    public childRoutes: any[];
+    public contextMenuItems$: ReplaySubject<IContextMenuItem[]> = new ReplaySubject<IContextMenuItem[]>(1);
 
     constructor(
         private route: ActivatedRoute,

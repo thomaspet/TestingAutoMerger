@@ -146,13 +146,13 @@ export class Editor implements IEditor {
         this.editEvents.onEditKeydown(event);
     }
 
-    private onButtonClick(event) {
+    public onButtonClick(event) {
         this.resetTyping = true;
         if (!this.editEvents) { return; }
         this.editEvents.onEditBtnClick(event, this.getValue(), this.position);
     }
 
-    private onEditTyping(event) {
+    public onEditTyping(event) {
         if (!(this.editEvents && this.onEditTyping)) { return; }
         if (this.resetTyping) { return; }
         var value = this.inputBox.val();

@@ -50,7 +50,7 @@ export class DimensionsOverviewReportPart {
     };
 
     private dimensionDataList: Array<DimensionSummaryData> = [];
-    private uniTableConfigDimension: UniTableConfig;
+    public uniTableConfigDimension: UniTableConfig;
 
     constructor(
         private router: Router,

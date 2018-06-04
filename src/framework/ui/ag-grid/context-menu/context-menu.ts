@@ -29,7 +29,7 @@ export class TableContextMenu {
     private offsetTop: number;
     private rowModel: any;
     private activeItems: IContextMenuItem[];
-    private isOpen: boolean;
+    public isOpen: boolean;
 
     constructor(private cdr: ChangeDetectorRef) {
         this.offsetTop = 0;
@@ -59,7 +59,7 @@ export class TableContextMenu {
         });
     }
 
-    private onClick(event) {
+    public onClick(event) {
         event.stopPropagation();
         this.isOpen = false;
     }

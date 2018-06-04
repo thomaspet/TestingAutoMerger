@@ -31,7 +31,7 @@ export class UniMultiLevelSelect {
     @Output()
     public select: EventEmitter<any> = new EventEmitter();
 
-    private isExpanded: boolean;
+    public isExpanded: boolean;
 
     public getDisplayValue = _.memoize(item => {
         if (item.label) {

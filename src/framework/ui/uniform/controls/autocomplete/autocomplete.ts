@@ -40,17 +40,17 @@ export class UniAutocompleteInput extends BaseControl {
     @Output() public focusEvent: EventEmitter<UniAutocompleteInput> = new EventEmitter<UniAutocompleteInput>(true);
 
     // state vars
-    private busy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public busy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private guid: string;
     private options: any;
     private source: Array<any>;
-    private currentValue: any;
+    public currentValue: any;
     private value: string | Object;
     private initialDisplayValue: string;
     private selectedIndex: number = -1;
     private selectedItem: any = null;
     private lookupResults: any[] = [];
-    private isExpanded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+    public isExpanded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private items$: Observable<any> = new Observable<any>();
     private focusPositionTop: number = 0;
     private preventSearch: boolean = false;
@@ -180,7 +180,7 @@ export class UniAutocompleteInput extends BaseControl {
         this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
     }
 
-    private onClickOutside() {
+    public onClickOutside() {
         this.isExpanded$.next(false);
         this.selectedIndex = -1;
         this.selectedItem = null;
@@ -318,11 +318,11 @@ export class UniAutocompleteInput extends BaseControl {
         }
     }
 
-    private open() {
+    public open() {
         this.isExpanded$.next(true);
     }
 
-    private close() {
+    public close() {
         this.isExpanded$.next(false);
     }
 
@@ -349,7 +349,7 @@ export class UniAutocompleteInput extends BaseControl {
         return result;
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case KeyCodes.TAB:
                 if (this.selectedIndex === -1 && this.control.value) {

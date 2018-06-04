@@ -9,7 +9,7 @@ import {UniSidebar} from './sidebar/sidebar';
 import {UniHamburgerMenu} from './navbar/hamburger/hamburger';
 import {NavbarCreateNew} from './navbar/create-new/navbar-create-new';
 import {NavbarSearch} from './navbar/search/search';
-import {UniTabStrip} from './navbar/tabstrip/tabStrip';
+import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
@@ -76,8 +76,8 @@ import {
         UniSidebar,
         NavbarCreateNew,
         NavbarSearch,
-        UniTabStrip,
-        UniTabstripHelp,
+        // UniTabStrip,
+        // UniTabstripHelp,
         UniCompanyDropdown,
         YearModal,
         UniHelpText

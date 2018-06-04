@@ -7,7 +7,7 @@ import {Component, ContentChild, Input, ChangeDetectionStrategy, TemplateRef} fr
             Help
         </button>
 
-        <aside class="helpText" [ngClass]="position">
+        <aside class="helpText">
             <section *ngIf="text">{{text}}</section>
             <ng-template *ngTemplateOutlet="itemTemplate"></ng-template>
         </aside>

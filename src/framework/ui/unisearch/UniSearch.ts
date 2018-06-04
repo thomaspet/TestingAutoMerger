@@ -7,7 +7,7 @@ declare const module;
 
 @Component({
     selector: 'uni-search',
-    template: html,
+    template: `hello world`,
     styleUrls: ['./uniSearch.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -24,12 +24,12 @@ export class UniSearch {
     @Output()
     private changeEvent: EventEmitter<any> = new EventEmitter<any>();
 
-    private onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
+    public onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
     constructor(private componentElement: ElementRef) {
     }
 
-    private onChangeEvent(event) {
+    public onChangeEvent(event) {
         this.changeEvent.emit(event);
     }
     private getTitle() {

@@ -65,7 +65,7 @@ export class TableEditor {
     }> = new Subject();
 
     private visibleColumns: UniTableColumn[];
-    private inputControl: FormControl;
+    public inputControl: FormControl;
     private editor: ComponentRef<any>;
 
     public editorVisible: boolean;
@@ -76,8 +76,8 @@ export class TableEditor {
     public currentColumn: any;
 
     // Key navigation
-    private currentRowIndex: number;
-    private currentCellIndex: number;
+    public currentRowIndex: number;
+    public currentCellIndex: number;
 
     constructor(
         private dataService: TableDataService,
@@ -255,7 +255,7 @@ export class TableEditor {
         });
     }
 
-    private close() {
+    public close() {
         if (this.editor) {
             this.editor.destroy();
             this.editor = undefined;

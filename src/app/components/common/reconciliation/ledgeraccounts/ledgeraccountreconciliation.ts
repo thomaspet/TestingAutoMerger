@@ -69,7 +69,7 @@ export class LedgerAccountReconciliation {
 
     public canAutoMark: boolean = false;
     private showMarkedEntries: boolean = false;
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private journalEntryLines: Array<any> = [];
 
     public itemsSummaryData: any = {};
@@ -77,16 +77,16 @@ export class LedgerAccountReconciliation {
     public validationResult: any;
     public summary: ISummaryConfig[];
 
-    private currentMarkingSession: Array<any> = [];
+    public currentMarkingSession: Array<any> = [];
     private allMarkingSessions: Array<JournalEntryLineCouple> = [];
-    private currentSelectedRows: Array<any> = [];
+    public currentSelectedRows: Array<any> = [];
 
     public isDirty: boolean = false;
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     private displayPostsOption: string = 'OPEN';
 
-    private summaryData: any = {
+    public summaryData: any = {
         SumOpen: 0,
         SumOpenDue: 0,
         SumChecked: 0

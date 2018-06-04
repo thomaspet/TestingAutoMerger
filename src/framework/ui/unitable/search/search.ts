@@ -134,17 +134,17 @@ export class UniTableSearch implements OnChanges {
     public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
 
     public allowGroupFilter: boolean;
-    private filterableColumns: Immutable.List<any>;
+    public filterableColumns: Immutable.List<any>;
 
-    private basicSearchControl: FormControl = new FormControl('');
+    public basicSearchControl: FormControl = new FormControl('');
 
     private basicSearchFilters: ITableFilter[];
-    private advancedSearchFilters: ITableFilter[];
+    public advancedSearchFilters: ITableFilter[];
     private emitFiltersTimeout: any;
 
     private tableName: string;
 
-    private savedSearches: ISavedFilter[] = [];
+    public savedSearches: ISavedFilter[] = [];
     public activeSearchName: string;
     public newSearchName: string;
 

@@ -13,19 +13,19 @@ export class ResetPassword {
     private code: string;
     private userid: string;
 
-    private busy: boolean = false;
+    public busy: boolean = false;
     private emailSent: boolean = false;
     private passwordChanged: boolean = false;
 
     private successMessage: string = '';
-    private errorMessage: string = '';
+    public errorMessage: string = '';
     private emailForm: FormGroup;
     private passwordForm: FormGroup;
 
     constructor(
-        private route: ActivatedRoute, 
-        private uniHttp: UniHttp, 
-        private logger: Logger, 
+        private route: ActivatedRoute,
+        private uniHttp: UniHttp,
+        private logger: Logger,
         private router: Router,
         private formBuilder: FormBuilder
     ) {
@@ -76,11 +76,11 @@ export class ResetPassword {
 
     public resetPassword() {
         if(!this.passwordForm.valid){
-            this.passwordForm.controls.Password.markAsTouched() 
+            this.passwordForm.controls.Password.markAsTouched()
             this.passwordForm.controls.ConfirmPassword.markAsTouched()
             return;
         }
-        
+
         this.busy = true;
         this.errorMessage = '';
         this.successMessage = '';

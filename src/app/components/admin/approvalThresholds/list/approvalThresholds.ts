@@ -17,14 +17,14 @@ export class ApprovalThresholds implements OnInit {
 
     public table: UniTable;
 
-    private toolbarConfig: IToolbarConfig;
-    private transitionTableConfig: UniTableConfig;
+    public toolbarConfig: IToolbarConfig;
+    public transitionTableConfig: UniTableConfig;
 
     public fieldSelectConfig: ISelectConfig;
 
-    private transitions: any[] = [];
+    public transitions: any[] = [];
 
-    private selectedTransition: any;
+    public selectedTransition: any;
 
     constructor(
         private tabService: TabService,

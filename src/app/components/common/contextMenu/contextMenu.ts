@@ -34,7 +34,7 @@ export class ContextMenu {
 
     @Input() public actions: IContextMenuItem[];
 
-    private expanded: boolean;
+    public expanded: boolean;
     private guid: string;
 
     constructor(gs: GuidService) {
@@ -52,7 +52,7 @@ export class ContextMenu {
        }
    }
 
-    private close() {
+    public close() {
         this.expanded = false;
     }
 }

@@ -34,7 +34,7 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
 
     private previousModelValue: any;
-    private currentModelValue: any;
+    public currentModelValue: any;
     private input: HTMLInputElement;
     private eventRemovers: [eventListenerRemover] = <[eventListenerRemover]>[];
 

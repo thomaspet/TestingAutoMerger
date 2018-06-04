@@ -50,10 +50,10 @@ export class UniCalendar {
     @Output()
     private monthChange: EventEmitter<any> = new EventEmitter<any>();
 
-    private weekdays: string[];
+    public weekdays: string[];
     private selectedDate: moment.Moment;
     public calendarDate: moment.Moment;
-    private calendarWeeks: any[] = [];
+    public calendarWeeks: any[] = [];
     private isCtrlDown: boolean = false;
     private previousIndex: number[] = [];
     private monthHasChanged: boolean = false;

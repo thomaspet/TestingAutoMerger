@@ -12,7 +12,7 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 export class SalarybalanceLine implements OnInit {
     @Input() private salarybalance: SalaryBalance;
     @Output() public linesSaved: EventEmitter<any> = new EventEmitter<any>();
-    private busy: boolean;
+    public busy: boolean;
 
     private layout$: BehaviorSubject<UniComponentLayout> = new BehaviorSubject(new UniComponentLayout());
     private salaryBalanceLine$: BehaviorSubject<SalaryBalanceLine> = new BehaviorSubject(new SalaryBalanceLine());

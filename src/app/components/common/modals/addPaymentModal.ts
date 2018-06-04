@@ -83,7 +83,7 @@ export class AddPaymentModal implements IUniModal {
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
         private bankAccountService: BankAccountService,
-        private uniSearchConfig: UniSearchAccountConfig,
+        public uniSearchConfig: UniSearchAccountConfig,
         private toastService: ToastService,
         private companySettingsService: CompanySettingsService,
         private paymentCodeService: PaymentCodeService,

@@ -135,7 +135,7 @@ export class Teams {
     }
 
     // Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
-    private onEditChange(event) {
+    public onEditChange(event) {
         var rowIndex = event.originalIndex;
         var value = event.rowModel[event.field];
 

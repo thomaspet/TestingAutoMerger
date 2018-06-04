@@ -20,10 +20,10 @@ const COMPLETEMESSAGE: string = 'Import completed';
 })
 export class SaftExportView implements OnInit {
     @ViewChild('fileInput') private fileInput: any;
-    private busy: boolean = false;
-    private busyFetch: boolean = false;
+    public busy: boolean = false;
+    public busyFetch: boolean = false;
     private files: Array<ISaftFileInfo> = [];
-    private currentFileId: number;
+    public currentFileId: number;
     private subscription: any;
     public jobName: string = JOBNAME;
     private baseUrl: string = environment.BASE_URL_FILES;

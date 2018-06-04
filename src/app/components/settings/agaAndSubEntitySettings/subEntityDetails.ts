@@ -13,8 +13,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     templateUrl: './subEntityDetails.html'
 })
 export class SubEntityDetails {
-    @Input() private currentSubEntity: SubEntity;
-    private currentSubEntity$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    @Input() public currentSubEntity: SubEntity;
+    public currentSubEntity$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public busy: boolean;

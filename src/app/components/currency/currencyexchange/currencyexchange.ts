@@ -36,16 +36,16 @@ export class CurrencyExchange {
     @ViewChild(UniTable)
     public table: UniTable;
 
-    private isBusy: boolean = true;
+    public isBusy: boolean = true;
     private exchangeTable: UniTableConfig;
     private exchangelist: any;
     private inthefuturetoast: number;
 
-    private filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});
+    public filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Valutakurser',
         omitFinalCrumb: true
     };
@@ -181,7 +181,7 @@ export class CurrencyExchange {
         return <Observable<T>>source.finally(() => this.isBusy = false);
     }
 
-    private onFormFilterChange(event) {
+    public onFormFilterChange(event) {
         this.loadData();
     }
 

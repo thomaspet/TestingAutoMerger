@@ -24,7 +24,7 @@ export class CustomerProductsSold {
     private filterTo: LocalDate;
 
     // Table
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private products$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(

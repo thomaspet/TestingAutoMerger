@@ -76,7 +76,7 @@ export class CustomerDetails implements OnInit {
     private customerID: any;
     private allowSearchCustomer: boolean = true;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public showReminderSection: boolean = false; // used in template
     public showContactSection: boolean = false; // used in template
     public showSellerSection: boolean = false; // used in template
@@ -94,20 +94,20 @@ export class CustomerDetails implements OnInit {
     public reportLinks: IReference[];
 
     public showReportWithID: number;
-    private commentsConfig: ICommentsConfig;
-    private selectConfig: any;
+    public commentsConfig: ICommentsConfig;
+    public selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
 
     private isDirty: boolean = false;
 
-    private toolbarSubheads: IToolbarSubhead[];
+    public toolbarSubheads: IToolbarSubhead[];
     public toolbarStatusValidation: IToolbarValidation[];
 
     public tabs: IUniTab[];
     public activeTabIndex: number = 0;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Kunde',
         navigation: {
             prev: this.previousCustomer.bind(this),
@@ -185,7 +185,7 @@ export class CustomerDetails implements OnInit {
 
     private formIsInitialized: boolean = false;
 
-    private saveactions: IUniSaveAction[];
+    public saveactions: IUniSaveAction[];
 
     private localizationOptions: {Culture: string, Label: string}[] = [
         {Culture: 'no', Label: 'Norsk bokmål'},

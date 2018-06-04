@@ -43,9 +43,9 @@ export class UniTableColumnConfigEditor implements OnChanges {
     private columnConfig: Immutable.Map<any, any>;
 
     @Output()
-    private onChange: EventEmitter<any> = new EventEmitter();
+    public onChange: EventEmitter<any> = new EventEmitter();
 
-    private model: UniTableColumn;
+    public model: UniTableColumn;
 
     public ngOnChanges() {
         if (this.columnConfig) {

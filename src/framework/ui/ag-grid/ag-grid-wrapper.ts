@@ -207,7 +207,7 @@ export class AgGridWrapper {
         }
     }
 
-    private onDataLoaded(api: GridApi) {
+    public onDataLoaded(api: GridApi) {
         if (this.domLayout !== 'autoHeight') {
             const loadedRowCount = this.dataService.loadedRowCount;
 

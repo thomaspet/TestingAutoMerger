@@ -46,9 +46,9 @@ export class UniToolbarSearch {
     @Input() public config: IToolbarSearchConfig;
     @ViewChild('inputElement') private input: ElementRef;
 
-    private searchControl: FormControl = new FormControl('');
-    private searchResults: any[] = [];
-    private expanded: boolean;
+    public searchControl: FormControl = new FormControl('');
+    public searchResults: any[] = [];
+    public expanded: boolean;
     private selectedIndex: number;
     private lookupInProgress: boolean;
 

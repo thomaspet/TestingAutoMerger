@@ -55,8 +55,8 @@ export class PostPost {
     // tslint:disable:member-ordering
 
     // Save
-    private shareActions: IShareAction[];
-    private saveActions: IUniSaveAction[];
+    public shareActions: IShareAction[];
+    public saveActions: IUniSaveAction[];
 
     // Filter
     private datefield: UniFieldLayout = new UniFieldLayout();
@@ -67,8 +67,8 @@ export class PostPost {
         {Register: 'account', _DisplayName: 'Hovedbok'}
     ];
 
-    private currentFilter: string = 'OPEN';
-    private tabs: IUniTab[] = [
+    public currentFilter: string = 'OPEN';
+    public tabs: IUniTab[] = [
         {name: 'Åpne poster', value: 'OPEN'},
         {name: 'Lukkede poster', value: 'MARKED'},
         {name: 'Alle poster', value: 'ALL'}
@@ -84,7 +84,7 @@ export class PostPost {
     public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
 
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
     public accountSearch: IAutoCompleteConfig;
     private registerConfig: any;
     private register: string = 'customer';

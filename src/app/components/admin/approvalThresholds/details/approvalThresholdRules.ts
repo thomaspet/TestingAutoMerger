@@ -12,18 +12,18 @@ import {ThresholdService, RoleService, ErrorService, ApiModelService} from '../.
 })
 export class ApprovalThresholdRules implements OnInit {
     @Input()
-    private selectedTransition: any;
+    public selectedTransition: any;
 
-    private fieldSelectConfig: ISelectConfig;
-    private operatorSelectConfig: ISelectConfig;
-    private approverSelectConfig: ISelectConfig;
+    public fieldSelectConfig: ISelectConfig;
+    public operatorSelectConfig: ISelectConfig;
+    public approverSelectConfig: ISelectConfig;
 
-    private fields: any[] = [];
-    private operators: any[] = [];
-    private approvers: any[] = [];
+    public fields: any[] = [];
+    public operators: any[] = [];
+    public approvers: any[] = [];
 
-    private thresholds: TransitionThreshold[] = [];
-    private newThreshold: TransitionThreshold;
+    public thresholds: TransitionThreshold[] = [];
+    public newThreshold: TransitionThreshold;
 
     constructor(
         private thresholdService: ThresholdService,
@@ -154,7 +154,7 @@ export class ApprovalThresholdRules implements OnInit {
         }
     }
 
-    private onModifyRule(item: TransitionThreshold) {
+    public onModifyRule(item: TransitionThreshold) {
         this.thresholdService.Put(item.ID, item).subscribe(
             x => {},
             err => this.errorService.handle(err)

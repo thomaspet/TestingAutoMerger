@@ -62,9 +62,9 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(UniForm)
     private uniForm: UniForm;
 
-    private summaryData: TransqueryDetailsCalculationsSummary;
-    private uniTableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public summaryData: TransqueryDetailsCalculationsSummary;
+    public uniTableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
     private configuredFilter: string;
     private allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
@@ -74,7 +74,7 @@ export class TransqueryDetails implements OnInit {
 
     private searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
@@ -148,7 +148,7 @@ export class TransqueryDetails implements OnInit {
             this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private onColumnsChange(event) {
+    public onColumnsChange(event) {
         this.setupFunction();
     }
 
@@ -295,11 +295,11 @@ export class TransqueryDetails implements OnInit {
         }
     }
 
-    private onFormReady() {
+    public onFormReady() {
         this.uniForm.field('JournalEntryNumber').focus();
     }
 
-    private onFormInput(input) {
+    public onFormInput(input) {
         clearTimeout(this.searchTimeout);
 
         const form = this.searchParams$.getValue();

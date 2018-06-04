@@ -13,7 +13,7 @@ export class UnitableNumberInput {
     public inputElement: ElementRef;
 
     @Input()
-    private inputControl: FormControl;
+    public inputControl: FormControl;
 
     @Input()
     public column: any;

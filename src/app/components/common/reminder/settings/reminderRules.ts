@@ -33,7 +33,7 @@ export class ReminderRules implements AfterViewInit {
 
     private rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
 
     constructor(
         private router: Router,

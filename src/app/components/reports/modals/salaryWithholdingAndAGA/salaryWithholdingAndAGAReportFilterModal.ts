@@ -76,7 +76,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private modalConfig: ModalConfig;
+    public modalConfig: ModalConfig;
     public type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
     private subscriptions: any[] = [];
     private inActive: boolean;
@@ -134,7 +134,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
             }, err => this.errorService.handle(err));
     }
 
-    private close() {
+    public close() {
         this.modal.close();
         this.refresh();
     }

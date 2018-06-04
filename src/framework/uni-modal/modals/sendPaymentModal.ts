@@ -40,10 +40,10 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     public onClose: EventEmitter<string> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private isEmpty: boolean;
+    public isEmpty: boolean;
 
     constructor(
         private toastService: ToastService,

@@ -49,7 +49,7 @@ export class DrilldownResultReportPart implements OnChanges {
     private dimensionEntityName: string;
     private treeSummaryList: ResultSummaryData[] = [];
     private flattenedTreeSummaryList: ResultSummaryData[] = [];
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
     private showall: boolean = false;

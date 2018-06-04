@@ -72,7 +72,7 @@ export class BureauHoursTab implements AfterViewInit, OnDestroy {
         private customHttpService: BureauCustomHttpService,
         private yearService: YearService,
         private authService: AuthService,
-        private currentCompanyService: BureauCurrentCompanyService,
+        public currentCompanyService: BureauCurrentCompanyService,
         private errorService: ErrorService,
     ) {
         this.accountingYear = this.yearService.selectedYear$.getValue();

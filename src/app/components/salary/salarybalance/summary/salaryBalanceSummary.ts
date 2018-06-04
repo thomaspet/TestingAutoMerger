@@ -28,7 +28,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private salarybalanceLinesModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private tableModel$: BehaviorSubject<SalaryBalanceLine[]>;
     private description$: BehaviorSubject<string>;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     public showDescriptionText: boolean = false;
     public showAllLines: boolean;
     public showAllLinesModel: {showAll: boolean} = {showAll: false};
@@ -72,7 +72,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         }
     }
 
-    private onBusychange(busy: boolean) {
+    public onBusychange(busy: boolean) {
         if (busy) {
             return;
         }
@@ -87,7 +87,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
         }
     }
 
-    private onSalaryBalanceChange(salaryBalance: SalaryBalance) {
+    public onSalaryBalanceChange(salaryBalance: SalaryBalance) {
         if (!salaryBalance || !salaryBalance.ID) {
             this.updateModel([]);
             this.description$.next('');

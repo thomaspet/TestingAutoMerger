@@ -80,17 +80,17 @@ export class UniWidgetCanvas {
     @Input()
     private defaultLayout: IWidgetReference[];
 
-    private layout: IResponsiveWidgetLayout;
+    public layout: IResponsiveWidgetLayout;
     private layoutBackup: IResponsiveWidgetLayout;
     private unsavedChanges: boolean;
-    private editMode: boolean;
-    private currentSize: string;
+    public editMode: boolean;
+    public currentSize: string;
     private gridUnitInPx: number;
     private widgetMargin: number;
 
     private mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
     private drawAnchorCell: EventEmitter<IUniWidget> = new EventEmitter<IUniWidget>();
-    private gridAnchor: IGridAnchor;
+    public gridAnchor: IGridAnchor;
     private widgetSelectorItems: any[];
 
     private refreshInterval: any;

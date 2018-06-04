@@ -41,7 +41,7 @@ import {AuthService} from '../../../authService';
 
 export class UniInfoShortcutWidget {
 
-    private widget: IUniWidget;
+    public widget: IUniWidget;
     private hasModule: boolean = false;
 
     constructor(

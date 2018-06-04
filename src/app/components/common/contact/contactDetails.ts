@@ -40,7 +40,7 @@ export class ContactDetails {
     @ViewChild(UniForm) public form: UniForm;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public addressChanged: any;
     public emailChanged: any;
     public phoneChanged: any;
@@ -52,7 +52,7 @@ export class ContactDetails {
 
     private canChangeParentBusinessRelation: boolean = false;
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Kontakt',
         navigation: {
             prev: this.previousContact.bind(this),

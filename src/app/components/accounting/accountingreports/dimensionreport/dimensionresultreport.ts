@@ -32,7 +32,7 @@ export class DimensionResultReport {
     public activeDistributionElement: string = 'Resultat';
     public distributionPeriodAccountIDs: Array<number> = [];
 
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
 
     constructor(
         private router: Router,

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {IUniTab} from './tabStrip';
+import {IUniTab} from './tabstrip';
 import {Router, NavigationEnd} from '@angular/router';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -90,7 +90,7 @@ export enum UniModules {
 
 @Injectable()
 export class TabService {
-    private tabs: IUniTab[];
+    public tabs: IUniTab[];
     public currentActiveTab: IUniTab;
     public currentActiveIndex: number = 0;
 

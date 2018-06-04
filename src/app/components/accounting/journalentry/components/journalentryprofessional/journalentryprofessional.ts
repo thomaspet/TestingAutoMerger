@@ -173,8 +173,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         ]
     };
 
-    private currentRowIndex: number = 0;
-    private currentFileIDs = [];
+    public currentRowIndex: number = 0;
+    public currentFileIDs = [];
     private users: any[] = [];
 
     constructor(
@@ -2105,7 +2105,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
     }
 
-    private onModalChanged(item, modalval) {
+    public onModalChanged(item, modalval) {
         item.JournalEntryDataAccrual = modalval;
         // if the item is already booked, just add the payment through the API now
         /* if (item.StatusCode) {
@@ -2122,7 +2122,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         });
     }
 
-    private onModalDeleted(item) {
+    public onModalDeleted(item) {
         item.JournalEntryDataAccrual = null;
         this.table.updateRow(item['_originalIndex'], item);
         setTimeout(() => {

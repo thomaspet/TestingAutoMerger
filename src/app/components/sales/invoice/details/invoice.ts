@@ -119,37 +119,37 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private printStatusPrinted: string = '200';
     private projects: Project[];
     private departments: Department[];
-    private currentDefaultProjectID: number;
+    public currentDefaultProjectID: number;
     private readonly: boolean;
 
     private currencyInfo: string;
-    private summaryLines: ISummaryLine[];
+    public summaryLines: ISummaryLine[];
 
-    private contextMenuItems: IContextMenuItem[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
     private companySettings: CompanySettings;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
-    private saveActions: IUniSaveAction[] = [];
-    private shareActions: IShareAction[];
-    private toolbarconfig: IToolbarConfig;
-    private toolbarSubheads: IToolbarSubhead[];
+    public saveActions: IUniSaveAction[] = [];
+    public shareActions: IShareAction[];
+    public toolbarconfig: IToolbarConfig;
+    public toolbarSubheads: IToolbarSubhead[];
 
     private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
-    private currentCustomer: Customer;
-    private currentPaymentTerm: Terms;
-    private currentDeliveryTerm: Terms;
-    private currentUser: User;
+    public currentCustomer: Customer;
+    public currentPaymentTerm: Terms;
+    public currentDeliveryTerm: Terms;
+    public currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
-    private selectConfig: any;
+    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    private currentInvoiceDate: LocalDate;
+    public currentInvoiceDate: LocalDate;
     private dimensionTypes: any[];
     private paymentInfoTypes: any[];
 
@@ -196,7 +196,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension10',
     ];
 
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
 
     constructor(
         private businessRelationService: BusinessRelationService,

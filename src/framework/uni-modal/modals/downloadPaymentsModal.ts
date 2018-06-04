@@ -38,11 +38,11 @@ export class UniDownloadPaymentsModal implements IUniModal {
     public onClose: EventEmitter<string> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private isLoading: boolean = false;
+    public formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public isLoading: boolean = false;
 
-    private isEmpty: boolean;
+    public isEmpty: boolean;
 
     constructor(
         private toastService: ToastService,

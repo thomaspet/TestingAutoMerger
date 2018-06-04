@@ -17,7 +17,7 @@ export class SupplierList implements OnInit {
 
     private companySettings: CompanySettings;
     private supplierTable: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
+    public lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
     private filter: string = `StatusCode eq ${StatusCode.Active}`;
     public tabs: IUniTab[] = [

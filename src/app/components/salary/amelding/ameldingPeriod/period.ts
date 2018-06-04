@@ -26,7 +26,7 @@ export class AmeldingPeriodSummaryView {
     private ameldingPeriodSums: ISummaryConfig[] = [];
 
     @Input() private systemData: SalaryTransactionPeriodSums[] = [];
-    @Input() private currentAMelding: any;
+    @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
 
     public collapsePaymentInfo: boolean = false;
@@ -113,7 +113,7 @@ export class AmeldingPeriodSummaryView {
                     value: this.forfallsdato
                 }, {
                     title: 'Sum aga',
-                    value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0}) 
+                    value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0})
                 }, {
                     title: 'Sum forskuddstrekk',
                     value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})

@@ -311,7 +311,7 @@ export class ReportService extends BizHttp<string> {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    private onDataFetched(dataSources: any, doneHandler: (msg: string) => void = null) {
+    public onDataFetched(dataSources: any, doneHandler: (msg: string) => void = null) {
         // uncomment this line to get the actual JSON being sent to the report - quite usefull when developing reports..
         // console.log('DATA: ', JSON.stringify(dataSources));
 

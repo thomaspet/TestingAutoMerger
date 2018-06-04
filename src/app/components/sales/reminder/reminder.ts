@@ -6,7 +6,7 @@ import {IUniTab} from '../../layout/uniTabs/uniTabs';
     templateUrl: './reminder.html'
 })
 export class Reminder {
-    private childRoutes: IUniTab[];
+    public childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

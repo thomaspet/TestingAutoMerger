@@ -15,7 +15,7 @@ export class EmployeeLeaves extends UniView {
     private employeeID: number;
     private employments: Employment[] = [];
     private employeeleaveItems: EmployeeLeave[] = [];
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor(
@@ -149,7 +149,7 @@ export class EmployeeLeaves extends UniView {
         }
     }
 
-    private onRowDeleted(event) {
+    public onRowDeleted(event) {
         const row: EmployeeLeave = event.rowModel;
         if (row['_isEmpty']) {
             return;

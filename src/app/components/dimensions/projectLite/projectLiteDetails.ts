@@ -42,7 +42,7 @@ export class ProjectLiteDetails {
         }
     ];
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Prosjekt',
         navigation: {
             prev: () => this.previous(),

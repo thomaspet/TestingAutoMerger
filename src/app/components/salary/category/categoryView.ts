@@ -25,11 +25,11 @@ export class CategoryView extends UniView {
     private url: string = '/salary/employeecategories/';
 
     private categoryID: number;
-    private currentCategory: EmployeeCategory;
-    private saveActions: IUniSaveAction[];
-    private toolbarConfig: IToolbarConfig;
+    public currentCategory: EmployeeCategory;
+    public saveActions: IUniSaveAction[];
+    public toolbarConfig: IToolbarConfig;
 
-    private childRoutes: any[];
+    public childRoutes: any[];
 
     constructor(
         private route: ActivatedRoute,

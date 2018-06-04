@@ -36,8 +36,8 @@ export class SaftImportModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<any> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
         let value = this.options.data || {};

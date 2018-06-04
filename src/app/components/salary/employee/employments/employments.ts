@@ -22,7 +22,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
     private employee: Employee;
     private employments: Employment[] = [];
     private selectedIndex: number;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private subEntities: SubEntity[];
     private projects: Project[];
     private departments: Department[];

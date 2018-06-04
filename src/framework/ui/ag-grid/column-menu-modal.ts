@@ -126,8 +126,8 @@ export class ColumnMenuNew implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private columns: UniTableColumn[];
-    private tableConfig: UniTableConfig;
+    public columns: UniTableColumn[];
+    public tableConfig: UniTableConfig;
 
     // Drag and drop
     private dragElement: any;

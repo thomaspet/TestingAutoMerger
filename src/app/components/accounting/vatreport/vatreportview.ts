@@ -48,12 +48,12 @@ export class VatReportView implements OnInit, OnDestroy {
     public vatTypes: VatType[] = [];
     public isBusy: boolean = true;
     public isHistoricData: boolean = false;
-    private actions: IUniSaveAction[];
+    public actions: IUniSaveAction[];
     private statusText: string;
     private subs: Subscription[] = [];
     private vatReportsInPeriod: VatReport[];
-    private contextMenuItems: IContextMenuItem[] = [];
-    private toolbarconfig: IToolbarConfig;
+    public contextMenuItems: IContextMenuItem[] = [];
+    public toolbarconfig: IToolbarConfig;
     private periodDateFormat: PeriodDateFormatPipe;
 
     public activeTabIndex: number = 1;

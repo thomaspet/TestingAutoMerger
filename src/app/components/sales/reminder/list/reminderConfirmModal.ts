@@ -24,8 +24,8 @@ export interface IReminderConfirmModalConfig {
 export class ReminderConfirmForm implements OnInit {
     @Input() public config: any = {};
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private model$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(
         private toastService: ToastService,
@@ -85,7 +85,7 @@ export class ReminderConfirmModal {
         this.modal.close();
     }
 
-    private onClose: () => void = () => {};
+    public onClose: () => void = () => {};
 
     public confirm(reminders): Promise<any> {
         return new Promise((resolve, reject) => {

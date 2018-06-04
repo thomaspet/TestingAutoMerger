@@ -32,16 +32,16 @@ import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 })
 
 export class AMeldingView implements OnInit {
-    private busy: boolean = true;
+    public busy: boolean = true;
     private initialized: boolean;
-    private currentPeriod: number;
-    private currentMonth: string;
-    private currentSumsInPeriod: any[] = [];
-    private currentAMelding: any;
-    private currentSumUp: any;
+    public currentPeriod: number;
+    public currentMonth: string;
+    public currentSumsInPeriod: any[] = [];
+    public currentAMelding: any;
+    public currentSumUp: any;
     private aMeldingerInPeriod: AmeldingData[];
-    private contextMenuItems: IContextMenuItem[] = [];
-    private actions: IUniSaveAction[];
+    public contextMenuItems: IContextMenuItem[] = [];
+    public actions: IUniSaveAction[];
     private clarifiedDate: string = '';
     private submittedDate: string = '';
     private feedbackObtained: boolean = false;
@@ -57,7 +57,7 @@ export class AMeldingView implements OnInit {
 
     private legalEntityNo: string;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
-    private toolbarConfig: IToolbarConfig;
+    public toolbarConfig: IToolbarConfig;
     private toolbarSearchConfig: IToolbarSearchConfig;
     private periodStatus: string;
     private alleAvvikStatuser: any[] = [];

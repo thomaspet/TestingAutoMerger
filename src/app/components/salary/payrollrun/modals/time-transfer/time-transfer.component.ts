@@ -18,14 +18,14 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     @ViewChild(UniTable) private table: UniTable;
-    private uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private saveactions: IUniSaveAction[] = [];
+    public uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public saveactions: IUniSaveAction[] = [];
     private mainAction: IUniSaveAction;
-    private unitableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private data: WorkItemToSalary[] = [];
     private createTransesIsActive: boolean;
-    private busy: boolean;
+    public busy: boolean;
 
     constructor(
         private errorService: ErrorService,
@@ -147,7 +147,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
                 item.WorkItems[0].Dimensions.Department &&
                 item.WorkItems[0].Dimensions.Department.Name);
 
-        this.unitableConfig = new UniTableConfig('salary.payrollrun.timetransferModalContent', false)
+        this.uniTableConfig = new UniTableConfig('salary.payrollrun.timetransferModalContent', false)
             .setColumns([
                 employeeCol, employmentCol, wagetypeCol, fromdateCol, todateCol,
                 amountCol, rateCol, sumCol, projectCol, departmentCol

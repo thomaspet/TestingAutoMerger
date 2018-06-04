@@ -1,6 +1,6 @@
 import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {VatType, LocalDate, VatTypePercentage} from '../../../../unientities';
+import {VatType} from '../../../../unientities';
 import {VatTypeService, ErrorService, YearService} from '../../../../services/services';
 import {
     UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
@@ -14,9 +14,9 @@ import * as moment from 'moment';
 export class VatTypeList implements OnInit, AfterViewInit {
     @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();
     @ViewChild(UniTable) private table: UniTable;
-    private vatTableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
-    private vatPercent: number;
+
+    public vatTableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
     private activeYear: number;
 
     constructor(
@@ -75,7 +75,6 @@ export class VatTypeList implements OnInit, AfterViewInit {
 
         const groupCol = new UniTableColumn('VatCodeGroup.Name', 'Gruppe', UniTableColumnType.Text).setWidth('35%');
         const codeCol = new UniTableColumn('VatCode', 'Kode', UniTableColumnType.Text).setWidth('5%');
-        const aliasCol = new UniTableColumn('Alias', 'Alias', UniTableColumnType.Text).setWidth('10%');
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setWidth('30%');
         const incomingAccountCol = new UniTableColumn(
             'IncomingAccount.AccountNumber', 'Inng. konto', UniTableColumnType.Text

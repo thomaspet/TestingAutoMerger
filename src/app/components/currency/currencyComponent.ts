@@ -8,7 +8,7 @@ import {IUniTab} from '../layout/uniTabs/uniTabs';
     <router-outlet></router-outlet>`
 })
 export class CurrencyComponent {
-    private childRoutes: IUniTab[];
+    public childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

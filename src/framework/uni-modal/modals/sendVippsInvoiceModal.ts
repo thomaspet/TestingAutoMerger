@@ -43,14 +43,14 @@ export class UniSendVippsInvoiceModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
-    private formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<Object> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private isValidCustomer: boolean = true;
-    private isShowing: boolean = true;
-    private isLoading: boolean = true;
-    private invalidMessage: boolean;
-    private customLabel: string;
+    public isValidCustomer: boolean = true;
+    public isShowing: boolean = true;
+    public isLoading: boolean = true;
+    public invalidMessage: boolean;
+    public customLabel: string;
 
     constructor(
         private toastService: ToastService,

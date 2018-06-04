@@ -11,15 +11,15 @@ import {Company} from '../../../unientities';
     templateUrl: './signup.html'
 })
 export class Signup {
-    private confirmationCode: string;
+    public confirmationCode: string;
     private recaptchaResponse: string;
-    private busy: boolean;
+    public busy: boolean;
 
-    private successMessage: string;
-    private errorMessage: string;
+    public successMessage: string;
+    public errorMessage: string;
 
-    private step1Form: FormGroup;
-    private step2Form: FormGroup;
+    public step1Form: FormGroup;
+    public step2Form: FormGroup;
 
     constructor(
         private http: UniHttp,
@@ -132,7 +132,7 @@ export class Signup {
                         this.errorMessage = 'Eposten er allerede i bruk';
                     } else {
                         this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
-                    } 
+                    }
                 } catch (error) {
                     this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
                 }

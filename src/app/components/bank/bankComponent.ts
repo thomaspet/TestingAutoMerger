@@ -88,7 +88,7 @@ export class BankComponent implements AfterViewInit {
     private tickers: Ticker[];
     private tickerGroups: TickerGroup[];
     private selectedTicker: Ticker;
-    private actions: IUniSaveAction[];
+    public actions: IUniSaveAction[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];

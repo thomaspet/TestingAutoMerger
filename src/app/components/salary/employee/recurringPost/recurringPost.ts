@@ -28,7 +28,7 @@ export class RecurringPost extends UniView {
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private employeeID: number;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private recurringPosts: SalaryTransaction[] = [];
     private employments: Employment[] = [];
     private wagetypes: WageType[] = [];

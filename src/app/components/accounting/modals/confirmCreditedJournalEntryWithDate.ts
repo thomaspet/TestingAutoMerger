@@ -64,7 +64,7 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
 
     private creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
 
     private showVatLockedDateInfo: boolean = false;

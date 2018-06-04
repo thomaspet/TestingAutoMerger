@@ -11,8 +11,8 @@ import {DepartmentService, ErrorService} from '../../../services/services';
 })
 export class DepartmentList {
 
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public tableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(
         private router: Router,

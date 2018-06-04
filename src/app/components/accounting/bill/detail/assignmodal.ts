@@ -99,13 +99,13 @@ export class MyStringFilterPipe implements PipeTransform {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniAssignModal implements IUniModal {
-    private isOpen: boolean = false;
-    private busy: boolean = false;
+    public isOpen: boolean = false;
+    public busy: boolean = false;
     private teams: Array<Team>;
     private users: Array<any>;
-    private currentTeam: Team;
-    private currentUser: IAssignUser;
-    private currentSelectedUsers: Array<any> = [];
+    public currentTeam: Team;
+    public currentUser: IAssignUser;
+    public currentSelectedUsers: Array<any> = [];
     public userListIsShown: boolean = false;
     public searchString: string = '';
     public teamString: string = '';
@@ -191,7 +191,7 @@ export class UniAssignModal implements IUniModal {
         this.users.forEach(user => user.selected = false);
     }
 
-    private onCloseAction(src: 'ok' | 'cancel') {
+    public onCloseAction(src: 'ok' | 'cancel') {
         if (src === 'ok') {
             this.onClose.emit(this.currentDetails);
         } else {

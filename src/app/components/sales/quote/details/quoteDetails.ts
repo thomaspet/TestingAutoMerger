@@ -97,33 +97,33 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private quoteItems: CustomerQuoteItem[];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
-    private shareActions: IShareAction[];
-    private saveActions: IUniSaveAction[] = [];
+    public shareActions: IShareAction[];
+    public saveActions: IUniSaveAction[] = [];
 
     private currencyCodeID: number;
     private currencyCodes: Array<CurrencyCode>;
     private currencyExchangeRate: number;
-    private currentCustomer: Customer;
-    private currentDeliveryTerm: Terms;
-    private currentUser: User;
+    public currentCustomer: Customer;
+    public currentDeliveryTerm: Terms;
+    public currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
     private departments: Department[];
-    private currentDefaultProjectID: number;
+    public currentDefaultProjectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    private currentQuoteDate: LocalDate;
+    public currentQuoteDate: LocalDate;
     private vatTypes: VatType[];
-    private toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
+    public toolbarconfig: IToolbarConfig;
+    public contextMenuItems: IContextMenuItem[] = [];
 
     public currencyInfo: string;
     public summaryLines: ISummaryLine[];
 
     public selectedNumberSeries: NumberSeries;
     public selectedNumberSeriesTaskID: number;
-    private selectConfig: any;
+    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private dimensionTypes: any[];
@@ -173,7 +173,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension10',
     ];
 
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
 
     constructor(
         private customerService: CustomerService,

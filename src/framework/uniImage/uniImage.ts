@@ -109,28 +109,27 @@ export class UniImage {
     private didTryReAuthenticate: boolean = false;
     private lastUrlFailed: string = null;
 
-    private uploading: boolean;
+    public uploading: boolean;
     private keyListener: any;
 
-    private files: File[] = [];
-    private thumbnails: string[] = [];
+    public files: File[] = [];
+    public thumbnails: string[] = [];
 
-    private currentFileIndex: number;
-    private currentPage: number = 1;
-    private fileInfo: string;
+    public currentFileIndex: number;
+    public currentPage: number = 1;
+    public fileInfo: string;
 
-    private imgUrl: string = '';
-    private imgUrl2x: string = '';
-    private highlightStyle: any;
+    public imgUrl: string = '';
+    public imgUrl2x: string = '';
+    public highlightStyle: any;
 
-    private wordPickerAreaVisible: boolean = false;
-    private currentClickedWordStyle: any;
-    private currentClickedWord: any;
+    public wordPickerAreaVisible: boolean = false;
+    public currentClickedWordStyle: any;
+    public currentClickedWord: any;
 
 
-    private processingPercentage: number = null;
-
-    private ocrWords: Array<any> = [];
+    public processingPercentage: number = null;
+    public ocrWords: Array<any> = [];
 
     constructor(
         private ngHttp: Http,
@@ -325,7 +324,7 @@ export class UniImage {
         }
     }
 
-    private thumbnailClicked(index) {
+    public thumbnailClicked(index) {
         // make sure we are clicking on another picture beforetrying to load an image
         if (this.currentFileIndex !== index) {
             this.currentFileIndex = index;
@@ -333,7 +332,7 @@ export class UniImage {
         }
     }
 
-    private next() {
+    public next() {
         if (this.files[this.currentFileIndex].Pages >= this.currentPage + 1) {
             this.currentPage++;
             this.loadImage();
@@ -344,7 +343,7 @@ export class UniImage {
         }
     }
 
-    private previous() {
+    public previous() {
         if (this.currentPage > 1) {
             this.currentPage--;
             this.loadImage();
@@ -355,7 +354,7 @@ export class UniImage {
         }
     }
 
-    private print() {
+    public print() {
         const currentFile = this.files[this.currentFileIndex];
 
         // If not pdf, just print the image
@@ -400,7 +399,7 @@ export class UniImage {
         }
     }
 
-    private splitFileDialog() {
+    public splitFileDialog() {
         this.modalService.open(FileSplitModal, {
                 data: this.getCurrentFile()
             })
@@ -411,7 +410,7 @@ export class UniImage {
             });
     }
 
-    private splitFile() {
+    public splitFile() {
         this.modalService.confirm({
             header: 'Bekreft oppdeling av fil',
             message: 'Vennligst bekreft at du vil dele filen i to fra og med denne siden. ' +
@@ -445,7 +444,7 @@ export class UniImage {
         });
     }
 
-    private rotateLeft(event) {
+    public rotateLeft(event) {
         this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, false)
             .subscribe(res => {
                 this.loadImage();
@@ -453,7 +452,7 @@ export class UniImage {
         );
     }
 
-    private rotateRight(event) {
+    public rotateRight(event) {
         this.uniFilesService.rotate(this.getCurrentFile().StorageReference, this.currentPage, true)
             .subscribe(res => {
                 this.loadImage();
@@ -461,7 +460,7 @@ export class UniImage {
         );
     }
 
-    private deleteImage() {
+    public deleteImage() {
         this.modalService.confirm({
             header: 'Bekreft sletting',
             message: 'Vennligst bekreft sletting av fil',
@@ -591,7 +590,7 @@ export class UniImage {
         }
     }
 
-    private onDrop(event, dropData) {
+    public onDrop(event, dropData) {
         const transfer = this.getTransfer(event);
         if (!transfer) {
             return;

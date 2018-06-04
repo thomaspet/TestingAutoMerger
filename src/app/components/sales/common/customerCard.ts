@@ -68,17 +68,17 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
 
     @Output() private entityChange: EventEmitter<any> = new EventEmitter();
 
-    private ehfClass: string = 'badge-unavailable';
-    private emailClass: string = 'badge-unavailable';
-    private vippsClass: string = 'badge-unavailable';
-    private printClass: string = 'badge-unavailable';
-    private ehfTitle: string;
-    private emailTitle: string;
-    private vippsTitle: string;
-    private printTitle: string = 'Sendt til utskrift';
+    public ehfClass: string = 'badge-unavailable';
+    public emailClass: string = 'badge-unavailable';
+    public vippsClass: string = 'badge-unavailable';
+    public printClass: string = 'badge-unavailable';
+    public ehfTitle: string;
+    public emailTitle: string;
+    public vippsTitle: string;
+    public printTitle: string = 'Sendt til utskrift';
 
     public uniSearchConfig: IUniSearchConfig;
-    private customerDueInvoiceData: any;
+    public customerDueInvoiceData: any;
     private lastPeppolAddressChecked: string;
     private lastCheckedStatisticsCustomerID: number;
 

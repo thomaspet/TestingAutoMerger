@@ -45,8 +45,8 @@ export class UniTickerContainer {
 
     private selectedRow: any;
     private expressionFilters: Array<IExpressionFilterValue> = [];
-    private currentUserGlobalIdentity: string;
-    private currentAccountingYear: string;
+    public currentUserGlobalIdentity: string;
+    public currentAccountingYear: string;
 
     constructor(
         private authService: AuthService,
@@ -67,7 +67,7 @@ export class UniTickerContainer {
                     Expression: 'currentuserid',
                     Value: this.currentUserGlobalIdentity
                 });
-    
+
                 this.expressionFilters.push({
                     Expression: 'currentaccountingyear',
                     Value: this.currentAccountingYear

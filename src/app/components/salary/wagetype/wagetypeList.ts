@@ -16,10 +16,10 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 })
 export class WagetypeList implements OnInit {
 
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private wageTypes$: Observable<WageType>;
-    private contextMenuItems: IContextMenuItem[] = [];
-    private busy: boolean;
+    public contextMenuItems: IContextMenuItem[] = [];
+    public busy: boolean;
 
     constructor(
         private _router: Router,

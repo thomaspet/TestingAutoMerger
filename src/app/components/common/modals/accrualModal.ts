@@ -82,7 +82,7 @@ export class AccrualModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private modalConfig: any = {
+    public modalConfig: any = {
         mode: null,
         disableQuestion: false,
     };
@@ -92,8 +92,8 @@ export class AccrualModal implements IUniModal {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private lockDate: any;
-    private currentFinancialYear: number;
-    private currentFinancialYearPeriods: Array<Period> = [];
+    public currentFinancialYear: number;
+    public currentFinancialYearPeriods: Array<Period> = [];
     private checkboxEnabledState: Boolean = false;
     private numberOfPeriods: number;
     private lastClickedPeriodNo: number = 0;

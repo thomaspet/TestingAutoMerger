@@ -37,14 +37,14 @@ export class NumberSeries {
     private uniTables: QueryList<UniTable>;
 
     private series: any[] = [];
-    private current: any[] = [];
-    private currentNumberSeriesType: NumberSeriesType;
+    public current: any[] = [];
+    public currentNumberSeriesType: NumberSeriesType;
 
     private numberseries: any[] = [];
     private types: any[] = [];
     private tasks: any[] = [];
-    private currentYear: number;
-    private currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
+    public currentYear: number;
+    public currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
     private asinvoicenumberserie: number = null;
     private customerAccount: Account = null;
     private supplierAccount: Account = null;

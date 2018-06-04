@@ -42,7 +42,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         onResize: undefined,
         editBlur: undefined
     };
-    private current: any = {
+    public current: any = {
         active: <IJQItem>undefined,
         editor: <IEditor>undefined,
         allowFastNavigation: true,
@@ -112,7 +112,7 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
     }
 
-    private onResize() {
+    public onResize() {
         if (!this.current.active) { return; }
         if (!this.current.editor) { return; }
         this.current.editor.moveTo(this.current.active);
@@ -364,14 +364,14 @@ export class Editable implements AfterViewInit, OnDestroy {
         }
     }
 
-    private currentPosition(): IPos {
+    public currentPosition(): IPos {
         if (this.current && this.current.active) {
             return this.getCellPosition(this.current.active);
         }
         return { col: -1, row: -1 };
     }
 
-    private onTypeSearch(value: string, pos?: IPos) {
+    public onTypeSearch(value: string, pos?: IPos) {
         pos = pos || this.getCellPosition(this.current.active);
         var details: ITypeSearch = {
             value: value,

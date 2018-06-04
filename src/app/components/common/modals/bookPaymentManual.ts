@@ -67,7 +67,7 @@ export class BookPaymentManualModal implements IUniModal {
 
     private companySettings: any;
     private journalEntryLines: Array<any> = [];
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private selectedRow: any;
     private paymentData: any;
     private businessRelations: any[];

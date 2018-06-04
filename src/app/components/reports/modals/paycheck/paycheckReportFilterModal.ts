@@ -36,7 +36,7 @@ type Hash = {
 export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
 
     @Input() public config: ModalConfig;
-    private currentYear: number;
+    public currentYear: number;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<InputModel> = new BehaviorSubject({ EmpFrom: 0, EmpTo: 0, RunID: 0 });
@@ -131,7 +131,7 @@ export class PayCheckReportFilterModal implements OnInit {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private modalConfig: ModalConfig;
+    public modalConfig: ModalConfig;
     public type: Type<any> = PaycheckReportFilterModalContent;
     private inActive: boolean;
 
@@ -187,7 +187,7 @@ export class PayCheckReportFilterModal implements OnInit {
             }, err => this.errorService.handle(err));
     }
 
-    private close() {
+    public close() {
         this.modal.close();
         this.refresh();
     }

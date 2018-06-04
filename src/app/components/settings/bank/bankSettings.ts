@@ -33,14 +33,14 @@ export class UniBankSettings {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private tableConfig: UniTableConfig;
-    private lookupFunction;
+    public tableConfig: UniTableConfig;
+    public lookupFunction;
     private data: any = [];
     private suggestedNames = ['Driftskonto', 'Konto for lønn', 'Valutakonto', 'Skattetrekkskonto', 'EURO']; // Backend? Needed?
     private yesno = ['Ja', 'Nei'];
     private accounts;
     private hasUnsavedChanges: boolean = false;
-    private busy: boolean = false;
+    public busy: boolean = false;
     private isClosing: boolean = false;
 
 
@@ -214,7 +214,7 @@ export class UniBankSettings {
             .setChangeCallback(event => this.onEditChange(event));
     }
 
-    private onEditChange(event) {
+    public onEditChange(event) {
         this.hasUnsavedChanges = true;
         const row = event.rowModel;
         const allRows = this.table.getTableData();

@@ -35,7 +35,7 @@ export class Users {
 
     // New user Form
     private newUserForm: FormGroup;
-    private errorMessage: string;
+    public errorMessage: string;
 
     // Users table
     private roles: Role[];
@@ -48,12 +48,12 @@ export class Users {
     private roleTableConfig: UniTableConfig;
     private hasAutobankProduct: boolean = false;
 
-    private formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
 
     // Misc
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     constructor(
         private http: UniHttp,

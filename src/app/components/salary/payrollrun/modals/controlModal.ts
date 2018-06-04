@@ -32,7 +32,7 @@ type PaylistSection = {
 export class ControlModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    private busy: boolean;
+    public busy: boolean;
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public payList: {
         employeeInfo: { name: string, payment: number},
@@ -40,7 +40,7 @@ export class ControlModal implements OnInit, IUniModal {
     }[] = null;
     private description$: ReplaySubject<string>;
     private transes: SalaryTransaction[];
-    private model$: BehaviorSubject<{
+    public model$: BehaviorSubject<{
         sums: SalaryTransactionSums,
         salaryTransactionPay: SalaryTransactionPay
     }> = new BehaviorSubject({ sums: null, salaryTransactionPay: null });
