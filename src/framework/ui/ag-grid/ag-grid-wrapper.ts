@@ -149,7 +149,7 @@ export class AgGridWrapper {
                 this.domLayout = 'autoHeight';
                 this.tableHeight = undefined;
                 this.rowModelType = 'inMemory';
-                this.usePagination = this.config.pageable;
+                this.usePagination = this.config.pageable && !this.config.editable;
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
