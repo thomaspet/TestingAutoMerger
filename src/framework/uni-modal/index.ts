@@ -18,6 +18,7 @@ import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
 import {UniChangelogModal} from './modals/changelog-modal/changelog-modal';
+import {SubCompanyModal} from './modals/subCompanyModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -62,6 +63,7 @@ export const MODALS = [
     UniBrRegModal,
     ManageProductsModal,
     UniBankModal,
-    UniChangelogModal
+    UniChangelogModal,
+    SubCompanyModal
 ];
 
