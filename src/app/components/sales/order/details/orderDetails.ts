@@ -8,6 +8,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
+    UniChooseFormModal,
 } from '../../../../../framework/uni-modal';
 import {
     CompanySettings,
@@ -26,6 +27,7 @@ import {
     VatType,
     Department,
     User,
+    ReportDefinition,
 } from '../../../../unientities';
 import {
     AddressService,
@@ -52,6 +54,7 @@ import {
     DimensionSettingsService,
     CustomDimensionService,
     PaymentInfoTypeService,
+    ReportTypeEnum,
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -930,56 +933,57 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.updateShareActions();
     }
 
-    private printAction(id): Observable<any> {
+    private printAction(reportForm: ReportDefinition): Observable<any> {
         const savedOrder = this.isDirty
             ? Observable.fromPromise(this.saveOrder())
             : Observable.of(this.order);
 
         return savedOrder.switchMap((order) => {
-            return this.reportDefinitionService.getReportByName('Ordre id').switchMap((report) => {
-                report.parameters = [{ Name: 'Id', value: id }];
-
-                return this.modalService.open(UniPreviewModal, {
-                    data: report
-                }).onClose.switchMap(() => {
-                    return this.customerOrderService.setPrintStatus(
-                        id,
-                        this.printStatusPrinted
-                    ).finally(() => {
-                        this.order.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    });
+            return this.modalService.open(UniPreviewModal, {
+                data: reportForm
+            }).onClose.switchMap(() => {
+                return this.customerOrderService.setPrintStatus(
+                    this.order.ID,
+                    this.printStatusPrinted
+                ).finally(() => {
+                    this.order.PrintStatus = +this.printStatusPrinted;
+                    this.updateToolbar();
                 });
             });
         });
     }
 
-    private sendEmailAction(): Observable<any> {
+    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerOrder, entityTypeName: string, name: string): Observable<any> {
         const savedOrder = this.isDirty
             ? Observable.fromPromise(this.saveOrder())
             : Observable.of(this.order);
 
         return savedOrder.switchMap(order => {
-            const model = new SendEmail();
-            model.EntityType = 'CustomerOrder';
-            model.EntityID = this.order.ID;
-            model.CustomerID = this.order.CustomerID;
-            model.EmailAddress = this.order.EmailAddress;
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
+        });
+    }
 
-            const orderNumber = this.order.OrderNumber
-                ? ` nr. ${this.order.OrderNumber}`
-                : 'kladd';
+    public chooseForm() {
+        return this.modalService.open(
+            UniChooseFormModal,
+            {data: {
+                name: 'Ordre',
+                typeName: 'Order',
+                entity: this.order,
+                type: ReportTypeEnum.ORDER
+            }}
+        ).onClose.map(res => {
+            if (res === ConfirmActions.CANCEL || !res) {
+                return;
+            }
 
-            model.Subject = 'Ordre' + orderNumber;
-            model.Message = 'Vedlagt finner du ordre' + orderNumber;
+            if (res.action === 'print') {
+                this.printAction(res.form).subscribe();
+            }
 
-            return this.modalService.open(UniSendEmailModal, {
-                data: model
-            }).onClose.map(email => {
-                if (email) {
-                    this.emailService.sendEmailWithReportAttachment('Ordre id', email, null);
-                }
-            });
+            if (res.action === 'email') {
+                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
+            }
         });
     }
 
@@ -987,12 +991,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.shareActions = [
             {
                 label: 'Skriv ut',
-                action: () => this.printAction(this.orderID),
-                disabled: () => false
-            },
-            {
-                label: 'Send på epost',
-                action: () => this.sendEmailAction(),
+                action: () => this.chooseForm(),
                 disabled: () => false
             }
         ];

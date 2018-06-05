@@ -60,7 +60,7 @@ export class ReportService extends BizHttp<string> {
     public getReportData(reportId, properties) {
         // Map to object if its a property list
         if (properties instanceof Array) {
-            let params = properties;
+            const params = properties;
             properties = {};
             params.forEach(param => {
                 properties[param.Name] = param.value;
@@ -72,7 +72,7 @@ export class ReportService extends BizHttp<string> {
             .withEndPoint(`${this.relativeURL}/${reportId}`)
             .withBody(properties)
             .send()
-            .map(response => response.json())
+            .map(response => response.json());
     }
 
     //
@@ -133,7 +133,9 @@ export class ReportService extends BizHttp<string> {
                 doneHandler('Sending feilet');
             }
         } else {
-            this.emailtoast = this.toastService.addToast('Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject);
+            this.emailtoast = this.toastService.addToast(
+                'Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject
+            );
 
             this.reportDefinitionService.getReportByName(name).subscribe((report) => {
                 report.parameters = [{ Name: 'Id', value: sendemail.EntityID }];
@@ -275,6 +277,9 @@ export class ReportService extends BizHttp<string> {
                     .GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=CustomerNumber eq ${customerNumber}`);
             } else {
                 const customerID = this.report.dataSources[entity][0].CustomerID;
+                if (!customerID) {
+                    return;
+                }
                 obs = this.statisticsService
                     .GetAllUnwrapped(`model=Customer&select=Localization as Localization&filter=ID eq ${customerID}`);
             }
@@ -316,12 +321,21 @@ export class ReportService extends BizHttp<string> {
         // console.log('DATA: ', JSON.stringify(dataSources));
 
         if (this.target) {
-            this.reportGenerator.showReport(this.report.templateJson, dataSources, this.report.parameters, this.report.localization, this.target);
+            this.reportGenerator.showReport(
+                this.report.templateJson, dataSources,
+                this.report.parameters, this.report.localization,
+                this.target
+            );
             if (doneHandler) { doneHandler(''); }
         } else {
-            this.reportGenerator.printReport(this.report.templateJson, dataSources, this.report.parameters, !this.sendemail, this.format, this.report.localization).then(attachment => {
+            this.reportGenerator.printReport(
+                this.report.templateJson, dataSources,
+                this.report.parameters, !this.sendemail,
+                this.format,
+                this.report.localization
+            ).then(attachment => {
                 if (this.sendemail) {
-                    let body = {
+                    const body = {
                         ToAddresses: [this.sendemail.EmailAddress],
                         CopyAddress: this.sendemail.SendCopy ? this.sendemail.CopyAddress : '',
                         Subject: this.sendemail.Subject,
@@ -355,6 +369,14 @@ export class ReportService extends BizHttp<string> {
             this.report.parameters.push(logoKeyParam);
         }
     }
+
+    public chooseFormType(type: ReportTypeEnum): Observable<any> {
+        return this.http.asGET()
+            .usingRootDomain()
+            .withEndPoint(`${this.relativeURL}/type/${type}`)
+            .send()
+            .map(response => response.json());
+    }
 }
 
 class ReportDataSource extends ReportDefinitionDataSource {
@@ -374,4 +396,12 @@ export class Report extends ReportDefinition {
     public dataSources: ReportDataSource[];
     public templateJson: string;
     public localization: string;
+}
+
+export enum ReportTypeEnum {
+    INVOICE = 1,
+    ORDER = 2,
+    QUOTE = 3,
+    REMINDER = 4,
+    PURCHASEORDER = 5
 }

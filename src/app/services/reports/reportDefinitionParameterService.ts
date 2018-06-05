@@ -5,13 +5,13 @@ import {ReportDefinitionParameter} from '../../unientities';
 
 @Injectable()
 export class ReportDefinitionParameterService extends BizHttp<ReportDefinitionParameter> {
-    
+
     constructor(http: UniHttp) {
         super(http);
-        
+
         this.relativeURL = ReportDefinitionParameter.RelativeUrl;
         this.entityType = ReportDefinitionParameter.EntityType;
         this.DefaultOrderBy = 'ID';
     }
-   
+
 }

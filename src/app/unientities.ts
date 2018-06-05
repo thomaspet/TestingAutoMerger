@@ -1287,12 +1287,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2294,10 +2294,10 @@ export class Employee extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public SubEntity: SubEntity;
-    public Employments: Array<Employment>;
     public BusinessRelationInfo: BusinessRelation;
+    public Employments: Array<Employment>;
     public VacationRateEmployees: Array<VacationRateEmployee>;
+    public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -3656,8 +3656,8 @@ export class Approval extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Thresholds: Array<TransitionThresholdApproval>;
     public Task: Task;
+    public Thresholds: Array<TransitionThresholdApproval>;
     public User: User;
     public CustomFields: any;
 }

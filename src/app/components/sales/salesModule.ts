@@ -134,7 +134,7 @@ import {MatSlideToggleModule} from '@angular/material';
         InvoiceReminders,
         CustomerDetailsModal,
         UniTofSelectModal,
-        UniProductDetailsModal
+        UniProductDetailsModal,
     ],
     providers: [
         TradeItemHelper,

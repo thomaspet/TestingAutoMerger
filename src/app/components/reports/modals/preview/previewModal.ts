@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReportFormat} from '../../../../models/reportFormat';
-import {ReportService, Report} from '../../../../services/services';
+import {ReportService, Report} from '../../../../services/reports/reportService';
 
 interface IDownloadAction {
     label: string;

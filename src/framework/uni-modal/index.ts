@@ -18,6 +18,7 @@ import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
 import {UniChangelogModal} from './modals/changelog-modal/changelog-modal';
+import {UniChooseFormModal} from './modals/chooseFormModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -41,6 +42,7 @@ export * from './modals/brRegModal/brRegModal';
 export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
 export * from './modals/changelog-modal/changelog-modal';
+export * from './modals/chooseFormModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -62,6 +64,7 @@ export const MODALS = [
     UniBrRegModal,
     ManageProductsModal,
     UniBankModal,
-    UniChangelogModal
+    UniChangelogModal,
+    UniChooseFormModal,
 ];
 

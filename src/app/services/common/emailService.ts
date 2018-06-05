@@ -1,5 +1,6 @@
 import {RequestMethod} from '@angular/http';
 import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs/Observable';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Email} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -8,6 +9,8 @@ import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/to
 import {ErrorService} from '../common/errorService';
 import {environment} from 'src/environments/environment';
 import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -16,7 +19,8 @@ export class EmailService extends BizHttp<Email> {
     constructor(
         http: UniHttp,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService,
     ) {
         super(http);
 
@@ -82,6 +86,30 @@ export class EmailService extends BizHttp<Email> {
                 this.errorService.handle(err);
             });
         }
+    }
+
+
+     public sendReportEmailAction(reportForm, entity: any, entityTypeName: string, name: string): Observable<any> {
+            const model = new SendEmail();
+            model.EntityType = `Customer${entityTypeName}`;
+            model.EntityID = entity.ID;
+            model.CustomerID = entity.CustomerID;
+            model.EmailAddress = entity.EmailAddress;
+
+            const entityNumber = entity[`${entityTypeName}Number`]
+                ? ` nr. ` + entity[`${entityTypeName}Number`]
+                : 'kladd';
+
+            model.Subject = `${name} ${entityNumber}`;
+            model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
+
+            return this.modalService.open(UniSendEmailModal, {
+                data: model
+            }).onClose.map(email => {
+                if (email) {
+                    this.sendEmailWithReportAttachment(reportForm.Name, email, null);
+                }
+            });
     }
 
     public isValidEmailAddress(email: string): boolean {
