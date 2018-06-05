@@ -28,6 +28,8 @@ export class TravelComponent implements OnInit {
     public busy: boolean;
     public saveActions$: BehaviorSubject<IUniSaveAction[]> = new BehaviorSubject(this.getSaveActions());
 
+    private wageTypes: WageType[] = [];
+
     constructor(
         private tabService: TabService,
         private travelService: TravelService,
@@ -113,7 +115,7 @@ export class TravelComponent implements OnInit {
         this.travelService
             .GetAll('', ['TravelLines.TravelType'])
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(travels => this.wageTypeService.GetAll('').map(wt => this.fillInInfo(travels, wt)))
+            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)))
             .subscribe((travels: any[]) => this.travels$.next(travels));
     }
 
@@ -182,6 +184,7 @@ export class TravelComponent implements OnInit {
                 return Observable.forkJoin(obsList).map(() => travels);
             })
             .do(travels => this.checkSave(travels))
+            .map(travels => this.fillInInfo(travels, this.wageTypes))
             .catch((err, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(err, obs);

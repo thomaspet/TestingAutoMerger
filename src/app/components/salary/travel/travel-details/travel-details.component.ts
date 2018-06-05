@@ -1,4 +1,4 @@
-import {Component, OnInit, Input, Output, OnChanges, SimpleChanges, EventEmitter} from '@angular/core';
+import {Component, OnInit, Input, Output, OnChanges, SimpleChanges, EventEmitter, OnDestroy} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import {TravelLine, Travel} from '@uni-entities';
@@ -10,7 +10,7 @@ const DIRTY = '_isDirty';
   templateUrl: './travel-details.component.html',
   styleUrls: ['./travel-details.component.sass']
 })
-export class TravelDetailsComponent implements OnInit, OnChanges {
+export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
     @Input() travel: Travel;
     @Output() public travelChange: EventEmitter<Travel> = new EventEmitter();
@@ -38,6 +38,10 @@ export class TravelDetailsComponent implements OnInit, OnChanges {
             this.travelFormModel$.next(this.travel);
             this.checkFiles(this.travel);
         }
+    }
+
+    public ngOnDestroy() {
+        this.travelService.clear();
     }
 
     public formChange(change: SimpleChanges) {
