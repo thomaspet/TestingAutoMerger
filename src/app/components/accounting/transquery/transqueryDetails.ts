@@ -182,10 +182,16 @@ export class TransqueryDetails implements OnInit {
                 const splitFilters = filters[0].split(' and ');
 
                 splitFilters.forEach(x => {
-                    if (!x.includes('Period.AccountYear eq ')
-                        && !x.includes('JournalEntryNumberNumeric eq ')
-                        && !x.includes('Account.AccountNumber eq')
-                        && !x.includes('Amount eq')) {
+                    if (
+                        !this.allowManualSearch
+                        || (
+                            !x.includes('Period.AccountYear eq ')
+                            && !x.includes('JournalEntryNumberNumeric eq ')
+                            && !x.includes('Account.AccountNumber eq')
+                            && !x.includes('Amount eq'
+                            )
+                        )
+                    ) {
                         newFilters.push(x);
                     }
                 });
