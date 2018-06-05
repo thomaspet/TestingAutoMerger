@@ -513,8 +513,8 @@ export class TimeTableReport {
         sum.TimeOff += day.TimeOff || 0;
         sum.ValidTime += day.ValidTime || 0;
         sum.Invoicable += day.Invoicable || 0;
-        sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ExpectedTime || 1) * 100);
-        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ExpectedTime || 1) * 100);
+        sum.ProjectPrc = this.minValue(100, (sum.Projecttime || 0) / (sum.ValidTime || 1) * 100);
+        sum.InvoicePrc = this.minValue(100, (sum.Invoicable || 0) / (sum.ValidTime || 1) * 100);
         sum.combineFlow(day.Workflow);
     }
 
