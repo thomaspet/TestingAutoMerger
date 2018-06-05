@@ -13,12 +13,14 @@ import {TableContextMenu} from './context-menu/context-menu';
 import {TableEditor} from './editor/editor';
 
 import {TABLE_CONTROLS} from '../unitable/controls';
+import {MatMenuModule} from '@angular/material';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        MatMenuModule,
         AppPipesModule,
         AgGridModule.withComponents([])
     ],

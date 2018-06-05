@@ -44,6 +44,7 @@ import {MatCheckboxModule} from '@angular/material';
         FormsModule,
         ReactiveFormsModule,
         MatCheckboxModule,
+
         AppPipesModule,
         UniPipesModule,
         UniSearchModule,

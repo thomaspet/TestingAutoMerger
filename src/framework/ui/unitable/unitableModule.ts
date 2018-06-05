@@ -29,11 +29,14 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
 import {ColumnTooltipPipe} from './columnTooltipPipe';
 import {UniTableHeader} from './header/unitable-header';
 
+import {MatMenuModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
+        MatMenuModule,
         AppPipesModule,
         UniSearchModule
     ],
