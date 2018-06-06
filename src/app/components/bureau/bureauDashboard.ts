@@ -19,7 +19,6 @@ import {isNullOrUndefined} from 'util';
 import {Router, ActivationEnd} from '@angular/router';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
-import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
 
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
@@ -45,7 +44,6 @@ export class BureauDashboard {
     public saveActions: IUniSaveAction[];
 
     private companies: KpiCompany[];
-    private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
     private filteredCompanies: KpiCompany[];
     public highlightedCompany: KpiCompany;
 
@@ -116,7 +114,6 @@ export class BureauDashboard {
         });
 
         this.busy = true;
-        this.loadSubCompanies();
         this.loadCompanies();
 
         this.router.events
@@ -135,7 +132,6 @@ export class BureauDashboard {
             .subscribe(
                 res => {
                     this.companies = this.mapKpiCounts(res);
-                    if (this.subCompanies) { this.mergeWithSubCompanies(this.companies, this.subCompanies); }
                     if (this.companies.length > 0) {
                         this.setCurrentCompany(this.companies[0]);
                     }
@@ -143,38 +139,6 @@ export class BureauDashboard {
                 },
                 err => this.errorService.handle(err)
             );
-    }
-
-    private loadSubCompanies(isRefresh = false) {
-        this.uniHttp.asGET()
-        .usingRootDomain()
-        .withEndPoint(`statistics?model=subcompany`
-            + `&select=customer.id as ID,info.name as Name,customer.customernumber as CustomerNumber,companykey as CompanyKey`
-            + `&filter=customerid gt 0&expand=customer.info&wrap=false`)
-        .send()
-        .map(res => res.json())
-        .do(() => this.busy = false)
-        .subscribe(
-            res => {
-                this.subCompanies = res;
-                if (this.companies) {
-                    this.mergeWithSubCompanies(this.companies, this.subCompanies);
-                }
-                if (isRefresh) {
-                    this.companies = [...this.companies];
-                    this.filterCompanies(this.searchControl.value || '');
-                }
-            },
-            err => this.errorService.handle(err)
-        );
-    }
-
-    private mergeWithSubCompanies(list: KpiCompany[], subs: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string}[]) {
-        list.forEach( company => {
-            const lKey = company.Key.toLowerCase();
-            company['SubCompany'] = subs.find( x => x.CompanyKey.toLowerCase() === lKey);
-        });
-        console.table(list);
     }
 
     private getTableConfig(): UniTableConfig {
@@ -192,19 +156,14 @@ export class BureauDashboard {
             .setCls('bureau-link-col')
             .setAlignment('center');
 
-        const subCompanyCol = new UniTableColumn('SubCompany.Name', 'Kunde', UniTableColumnType.Link)
-            .setVisible(false)
-            .setCls('bureau-link-col');
-
         companyNameCol.linkClick = row => this.onCompanyNameClick(row);
         inboxCol.linkClick = row => this.onCompanyInboxClick(row);
         approvalCol.linkClick = row => this.onCompanyApprovalsClick(row);
-        subCompanyCol.linkClick = row => this.router.navigateByUrl('/sales/customer/' + row.SubCompany.ID);
 
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
             .setColumnMenuVisible(true)
-            .setColumns([companyNameCol, orgnrCol, inboxCol, approvalCol, subCompanyCol])
+            .setColumns([companyNameCol, orgnrCol, inboxCol, approvalCol])
             .setContextMenu([
                 {
                     label: 'Legg til i filter',
@@ -213,10 +172,6 @@ export class BureauDashboard {
                 {
                     label: 'Administrer produkter',
                     action: item => this.editPurchases(item)
-                },
-                {
-                    label: 'Opprett som kunde',
-                    action: item => this.createCustomer(item)
                 }
             ]);
     }
@@ -224,8 +179,8 @@ export class BureauDashboard {
     public generateAllTags(companyTags: BureauTagsDictionary): AllTagsType[] {
         const tags = Object.keys(companyTags)
             .map(key => this.companyTags[key])
-            .reduce((allTags, ntags) => {
-                for (const tag of ntags) {
+            .reduce((allTags, tags) => {
+                for (const tag of tags) {
                     allTags[tag] = (allTags[tag] || []);
                     allTags[tag].push(tag);
                 }
@@ -386,23 +341,10 @@ export class BureauDashboard {
         });
     }
 
-    public createCustomer(company: KpiCompany) {
-        this.modalService
-            .open(SubCompanyModal, {
-                    data: company
-                })
-                .onClose
-                .subscribe(response => {
-                    if (response) {
-                        this.loadSubCompanies(true);
-                    }
-                });
-    }
-
     public companyHasTag(company: KpiCompany, tag: string): boolean {
         if (!tag) {
             return true; // show everything if there is no active tag
         }
-        return (this.companyTags[company.ID] || []).some(t => t === this.activeTag);
+        return (this.companyTags[company.ID] || []).some(tag => tag === this.activeTag);
     }
 }
