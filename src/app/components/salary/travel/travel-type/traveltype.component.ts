@@ -111,7 +111,7 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
     .setPageSize(20)
     .setChangeCallback((event) => {
       if (event.field === '_WageTypeNumber') {
-        event.rowModel.WageTypeNumber = event.newValue.WageTypeNumber;
+        event.rowModel.WageTypeNumber = event.newValue ? event.newValue.WageTypeNumber : null;
         event.rowModel['_isDirty'] = true;
         this.saveActions[0].disabled = false;
     }
