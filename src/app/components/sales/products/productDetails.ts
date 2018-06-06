@@ -77,7 +77,7 @@ export class ProductDetails {
     private formIsInitialized: boolean = false;
 
     private expandOptions: Array<string> = ['Dimensions', 'Account', 'VatType'];
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
 
     public saveactions: IUniSaveAction[] = [
          {

@@ -34,10 +34,10 @@ export class CurrencyOverrides {
     private table: UniTable;
 
     private overridesTable: UniTableConfig;
-    private saveActions: IUniSaveAction[] = [];
+    public saveActions: IUniSaveAction[] = [];
     private currencycodes: any;
     private overrides: any;
-    private isBusy: boolean = true;
+    public isBusy: boolean = true;
     private isDirty: boolean = false;
 
     public toolbarconfig: IToolbarConfig = {

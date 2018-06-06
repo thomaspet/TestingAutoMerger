@@ -41,7 +41,7 @@ export class SelectJournalEntryLineModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter<any>();
 
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
     private periodDateFormat: PeriodDateFormatPipe;
     private config: any = {};
 

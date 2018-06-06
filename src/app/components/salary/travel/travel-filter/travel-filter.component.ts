@@ -105,7 +105,7 @@ export class TravelFilterComponent implements OnInit, OnChanges {
             case 1:
                 return 'Ubehandlet';
             case 2:
-                return 'Importerte';
+                return 'Importert';
         }
     }
 

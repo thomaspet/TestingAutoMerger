@@ -109,9 +109,9 @@ export class UniTableRow implements OnChanges {
     private cells: QueryList<ElementRef>;
 
     public uniTablePipe: UniTablePipe = new UniTablePipe();
-    private contextMenu: any;
-    private singleItemMenu: boolean = true;
-    private rowMenuItem: IContextMenuItem = undefined;
+    public contextMenu: any;
+    public singleItemMenu: boolean = true;
+    public rowMenuItem: IContextMenuItem = undefined;
 
     public constructor(
         private renderer: Renderer,

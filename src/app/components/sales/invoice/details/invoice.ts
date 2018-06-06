@@ -21,6 +21,7 @@ import {
     VatType,
     Department,
     User,
+    ReportDefinition,
 } from '../../../../unientities';
 
 import {
@@ -52,6 +53,7 @@ import {
     CustomDimensionService,
     DepartmentService,
     PaymentInfoTypeService,
+    ReportTypeEnum,
 } from '../../../../services/services';
 
 import {
@@ -63,6 +65,7 @@ import {
     ConfirmActions,
     UniConfirmModalV2,
     IModalOptions,
+    UniChooseFormModal,
 } from '../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
@@ -119,37 +122,37 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private printStatusPrinted: string = '200';
     private projects: Project[];
     private departments: Department[];
-    private currentDefaultProjectID: number;
+    public currentDefaultProjectID: number;
     private readonly: boolean;
 
     private currencyInfo: string;
-    private summaryLines: ISummaryLine[];
+    public summaryLines: ISummaryLine[];
 
-    private contextMenuItems: IContextMenuItem[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
     private companySettings: CompanySettings;
     private recalcDebouncer: EventEmitter<any> = new EventEmitter();
-    private saveActions: IUniSaveAction[] = [];
-    private shareActions: IShareAction[];
-    private toolbarconfig: IToolbarConfig;
-    private toolbarSubheads: IToolbarSubhead[];
+    public saveActions: IUniSaveAction[] = [];
+    public shareActions: IShareAction[];
+    public toolbarconfig: IToolbarConfig;
+    public toolbarSubheads: IToolbarSubhead[];
 
     private vatTypes: VatType[];
     private currencyCodes: Array<CurrencyCode>;
     private currencyCodeID: number;
     private currencyExchangeRate: number;
-    private currentCustomer: Customer;
-    private currentPaymentTerm: Terms;
-    private currentDeliveryTerm: Terms;
-    private currentUser: User;
+    public currentCustomer: Customer;
+    public currentPaymentTerm: Terms;
+    public currentDeliveryTerm: Terms;
+    public currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
-    private selectConfig: any;
+    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    private currentInvoiceDate: LocalDate;
+    public currentInvoiceDate: LocalDate;
     private dimensionTypes: any[];
     private paymentInfoTypes: any[];
 
@@ -196,7 +199,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension10',
     ];
 
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
 
     constructor(
         private businessRelationService: BusinessRelationService,
@@ -1241,13 +1244,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.shareActions = [
             {
                 label: 'Skriv ut',
-                action: () => this.printAction(this.invoiceID),
-                disabled: () => !this.invoice.ID
-            },
-            {
-                label: 'Send på epost',
-                action: () => this.sendEmailAction(),
-                disabled: () => !this.invoice.ID
+                action: () => this.chooseForm(),
+                disabled: () => false
             },
             {
                 label: 'Send purring',
@@ -1573,56 +1571,57 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private printAction(id): Observable<any> {
+    private printAction(reportForm: ReportDefinition): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
             : Observable.of(this.invoice);
 
         return savedInvoice.switchMap((invoice) => {
-            return this.reportDefinitionService.getReportByName('Faktura id').switchMap((report) => {
-                report.parameters = [{Name: 'Id', value: id}];
-
-                return this.modalService.open(UniPreviewModal, {
-                    data: report
-                }).onClose.switchMap(() => {
-                    return this.customerInvoiceService.setPrintStatus(
-                        id,
-                        this.printStatusPrinted
-                    ).finally(() => {
-                        this.invoice.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    });
+            return this.modalService.open(UniPreviewModal, {
+                data: reportForm
+            }).onClose.switchMap(() => {
+                return this.customerInvoiceService.setPrintStatus(
+                    this.invoice.ID,
+                    this.printStatusPrinted
+                ).finally(() => {
+                    this.invoice.PrintStatus = +this.printStatusPrinted;
+                    this.updateToolbar();
                 });
             });
         });
     }
 
-    private sendEmailAction(): Observable<any> {
+    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerInvoice, entityTypeName: string, name: string): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
             : Observable.of(this.invoice);
 
         return savedInvoice.switchMap(invoice => {
-            const model = new SendEmail();
-            model.EntityType = 'CustomerInvoice';
-            model.EntityID = this.invoice.ID;
-            model.CustomerID = this.invoice.CustomerID;
-            model.EmailAddress = this.invoice.EmailAddress;
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
+        });
+    }
 
-            const invoiceNumber = (this.invoice.InvoiceNumber)
-                ? ` nr. ${this.invoice.InvoiceNumber}`
-                : 'kladd';
+    public chooseForm() {
+        return this.modalService.open(
+            UniChooseFormModal,
+            {data: {
+                name: 'Faktura',
+                typeName: 'Invoice',
+                entity: this.invoice,
+                type: ReportTypeEnum.INVOICE
+            }}
+        ).onClose.map(res => {
+            if (res === ConfirmActions.CANCEL || !res) {
+                return;
+            }
 
-            model.Subject = 'Faktura' + invoiceNumber;
-            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+            if (res.action === 'print') {
+                this.printAction(res.form).subscribe();
+            }
 
-            return this.modalService.open(UniSendEmailModal, {
-                data: model
-            }).onClose.map(email => {
-                if (email) {
-                    this.emailService.sendEmailWithReportAttachment('Faktura id', email, null);
-                }
-            });
+            if (res.action === 'email') {
+                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
+            }
         });
     }
 

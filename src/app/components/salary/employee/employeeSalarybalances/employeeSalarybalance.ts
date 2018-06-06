@@ -6,7 +6,7 @@ import {SalaryBalance, SalBalDrawType, SalBalType} from '../../../../unientities
 import * as _ from 'lodash';
 import {UniTable} from '@uni-framework/ui/unitable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salaryBalanceList';
+import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salarybalanceList';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';

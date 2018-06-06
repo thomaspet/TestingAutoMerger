@@ -43,10 +43,10 @@ export class UniSendEmailModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private formModel$: BehaviorSubject<SendEmail> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<SendEmail> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private invalidEmail: boolean;
+    public invalidEmail: boolean;
 
     constructor(
         private toastService: ToastService,
@@ -62,7 +62,7 @@ export class UniSendEmailModal implements IUniModal {
     }
 
     public initFormModel() {
-        let model: SendEmail = this.options.data || new SendEmail();
+        const model: SendEmail = this.options.data || new SendEmail();
         model.Format = model.Format || 'pdf';
 
         Observable.forkJoin(
@@ -73,9 +73,9 @@ export class UniSendEmailModal implements IUniModal {
                 : Observable.of(null)
         ).subscribe(
             res => {
-                let companySettings: CompanySettings = res[0] || {};
-                let user = res[1];
-                let customer = res[2];
+                const companySettings: CompanySettings = res[0] || {};
+                const user = res[1];
+                const customer = res[2];
 
                 if (!model.EmailAddress && customer && customer.Info) {
                     model.EmailAddress = customer.Info.DefaultEmail

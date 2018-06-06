@@ -46,11 +46,11 @@ export class UniDimensionView implements OnInit {
     public dimensionList: any[];
     public dimensionMetaData;
     public numberKey: string;
-    private tableConfig: IUniTableConfig;
+    public tableConfig: IUniTableConfig;
     private TOFTableConfig: IUniTableConfig;
 
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private model$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
@@ -66,7 +66,7 @@ export class UniDimensionView implements OnInit {
     public linkResolverValues = ['quotes', 'orders', 'invoices'];
     public services = [this.quoteService, this.orderService, this.invoiceService];
 
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
     public saveActions: IUniSaveAction[] = [
         {

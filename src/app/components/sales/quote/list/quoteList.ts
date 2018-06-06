@@ -93,7 +93,7 @@ export class QuoteList implements OnInit {
         this.router.navigateByUrl('/sales/quotes/0');
     }
 
-    private onAfterPrintQuote(selectedRows: Array<any>): Promise<any> {
+    public onAfterPrintQuote(selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             let invoice = selectedRows[0];
             this.customerQuoteService
@@ -132,7 +132,7 @@ export class QuoteList implements OnInit {
         });
     }
 
-    private onSendEmail(selectedRows: Array<any>): Promise<any> {
+    public onSendEmail(selectedRows: Array<any>): Promise<any> {
         let quote = selectedRows[0];
 
         return new Promise((resolve, reject) => {

@@ -16,8 +16,8 @@ export class ReconciliationListParamsModalComponent implements OnInit, IUniModal
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     public busy: boolean;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private model$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     constructor(
         private statisticsService: StatisticsService,
         private reportDefinitionParamService: ReportDefinitionParameterService

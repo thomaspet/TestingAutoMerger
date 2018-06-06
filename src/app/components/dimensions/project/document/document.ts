@@ -25,7 +25,7 @@ export class ProjectDocument {
     private project: Project;
 
     // Table
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private documents$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(

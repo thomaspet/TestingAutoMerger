@@ -172,7 +172,7 @@ export class CreateCorrectedVatReportModal {
     @Output() public changed: EventEmitter<any> = new EventEmitter<any>();
     @Output() public canceled: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    private modalConfig: any = {};
+    public modalConfig: any = {};
     private vatReportID: number;
     private periodID: number;
     private period: Period;

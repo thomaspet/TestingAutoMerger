@@ -68,14 +68,14 @@ export class UnitableTypeahead implements OnInit {
     private column: any;
 
     @Input()
-    private inputControl: FormControl;
+    public inputControl: FormControl;
 
-    private options: ITypeaheadOptions;
+    public options: ITypeaheadOptions;
     public busy: boolean = false;
     public expanded: boolean;
 
-    private lookupResults: any[] = [];
-    private selectedIndex: any;
+    public lookupResults: any[] = [];
+    public selectedIndex: any;
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -207,7 +207,7 @@ export class UnitableTypeahead implements OnInit {
         });
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode || 0;
 
         if (key === 13 && this.selectedIndex >= 0) {

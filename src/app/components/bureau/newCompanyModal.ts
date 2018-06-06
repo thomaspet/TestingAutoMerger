@@ -55,7 +55,7 @@ export class UniNewCompanyModal implements IUniModal {
     public uniSearchConfig: IUniSearchConfig;
     public busy: boolean = false;
 
-    private formData: FormModel;
+    public formData: FormModel;
 
     constructor(
         private errorService: ErrorService,

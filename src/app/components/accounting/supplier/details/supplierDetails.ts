@@ -89,15 +89,15 @@ export class SupplierDetails implements OnInit {
     public activeTabIndex: number = 0;
     public saveactions: IUniSaveAction[];
     public supplierStatusValidation: IToolbarValidation[];
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private emptyBankAccount: BankAccount;
     private currencyCodes: Array<CurrencyCode>;
     private numberSeries: NumberSeries[];
     private dropdownData: any;
     private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
-    private selectConfig: any;
+    public selectConfig: any;
     private formIsInitialized: boolean = false;
     private activeTab: string = 'details';
 
@@ -120,7 +120,7 @@ export class SupplierDetails implements OnInit {
     ];
 
 
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'Leverandør',
         navigation: {
             prev: this.previousSupplier.bind(this),

@@ -5,7 +5,7 @@ import {KpiCompany} from './kpiCompanyModel';
 
 @Injectable()
 export class BureauCurrentCompanyService {
-    private currentCompany: ReplaySubject<KpiCompany> = new ReplaySubject(1);
+    public currentCompany: ReplaySubject<KpiCompany> = new ReplaySubject(1);
 
     public getCurrentCompany(): Observable<KpiCompany> {
         return this.currentCompany;

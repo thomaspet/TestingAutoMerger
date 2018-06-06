@@ -35,10 +35,10 @@ export class SalarybalanceView extends UniView implements OnDestroy {
     private url: string = '/salary/salarybalances/';
     private salarybalanceID: number;
     private salarybalance: SalaryBalance;
-    private saveActions: IUniSaveAction[];
-    private toolbarConfig: IToolbarConfig;
-    private childRoutes: any[];
-    private contextMenuItems: IContextMenuItem[] = [];
+    public saveActions: IUniSaveAction[];
+    public toolbarConfig: IToolbarConfig;
+    public childRoutes: any[];
+    public contextMenuItems: IContextMenuItem[] = [];
     public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
     private subscriptions: Subscription[] = [];
 

@@ -7,11 +7,11 @@ import {IUniModal, ConfirmActions} from '../interfaces';
     selector: 'license-agreement-modal',
     template: `
         <section role="dialog" class="uni-modal"
-                (clickOutside)="bad()"
-                (keydown.esc)="bad()">
+                (clickOutside)="reject()"
+                (keydown.esc)="reject()">
             <header>
                 <h1>Lisens</h1>
-                <button class="modal-close-button" (click)="bad()"></button>
+                <button class="modal-close-button" (click)="reject()"></button>
             </header>
             <article>
                 <object data="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" type="application/pdf">

@@ -23,12 +23,12 @@ interface IPageState {
     templateUrl: 'hourtotals.html'
 })
 export class ProjectHourTotals {
-    private currentProjectID: number;
-    private currentProject: Project;
+    public currentProjectID: number;
+    public currentProject: Project;
     private filter: string;
-    private busy: boolean = false;
+    public busy: boolean = false;
     private report: Array<IReport>;
-    private toolbarConfig: IToolbarConfig;
+    public toolbarConfig: IToolbarConfig;
     public filters: Array<{ label: string, name: string, isActive: boolean}> = [
         { label: 'Personer', name: 'persons', isActive: false },
         { label: 'Timearter', name: 'worktypes', isActive: true }

@@ -1,4 +1,6 @@
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
+import * as  fs from 'file-saver';
+import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
 const configStoreKey = `gdprPeopleList`;
 
 // Name, email, phone, social security number
@@ -22,6 +24,24 @@ const sourceColumn = new UniTableColumn(
     '_Source',
     'Kilde',
     UniTableColumnType.Text);
+const downloadColumn = new UniTableColumn(
+    'ID',
+    '',
+    UniTableColumnType.Link);
+
+downloadColumn
+    .setLinkClick((rowModel => {
+        const content = new GdprFileWriter().createFileContent(rowModel);
+        const filename = rowModel.Info.Name + '.txt';
+        const blob = new Blob([content], {
+            type: 'text/plain;charset=utf-8'
+        });
+        fs.saveAs(blob, filename);
+    }))
+    .setLinkResolver(rowModel => {
+        return '';
+    })
+    .setTemplate((rowModel) => 'Download');
 
 export const tableConfig =  new UniTableConfig(configStoreKey, false, false)
     .setSearchable(false)
@@ -31,5 +51,6 @@ export const tableConfig =  new UniTableConfig(configStoreKey, false, false)
         ssnColumn,
         nameColumn,
         emailColumn,
-        phoneColumn
+        phoneColumn,
+        downloadColumn
     ]);

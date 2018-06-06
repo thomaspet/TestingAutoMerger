@@ -37,11 +37,11 @@ export class UniCommentInput {
     @Output()
     private submit: EventEmitter<string> = new EventEmitter();
 
-    private inputControl: FormControl = new FormControl('');
+    public inputControl: FormControl = new FormControl('');
 
     private users: User[];
-    private filteredUsers: User[] = [];
-    private focusIndex: number;
+    public filteredUsers: User[] = [];
+    public focusIndex: number;
     private mentionIndex: number;
 
     constructor(
@@ -84,7 +84,7 @@ export class UniCommentInput {
         });
     }
 
-    private userSelected() {
+    public userSelected() {
         let user = this.filteredUsers[this.focusIndex];
 
         let editorValue = this.inputControl.value || '';

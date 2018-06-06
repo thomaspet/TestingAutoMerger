@@ -32,7 +32,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     private showReceipt: boolean = false;
     private accountTableConfig: UniTableConfig;
     private payrollrunID: number;
-    private summary: any;
+    public summary: any;
     private journalNumber: string;
     private journalDate: string;
     private headerString: string = 'Konteringssammendrag';

@@ -50,13 +50,13 @@ export class UniBankAccountModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private formModel$: BehaviorSubject<BankAccount> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<BankAccount> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private isDirty: boolean;
-    private validAccount: boolean = true;
-    private busy: boolean = false;
-    private hasChanges: boolean = false;
+    public isDirty: boolean;
+    public validAccount: boolean = true;
+    public busy: boolean = false;
+    public hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
 
     constructor(

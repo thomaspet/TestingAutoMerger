@@ -16,18 +16,18 @@ export class UniTasks {
     @ViewChild('taskList')
     private taskList: ElementRef;
 
-    private tasks: any[];
-    private selectedTask: any = new Task();
-
-    private newTask: any = new Task();
-
     private routeParam: number;
-    private currentUser: User;
-    private users: User[];
-    private userSelectConfig: ISelectConfig;
 
-    private showCompleted: boolean;
-    private showOnlyMine: boolean = true;
+    public tasks: any[];
+    public selectedTask: any = new Task();
+
+    public newTask: any = new Task();
+    public currentUser: User;
+    public users: User[];
+    public userSelectConfig: ISelectConfig;
+
+    public showCompleted: boolean;
+    public showOnlyMine: boolean = true;
 
     private comments: any[];
 
@@ -99,7 +99,7 @@ export class UniTasks {
         return task;
     }
 
-    private loadTasks() {
+    public loadTasks() {
         this.taskService.invalidateCache();
         let filterString = 'filter=Type eq ' + TaskType.Task;
 

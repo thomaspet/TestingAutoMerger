@@ -11,7 +11,7 @@ export class UnitableTextInput implements AfterViewInit {
     public inputElement: ElementRef;
 
     @Input()
-    private inputControl: FormControl;
+    public inputControl: FormControl;
 
     @Input()
     private column: any;
@@ -33,7 +33,7 @@ export class UnitableTextInput implements AfterViewInit {
         }
     }
 
-    private onBlur() {
+    public onBlur() {
         if (this.inputControl.dirty) {
             this.close.emit(this.inputControl.value);
         } else {

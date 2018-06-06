@@ -145,13 +145,15 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private steps: number = 0;
-    private canMoveForward: boolean = false;
-    private errorText: string;
     private accounts: any[] = [];
-    private busy: boolean = false;
-    private header = 'Veiviser for ny autobankavtale';
-    private agreementDetails: IAutoBankAgreementDetails = {
+
+    public steps: number = 0;
+    public canMoveForward: boolean = false;
+    public errorText: string;
+    public busy: boolean = false;
+    public header = 'Veiviser for ny autobankavtale';
+
+    public agreementDetails: IAutoBankAgreementDetails = {
         Phone: '',
         Email: '',
         Bank: '',
@@ -165,8 +167,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     };
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public haveReadAgreement = false;
 

@@ -47,13 +47,13 @@ export class ProjectOverview {
 
     private myChart: any;
     private myChart2: any;
-    private projectHoursTotal: number;
-    private projectHoursInvoiced: number;
-    private projectExpectedResult: number;
-    private currentResult: number;
-    private remainingTasks: number;
+    public projectHoursTotal: number;
+    public projectHoursInvoiced: number;
+    public projectExpectedResult: number;
+    public currentResult: number;
+    public remainingTasks: number;
     private customer: Customer;
-    private customerName: string;
+    public customerName: string;
     private monthAndYearDataInBarChart: IMonthAndYear[] = [];
 
     private project: IMyProject;

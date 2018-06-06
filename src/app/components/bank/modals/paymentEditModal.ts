@@ -78,7 +78,7 @@ export class UniPaymentEditModal implements IUniModal {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private companySettings: any;
     private pendingPayments: Array<Payment> = [];
 

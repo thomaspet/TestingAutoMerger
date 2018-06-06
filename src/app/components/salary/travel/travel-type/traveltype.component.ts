@@ -28,7 +28,7 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
   @ViewChild(AgGridWrapper) private table: AgGridWrapper;
   public model$: BehaviorSubject<TravelType[]> = new BehaviorSubject([]);
   public travelTable: UniTableConfig;
-  private saveActions: IUniSaveAction[] = [{
+  public saveActions: IUniSaveAction[] = [{
     action: this.save.bind(this),
     disabled: true,
     label: 'Lagre',

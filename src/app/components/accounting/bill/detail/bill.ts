@@ -142,12 +142,12 @@ export class BillView implements OnInit {
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
     private formReady: boolean;
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
-    private uniSearchConfig: IUniSearchConfig;
+    public uniSearchConfig: IUniSearchConfig;
 
     private hasSuggestions: boolean = false;
     private suggestions: Array<IJournalHistoryItem> = [];
@@ -857,7 +857,7 @@ export class BillView implements OnInit {
         }
     }
 
-    private onJournalEntryManualDataLoaded(data) {
+    public onJournalEntryManualDataLoaded(data) {
         setTimeout(() => {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
@@ -1279,7 +1279,7 @@ export class BillView implements OnInit {
         }
     }
 
-    private onFormChanged(change: SimpleChanges) {
+    public onFormChanged(change: SimpleChanges) {
 
         const model = this.current.getValue();
 

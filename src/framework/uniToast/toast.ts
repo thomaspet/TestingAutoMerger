@@ -15,7 +15,7 @@ import {IToast} from './toastService';
 })
 export class UniToast {
     @Input()
-    private toast: IToast;
+    public toast: IToast;
 
     @Output()
     private dismiss: EventEmitter<any> = new EventEmitter();
@@ -28,7 +28,7 @@ export class UniToast {
         }
     }
 
-    private close() {
+    public close() {
         this.dismiss.emit(true);
     }
 }

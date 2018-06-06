@@ -16,21 +16,21 @@ export class UniModels {
     @ViewChildren(UniTable)
     private tables: QueryList<UniTable>;
 
-    private models: Model[];
-    private selectedModel: Model;
-    private selectedIndex: number;
+    public models: Model[];
+    public selectedModel: Model;
+    public selectedIndex: number;
 
-    private modelsTable: UniTableConfig;
-    private fieldsTable: UniTableConfig;
+    public modelsTable: UniTableConfig;
+    public fieldsTable: UniTableConfig;
 
     private hasUnsavedChanges: boolean;
 
-    private formModel$: BehaviorSubject<Model> = new BehaviorSubject(null);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<Model> = new BehaviorSubject(null);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
 
-    private toolbarConfig: IToolbarConfig;
-    private saveActions: IUniSaveAction[];
+    public toolbarConfig: IToolbarConfig;
+    public saveActions: IUniSaveAction[];
 
     constructor(
         private tabService: TabService,
@@ -81,7 +81,7 @@ export class UniModels {
         this.formModel$.next(this.selectedModel);
     }
 
-    private onRowChanged(event) {
+    public onRowChanged(event) {
         this.hasUnsavedChanges = true;
         this.selectedModel.Fields[event._originalIndex] = event.rowModel;
         this.formModel$.next(this.selectedModel);

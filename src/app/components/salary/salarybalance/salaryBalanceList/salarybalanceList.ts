@@ -20,7 +20,7 @@ const SELECTED_KEY = '_rowSelected';
 })
 export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
 
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     @Input() public salarybalances: SalaryBalance[];
     private salaryBalances$: BehaviorSubject<SalaryBalance[]> = new BehaviorSubject([]);
     @Input() public lightWeight: boolean;
@@ -29,7 +29,7 @@ export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
     @Output() public createSalaryBalance: EventEmitter<any> = new EventEmitter<any>();
     @ViewChild(UniTable) private table: UniTable;
     private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
-    private busy: boolean;
+    public busy: boolean;
 
     private focus: SalaryBalance;
     private selected: SalaryBalance;

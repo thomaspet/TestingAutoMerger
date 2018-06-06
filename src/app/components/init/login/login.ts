@@ -25,12 +25,12 @@ export class Login {
     private usernameControl: FormControl = new FormControl('', Validators.required);
     private passwordControl: FormControl = new FormControl('', Validators.required);
 
-    private working: boolean;
-    private errorMessage: string = '';
+    public working: boolean;
+    public errorMessage: string = '';
     public missingCompanies: boolean;
 
     private availableCompanies: any[];
-    private selectConfig: ISelectConfig;
+    public selectConfig: ISelectConfig;
 
     constructor(
         private _authService: AuthService,
@@ -118,7 +118,7 @@ export class Login {
         $(this.loginForm.nativeElement).show();
     }
 
-    private onCompanySelected(company) {
+    public onCompanySelected(company) {
         if (company) {
             const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');

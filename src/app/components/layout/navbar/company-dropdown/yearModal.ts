@@ -14,7 +14,7 @@ export interface IChangeYear {
         <section role="dialog" class="uni-modal">
             <header><h1>Velg år</h1></header>
             <article>
-                <uni-form [config]="config$" [fields]="lay$" [model]="yearModel$"></uni-form>
+                <uni-form [config]="config$" [fields]="fields$" [model]="yearModel$"></uni-form>
             </article>
             <footer>
                 <button (click)="changeYear()" class="good">Endre</button>
@@ -33,9 +33,10 @@ export class YearModal implements IUniModal {
         },
         disabled: true
     };
-    private lay$: BehaviorSubject<any>; // fields
-    private config$: BehaviorSubject<any>; // config
-    private yearModel$: BehaviorSubject<any>; // model
+
+    public fields$: BehaviorSubject<any>; // fields
+    public config$: BehaviorSubject<any>; // config
+    public yearModel$: BehaviorSubject<any>; // model
 
     @Input()
     public options: IModalOptions;
@@ -51,7 +52,7 @@ export class YearModal implements IUniModal {
 
         this.config$ = new BehaviorSubject(this.modalConfig);
         this.yearModel$ = new BehaviorSubject(this.modalConfig);
-        this.lay$ = new BehaviorSubject<any>(1);
+        this.fields$ = new BehaviorSubject<any>(1);
 
         let inputYear = new UniFieldLayout();
         inputYear.Label = 'År';
@@ -68,7 +69,7 @@ export class YearModal implements IUniModal {
         fieldcheck.LookupField = false;
         fieldcheck.Property = 'checkStandard';
 
-        this.lay$.next([inputYear, fieldcheck]);
+        this.fields$.next([inputYear, fieldcheck]);
     }
 
     public changeYear() {

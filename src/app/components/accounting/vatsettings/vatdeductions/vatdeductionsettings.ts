@@ -14,7 +14,7 @@ import {
 })
 export class VatDeductionSettings {
     @ViewChild(UniTable) public unitable: UniTable;
-    private uniTableConfig: UniTableConfig;
+    public uniTableConfig: UniTableConfig;
 
     private vatdeductions: VatDeduction[] = [];
 

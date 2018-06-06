@@ -77,7 +77,7 @@ export class BureauSalesTab implements AfterViewInit, OnDestroy {
         private yearService: YearService,
         private authService: AuthService,
         private errorService: ErrorService,
-        private currentCompanyService: BureauCurrentCompanyService,
+        public currentCompanyService: BureauCurrentCompanyService,
     ) {
         this.accountingYear = this.yearService.selectedYear$.getValue();
     }

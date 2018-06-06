@@ -57,7 +57,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
     private heightOfNewButtonPadding: number = 0;
     public currentSearchType: SearchType = SearchType.INTERNAL;
     public SearchTypeEnum = SearchType;
-    private currentInputValue: string;
+    public currentInputValue: string;
 
     public searchPersons: boolean = true;
     public searchCompanies: boolean = true;
@@ -246,7 +246,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }, err => console.error('Uncaught error in UniSearch! Add a .catch() in the lookup function!'));
     }
 
-    private onKeydown(event: KeyboardEvent) {
+    public onKeydown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
 
         if (!this.lookupResults && key !== KeyCodes.F4) {

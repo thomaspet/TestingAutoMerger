@@ -24,10 +24,10 @@ export class UniTerms {
         {TermsType: TermsType.PaymentTerms, Name: 'Betalingsbetingelser'},
         {TermsType: TermsType.DeliveryTerms, Name: 'Leveringsbetingelser'}
     ];
-    private currentTermType: any = this.termsTypes.find(
+    public currentTermType: any = this.termsTypes.find(
         x => x.TermsType === TermsType.PaymentTerms
     ); // Valgt TermsTypes, betaling forhåndsvalgt
-    private currentTerms: Terms[] = []; // terms filtrert etter valgt TermsTypes
+    public currentTerms: Terms[] = []; // terms filtrert etter valgt TermsTypes
     private deletables: Array<Terms> = []; // Tabellrader som blir slettet
 
     public terms: Terms[] = []; // Alle terms, begge typer
@@ -136,7 +136,7 @@ export class UniTerms {
     }
 
     // Oppdaterer data ved endring i tabellen (men ikke lagrer, lagres i save())
-    private onEditChange(event) {
+    public onEditChange(event) {
         var rowIndex = event.originalIndex;
         var value = event.rowModel[event.field];
 

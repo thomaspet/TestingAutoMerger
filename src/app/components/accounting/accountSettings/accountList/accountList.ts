@@ -26,7 +26,7 @@ export class AccountList implements OnInit, AfterViewInit {
     @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniTable) private table: UniTable;
     private accountTable: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(
         private accountService: AccountService,

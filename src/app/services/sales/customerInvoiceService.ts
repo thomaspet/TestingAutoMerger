@@ -97,7 +97,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         this.router.navigateByUrl('/sales/reminders');
     }
 
-    private onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
+    public onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             let invoice = selectedRows[0];
             this.setPrintStatus(invoice.ID, this.printStatusPrinted)
@@ -194,7 +194,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
-    private onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {
+    public onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {
         let rowModel = selectedRow;
 
         if (rowModel.CustomerInvoiceInvoiceType === 1) {
@@ -210,7 +210,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         }
     }
 
-    private onCreateCreditNote(selectedRows: Array<any>): Promise<any> {
+    public onCreateCreditNote(selectedRows: Array<any>): Promise<any> {
         let rowModel = selectedRows[0];
 
         return new Promise((resolve, reject) => {
@@ -229,7 +229,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
-    private onCheckCreditCreditNoteDisabled(selectedRow: any): boolean {
+    public onCheckCreditCreditNoteDisabled(selectedRow: any): boolean {
         let rowModel = selectedRow;
 
         if (rowModel.CustomerInvoiceTaxInclusiveAmount === 0 || rowModel.CustomerInvoiceInvoiceType === 0) {
@@ -266,7 +266,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
-    private onSendEmail(selectedRows: Array<any>): Promise<any> {
+    public onSendEmail(selectedRows: Array<any>): Promise<any> {
         let invoice = selectedRows[0];
 
         return new Promise((resolve, reject) => {

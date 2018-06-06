@@ -31,12 +31,12 @@ export class VatTypeDetails implements OnChanges, OnInit {
 
     public vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     private accounts: Account[];
     private vatcodegroups: VatCodeGroup[];
-    private uniTableConfigVatPostReference: UniTableConfig;
-    private uniTableConfigVatTypePercentage: UniTableConfig;
+    public uniTableConfigVatPostReference: UniTableConfig;
+    public uniTableConfigVatTypePercentage: UniTableConfig;
     private deletedVatReportReferences: VatReportReference[] = [];
     private vatPostsWithPercentage: VatPost[] = [];
 

@@ -33,11 +33,11 @@ export class KIDSettings {
     saveactions: IUniSaveAction[];
 
     private sumDoesNotMatch: boolean = false;
-    private currentPaymentInfoType: PaymentInfoType;
+    public currentPaymentInfoType: PaymentInfoType;
     private initialActive: boolean;
     private paymentInfoTypes: PaymentInfoType[];
     private paymentInfoTypePartsMacros: string[] = [];
-    private toolbarconfig: IToolbarConfig = {
+    public toolbarconfig: IToolbarConfig = {
         title: 'KID-innstillinger',
         omitFinalCrumb: true
     };

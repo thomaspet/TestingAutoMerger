@@ -53,8 +53,8 @@ export class HistoricVatReportModal implements IUniModal {
     @ViewChild(UniTable)
     public unitable: UniTable;
 
-    private uniTableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public uniTableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
     private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(

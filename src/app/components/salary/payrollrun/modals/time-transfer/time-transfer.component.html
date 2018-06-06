@@ -6,7 +6,7 @@
     <section class="timeTransfer_uniform">
       <uni-form [config]="uniformConfig$" [fields]="uniformFields$" [model]="options.data" (changeEvent)="uniformChange($event)"></uni-form>
     </section>
-    <uni-table [resource]="data" [config]="unitableConfig" [attr.aria-busy]="busy" (rowChanged)="rowChanged($event)" (rowSelectionChanged)="onRowSelectionChange($event)"></uni-table>
+    <uni-table [resource]="data" [config]="uniTableConfig" [attr.aria-busy]="busy" (rowChanged)="rowChanged($event)" (rowSelectionChanged)="onRowSelectionChange($event)"></uni-table>
   </article>
   <footer>
     <section role="group" class="comboButton" *ngIf="mainAction">

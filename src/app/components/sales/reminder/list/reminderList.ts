@@ -35,7 +35,7 @@ export class ReminderList {
 
     private reminderTable: UniTableConfig;
     private reminderList: any;
-    private saveActions: IUniSaveAction[] = [];
+    public saveActions: IUniSaveAction[] = [];
     private reminderSettings: CustomerInvoiceReminderSettings;
     public showInvoicesWithReminderStop: boolean = false;
 
@@ -44,8 +44,8 @@ export class ReminderList {
         omitFinalCrumb: true
     };
 
-    private summaryFields: ISummaryConfig[] = [];
-    private summaryData: any = {
+    public summaryFields: ISummaryConfig[] = [];
+    public summaryData: any = {
         restSumInvoicesToRemind: 0,
         restSumChecked: 0,
         SumFee: 0,

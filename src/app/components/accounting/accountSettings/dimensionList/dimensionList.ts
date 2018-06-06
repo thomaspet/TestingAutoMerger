@@ -11,7 +11,7 @@ import {Dimensions} from '../../../../unientities';
 export class DimensionList {
     @Input() public dimensions: Dimensions;
 
-    private dimensionsTable: UniTableConfig;
+    public dimensionsTable: UniTableConfig;
     private data: Array<any> = [];
 
     constructor() {

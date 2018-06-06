@@ -30,7 +30,7 @@ export class TofDetailsForm {
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
     private entity$: BehaviorSubject<any> = new BehaviorSubject({});
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
         this.entity$.next(this.entity);

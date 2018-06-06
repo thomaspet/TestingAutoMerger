@@ -92,7 +92,10 @@ export class PersonalDetails extends UniView {
             super.updateCacheKey(this.router.url);
             super.getStateSubject(EMPLOYEE_KEY)
                 .subscribe(
-                employee => {
+                (employee: Employee ) => {
+                    if (employee.ID === 0 && !employee.EmployeeNumber) {
+                        employee.EmployeeNumber = null;
+                    }
                     this.employee$.next(employee);
                     this.showHideNameProperties(false, employee);
                 },
@@ -336,6 +339,9 @@ export class PersonalDetails extends UniView {
                 return modal.onClose.take(1).toPromise();
             }
         };
+
+        const employeeNumberField: UniFieldLayout = this.findByProperty(fields, 'EmployeeNumber');
+        employeeNumberField.ReadOnly = !!this.employeeID;
 
         let employeeNameField: UniFieldLayout = this.findByProperty(fields, 'BusinessRelationInfo.Name');
         employeeNameField.Hidden = this.employeeID === 0;

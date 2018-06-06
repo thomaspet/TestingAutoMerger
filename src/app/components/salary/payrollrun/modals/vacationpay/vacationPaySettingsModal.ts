@@ -22,12 +22,12 @@ import * as moment from 'moment';
 export class VacationPaySettingsModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    private busy: boolean;
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public busy: boolean;
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
     @ViewChild(UniTable) private table: UniTable;
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private tableConfig: UniTableConfig;
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public tableConfig: UniTableConfig;
     private vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
     private infoText: string;

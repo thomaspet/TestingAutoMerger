@@ -14,7 +14,7 @@ const DIRTY = '_isDirty';
 })
 export class TravelLinesComponent implements OnInit {
 
-    @Input() public travelLines: TravelLine[];
+    @Input() public travelLines: TravelLine[] = [];
     @Output() public travelLinesUpdated: EventEmitter<TravelLine[]> = new EventEmitter();
     private wageTypes$: BehaviorSubject<WageType[]> = new BehaviorSubject(null);
     public config: UniTableConfig;
@@ -30,7 +30,7 @@ export class TravelLinesComponent implements OnInit {
     }
 
     private createConfig() {
-        const wtCol = new UniTableColumn('_wageType', 'Lønnsart', UniTableColumnType.Lookup, (row: TravelLine) => !!row.travelType)
+        const wtCol = new UniTableColumn('_wageType', 'Lønnsart', UniTableColumnType.Lookup, (row: TravelLine) => row && !!row.travelType)
             .setTemplate((travel: TravelLine) => {
                 if (!travel['_wageType']) {
                     return '';
@@ -57,7 +57,7 @@ export class TravelLinesComponent implements OnInit {
         this.config = new UniTableConfig('salary.travel.traveldetails.travellines', true)
             .setColumns([wtCol, accountCol, travelTypeCol, fromCol, toCol, amountCol, rateCol, sumCol])
             .setAutoAddNewRow(false)
-            .setChangeCallback((event: IRowChangeEvent) => this.handleChange(event.rowModel));
+            .setChangeCallback((event: IRowChangeEvent) => this.handleChange(event));
     }
 
     private handleChange(event: IRowChangeEvent): TravelLine {
@@ -66,7 +66,8 @@ export class TravelLinesComponent implements OnInit {
             return line;
         }
         if (event.field === '_wageType') {
-            line.travelType.WageTypeNumber = line['_wageType'].WageTypeNumber;
+            const wt: WageType = line['_wageType'];
+            line.travelType.WageTypeNumber = wt && wt.WageTypeNumber;
             line.travelType[DIRTY] = true;
         }
         line[DIRTY] = true;

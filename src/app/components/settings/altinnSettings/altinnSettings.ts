@@ -21,9 +21,9 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 })
 export class AltinnSettings implements OnInit {
     public formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
-    private busy: boolean;
+    public busy: boolean;
 
     public loginErr: string = '';
     public isDirty: boolean = false;

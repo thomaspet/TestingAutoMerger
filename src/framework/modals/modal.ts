@@ -25,7 +25,7 @@ export class UniModal implements AfterViewInit {
     @Input('destroyOnClose') public destroyOnClose: boolean;
     @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
 
-    private isOpen: boolean = false;
+    public isOpen: boolean = false;
 
     public component: Promise<any>;
     private componentResolver: (component: any) => void;

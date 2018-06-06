@@ -20,6 +20,7 @@ import {
     VatType,
     Department,
     User,
+    ReportDefinition,
 } from '../../../../unientities';
 
 import {
@@ -44,7 +45,8 @@ import {
     VatTypeService,
     DimensionSettingsService,
     CustomDimensionService,
-    DepartmentService
+    DepartmentService,
+    ReportTypeEnum,
 } from '../../../../services/services';
 
 import {
@@ -53,6 +55,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
+    UniChooseFormModal,
 } from '../../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -97,33 +100,33 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private quoteItems: CustomerQuoteItem[];
     private readonly: boolean;
     private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
-    private shareActions: IShareAction[];
-    private saveActions: IUniSaveAction[] = [];
+    public shareActions: IShareAction[];
+    public saveActions: IUniSaveAction[] = [];
 
     private currencyCodeID: number;
     private currencyCodes: Array<CurrencyCode>;
     private currencyExchangeRate: number;
-    private currentCustomer: Customer;
-    private currentDeliveryTerm: Terms;
-    private currentUser: User;
+    public currentCustomer: Customer;
+    public currentDeliveryTerm: Terms;
+    public currentUser: User;
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private projects: Project[];
     private departments: Department[];
-    private currentDefaultProjectID: number;
+    public currentDefaultProjectID: number;
     private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    private currentQuoteDate: LocalDate;
+    public currentQuoteDate: LocalDate;
     private vatTypes: VatType[];
-    private toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
+    public toolbarconfig: IToolbarConfig;
+    public contextMenuItems: IContextMenuItem[] = [];
 
     public currencyInfo: string;
     public summaryLines: ISummaryLine[];
 
     public selectedNumberSeries: NumberSeries;
     public selectedNumberSeriesTaskID: number;
-    private selectConfig: any;
+    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private dimensionTypes: any[];
@@ -173,7 +176,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension10',
     ];
 
-    private commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig;
 
     constructor(
         private customerService: CustomerService,
@@ -989,56 +992,33 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private printAction(id): Observable<any> {
+    private printAction(reportForm: ReportDefinition): Observable<any> {
         const savedQuote = this.isDirty
             ? Observable.fromPromise(this.saveQuote())
             : Observable.of(this.quote);
 
         return savedQuote.switchMap((order) => {
-            return this.reportDefinitionService.getReportByName('Tilbud id').switchMap((report) => {
-                report.parameters = [{ Name: 'Id', value: id }];
-
-                return this.modalService.open(UniPreviewModal, {
-                    data: report
-                }).onClose.switchMap(() => {
-                    return this.customerQuoteService.setPrintStatus(
-                        id,
-                        this.printStatusPrinted
-                    ).finally(() => {
-                        this.quote.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    });
+            return this.modalService.open(UniPreviewModal, {
+                data: reportForm
+            }).onClose.switchMap(() => {
+                return this.customerQuoteService.setPrintStatus(
+                    this.quote.ID,
+                    this.printStatusPrinted
+                ).finally(() => {
+                    this.quote.PrintStatus = +this.printStatusPrinted;
+                    this.updateToolbar();
                 });
             });
         });
     }
 
-    private sendEmailAction(): Observable<any> {
+    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerQuote, entityTypeName: string, name: string): Observable<any> {
         const savedQuote = this.isDirty
             ? Observable.fromPromise(this.saveQuote())
             : Observable.of(this.quote);
 
         return savedQuote.switchMap(order => {
-            const model = new SendEmail();
-            model.EntityType = 'CustomerQuote';
-            model.EntityID = this.quote.ID;
-            model.CustomerID = this.quote.CustomerID;
-            model.EmailAddress = this.quote.EmailAddress;
-
-            const quoteNumber = this.quote.QuoteNumber
-                ? ` nr. ${this.quote.QuoteNumber}`
-                : 'kladd';
-
-            model.Subject = 'Tilbud' + quoteNumber;
-            model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
-
-            return this.modalService.open(UniSendEmailModal, {
-                data: model
-            }).onClose.map(email => {
-                if (email) {
-                    this.emailService.sendEmailWithReportAttachment('Tilbud id', email, null);
-                }
-            });
+            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
         });
     }
 
@@ -1046,15 +1026,34 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.shareActions = [
             {
                 label: 'Skriv ut',
-                action: () => this.printAction(this.quoteID),
+                action: () => this.chooseForm(),
                 disabled: () => false
             },
-            {
-                label: 'Send på epost',
-                action: () => this.sendEmailAction(),
-                disabled: () => false
-            }
         ];
+    }
+
+    public chooseForm() {
+        return this.modalService.open(
+            UniChooseFormModal,
+            { data: {
+                name: 'Tilbud',
+                typeName: 'Quote',
+                type: ReportTypeEnum.QUOTE,
+                entity: this.quote
+            }}
+        ).onClose.map(res => {
+            if (res === ConfirmActions.CANCEL || !res) {
+                return;
+            }
+
+            if (res.action === 'print') {
+                this.printAction(res.form).subscribe();
+            }
+
+            if (res.action === 'email') {
+                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
+            }
+        });
     }
 
     private updateSaveActions() {

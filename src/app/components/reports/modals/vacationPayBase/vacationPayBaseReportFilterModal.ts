@@ -63,7 +63,7 @@ export class VacationPayBaseReportFilterModal implements OnInit {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    private modalConfig: ModalConfig;
+    public modalConfig: ModalConfig;
     public type: Type<any> = VacationPayBaseReportFilterModalContent;
 
     constructor(

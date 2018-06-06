@@ -28,7 +28,7 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     public tableEmps$: BehaviorSubject<Employee[]> = new BehaviorSubject<Employee[]>([]);
     private emailEmps: Employee[] = [];
     private printEmps: Employee[] = [];
-    private tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
     constructor(
         private reportDefinitionService: ReportDefinitionService,
         private errorService: ErrorService,

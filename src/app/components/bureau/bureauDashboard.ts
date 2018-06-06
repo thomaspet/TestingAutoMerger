@@ -50,7 +50,7 @@ export class BureauDashboard {
     public highlightedCompany: KpiCompany;
 
     private subscription: Subscription;
-    private searchControl: FormControl;
+    public searchControl: FormControl;
     public busy: boolean = false;
     public currentSortField: string;
     public sortIsDesc: boolean = true;
@@ -80,7 +80,7 @@ export class BureauDashboard {
         private userService: UserService,
         private toastService: ToastService,
         private companyService: CompanyService,
-        private currentCompanyService: BureauCurrentCompanyService,
+        public currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
         private elementRef: ElementRef,
         private router: Router,

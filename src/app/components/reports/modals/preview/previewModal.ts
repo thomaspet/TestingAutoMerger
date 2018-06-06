@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReportFormat} from '../../../../models/reportFormat';
-import {ReportService, Report} from '../../../../services/services';
+import {ReportService, Report} from '../../../../services/reports/reportService';
 
 interface IDownloadAction {
     label: string;
@@ -50,8 +50,8 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
     public showActionList: boolean;
-    private actions: IDownloadAction[];
-    private modalConfig: any;
+    public actions: IDownloadAction[];
+    public modalConfig: any;
     public busy: boolean = true;
     public actionButtonDisabled = true;
 

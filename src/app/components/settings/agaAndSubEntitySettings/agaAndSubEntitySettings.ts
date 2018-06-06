@@ -5,7 +5,7 @@ import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/unifo
 import {SubEntityList} from './subEntityList';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {GrantModal} from './modals/grantModal';
-import {FreeAmountModal} from './modals/freeAmountModal';
+import {FreeAmountModal} from './modals/freeamountModal';
 import {Observable} from 'rxjs/Observable';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
@@ -41,7 +41,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});

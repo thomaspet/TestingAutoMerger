@@ -13,7 +13,6 @@ import {
     CurrencyCodeService,
     AccountService
 } from '../../../../services/services';
-declare var _;
 
 @Component({
     selector: 'account-details',

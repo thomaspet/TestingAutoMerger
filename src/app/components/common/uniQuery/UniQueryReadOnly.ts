@@ -31,10 +31,10 @@ export class UniQueryReadOnly implements OnChanges {
 
     @ViewChild(UniTable) public table: UniTable;
 
-    private tableConfig: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public tableConfig: UniTableConfig;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
-    private fields: Array<UniTableColumn>;
+    public fields: Array<UniTableColumn>;
     private filters: Array<ITableFilter>;
     private selects: string;
     private expands: string;
@@ -42,7 +42,7 @@ export class UniQueryReadOnly implements OnChanges {
     private buttonTitle: string;
     private buttonAction: any;
 
-    private currentUserGlobalIdentity: string = '';
+    public currentUserGlobalIdentity: string = '';
 
     constructor(
         private router: Router,

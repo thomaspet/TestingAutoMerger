@@ -75,8 +75,8 @@ export class DistributionPeriodReportPart implements OnChanges {
     private dimensionEntityName: string;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;
-    private currentPeriode: number;
-    private currentIndex: number;
+    public currentPeriode: number;
+    public currentIndex: number;
     private isShiftDown: boolean;
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',

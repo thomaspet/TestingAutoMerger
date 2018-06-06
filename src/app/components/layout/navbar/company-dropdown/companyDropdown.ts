@@ -27,17 +27,18 @@ export class UniCompanyDropdown {
     @ViewChildren(UniSelect)
     private dropdowns: QueryList<UniSelect>;
 
-    private activeCompany: any;
-    private companyDropdownActive: Boolean;
-    private companySettings: CompanySettings;
+    public activeCompany: any;
+    public companyDropdownActive: Boolean;
+    public companySettings: CompanySettings;
 
-    private selectYear: string[];
+    public selectYear: string[];
+    public activeYear: number;
+
+    public availableCompanies: Observable<any>;
+    public selectCompanyConfig: ISelectConfig;
+    public selectYearConfig: ISelectConfig;
+
     private financialYears: Array<FinancialYear> = [];
-    private activeYear: number;
-
-    private availableCompanies: Observable<any>;
-    private selectCompanyConfig: ISelectConfig;
-    private selectYearConfig: ISelectConfig;
 
     constructor(
         private altInnService: AltinnAuthenticationService,
@@ -248,7 +249,7 @@ export class UniCompanyDropdown {
 
     }
 
-    private close() {
+    public close() {
         if (this.dropdowns && this.dropdowns.length) {
             this.dropdowns.forEach((dropdown) => {
                 dropdown.close();

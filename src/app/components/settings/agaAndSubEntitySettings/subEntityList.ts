@@ -14,8 +14,8 @@ import {SubEntitySettingsService} from './services/subEntitySettingsService';
 })
 export class SubEntityList implements OnInit {
 
-    private currentSubEntity: SubEntity;
-    private busy: boolean;
+    public currentSubEntity: SubEntity;
+    public busy: boolean;
     private allSubEntities: SubEntity[];
     private subEntityListConfig: UniTableConfig;
     private mainOrg: SubEntity;

@@ -10,10 +10,10 @@ import {Logger} from '../../../../framework/core/logger';
     templateUrl: './confirmInvite.html'
 })
 export class ConfirmInvite {
-    private confirmInviteForm: FormGroup;
-    private errorMessage: string;
-    private validInvite: boolean = false;
-    private busy: boolean = false;
+    public confirmInviteForm: FormGroup;
+    public errorMessage: string;
+    public validInvite: boolean = false;
+    public busy: boolean = false;
 
     private verificationCode: string;
 

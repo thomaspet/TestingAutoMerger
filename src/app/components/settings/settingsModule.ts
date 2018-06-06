@@ -28,7 +28,7 @@ import {UniDimensionSettings} from './dimension/dimension';
 import {UniDimensionModal} from './dimension/dimensionModal';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
-import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeAmountModal';
+import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeamountModal';
 import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
@@ -104,7 +104,7 @@ import {MatSlideToggleModule} from '@angular/material';
         UniBankSettings,
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
-        FreeAmountModal,
+        // FreeAmountModal,
         RoleSelector,
         EventPlans
     ],

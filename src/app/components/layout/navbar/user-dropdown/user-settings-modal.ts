@@ -36,8 +36,8 @@ export class UserSettingsModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
-    private formFields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
+    public formFields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
         const user = this.options.data || {};

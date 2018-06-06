@@ -52,8 +52,8 @@ export class LoginModal implements IUniModal, OnInit {
     public authDetails: {username: string; password: string};
 
     private usernamePreFilled: boolean;
-    private working: boolean = false;
-    private errorMessage: string = '';
+    public working: boolean = false;
+    public errorMessage: string = '';
 
     constructor(
         private authService: AuthService,

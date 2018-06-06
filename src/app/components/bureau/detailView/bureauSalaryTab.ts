@@ -68,7 +68,7 @@ export class BureauSalaryTab implements AfterViewInit, OnDestroy {
         private customHttpService: BureauCustomHttpService,
         private authService: AuthService,
         private errorService: ErrorService,
-        private currentCompanyService: BureauCurrentCompanyService,
+        public currentCompanyService: BureauCurrentCompanyService,
         yearService: YearService,
     ) {
         this.accountingYear = yearService.selectedYear$.getValue();

@@ -58,9 +58,9 @@ export class NavbarSearch implements AfterViewInit {
 
     @HostBinding('class.collapsed') searchCollapsed: boolean;
 
-    private inputControl: FormControl = new FormControl('');
-    private searchResults: any[] = [];
-    private isExpanded: boolean = false;
+    public inputControl: FormControl = new FormControl('');
+    public searchResults: any[] = [];
+    public isExpanded: boolean = false;
     private selectedIndex: number;
     private focusPositionTop: number = 0;
     private componentLookupSource: {name: string, url: string}[] = [];
@@ -213,7 +213,7 @@ export class NavbarSearch implements AfterViewInit {
         }
     }
 
-    private close() {
+    public close() {
         this.focusPositionTop = 0;
         this.searchResults = [];
         this.inputControl.setValue('', { emitEvent: false });

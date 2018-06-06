@@ -81,7 +81,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private hasLoadedData: boolean = false;
     private showImagesForJournalEntryNo: string = '';
-    private currentJournalEntryImages: number[] = [];
+    public currentJournalEntryImages: number[] = [];
     public currentJournalEntryData: JournalEntryData;
     public currentJournalEntryID: string;
 
@@ -320,7 +320,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         this.journalEntryService.setJournalEntrySettings(this.journalEntrySettings, this.mode);
     }
 
-    private onShowImageForJournalEntry(journalEntry: JournalEntryData) {
+    public onShowImageForJournalEntry(journalEntry: JournalEntryData) {
         if (journalEntry) {
             if (this.showImagesForJournalEntryNo !== journalEntry.JournalEntryNo) {
                 this.showImagesForJournalEntryNo = journalEntry.JournalEntryNo;
@@ -468,7 +468,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private onDataChanged(data: JournalEntryData[]) {
+    public onDataChanged(data: JournalEntryData[]) {
         this.dataChanged.emit(data);
         if (data.length <= 0) {
             this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();

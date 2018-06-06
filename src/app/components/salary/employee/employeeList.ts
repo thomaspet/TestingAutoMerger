@@ -14,7 +14,7 @@ import {EmployeeService, ErrorService} from '../../../services/services';
 export class EmployeeList {
     private employeeTableConfig: UniTableConfig;
     private employees$: Observable<Employee>;
-    private busy: boolean;
+    public busy: boolean;
 
     private toolbarActions = [{
         label: 'Ny ansatt',

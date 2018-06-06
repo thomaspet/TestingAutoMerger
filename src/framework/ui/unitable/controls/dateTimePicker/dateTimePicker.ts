@@ -31,11 +31,11 @@ export class UnitableDateTimepicker {
     public inputElement: ElementRef;
 
     @Input()
-    private inputControl: FormControl;
+    public inputControl: FormControl;
 
     public expanded: boolean;
     private selectedDate: Date;
-    private calendarDate: Date;
+    public calendarDate: Date;
 
     constructor(private dateUtil: DateUtil) {}
 
@@ -51,7 +51,7 @@ export class UnitableDateTimepicker {
         }
     }
 
-    private inputChange() {
+    public inputChange() {
         const value = this.inputControl.value;
         let date;
 
@@ -75,7 +75,7 @@ export class UnitableDateTimepicker {
         }
     }
 
-    private dateSelected(date) {
+    public dateSelected(date) {
         this.selectedDate = date;
         this.calendarDate = new Date(date);
 

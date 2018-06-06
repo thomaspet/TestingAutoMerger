@@ -37,19 +37,19 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     @Output() public focusEvent: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
     @Output() public moveForwardEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
-    private isOpen: boolean;
+    public isOpen: boolean;
     private editorIsOpen: boolean;
 
-    private displayValue: string = '';
-    private rows: any[] = [];
-    private filteredRows: any[] = [];
+    public displayValue: string = '';
+    public rows: any[] = [];
+    public filteredRows: any[] = [];
 
     public filter: string = '';
     public filterFormControl: FormControl = new FormControl();
 
 
-    private selectedRow: any;
-    private focusedRow: any;
+    public selectedRow: any;
+    public focusedRow: any;
 
     constructor(
         public renderer: Renderer,
@@ -142,7 +142,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         }
     }
 
-    private open() {
+    public open() {
         this.isOpen = true;
         this.filter = '';
         const listProperty = this.field.Options.listProperty || this.field.Property;
@@ -150,7 +150,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         setTimeout(() => this.filterInput.nativeElement.focus());
     }
 
-    private close() {
+    public close() {
         this.isOpen = false;
         this.filter = '';
         this.focusedRow = this.selectedRow;
@@ -198,7 +198,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
-    private getDisplayValue(row): string {
+    public getDisplayValue(row): string {
         if (!row) {
             return '';
         }
@@ -218,7 +218,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         });
     }
 
-    private edit(row, event?: Event) {
+    public edit(row, event?: Event) {
         if (event) {
             event.preventDefault();
             event.stopPropagation();

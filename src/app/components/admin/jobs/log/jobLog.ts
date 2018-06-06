@@ -10,13 +10,13 @@ import {ErrorService, JobService} from '../../../../services/services';
     templateUrl: './JobLog.html'
 })
 export class JobLog {
-    private toolbarconfig: IToolbarConfig;
-    private jobName: string = '';
-    private jobRun: any;
-    private busy: boolean = false;
+    public toolbarconfig: IToolbarConfig;
+    public jobName: string = '';
+    public jobRun: any;
+    public busy: boolean = false;
 
-    private log: any = [];
-    private progress: any = [];
+    public log: any = [];
+    public progress: any = [];
 
     constructor(
             private tabService: TabService,
@@ -35,9 +35,9 @@ export class JobLog {
     private updateTabTitle() {
         this.tabService.addTab(
             {
-                url: '/admin/job-log/' + this.jobName, 
-                name: "Jobb log '" + this.jobName + "'", 
-                active: true, 
+                url: '/admin/job-log/' + this.jobName,
+                name: "Jobb log '" + this.jobName + "'",
+                active: true,
                 moduleID: UniModules.Jobs,
             });
     }

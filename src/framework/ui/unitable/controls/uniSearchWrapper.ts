@@ -27,7 +27,6 @@ export interface IUniSearchWrapperOptions {
             />
             <button class="uni-autocomplete-searchBtn"
                     (click)="onButtonClick()"
-                    [attr.aria-busy]="busy"
                     type="button"
                     tabindex="-1">
                 Search
@@ -43,7 +42,7 @@ export class UniSearchWrapper implements OnInit {
     private uniSearchComponent: UniSearchAttr;
 
     @Input()
-    private inputControl: FormControl;
+    public inputControl: FormControl;
 
     @Input()
     private rowModel: any;
@@ -54,9 +53,9 @@ export class UniSearchWrapper implements OnInit {
     @Output()
     private close: EventEmitter<any> = new EventEmitter();
 
-    private options: IUniSearchWrapperOptions;
+    public options: IUniSearchWrapperOptions;
     private selectedItem: any;
-    private onButtonClick = () => this.uniSearchComponent.onSearchButtonClick();
+    public onButtonClick = () => this.uniSearchComponent.onSearchButtonClick();
 
     constructor(private elementRef: ElementRef) {}
 
@@ -77,7 +76,7 @@ export class UniSearchWrapper implements OnInit {
         }
     }
 
-    private onChange(selectedItem) {
+    public onChange(selectedItem) {
         this.selectedItem = selectedItem;
         this.close.emit(true);
     }

@@ -52,7 +52,7 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
     encapsulation: ViewEncapsulation.None,
 })
 export class UniTable implements OnChanges {
-    @Input() private config: UniTableConfig;
+    @Input() public config: UniTableConfig;
 
     @Input() private resource: (urlParams: URLSearchParams ) => any | any[];
 
@@ -87,7 +87,7 @@ export class UniTable implements OnChanges {
     private lastFocusPosition: {rowIndex: number, cellIndex: number};
     private lastFocusedCellColumn: any;
     private lastFocusedRowModel: any;
-    private currentRowModel: any;
+    public currentRowModel: any;
 
     private rowCount: number;
     private skip: number = 0;
@@ -379,7 +379,7 @@ export class UniTable implements OnChanges {
             ));
     }
 
-    private onSelectAllRowsChange(checked: boolean) {
+    public onSelectAllRowsChange(checked: boolean) {
         this.tableData = this.tableData.map((row) => row.set('_rowSelected', checked)).toList();
         this.tableDataOriginal = this.tableDataOriginal.map(row => row.set('_rowSelected', checked)).toList();
 
@@ -396,7 +396,7 @@ export class UniTable implements OnChanges {
         this.rowSelectionChanged.emit({rowModel: event.rowModel.toJS()});
     }
 
-    private onDeleteRow(event) {
+    public onDeleteRow(event) {
         // If we dont have a delete handler just remove the row and emit a rowDeleted event
         if (!this.config.deleteButton.hasOwnProperty('deleteHandler')) {
             this.removeRow(event.rowModel.get('_originalIndex'));

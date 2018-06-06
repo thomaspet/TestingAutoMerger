@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
-import {WorkEditor} from '../../../timetracking/components/workeditor';
+// import {WorkEditor} from '../../../timetracking/components/workeditor';
 import {
     ProjectService,
     ErrorService
@@ -17,22 +17,23 @@ import * as moment from 'moment';
 @Component({
     selector: 'project-hours',
     templateUrl: './hours.html',
-    providers: [WorkEditor]
+    // providers: [WorkEditor]
 })
 
 export class ProjectHours {
 
     @ViewChild(UniTable) public table: UniTable;
-    private tableConfig: UniTableConfig;
-    private currentProjectID: number;
+    public tableConfig: UniTableConfig;
+    public currentProjectID: number;
     private filter: string = '';
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(
         private projectService: ProjectService,
         private errorService: ErrorService,
         private route: ActivatedRoute,
-        private worker: WorkEditor) {
+        // private worker: WorkEditor
+    ) {
 
         this.route.queryParams.subscribe((params) => {
             this.currentProjectID = +params['projectID'];
@@ -61,24 +62,24 @@ export class ProjectHours {
             .setDeleteButton(false)
             .setSearchable(true)
             .setColumns([
-                new UniTableColumn('Date', 'Dato', UniTableColumnType.DateTime),
-                this.getHourTableColumn('StartTime', 'Start'),
-                this.getHourTableColumn('EndTime', 'Slutt'),
-                this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x)),
-                new UniTableColumn('LunchInMinutes', 'Lunsj', UniTableColumnType.Number)
-                    .setAlignment('center')
-                    .setWidth('5rem'),
-                this.worker.createHourColumn('Minutes', 'Timer')
-                    .setWidth('5rem').setAlignment('center').setCls('ctoa'),
-                new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
-                new UniTableColumn('WorkRelation.Worker.Info.Name', 'Navn', UniTableColumnType.Text),
-                this.worker.createLookupColumn('Dimensions.ProjectID', 'Prosjekt',
-                    'Dimensions.Project', x => this.worker.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber')
-                    .setWidth('6rem'),
-                this.worker.createLookupColumn('CustomerOrder', 'Ordre',
-                    'CustomerOrder',
-                    x => this.worker.lookupAny(x, 'orders', 'ordernumber', 'customername'),
-                    'OrderNumber', 'CustomerName')
+                // new UniTableColumn('Date', 'Dato', UniTableColumnType.DateTime),
+                // this.getHourTableColumn('StartTime', 'Start'),
+                // this.getHourTableColumn('EndTime', 'Slutt'),
+                // this.worker.createLookupColumn('Worktype', 'Timeart', 'Worktype', x => this.worker.lookupType(x)),
+                // new UniTableColumn('LunchInMinutes', 'Lunsj', UniTableColumnType.Number)
+                //     .setAlignment('center')
+                //     .setWidth('5rem'),
+                // this.worker.createHourColumn('Minutes', 'Timer')
+                //     .setWidth('5rem').setAlignment('center').setCls('ctoa'),
+                // new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+                // new UniTableColumn('WorkRelation.Worker.Info.Name', 'Navn', UniTableColumnType.Text),
+                // this.worker.createLookupColumn('Dimensions.ProjectID', 'Prosjekt',
+                //     'Dimensions.Project', x => this.worker.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber')
+                //     .setWidth('6rem'),
+                // this.worker.createLookupColumn('CustomerOrder', 'Ordre',
+                //     'CustomerOrder',
+                //     x => this.worker.lookupAny(x, 'orders', 'ordernumber', 'customername'),
+                //     'OrderNumber', 'CustomerName')
             ]);
     }
 

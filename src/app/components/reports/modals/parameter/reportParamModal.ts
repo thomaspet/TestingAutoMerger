@@ -55,9 +55,9 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     public busy: boolean = false;
 
     // Parameter form
-    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model$: BehaviorSubject<any> = new BehaviorSubject({});
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,

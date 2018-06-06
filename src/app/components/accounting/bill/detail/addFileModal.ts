@@ -55,12 +55,12 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
 export class UniAddFileModal implements OnInit, IUniModal {
 
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private list: any[] = [];
 
     public loadingPreview: boolean = false;
     private fileID: any;
-    private currentFiles: any;
+    public currentFiles: any;
     private file: any;
     private previewVisible: boolean;
 

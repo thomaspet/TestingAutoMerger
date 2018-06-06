@@ -36,7 +36,7 @@ export class ProjectEditmode {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
     private actionLabel: string = '';
-    private uniSearchConfig: IUniSearchConfig;
+    public uniSearchConfig: IUniSearchConfig;
     public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
     private STATUS: any = [
@@ -47,7 +47,7 @@ export class ProjectEditmode {
         { ID: 42205, Name: 'Slettet' },
     ];
 
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private project: Project;
     private users: User[] = [];
 

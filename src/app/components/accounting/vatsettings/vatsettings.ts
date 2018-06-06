@@ -21,8 +21,8 @@ export class VatSettings {
     private vatType: VatType;
     private hasChanges: boolean = false;
 
-    private toolbarconfig: IToolbarConfig;
-    private saveactions: IUniSaveAction[];
+    public toolbarconfig: IToolbarConfig;
+    public saveactions: IUniSaveAction[];
 
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [

@@ -24,6 +24,10 @@ export class TravelService extends BizHttp<Travel> {
         this.relativeURL = Travel.RelativeUrl;
     }
 
+    public clear() {
+        this.emps$.next(null);
+    }
+
     public ttImport(apiKey: ApiKey): Observable<Travel[]> {
         if (!apiKey) {
             return Observable.of([]);

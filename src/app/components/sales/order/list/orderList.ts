@@ -101,7 +101,7 @@ export class OrderList implements OnInit {
         this.router.navigateByUrl('/sales/orders/0');
     }
 
-    private onAfterPrintOrder(selectedRows: Array<any>): Promise<any> {
+    public onAfterPrintOrder(selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             let invoice = selectedRows[0];
             this.customerOrderService
@@ -140,7 +140,7 @@ export class OrderList implements OnInit {
         });
     }
 
-    private onSendEmail(selectedRows: Array<any>): Promise<any> {
+    public onSendEmail(selectedRows: Array<any>): Promise<any> {
         let order = selectedRows[0];
 
         return new Promise((resolve, reject) => {

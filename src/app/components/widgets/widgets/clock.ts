@@ -22,10 +22,10 @@ import * as moment from 'moment';
 export class UniClockWidget {
     public widget: IUniWidget;
     private updateInterval: any;
-    private day: string;
-    private date: string;
-    private time: string;
-    private sec: string;
+    public day: string;
+    public date: string;
+    public time: string;
+    public sec: string;
 
     constructor(private cdr: ChangeDetectorRef) {
         this.setDateAndTime();

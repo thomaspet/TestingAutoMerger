@@ -19,10 +19,10 @@ export class UnitableContextMenu {
     @Input()
     private items: IContextMenuItem[];
 
-    private offsetTop: number;
-    private rowModel: any;
-    private activeItems: IContextMenuItem[];
-    private isOpen: boolean;
+    public offsetTop: number;
+    public rowModel: any;
+    public activeItems: IContextMenuItem[];
+    public isOpen: boolean;
 
     constructor(private cdr: ChangeDetectorRef) {
         this.offsetTop = 0;
@@ -51,12 +51,12 @@ export class UnitableContextMenu {
         });
     }
 
-    private onClick(event) {
+    public onClick(event) {
         event.stopPropagation();
         this.isOpen = false;
     }
 
-    private offClick() {
+    public offClick() {
         this.isOpen = false;
     }
 }

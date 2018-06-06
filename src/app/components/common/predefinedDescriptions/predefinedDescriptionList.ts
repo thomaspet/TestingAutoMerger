@@ -22,13 +22,13 @@ export class PredefinedDescriptionList {
 
     private hasUnsavedChanges: boolean;
     public predefinedDescriptionTypes: Array<any> =  [ {ID: 1, Name: 'Bilagsføring'} ];
-    private predefinedDescriptions: PredefinedDescription [] = [];
+    public predefinedDescriptions: PredefinedDescription [] = [];
     private selectedType: number = 0;
-    private predefinedDescriptionTypeTableConfig: UniTableConfig;
-    private predefinedDescriptionsConfig: UniTableConfig;
+    public predefinedDescriptionTypeTableConfig: UniTableConfig;
+    public predefinedDescriptionsConfig: UniTableConfig;
 
-    private toolbarConfig: IToolbarConfig;
-    private saveActions: IUniSaveAction[];
+    public toolbarConfig: IToolbarConfig;
+    public saveActions: IUniSaveAction[];
     private changedPreDefinedDescriptions: Array<PredefinedDescription> = [];
 
     constructor(

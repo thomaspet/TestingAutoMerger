@@ -48,11 +48,11 @@ export class AccountDetailsReport {
 
     };
 
-    private uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
+    public uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
     private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    private config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true}); // tslint:disable-line
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true}); // tslint:disable-line
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
 
@@ -68,7 +68,7 @@ export class AccountDetailsReport {
     private transactionsLookupFunction: (urlParams: URLSearchParams) => any;
     private doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    private toolbarconfig: IToolbarConfig;
+    public toolbarconfig: IToolbarConfig;
 
     constructor(
         private statisticsService: StatisticsService,

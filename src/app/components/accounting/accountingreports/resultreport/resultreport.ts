@@ -56,13 +56,13 @@ export class ResultReport implements OnInit {
     public activeDistributionElement: string = 'Resultat';
     public distributionPeriodAccountIDs: Array<number> = [];
 
-    private filter$: BehaviorSubject<any> = new BehaviorSubject({
+    public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: true,
         Decimals: 2,
         ShowPercent: true
     });
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private projects: Project[];
     private departments: Department[];
@@ -151,12 +151,12 @@ export class ResultReport implements OnInit {
         this.filterVisible = true;
     }
 
-    private onPeriodFilter1Changed(event) {
+    public onPeriodFilter1Changed(event) {
         this.periodFilter1 = event;
         this.periodFilterHelper.saveFilterSettings(1, this.periodFilter1);
     }
 
-    private onPeriodFilter2Changed(event) {
+    public onPeriodFilter2Changed(event) {
         this.periodFilter2 = event;
         this.periodFilterHelper.saveFilterSettings(2, this.periodFilter2);
     }

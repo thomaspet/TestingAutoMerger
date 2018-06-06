@@ -17,7 +17,7 @@ import {IUniTab} from '../layout/uniTabs/uniTabs';
 `
 })
 export class Marketplace {
-    private childRoutes: IUniTab[];
+    public childRoutes: IUniTab[];
 
     constructor() {
         this.childRoutes = [

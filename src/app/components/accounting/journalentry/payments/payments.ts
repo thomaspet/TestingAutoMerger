@@ -20,7 +20,6 @@ import {
 
 import * as moment from 'moment';
 import {JournalEntryData} from '../../../../models/models';
-import { StatusCode } from '@app/components/timetracking/timeentry/timetable/model';
 import { ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
@@ -31,12 +30,12 @@ export class Payments {
     @ViewChild(UniTable) private table: UniTable;
     @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
-    private contextMenuItems: IContextMenuItem[] = [];
+    public contextMenuItems: IContextMenuItem[] = [];
     private invoiceTable: UniTableConfig;
-    private lookupFunction: (urlParams: URLSearchParams) => any;
+    public lookupFunction: (urlParams: URLSearchParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;
-    private toolbarConfig: IToolbarConfig = {};
+    public toolbarConfig: IToolbarConfig = {};
     private reminderFeeSumList: any;
 
     constructor(

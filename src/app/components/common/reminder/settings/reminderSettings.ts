@@ -17,9 +17,9 @@ export class ReminderSettings {
     @Input() private settings: CustomerInvoiceReminderSettings;
 
     public isDirty: boolean = false;
-    private settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
+    public settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(private companySettingsService: CompanySettingsService,
                 private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,

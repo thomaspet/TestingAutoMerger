@@ -14,7 +14,7 @@ export interface IUpdatedFileListEvent {
     template: `
         <section role="dialog" class="uni-modal medium">
             <header><h1>Forhåndsvisning</h1></header>
-            <article class="image-modal-body" [attr.aria-busy]="busy">
+            <article class="image-modal-body">
                 <uni-image *ngIf="options?.data"
                     [singleImage]="singleImage"
                     [fileIDs]="options.data.fileIDs || []"

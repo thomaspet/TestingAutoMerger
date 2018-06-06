@@ -50,71 +50,73 @@ interface IUniTableSearchOperator {
 
         <section #advancedSearchElem class="advanced-search-wrapper">
             <button class="unitableSearch_advancedBtn"
-                (click)="toggleAdvancedSearch()">
+                [matMenuTriggerFor]="advancedDropdown">
                 Avansert
             </button>
 
-            <ul #advancedSearchElem class="unitableSearch_advanced" [hidden]="!advancedSearchVisible">
-                <li class="section-header">Aktivt søk {{activeSearchName ? '(' + activeSearchName + ')' : ''}}</li>
-                <li class="unitableSearch_advanced_filter" *ngFor="let filter of advancedSearchFilters; let idx = index">
+            <mat-menu #advancedDropdown="matMenu" yPosition="below" [overlapTrigger]="false">
+                <ul #advancedSearchElem class="unitableSearch_advanced" (click)="$event.stopPropagation()">
+                    <li class="section-header">Aktivt søk {{activeSearchName ? '(' + activeSearchName + ')' : ''}}</li>
+                    <li class="unitableSearch_advanced_filter" *ngFor="let filter of advancedSearchFilters; let idx = index">
 
-                    <!-- Column select -->
-                    <select [(ngModel)]="filter.field" placeholder="Ikke valgt" (ngModelChange)="filterFieldChange(filter)">
-                        <option *ngFor="let col of filterableColumns" [value]="col.displayField || col.field">
-                            {{col.header}}
-                        </option>
-                    </select>
-
-                    <!-- Operator select -->
-                    <select [(ngModel)]="filter.operator" (ngModelChange)="emitFilters()">
-                        <ng-template  ngFor let-op [ngForOf]="operators">
-                            <option [value]="op.operator">
-                                {{op.verb}}
+                        <!-- Column select -->
+                        <select [(ngModel)]="filter.field" placeholder="Ikke valgt" (ngModelChange)="filterFieldChange(filter)">
+                            <option *ngFor="let col of filterableColumns" [value]="col.displayField || col.field">
+                                {{col.header}}
                             </option>
-                        </ng-template>
-                    </select>
+                        </select>
 
-                    <!-- Grouping -->
-                    <select [(ngModel)]="filter.group" (ngModelChange)="emitFilters()" *ngIf="allowGroupFilter">
-                        <option value="0">Ingen gruppe</option>
-                        <option value="1">Gruppe 1</option>
-                        <option value="2">Gruppe 2</option>
-                        <option value="3">Gruppe 3</option>
-                        <option value="4">Gruppe 4</option>
-                        <option value="5">Gruppe 5</option>
-                    </select>
+                        <!-- Operator select -->
+                        <select [(ngModel)]="filter.operator" (ngModelChange)="emitFilters()">
+                            <ng-template  ngFor let-op [ngForOf]="operators">
+                                <option [value]="op.operator">
+                                    {{op.verb}}
+                                </option>
+                            </ng-template>
+                        </select>
 
-                    <!-- Query -->
-                    <input type="text" *ngIf="!filter.selectConfig" [(ngModel)]="filter.value" name="filterValue" (ngModelChange)="emitFilters()">
+                        <!-- Grouping -->
+                        <select [(ngModel)]="filter.group" (ngModelChange)="emitFilters()" *ngIf="allowGroupFilter">
+                            <option value="0">Ingen gruppe</option>
+                            <option value="1">Gruppe 1</option>
+                            <option value="2">Gruppe 2</option>
+                            <option value="3">Gruppe 3</option>
+                            <option value="4">Gruppe 4</option>
+                            <option value="5">Gruppe 5</option>
+                        </select>
 
-                    <select *ngIf="filter.selectConfig?.options" (ngModelChange)="emitFilters()" [(ngModel)]="filter.value" class="large_select">
-                        <option *ngFor="let option of filter.selectConfig.options" [value]="option[filter.selectConfig.valueField]">
-                            {{option[filter.selectConfig.displayField]}}
-                        </option>
-                    </select>
+                        <!-- Query -->
+                        <input type="text" *ngIf="!filter.selectConfig" [(ngModel)]="filter.value" name="filterValue" (ngModelChange)="emitFilters()">
 
-                    <button type="button" (click)="removeFilter(idx, $event)">Fjern</button>
-                </li>
+                        <select *ngIf="filter.selectConfig?.options" (ngModelChange)="emitFilters()" [(ngModel)]="filter.value" class="large_select">
+                            <option *ngFor="let option of filter.selectConfig.options" [value]="option[filter.selectConfig.valueField]">
+                                {{option[filter.selectConfig.displayField]}}
+                            </option>
+                        </select>
 
-                <li class="advanced-filter-options">
-                    <button class="add-filter" type="button" (click)="newFilter()">Legg til</button>
+                        <button type="button" (click)="removeFilter(idx, $event)">Fjern</button>
+                    </li>
 
-                    <input type="text" [(ngModel)]="newSearchName" placeholder="Navn på søk" />
-                    <button class="good" (click)="saveSearch()">
-                        Lagre
-                    </button>
-                </li>
+                    <li class="advanced-filter-options">
+                        <button class="add-filter" type="button" (click)="newFilter()">Legg til</button>
 
-                <li class="section-header section-search" *ngIf="savedSearches?.length">Lagrede søk</li>
-                <li class="unitable-saved-searches" *ngIf="savedSearches?.length">
-                    <ul class="saved-search-list">
-                        <li *ngFor="let search of savedSearches" (click)="activateSavedSearch(search)">
-                            {{search.name}}
-                            <span class="delete-search" (click)="removeSavedSearch(search, $event)"></span>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+                        <input type="text" [(ngModel)]="newSearchName" placeholder="Navn på søk" />
+                        <button class="good" (click)="saveSearch()">
+                            Lagre
+                        </button>
+                    </li>
+
+                    <li class="section-header section-search" *ngIf="savedSearches?.length">Lagrede søk</li>
+                    <li class="unitable-saved-searches" *ngIf="savedSearches?.length">
+                        <ul class="saved-search-list">
+                            <li *ngFor="let search of savedSearches" (click)="activateSavedSearch(search)">
+                                {{search.name}}
+                                <span class="delete-search" (click)="removeSavedSearch(search, $event)"></span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </mat-menu>
         </section>
     `
 })
@@ -135,21 +137,20 @@ export class TableSearch implements OnChanges, AfterViewInit {
     public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
 
     public allowGroupFilter: boolean;
-    private filterableColumns: UniTableColumn[];
+    public filterableColumns: UniTableColumn[];
 
-    private basicSearchControl: FormControl = new FormControl('');
+    public basicSearchControl: FormControl = new FormControl('');
 
     private basicSearchFilters: ITableFilter[];
-    private advancedSearchFilters: ITableFilter[];
+    public advancedSearchFilters: ITableFilter[];
     private emitFiltersTimeout: any;
 
     private tableName: string;
 
-    private savedSearches: ISavedFilter[] = [];
+    public savedSearches: ISavedFilter[] = [];
     public activeSearchName: string;
     public newSearchName: string;
 
-    public advancedSearchVisible: boolean;
     public savedSearchesVisible: boolean;
 
     public operators: IUniTableSearchOperator[] = [
@@ -288,28 +289,12 @@ export class TableSearch implements OnChanges, AfterViewInit {
 
     @HostListener('document:click', ['$event'])
     public checkForClickOutside(event: MouseEvent) {
-        if (this.advancedSearchElement && this.advancedSearchVisible) {
-            if (!this.advancedSearchElement.nativeElement.contains(event.target)) {
-                this.advancedSearchVisible = false;
-                this.cdr.markForCheck();
-            }
-        }
-
         if (this.savedSearchesElement && this.savedSearchesVisible) {
             if (!this.savedSearchesElement.nativeElement.contains(event.target)) {
                 this.savedSearchesVisible = false;
                 this.cdr.markForCheck();
             }
         }
-    }
-
-    public toggleAdvancedSearch() {
-        // Allow clickOutside check to finish first
-        setTimeout(() => {
-            this.advancedSearchVisible = !this.advancedSearchVisible;
-            this.savedSearchesVisible = false;
-            this.cdr.markForCheck();
-        });
     }
 
     public toggleSavedSearchesList() {
@@ -384,7 +369,7 @@ export class TableSearch implements OnChanges, AfterViewInit {
         }
     }
 
-    private newFilter() {
+    public newFilter() {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }

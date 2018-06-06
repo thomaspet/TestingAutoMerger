@@ -36,9 +36,9 @@ export class SaveQueryDefinitionForm implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @Output() public querySaved: EventEmitter<any> = new EventEmitter<any>();
 
-    private fields$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private model$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public fields$: BehaviorSubject<Array<any>> = new BehaviorSubject([]);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     private categories: string[];
     private newCategory: boolean = false;
@@ -181,7 +181,7 @@ export class SaveQueryDefinitionForm implements OnInit {
         return newData;
     }
 
-    private change(data) {
+    public change(data) {
         if (data.Category && data.Category.currentValue === 'Legg til ny...') {
             this.newCategory = true;
             this.model$.value.Category = '';
@@ -202,7 +202,7 @@ export class SaveQueryDefinitionModal {
     @Output() public saved: EventEmitter<UniQueryDefinition> = new EventEmitter<UniQueryDefinition>();
     @Output() public cancelled: EventEmitter<any> = new EventEmitter<boolean>();
 
-    private modalConfig: any = {};
+    public modalConfig: any = {};
     public type: Type<any> = SaveQueryDefinitionForm;
 
     constructor(

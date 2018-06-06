@@ -66,7 +66,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
 
     private periodSeriesConfig: ISelectConfig;
-    private currentAccountYear: number;
+    public currentAccountYear: number;
     private periodSeriesAccount: PeriodSeries;
     private periodSeriesVat: PeriodSeries;
     private isPeriodSeriesChanged: boolean;

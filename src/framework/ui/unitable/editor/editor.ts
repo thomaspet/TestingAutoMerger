@@ -59,10 +59,10 @@ export class UnitableEditor {
     private initValue: string | LocalDate;
     private columnType: UniTableColumnType;
     private editor: ComponentRef<any>;
-    private inputControl: FormControl = new FormControl();
+    public inputControl: FormControl = new FormControl();
     private column: any;
     private rowModel: any;
-    private position: any = {
+    public position: any = {
         top: '0px',
         left: '0px',
         height: '0px',
@@ -175,7 +175,7 @@ export class UnitableEditor {
         });
     }
 
-    private close() {
+    public close() {
         if (this.editor) {
             this.editor.destroy();
             this.editor = undefined;

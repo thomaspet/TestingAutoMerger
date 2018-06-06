@@ -59,7 +59,7 @@ export class SubCompanyComponent implements OnInit {
 
     public subCompany$: BehaviorSubject<ISubCompany> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public canDelete = false;
     public candidates: Array<ICompanyLicense> = [];
     public busy = false;
@@ -68,7 +68,7 @@ export class SubCompanyComponent implements OnInit {
     private activeCompanyKey = '';
     private activated = false;
     private subCompanies: Array<any> = [];
-    private currentCustomerID = 0;
+    public currentCustomerID = 0;
     constructor(private http: UniHttp, private guidService: GuidService, authService: AuthService) {
         authService.authentication$.subscribe((authDetails) => {
             this.activeCompanyKey = authDetails.activeCompany.Key;
@@ -140,7 +140,7 @@ export class SubCompanyComponent implements OnInit {
     }
 
 
-    private onParentCustomerChange(c: Customer) {
+    public onParentCustomerChange(c: Customer) {
         if (!this.activated) { return; }
         if (c && c.ID && (c.ID !== this.currentCustomerID)) {
             this.busy = true;

@@ -23,10 +23,10 @@ export interface IUniSaveAction {
 export class UniSave {
     @Input() public actions: IUniSaveAction[];
 
-    private open: boolean = false;
-    private busy: boolean = false;
-    private statusMessage: string;
-    private main: IUniSaveAction;
+    public open: boolean = false;
+    public busy: boolean = false;
+    public statusMessage: string;
+    public main: IUniSaveAction;
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['actions']) {

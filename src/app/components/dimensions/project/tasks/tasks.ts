@@ -23,7 +23,7 @@ export class ProjectTasks implements OnInit {
 
     public expandOptions: string[] = ['ProjectTasks.ProjectTaskSchedules'];
     public project: Project;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
 
     constructor(
         private projectService: ProjectService,

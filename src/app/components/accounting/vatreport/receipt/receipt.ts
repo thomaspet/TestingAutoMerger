@@ -17,7 +17,7 @@ export class ReceiptVat {
     @Input() public reportSummaryPerPost: VatReportSummaryPerPost[];
     @Output() public vatReportDidChange: EventEmitter<any> = new EventEmitter<any>();
 
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     constructor(
         private vatReportService: VatReportService,

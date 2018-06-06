@@ -61,7 +61,7 @@ export class UniTransactionsWidget implements AfterViewInit {
 
     public items: Array<any> = [];
     public lookupResult: any;
-    private current: any;
+    public current: any;
     private lastVisitedModel: string;
     public widget: IUniWidget;
     private numberFormat: any = {

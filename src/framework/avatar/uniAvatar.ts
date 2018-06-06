@@ -19,8 +19,8 @@ export class UniAvatar {
     @Input()
     private isSquare: boolean;
 
-    private style: any;
-    private initials: string;
+    public style: any;
+    public initials: string;
 
     constructor(private el: ElementRef) {}
 

@@ -16,10 +16,10 @@ export class UniComments {
     private entityID: number;
 
     @Input()
-    private toggleMode: boolean;
+    public toggleMode: boolean;
 
-    private isOpen: boolean;
-    private comments: Comment[] = [];
+    public isOpen: boolean;
+    public comments: Comment[] = [];
 
     constructor(
         private commentService: CommentService,

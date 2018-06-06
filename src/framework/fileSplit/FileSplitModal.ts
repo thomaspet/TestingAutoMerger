@@ -122,21 +122,21 @@ export class FileSplitModal implements IUniModal {
     private thumbnailContainer;
 
     public file: File;
-    private thumbnails: ThumbnailData[] = [];
-    private visibleThumbnails: ThumbnailData[] = [];
-    private currentPart: SplitPart = {partNo: 1, Pages: []};
-    private parts: SplitPart[] = [];
+    public thumbnails: ThumbnailData[] = [];
+    public visibleThumbnails: ThumbnailData[] = [];
+    public currentPart: SplitPart = {partNo: 1, Pages: []};
+    public parts: SplitPart[] = [];
     private baseUrl: string = environment.BASE_URL_FILES;
     private previousThumbnail: ThumbnailData;
-    private currentThumbnail: ThumbnailData;
-    private currentThumbnailIndex: number;
+    public currentThumbnail: ThumbnailData;
+    public currentThumbnailIndex: number;
 
     private token: any;
     private activeCompany: any;
-    private processingPercentage: number;
+    public processingPercentage: number;
     private hasFocusedOnFirstThumbnail: boolean = false;
-    private maxVisibleImages = 25;
-    private isSplitting: boolean = false;
+    public maxVisibleImages = 25;
+    public isSplitting: boolean = false;
 
     constructor(
         private cdr: ChangeDetectorRef,
@@ -306,7 +306,7 @@ export class FileSplitModal implements IUniModal {
         return pageUrls;
     }
 
-    private clear() {
+    public clear() {
         this.parts = [];
         this.currentPart = {partNo: 1, Pages: []};
         this.visibleThumbnails = this.thumbnails.filter(x => x.page < this.maxVisibleImages);
@@ -322,11 +322,11 @@ export class FileSplitModal implements IUniModal {
         this.focusOnFirstThumbnail();
     }
 
-    private finishedLoadingThumbnail(thumbnail) {
+    public finishedLoadingThumbnail(thumbnail) {
         thumbnail._isloaded = true;
     }
 
-    private onKey(event: KeyboardEvent) {
+    public onKey(event: KeyboardEvent) {
         if (event.keyCode === KeyCodes.SPACE) {
             this.thumbnailClicked(this.currentThumbnail.page);
             event.preventDefault();
@@ -369,7 +369,7 @@ export class FileSplitModal implements IUniModal {
         }
     }
 
-    private createNewPartFromSelected() {
+    public createNewPartFromSelected() {
         if (this.currentPart.Pages.length > 0) {
             // mark each page as part of a batch
             this.currentPart.Pages.forEach(page => {
@@ -406,7 +406,7 @@ export class FileSplitModal implements IUniModal {
         }
     }
 
-    private removePart(part: SplitPart) {
+    public removePart(part: SplitPart) {
         this.parts = this.parts.filter(x => x.partNo !== part.partNo);
 
         // reorder partNo when deleting a part, in case e.g. 3 parts exist, and part 2 is removed
@@ -441,7 +441,7 @@ export class FileSplitModal implements IUniModal {
         this.focusOnFirstThumbnail();
     }
 
-    private clearCurrentPart() {
+    public clearCurrentPart() {
         this.currentPart.Pages.forEach(page => {
             let thumb = this.thumbnails.find(x => x.page === page);
             if (thumb) {
@@ -452,7 +452,7 @@ export class FileSplitModal implements IUniModal {
         this.currentPart.Pages = [];
     }
 
-    private splitRemainingPerPage() {
+    public splitRemainingPerPage() {
         // if we have already selected some pages, add those to a new part first
         if (this.currentPart && this.currentPart.Pages.length > 0) {
             this.createNewPartFromSelected();
@@ -519,7 +519,7 @@ export class FileSplitModal implements IUniModal {
     }
 
 
-    private rotateLeft(event) {
+    public rotateLeft(event) {
         // do rotations locally and keep track of rotation for later usage
         this.currentThumbnail._rotation =
             this.currentThumbnail._rotation > 0 ?
@@ -527,7 +527,7 @@ export class FileSplitModal implements IUniModal {
                 270;
     }
 
-    private rotateRight(event) {
+    public rotateRight(event) {
         // do rotations locally and keep track of rotation for later usage
         this.currentThumbnail._rotation =
             this.currentThumbnail._rotation < 270 ?
@@ -535,7 +535,7 @@ export class FileSplitModal implements IUniModal {
                 0;
     }
 
-    private thumbnailFocused(thumbnail, index) {
+    public thumbnailFocused(thumbnail, index) {
         this.previousThumbnail = this.currentThumbnail;
 
         this.currentThumbnail = thumbnail;
@@ -546,7 +546,7 @@ export class FileSplitModal implements IUniModal {
         }
     }
 
-    private thumbnailClicked(page: number, event = null) {
+    public thumbnailClicked(page: number, event = null) {
         if (event && event.shiftKey && this.previousThumbnail) {
             // mark all pages between previousThumbnail and the new one
             var low = this.previousThumbnail.page > this.currentThumbnail.page ? this.currentThumbnail.page : this.previousThumbnail.page;
@@ -586,7 +586,7 @@ export class FileSplitModal implements IUniModal {
         this.visibleThumbnails = this.thumbnails.filter(x => x.page <= this.maxVisibleImages && !x._isPartOfBatch);
     }
 
-    private getPagesFromPart(part: SplitPart) {
+    public getPagesFromPart(part: SplitPart) {
         if (part.Pages && part.Pages.length > 0)
             return part.Pages.join(', ');
 

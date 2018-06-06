@@ -24,9 +24,9 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniNotifications {
-    private isOpen: boolean;
-    private notifications: Notification[] = [];
-    private unreadCount: number;
+    public isOpen: boolean;
+    public notifications: Notification[] = [];
+    public unreadCount: number;
     private companies: Company[];
 
     constructor(
@@ -206,12 +206,12 @@ export class UniNotifications {
         this.notifications.splice(indx, 1);
     }
 
-    private getNotificationTime(notification: Notification): string {
+    public getNotificationTime(notification: Notification): string {
         return moment(notification.CreatedAt).fromNow();
     }
 
 
-    private getNotificationText(notification: Notification) {
+    public getNotificationText(notification: Notification) {
         if (notification.EntityType  === 'File' && notification.SenderDisplayName === 'Uni Micro AP') {
             return `${notification.EntityType}/${notification.EntityID} - Inngående EHF`
         }

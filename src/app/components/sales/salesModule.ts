@@ -49,7 +49,7 @@ import {ProductDetails} from './products/productDetails';
 import {ProductList} from './products/productList';
 import {UniProductDetailsModal} from './products/productDetailsModal';
 import {SellerList} from './sellers/sellerList';
-import {SellerLinks} from './sellers/sellerLinks';
+import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {UniDimensionTOFView} from './common/dimensionForm';
@@ -134,7 +134,7 @@ import {MatSlideToggleModule} from '@angular/material';
         InvoiceReminders,
         CustomerDetailsModal,
         UniTofSelectModal,
-        UniProductDetailsModal
+        UniProductDetailsModal,
     ],
     providers: [
         TradeItemHelper,
@@ -169,7 +169,7 @@ import {MatSlideToggleModule} from '@angular/material';
         UniProductDetailsModal,
 
         SellerList,
-        SellerLinks,
+        // SellerLinks,
         SellerDetails,
         SellerSalesList
     ]

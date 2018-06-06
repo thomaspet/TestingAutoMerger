@@ -83,7 +83,7 @@ export class UniTickerOverview {
         });
     }
 
-    private navigateToTicker(ticker: Ticker) {
+    public navigateToTicker(ticker: Ticker) {
         this.router.navigate(['/overview'], {
             queryParams: { code: ticker.Code },
             skipLocationChange: false
@@ -124,7 +124,7 @@ export class UniTickerOverview {
         this.updateTab();
     }
 
-    private exportToExcel() {
+    public exportToExcel() {
         if (this.exportBusy) {
             return;
         }

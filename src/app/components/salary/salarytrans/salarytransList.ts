@@ -52,7 +52,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private payrollRun: PayrollRun;
     private payrollRunID: number;
 
-    private busy: boolean;
+    public busy: boolean;
     private salaryTransactions: SalaryTransaction[];
     private filteredTranses: SalaryTransaction[];
     private deleteButton: IDeleteButton;
@@ -540,7 +540,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         return null;
     }
 
-    private onSupplementModalClose(trans: SalaryTransaction) {
+    public onSupplementModalClose(trans: SalaryTransaction) {
         if (trans && trans.Supplements && trans.Supplements.length) {
             this.updateSalaryChanged(trans, true);
         }
@@ -565,7 +565,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
     }
 
-    private onRowDeleted(row: SalaryTransaction) {
+    public onRowDeleted(row: SalaryTransaction) {
         let hasDirtyRow: boolean = true;
 
         const transIndex: number = this.getTransIndex(row);

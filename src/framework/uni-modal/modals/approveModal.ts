@@ -68,25 +68,29 @@ import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 })
 export class UniApproveModal implements IUniModal, OnInit {
 
-    private isOpen: boolean = false;
-    private busy: boolean = false;
-    private rejectTab: boolean = false;
-    private teams: Array<Team>;
-    private users: Array<User>;
-    private currentTeam: Team;
-    private currentUser: User;
-    private okButtonLabel: string = lang.task_approve;
-    private modalTitle: string = '';
-    private invoice: SupplierInvoice;
-    private get currentTask(): Task {
-        return <any>(this.invoice ? this.invoice['_task'] : undefined);
-    }
-    private canApprove: boolean = false;
-    private canReject: boolean = false;
-    private myApproval: Approval;
-    private myUser: User;
+    public isOpen: boolean = false;
+    public busy: boolean = false;
+    public rejectTab: boolean = false;
+
+    public currentTeam: Team;
+    public currentUser: User;
+    public okButtonLabel: string = lang.task_approve;
+    public modalTitle: string = '';
+
+    public canApprove: boolean = false;
+    public canReject: boolean = false;
     public comment: string = '';
     public isAdmin = false;
+
+    public get currentTask(): Task {
+        return <any>(this.invoice ? this.invoice['_task'] : undefined);
+    }
+
+    private myApproval: Approval;
+    private myUser: User;
+    private invoice: SupplierInvoice;
+    private teams: Array<Team>;
+    private users: Array<User>;
 
     @Input()
     public options: IModalOptions = {};
@@ -209,7 +213,7 @@ export class UniApproveModal implements IUniModal, OnInit {
         return details;
     }
 
-    private onCloseAction(src: 'ok' | 'cancel') {
+    public onCloseAction(src: 'ok' | 'cancel') {
 
         if (src === 'ok') {
 
@@ -228,7 +232,7 @@ export class UniApproveModal implements IUniModal, OnInit {
         this.refresh();
     }
 
-    private approve(): Promise<boolean> {
+    public approve(): Promise<boolean> {
         this.goBusy(true);
         return new Promise<boolean>( (resolve, reject) => {
             this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=approve`)
@@ -241,7 +245,7 @@ export class UniApproveModal implements IUniModal, OnInit {
         });
     }
 
-    private reject(): Promise<boolean> {
+    public reject(): Promise<boolean> {
         this.goBusy(true);
         return new Promise<boolean>( (resolve, reject) => {
             this.supplierInvoiceService.send(`approvals/${this.myApproval.ID}?action=reject`)

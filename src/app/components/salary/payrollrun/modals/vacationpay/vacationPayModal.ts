@@ -39,7 +39,7 @@ export class VacationPayModal implements OnInit, IUniModal {
             headline: 'Innstillinger'
         });
 
-    private busy: boolean;
+    public busy: boolean;
     private basicamountBusy: boolean;
     private vacationHeaderModel$: BehaviorSubject<IVacationPayHeader> = new BehaviorSubject({
         BasicAmount: 0,
@@ -47,17 +47,17 @@ export class VacationPayModal implements OnInit, IUniModal {
         SixthWeek: true,
         PercentPayout: 100
     });
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private totalPayout: number = 0;
     @ViewChild(UniTable) private table: UniTable;
     private vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
-    private currentYear: number;
+    public currentYear: number;
     private companysalary: CompanySalary;
-    private saveactions: IUniSaveAction[] = [];
+    public saveactions: IUniSaveAction[] = [];
     private mainAction: IUniSaveAction;
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;

@@ -14,7 +14,7 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     private salaryTransaction$: BehaviorSubject<SalaryTransaction> = new BehaviorSubject(new SalaryTransaction());
-    private fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     constructor() { }
 
     public ngOnInit() {

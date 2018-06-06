@@ -164,16 +164,16 @@ export class UnitableAutocomplete implements OnInit {
     private column: any;
 
     @Input()
-    private inputControl: FormControl;
-    private groupConfig: IGroupConfig;
+    public inputControl: FormControl;
+    public groupConfig: IGroupConfig;
 
-    private options: IAutoCompleteOptions;
+    public options: IAutoCompleteOptions;
     public busy: boolean = false;
     public expanded: boolean;
 
-    private showDropdownAbove: boolean = false;
-    private lookupResults: any[] = [];
-    private selectedIndex: any;
+    public showDropdownAbove: boolean = false;
+    public lookupResults: any[] = [];
+    public selectedIndex: any;
     private addValuePromise: Promise<any>;
     private emptySearchString: string = '';
 
@@ -408,7 +408,7 @@ export class UnitableAutocomplete implements OnInit {
         });
     }
 
-    private onKeyDown(event: KeyboardEvent) {
+    public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode || 0;
 
         if (key === 13

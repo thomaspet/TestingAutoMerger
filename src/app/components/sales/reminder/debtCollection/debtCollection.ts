@@ -40,8 +40,8 @@ export class DebtCollection implements OnInit {
 
     private showInvoicesWithReminderStop: boolean = false;
 
-    private summaryFields: ISummaryConfig[] = [];
-    private summaryData: any = {
+    public summaryFields: ISummaryConfig[] = [];
+    public summaryData: any = {
         restSumReadyForDebtCollection: 0,
         restSumChecked: 0
     };

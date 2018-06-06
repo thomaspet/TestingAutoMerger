@@ -23,6 +23,7 @@ import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
 import { UniGdprPeopleList } from '@app/components/admin/gdpr/gdpr-people-list.component';
 import { PeopleService } from '@app/components/admin/gdpr/people.service';
+import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
 
 @NgModule({
     entryComponents: [
@@ -55,7 +56,8 @@ import { PeopleService } from '@app/components/admin/gdpr/people.service';
         UniGdprPeopleList
     ],
     providers: [
-        PeopleService
+        PeopleService,
+        GdprFileWriter
     ],
     exports: [
         JobList,
