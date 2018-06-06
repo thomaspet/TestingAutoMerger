@@ -7,6 +7,28 @@ import { ContactService } from '@app/services/common/contactService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { WorkerService } from '@app/services/timetracking/workerService';
 
+const expand = [
+    'Info',
+    'Info.Phones',
+    'Info.Emails',
+    'Info.Addresses',
+    'Info.DefaultEmail',
+    'Info.DefaultPhone',
+    'Info.ShippingAddress',
+    'Info.InvoiceAddress'
+].join(',');
+
+const employeesExpand = [
+    'BusinessRelationInfo',
+    'BusinessRelationInfo.Phones',
+    'BusinessRelationInfo.Emails',
+    'BusinessRelationInfo.Addresses',
+    'BusinessRelationInfo.DefaultEmail',
+    'BusinessRelationInfo.DefaultPhone',
+    'BusinessRelationInfo.ShippingAddress',
+    'BusinessRelationInfo.InvoiceAddress'
+].join(',');
+
 @Injectable()
 export class PeopleService {
     constructor(
@@ -31,11 +53,6 @@ export class PeopleService {
 
     getCustomers(urlParams: URLSearchParams) {
         const params = urlParams || new URLSearchParams();
-        const expand = [
-            'Info',
-            'Info.DefaultEmail',
-            'Info.DefaultPhone'
-        ].join(',');
         params.set('expand', expand);
         params.set('hateoas', 'false');
         params.set('top', '50');
@@ -49,11 +66,6 @@ export class PeopleService {
 
     getSuppliers(urlParams: URLSearchParams) {
         const params = urlParams || new URLSearchParams();
-        const expand = [
-            'Info',
-            'Info.DefaultEmail',
-            'Info.DefaultPhone'
-        ].join(',');
         params.set('expand', expand);
         params.set('hateoas', 'false');
         params.set('top', '50');
@@ -67,11 +79,6 @@ export class PeopleService {
 
     getContacts(urlParams: URLSearchParams) {
         const params = urlParams || new URLSearchParams();
-        const expand = [
-            'Info',
-            'Info.DefaultEmail',
-            'Info.DefaultPhone'
-        ].join(',');
         params.set('expand', expand);
         params.set('hateoas', 'false');
         params.set('top', '50');
@@ -85,11 +92,6 @@ export class PeopleService {
 
     getWorkers(urlParams: URLSearchParams) {
         const params = urlParams || new URLSearchParams();
-        const expand = [
-            'Info',
-            'Info.DefaultEmail',
-            'Info.DefaultPhone'
-        ].join(',');
         params.set('expand', expand);
         params.set('hateoas', 'false');
         params.set('top', '50');
@@ -103,12 +105,7 @@ export class PeopleService {
 
     getEmployees(urlParams: URLSearchParams, searchString) {
         const params = urlParams || new URLSearchParams();
-        const expand = [
-            'BusinessRelationInfo',
-            'BusinessRelationInfo.DefaultEmail',
-            'BusinessRelationInfo.DefaultPhone'
-        ].join(',');
-        params.set('expand', expand);
+        params.set('expand', employeesExpand);
         params.set('hateoas', 'false');
         params.set('orderby', 'BusinessRelationInfo.Name');
         params.set('top', '50');
