@@ -136,6 +136,7 @@ export class EmployeeLeaves extends UniView {
     private mapLeavetypeToPermision(rowModel) {
         const leavetype = rowModel['LeaveType'];
         if (!leavetype) {
+            rowModel['LeaveType'] = Leavetype.NotSet;
             return;
         }
         rowModel['LeaveType'] = leavetype.ID;
@@ -144,7 +145,7 @@ export class EmployeeLeaves extends UniView {
     public rowChanged(event: IRowChangeEvent) {
         if (event.field === 'LeaveType') {
             if (event['newValue'] === null) {
-                this.employeeleaveItems[event['originalIndex']].LeaveType = Leavetype.Leave;
+                this.employeeleaveItems[event['originalIndex']].LeaveType = Leavetype.NotSet;
             }
         }
     }
