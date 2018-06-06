@@ -249,7 +249,7 @@ export class EmployeeService extends BizHttp<Employee> {
                     EntityType: 'BusinessRelation',
                     Property: 'BusinessRelationInfo.DefaultEmail',
                     FieldType: FieldType.MULTIVALUE,
-                    Label: 'Epost',
+                    Label: 'E-post',
                     FieldSet: 2,
                     Section: 0,
                     Placeholder: 'Legg til e-post'

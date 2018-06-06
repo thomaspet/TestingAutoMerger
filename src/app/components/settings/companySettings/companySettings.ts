@@ -881,7 +881,7 @@ export class CompanySettingsComponent implements OnInit {
                 const data = this.companySettings$.getValue();
                 data['_FileFlowEmail'] = company['FileFlowEmail'];
                 const fields = this.fields$.getValue();
-                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Deaktiver epostmottak';
+                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Deaktiver e-postmottak';
                 fields.find(f => f.Property === '_FileFlowEmail').Hidden = false;
                 fields.find(f => f.Property === '_UpdateEmail').Hidden = false;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = false;
@@ -916,7 +916,7 @@ export class CompanySettingsComponent implements OnInit {
                 data['_FileFlowEmail'] = '';
                 data['_FileFlowOrgnrEmail'] = '';
                 data['_FileFlowOrgnrEmailCheckbox'] = false;
-                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Aktiver epostmottak';
+                fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Aktiver e-postmottak';
                 fields.find(f => f.Property === '_FileFlowEmail').Hidden = true;
                 fields.find(f => f.Property === '_UpdateEmail').Hidden = true;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = true;
@@ -1024,7 +1024,7 @@ export class CompanySettingsComponent implements OnInit {
                 EntityType: 'CompanySettings',
                 Property: 'DefaultEmail',
                 FieldType: FieldType.MULTIVALUE,
-                Label: 'Epost',
+                Label: 'E-post',
                 FieldSet: 2,
                 Section: 0
             },
@@ -1418,11 +1418,11 @@ export class CompanySettingsComponent implements OnInit {
             {
                 Property: '_FileFlowEmailActivated',
                 FieldType: FieldType.BUTTON,
-                Label: this.companySettings$.getValue()['_FileFlowEmail'] ? 'Deaktiver epostmottak' : 'Aktiver epostmottak',
+                Label: this.companySettings$.getValue()['_FileFlowEmail'] ? 'Deaktiver e-postmottak' : 'Aktiver e-postmottak',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
-                Legend: 'Epost mottak',
+                Legend: 'E-post mottak',
                 Options: {
                     click: () => this.activateEmail()
                  }
@@ -1431,7 +1431,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.TEXT,
                 Label: 'Firmanavn Faktura e-mail',
                 Property: '_FileFlowEmail',
-                Placeholder: 'epost',
+                Placeholder: 'e-post',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
@@ -1453,7 +1453,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Bruk orgnr for faktura epost',
+                Label: 'Bruk orgnr for faktura e-post',
                 Property: '_FileFlowOrgnrEmailCheckbox',
                 Sectionheader: 'Diverse',
                 Section: 1,
@@ -1462,7 +1462,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 FieldType: FieldType.TEXT,
-                Label: 'Orgnr faktura epost',
+                Label: 'Orgnr faktura e-post',
                 Property: '_FileFlowOrgnrEmail',
                 Placeholder: 'ikke i bruk',
                 Sectionheader: 'Diverse',

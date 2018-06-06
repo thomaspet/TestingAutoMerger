@@ -58,13 +58,13 @@ export class ResetPassword {
             .send()
             .subscribe(
                 (response) => {
-                    this.successMessage = 'Vennligst sjekk epost innboksen din for videre instrukser';
+                    this.successMessage = 'Vennligst sjekk e-post innboksen din for videre instrukser';
                     this.busy = false;
                     this.emailSent = true;
                 },
                 (error) => {
                     if (error.status === 404) {
-                        this.errorMessage = 'Vi klarte ikke finne en aktiv bruker. Er epost korrekt?';
+                        this.errorMessage = 'Vi klarte ikke finne en aktiv bruker. Er e-post korrekt?';
                     } else {
                         this.errorMessage = 'Noe gikk galt, vennligst prøv igjen';
                     }

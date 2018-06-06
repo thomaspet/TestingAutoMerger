@@ -20,7 +20,7 @@ import {
 } from '../../../../services/services';
 
 export enum PaycheckFormat {
-    E_MAIL = 'Epost',
+    E_MAIL = 'E-post',
     PRINT = 'Utskrift'
 }
 
@@ -166,7 +166,7 @@ export class PaycheckSending implements OnInit {
         const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
         const emailCol = new UniTableColumn(
             'BusinessRelationInfo.DefaultEmail.EmailAddress',
-            'Epost',
+            'E-post',
             UniTableColumnType.Text,
             false);
 

@@ -140,7 +140,7 @@ export class TravelService extends BizHttp<Travel> {
                         EntityType: 'Travel',
                         Property: 'Email',
                         FieldType: FieldType.TEXT,
-                        Label: 'Epost',
+                        Label: 'E-post',
                         ReadOnly: true,
                         classes: 'quarter-width',
                     },

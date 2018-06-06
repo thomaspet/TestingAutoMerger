@@ -20,7 +20,7 @@ export class AnnualStatementSenderContainerComponent implements OnInit {
     private getSaveActions(isActive: boolean): IUniSaveAction[] {
         return [
             {
-                label: 'Send epost/Skriv ut',
+                label: 'Send e-post/Skriv ut',
                 action: this.handleAnnualStatements.bind(this),
                 disabled: !isActive
             },

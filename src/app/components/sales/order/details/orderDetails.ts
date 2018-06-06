@@ -990,7 +990,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private updateShareActions() {
         this.shareActions = [
             {
-                label: 'Skriv ut',
+                label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
                 disabled: () => false
             }

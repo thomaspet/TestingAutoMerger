@@ -45,7 +45,7 @@ export class EmployeeList {
         const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text)
             .setWidth(300);
 
-        const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'Epost', UniTableColumnType.Link)
+        const emailCol = new UniTableColumn('BusinessRelationInfo.DefaultEmail.EmailAddress', 'E-post', UniTableColumnType.Link)
             .setLinkResolver(employee => {
                 if (!employee.BusinessRelationInfo
                     || !employee.BusinessRelationInfo.DefaultEmail

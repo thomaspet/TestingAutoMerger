@@ -48,7 +48,7 @@ import {ReportDefinition} from '@uni-entities';
                 </button>
 
                 <button class="good" id="good_button_ok" (click)="acceptAndSendEmail()">
-                    Send email
+                    Send e-post
                 </button>
 
                 <button class="good" id="good_button_ok" (click)="acceptAndPrintOut()">

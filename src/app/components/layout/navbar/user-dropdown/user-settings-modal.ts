@@ -72,7 +72,7 @@ export class UserSettingsModal implements IUniModal {
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                Label: 'Epost',
+                Label: 'E-post',
             }
         ];
     }

@@ -29,7 +29,7 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
     private getSaveActions(isActive: boolean): IUniSaveAction[] {
         return [
             {
-                label: 'Send epost/Skriv ut',
+                label: 'Send e-post/Skriv ut',
                 action: this.handlePaychecks.bind(this),
                 disabled: !isActive
             },

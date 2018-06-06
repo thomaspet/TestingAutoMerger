@@ -126,7 +126,7 @@ export class ReportService extends BizHttp<string> {
             this.toastService.addToast(
                 'Sending feilet',
                 ToastType.bad, 3,
-                'Sending av epost feilet grunnet manglende epostadresse'
+                'Sending av e-post feilet grunnet manglende e-postadresse'
             );
 
             if (doneHandler) {
@@ -134,7 +134,7 @@ export class ReportService extends BizHttp<string> {
             }
         } else {
             this.emailtoast = this.toastService.addToast(
-                'Sender epost til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject
+                'Sender e-post til ' + sendemail.EmailAddress, ToastType.warn, 0, sendemail.Subject
             );
 
             this.reportDefinitionService.getReportByName(name).subscribe((report) => {
@@ -350,10 +350,10 @@ export class ReportService extends BizHttp<string> {
 
                     this.emailService.ActionWithBody(null, body, 'send', RequestMethod.Post).subscribe(() => {
                         this.toastService.removeToast(this.emailtoast);
-                        this.toastService.addToast('Epost sendt', ToastType.good, 3);
-                        if (doneHandler) { doneHandler('Epost sendt'); }
+                        this.toastService.addToast('E-post sendt', ToastType.good, 3);
+                        if (doneHandler) { doneHandler('E-post sendt'); }
                     }, err => {
-                        if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
+                        if (doneHandler) { doneHandler('Feil oppstod ved sending av e-post'); }
                         this.errorService.handle(err);
                     });
                 }

@@ -828,7 +828,7 @@ export class BillsView implements OnInit {
                 .setTemplate((rowModel) => {
                     if (rowModel.FileTags) {
                         switch (rowModel.FileTags[0].TagName) {
-                            case 'IncomingMail': return 'Epost';
+                            case 'IncomingMail': return 'E-post';
                             case 'IncomingEHF': return 'EHF';
                             case 'IncomingTravel': return 'Reise';
                             case 'IncomingExpense': return 'Utlegg';

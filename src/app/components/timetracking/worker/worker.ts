@@ -140,7 +140,7 @@ export class WorkerDetailview {
                     debounceTime: 150
                 }),
                 createFormField('_userName', 'Brukernavn', FieldType.TEXT, FieldSize.Double, false),
-                createFormField('_userEmail', 'Bruker epost', FieldType.TEXT, FieldSize.Double, false)
+                createFormField('_userEmail', 'Bruker e-post', FieldType.TEXT, FieldSize.Double, false)
             ].map((fld: UniFieldLayout) => {
                 fld.ReadOnly = fld.Property === '_userName' || fld.Property === '_userEmail';
                 return fld;

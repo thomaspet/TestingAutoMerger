@@ -34,7 +34,7 @@ export class EmailService extends BizHttp<Email> {
             this.toastService.addToast(
                 'Sending feilet',
                 ToastType.bad, 3,
-                'Sending av epost feilet grunnet manglende epostadresse'
+                'Sending av e-post feilet grunnet manglende e-postadresse'
             );
 
             if (doneHandler) {
@@ -42,7 +42,7 @@ export class EmailService extends BizHttp<Email> {
             }
         } else {
             this.emailtoast = this.toastService.addToast(
-                'Sender epost til ' + sendemail.EmailAddress,
+                'Sender e-post til ' + sendemail.EmailAddress,
                 ToastType.warn, 0,
                 sendemail.Subject
             );
@@ -71,10 +71,10 @@ export class EmailService extends BizHttp<Email> {
             this.ActionWithBody(null, email, 'send', RequestMethod.Post).subscribe((success) => {
                 this.toastService.removeToast(this.emailtoast);
                 if (success) {
-                    this.toastService.addToast('Epost sendt', ToastType.good, ToastTime.short);
-                    if (doneHandler) { doneHandler('Epost sendt'); }
+                    this.toastService.addToast('E-post sendt', ToastType.good, ToastTime.short);
+                    if (doneHandler) { doneHandler('E-post sendt'); }
                 } else {
-                    this.toastService.addToast('Epost ikke sendt',
+                    this.toastService.addToast('E-post ikke sendt',
                         ToastType.bad,
                         ToastTime.medium,
                         'Feilet i oppretting av jobb'
@@ -82,7 +82,7 @@ export class EmailService extends BizHttp<Email> {
                     if (doneHandler) { doneHandler(''); }
                 }
             }, err => {
-                if (doneHandler) { doneHandler('Feil oppstod ved sending av epost'); }
+                if (doneHandler) { doneHandler('Feil oppstod ved sending av e-post'); }
                 this.errorService.handle(err);
             });
         }

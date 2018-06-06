@@ -241,7 +241,7 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'orgemail',
                 FieldType: FieldType.EMAIL,
-                Label: 'Epost'
+                Label: 'E-post'
             },
             <any> {
                 Property: 'contactname',

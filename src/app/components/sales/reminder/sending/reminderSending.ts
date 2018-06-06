@@ -74,7 +74,7 @@ export class ReminderSending implements OnInit {
              disabled: !!this.remindersAll
          },
          {
-             label: 'Send valgte på epost',
+             label: 'Send valgte på e-post',
              action: (done) => this.sendEmails(done),
              disabled: !!this.remindersEmail
          },
@@ -253,7 +253,7 @@ export class ReminderSending implements OnInit {
                 'Ingen rader er valgt',
                 ToastType.bad,
                 10,
-                'Vennligst velg hvilke linjer du vil sende purringer på epost for, eller kryss av for alle'
+                'Vennligst velg hvilke linjer du vil sende purringer på e-post for, eller kryss av for alle'
             );
 
             done('Sending avbrutt');
@@ -431,7 +431,7 @@ export class ReminderSending implements OnInit {
             .setEditable(false)
             .setFilterOperator('contains');
 
-        const emailCol = new UniTableColumn('EmailAddress', 'Epost', UniTableColumnType.Text)
+        const emailCol = new UniTableColumn('EmailAddress', 'E-post', UniTableColumnType.Text)
             .setFilterOperator('contains');
 
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)

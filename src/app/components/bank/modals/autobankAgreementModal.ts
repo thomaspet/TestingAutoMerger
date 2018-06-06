@@ -106,7 +106,7 @@ export interface IAutoBankAgreementDetails {
                 <h3> <strong>Manuell godkjenning i nettbank:  </strong> {{ agreementDetails.BankAcceptance ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Avtale for innkommende betaling:  </strong> {{ agreementDetails.IsInbound ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>Avtale for utgående betaling:  </strong> {{ agreementDetails.IsOutgoing ? 'Ja' : 'Nei' }} </h3>
-                <h3> <strong>Epost: </strong> {{ agreementDetails.Email }} </h3>
+                <h3> <strong>E-post: </strong> {{ agreementDetails.Email }} </h3>
             </article>
             <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 5" id="step5">
                 <p>Du har nå fullført din del av opprettelse av autobankavtale. Nå setter vi opp alt med banken.</p>
@@ -267,7 +267,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             <any> {
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
-                Label: 'Epost',
+                Label: 'E-post',
             },
             <any> {
                 Property: 'Password',
@@ -375,7 +375,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
         if (!this.agreementDetails.Email || !this.agreementDetails.Email.includes('@')) {
             if (this.agreementDetails.Email) {
-                this.errorText = 'Ugyldig epost';
+                this.errorText = 'Ugyldig e-post';
             }
             return false;
         }

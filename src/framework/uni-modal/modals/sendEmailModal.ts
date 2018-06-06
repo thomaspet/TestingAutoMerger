@@ -17,7 +17,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{options.header || 'Send epost'}}</h1>
+                <h1>{{options.header || 'Send e-post'}}</h1>
             </header>
             <article>
                 <uni-form
@@ -28,7 +28,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
             </article>
 
             <footer>
-                <span class="warn" *ngIf="invalidEmail">Ugyldig epost</span>
+                <span class="warn" *ngIf="invalidEmail">Ugyldig e-post</span>
                 <button class="good" (click)="close(true)">Send</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>

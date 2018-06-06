@@ -380,7 +380,7 @@ export class Users {
                 Property: 'Email',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                Label: 'Epost',
+                Label: 'E-post',
                 FieldSet: 0,
                 Section: 0
             }

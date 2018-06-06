@@ -32,7 +32,7 @@ import * as moment from 'moment';
                 <section class="sharing-badges">
                     <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                     <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
-                    <span [attr.title]="emailTitle" [ngClass]="emailClass">EPOST</span>
+                    <span [attr.title]="emailTitle" [ngClass]="emailClass">E-POST</span>
                     <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
                 </section>
                 <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
@@ -175,7 +175,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
             // Can customer receive email?
             if (customer && customer.Info && customer.Info.DefaultEmail) {
                 this.emailClass = 'badge-available';
-                this.emailTitle = 'Kan sende på epost til ' + customer.Info.DefaultEmail.EmailAddress;
+                this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
             }
 
             if (customer && customer.customerID) {

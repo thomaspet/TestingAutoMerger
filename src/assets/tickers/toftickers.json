@@ -918,7 +918,7 @@
             }
         },
         {
-            "Name": "Send på epost",
+            "Name": "Send på e-post",
             "Code": "quote_sendemail",
             "Type": "details",
             "DisplayInContextMenu": true,
@@ -1478,7 +1478,7 @@
             }
         },
         {
-            "Name": "Send på epost",
+            "Name": "Send på e-post",
             "Code": "order_sendemail",
             "Type": "details",
             "DisplayInContextMenu": true,

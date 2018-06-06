@@ -48,7 +48,7 @@ const FILE_BASE = environment.BASE_URL_FILES;
     </section>
     <section class="info-section">
         <span><i class="material-icons">room</i><span class="info-name">Addresse</span>{{viewData[0].DefaultAddress?.AddressLine1}} {{viewData[0].DefaultAddress?.City}} {{viewData[0].DefaultAddress?.PostalCode}}</span>
-        <span><i class="material-icons">mail_outline</i><span class="info-name">Epost</span>{{viewData[0].DefaultEmail?.EmailAddress}}</span>
+        <span><i class="material-icons">mail_outline</i><span class="info-name">E-post</span>{{viewData[0].DefaultEmail?.EmailAddress}}</span>
         <span><i class="material-icons">call</i><span class="info-name">Telefon</span>{{viewData[0].DefaultPhone?.Number}}</span>
         <span><i class="material-icons">credit_card</i><span class="info-name">Driftskonto</span>{{viewData[0].CompanyBankAccount?.AccountNumber}}</span>
         <span><i class="material-icons">compare_arrows</i><span class="info-name">EHF</span>{{viewData[0].APActivated ? "aktivert" : "ikke aktivert"}}</span>

@@ -74,7 +74,7 @@ export class Signup {
             .subscribe(
                 res => {
                     this.busy = false;
-                    this.successMessage = 'Vi vil nå verifisere eposten din. '
+                    this.successMessage = 'Vi vil nå verifisere e-posten din. '
                         + 'Vennligst sjekk innboks for videre informasjon.';
                 },
                 err => {
@@ -129,7 +129,7 @@ export class Signup {
                     const errorBody = err.json();
                     if (errorBody.Message) this.errorMessage = errorBody.Message
                     else if (errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0) {
-                        this.errorMessage = 'Eposten er allerede i bruk';
+                        this.errorMessage = 'E-posten er allerede i bruk';
                     } else {
                         this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
                     }

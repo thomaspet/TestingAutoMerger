@@ -585,7 +585,7 @@ export class UniTransactionsWidget implements AfterViewInit {
                         key: 'BusinessRelationInfo'
                     },
                     {
-                        label: 'Epost',
+                        label: 'E-post',
                         style: '',
                         class: '',
                         displayFunction: (value) => {
