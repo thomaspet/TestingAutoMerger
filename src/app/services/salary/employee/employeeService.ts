@@ -179,6 +179,20 @@ export class EmployeeService extends BizHttp<Employee> {
             BaseEntity: 'Employee',
             Fields: [
                 {
+                    EntityType: 'Employee',
+                    Property: 'EmployeeNumber',
+                    FieldType: FieldType.NUMERIC,
+                    ReadOnly: true,
+                    Label: 'Nr',
+                    FieldSet: 1,
+                    Legend: 'Ansatt',
+                    Section: 0,
+                    Placeholder: 'La stå tom for neste ledige',
+                    Options: {
+                        format: 'none'
+                    }
+                },
+                {
                     EntityType: 'BusinessRelation',
                     Property: 'BusinessRelationInfo.Name',
                     FieldType: FieldType.TEXT,

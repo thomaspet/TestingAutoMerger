@@ -200,7 +200,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     this.posterEmployee = _.cloneDeep(this.posterEmployee);
 
                     const info = employee && employee.BusinessRelationInfo;
-                    let toolbarTitle = (employee && employee.EmployeeNumber + ' - ') || '';
+
+                    let toolbarTitle = this.employee.ID ? this.employee.EmployeeNumber + ' - ' : '';
                     if (info && info.Name) {
                         toolbarTitle += info.Name;
                     }
@@ -928,6 +929,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         return Observable.of(empSaveObj.state)
             .map((emp: Employee) => {
+                if (emp.EmployeeNumber === null) {
+                    emp.EmployeeNumber = 0;
+                }
                 const brInfo = emp.BusinessRelationInfo;
                 if (brInfo.DefaultBankAccount
                     && (!brInfo.DefaultBankAccount.AccountNumber
