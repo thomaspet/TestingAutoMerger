@@ -17,7 +17,6 @@ import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
 import {ColumnMenuNew} from './column-menu-modal';
-import {TableContextMenu} from './context-menu/context-menu';
 import {TableEditor} from './editor/editor';
 import {CellRenderer} from './cell-renderer/cell-renderer';
 import {ITableFilter, ICellClickEvent, IRowChangeEvent} from './interfaces';
@@ -41,6 +40,9 @@ import {
     PaginationChangedEvent
 } from 'ag-grid';
 
+// Barrel here when we get more?
+import {RowMenuRenderer} from './cell-renderer/row-menu';
+
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
 import * as _ from 'lodash';
@@ -53,7 +55,6 @@ import * as _ from 'lodash';
 })
 export class AgGridWrapper {
     @ViewChild('wrapper') public wrapperElement: ElementRef;
-    @ViewChild(TableContextMenu) public contextMenu: TableContextMenu;
     @ViewChild(TableEditor) public editor: TableEditor;
 
     @Input() public config: UniTableConfig;
@@ -87,6 +88,10 @@ export class AgGridWrapper {
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
+
+    // Used for custom cell renderers
+    public context: any;
+    public cellRendererComponents: any;
 
     // Used for keyboard navigation inside filter box
     private focusIndex: number;
@@ -489,13 +494,6 @@ export class AgGridWrapper {
         });
     }
 
-    public onContextMenuClick(event: MouseEvent, row) {
-        const wrapperBounds = this.wrapperElement.nativeElement.getBoundingClientRect();
-        const targetBounds =  (<any> event.target).getBoundingClientRect();
-        const cmOffset = targetBounds.bottom - wrapperBounds.top;
-        this.contextMenu.toggle(cmOffset, row);
-    }
-
     public onDeleteRow(row) {
         if (this.editor) {
             this.editor.emitAndClose();
@@ -524,6 +522,9 @@ export class AgGridWrapper {
         if (!columns) {
             return [];
         }
+
+        this.context = { componentParent: this };
+        this.cellRendererComponents = {};
 
         const colDefs = columns.map(col => {
             const agCol: ColDef = {
@@ -596,41 +597,18 @@ export class AgGridWrapper {
 
             menuColumn['_onClick'] = this.onColMenuClick.bind(this);
 
-            if (this.config.deleteButton
-                || (this.config.contextMenu && this.config.contextMenu.items.length)
-            ) {
-                let contextMenuHandler, deleteButtonHandler;
-                let contextMenuDisabled;
-                let deleteButtonDisabled;
+            const hasDeleteButton = !!this.config.deleteButton;
+            const hasContextMenu = this.config.contextMenu
+                && this.config.contextMenu.items
+                && this.config.contextMenu.items.length;
 
+            if (hasDeleteButton || hasContextMenu) {
+                this.cellRendererComponents.rowMenu = RowMenuRenderer;
+                menuColumn.cellRenderer = 'rowMenu';
+            }
 
-                if (this.config.contextMenu && this.config.contextMenu.items && this.config.contextMenu.items.length) {
-                    contextMenuHandler = this.onContextMenuClick.bind(this);
-                    if (this.config.contextMenu.disableOnReadonlyRows) {
-                        contextMenuDisabled = this.isRowReadonly.bind(this);
-                    }
-                }
-
-                if (this.config.deleteButton) {
-                    deleteButtonHandler = this.onDeleteRow.bind(this);
-                    if (this.config.disableDeleteOnReadonly) {
-                        deleteButtonDisabled = this.isRowReadonly.bind(this);
-                    }
-                }
-
-                if (contextMenuHandler || deleteButtonHandler) {
-                    menuColumn.cellRenderer = CellRenderer.getRowMenu(
-                        contextMenuHandler,
-                        contextMenuDisabled,
-                        deleteButtonHandler,
-                        deleteButtonDisabled
-                    );
-                }
-
-                // If both icons are visible we need to increase the width
-                if (contextMenuHandler && deleteButtonHandler) {
-                    menuColumn.width = 80;
-                }
+            if (hasDeleteButton && hasContextMenu) {
+                menuColumn.width = 80;
             }
 
             colDefs.push(menuColumn);
@@ -662,6 +640,24 @@ export class AgGridWrapper {
         return false;
     }
 
+    public getContextMenuItems(row): any[] {
+        const contextMenu = this.config.contextMenu;
+        if (contextMenu) {
+            const disabled = contextMenu.disableOnReadonlyRows && this.isRowReadonly(row);
+            if (!disabled) {
+                return contextMenu.items;
+            }
+        }
+    }
+
+    public getDeleteButtonAction(row): ((row) => void) {
+        if (this.config.deleteButton) {
+            const disabled = this.config.disableDeleteOnReadonly && this.isRowReadonly(row);
+            if (!disabled) {
+                return this.onDeleteRow.bind(this);
+            }
+        }
+    }
 
     public getRowIdentifier(row) {
         return row['_guid'];

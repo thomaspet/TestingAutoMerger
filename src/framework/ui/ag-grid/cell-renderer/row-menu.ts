@@ -1,0 +1,66 @@
+import {Component, ChangeDetectionStrategy} from '@angular/core';
+import {ICellRendererAngularComp} from 'ag-grid-angular';
+import {ICellRendererParams} from 'ag-grid';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+
+@Component({
+    selector: 'row-menu',
+    template: `
+        <span class="row-menu-container" (click)="$event.stopPropagation()">
+            <i class="material-icons"
+                *ngIf="deleteButtonAction"
+                (click)="deleteButtonAction(rowData)">
+
+                delete
+            </i>
+
+            <ng-template [ngIf]="contextMenuItems?.length">
+                <i class="material-icons" [matMenuTriggerFor]="contextMenu" (click)="onContextMenuToggle()">
+                    more_horiz
+                </i>
+                <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                    <ul class="menu-list">
+                        <li *ngFor="let item of filteredContextMenuItems" (click)="item.action(rowData)">
+                            {{item.label}}
+                        </li>
+                    </ul>
+                </mat-menu>
+            </ng-template>
+        </span>
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class RowMenuRenderer implements ICellRendererAngularComp {
+    parentContext: AgGridWrapper;
+    rowData: any;
+
+    contextMenuItems: any[];
+    filteredContextMenuItems: any[];
+    deleteButtonAction: (row) => void;
+
+    agInit(params: ICellRendererParams): void {
+        this.rowData = params.data;
+        this.parentContext = params.context.componentParent;
+
+        this.contextMenuItems = this.parentContext.getContextMenuItems(this.rowData);
+        this.deleteButtonAction = this.parentContext.getDeleteButtonAction(this.rowData);
+    }
+
+    refresh(params: ICellRendererParams): boolean {
+        this.rowData = params.data;
+        this.parentContext = params.context.componentParent;
+
+        this.contextMenuItems = this.parentContext.getContextMenuItems(this.rowData);
+        this.deleteButtonAction = this.parentContext.getDeleteButtonAction(this.rowData);
+
+        return true;
+    }
+
+    public onContextMenuToggle() {
+        // Filter items here instead of on init, because init runs on every row
+        // and we only need to do this when the user actually opens a menu
+        this.filteredContextMenuItems = this.contextMenuItems && this.contextMenuItems.filter(item => {
+            return !item.disabled || !item.disabled(this.rowData);
+        });
+    }
+}

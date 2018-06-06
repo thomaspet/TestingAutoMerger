@@ -20,10 +20,6 @@
         (valueChange)="onEditorChange($event)">
     </table-editor>
 
-    <table-contextmenu
-        [items]="config?.contextMenu?.items">
-    </table-contextmenu>
-
     <ag-grid-angular #agGrid
         [ngClass]="{
             'editable': config?.editable,
@@ -63,7 +59,10 @@
         (selectionChanged)="onSelectionChange($event)"
         (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"
-        (columnMoved)="columnMoveDebouncer$.next($event)">
+        (columnMoved)="columnMoveDebouncer$.next($event)"
+
+        [context]="context"
+        [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
 
     <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
