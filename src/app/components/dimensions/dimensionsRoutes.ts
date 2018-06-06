@@ -54,7 +54,7 @@ export const dimensionsRoutes = [
                     },
                     {
                         path: 'hours',
-                        component: ProjectHourTotals // ProjectHours
+                        component: ProjectHourTotals
                     },
                     {
                         path: 'editmode',

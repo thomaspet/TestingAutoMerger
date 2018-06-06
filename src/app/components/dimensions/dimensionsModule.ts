@@ -17,7 +17,6 @@ import {ProjectTasks} from './project/tasks/tasks';
 import {ProjectEditmode} from './project/editmode/editmode';
 import {ProjectDocument} from './project/document/document';
 import {ProjectQueryList} from './project/lists/querylist';
-import {ProjectHours} from './project/hours/hours';
 import {ProjectHourTotals} from './project/hours/hourtotals';
 
 import {ProjectLite} from './projectLite/projectLite';
@@ -50,7 +49,6 @@ import {UniDimensionView} from './custom/dimension';
         ProjectEditmode,
         ProjectDocument,
         ProjectQueryList,
-        ProjectHours,
         ProjectHourTotals,
         ProjectLite,
         ProjectLiteDetails,
