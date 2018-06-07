@@ -53,6 +53,7 @@ import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {UniDimensionTOFView} from './common/dimensionForm';
+import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 
@@ -93,6 +94,7 @@ import {MatSlideToggleModule} from '@angular/material';
         TradeItemTable,
         UniTofSelectModal,
         UniDimensionTOFView,
+        UniDistibutionTOFView,
 
         InvoiceList,
         InvoiceDetails,

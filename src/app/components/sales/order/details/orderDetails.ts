@@ -118,6 +118,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private deliveryTerms: Terms[];
     private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
+    private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private projects: Project[];
     private departments: Department[];
     public currentDefaultProjectID: number;
@@ -129,6 +130,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
     public currentOrderDate: LocalDate;
     private dimensionTypes: any[];
     private paymentInfoTypes: any[];
+    private distributionPlans: any[];
+    private reports: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -263,6 +266,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentInfoTypeService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 2')
                 ).subscribe(res => {
                     const order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -275,6 +280,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.departments = res[8];
                     this.setUpDims(res[9]);
                     this.paymentInfoTypes = res[10];
+                    this.distributionPlans = res[11];
+                    this.reports = res[12];
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -321,6 +328,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentInfoTypeService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 2')
                 ).subscribe(
                     (res) => {
                         let order = <CustomerOrder>res[0];
@@ -353,6 +362,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.departments = res[12];
                         this.setUpDims(res[13]);
                         this.paymentInfoTypes = res[14];
+                        this.distributionPlans = res[15];
+                        this.reports = res[16];
 
                         order.OrderDate = new LocalDate(Date());
 
@@ -987,12 +998,25 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
+    private distribute() {
+        return Observable.create((obs) => {
+            this.reportService.disptribute(this.order.ID, this.distributeEntityType).subscribe(() => {
+                obs.complete();
+            }, err => obs.complete() );
+        });
+    }
+
     private updateShareActions() {
         this.shareActions = [
             {
                 label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
                 disabled: () => false
+            },
+            {
+                label: 'Distribuer',
+                action: () => this.distribute(),
+                disabled: () => !this.order['UseReportID'] || !this.order['DistributionPlanID'] || !this.order.ID
             }
         ];
     }

@@ -14,6 +14,7 @@ import {
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
 import {UniDimensionTOFView} from './dimensionForm';
+import {UniDistibutionTOFView} from './distibutionForm';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 declare var _;
@@ -36,6 +37,8 @@ export class TofHead implements OnChanges {
     @Input() public sellers: Seller[];
     @Input() public companySettings: CompanySettings;
     @Input() public dimensionTypes: any[];
+    @Input() public reports: any[];
+    @Input() public distributionPlans: any[];
     @Input() public paymentInfoTypes: any[];
     @Input() public currentUser: User;
 
@@ -55,7 +58,8 @@ export class TofHead implements OnChanges {
             {name: 'Fritekst'},
             {name: 'Selgere'},
             {name: 'Dokumenter'},
-            {name: 'Dimensjoner'}
+            {name: 'Dimensjoner'},
+            {name: 'Distribusjon'}
         ];
 
         if (this.entityName === 'CustomerInvoice') {

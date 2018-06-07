@@ -96,6 +96,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private newQuoteItem: CustomerQuoteItem;
     private printStatusPrinted: string = '200';
+    private distributeEntityType: string = 'Models.Sales.CustomerQuote';
     private quote: CustomerQuote;
     private quoteItems: CustomerQuoteItem[];
     private readonly: boolean;
@@ -130,6 +131,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private numberSeries: NumberSeries[];
     private projectID: number;
     private dimensionTypes: any[];
+    private distributionPlans: any[];
+    private reports: any[];
 
     private customerExpands: string[] = [
         'Info',
@@ -255,7 +258,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 3')
                 ).subscribe((res) => {
                     const quote = res[0];
                     this.companySettings = res[1];
@@ -267,6 +272,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.vatTypes = res[7];
                     this.departments = res[8];
                     this.setUpDims(res[9]);
+                    this.distributionPlans = res[10];
+                    this.reports = res[11];
 
                     if (!quote.CurrencyCodeID) {
                         quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -306,7 +313,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     this.sellerService.GetAll(null),
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
                     this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null)
+                    this.dimensionsSettingsService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 3')
                 ).subscribe(
                     (res) => {
                         let quote = <CustomerQuote>res[0];
@@ -339,6 +348,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.vatTypes = res[11];
                         this.departments = res[12];
                         this.setUpDims(res[13]);
+                        this.distributionPlans = res[14];
+                        this.reports = res[15];
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
@@ -1029,7 +1040,20 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 action: () => this.chooseForm(),
                 disabled: () => false
             },
+            {
+                label: 'Distribuer',
+                action: () => this.distribute(),
+                disabled: () => !this.quote['UseReportID'] || !this.quote['DistributionPlanID'] || !this.quote.ID
+            }
         ];
+    }
+
+    private distribute() {
+        return Observable.create((obs) => {
+            this.reportService.disptribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
+                obs.complete();
+            }, err => obs.complete() );
+        });
     }
 
     public chooseForm() {

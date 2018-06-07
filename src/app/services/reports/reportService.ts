@@ -211,6 +211,24 @@ export class ReportService extends BizHttp<string> {
         });
     }
 
+    public getDistributions(entity: string) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?filter=StatusCode eq 30001 and EntityType eq '${entity}'`)
+            .send()
+            .map(res => res.json());
+    }
+
+    public disptribute(id, type) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=distribute&id=${id}&entityType=${type}`)
+            .send()
+            .map(res => res.json());
+    }
+
     private renderHtml(report) {
         return new Promise((resolve, reject) => {
             if (!report) {

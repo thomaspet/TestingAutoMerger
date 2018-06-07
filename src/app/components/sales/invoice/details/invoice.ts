@@ -120,6 +120,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private newInvoiceItem: CustomerInvoiceItem;
     private printStatusPrinted: string = '200';
+    private distributeEntityType = 'Models.Sales.CustomerInvoice';
     private projects: Project[];
     private departments: Department[];
     public currentDefaultProjectID: number;
@@ -155,6 +156,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     public currentInvoiceDate: LocalDate;
     private dimensionTypes: any[];
     private paymentInfoTypes: any[];
+    private distributionPlans: any[];
+    private reports: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -293,6 +296,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1')
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     this.currentUser = res[1];
@@ -316,6 +321,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.departments = res[12];
                     this.setUpDims(res[13]);
                     this.paymentInfoTypes = res[14];
+                    this.distributionPlans = res[15];
+                    this.reports = res[16];
 
                     invoice.InvoiceDate = new LocalDate(Date());
 
@@ -362,6 +369,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.departmentService.GetAll(null),
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
+                    this.reportService.getDistributions(this.distributeEntityType),
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1')
                 ).subscribe((res) => {
                     const invoice = res[0];
                     this.companySettings = res[1];
@@ -374,6 +383,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.departments = res[8];
                     this.setUpDims(res[9]);
                     this.paymentInfoTypes = res[10];
+                    this.distributionPlans = res[11];
+                    this.reports = res[12];
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -565,7 +576,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     public canDeactivate(): Observable<boolean> {
-        const saveButtonLabel = this.invoice.ID && this.invoice.StatusCode > 42001 ? 'Lagre' : 'Lagre som kladd';
+        const saveButtonLabel = this.invoice && this.invoice.ID && this.invoice.StatusCode > 42001 ? 'Lagre' : 'Lagre som kladd';
         return !this.isDirty
             ? Observable.of(true)
             : this.modalService
@@ -1251,6 +1262,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
+            },
+            {
+                label: 'Distribuer',
+                action: () => this.distribute(),
+                disabled: () => !this.invoice['UseReportID'] || !this.invoice['DistributionPlanID'] || !this.invoice.ID
             }
         ];
     }
@@ -1632,6 +1648,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     data: reminders
                 }).onClose;
             });
+    }
+
+    private distribute() {
+        return Observable.create((obs) => {
+            this.reportService.disptribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
+                obs.complete();
+            }, err => obs.complete() );
+        });
     }
 
     private creditInvoice(done) {

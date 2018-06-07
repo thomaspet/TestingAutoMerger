@@ -91,7 +91,16 @@
             [entityType]="entityName">
         </uni-dimension-tof-view>
 
-        <section class="tof-reminders" *ngIf="activeTabIndex === 6 && entityName === 'CustomerInvoice'">
+        <uni-distribute
+            *ngIf="activeTabIndex === 6"
+            [distributionPlans]="distributionPlans"
+            [reports]="reports"
+            [entity]="data"
+            [entityType]="entityName"
+            (entityChange)="onDataChange($event)">
+        </uni-distribute>
+
+        <section class="tof-reminders" *ngIf="activeTabIndex === 7 && entityName === 'CustomerInvoice'">
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </section>
 
