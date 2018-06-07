@@ -163,6 +163,7 @@ export class BillView implements OnInit {
     private customDimensions: any;
     public loadingForm: boolean = false;
     public hasLoadedCustomDimensions: boolean = false;
+    public isBlockedSupplier: boolean = false;
 
     @ViewChild(UniForm) public uniForm: UniForm;
     @ViewChild(BillHistoryView) private historyView: BillHistoryView;
@@ -749,8 +750,15 @@ export class BillView implements OnInit {
                         this.saveBankAccount(invoice.Supplier, invoice.BankAccount);
                     }
                 });
+
             } else {
                 this.current.next(invoice);
+            }
+
+            // CHECK IF CUSTOMER IS BLOCKED!!
+            // Should check here for customer status, and suggest to reject when status is BLOCKED!
+            if (invoice && invoice.Supplier && invoice.Supplier.StatusCode === 70001) {
+                this.blockedSupplier(invoice);
             }
         });
     }
@@ -907,7 +915,6 @@ export class BillView implements OnInit {
                             return;
                         }
 
-                        console.log(result);
                         const supplier = result[0];
 
                         if (ocr.BankAccountCandidates.length > 0) {
@@ -1467,6 +1474,7 @@ export class BillView implements OnInit {
 
     private fetchNewSupplier(id: number, updateCombo = false) {
         if (id) {
+            this.supplierService.clearCache();
             this.supplierService.Get(id, this.supplierExpandOptions)
                 .subscribe((result: Supplier) => this.setSupplier(result, updateCombo));
         }
@@ -1499,13 +1507,67 @@ export class BillView implements OnInit {
         // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
 
-        // Should check here for customer status, and suggest to reject when status is BLOCKED!
-        console.log(current);
-        if (current.Supplier.StatusCode === 50001) {
-            this.toast.addToast('Innaktiv kunde', ToastType.bad, 5, 'Kunde er innaktiv');
+        // Should check here for supplier status, and suggest to reject when status is BLOCKED!
+        if (current.Supplier.StatusCode === 70001) {
+            this.blockedSupplier(current);
+        } else {
+            this.isBlockedSupplier = false;
+            this.actions = this.rootActions;
         }
 
         this.setupToolbar();
+    }
+
+    private blockedSupplier(current) {
+        this.toast.addToast('Blokkert kunde!', ToastType.bad, 5, 'Denne kunden er blokkert');
+            this.isBlockedSupplier = true;
+
+            const opt: IModalOptions = {
+                buttonLabels: {
+                    accept: 'Forstått',
+                    reject: 'Gå til leverandørkort'
+                },
+                header: 'Blokkert kunde',
+                message: 'OBS! Denne leverandøren er markert som blokkert. ' +
+                'Alle faktura fra denne leverandøren kan bare avvises! Gå til leverandørkortet for å låse opp.'
+            };
+
+            this.modalService.open(UniConfirmModalV2, opt).onClose.subscribe((res) => {
+                if (res === ConfirmActions.REJECT) {
+                    if (this.documentsInUse.length > 0) {
+                        this.openDocumentsInUseModal().onClose.subscribe((response: IConfirmModalWithListReturnValue) => {
+                            if (response.action === ConfirmActions.ACCEPT) {
+                                response.list.forEach((bool: boolean, index: number) => {
+                                    if (bool) {
+                                        this.tagFileStatus(this.documentsInUse[index], 0);
+                                        this.router.navigateByUrl('/accounting/suppliers/' + current.SupplierID);
+                                    } else {
+                                        this.supplierInvoiceService
+                                        .send('files/' + this.documentsInUse[index], undefined, 'DELETE')
+                                        .subscribe(() => {
+                                            this.router.navigateByUrl('/accounting/suppliers/' + current.SupplierID);
+                                        }, err => this.errorService.handle(err));
+                                    }
+                                });
+                            } else {
+                                this.router.navigateByUrl('/accounting/suppliers/' + current.SupplierID);
+                            }
+                        });
+                    } else {
+                        this.router.navigateByUrl('/accounting/suppliers/' + current.SupplierID);
+                    }
+                } else {
+                    this.actions = [
+                        {
+                            label: lang.tool_save_and_reject,
+                            action: (done) => this.saveAndReject(done),
+                            main: true,
+                            disabled: false
+                        }
+                    ];
+                }
+
+            });
     }
 
     private newInvoice(isInitial: boolean) {
@@ -1557,7 +1619,7 @@ export class BillView implements OnInit {
     private flagUnsavedChanged(reset = false) {
         this.flagActionBar(actionBar.save, !reset);
         this.flagActionBar(actionBar.saveWithNewDocument, !reset);
-        if (!reset) {
+        if (!reset && !this.isBlockedSupplier) {
             this.actions.forEach(x => x.main = false);
             this.actions[actionBar.save].main = true;
             this.actions[actionBar.saveWithNewDocument].main = true;
@@ -1569,7 +1631,9 @@ export class BillView implements OnInit {
     }
 
     private flagActionBar(index: actionBar, enable = true) {
-        this.actions[index].disabled = !enable;
+        if (this.actions.length > index) {
+            this.actions[index].disabled = !enable;
+        }
     }
 
     private resetDocuments() {
@@ -1722,7 +1786,11 @@ export class BillView implements OnInit {
                     const itemKey = key;
                     const label = this.mapActionLabel(itemKey);
                     const href = linkNode[key].href;
-                    list.push(this.newAction(label, itemKey, href, setAsMain));
+
+                    // Should be controlled backend, remove from _links when statuscode === 30108
+                    if (!(this.current.getValue().StatusCode === 30108 && label === 'Tildel')) {
+                        list.push(this.newAction(label, itemKey, href, setAsMain));
+                    }
                 }
             }
         }
@@ -2451,6 +2519,32 @@ export class BillView implements OnInit {
         });
     }
 
+    public saveAndReject(done) {
+        let obs;
+        const current = this.current.getValue();
+        if (current.ID) {
+            // if the journalentry is already booked, clear the object before saving as we don't
+            // want to resave a booked journalentry
+            if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
+              current.JournalEntry = null;
+            }
+
+            obs = this.supplierInvoiceService.Put(current.ID, current);
+        } else {
+            obs = this.supplierInvoiceService.Post(current);
+        }
+        obs.subscribe((res) => {
+            this.supplierInvoiceService.send('supplierinvoices/' + res.ID + '?action=reject', null, 'PUT').subscribe(() => {
+                this.hasUnsavedChanges = false;
+                done('Lagret og avvist!');
+
+                this.linkFiles(res.ID, this.unlinkedFiles, 'SupplierInvoice', StatusCode.Completed).then(
+                    () => {
+                        this.router.navigateByUrl('/accounting/bills/' + res.ID);
+                });
+            });
+        });
+    }
 
     public save(done?, updateRoute = true): Promise<ILocalValidation> {
 
@@ -2906,26 +3000,29 @@ export class BillView implements OnInit {
         tab.isSelected = true;
     }
 
+    private openDocumentsInUseModal() {
+        return this.modalService.open(UniConfirmModalWithList, {
+            header: 'Ubehandlede dokumenter',
+            message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
+            buttonLabels: {
+                accept: 'Fullfør',
+                reject: 'Avbryt'
+            },
+            list: this.files,
+            listkey: 'Name',
+            listMessage: 'Marker de dokumentene du ønsker å legge i innboksen, de andre slettes.'
+        });
+    }
+
     private checkSave(): Promise<boolean> {
-        if (!this.hasUnsavedChanges) {
+        if (!this.hasUnsavedChanges || this.isBlockedSupplier) {
             return Promise.resolve(true);
         }
 
         return new Promise((resolve, reject) => {
             const unhandledDocuments = () => {
                 if (this.documentsInUse.length > 0) {
-                    this.modalService.open(UniConfirmModalWithList, {
-                        header: 'Ubehandlede dokumenter',
-                        message: 'Du har ubehandlede dokumenter. Hva ønsker du å gjøre med disse?',
-                        buttonLabels: {
-                            accept: 'Fullfør',
-                            reject: 'Avbryt'
-                        },
-                        list: this.files,
-                        listkey: 'Name',
-                        listMessage: 'Marker de dokumentene du ønsker å legge i innboksen, de andre slettes.'
-
-                    }).onClose.subscribe((response: IConfirmModalWithListReturnValue) => {
+                    this.openDocumentsInUseModal().onClose.subscribe((response: IConfirmModalWithListReturnValue) => {
                         if (response.action === ConfirmActions.ACCEPT) {
                             response.list.forEach((bool: boolean, index: number) => {
                                 if (bool) {

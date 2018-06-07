@@ -55,13 +55,15 @@ export class SupplierList implements OnInit {
             `&select=sum(casewhen((Supplier.StatusCode eq '${StatusCode.Active}')\,1\,0)) as Active,` +
             `sum(casewhen(((isnull(Supplier.StatusCode, 0) eq 0) or Supplier.StatusCode eq '${StatusCode.Pending}')\,1\,0)) as Draft,` +
             `sum(casewhen((Supplier.StatusCode eq '${StatusCode.InActive}')\,1\,0)) as Inactive,` +
+            `sum(casewhen((Supplier.StatusCode eq '${StatusCode.Error}')\,1\,0)) as Blocked,` +
             `sum(casewhen(isnull(StatusCode, 0) ne ${StatusCode.Deleted}\,1\,0)) as AllSuppliers`
         ).subscribe(
             res => {
                 this.tabs[0].count = res.Data[0].Draft;
                 this.tabs[1].count = res.Data[0].Active;
                 this.tabs[2].count = res.Data[0].Inactive;
-                this.tabs[3].count = res.Data[0].AllSuppliers;
+                this.tabs[3].count = res.Data[0].Blocked;
+                this.tabs[4].count = res.Data[0].AllSuppliers;
             },
             err => this.errorService.handle(err)
         );

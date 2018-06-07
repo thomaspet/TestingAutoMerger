@@ -54,6 +54,10 @@ export class SupplierService extends BizHttp<Supplier> {
             .send();
     }
 
+    public clearCache() {
+        super.invalidateCache();
+    }
+
     NextSupplier(currentID: number): Observable<Supplier> {
         return super.GetAction(currentID, 'next');
     }

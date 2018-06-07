@@ -945,6 +945,10 @@ export class SupplierDetails implements OnInit {
                 label = 'Slettet';
                 type = 'bad';
                 break;
+            default:
+                label = 'Ny';
+                type = 'good';
+                break;
         }
 
         if (label && type) {
