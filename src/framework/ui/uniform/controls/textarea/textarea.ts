@@ -47,10 +47,6 @@ export class UniTextareaInput extends BaseControl implements OnChanges {
         });
     }
 
-    public onKeydown(event: MouseEvent) {
-        event.stopPropagation();
-    }
-
     public blurHandler() {
         if (this.lastControlValue === this.control.value) {
             return;
