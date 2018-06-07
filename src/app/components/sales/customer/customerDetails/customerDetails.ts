@@ -45,6 +45,7 @@ import {
     SellerService,
     BankAccountService,
     ModulusService,
+    JournalEntryLineService,
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -218,6 +219,7 @@ export class CustomerDetails implements OnInit {
         private sellerService: SellerService,
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
+        private journalEntryLineService: JournalEntryLineService,
     ) {}
 
     public ngOnInit() {
@@ -356,11 +358,29 @@ export class CustomerDetails implements OnInit {
     }
 
     private deleteCustomer(id: number) {
-        if (confirm('Vil du slette denne kunden?')) {
-            this.customerService.deleteCustomer(id).subscribe(res => {
-                this.router.navigateByUrl('/sales/customer/');
-            }, err => this.errorService.handle(err));
-        }
+        return this.journalEntryLineService.getJournalEntryLinePostPostData(true, true, id, null, null, null).subscribe(res => {
+            if (res.length > 0) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Posteringer på kunde',
+                    message: 'Denne kunden har bokførte transaksjoner og kan ikke slettes.',
+                    buttonLabels: {
+                        accept: 'Deaktiver',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(action => {
+                    if (action === ConfirmActions.ACCEPT) {
+                        return this.deactivateCustomer(id);
+                    }
+                    return;
+                });
+            } else {
+                if (confirm('Vil du slette denne kunden?')) {
+                    this.customerService.deleteCustomer(id).subscribe(response => {
+                        this.router.navigateByUrl('/sales/customer/');
+                    }, err => this.errorService.handle(err));
+                }
+            }
+        });
     }
 
     private setTabTitle() {

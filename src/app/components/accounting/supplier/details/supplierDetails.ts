@@ -37,6 +37,7 @@ import {
     UniSearchSupplierConfig,
     NumberSeriesService,
     ModulusService,
+    JournalEntryLineService,
 } from '../../../../services/services';
 
 import {
@@ -175,6 +176,7 @@ export class SupplierDetails implements OnInit {
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
         private modulusService: ModulusService,
+        private journalEntryLineService: JournalEntryLineService,
     ) {}
 
     public ngOnInit() {
@@ -336,11 +338,29 @@ export class SupplierDetails implements OnInit {
     }
 
     private deleteSupplier(id: number) {
-        if (confirm('Vil du slette denne leverandøren?')) {
-            this.supplierService.deleteSupplier(id).subscribe(res => {
-                this.router.navigateByUrl('/accounting/suppliers');
-            }, err => this.errorService.handle(err));
-        }
+        return this.journalEntryLineService.getJournalEntryLinePostPostData(true, true, null, id, null, null).subscribe(res => {
+            if (res.length > 0) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Posteringer på leverandør',
+                    message: 'Denne leverandøren har bokførte transaksjoner og kan ikke slettes.',
+                    buttonLabels: {
+                        accept: 'Deaktiver',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(action => {
+                    if (action === ConfirmActions.ACCEPT) {
+                        return this.deactivateSupplier(id);
+                    }
+                    return;
+                });
+            } else {
+                if (confirm('Vil du slette denne leverandøren?')) {
+                    this.supplierService.deleteSupplier(id).subscribe(response => {
+                        this.router.navigateByUrl('/accounting/suppliers');
+                    }, err => this.errorService.handle(err));
+                }
+            }
+        });
     }
 
     public numberSeriesChange(selectedSerie) {
