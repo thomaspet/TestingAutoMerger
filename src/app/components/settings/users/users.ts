@@ -15,6 +15,7 @@ import {
 import {Role, UserRole, User, Company} from '../../../unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import {UniChangePasswordModal} from './changePasswordModal';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -41,6 +42,7 @@ export class Users {
     private roles: Role[];
     private users: User[] = [];
     private userRoles: UserRole[] = [];
+    private currentUser: User;
 
     private selectedUser: User;
     private selectedIndex: number = 0;
@@ -68,25 +70,28 @@ export class Users {
         private elsaPurchasesService: ElsaPurchaseService,
         private emailService: EmailService,
     ) {
-        this.initTableConfigs();
-        this.initFormConfigs();
-        this.checkAutobankAccess();
-
         this.newUserForm = new FormGroup({
             Email: new FormControl('', this.isInvalidEmail.bind(this))
         });
-        this.roleService.GetAll(null).subscribe(
-            (res) => {
-                this.roles = res || [];
-            },
-            err => this.errorService.handle(err)
-        );
-
-        this.getUsers(true);
-        this.initTableConfigs();
-        this.initFormConfigs();
         this.errorMessage = '';
 
+        this.userService.getCurrentUser().subscribe((user) => {
+            this.currentUser = user;
+            this.initTableConfigs();
+            this.initFormConfigs();
+            this.checkAutobankAccess();
+
+            this.roleService.GetAll(null).subscribe(
+                (res) => {
+                    this.roles = res || [];
+                },
+                err => this.errorService.handle(err)
+            );
+
+            this.getUsers(true);
+            this.initTableConfigs();
+            this.initFormConfigs();
+        });
     }
 
     private saveUserRole(userRole): Observable<any> {
@@ -193,16 +198,13 @@ export class Users {
                 action: (user: User) => {
                     /*
                         Anders 02.03.2018
-
                         This is a frontend hack to prevent an issue where setting
                         a user without roles as bank user causes them to lose most
                         of the permissions required to make the system work..
-
                         If the user we set as bank user does not have any roles we
                         try to give them the administrator role. If that fails we
                         toast a message saying the user needs to have a role and
                         terminate the process.
-
                         This should be handled on backend obviously, but frontend is
                         easier to quickfix in prod.
                     */
@@ -241,6 +243,17 @@ export class Users {
                     }
                 },
                 disabled: (user: User) => !!user.BankIntegrationUserName || !this.hasAutobankProduct
+            },
+            {
+                label: 'Tilbakestill bankpassord',
+                action: rowModel => this.resetAutobankPassword(rowModel),
+                disabled: (user: User) => !this.currentUser.IsAutobankAdmin || !this.hasAutobankProduct || !user.BankIntegrationUserName
+            },
+            {
+                label: 'Endre ditt autobankpassord',
+                action: rowModel => this.changePassword(rowModel),
+                disabled: (user: User) => this.currentUser.Email !== user.Email
+                    || !user.BankIntegrationUserName || !this.hasAutobankProduct
             }
         ];
 
@@ -292,8 +305,8 @@ export class Users {
 
     private sendInvite(user?) {
         this.errorMessage = '';
-        let companyId = this.browserStorage.getItem('activeCompany').id;
-        let newUser = user || this.newUserForm.value;
+        const companyId = this.browserStorage.getItem('activeCompany').id;
+        const newUser = user || this.newUserForm.value;
 
         this.busy = true;
 
@@ -344,6 +357,50 @@ export class Users {
             .send({ action: 'inactivate' })
             .map(response => response.json())
             .subscribe(response => this.getUsers(), err => this.errorService.handle(err));
+    }
+
+    private resetAutobankPassword(model: any) {
+        const modal = this.modalService.open(UniAdminPasswordModal, { data: {
+            isResetPassword: true
+        }});
+
+        modal.onClose.subscribe(result => {
+            if (result) {
+                this.http
+                    .asPOST()
+                    .usingBusinessDomain()
+                    .withEndPoint('users/' + model.ID + '?action=reset-autobank-password')
+                    .withBody({Password: result})
+                    .send()
+                    .map(res => res.json())
+                    .subscribe(() => {
+                        // Password has been reset
+                        this.toast.addToast('Endring vellykket', ToastType.good, 10, 'Passord tilbakestilt for ' + model.DisplayName);
+                    }, (err) => {
+                        // Could not reset password
+                        this.toast.addToast('Noe gikk galt', ToastType.bad, 10,
+                            'Kunne ikke tilbakestille passord. Var adminpassordet korrekt?');
+                    });
+            }
+        });
+    }
+
+    public changePassword(done) {
+        this.modalService.open(UniChangePasswordModal, { header: 'Endre autobankpassord' }).onClose.subscribe((passwords) => {
+            if (passwords) {
+                this.userService.changeAutobankPassword({
+                    Password: passwords.OldPass,
+                    NewPassword: passwords.NewPass
+                }).subscribe((res) => {
+                    this.toast.addToast('Passordet er oppdatert', ToastType.good, 5);
+                }, (err) => {
+                    this.errorService.handle(err);
+                    this.toast.addToast('Kunne ikke oppdatere passord!', ToastType.bad);
+                });
+            } else {
+                this.toast.addToast('Ingenting endret', ToastType.warn, 3);
+            }
+        });
     }
 
     private getStatusCodeText(statusCode: number): string {
@@ -414,7 +471,6 @@ export class Users {
             .open(ManageProductsModal, {
                 header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
                 data: {companyKey: company.Key},
-            })
+            });
     }
 }
-

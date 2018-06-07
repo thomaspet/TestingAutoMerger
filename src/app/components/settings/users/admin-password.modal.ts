@@ -35,9 +35,11 @@ const fields = [{
                         [fields]="fields"
                         [model]="adminPassword">
                     </uni-form>
-    
+
                     <footer>
-                        <button (click)="accept()" class="good">Lagre og lukk</button>
+                        <button *ngIf="!options?.data?.isResetPassword" (click)="accept()" class="good">Lagre og lukk</button>
+                        <button *ngIf="options?.data?.isResetPassword"
+                            (click)="resetAutobankPassword()" class="good">Tilbakestill passord</button>
                         <button (click)="close()" class="bad">Avbryt</button>
                     </footer>
                 </section>
@@ -67,6 +69,10 @@ export class UniAdminPasswordModal implements IUniModal {
 
     close() {
         this.onClose.emit(false);
+    }
+
+    private resetAutobankPassword() {
+        this.onClose.emit(this.adminPassword.Password);
     }
 
     private persistBankUser(user, bankData, adminData) {

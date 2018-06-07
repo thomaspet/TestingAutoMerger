@@ -21,6 +21,7 @@ import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCo
 
 import {Users} from './users/users';
 import {Teams} from './teams/teams';
+import {UniChangePasswordModal} from './users/changePasswordModal';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
@@ -77,6 +78,7 @@ import {MatSlideToggleModule} from '@angular/material';
         UniRegisterBankUserModal,
         UniAdminPasswordModal,
         UniDimensionModal,
+        UniChangePasswordModal,
         IntegrationSettings,
         EventPlans,
         EventPlansList,
@@ -88,7 +90,8 @@ import {MatSlideToggleModule} from '@angular/material';
         ChangeCompanySettingsPeriodSeriesModal,
         UniRegisterBankUserModal,
         UniAdminPasswordModal,
-        UniDimensionModal
+        UniDimensionModal,
+        UniChangePasswordModal
     ],
     exports: [
         RouterModule,

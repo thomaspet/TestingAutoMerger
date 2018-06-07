@@ -71,4 +71,13 @@ export class UserService extends BizHttp<User> {
         return 'ui_' + urlParts.join('_');
     }
 
+    public changeAutobankPassword(body: any) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('users?action=change-autobank-password')
+            .withBody(body)
+            .send()
+            .map(res => res.json());
+    }
 }
