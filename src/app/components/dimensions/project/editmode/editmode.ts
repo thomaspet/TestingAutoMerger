@@ -1,28 +1,24 @@
-﻿import {Component} from '@angular/core';
-import {UniModalService, UniAddressModal} from '../../../../../framework/uni-modal';
-import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
+﻿import {Component, ViewChild} from '@angular/core';
+import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ProjectResponsibility} from '../../../../models/models';
 import {Observable} from 'rxjs/Observable';
-import {
-    Project,
-    Address,
-    User
-} from '../../../../unientities';
+import {Project, Address, User} from '@app/unientities';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
+} from '@uni-framework/ui/unitable';
 import {
     ProjectService,
     ErrorService,
     UniSearchCustomerConfig,
     AddressService,
     UserService
-} from '../../../../services/services';
+} from '@app/services/services';
 
 declare var _;
 
@@ -32,6 +28,8 @@ declare var _;
 })
 
 export class ProjectEditmode {
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
@@ -64,29 +62,34 @@ export class ProjectEditmode {
 
     public ngOnInit() {
         this.fields$.next(this.getComponentFields());
-        this.projectService.currentProject.subscribe(
-            (project) => {
-                if (project) {
-                    this.project$.next(project);
-                } else {
-                    this.project$.next(new Project);
-                    this.projectService.currentProject.next(this.project$.getValue());
-                }
-                this.actionLabel = project && project.ID ? 'Rediger prosjekt - '
-                    + project.Name + ':' : 'Nytt prosjekt:';
-                this.extendFormConfig();
+        this.projectService.currentProject.subscribe(currentProject => {
+            const project = currentProject || <any> {};
+            if (!project.ProjectResources) {
+                project.ProjectResources = [];
+            }
 
-                this.project = this.project$.getValue();
-            });
+            this.actionLabel = project && project.ID
+                ? 'Rediger prosjekt - '
+                + project.Name + ':' : 'Nytt prosjekt:';
+
+            this.project$.next(project);
+            this.project = project;
+            this.extendFormConfig();
+        });
+    }
+
+    public onTableChange() {
+        this.projectService.isDirty = true;
+        this.projectService.currentProject.next(this.project);
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
 
         this.uniSearchConfig = this.uniSearchCustomerConfig
             .generate(this.customerExpandOptions);
 
-        let status: UniFieldLayout = fields[2];
+        const status: UniFieldLayout = fields[2];
         status.Options = {
             source: this.STATUS,
             valueProperty: 'ID',
@@ -95,13 +98,13 @@ export class ProjectEditmode {
             debounceTime: 200
         };
 
-        let customer: UniFieldLayout = fields[5];
+        const customer: UniFieldLayout = fields[5];
         customer.Options = {
             uniSearchConfig: this.uniSearchConfig,
             valueProperty: 'ID'
         };
 
-        let invoiceaddress: UniFieldLayout = fields[6];
+        const invoiceaddress: UniFieldLayout = fields[6];
 
         invoiceaddress.Options = {
             entity: Address,
@@ -124,46 +127,11 @@ export class ProjectEditmode {
         };
     }
 
-    public onRowChanged(event) {
-        let row = event.rowModel;
-
-        // Map reponsibility
-        if (row['_Responsibility']) {
-            row['Responsibility'] = row['_Responsibility'].ID;
+    public onMoveOutOfForm(event) {
+        if (event && event.movingForward && this.table) {
+            this.table.focusRow(0);
         }
-
-        if (row['User']) {
-            row['UserID'] = row['User'].ID;
-        }
-
-        // Make sure new rows have a createguid
-        if (!row.ID && !row._createguid) {
-            row.ProjectID = this.project.ID;
-            row._createguid = this.projectService.getNewGuid();
-        }
-
-        // New project?
-        if (!this.project.ProjectResources) {
-            this.project.ProjectResources = [];
-        }
-
-        this.project.ProjectResources[row._originalIndex] = _.cloneDeep(row);
-        this.projectService.currentProject.next(this.project);
-        this.projectService.isDirty = true;
     }
-
-    public onRowDeleted(event) {
-        let row = event.rowModel;
-
-        if (row.ID) {
-            this.project.ProjectResources[row._originalIndex].Deleted = true;
-        } else {
-            this.project.ProjectResources.splice(row._originalIndex, 1);
-        }
-
-        this.projectService.currentProject.next(this.project);
-        this.projectService.isDirty = true;
-   }
 
     private setupTable() {
         this.userService.GetAll('').subscribe(users => {
@@ -173,11 +141,31 @@ export class ProjectEditmode {
                 .setSearchable(false)
                 .setAutoAddNewRow(true)
                 .setDefaultRowData({Name: '', User: null, Responsibility: -1})
+                .setChangeCallback(change => {
+                    const row = change.rowModel;
+
+                    // Map reponsibility
+                    if (row['_Responsibility']) {
+                        row['Responsibility'] = row['_Responsibility'].ID;
+                    }
+
+                    if (row['User']) {
+                        row['UserID'] = row['User'].ID;
+                    }
+
+                    // Make sure new rows have a createguid
+                    if (!row.ID && !row._createguid) {
+                        row.ProjectID = this.project.ID;
+                        row._createguid = this.projectService.getNewGuid();
+                    }
+
+                    return row;
+                })
                 .setColumns([
                     new UniTableColumn('Name', 'Ressurs', UniTableColumnType.Text),
                     new UniTableColumn('User', 'Bruker', UniTableColumnType.Lookup)
                         .setTemplate((row) => {
-                            let user = row['User'] ? row['User'] : this.users.find(x => x.ID === row['UserID']);
+                            const user = row['User'] ? row['User'] : this.users.find(x => x.ID === row['UserID']);
                             return user ? user.DisplayName : '';
                         })
                         .setOptions({
@@ -190,7 +178,7 @@ export class ProjectEditmode {
                         }),
                     new UniTableColumn('_Responsibility', 'Ansvar', UniTableColumnType.Lookup)
                         .setTemplate((row) => {
-                            let responsibility = row['_Responsibility']
+                            const responsibility = row['_Responsibility']
                                 ? row['_Responsibility']
                                 : ProjectResponsibility.find(x => x.ID === row['Responsibility']);
                             return responsibility ? responsibility.Title : '';

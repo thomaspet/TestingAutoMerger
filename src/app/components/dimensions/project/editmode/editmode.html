@@ -6,18 +6,18 @@
             <uni-form
                 [config]="config$"
                 [fields]="fields$"
-                [model]="project$">
+                [model]="project$"
+                (moveOutEvent)="onMoveOutOfForm($event)">
             </uni-form>
         </section>
         <section class="project-edit-resources">
             <fieldset>
                 <legend>Ressurser</legend>
-                <uni-table
+                <ag-grid-wrapper *ngIf="project"
                     [config]="tableConfig"
-                    [resource]="project?.ProjectResources || []"
-                    (rowChanged)="onRowChanged($event)"
-                    (rowDeleted)="onRowDeleted($event)">
-                </uni-table>
+                    [(resource)]="project.ProjectResources"
+                    (resourceChange)="onTableChange($event)">
+                </ag-grid-wrapper>
             </fieldset>
         </section>
     </section>

@@ -271,7 +271,11 @@ export class Project {
 
     public saveProject(done: Function) {
         const project = this.projectService.currentProject.getValue();
-        let source = (project.ID > 0)
+        if (project.ProjectResources) {
+            project.ProjectResources = project.ProjectResources.filter(r => !r['_isEmpty']);
+        }
+
+        const source = (project.ID > 0)
             ? this.projectService.Put(project.ID, project)
             : this.projectService.Post(project);
 
