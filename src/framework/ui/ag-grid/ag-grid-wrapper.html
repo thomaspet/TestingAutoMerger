@@ -43,6 +43,7 @@
         [rowHeight]="35"
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable || !config?.editable"
+        [cacheBlockSize]="cacheBlockSize"
 
         [pagination]="usePagination"
         [paginationPageSize]="config?.pageSize"

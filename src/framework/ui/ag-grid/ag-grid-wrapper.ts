@@ -76,6 +76,7 @@ export class AgGridWrapper {
     private agGridApi: GridApi;
     public rowModelType: 'inMemory' | 'infinite';
     public domLayout: string;
+    public cacheBlockSize: number;
     public tableHeight: string;
     public usePagination: boolean;
     public selectionMode: string = 'single';
@@ -154,10 +155,12 @@ export class AgGridWrapper {
                 this.domLayout = 'autoHeight';
                 this.tableHeight = undefined;
                 this.rowModelType = 'inMemory';
+                this.cacheBlockSize = undefined;
                 this.usePagination = this.config.pageable && !this.config.editable;
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
+                this.cacheBlockSize = 50;
                 this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
 
