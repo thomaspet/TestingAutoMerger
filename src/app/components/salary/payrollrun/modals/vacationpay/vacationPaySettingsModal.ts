@@ -8,7 +8,7 @@ import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
 } from '../../../../../services/services';
 import {
-    CompanyVacationRate, Account, LocalDate
+    CompanyVacationRate, Account, LocalDate, CompanySalary
 } from '../../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -46,12 +46,14 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         this.busy = true;
         Observable
             .forkJoin(
-            this._companysalaryService.getCompanySalary(),
-            this._companyvacationRateService.GetAll('')
+                this._companysalaryService.getCompanySalary(),
+                this._companyvacationRateService.GetAll(''),
+                this._companyvacationRateService.getCurrentRates()
             )
             .finally(() => this.busy = false)
             .subscribe((response: any) => {
-                const [compsal, rates] = response;
+                const [compsal, rates, stdRate] = response;
+                this.setDefaultValues(compsal, stdRate);
                 this.companysalaryModel$.next(compsal);
                 this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
                 this.vacationRates = rates;
@@ -193,7 +195,14 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
             valueProperty: 'id'
         };
 
-        this.fields$.next([payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation]);
+        const vacationpayRate = new UniFieldLayout();
+        vacationpayRate.Label = 'Standard feriepengesats';
+        vacationpayRate.Property = '_standardVacationRate';
+        vacationpayRate.Hidden = this.vacationRates.length > 0;
+        vacationpayRate.FieldType = FieldType.TEXT;
+        vacationpayRate.ReadOnly = true;
+
+        this.fields$.next([payInHoliday, mainAccountCostVacation, mainAccountAllocatedVacation, vacationpayRate]);
     }
 
     private setTableConfig() {
@@ -214,6 +223,10 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                     return row;
                 }
             });
+    }
+
+    private setDefaultValues(compSalary: CompanySalary, compVacRate: CompanyVacationRate) {
+        compSalary['_standardVacationRate'] = compVacRate ? compVacRate.Rate + '%' : '';
     }
 
     public close() {
