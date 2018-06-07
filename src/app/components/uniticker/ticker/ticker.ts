@@ -116,13 +116,6 @@ export class UniTicker {
         private employeeLeaveService: EmployeeLeaveService,
         private yearService: YearService
     ) {
-        this.statusService
-            .loadStatusCache()
-            .then(() => {
-                this.prefetchDataLoaded = true;
-                this.cdr.markForCheck();
-            });
-
         this.lookupFunction = (urlParams: URLSearchParams) => {
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
@@ -227,28 +220,32 @@ export class UniTicker {
             // run this even if it is not a table, because it prepares the query as well.
             // Consider splitting this function to avoid this later
             this.busy = true;
-            this.setupTableConfig().then(() => {
-                const tickerType = this.ticker.Type;
-                if (tickerType === 'table') {
-                    if (this.tableConfig) {
-                        const customerNrCol = this.tableConfig.columns.find(x => x.header === 'Kundenr.');
-                            if (customerNrCol) {
-                                customerNrCol.setTemplate(x => {
-                                if (x.CustomerStatusCode === 20001) {
-                                    return 'Lead';
-                                }
-                                return x.CustomerCustomerNumber;
-                            });
-                        }
-                    }
-                    // let uni-table get its own data
-                } else {
-                    // get detaildata using the same lookupfunction as uni-table, but no point in
-                    // retrieving more than one row
-                    this.loadDetailTickerData();
-                }
+            this.statusService.loadStatusCache().then(() => {
+                this.prefetchDataLoaded = true;
 
-                this.cdr.markForCheck();
+                this.setupTableConfig().then(() => {
+                    const tickerType = this.ticker.Type;
+                    if (tickerType === 'table') {
+                        if (this.tableConfig) {
+                            const customerNrCol = this.tableConfig.columns.find(x => x.header === 'Kundenr.');
+                                if (customerNrCol) {
+                                    customerNrCol.setTemplate(x => {
+                                    if (x.CustomerStatusCode === 20001) {
+                                        return 'Lead';
+                                    }
+                                    return x.CustomerCustomerNumber;
+                                });
+                            }
+                        }
+                        // let uni-table get its own data
+                    } else {
+                        // get detaildata using the same lookupfunction as uni-table, but no point in
+                        // retrieving more than one row
+                        this.loadDetailTickerData();
+                    }
+
+                    this.cdr.markForCheck();
+                });
             });
 
             this.cdr.markForCheck();
