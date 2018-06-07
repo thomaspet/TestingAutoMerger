@@ -401,6 +401,7 @@ export class TableSearch implements OnChanges, AfterViewInit {
             filter.selectConfig = null;
         }
 
+        this.cdr.markForCheck();
         this.emitFilters();
     }
 
