@@ -172,7 +172,7 @@ export class BureauDashboard {
     private mergeWithSubCompanies(list: KpiCompany[], subs: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string}[]) {
         list.forEach( company => {
             const lKey = company.Key.toLowerCase();
-            company['SubCompany'] = subs.find( x => x.CompanyKey.toLowerCase() === lKey);
+            company['SubCompany'] = subs.find( x => x.CompanyKey && x.CompanyKey.toLowerCase() === lKey);
         });
     }
 
