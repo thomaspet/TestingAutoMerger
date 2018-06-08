@@ -7,6 +7,27 @@ dimensions-overview-report-part,
 drilldown-balance-report-part
     display: block
 
+accounting-details-report
+    .account-search
+        display: block
+        height: 2.25rem
+        width: 20rem
+        margin: 1rem 0
+
+        input, button
+            height: 2.25rem !important
+
+    h2.account-details-report-header
+        font-weight: normal
+        font-size: 21px
+        margin: 0
+
+    distribution-period-report-part .distribution-periods
+        margin-top: 0
+
+    uni-table
+        font-size: 13px
+
 accounting-reports, accounting-details-report
 
     h1
@@ -76,14 +97,14 @@ accounting-reports, accounting-details-report
         .accounting-report-drilldown-main
             @include unigrid(8, 4, 3)
             margin-left: pxToRem(0)
-            float: left;
+            float: left
 
             .profit-margin
                 margin-top: 2rem
 
         .accounting-report-drilldown-chart
             @include unigrid(8, 4, 1)
-            float: left;
+            float: left
             height: pxToRem(450)
 
             label
@@ -101,11 +122,11 @@ accounting-reports, accounting-details-report
         .distribution-periods-table
             @include unigrid(8, 4, 2)
             margin-left: pxToRem(0)
-            float: left;
+            float: left
 
         .distribution-periods-chart
             @include unigrid(8, 4, 2)
-            float: left;
+            float: left
 
         uni-table
             font-size: small

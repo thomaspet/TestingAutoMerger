@@ -56,6 +56,9 @@ export class UniSearch {
         return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
     }
     public focus() {
-        this.componentElement.nativeElement.querySelector('input').focus();
+        try {
+            this.componentElement.nativeElement.querySelector('input').focus();
+            this.componentElement.nativeElement.querySelector('input').select();
+        } catch (e) {}
     }
 }

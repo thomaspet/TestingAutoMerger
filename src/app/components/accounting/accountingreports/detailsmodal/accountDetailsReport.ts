@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
@@ -8,6 +8,7 @@ import {
     UniTableColumnType,
     ICellClickEvent
 } from '../../../../../framework/ui/unitable/index';
+import {UniSearch} from '@uni-framework/ui/unisearch/UniSearch';
 import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
@@ -35,6 +36,7 @@ declare var _;
     templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
+    @ViewChild(UniSearch) searchElement: UniSearch;
     @Input()
     public config: {
         close: () => void,
@@ -48,11 +50,9 @@ export class AccountDetailsReport {
 
     };
 
+    public searchConfig = this.uniSearchAccountConfig.generateAllAccountsConfig();
     public uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
-    private searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true}); // tslint:disable-line
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
 
@@ -69,6 +69,7 @@ export class AccountDetailsReport {
     private doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     public toolbarconfig: IToolbarConfig;
+
 
     constructor(
         private statisticsService: StatisticsService,
@@ -97,8 +98,6 @@ export class AccountDetailsReport {
         this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
         this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
-        this.fields$.next(this.getLayout().Fields);
-
         this.transactionsLookupFunction =
             (urlParams: URLSearchParams) => this.getTableData(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -111,19 +110,6 @@ export class AccountDetailsReport {
         ).subscribe(data => {
             this.financialYears = data[0];
             this.activeFinancialYear = data[1];
-
-            // set default value for filtering
-            const searchParams = {
-                AccountID: null,
-                AccountNumber: null,
-                AccountYear: null
-            };
-
-            if (this.activeFinancialYear) {
-                searchParams.AccountYear = this.activeFinancialYear.Year;
-            }
-
-            this.searchParams$.next(searchParams);
         });
     }
 
@@ -136,14 +122,29 @@ export class AccountDetailsReport {
                 const account = data[0];
                 this.setAccountConfig(account);
 
-                const searchparams = this.searchParams$.getValue();
-                searchparams.AccountID = account.ID;
-                searchparams.AccountNumber = account.AccountNumber;
-                this.searchParams$.next(searchparams);
+                this.searchConfig.initialItem$.next(account);
+                if (this.searchElement) {
+                    this.searchElement.focus();
+                }
+
                 this.loadData();
             });
         } else {
             this.loadData();
+        }
+    }
+
+    public onFilterAccountChange(account) {
+        if (account && account.ID) {
+            this.setAccountConfig(account);
+            this.loadData();
+            this.setupLookupTransactions();
+
+            setTimeout(() => {
+                if (this.searchElement) {
+                    this.searchElement.focus();
+                }
+            });
         }
     }
 
@@ -205,11 +206,7 @@ export class AccountDetailsReport {
                 if (data.length > 0) {
                     const account = data[0];
                     this.setAccountConfig(account);
-
-                    const searchParams = this.searchParams$.getValue();
-                    searchParams.AccountID = account.ID;
-                    searchParams.AccountNumber = account.AccountNumber;
-                    this.searchParams$.next(searchParams);
+                    this.searchConfig.initialItem$.next(account);
 
                     this.loadData();
                     this.setupLookupTransactions();
@@ -226,11 +223,7 @@ export class AccountDetailsReport {
                 if (data.length > 0) {
                     const account = data[0];
                     this.setAccountConfig(account);
-
-                    const searchParams = this.searchParams$.getValue();
-                    searchParams.AccountID = account.ID;
-                    searchParams.AccountNumber = account.AccountNumber;
-                    this.searchParams$.next(searchParams);
+                    this.searchConfig.initialItem$.next(account);
 
                     this.loadData();
                     this.setupLookupTransactions();
@@ -436,36 +429,5 @@ export class AccountDetailsReport {
         this.periodFilter2$.next(tmp);
         this.periodFilter3$.next(this.periodFilter2$.getValue());
         this.setupLookupTransactions();
-    }
-
-    public onFormFilterChange(event) {
-        const search = this.searchParams$.getValue();
-        if (search.AccountID) {
-            this.accountService.Get(search.AccountID).subscribe((account: Account) => {
-                this.setAccountConfig(account);
-                this.loadData();
-                this.setupLookupTransactions();
-            });
-        }
-    }
-
-    private getLayout() {
-        return {
-            Name: 'AccountqueryList',
-            BaseEntity: 'Account',
-            ID: 1,
-            Fields: [
-                {
-                    Property: 'AccountID',
-                    Placement: 4,
-                    FieldType: FieldType.UNI_SEARCH,
-                    Label: 'Konto',
-                    Options: {
-                        valueProperty: 'ID',
-                        uniSearchConfig: this.uniSearchAccountConfig.generateAllAccountsConfig()
-                    }
-                }
-            ]
-        };
     }
 }
