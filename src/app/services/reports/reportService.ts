@@ -387,14 +387,6 @@ export class ReportService extends BizHttp<string> {
             this.report.parameters.push(logoKeyParam);
         }
     }
-
-    public getFormType(type: ReportTypeEnum): Observable<ReportDefinition[]> {
-        return this.http.asGET()
-            .usingRootDomain()
-            .withEndPoint(`${this.relativeURL}/type/${type}`)
-            .send()
-            .map(response => response.json());
-    }
 }
 
 class ReportDataSource extends ReportDefinitionDataSource {
@@ -414,12 +406,4 @@ export class Report extends ReportDefinition {
     public dataSources: ReportDataSource[];
     public templateJson: string;
     public localization: string;
-}
-
-export enum ReportTypeEnum {
-    INVOICE = 1,
-    ORDER = 2,
-    QUOTE = 3,
-    REMINDER = 4,
-    PURCHASEORDER = 5
 }

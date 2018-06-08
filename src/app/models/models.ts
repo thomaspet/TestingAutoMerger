@@ -7,3 +7,4 @@ export * from './accounting/BankData';
 export * from './reportFormat';
 export * from './activationEnum';
 export * from './projectResponsibility';
+export * from './reportTypeEnum';

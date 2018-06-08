@@ -11,6 +11,7 @@ import {environment} from 'src/environments/environment';
 import {UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniSendEmailModal} from '@uni-framework/uni-modal/modals/sendEmailModal';
+import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 @Injectable()
 export class EmailService extends BizHttp<Email> {
@@ -104,9 +105,10 @@ export class EmailService extends BizHttp<Email> {
 
             model.Subject = `${name} ${entityNumber}`;
             model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
+            console.log(ReportTypeEnum[`entityTypeName`]);
 
             return this.modalService.open(UniSendEmailModal, {
-                data: model
+                data: {model: model, reportType: ReportTypeEnum[`entityTypeName`]}
             }).onClose.map(email => {
                 if (email) {
                     this.sendEmailWithReportAttachment(reportForm.Name, email, reportForm.parameters);

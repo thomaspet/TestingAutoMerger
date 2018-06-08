@@ -18,6 +18,7 @@ import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/reg
 import * as moment from 'moment';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { IUniSaveAction } from '@uni-framework/save/save';
+import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 @Injectable()
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
@@ -220,7 +221,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                             const parameters = [{ Name: defaultReportParameterName, value: value }];
 
                             this.modalService.open(UniSendEmailModal, {
-                                data: model
+                                data: {model: model, reportType: ReportTypeEnum.QUOTE}
                             }).onClose.subscribe(email => {
                                 if (email) {
                                     this.emailService.sendEmailWithReportAttachment(defaultQuoteReportForm.Name, email, parameters);

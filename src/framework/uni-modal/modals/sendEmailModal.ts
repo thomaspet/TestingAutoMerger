@@ -8,6 +8,7 @@ import { CustomerService } from '@app/services/sales/customerService';
 import { UserService } from '@app/services/common/userService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
+import {ReportTypeService} from '@app/services/reports/reportTypeService';
 
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -53,7 +54,8 @@ export class UniSendEmailModal implements IUniModal {
         private customerService: CustomerService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private reportTypeService: ReportTypeService,
     ) {}
 
     public ngOnInit() {
@@ -62,7 +64,7 @@ export class UniSendEmailModal implements IUniModal {
     }
 
     public initFormModel() {
-        const model: SendEmail = this.options.data || new SendEmail();
+        const model: SendEmail = this.options.data.model || new SendEmail();
         model.Format = model.Format || 'pdf';
 
         Observable.forkJoin(
@@ -70,7 +72,10 @@ export class UniSendEmailModal implements IUniModal {
             this.userService.getCurrentUser(),
             model.CustomerID
                 ? this.customerService.Get(model.CustomerID, ['Info', 'Info.DefaultEmail'])
-                : Observable.of(null)
+                : Observable.of(null),
+            this.options.data.reportType
+                ? this.reportTypeService.getFormType(this.options.data.reportType) :
+                Observable.of(null),
         ).subscribe(
             res => {
                 const companySettings: CompanySettings = res[0] || {};
