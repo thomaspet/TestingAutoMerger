@@ -10,6 +10,11 @@ import {IUniSaveAction} from '@uni-framework/save/save';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
+interface ITravelFile {
+    TravelID: number;
+    FileIDs: number[];
+}
+
 @Component({
     selector: 'uni-travel',
     templateUrl: './travel.component.html',
@@ -27,8 +32,11 @@ export class TravelComponent implements OnInit {
     public travelSelection: Travel[] = [];
     public busy: boolean;
     public saveActions$: BehaviorSubject<IUniSaveAction[]> = new BehaviorSubject(this.getSaveActions());
+    public fileIDs$: BehaviorSubject<number[]> = new BehaviorSubject([]);
 
     private wageTypes: WageType[] = [];
+    private fetchingFiles$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    private travelFiles$: BehaviorSubject<ITravelFile[]> = new BehaviorSubject([]);
 
     constructor(
         private tabService: TabService,
@@ -197,13 +205,62 @@ export class TravelComponent implements OnInit {
     }
 
     private transferToSalary(done: (msg) => void) {
-        setTimeout(() => {
-            done('overføring fullført');
-        }, 1000);
+        this.fetchingFiles$
+            .filter(fetching => !fetching)
+            .take(1)
+            .switchMap(() => this.travelService.createTransactions(this.travelSelection, this.travelOptions$.getValue().run.ID))
+            .catch((err, obs) => {
+                done('Overføring feilet');
+                return this.errorService.handleRxCatch(err, obs);
+            })
+            .subscribe(() => done('Overføring fullført'));
+    }
+
+    private checkFiles(travels: Travel[]): Travel[] {
+
+        travels = travels.filter(travel => !!travel);
+        const obs: Observable<ITravelFile>[] = [];
+        const travelFiles = this.travelFiles$.getValue();
+        const travelsWithoutFiles = travels.filter(t => t && !travelFiles.some(tf => tf.TravelID === t.ID));
+
+        travelsWithoutFiles
+            .forEach(travel => {
+                obs.push(
+                    this.travelService
+                        .getFiles(travel)
+                        .map(files => files.map(file => file.ID))
+                        .map((fileIDs) => {
+                            return {
+                                TravelID: travel.ID,
+                                FileIDs: fileIDs
+                            };
+                        }));
+            });
+
+        if (!obs.length) {
+            return travels;
+        }
+
+        this.fetchingFiles$.next(true);
+        Observable
+            .forkJoin(obs)
+            .finally(() => this.fetchingFiles$.next(false))
+            .do(fetchedTravelFiles => {
+                const selected = this.selectedTravel$.getValue();
+                if (!selected || !fetchedTravelFiles.some(tf => tf.TravelID === selected.ID)) {
+                    return;
+                }
+                this.fileIDs$.next(fetchedTravelFiles.find(tf => tf.TravelID === selected.ID).FileIDs);
+            })
+            .subscribe(tf => this.travelFiles$.next([...travelFiles, ...tf]));
     }
 
     public selectedTravel(travel: Travel) {
         this.selectedTravel$.next(travel);
+        const travelFiles = this.travelFiles$.getValue();
+        const selectedTravelFiles = travelFiles.find(tf => tf.TravelID === travel.ID);
+        this.fileIDs$.next((selectedTravelFiles && selectedTravelFiles.FileIDs) || []);
+        this.checkFiles([travel]);
     }
 
     public updatedList(travels: Travel[]) {
@@ -243,6 +300,7 @@ export class TravelComponent implements OnInit {
     public selectionChange(selection: Travel[]) {
         this.travelSelection = selection;
         this.checkSave(this.travels$.getValue());
+        this.checkFiles(selection);
     }
 
 }

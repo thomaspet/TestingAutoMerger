@@ -1,6 +1,6 @@
 <section>
     <uni-form [model]="travelFormModel$" [config]="{}" [fields]="fields$" (changeEvent)="formChange($event)"></uni-form>
-    <uni-image [readonly]="true" [fileIDs]="fileIDs$ | async" [attr.aria-busy]="filesBusy"></uni-image>
+    <uni-image [readonly]="true" [fileIDs]="fileIDs" [attr.aria-busy]="filesBusy"></uni-image>
 </section>
 <footer>
     <uni-travel-lines [travelLines]="travelLines$ | async" (travelLinesUpdated)="linesChanged($event)"></uni-travel-lines>

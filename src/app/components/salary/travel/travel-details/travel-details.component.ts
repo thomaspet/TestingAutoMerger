@@ -12,14 +12,15 @@ const DIRTY = '_isDirty';
 })
 export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
-    @Input() travel: Travel;
+    @Input() public travel: Travel;
+    @Input() public fileIDs: number[] = [];
     @Output() public travelChange: EventEmitter<Travel> = new EventEmitter();
 
     public travelLines$: BehaviorSubject<TravelLine[]> = new BehaviorSubject([]);
     public travelFormModel$: BehaviorSubject<Travel> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public fileIDs$: BehaviorSubject<number[]> = new BehaviorSubject([]);
     public filesBusy: boolean;
+    public busy: boolean;
 
     constructor(
         private travelService: TravelService,
@@ -36,7 +37,6 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
         if (changes['travel']) {
             this.travelLines$.next((this.travel && this.travel.TravelLines) || []);
             this.travelFormModel$.next(this.travel);
-            this.checkFiles(this.travel);
         }
     }
 
@@ -51,22 +51,17 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
                 travel[DIRTY] = true;
                 return travel;
             })
-            .subscribe(travel => this.travelChange.next(travel));
+            .subscribe(travel => this.emitChange(travel));
     }
 
     public linesChanged(lines: TravelLine[]) {
         this.travel[DIRTY] = true;
         this.travel.TravelLines = lines;
-        this.travelChange.next(this.travel);
+        this.emitChange(this.travel);
     }
 
-    private checkFiles(travel: Travel) {
-        this.fileIDs$.next([]);
-        this.travelService
-            .getFiles(travel)
-            // .finally(() => this.filesBusy = false)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(files => this.fileIDs$.next(files.map(file => file.ID)));
+    private emitChange(travel: Travel) {
+        this.travelChange.next(travel);
     }
 
 }

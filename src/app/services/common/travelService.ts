@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
-import {Travel, ApiKey, FieldType, Status, state, costtype, Employee, TypeOfIntegration, File} from '@uni-entities';
+import {Travel, ApiKey, FieldType, Status, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {EmployeeService} from '../salary/employee/employeeService';
 import {ApiKeyService} from '../common/apikeyService';
 import {FileService} from '../common/fileService';
+import {RequestMethod} from '@angular/http';
 
 @Injectable()
 export class TravelService extends BizHttp<Travel> {
@@ -112,6 +113,13 @@ export class TravelService extends BizHttp<Travel> {
                 ? super.PutAction(null, 'ttpdf', `apikeyID=${key.ID}&ID=${travel.ID}`)
                     .map((file: File) => file ? [file] : [])
                 : Observable.of([]));
+    }
+
+    public createTransactions(travels: Travel[], runID: number): Observable<SalaryTransaction[]> {
+        if (!travels || !travels.length || !runID) {
+            return Observable.of([]);
+        }
+        return super.ActionWithBody(null, travels.map(t => t.ID), 'toSalary', RequestMethod.Put, `runID=${runID}`);
     }
 
     public layout(travel$: BehaviorSubject<Travel>): Observable<any> {

@@ -46,7 +46,6 @@ export class TravelLinesComponent implements OnInit {
                         wt.WageTypeNumber.toString().startsWith(query)
                         || wt.WageTypeName.toLowerCase().includes(query)))
             });
-        const accountCol = new UniTableColumn('_wageType.MainAccount', 'Hovedbokskonto', UniTableColumnType.Text, false);
         const travelTypeCol = new UniTableColumn('Description', 'Reisetypenavn', UniTableColumnType.Text, false);
         const fromCol = new UniTableColumn('From', 'Fra dato', UniTableColumnType.DateTime, false).setFormat('DD.MM.YYYY HH:mm');
         const toCol = new UniTableColumn('To', 'Til dato', UniTableColumnType.DateTime, false).setFormat('DD.MM.YYYY HH:mm');
@@ -55,7 +54,7 @@ export class TravelLinesComponent implements OnInit {
         const sumCol = new UniTableColumn('', 'Sum', UniTableColumnType.Number, false)
             .setTemplate((row: TravelLine) => row['_isEmpty'] ? '' : UniMath.useFirstTwoDecimals(row.Rate * row.Amount).toString());
         this.config = new UniTableConfig('salary.travel.traveldetails.travellines', true)
-            .setColumns([wtCol, accountCol, travelTypeCol, fromCol, toCol, amountCol, rateCol, sumCol])
+            .setColumns([wtCol, travelTypeCol, fromCol, toCol, amountCol, rateCol, sumCol])
             .setAutoAddNewRow(false)
             .setChangeCallback((event: IRowChangeEvent) => this.handleChange(event));
     }
