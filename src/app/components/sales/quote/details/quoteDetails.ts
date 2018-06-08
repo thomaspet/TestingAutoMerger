@@ -47,6 +47,7 @@ import {
     CustomDimensionService,
     DepartmentService,
     ReportTypeEnum,
+    ModulusService,
 } from '../../../../services/services';
 
 import {
@@ -210,7 +211,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
-        private departmentService: DepartmentService
+        private departmentService: DepartmentService,
+        private modulusService: ModulusService,
     ) { }
 
     public ngOnInit() {
@@ -1271,6 +1273,44 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             this.toastService.addToast('Kan ikke overføre tilbud uten kunde', ToastType.warn, 5);
             done('');
             return;
+        }
+
+        if (this.quote.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.quote.Customer.OrgNumber)) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft kunde',
+                message: `Ugyldig org.nr. '${this.quote.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(
+                response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.saveQuote().then(quote => {
+                            this.isDirty = false;
+                            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
+                                (res) => {
+                                    this.selectConfig = undefined;
+                                    if (transition === 'toOrder') {
+                                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID)
+                                            .then(() => done(doneText));
+                                    } else if (transition === 'toInvoice') {
+                                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID)
+                                            .then(() => done(doneText));
+                                    } else {
+                                        this.quoteID = quote.ID;
+                                        this.refreshQuote()
+                                            .then(() => done(doneText));
+                                    }
+                                }
+                            );
+                        }).catch(error => {
+                            this.handleSaveError(error, done);
+                        });
+                    }
+                    return done();
+                }
+            );
         }
 
         this.saveQuote().then(quote => {

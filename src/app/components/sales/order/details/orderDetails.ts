@@ -55,6 +55,7 @@ import {
     CustomDimensionService,
     PaymentInfoTypeService,
     ReportTypeEnum,
+    ModulusService,
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -221,6 +222,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
         private paymentInfoTypeService: PaymentInfoTypeService,
+        private modulusService: ModulusService,
    ) {}
 
     public ngOnInit() {
@@ -1280,6 +1282,37 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     private saveOrderTransition(done: any, transition: string, doneText: string) {
+        if (this.order.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.order.Customer.OrgNumber)) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft kunde',
+                message: `Ugyldig org.nr. '${this.order.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(
+                response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.saveOrder().then((order) => {
+                            this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
+                                (res) => {
+                                    this.selectConfig = undefined;
+                                    this.refreshOrder()
+                                        .then(() => done(doneText));
+                                },
+                                (err) => {
+                                    done('Lagring feilet');
+                                    this.errorService.handle(err);
+                                }
+                            );
+                        }).catch(error => {
+                            this.handleSaveError(error, done);
+                        });
+                    }
+                    return done();
+                }
+            );
+        }
         this.saveOrder().then((order) => {
             this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
                 (res) => {

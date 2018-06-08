@@ -54,6 +54,7 @@ import {
     DepartmentService,
     PaymentInfoTypeService,
     ReportTypeEnum,
+    ModulusService,
 } from '../../../../services/services';
 
 import {
@@ -240,6 +241,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customDimensionService: CustomDimensionService,
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
+        private modulusService: ModulusService,
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -1510,6 +1512,54 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
+
+        if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
+            return this.modalService.open(UniConfirmModalV2, {
+                header: 'Bekreft kunde',
+                message: `Ugyldig org.nr. '${this.invoice.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(
+                response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.saveInvoice(done).then((invoice) => {
+                            if (invoice) {
+                                this.isDirty = false;
+
+                                // Update ID to avoid posting multiple times
+                                // in case any of the following requests fail
+                                if (invoice.ID && !this.invoice.ID) {
+                                    this.invoice.ID = invoice.ID;
+                                }
+
+                                if (!isDraft) {
+                                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                                    return;
+                                }
+
+                                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                                    (res) => this.selectConfig = undefined,
+                                    (err) => this.errorService.handle(err),
+                                    () => {
+                                        this.getInvoice(invoice.ID).subscribe(res => {
+                                            this.refreshInvoice(res);
+                                            done(doneText);
+                                        });
+                                    }
+                                );
+                            } else {
+                                done('Lagring feilet');
+                            }
+                        }).catch(error => {
+                            this.handleSaveError(error, done);
+                        });
+                    }
+                    return done();
+                }
+            );
+        }
 
         this.saveInvoice(done).then((invoice) => {
             if (invoice) {

@@ -223,7 +223,7 @@ export class SupplierDetails implements OnInit {
         if (!validOrgNumber) {
             return this.modalService.open(UniConfirmModalV2, {
                 header: 'Aktivere leverandør?',
-                message: `Aktivere leverandør med ugyldig org.nr. ${supplier.OrgNumber}?`,
+                message: `Aktivere leverandør med ugyldig org.nr. '${supplier.OrgNumber}'?`,
                 buttonLabels: {
                     accept: 'Ja',
                     cancel: 'Avbryt'
@@ -396,6 +396,36 @@ export class SupplierDetails implements OnInit {
     }
 
     public canDeactivate(): Observable<boolean> {
+        const supplier = this.supplier$.value;
+        if (this.isDirty
+            && supplier.OrgNumber
+            && !this.modulusService.isValidOrgNr(supplier.OrgNumber)
+        ) {
+            return Observable.create(observer => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Lagre leverandør?',
+                    message: `Leverandør har ett ugyldig org.nr. '${supplier.OrgNumber}'. Vil du lagre før du fortsetter?`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(res => {
+                    if (!res) { return observer.next(false); }
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.saveSupplier(() => { });
+                    } else if (res === ConfirmActions.REJECT) {
+                        this.isDirty = false;
+                        if (this.ledgerAccountReconciliation) {
+                            this.ledgerAccountReconciliation.isDirty = false;
+                        }
+                    }
+
+                    return observer.next(res !== ConfirmActions.CANCEL);
+                }, err => this.errorService.handle(err));
+            });
+        }
+
         return !this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)
             ? Observable.of(true)
             : this.modalService
@@ -960,12 +990,13 @@ export class SupplierDetails implements OnInit {
     }
 
     public orgNrValidator(orgNr: string, field: UniFieldLayout) {
-        const supplier = this.supplier$.getValue();
+        const supplier = this.supplier$.value;
         let isInternational: boolean;
         try {
             // Try/catch to avoid having to null guard everything here
-            isInternational = supplier.Info.Addresses[0].CountryCode !== 'NO';
-        } catch (e) {}
+            isInternational = supplier.Info.Addresses[0].CountryCode
+                && supplier.Info.Addresses[0].CountryCode !== 'NO';
+        } catch (e) { }
 
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternational);
     }

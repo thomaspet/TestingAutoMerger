@@ -1347,7 +1347,7 @@ export class BillView implements OnInit {
                 ) {
                     return this.modalService.open(UniConfirmModalV2, {
                         header: 'Bekreft leverandør',
-                        message: `Ugyldig org.nr. ${supplier.OrgNumber} på leverandør. Vil du fortsette?`,
+                        message: `Ugyldig org.nr. '${supplier.OrgNumber}' på leverandør. Vil du fortsette?`,
                         buttonLabels: {
                             accept: 'Ja',
                             cancel: 'Forkast'

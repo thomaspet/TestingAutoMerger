@@ -272,7 +272,7 @@ export class CustomerDetails implements OnInit {
         if (error && (customer.StatusCode === StatusCode.Pending || !customer.StatusCode)) {
             return this.modalService.open(UniConfirmModalV2, {
                 header: 'Aktivere leverandør?',
-                message: `Aktivere kunde med ugyldig org.nr. ${customer.OrgNumber}?`,
+                message: `Aktivere kunde med ugyldig org.nr. '${customer.OrgNumber}'?`,
                 buttonLabels: {
                     accept: 'Ja',
                     cancel: 'Avbryt'
@@ -402,8 +402,38 @@ export class CustomerDetails implements OnInit {
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
+        const customer = this.customer$.value;
         if (!this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)) {
             return true;
+        }
+
+        if (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber)) {
+            return Observable.create(observer => {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Lagre kunde?',
+                    message: `Kunden har ett ugyldig org.nr. '${customer.OrgNumber}'. Vil du lagre før du fortsetter?`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(res => {
+                    if (!res) { return observer.next(false); }
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.saveCustomer((done) => {
+                            observer.next(true);
+                            observer.complete();
+                        });
+                    } else {
+                        observer.next(res !== ConfirmActions.CANCEL);
+                        if (res === ConfirmActions.REJECT) {
+                            this.isDirty = false;
+                            this.setupSaveActions();
+                        }
+                        observer.complete();
+                    }
+                }, err => this.errorService.handle(err));
+            });
         }
 
         return Observable.create(observer => {
