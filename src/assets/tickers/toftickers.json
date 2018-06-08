@@ -244,10 +244,7 @@
             "ExecuteWithMultipleSelections": false,
             "DisplayInContextMenu": true,
             "DisplayInActionBar": false,
-            "NeedsActionOverride": true,
-            "Options": {
-                "ReportName": "Faktura id"
-            }
+            "NeedsActionOverride": true
         },
         {
             "Name": "Send på e-post",
@@ -912,10 +909,7 @@
             "Type": "print",
             "ExecuteWithMultipleSelections": false,
             "DisplayInContextMenu": true,
-            "DisplayInActionBar": false,
-            "Options": {
-                "ReportName": "Tilbud id"
-            }
+            "DisplayInActionBar": false
         },
         {
             "Name": "Send på e-post",
@@ -1490,10 +1484,7 @@
             "Type": "print",
             "ExecuteWithMultipleSelections": false,
             "DisplayInContextMenu": true,
-            "DisplayInActionBar": false,
-            "Options": {
-                "ReportName": "Ordre id"
-            }
+            "DisplayInActionBar": false
         },
         {
             "Name": "Slett",

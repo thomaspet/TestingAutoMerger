@@ -56,7 +56,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    UniChooseFormModal,
+    UniChooseReportModal,
 } from '../../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -1060,7 +1060,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     public chooseForm() {
         return this.modalService.open(
-            UniChooseFormModal,
+            UniChooseReportModal,
             { data: {
                 name: 'Tilbud',
                 typeName: 'Quote',

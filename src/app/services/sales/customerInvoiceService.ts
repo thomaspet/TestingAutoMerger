@@ -6,7 +6,8 @@ import {
     CustomerInvoiceItem,
     StatusCodeCustomerInvoice,
     LocalDate,
-    InvoicePaymentData
+    InvoicePaymentData,
+    ReportDefinition
 } from '../../unientities';
 import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
@@ -21,6 +22,8 @@ import { Observable } from 'rxjs/Observable';
 import { ErrorService } from '../common/errorService';
 import * as moment from 'moment';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
+import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -29,7 +32,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoice.Draft, Text: 'Kladd' },
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert' },
-        //{ Code: StatusCodeCustomerInvoice.Reminded, Text: 'Purret'}, // TODO: Add when available from backend
+        // { Code: StatusCodeCustomerInvoice.Reminded, Text: 'Purret'}, // TODO: Add when available from backend
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' }
     ];
@@ -80,7 +83,9 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         private toastService: ToastService,
         private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private reportDefinitionService: ReportDefinitionService,
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
@@ -99,7 +104,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     public onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
-            let invoice = selectedRows[0];
+            const invoice = selectedRows[0];
             this.setPrintStatus(invoice.ID, this.printStatusPrinted)
                 .subscribe((printStatus) => {
                     resolve();
@@ -116,7 +121,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             return true;
         }
 
-        let row = selectedRow;
+        const row = selectedRow;
         const isInvoiced = row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.Invoiced;
         const isPartlyPaid = row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.PartlyPaid;
 
@@ -128,7 +133,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onRegisterPayment(selectedRows: Array<any>): Promise<any> {
-        let row = selectedRows[0];
+        const row = selectedRows[0];
 
         if (!row) {
             return Promise.resolve();
@@ -195,7 +200,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {
-        let rowModel = selectedRow;
+        const rowModel = selectedRow;
 
         if (rowModel.CustomerInvoiceInvoiceType === 1) {
             return true;
@@ -211,7 +216,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onCreateCreditNote(selectedRows: Array<any>): Promise<any> {
-        let rowModel = selectedRows[0];
+        const rowModel = selectedRows[0];
 
         return new Promise((resolve, reject) => {
         this.createCreditNoteFromInvoice(rowModel.ID)
@@ -230,7 +235,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onCheckCreditCreditNoteDisabled(selectedRow: any): boolean {
-        let rowModel = selectedRow;
+        const rowModel = selectedRow;
 
         if (rowModel.CustomerInvoiceTaxInclusiveAmount === 0 || rowModel.CustomerInvoiceInvoiceType === 0) {
             // Must have saved at minimum 1 item related to the invoice
@@ -241,7 +246,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     private deleteInvoices(selectedRows: Array<any>): Promise<any> {
-        let invoice = selectedRows[0];
+        const invoice = selectedRows[0];
         return new Promise((resolve, reject) => {
             this.modalService.confirm({
                 header: 'Slette faktura',
@@ -267,29 +272,55 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
-        let invoice = selectedRows[0];
+        const invoice = selectedRows[0];
 
         return new Promise((resolve, reject) => {
-            let model = new SendEmail();
-            model.EntityType = 'CustomerInvoice';
-            model.EntityID = invoice.ID;
-            model.CustomerID = invoice.CustomerID;
+            this.companySettingsService.Get(1)
+                .subscribe(settings => {
+                    Observable.forkJoin(
+                        this.reportDefinitionService.getReportByID(
+                            settings['DefaultCustomerInvoiceReportID']
+                        ),
+                        this.reportDefinitionParameterService.GetAll(
+                            'filter=ReportDefinitionId eq ' + settings['DefaultCustomerInvoiceReportID']
+                        )
+                    ).subscribe(data => {
+                        if (data[0] && data[1]) {
+                            const defaultInvoiceReportForm = data[0];
+                            const defaultReportParameterName = data[1][0].Name;
 
-            const invoiceNumber = (invoice.InvoiceNumber)
-                ? ` nr. ${invoice.InvoiceNumber}`
-                : 'kladd';
+                            const model = new SendEmail();
+                            model.EntityType = 'CustomerInvoice';
+                            model.EntityID = invoice.ID;
+                            model.CustomerID = invoice.CustomerID;
 
-            model.Subject = 'Faktura' + invoiceNumber;
-            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+                            const invoiceNumber = (invoice.InvoiceNumber)
+                                ? ` nr. ${invoice.InvoiceNumber}`
+                                : 'kladd';
 
-            this.modalService.open(UniSendEmailModal, {
-                data: model
-            }).onClose.subscribe(email => {
-                if (email) {
-                    this.emailService.sendEmailWithReportAttachment('Faktura id', email);
-                }
-                resolve();
-            });
+                            model.Subject = 'Faktura' + invoiceNumber;
+                            model.Message = 'Vedlagt finner du faktura' + invoiceNumber;
+
+                            const value = defaultReportParameterName === 'Id'
+                                ? invoice[defaultReportParameterName.toUpperCase()]
+                                : invoice[defaultReportParameterName];
+                            const parameters = [{ Name: defaultReportParameterName, value: value }];
+
+                            this.modalService.open(UniSendEmailModal, {
+                                data: model
+                            }).onClose.subscribe(email => {
+                                if (email) {
+                                    this.emailService.sendEmailWithReportAttachment(defaultInvoiceReportForm.Name, email, parameters);
+                                }
+                                resolve();
+                            }, err => {
+                                this.errorService.handle(err);
+                                resolve();
+                            });
+                        }
+                    }, err => this.errorService.handle(err));
+                }, err => this.errorService.handle(err)
+            );
         });
     }
 
@@ -351,7 +382,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {
-        return this.GetAll('filter=InvoiceNumber eq ' + invoiceNumber, ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']);
+        return this.GetAll(
+            'filter=InvoiceNumber eq ' + invoiceNumber,
+            ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']
+        );
     }
 
     public getInvoiceSummary(odatafilter: string): Observable<any> {
@@ -378,8 +412,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public getStatusText(statusCode: number, invoiceType: number = 0): string {
-        let dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
-        let statusType = dict.find(x => x.Code === statusCode);
+        const dict = (invoiceType === 0) ? this.statusTypes : this.statusTypesCredit;
+        const statusType = dict.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
 }

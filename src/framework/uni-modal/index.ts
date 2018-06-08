@@ -18,7 +18,7 @@ import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
 import {UniChangelogModal} from './modals/changelog-modal/changelog-modal';
-import {UniChooseFormModal} from './modals/chooseFormModal';
+import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportModal';
 import {SubCompanyModal} from './modals/subCompanyModal';
 
 export * from './modalService';
@@ -43,7 +43,7 @@ export * from './modals/brRegModal/brRegModal';
 export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
 export * from './modals/changelog-modal/changelog-modal';
-export * from './modals/chooseFormModal';
+export * from './modals/choose-report-modal/chooseReportModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -66,7 +66,7 @@ export const MODALS = [
     ManageProductsModal,
     UniBankModal,
     UniChangelogModal,
-    UniChooseFormModal,
+    UniChooseReportModal,
     SubCompanyModal,
 ];
 

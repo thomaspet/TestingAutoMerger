@@ -47,8 +47,10 @@ export class EmailService extends BizHttp<Email> {
                 sendemail.Subject
             );
 
-            if (!parameters) { parameters = []; }
-            parameters.push({ Name: 'Id', value: sendemail.EntityID });
+            if (!parameters) {
+                parameters = [];
+                parameters.push({ Name: 'Id', value: sendemail.EntityID });
+            }
 
             parameters.push({
                 Name: 'LogoUrl',
@@ -107,7 +109,7 @@ export class EmailService extends BizHttp<Email> {
                 data: model
             }).onClose.map(email => {
                 if (email) {
-                    this.sendEmailWithReportAttachment(reportForm.Name, email, null);
+                    this.sendEmailWithReportAttachment(reportForm.Name, email, reportForm.parameters);
                 }
             });
     }

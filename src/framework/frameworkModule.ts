@@ -36,7 +36,11 @@ import {UniModalService, MODALS} from './uni-modal';
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
 import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 
-import {MatCheckboxModule} from '@angular/material';
+import {
+    MatCheckboxModule,
+    MatRadioModule,
+    MatInputModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -44,6 +48,8 @@ import {MatCheckboxModule} from '@angular/material';
         FormsModule,
         ReactiveFormsModule,
         MatCheckboxModule,
+        MatRadioModule,
+        MatInputModule,
 
         AppPipesModule,
         UniPipesModule,

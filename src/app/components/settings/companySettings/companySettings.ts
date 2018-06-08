@@ -21,7 +21,8 @@ import {
     PeriodSeries,
     Phone,
     VatReportForm,
-    CampaignTemplate
+    CampaignTemplate,
+    ReportDefinition
 } from '@uni-entities';
 import {
     AccountService,
@@ -48,7 +49,9 @@ import {
     ElsaProductService,
     ElsaPurchaseService,
     CampaignTemplateService,
-    SubEntityService
+    SubEntityService,
+    ReportService,
+    ReportTypeEnum,
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -157,7 +160,11 @@ export class CompanySettingsComponent implements OnInit {
         {Culture: 'en', Label: 'Engelsk'},
     ];
 
-    public currentYear: number;
+    private quoteFormList: ReportDefinition[];
+    private orderFormList: ReportDefinition[];
+    private invoiceFormList: ReportDefinition[];
+
+    private currentYear: number;
 
     private invoiceTemplate: CampaignTemplate;
     private orderTemplate: CampaignTemplate;
@@ -204,6 +211,7 @@ export class CompanySettingsComponent implements OnInit {
         private subEntityService: SubEntityService,
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
+        private reportService: ReportService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -240,7 +248,10 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getInvoiceTemplatetext(),
             this.campaignTemplateService.getOrderTemplateText(),
             this.campaignTemplateService.getQuoteTemplateText(),
-            this.isEHFBought()
+            this.isEHFBought(),
+            this.reportService.getFormType(ReportTypeEnum.QUOTE),
+            this.reportService.getFormType(ReportTypeEnum.ORDER),
+            this.reportService.getFormType(ReportTypeEnum.INVOICE),
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -283,6 +294,10 @@ export class CompanySettingsComponent implements OnInit {
                     invoiceTemplate: this.invoiceTemplate,
                     quoteTemplate: this.quoteTemplate
                 });
+
+                this.quoteFormList = dataset[16];
+                this.orderFormList = dataset[17];
+                this.invoiceFormList = dataset[18];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -1546,7 +1561,50 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 4,
                 Legend: 'Faktura',
                 Section: 0,
-            }
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Tilbud',
+                Property: 'company.DefaultCustomerQuoteReportID',
+                Options: {
+                    source: this.quoteFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Legend: 'Blankett',
+                Section: 0,
+                FieldSet: 5,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Ordre',
+                Property: 'company.DefaultCustomerOrderReportID',
+                Options: {
+                    source: this.orderFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 5,
+                Section: 0,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Faktura',
+                Property: 'company.DefaultCustomerInvoiceReportID',
+                Options: {
+                    source: this.invoiceFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Section: 0,
+                FieldSet: 5,
+            },
         ]);
     }
 

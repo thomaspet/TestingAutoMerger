@@ -5,7 +5,19 @@ import {StatusCodeCustomerQuote} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../common/errorService';
+import { ITickerActionOverride } from '../../services/common/uniTickerService';
+import { ReportDefinitionService } from '../../services/reports/reportDefinitionService';
+import { ReportDefinitionParameterService } from '../../services/reports/reportDefinitionParameterService';
+import { SendEmail } from '../../models/sendEmail';
+import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
+import { CompanySettingsService } from '../common/companySettingsService';
+import { EmailService } from '../common/emailService';
+import { UniModalService } from '../../../framework/uni-modal/modalService';
+import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
+import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
 import * as moment from 'moment';
+import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import { IUniSaveAction } from '@uni-framework/save/save';
 
 @Injectable()
 export class CustomerQuoteService extends BizHttp<CustomerQuote> {
@@ -21,8 +33,24 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         { Code: StatusCodeCustomerQuote.Completed, Text: 'Avsluttet' }
     ];
 
+    public actionOverrides: ITickerActionOverride[] = [
+        {
+            Code: 'quote_sendemail',
+            ExecuteActionHandler: (selectedRows) => this.onSendEmail(selectedRows)
+        },
+        {
+            Code: 'quote_delete',
+            ExecuteActionHandler: (selectedRows) => this.deleteQuotes(selectedRows)
+        },
+        {
+            Code: 'quote_print',
+            AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintQuote(selectedRows)
+        }
+    ];
+
+    public printStatusPrinted: string = '200';
     public getFilteredStatusTypes(statusCode: number): Array<any> {
-        let statusTypesFiltered: Array<any> = [];
+        const statusTypesFiltered: Array<any> = [];
 
         this.statusTypes.forEach((s, i) => {
             if (s.Code === StatusCodeCustomerQuote.Draft &&
@@ -39,10 +67,18 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
             }
         });
         return statusTypesFiltered;
-    };
+    }
 
 
-    constructor(http: UniHttp, private errorService: ErrorService) {
+    constructor(
+        http: UniHttp,
+        private errorService: ErrorService,
+        private modalService: UniModalService,
+        private emailService: EmailService,
+        private reportDefinitionService: ReportDefinitionService,
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private companySettingsService: CompanySettingsService,
+    ) {
         super(http);
         this.relativeURL = CustomerQuote.RelativeUrl;
         this.entityType = CustomerQuote.EntityType;
@@ -102,7 +138,102 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
     }
 
     public getStatusText(statusCode: number): string {
-        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
+
+    public onAfterPrintQuote(selectedRows: Array<any>): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const invoice = selectedRows[0];
+            this.setPrintStatus(invoice.ID, this.printStatusPrinted)
+                    .subscribe((printStatus) => {
+                        resolve();
+                    }, err => {
+                        reject(err);
+                        this.errorService.handle(err);
+                    }
+                );
+        });
+    }
+
+    private deleteQuotes(selectedRows: Array<any>): Promise<any> {
+        const quote = selectedRows[0];
+        return new Promise((resolve, reject) => {
+            this.modalService.confirm({
+                header: 'Slette tilbud?',
+                message: 'Vil du slette dette tilbudet?',
+                buttonLabels: {
+                    accept: 'Slett',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(answer => {
+                if (answer === ConfirmActions.ACCEPT) {
+                    resolve(
+                        this.Remove(quote.ID, null).subscribe(
+                            res => resolve(),
+                            err => {
+                                this.errorService.handle(err);
+                                resolve();
+                            }
+                        )
+                    );
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    public onSendEmail(selectedRows: Array<any>): Promise<any> {
+        const quote = selectedRows[0];
+
+        return new Promise((resolve, reject) => {
+            this.companySettingsService.Get(1)
+                .subscribe(settings => {
+                    Observable.forkJoin(
+                        this.reportDefinitionService.getReportByID(
+                            settings['DefaultCustomerQuoteReportID']
+                        ),
+                        this.reportDefinitionParameterService.GetAll(
+                            'filter=ReportDefinitionId eq ' + settings['DefaultCustomerQuoteReportID']
+                        )
+                    ).subscribe(data => {
+                        if (data[0] && data[1]) {
+                            const defaultQuoteReportForm = data[0];
+                            const defaultReportParameterName = data[1][0].Name;
+
+                            const model = new SendEmail();
+                            model.EntityType = 'CustomerQuote';
+                            model.EntityID = quote.ID;
+                            model.CustomerID = quote.CustomerID;
+
+                            const quoteNumber = (quote.QuoteNumber)
+                                ? ` nr. ${quote.QuoteNumber}`
+                                : 'kladd';
+
+                            model.Subject = 'Tilbud' + quoteNumber;
+                            model.Message = 'Vedlagt finner du tilbud' + quoteNumber;
+
+                            const value = defaultReportParameterName === 'Id'
+                                ? quote[defaultReportParameterName.toUpperCase()]
+                                : quote[defaultReportParameterName];
+                            const parameters = [{ Name: defaultReportParameterName, value: value }];
+
+                            this.modalService.open(UniSendEmailModal, {
+                                data: model
+                            }).onClose.subscribe(email => {
+                                if (email) {
+                                    this.emailService.sendEmailWithReportAttachment(defaultQuoteReportForm.Name, email, parameters);
+                                }
+                                resolve();
+                            }, err => {
+                                this.errorService.handle(err);
+                                resolve();
+                            });
+                        }
+                    }, err => this.errorService.handle(err));
+                }, err => this.errorService.handle(err)
+            );
+        });
+    }
 }

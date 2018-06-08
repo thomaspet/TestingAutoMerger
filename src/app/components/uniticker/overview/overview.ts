@@ -1,6 +1,6 @@
 import {Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTickerService, CustomerInvoiceService} from '../../../services/services';
+import {UniTickerService, CustomerInvoiceService, CustomerOrderService, CustomerQuoteService} from '../../../services/services';
 import {Ticker, TickerGroup, TickerAction} from '../../../services/common/uniTickerService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Location} from '@angular/common';
@@ -37,7 +37,9 @@ export class UniTickerOverview {
         private route: ActivatedRoute,
         private location: Location,
         private cdr: ChangeDetectorRef,
-        private customerInvoiceService: CustomerInvoiceService
+        private customerInvoiceService: CustomerInvoiceService,
+        private customerOrderService: CustomerOrderService,
+        private customerQuoteService: CustomerQuoteService,
     ) {
         this.tabService.addTab({
             name: 'Oversikt',
@@ -68,6 +70,13 @@ export class UniTickerOverview {
                 switch (tickerCode || this.tickerGroups[0].Tickers[0].Code) {
                     case 'invoice_list':
                         this.actionOverrides = this.customerInvoiceService.actionOverrides;
+                        break;
+                    case 'order_list':
+                        this.actionOverrides = this.customerOrderService.actionOverrides;
+                        break;
+                    case 'quote_list':
+                        this.actionOverrides = this.customerQuoteService.actionOverrides;
+                        break;
                 }
             });
         });

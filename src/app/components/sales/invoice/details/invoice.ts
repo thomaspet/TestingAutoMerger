@@ -66,7 +66,7 @@ import {
     ConfirmActions,
     UniConfirmModalV2,
     IModalOptions,
-    UniChooseFormModal,
+    UniChooseReportModal,
 } from '../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
@@ -1669,7 +1669,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     public chooseForm() {
         return this.modalService.open(
-            UniChooseFormModal,
+            UniChooseReportModal,
             {data: {
                 name: 'Faktura',
                 typeName: 'Invoice',

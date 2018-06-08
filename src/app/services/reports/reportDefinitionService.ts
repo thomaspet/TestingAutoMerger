@@ -31,4 +31,10 @@ export class ReportDefinitionService extends BizHttp<ReportDefinition>{
             return reports[0];
         });
     }
+
+    public getReportByID(id: number): Observable<any> {
+        return this.GetAll(`filter=ID eq '${id}'`).map((reports) => {
+            return reports[0];
+        });
+    }
 }

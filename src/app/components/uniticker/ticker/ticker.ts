@@ -24,11 +24,18 @@ import {
     UniTableColumn,
     IContextMenuItem,
     UniTableColumnType,
-    UniTableConfig
+    UniTableConfig,
 } from '../../../../framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {TableUtils} from '@uni-framework/ui/ag-grid/services/table-utils';
-import {StatisticsService, StatusService, EmployeeLeaveService, YearService} from '../../../services/services';
+import {
+    StatisticsService,
+    StatusService,
+    EmployeeLeaveService,
+    YearService,
+    CompanySettingsService,
+    ReportDefinitionParameterService,
+} from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
@@ -39,7 +46,7 @@ import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {GetPrintStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
-import {SharingType, StatusCodeSharing} from '../../../unientities';
+import {SharingType, StatusCodeSharing, ReportDefinition} from '../../../unientities';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -114,7 +121,9 @@ export class UniTicker {
         private modalService: UniModalService,
         private tableUtils: TableUtils,
         private employeeLeaveService: EmployeeLeaveService,
-        private yearService: YearService
+        private yearService: YearService,
+        private companySettingsService: CompanySettingsService,
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             const params = this.getSearchParams(urlParams);
@@ -578,25 +587,36 @@ export class UniTicker {
             if (actionType === 'export') {
                 this.exportToExcel(() => {});
             } else if (actionType === 'print') {
-                if (!action.Options.ReportName) {
-                    throw Error('Cannot use action print without specifying Options.ReportName in action ' + action.Name);
-                }
+                this.companySettingsService.Get(1).subscribe(
+                    companySettings => {
+                        Observable.forkJoin(
+                            this.reportDefinitionService.getReportByID(
+                                companySettings[`Default${this.ticker.Model}ReportID`]
+                            ),
+                            this.reportDefinitionParameterService.GetAll(
+                                'filter=ReportDefinitionId eq ' + companySettings[`Default${this.ticker.Model}ReportID`]
+                            )
+                        )
+                        .subscribe(data => {
+                            if (data[0] && data[1]) {
+                                const reportForm = data[0];
+                                const formParameterName = data[1][0].Name;
+                                const selectedRow = this.selectedRow || selectedRows[0];
+                                const value = formParameterName === 'Id'
+                                    ? selectedRow[formParameterName.toUpperCase()]
+                                    : selectedRow[formParameterName];
+                                reportForm.parameters = [{Name: formParameterName, value: value}];
 
-                this.reportDefinitionService.getReportByName(action.Options.ReportName).subscribe((report) => {
-                    if (report) {
-                        const id = this.ticker.Type === 'details'
-                            ? this.selectedRow[rowIdentifier]
-                            : selectedRows[0][rowIdentifier];
-                        report.parameters = [{Name: 'Id', value: id}];
+                                this.modalService.open(UniPreviewModal, {
+                                    data: reportForm
+                                });
 
-                        this.modalService.open(UniPreviewModal, {
-                            data: report
+                                // execute AfterExecuteActionHandler if it is specified
+                                this.afterExecuteAction(action, actionOverride, selectedRows);
+                            }
                         });
-
-                        // execute AfterExecuteActionHandler if it is specified
-                        this.afterExecuteAction(action, actionOverride, selectedRows);
-                    }
-                });
+                    }, err => this.errorService.handle(err)
+                );
             } else {
                 this.uniTickerService
                     .executeAction(

@@ -388,7 +388,7 @@ export class ReportService extends BizHttp<string> {
         }
     }
 
-    public chooseFormType(type: ReportTypeEnum): Observable<any> {
+    public getFormType(type: ReportTypeEnum): Observable<ReportDefinition[]> {
         return this.http.asGET()
             .usingRootDomain()
             .withEndPoint(`${this.relativeURL}/type/${type}`)

@@ -3,7 +3,11 @@ import {CompanySettings} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ITickerActionOverride, ITickerColumnOverride} from '../../../../services/common/uniTickerService';
 import {UniTickerWrapper} from '../../../uniticker/tickerWrapper/tickerWrapper';
-import {CustomerInvoiceService, ErrorService, CompanySettingsService} from '../../../../services/services';
+import {
+    CustomerInvoiceService,
+    ErrorService,
+    CompanySettingsService,
+} from '../../../../services/services';
 
 @Component({
     selector: 'invoice-list',
@@ -74,5 +78,4 @@ export class InvoiceList implements OnInit {
             moduleID: UniModules.Invoices
         });
     }
-
 }
