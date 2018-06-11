@@ -100,7 +100,7 @@ export class UniSelectInput extends BaseControl implements OnChanges {
         if (previousValue === currentValue) {
             return;
         }
-
+        this.selectedItem = currentValue;
         _.set(this.model, this.field.Property, currentValue);
         this.emitChange(previousValue, currentValue);
         this.emitInstantChange(previousValue, currentValue, true);
