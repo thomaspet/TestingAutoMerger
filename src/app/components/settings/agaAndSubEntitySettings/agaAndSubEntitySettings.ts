@@ -124,6 +124,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgName.Section = 0;
         mainOrgName.FieldSet = 1;
         mainOrgName.Legend = 'Juridisk enhet';
+        mainOrgName.ReadOnly = true;
 
         const mainOrgOrg = new UniFieldLayout();
         mainOrgOrg.Label = 'Orgnummer';
@@ -132,6 +133,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.FieldType = FieldType.TEXT;
         mainOrgOrg.Section = 0;
         mainOrgOrg.FieldSet = 1;
+        mainOrgOrg.ReadOnly = true;
 
         const mainOrgFreeAmount = new UniFieldLayout();
         mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';
