@@ -6,7 +6,6 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
 import {UniSidebar} from './sidebar/sidebar';
-import {UniHamburgerMenu} from './navbar/hamburger/hamburger';
 import {NavbarCreateNew} from './navbar/create-new/navbar-create-new';
 import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabstrip';
@@ -47,7 +46,6 @@ import {
         AppPipesModule
     ],
     declarations: [
-        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
@@ -70,14 +68,11 @@ import {
         UserSettingsModal
     ],
     exports: [
-        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
         NavbarCreateNew,
         NavbarSearch,
-        // UniTabStrip,
-        // UniTabstripHelp,
         UniCompanyDropdown,
         YearModal,
         UniHelpText

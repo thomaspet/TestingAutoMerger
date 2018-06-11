@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import * as _ from 'lodash';
 
 export {INavbarLinkSection, INavbarLink} from './navbar-links';
-export type SidebarState = 'hidden' | 'collapsed' | 'expanded';
+export type SidebarState = 'collapsed' | 'expanded';
 
 @Injectable()
 export class NavbarLinkService {

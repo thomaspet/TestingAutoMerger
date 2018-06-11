@@ -17,7 +17,12 @@ import {User} from '@uni-entities';
                     [routerLink]="'/'"
                 />
 
-                <uni-hamburger-menu></uni-hamburger-menu>
+                <i
+                    class="material-icons hamburger-toggle"
+                    role="button"
+                    (click)="toggleSidebarState()">
+                    menu
+                </i>
             </section>
 
             <section class="navbar-right">
@@ -69,7 +74,7 @@ import {User} from '@uni-entities';
 
         </section>
 
-        <section class="tab-strip" *ngIf="tabstripVisible" [ngClass]="'sidebar-' + sidebarState">
+        <section class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
             <uni-tabstrip></uni-tabstrip>
 
             <!--
@@ -86,8 +91,6 @@ import {User} from '@uni-entities';
 })
 export class UniNavbar {
     public sidebarState: string;
-    public sidebarVisible: boolean;
-    public tabstripVisible: boolean;
 
     public user: User;
     public licenseRole: string;
@@ -123,8 +126,6 @@ export class UniNavbar {
 
         this.navbarService.sidebarState$.subscribe(state => {
             this.sidebarState = state;
-            this.sidebarVisible = state !== 'hidden';
-            this.setTabstripVisibility(true);
         });
 
         this.navbarService.linkSections$.subscribe(linkSections => {
@@ -141,22 +142,12 @@ export class UniNavbar {
 
             this.cdr.markForCheck();
         });
-
-        this.tabService.tabs$.subscribe(tabs => {
-            const tabstripVisible = this.sidebarVisible || (tabs && tabs.length > 0);
-            this.setTabstripVisibility(tabstripVisible);
-        });
     }
 
-    public setTabstripVisibility(visible: boolean) {
-        if (this.tabstripVisible !== visible) {
-            this.tabstripVisible = visible;
-            const pageContainer = document.getElementById('page-container');
-            if (pageContainer) {
-                pageContainer.style.paddingTop = visible ? '4.75rem' : '2.75rem';
-            }
+    public toggleSidebarState() {
+        const newState = this.navbarService.sidebarState$.value === 'expanded'
+            ? 'collapsed' : 'expanded';
 
-            this.cdr.detectChanges();
-        }
+        this.navbarService.sidebarState$.next(newState);
     }
 }
