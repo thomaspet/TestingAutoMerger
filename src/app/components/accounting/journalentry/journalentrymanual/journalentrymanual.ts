@@ -1,5 +1,5 @@
 import {Component, Input, SimpleChange, ViewChild, OnInit, OnChanges, Output, EventEmitter, HostListener} from '@angular/core';
-import {JournalEntryProfessional, JournalEntryMode} from '../components/journalentryprofessional/journalentryprofessional';
+import {JournalEntryProfessional} from '../components/journalentryprofessional/journalentryprofessional';
 import {
     Dimensions,
     FinancialYear,
@@ -46,6 +46,7 @@ import {
     NumberSeriesService,
     VatTypeService
 } from '../../../../services/services';
+import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -469,6 +470,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public onDataChanged(data: JournalEntryData[]) {
+
         this.dataChanged.emit(data);
         if (data.length <= 0) {
             this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
@@ -498,9 +500,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
             this.journalEntryService.setSessionData(this.mode, data);
 
-            if (this.mode !== JournalEntryMode.SupplierInvoice) {
-                this.validateJournalEntryData(data);
-            }
+            this.validateJournalEntryData(data);
+
             this.calculateItemSums(data);
 
             this.getOpenPostsForRow();
@@ -717,7 +718,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
              this.currentFinancialYear,
              this.financialYears,
              this.companySettings,
-             this.doValidateBalance)
+             this.doValidateBalance,
+             this.mode)
              .then(result => this.validationResult = result );
 
         /*

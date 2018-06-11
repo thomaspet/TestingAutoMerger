@@ -15,6 +15,11 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {StatisticsService} from '../common/statisticsService';
 import {JournalEntryLineDraftService} from './journalEntryLineDraftService';
 
+export enum JournalEntryMode {
+    Manual,
+    Payment,
+    SupplierInvoice
+}
 
 class JournalEntryLineCalculation {
     amountGross: number;
@@ -517,11 +522,21 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         currentFinancialYear: FinancialYear,
         financialYears: Array<FinancialYear>,
         companySettings: CompanySettings,
-        doValidateBalance: boolean): Promise<ValidationResult> {
+        doValidateBalance: boolean,
+        mode: JournalEntryMode): Promise<ValidationResult> {
         const result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
         return new Promise((resolve, reject) => {
+
+            // if mode is SupplierInvoice, we are always working on just one journalentry, so
+            // remove the journalentryno to avoid any problems with incorrect values being set
+            // there by journalentryprofessional in some cases
+            if (mode === JournalEntryMode.SupplierInvoice) {
+                journalDataEntries.forEach(row => {
+                    row.JournalEntryNo = '';
+                });
+            }
 
             const dblPaymentsInvoiceNo: Array<string> = [];
             journalDataEntries.forEach(row => {
@@ -555,7 +570,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                 result.Messages.push(invPaymValidation);
             }
-
 
             const invalidRows = journalDataEntries.filter(
                 x => !x.StatusCode && (!x.Amount || !x.FinancialDate || (!x.CreditAccountID && !x.DebitAccountID))
@@ -736,6 +750,34 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
                 lastJournalEntryFinancialDate = entry.FinancialDate;
             });
+
+            const multipleDates: Array<string> = [];
+            journalDataEntries.forEach(row => {
+                if (row.FinancialDate) {
+                    const otherDate = journalDataEntries.filter(entry =>
+                        entry.JournalEntryNo === row.JournalEntryNo
+                        && entry.FinancialDate
+                        && entry.FinancialDate.toString() !== row.FinancialDate.toString()
+                    );
+
+                    if (otherDate.length > 0) {
+                        const journalEntryNo = (row.JournalEntryNo || '');
+
+                        if (multipleDates.indexOf(journalEntryNo.toString()) === -1) {
+                            multipleDates.push(journalEntryNo);
+                        }
+                    }
+                }
+            });
+
+            if (multipleDates.length > 0) {
+                multipleDates.forEach(journalEntryNo => {
+                    const message = new ValidationMessage();
+                    message.Level = ValidationLevel.Warning;
+                    message.Message = `Bilag ${journalEntryNo || ''} er fordelt på flere regnskapsdatoer`;
+                    result.Messages.push(message);
+                });
+            }
 
             if (doValidateBalance) {
                 const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
