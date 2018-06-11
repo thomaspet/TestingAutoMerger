@@ -15,6 +15,7 @@ import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
+import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
 
 import {
     // SHORTCUTS,
@@ -94,13 +95,15 @@ export class UniWidgetCanvas {
     private widgetSelectorItems: any[];
 
     private refreshInterval: any;
+    private sidebarState: string;
 
     constructor(
         private cdr: ChangeDetectorRef,
         private toastService: ToastService,
         private authService: AuthService,
         private canvasHelper: CanvasHelper,
-        private dataService: WidgetDataService
+        private dataService: WidgetDataService,
+        private navbarService: NavbarLinkService
     ) {
         // Clear cache on init
         this.dataService.clearCache();
@@ -131,6 +134,16 @@ export class UniWidgetCanvas {
 
                     this.drawLayout();
                 }
+            });
+
+        this.navbarService.sidebarState$
+            .debounceTime(200)
+            .subscribe(state => {
+                if (this.sidebarState && this.sidebarState !== state) {
+                    this.drawLayout();
+                }
+
+                this.sidebarState = state;
             });
 
         this.initWidgetSelector();
