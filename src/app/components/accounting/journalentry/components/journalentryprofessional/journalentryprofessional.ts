@@ -77,14 +77,9 @@ import {UniMath} from '../../../../../../framework/core/uniMath';
 import {DraftLineDescriptionModal} from './draftLineDescriptionModal';
 import { PaymentService } from '@app/services/accounting/paymentService';
 import { RequestMethod } from '@angular/http';
+import {JournalEntryMode} from '../../../../../services/accounting/journalEntryService';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare const _; // lodash
-
-export enum JournalEntryMode {
-    Manual,
-    Payment,
-    SupplierInvoice
-}
 
 @Component({
     selector: 'journal-entry-professional',
@@ -1361,6 +1356,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 debitAccountCol,
                 debitVatTypeCol,
                 deductionPercentCol,
+                financialDateCol,
                 projectCol,
                 departmentCol,
                 descriptionCol,
@@ -1370,9 +1366,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             ];
 
             if (dimensionCols.length) {
-                columns.splice(5, 0, ...dimensionCols);
+                columns.splice(6, 0, ...dimensionCols);
             }
-
         } else {
             // Manual == "Bilagsregistrering"
             tableName = 'accounting.journalEntry.manual';

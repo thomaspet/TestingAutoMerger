@@ -3,7 +3,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs/Observable';
-import {JournalEntryMode} from '../../journalentry/components/journalentryprofessional/journalentryprofessional';
 import {ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
@@ -76,12 +75,14 @@ import {
     ValidationService,
     UniFilesService,
     BankService,
-    CustomDimensionService
+    CustomDimensionService,
+    SupplierInvoiceItemService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 declare var _;
 
 interface ITab {
@@ -152,12 +153,6 @@ export class BillView implements OnInit {
     private hasSuggestions: boolean = false;
     private suggestions: Array<IJournalHistoryItem> = [];
     private editmode: boolean = true;
-    private defaultRowData: any = {
-        FinancialDate: null,
-        VatDate: null,
-        CreditAccount: null,
-        CreditAccountID: null
-    };
     private sumRemainder: number = null;
     private sumVat: number = null;
     private customDimensions: any;
@@ -888,10 +883,13 @@ export class BillView implements OnInit {
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 this.toast.clear();
+
+                const oldModel = this.current.value;
+
                 this.handleOcrResult(new OcrValuables(result));
 
-                const model = this.current.getValue();
-                this.updateJournalEntryManualFinancialDate(model, true);
+                const model = this.current.value;
+                this.updateJournalEntryManualFinancialDate(model.InvoiceDate, oldModel.InvoiceDate);
 
                 this.flagUnsavedChanged();
                 this.ocrData = result;
@@ -1399,7 +1397,7 @@ export class BillView implements OnInit {
                     );
             }
 
-            this.updateJournalEntryManualFinancialDate(model, true);
+            this.updateJournalEntryManualFinancialDate(change['InvoiceDate'].currentValue, change['InvoiceDate'].previousValue);
         }
 
         if (change['CurrencyCodeID']) {
@@ -1505,19 +1503,8 @@ export class BillView implements OnInit {
             current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         }
 
-        // update supplier for journal entry manual
-        this.updateJournalEntryManualSupplier(current, true);
-
         // make uniform update itself to show correct values for bankaccount/currency
         this.current.next(current);
-
-        // Should check here for supplier status, and suggest to reject when status is BLOCKED!
-        if (current.Supplier.StatusCode === 70001) {
-            this.blockedSupplier(current);
-        } else {
-            this.isBlockedSupplier = false;
-            this.actions = this.rootActions;
-        }
 
         this.setupToolbar();
     }
@@ -2226,13 +2213,11 @@ export class BillView implements OnInit {
                 this.checkLockStatus();
                 this.lookupHistory();
 
-                this.updateJournalEntryManualSupplier(invoice, true);
-
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
                 if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID > 0) {
                     this.expandProjectSection();
                 }
-                this.updateJournalEntryManualFinancialDate(invoice, false);
+
                 // set diff to null until the journalentry is loaded, the data is calculated correctly
                 // through the onJournalEntryManualDataLoaded event
                 this.sumVat = null;
@@ -2268,11 +2253,21 @@ export class BillView implements OnInit {
 
         this.updateSummary(lines);
 
+        let previousLine = null;
+
         lines.map(line => {
-            if (line.CreditAccountID && line.CreditAccountID !== this.defaultRowData.CreditAccountID) {
-                changes = true;
-                line.CreditAccount = this.defaultRowData.CreditAccount;
-                line.CreditAccountID = this.defaultRowData.CreditAccountID;
+            const current = this.current.value;
+
+            if (!line.VatDate) {
+                line.VatDate = current.InvoiceDate;
+            }
+
+            if (!line.FinancialDate) {
+                if (previousLine && previousLine.FinancialDate) {
+                    line.FinancialDate = previousLine.FinancialDate;
+                } else {
+                    line.FinancialDate = current.InvoiceDate;
+                }
             }
 
             if (!line.Description) {
@@ -2283,8 +2278,6 @@ export class BillView implements OnInit {
             if (!line.Dimensions) {
                 line.Dimensions = {};
             }
-
-            const current = this.current.getValue();
 
             if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
                 line.Dimensions.Project = current.DefaultDimensions.Project;
@@ -2315,6 +2308,8 @@ export class BillView implements OnInit {
                 line.Amount = UniMath.round(line.AmountCurrency * (line.CurrencyExchangeRate || 1), 2);
                 changes = true;
             }
+
+            previousLine = line;
         });
 
         if (changes) {
@@ -2343,42 +2338,26 @@ export class BillView implements OnInit {
         this.formReady = true;
     }
 
-    private updateJournalEntryManualFinancialDate(invoice: SupplierInvoice, updatelines: boolean) {
-        this.defaultRowData.FinancialDate = invoice.InvoiceDate;
-        this.defaultRowData.VatDate = invoice.InvoiceDate;
-
-        if (updatelines) {
+    private updateJournalEntryManualFinancialDate(newDate: LocalDate, oldDate: LocalDate) {
+        // if the InvoiceDate was changed, update the lines FinancialDates if those
+        // were set to the same as the original invoicedate
+        if (newDate !== oldDate) {
             if (this.journalEntryManual) {
                 const lines = this.journalEntryManual.getJournalEntryData();
+
                 lines.map(line => {
-                    line.FinancialDate = invoice.InvoiceDate;
-                    line.VatDate = invoice.InvoiceDate;
+                    if (line.FinancialDate.toString() === oldDate.toString()) {
+                        // if user changed the FinancialDate manually, dont override it when changing
+                        // the InvoiceDate
+                        line.FinancialDate = newDate;
+                    }
+
+                    // vatdate is always set to the InvoiceDate
+                    line.VatDate = newDate;
                 });
                 this.journalEntryManual.setJournalEntryData(lines);
             }
         }
-    }
-
-    private updateJournalEntryManualSupplier(invoice: SupplierInvoice, updatelines: boolean) {
-        if (!invoice.SupplierID) { return; }
-
-        this.accountService.GetAll(`filter=SupplierID eq ${invoice.SupplierID}&top=1`).map(x => x[0]).subscribe(supplierAccount => {
-            if (!supplierAccount) { return; }
-            this.defaultRowData.CreditAccount = supplierAccount;
-            this.defaultRowData.CreditAccountID = supplierAccount.ID;
-
-            // update existing lines
-            if (updatelines) {
-                if (this.journalEntryManual) {
-                    const lines = this.journalEntryManual.getJournalEntryData();
-                    lines.map(line => {
-                        line.CreditAccount = supplierAccount;
-                        line.CreditAccountID = supplierAccount.ID;
-                    });
-                    this.journalEntryManual.setJournalEntryData(lines);
-                }
-            }
-        });
     }
 
     private checkLockStatus() {
@@ -2714,14 +2693,13 @@ export class BillView implements OnInit {
             (current.Supplier ? current.Supplier.SupplierNumber : '') +
             (current.Supplier && current.Supplier.Info ? ' - ' + current.Supplier.Info.Name : '');
 
-       return current.InvoiceNumber
+        return current.InvoiceNumber
             ? `${supplierDescription} - fakturanr. ${current.InvoiceNumber || 0}`
             : supplierDescription;
     }
 
     private preSave(): boolean {
 
-        let draftlines = [];
         let changesMade = false;
         const current = this.current.getValue();
         current.InvoiceDate = current.InvoiceDate || new LocalDate();
@@ -2736,6 +2714,7 @@ export class BillView implements OnInit {
             // booked - because then we wont save any changes anyway (and the )
             if (this.journalEntryManual) {
                 const lines = this.journalEntryManual.getJournalEntryData();
+                let draftlines = [];
 
                 // Add draft lines
                 lines.forEach(line => {
@@ -2751,10 +2730,11 @@ export class BillView implements OnInit {
                     draft.VatTypeID = line.DebitVatTypeID;
                     draft.VatPercent = line.DebitVatType ? line.DebitVatType.VatPercent : 0;
                     draft.VatDeductionPercent = line.VatDeductionPercent;
+                    draft.FinancialDate = line.FinancialDate;
 
                     // Dimensions
-                    if (line.Dimensions && (line.Dimensions.ProjectID || line.Dimensions.DepartmentID)) {
-                        if (!draft.Dimensions) { draft.Dimensions = new Dimensions(); }
+                    if (line.Dimensions) {
+                        draft.Dimensions = line.Dimensions;
 
                         if (line.Dimensions.ProjectID) {
                             draft.Dimensions.ProjectID = line.Dimensions.ProjectID;
@@ -2791,18 +2771,18 @@ export class BillView implements OnInit {
 
                     draftlines.push(draft);
                 });
+
+                // Add draftlines to be deleted
+                const deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);
+                deleted.map(line => line.Deleted = true);
+                draftlines = draftlines.concat(deleted);
+
+                const autogenerated = current.JournalEntry.DraftLines.filter(x => x['_isautogeneratedcreditline']);
+                draftlines = draftlines.concat(autogenerated);
+
+                current.JournalEntry.DraftLines = draftlines;
+                current.JournalEntry['_createguid'] = current.JournalEntry['_createguid'] || this.journalEntryService.getNewGuid();
             }
-
-            // Add draftlines to be deleted
-            const deleted = current.JournalEntry.DraftLines.filter(x => !draftlines.find(y => y.ID === x.ID) && x.ID);
-            deleted.map(line => line.Deleted = true);
-            draftlines = draftlines.concat(deleted);
-
-            const autogenerated = current.JournalEntry.DraftLines.filter(x => x['_isautogeneratedcreditline']);
-            draftlines = draftlines.concat(autogenerated);
-
-            current.JournalEntry.DraftLines = draftlines;
-            current.JournalEntry['_createguid'] = current.JournalEntry['_createguid'] || this.journalEntryService.getNewGuid();
         } else {
             console.log('dont process journalentry');
         }
@@ -2830,6 +2810,7 @@ export class BillView implements OnInit {
             current.JournalEntry.DraftLines.forEach(x => {
                 const orig = x.FinancialDate;
                 x.FinancialDate = x.FinancialDate || current.DeliveryDate || current.InvoiceDate;
+
                 if (x.FinancialDate !== orig) {
                     changesMade = true;
                 }
@@ -2899,7 +2880,6 @@ export class BillView implements OnInit {
                         resolve({ success: true });
                     }
                 };
-
 
                 const supplierNumber = safeInt(current.Supplier.SupplierNumber);
                 let draftitem: JournalEntryLineDraft;
