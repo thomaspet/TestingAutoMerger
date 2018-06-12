@@ -37,6 +37,7 @@
           },
           "configurations": {
             "dev": {
+              "outputHashing": "all",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -130,6 +131,7 @@
               ]
             },
             "local": {
+              "outputHashing": "all",
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
