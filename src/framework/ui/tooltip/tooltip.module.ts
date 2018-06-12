@@ -2,8 +2,10 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {UniTooltip} from './tooltip';
 
+import {MatTooltipModule} from '@angular/material';
+
 @NgModule({
-    imports: [CommonModule],
+    imports: [CommonModule, MatTooltipModule],
     declarations: [UniTooltip],
     exports: [UniTooltip]
 })
