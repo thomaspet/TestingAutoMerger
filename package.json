@@ -24,6 +24,9 @@
     "start.local": "npm run prebuild && ng serve --port=3000 --configuration=local --proxy-config proxy/local.proxy.json",
     "start.pilot": "npm run prebuild && ng serve --port=3000 --configuration=pilot --proxy-config proxy/pilot.proxy.json",
 
+    "start.cheap": "npm run prebuild && ng serve --port=3000 --configuration=dev --eval-source-map=true --proxy-config proxy/dev.proxy.json",
+    "start.local.cheap": "npm run prebuild && ng serve --port=3000 --configuration=local --eval-source-map=true --proxy-config proxy/local.proxy.json",
+
     "check-aot": "ng build --configuration=aot-error-check",
 
     "high-memory-build": "node --max_old_space_size=6144 node_modules/@angular/cli/bin/ng",
