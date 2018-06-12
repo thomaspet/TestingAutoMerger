@@ -197,10 +197,14 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                             const parameters = [{ Name: defaultReportParameterName, value: value }];
 
                             this.modalService.open(UniSendEmailModal, {
-                                data: {model: model, reportType: ReportTypeEnum.ORDER}
+                                data: {model: model, reportType: ReportTypeEnum.ORDER, entity: order, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(defaultOrderReportForm.Name, email, parameters);
+                                    this.emailService.sendEmailWithReportAttachment(
+                                        email.model.selectedForm.Name,
+                                        email.model.sendEmail,
+                                        email.parameters
+                                    );
                                 }
                                 resolve();
                             }, err => {

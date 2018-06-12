@@ -308,10 +308,14 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                             const parameters = [{ Name: defaultReportParameterName, value: value }];
 
                             this.modalService.open(UniSendEmailModal, {
-                                data: {model: model, reportType: ReportTypeEnum.QUOTE}
+                                data: {model: model, reportType: ReportTypeEnum.INVOICE, entity: invoice, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(defaultInvoiceReportForm.Name, email, parameters);
+                                    this.emailService.sendEmailWithReportAttachment(
+                                        email.selectedForm.Name,
+                                        email.model.sendEmail,
+                                        email.parameters
+                                    );
                                 }
                                 resolve();
                             }, err => {

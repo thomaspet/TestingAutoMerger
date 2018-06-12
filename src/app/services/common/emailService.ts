@@ -105,13 +105,22 @@ export class EmailService extends BizHttp<Email> {
 
             model.Subject = `${name} ${entityNumber}`;
             model.Message = `Vedlagt finner du ${name.toLowerCase()} ${entityNumber}`;
-            console.log(ReportTypeEnum[`entityTypeName`]);
 
             return this.modalService.open(UniSendEmailModal, {
-                data: {model: model, reportType: ReportTypeEnum[`entityTypeName`]}
+                data: {
+                    model: model,
+                    reportType: ReportTypeEnum[entityTypeName.toUpperCase()],
+                    entity,
+                    parameters: reportForm.parameters,
+                    form: reportForm
+                }
             }).onClose.map(email => {
                 if (email) {
-                    this.sendEmailWithReportAttachment(reportForm.Name, email, reportForm.parameters);
+                    this.sendEmailWithReportAttachment(
+                        email.model.selectedForm.Name,
+                        email.model.sendEmail,
+                        email.parameters
+                    );
                 }
             });
     }

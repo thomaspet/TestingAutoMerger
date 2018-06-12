@@ -1,7 +1,7 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {CompanySettings} from '../../../app/unientities';
+import {CompanySettings, ReportDefinition} from '../../../app/unientities';
 import {SendEmail} from '../../../../src/app/models/sendEmail';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import { CustomerService } from '@app/services/sales/customerService';
@@ -12,6 +12,7 @@ import {ReportTypeService} from '@app/services/reports/reportTypeService';
 
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { ReportDefinitionParameterService } from '@app/services/reports/reportDefinitionParameterService';
 
 @Component({
     selector: 'uni-send-email-modal',
@@ -24,7 +25,8 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
-                    [model]="formModel$">
+                    [model]="formModel$"
+                    (changeEvent)="emailChange($event)">
                 </uni-form>
             </article>
 
@@ -44,8 +46,11 @@ export class UniSendEmailModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public formModel$: BehaviorSubject<SendEmail> = new BehaviorSubject(null);
+    public formModel$: BehaviorSubject<{sendEmail: SendEmail, selectedForm: any}> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    private formList: ReportDefinition[];
+    private selectedReport: ReportDefinition;
+    private parameterName: string;
 
     public invalidEmail: boolean;
 
@@ -56,22 +61,34 @@ export class UniSendEmailModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
         private reportTypeService: ReportTypeService,
+        private reportDefinitionParameterService: ReportDefinitionParameterService,
     ) {}
 
     public ngOnInit() {
-        this.formFields$.next(this.getFormFields());
         this.initFormModel();
     }
 
+    emailChange(change: SimpleChange) {
+        if (change['selectedForm.ID']) {
+            const sendEmail = this.formModel$.value.sendEmail;
+            this.selectedReport = this.formList.find(x => x.ID === change['selectedForm.ID'].currentValue);
+            this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + this.selectedReport.ID).subscribe(
+                res => this.parameterName = res[0].Name,
+                err => this.errorService.handle(err)
+            );
+            this.formModel$.next({sendEmail, selectedForm: this.selectedReport});
+        }
+    }
+
     public initFormModel() {
-        const model: SendEmail = this.options.data.model || new SendEmail();
-        model.Format = model.Format || 'pdf';
+        const sendEmail: SendEmail = this.options.data.model || new SendEmail();
+        sendEmail.Format = sendEmail.Format || 'pdf';
 
         Observable.forkJoin(
             this.companySettingsService.Get(1, ['DefaultEmail']),
             this.userService.getCurrentUser(),
-            model.CustomerID
-                ? this.customerService.Get(model.CustomerID, ['Info', 'Info.DefaultEmail'])
+            sendEmail.CustomerID
+                ? this.customerService.Get(sendEmail.CustomerID, ['Info', 'Info.DefaultEmail'])
                 : Observable.of(null),
             this.options.data.reportType
                 ? this.reportTypeService.getFormType(this.options.data.reportType) :
@@ -81,23 +98,28 @@ export class UniSendEmailModal implements IUniModal {
                 const companySettings: CompanySettings = res[0] || {};
                 const user = res[1];
                 const customer = res[2];
+                this.formList = res[3];
+                this.selectedReport = this.options.data.form
+                    || this.formList.find(x => x.ID === companySettings[`Default${sendEmail.EntityType}ReportID`]);
+                this.parameterName = this.options.data.parameters[0].Name;
 
-                if (!model.EmailAddress && customer && customer.Info) {
-                    model.EmailAddress = customer.Info.DefaultEmail
+                if (!sendEmail.EmailAddress && customer && customer.Info) {
+                    sendEmail.EmailAddress = customer.Info.DefaultEmail
                         ? customer.Info.DefaultEmail.EmailAddress
                         : '';
                 }
 
-                if (!model.CopyAddress && user) {
-                    model.CopyAddress = user.Email || '';
+                if (!sendEmail.CopyAddress && user) {
+                    sendEmail.CopyAddress = user.Email || '';
                 }
 
-                model.Message += '\n\nMed vennlig hilsen\n'
+                sendEmail.Message += '\n\nMed vennlig hilsen\n'
                     + companySettings.CompanyName + '\n'
                     + user.DisplayName + '\n'
                     + (companySettings.DefaultEmail && companySettings.DefaultEmail.EmailAddress || '');
 
-                this.formModel$.next(model);
+                this.formModel$.next({sendEmail, selectedForm: this.selectedReport});
+                this.formFields$.next(this.getFormFields());
             },
             err => this.errorService.handle(err)
         );
@@ -105,13 +127,22 @@ export class UniSendEmailModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         if (emitValue) {
+            const value = this.parameterName === 'Id'
+                ? this.options.data.entity[this.parameterName.toUpperCase()]
+                : this.options.data.entity[this.parameterName];
+            const parameters = [{ Name: this.parameterName, value }];
             const model = this.formModel$.getValue();
-            if (!model.EmailAddress || !model.EmailAddress.includes('@')) {
+
+            if (model.selectedForm.parameters) {
+                model.selectedForm.parameters = [];
+            }
+            return console.log(model, parameters);
+            if (!model.sendEmail.EmailAddress || !model.sendEmail.EmailAddress.includes('@')) {
                 this.invalidEmail = true;
                 return;
             }
 
-            this.onClose.emit(model);
+            this.onClose.emit({model, parameters});
         } else {
             this.onClose.emit();
         }
@@ -120,26 +151,34 @@ export class UniSendEmailModal implements IUniModal {
     private getFormFields(): UniFieldLayout[] {
         return [
             <any> {
-                EntityType: 'SendEmail',
-                Property: 'EmailAddress',
+                Property: 'sendEmail.EmailAddress',
                 FieldType: FieldType.EMAIL,
                 Label: 'Til'
             },
             <any> {
-                EntityType: 'SendEmail',
-                Property: 'Subject',
+                Property: 'sendEmail.Subject',
                 FieldType: FieldType.TEXT,
                 Label: 'Emne'
             },
             <any> {
-                EntityType: 'SendEmail',
-                Property: 'Message',
+                Property: 'sendEmail.Message',
                 FieldType: FieldType.TEXTAREA,
                 Label: 'Melding'
             },
+            <any>{
+                Property: 'selectedForm.ID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Blankett',
+                Options: {
+                    source: this.formList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+            },
             <any> {
-                EntityType: 'SendEmail',
-                Property: 'Format',
+                Property: 'sendEmail.Format',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Format',
                 Options: {
@@ -158,8 +197,7 @@ export class UniSendEmailModal implements IUniModal {
                 }
             },
             <any> {
-                EntityType: 'SendEmail',
-                Property: 'SendCopy',
+                Property: 'sendEmail.SendCopy',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Kopi til meg'
             }
