@@ -151,14 +151,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     ) {
         super(router.url, cacheService);
 
-        this.childRoutes = [
-            {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Skatt', path: 'employee-tax'},
-            {name: 'Arbeidsforhold', path: 'employments'},
-            {name: 'Faste poster', path: 'recurring-post'},
-            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
-            {name: 'Permisjon', path: 'employee-leave'}
-        ];
+        this.childRoutes = this.getPaths();
 
         this.subscriptions
             .push(this.yearService
@@ -363,6 +356,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             }));
     }
 
+    private getPaths(): any[] {
+        return [
+            {name: 'Detaljer', path: 'personal-details'},
+            {name: 'Skatt', path: 'employee-tax'},
+            {name: 'Arbeidsforhold', path: 'employments'},
+            {name: 'Faste poster', path: 'recurring-post'},
+            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
+            {name: 'Permisjon', path: 'employee-leave'}
+        ];
+    }
+
     private fillInnSubEntityOnEmp(employee: Employee): void {
         if (employee.SubEntityID) {
             return;
@@ -505,8 +509,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             if (canDeactivate) {
                 this.employeeService.get(0).subscribe((emp: Employee) => {
                     this.employee = emp;
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
+                    this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then(() => this.childRoutes = this.getPaths());
                 }, err => this.errorService.handle(err));
             }
         });
