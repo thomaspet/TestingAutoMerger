@@ -15,14 +15,19 @@
     "zip-dist": "node ./scripts/zip.js",
     "build.dev": "npm run prebuild && ng build --configuration=dev --output-hashing=all --no-aot",
     "build.test": "npm run prebuild && ng build --configuration=test --output-hashing=all --no-aot",
-    "build.test.prodmode": "npm run prebuild && ng build --configuration=test --prod --no-aot --build-optimizer=false",
-    "build.pilot": "npm run prebuild && ng build --configuration=pilot --prod --no-aot --build-optimizer=false --source-map",
+    "build.test.prodmode": "npm run prebuild && ng build --configuration=test --prod",
+    "build.pilot": "npm run prebuild && ng build --configuration=pilot --prod",
     "build.prod": "npm run prebuild && ng build --configuration=prod --prod --no-aot --build-optimizer=false",
     "start": "npm run start.dev",
     "start.dev": "npm run prebuild && ng serve --port=3000 --configuration=dev --proxy-config proxy/dev.proxy.json",
     "start.test": "npm run prebuild && ng serve --port=3000 --configuration=test --proxy-config proxy/test.proxy.json",
     "start.local": "npm run prebuild && ng serve --port=3000 --configuration=local --proxy-config proxy/local.proxy.json",
-    "start.pilot": "npm run prebuild && ng serve --port=3000 --configuration=pilot --proxy-config proxy/pilot.proxy.json"
+    "start.pilot": "npm run prebuild && ng serve --port=3000 --configuration=pilot --proxy-config proxy/pilot.proxy.json",
+
+    "check-aot": "ng build --configuration=aot-error-check",
+
+    "high-memory-build": "node --max_old_space_size=6144 node_modules/@angular/cli/bin/ng",
+    "build.dev.aot": "npm run prebuild && npm run high-memory-build -- build --configuration=dev-aot"
   },
   "private": true,
   "dependencies": {
