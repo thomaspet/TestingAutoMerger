@@ -276,6 +276,16 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 }
             },
             {
+                label: 'Overfør reiser til lønn',
+                action: () => {
+                    this.payrollRunDetailsService.routeToTravel(this.payrollrun$.getValue());
+                },
+                disabled: () => {
+                    const run = this.payrollrun$.getValue();
+                    return run && this.payrollrunID && run.StatusCode > 0;
+                }
+            },
+            {
                 label: 'Rekalkuler skatt',
                 action: () => {
                     this.recalcTaxOnPayrun();

@@ -3,7 +3,9 @@ import {Travel, PayrollRun, state, costtype} from '@uni-entities';
 import {PayrollrunService} from '@app/services/services';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {ISelectConfig} from '@uni-framework/ui/uniform';
+import * as _ from 'lodash';
 
 export interface ITravelFilter {
     filter: (travel: Travel) => boolean;
@@ -26,17 +28,17 @@ export class TravelFilterComponent implements OnInit, OnChanges {
 
     @Output() public selectedFilterChange: EventEmitter<ITravelFilter> = new EventEmitter();
     @Input() public travels: Travel[];
+    @Input() public runID: number;
     public selectConfig$: BehaviorSubject<ISelectConfig> = new BehaviorSubject(this.getSelectConfig());
     public selectedFilter: ITravelFilterInfo;
     public filters: ITravelFilterInfo[] = [];
     public tabs: IUniTab[];
-    public runs: PayrollRun[];
+    public runs$: ReplaySubject<PayrollRun[]> = new ReplaySubject(1);
     public selectedRun: PayrollRun;
 
     constructor(private payrollRunService: PayrollrunService) {}
 
-    public ngOnInit() {
-    }
+    public ngOnInit() { }
 
     public ngOnChanges(changes: SimpleChanges) {
 
@@ -46,14 +48,13 @@ export class TravelFilterComponent implements OnInit, OnChanges {
 
             this.payrollRunService
                 .getAll(`filter=StatusCode eq null or StatusCode eq 0`)
-                .do(runs => this.selectedRun = runs[0])
+                .do(runs => this.selectedRun = runs.find(run => run.ID === this.runID) || runs[0])
                 .do(() => this.selectedFilterChange.next({
                     filter: this.selectedFilter.filter,
                     run: this.selectedRun
                 }))
-                .subscribe(runs => this.runs = runs);
+                .subscribe(runs => this.runs$.next(runs));
         }
-
     }
 
     private getSelectConfig(): ISelectConfig {

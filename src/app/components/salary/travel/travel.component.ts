@@ -7,6 +7,7 @@ import {Observable} from 'rxjs/Observable';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {ITravelFilter} from '@app/components/salary/travel/travel-filter/travel-filter.component';
 import {IUniSaveAction} from '@uni-framework/save/save';
+import {ActivatedRoute} from '@angular/router';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
@@ -37,12 +38,14 @@ export class TravelComponent implements OnInit {
     private wageTypes: WageType[] = [];
     private fetchingFiles$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private travelFiles$: BehaviorSubject<ITravelFile[]> = new BehaviorSubject([]);
+    public runID: number;
 
     constructor(
         private tabService: TabService,
         private travelService: TravelService,
         private errorService: ErrorService,
         private wageTypeService: WageTypeService,
+        private route: ActivatedRoute,
     ) {}
 
     public ngOnInit() {
@@ -65,6 +68,12 @@ export class TravelComponent implements OnInit {
                     .map(travels => this.updateFilteredTravels(travels, options));
             })
             .subscribe();
+
+        this.route.queryParams.subscribe(params => {
+            if (params['runID']) {
+                this.runID = +params['runID'];
+            }
+        })
     }
 
     private getSaveActions(): IUniSaveAction[] {
@@ -258,7 +267,7 @@ export class TravelComponent implements OnInit {
     public selectedTravel(travel: Travel) {
         this.selectedTravel$.next(travel);
         const travelFiles = this.travelFiles$.getValue();
-        const selectedTravelFiles = travelFiles.find(tf => tf.TravelID === travel.ID);
+        const selectedTravelFiles = travelFiles.find(tf => travel && tf.TravelID === travel.ID);
         this.fileIDs$.next((selectedTravelFiles && selectedTravelFiles.FileIDs) || []);
         this.checkFiles([travel]);
     }
