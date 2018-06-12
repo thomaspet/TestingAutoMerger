@@ -73,7 +73,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
         = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
-    private errorStatuses: string[] = ['invalidcredentials', 'userlockedout'];
+    private errorStatuses: number[] = [1, 2, 3, 4, 5, 6];
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
@@ -213,8 +213,10 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                             userLoginData.pin = '';
                             userLoginData.validTo = messageobj.ValidTo;
                             userLoginData.validFrom = messageobj.ValidFrom;
-                            this.userLoginData$.next(userLoginData);
                             this.formState = LoginState.Pin;
+
+                            this.userLoginData$.next(userLoginData);
+
                         }, error => {
                             // TODO: add proper wrong user/pass handling when
                             // we know what the service/altinn returns on bad user/pass
@@ -240,7 +242,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     }
 
     private messageStatus(messageObj): boolean {
-        const indx = this.errorStatuses.findIndex(stat => stat.toLowerCase() === messageObj.Status.toLowerCase());
+        const indx = this.errorStatuses.findIndex(stat => stat === messageObj.Status);
         return indx >= 0 ? true : false;
     }
 
