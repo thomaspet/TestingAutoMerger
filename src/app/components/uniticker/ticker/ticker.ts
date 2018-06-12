@@ -83,23 +83,23 @@ export class UniTicker {
 
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
-    private model: any;
+    public model: any;
 
     private selects: string;
     private headers: string;
     private defaultExpand: string;
     public tableConfig: UniTableConfig;
-    private prefetchDataLoaded: boolean = false;
+    public prefetchDataLoaded: boolean = false;
     public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
-    private columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
     private selectedRow: any = null;
-    private canShowTicker: boolean = true;
+    public canShowTicker: boolean = true;
 
     public contextMenuItems: any[];
     private openAction: TickerAction;
 
-    private unitableFilter: string;
+    public unitableFilter: string;
 
     public busy: boolean = false;
 

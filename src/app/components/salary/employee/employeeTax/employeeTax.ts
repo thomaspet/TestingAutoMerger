@@ -19,7 +19,7 @@ import { SimpleChange } from '@angular/core/src/change_detection/change_detectio
 export class EmployeeTax extends UniView implements OnInit {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
+    public employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
     private previousYear: number = 0;
 
     constructor(

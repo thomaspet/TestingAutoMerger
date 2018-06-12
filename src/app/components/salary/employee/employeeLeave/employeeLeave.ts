@@ -14,7 +14,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class EmployeeLeaves extends UniView {
     private employeeID: number;
     private employments: Employment[] = [];
-    private employeeleaveItems: EmployeeLeave[] = [];
+    public employeeleaveItems: EmployeeLeave[] = [];
     public tableConfig: UniTableConfig;
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 

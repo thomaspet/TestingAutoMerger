@@ -87,12 +87,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public currentJournalEntryID: string;
 
     private companySettings: CompanySettings;
-    private financialYears: Array<FinancialYear>;
+    public financialYears: Array<FinancialYear>;
     public currentFinancialYear: FinancialYear;
-    private vatDeductions: Array<VatDeduction>;
-    private vatTypes: Array<VatType>;
+    public vatDeductions: Array<VatDeduction>;
+    public vatTypes: Array<VatType>;
 
-    private itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
+    public itemsSummaryData: JournalEntrySimpleCalculationSummary = new JournalEntrySimpleCalculationSummary();
     private itemAccountInfoData: JournalEntryAccountCalculationSummary = new JournalEntryAccountCalculationSummary();
     private accountBalanceInfoData: Array<AccountBalanceInfo> = new Array<AccountBalanceInfo>();
 

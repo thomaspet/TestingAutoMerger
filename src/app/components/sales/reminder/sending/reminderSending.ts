@@ -40,8 +40,8 @@ export class ReminderSending implements OnInit {
     @Input() public modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
-    private remindersEmail: any;
-    private remindersPrint: any;
+    public remindersEmail: any;
+    public remindersPrint: any;
     private remindersAll: any;
     private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
@@ -57,7 +57,7 @@ export class ReminderSending implements OnInit {
 
     public currentRunNumber: number = 0;
     public currentRunNumberData: IRunNumberData;
-    private runNumbers: IRunNumberData[];
+    public runNumbers: IRunNumberData[];
     public toolbarconfig: IToolbarConfig;
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];

@@ -25,7 +25,7 @@ import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 export class SalarytransFilterContent {
     @Input('config') public config: any;
 
-    private filters: any[] = [];
+    public filters: any[] = [];
     private activeFieldFilters: any = [];
     private selectFilterConfig: ISelectConfig;
     private items: any[];
@@ -86,7 +86,7 @@ export class SalarytransFilter {
     @ViewChildren(UniModal) private modalElements: QueryList<UniModal>;
     private modals: UniModal[];
     public modalConfig: any = {};
-    private filters: any[] = [];
+    public filters: any[] = [];
     public type: Type<any> = SalarytransFilterContent;
     private filterResultString: string;
     @Output() private filtStringChange: EventEmitter<string> = new EventEmitter<string>();

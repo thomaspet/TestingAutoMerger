@@ -7,7 +7,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
     selector: 'work-approval-preview',
     templateUrl: './workapprovalpreview.html',
     styles: [ `
-        table { 
+        table {
             width: 100%;
             table-layout: fixed;
             overflow: hidden;
@@ -28,31 +28,31 @@ import {UniHttp} from '../../../../framework/core/http/http';
         }
         th.s1 {
             width: 3em;
-        } 
+        }
         th.s2 {
             width: 4em;
-        }         
+        }
         th.s3 {
             width: 5em;
-        } 
-        th.left { 
-            text-align: left 
+        }
+        th.left {
+            text-align: left
         }
         th.right, td.right {
             text-align: right;
-        } 
+        }
         th.center, td.center {
             text-align: center;
-        }        
+        }
     `]
 })
 export class WorkApprovalPreview {
-    @Input() private task: Task;
+    @Input() public task: Task;
     public group: WorkItemGroup;
     public busy: boolean = true;
     public counter: number;
     public report: { Relation: any, FromDate: Date, ToDate: Date, Items: Array<any> };
-    
+
     constructor(
         private errorService: ErrorService,
         private http: UniHttp
@@ -95,13 +95,13 @@ export class WorkApprovalPreview {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
         .map(response => response.json());
-    }   
+    }
 
     private getStatistics(query: string) {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint('?' + query).send()
         .map(response => response.json());
 
-    }    
+    }
 
 }

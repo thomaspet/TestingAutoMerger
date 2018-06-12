@@ -56,7 +56,7 @@ export class ProjectOverview {
     public customerName: string;
     private monthAndYearDataInBarChart: IMonthAndYear[] = [];
 
-    private project: IMyProject;
+    public project: IMyProject;
     private chart: any = {
         type: 'bar',
         data: {

@@ -24,5 +24,5 @@ export interface ITableWidgetRow {
     `
 })
 export class TableWidget {
-    @Input() public config: ITableWidgetRow[];
+    @Input() public config;
 }

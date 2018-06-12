@@ -19,15 +19,15 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class Employments extends UniView implements OnInit, OnDestroy {
     @ViewChild(UniTable) private table: UniTable;
 
-    private employee: Employee;
-    private employments: Employment[] = [];
+    public employee: Employee;
+    public employments: Employment[] = [];
     private selectedIndex: number;
     public tableConfig: UniTableConfig;
-    private subEntities: SubEntity[];
-    private projects: Project[];
-    private departments: Department[];
-    private employeeID: number;
-    private selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
+    public subEntities: SubEntity[];
+    public projects: Project[];
+    public departments: Department[];
+    public employeeID: number;
+    public selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
 
     constructor(
         private employmentService: EmploymentService,
@@ -130,7 +130,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
         }
     }
 
-    private newEmployment() {
+    public newEmployment() {
         this.employmentService
             .GetNewEntity()
             .subscribe((response: Employment) => {

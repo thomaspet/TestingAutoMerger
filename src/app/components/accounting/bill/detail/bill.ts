@@ -120,6 +120,11 @@ interface IJournalHistoryItem {
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
+    @ViewChild(UniForm) public uniForm: UniForm;
+    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
+    @ViewChild(UniImage) public uniImage: UniImage;
+    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
+    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     public busy: boolean = true;
     public toolbarConfig: any;
@@ -139,7 +144,7 @@ export class BillView implements OnInit {
 
     private myUser: User;
     private myUserRoles: UserRole[] = [];
-    private files: Array<any> = [];
+    public files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
@@ -159,12 +164,6 @@ export class BillView implements OnInit {
     public loadingForm: boolean = false;
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
-
-    @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
-    @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
-    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     private supplierExpandOptions: Array<string> = [
         'Info',

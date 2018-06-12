@@ -20,7 +20,7 @@ export class UniTerms {
     @ViewChildren(UniTable)
     private uniTables: QueryList<UniTable>;
 
-    private termsTypes: any[] = [
+    public termsTypes: any[] = [
         {TermsType: TermsType.PaymentTerms, Name: 'Betalingsbetingelser'},
         {TermsType: TermsType.DeliveryTerms, Name: 'Leveringsbetingelser'}
     ];

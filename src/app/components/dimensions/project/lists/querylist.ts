@@ -14,7 +14,7 @@ import {
 })
 
 export class ProjectQueryList {
-    private projectID: number = 0;
+    public projectID: number = 0;
     private reportID: number = 0;
     private customerID: number = 0;
     public summary: ISummaryConfig[] = [];

@@ -41,11 +41,11 @@ export class ResultSummaryData {
 export class ResultReport implements OnInit {
     public filterVisible: boolean = false;
 
-    private periodFilter1: PeriodFilter;
-    private periodFilter2: PeriodFilter;
-    private filter: any;
-    private yearSelectConfig: ISelectConfig;
-    private yearItems: any[];
+    public periodFilter1: PeriodFilter;
+    public periodFilter2: PeriodFilter;
+    public filter: any;
+    public yearSelectConfig: ISelectConfig;
+    public yearItems: any[];
 
     public treeSummaryList: ResultSummaryData[] = [];
     public flattenedTreeSummaryList: ResultSummaryData[] = [];

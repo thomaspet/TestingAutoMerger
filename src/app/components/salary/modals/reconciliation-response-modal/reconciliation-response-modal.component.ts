@@ -13,8 +13,8 @@ import {Observable} from 'rxjs/Observable';
 export class ReconciliationResponseModalComponent implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    private a07Status$: BehaviorSubject<A07Response> = new BehaviorSubject(new A07Response());
-    private header: string;
+    public a07Status$: BehaviorSubject<A07Response> = new BehaviorSubject(new A07Response());
+    public header: string;
     public busy: boolean;
     constructor() {}
 

@@ -16,10 +16,8 @@ declare var _;
 export class ReadTaxCard implements OnInit {
     @Input() public changeEvent: EventEmitter<any>;
 
-    private receiptTable: UniTableConfig;
-
-    private altinnReceipts$: Observable<AltinnReceipt>;
-
+    public receiptTable: UniTableConfig;
+    public altinnReceipts$: Observable<AltinnReceipt>;
     public responseMessage: string = '';
 
     @Output() public updateTax: EventEmitter<boolean> = new EventEmitter<boolean>(true);
@@ -31,17 +29,17 @@ export class ReadTaxCard implements OnInit {
         private modalService: UniModalService
     ) {
 
-        let dateSendtColumn = new UniTableColumn(
+        const dateSendtColumn = new UniTableColumn(
             'TimeStamp', 'Dato sendt', UniTableColumnType.LocalDate).setFormat('DD.MM.YYYY HH:mm'
         );
-        let receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
-        let signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
-        let isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)
+        const receiptIDColumn = new UniTableColumn('ReceiptID', 'ID', UniTableColumnType.Number);
+        const signatureColumn = new UniTableColumn('UserSign', 'Signatur', UniTableColumnType.Text);
+        const isReadColumn = new UniTableColumn('HasBeenRegistered', 'Innlest', UniTableColumnType.Text)
             .setTemplate((rowModel) => {
                 return rowModel['HasBeenRegistered'] === true ? 'X' : '';
             });
 
-        let contextMenuItem = {
+        const contextMenuItem = {
             label: 'Hent og les inn',
             action: (rowModel) => {
                 this.readTaxCard(rowModel['ReceiptID']);

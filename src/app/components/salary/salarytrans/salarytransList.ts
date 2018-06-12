@@ -41,7 +41,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     @Output() public previousEmployee: EventEmitter<any> = new EventEmitter<any>(true);
     @Output() public salarytransListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
-    private salarytransEmployeeTableConfig: UniTableConfig;
+    public salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
@@ -54,7 +54,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
     public busy: boolean;
     private salaryTransactions: SalaryTransaction[];
-    private filteredTranses: SalaryTransaction[];
+    public filteredTranses: SalaryTransaction[];
     private deleteButton: IDeleteButton;
     private refresh: boolean;
 

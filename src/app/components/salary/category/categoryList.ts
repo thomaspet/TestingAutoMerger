@@ -13,7 +13,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 export class CategoryList implements OnInit {
 
     public tableConfig: UniTableConfig;
-    private categories$: Observable<EmployeeCategory>;
+    public categories$: Observable<EmployeeCategory>;
 
     constructor(
         private _router: Router,

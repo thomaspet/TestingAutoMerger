@@ -14,8 +14,8 @@ export class SalarybalanceLine implements OnInit {
     @Output() public linesSaved: EventEmitter<any> = new EventEmitter<any>();
     public busy: boolean;
 
-    private layout$: BehaviorSubject<UniComponentLayout> = new BehaviorSubject(new UniComponentLayout());
-    private salaryBalanceLine$: BehaviorSubject<SalaryBalanceLine> = new BehaviorSubject(new SalaryBalanceLine());
+    public layout$: BehaviorSubject<UniComponentLayout> = new BehaviorSubject(new UniComponentLayout());
+    public salaryBalanceLine$: BehaviorSubject<SalaryBalanceLine> = new BehaviorSubject(new SalaryBalanceLine());
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
 

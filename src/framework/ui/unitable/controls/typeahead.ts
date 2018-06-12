@@ -32,8 +32,6 @@ export interface ITypeaheadOptions {
                 (keypress)="busy = true"
                 (keydown)="onKeyDown($event)"
                 role="combobox"
-                aria-autocomplete="inline"
-                [attr.aria-owns]="typeahead-results"
             />
 
             <button class="uni-typeahead-searchBtn"

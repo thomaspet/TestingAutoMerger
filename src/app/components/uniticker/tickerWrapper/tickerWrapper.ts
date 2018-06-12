@@ -25,7 +25,7 @@ export class UniTickerWrapper {
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
 
     private tickers: Array<Ticker>;
-    private selectedTicker: Ticker;
+    public selectedTicker: Ticker;
 
     constructor(
         private uniTickerService: UniTickerService,

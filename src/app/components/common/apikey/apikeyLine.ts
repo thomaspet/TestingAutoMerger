@@ -13,7 +13,7 @@ export class ApikeyLine implements OnInit {
 
     public busy: boolean;
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private apikeyLine$: BehaviorSubject<ApiKey> = new BehaviorSubject(new ApiKey());
+    public apikeyLine$: BehaviorSubject<ApiKey> = new BehaviorSubject(new ApiKey());
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor(

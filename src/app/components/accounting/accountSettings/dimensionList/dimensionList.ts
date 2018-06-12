@@ -12,7 +12,7 @@ export class DimensionList {
     @Input() public dimensions: Dimensions;
 
     public dimensionsTable: UniTableConfig;
-    private data: Array<any> = [];
+    public data: Array<any> = [];
 
     constructor() {
     }

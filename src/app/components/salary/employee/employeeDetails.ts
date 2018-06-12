@@ -84,8 +84,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[];
 
     public toolbarConfig: IToolbarConfig;
-    private toolbarSearchConfig: IToolbarSearchConfig;
-    private toolbarValidation: IToolbarValidation[];
+    public toolbarSearchConfig: IToolbarSearchConfig;
+    public toolbarValidation: IToolbarValidation[];
 
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];

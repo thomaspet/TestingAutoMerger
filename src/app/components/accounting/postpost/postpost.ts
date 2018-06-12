@@ -59,7 +59,7 @@ export class PostPost {
     public saveActions: IUniSaveAction[];
 
     // Filter
-    private datefield: UniFieldLayout = new UniFieldLayout();
+    public datefield: UniFieldLayout = new UniFieldLayout();
 
     private registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
@@ -86,10 +86,10 @@ export class PostPost {
 
     public toolbarconfig: IToolbarConfig;
     public accountSearch: IAutoCompleteConfig;
-    private registerConfig: any;
+    public registerConfig: any;
     private register: string = 'customer';
     private selectedIndex: number = 0;
-    private autolocking: boolean = true;
+    public autolocking: boolean = true;
     private canceled: boolean = false;
     private allSelectedLocked: boolean = false;
 

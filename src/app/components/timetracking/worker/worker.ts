@@ -18,15 +18,15 @@ import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 export const view = new View('workers', 'Person', 'WorkerDetailview', true, '');
 
 @Component({
-    selector: view.name,
+    selector: 'workers',
     templateUrl: './worker.html'
 })
 export class WorkerDetailview {
     @ViewChild(GenericDetailview) private detailForm: GenericDetailview;
     @ViewChild(RelationsSubView) private relationsView: RelationsSubView;
     @ViewChild(BalancesSubView) private balancesSubView: BalancesSubView;
-    private viewconfig: IViewConfig;
-    private currentId: number = 0;
+    public viewconfig: IViewConfig;
+    public currentId: number = 0;
     private hasRelationChanges: boolean = false;
     private employees: Employee[] = [];
 

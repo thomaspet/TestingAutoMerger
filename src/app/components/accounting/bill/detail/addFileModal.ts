@@ -56,13 +56,13 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 export class UniAddFileModal implements OnInit, IUniModal {
 
     public tableConfig: UniTableConfig;
-    private list: any[] = [];
+    public list: any[] = [];
 
     public loadingPreview: boolean = false;
     private fileID: any;
     public currentFiles: any;
-    private file: any;
-    private previewVisible: boolean;
+    public file: any;
+    public previewVisible: boolean;
 
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
@@ -209,7 +209,7 @@ export class UniAddFileModal implements OnInit, IUniModal {
         this.loadingPreview = false;
     }
 
-    private focusRow() {
+    public focusRow() {
         if (this.table) {
             this.table.blur();
             this.table.focusRow(0);

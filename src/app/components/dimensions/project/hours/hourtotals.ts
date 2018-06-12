@@ -27,7 +27,7 @@ export class ProjectHourTotals {
     public currentProject: Project;
     private filter: string;
     public busy: boolean = false;
-    private report: Array<IReport>;
+    public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
     public filters: Array<{ label: string, name: string, isActive: boolean}> = [
         { label: 'Personer', name: 'persons', isActive: false },

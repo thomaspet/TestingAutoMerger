@@ -21,9 +21,9 @@ const SELECTED_KEY = '_rowSelected';
     templateUrl: './employeeSalarybalance.html'
 })
 export class EmployeeSalarybalance extends UniView implements OnInit {
-    private employeeID: number;
-    private selectedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject(1);
-    private salarybalances: SalaryBalance[] = [];
+    public employeeID: number;
+    public selectedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject(1);
+    public salarybalances: SalaryBalance[] = [];
 
     constructor(
         private router: Router,

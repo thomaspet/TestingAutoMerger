@@ -63,7 +63,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     private searchInput: HTMLElement;
 
     @Input() public readonly: boolean;
-    @Input() private entity: any;
+    @Input() public entity: any;
     @Input() private entityType: string;
 
     @Output() private entityChange: EventEmitter<any> = new EventEmitter();

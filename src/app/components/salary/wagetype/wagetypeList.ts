@@ -17,7 +17,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 export class WagetypeList implements OnInit {
 
     public tableConfig: UniTableConfig;
-    private wageTypes$: Observable<WageType>;
+    public wageTypes$: Observable<WageType>;
     public contextMenuItems: IContextMenuItem[] = [];
     public busy: boolean;
 

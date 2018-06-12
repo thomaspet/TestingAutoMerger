@@ -93,7 +93,7 @@ export class BillsView implements OnInit {
     private fileID: any;
     public currentFiles: any;
 
-    private previewVisible: boolean;
+    public previewVisible: boolean;
 
     public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public assigneeFilterField: any = {

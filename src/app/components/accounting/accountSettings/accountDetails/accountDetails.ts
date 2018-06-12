@@ -23,7 +23,7 @@ export class AccountDetails implements OnInit {
     @Output() public accountSaved: EventEmitter<Account> = new EventEmitter<Account>();
     @Output() public changeEvent: EventEmitter<Account> = new EventEmitter<Account>();
 
-    private account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];

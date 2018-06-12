@@ -32,8 +32,10 @@ interface IVacationPayHeader {
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
+    @ViewChild(UniTable) private table: UniTable;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     public infoConfig$: BehaviorSubject<IUniInfoConfig> = new BehaviorSubject<IUniInfoConfig>(
         {
             headline: 'Innstillinger'
@@ -41,7 +43,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     public busy: boolean;
     private basicamountBusy: boolean;
-    private vacationHeaderModel$: BehaviorSubject<IVacationPayHeader> = new BehaviorSubject({
+    public vacationHeaderModel$: BehaviorSubject<IVacationPayHeader> = new BehaviorSubject({
         BasicAmount: 0,
         VacationpayYear: 1,
         SixthWeek: true,
@@ -51,14 +53,14 @@ export class VacationPayModal implements OnInit, IUniModal {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     private basicamounts: BasicAmount[] = [];
     public tableConfig: UniTableConfig;
-    private totalPayout: number = 0;
-    @ViewChild(UniTable) private table: UniTable;
-    private vacationpayBasis: VacationPayLine[];
+    public totalPayout: number = 0;
+
+    public vacationpayBasis: VacationPayLine[];
     private vacationBaseYear: number;
     public currentYear: number;
-    private companysalary: CompanySalary;
+    public companysalary: CompanySalary;
     public saveactions: IUniSaveAction[] = [];
-    private mainAction: IUniSaveAction;
+    public mainAction: IUniSaveAction;
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;
     constructor(
@@ -259,7 +261,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         }
     }
 
-    private updatetotalPay() {
+    public updatetotalPay() {
         this.totalPayout = 0;
         const selectedRows = this.table.getSelectedRows();
         if (selectedRows.length > 0) {

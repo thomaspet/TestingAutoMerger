@@ -98,7 +98,7 @@ export class AccrualModal implements IUniModal {
     private numberOfPeriods: number;
     private lastClickedPeriodNo: number = 0;
     private lastClickedYear: number = 0;
-    private lockedDateSelected: boolean = false;
+    public lockedDateSelected: boolean = false;
 
     private allCheckboxValues: any = [
         {period1: false, period2: false, period3: false},

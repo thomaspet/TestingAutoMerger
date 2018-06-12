@@ -33,7 +33,7 @@ export class UniButtonInput extends BaseControl implements OnInit {
         this.buttonElement.nativeElement.focus();
     }
 
-    private clickHandler(event) {
+    public clickHandler(event) {
         this.field.Options.click(event);
     }
 }

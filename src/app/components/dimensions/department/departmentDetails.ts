@@ -17,7 +17,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class DepartmentDetails implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private department$: BehaviorSubject<Department> = new BehaviorSubject(null);
+    public department$: BehaviorSubject<Department> = new BehaviorSubject(null);
 
     public saveActions: IUniSaveAction[] = [
         {

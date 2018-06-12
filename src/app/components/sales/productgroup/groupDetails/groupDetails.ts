@@ -9,12 +9,16 @@ import {UniSearchProductConfig} from '@app/services/common/uniSearchConfig/uniSe
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as _ from 'lodash';
 
+class ExtendedProductCategory extends ProductCategory {
+    _isDirty: boolean;
+}
+
 @Component({
     selector: 'group-details',
     templateUrl: './groupDetails.html'
 })
 export class GroupDetails implements OnInit {
-    @Input() public group: ProductCategory;
+    @Input() public group: ExtendedProductCategory;
     @Output() public groupChange: EventEmitter<ProductCategory> = new EventEmitter(false);
 
     @Output() public createChildGroup: EventEmitter<any> = new EventEmitter(false);
@@ -22,7 +26,7 @@ export class GroupDetails implements OnInit {
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<ProductCategory> = new BehaviorSubject(new ProductCategory());
+    public model$: BehaviorSubject<ExtendedProductCategory> = new BehaviorSubject(new ExtendedProductCategory());
 
     public tableConfig: UniTableConfig;
     public products$: BehaviorSubject<any[]> = new BehaviorSubject([]);

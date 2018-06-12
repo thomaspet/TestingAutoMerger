@@ -86,13 +86,13 @@ export class BankComponent implements AfterViewInit {
     @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
 
     private tickers: Ticker[];
-    private tickerGroups: TickerGroup[];
-    private selectedTicker: Ticker;
+    public tickerGroups: TickerGroup[];
+    public selectedTicker: Ticker;
     public actions: IUniSaveAction[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];
-    private hasAccessToAutobank: boolean;
+    public hasAccessToAutobank: boolean;
 
     public toolbarconfig: IToolbarConfig = {
         title: '',

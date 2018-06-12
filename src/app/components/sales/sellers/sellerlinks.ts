@@ -27,9 +27,9 @@ export class SellerLinks implements AfterViewInit {
     @Output() public deleted: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
     @Output() public mainSellerSet: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
-    private sellerTableConfig: UniTableConfig;
-    private selectedSeller: SellerLink;
-    private sellers: Array<SellerLink>;
+    public sellerTableConfig: UniTableConfig;
+    public selectedSeller: SellerLink;
+    public sellers: Array<SellerLink>;
 
     constructor(private router: Router,
                 private errorService: ErrorService,

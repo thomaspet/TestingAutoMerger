@@ -52,7 +52,7 @@ export class ProductDetails {
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private product$: BehaviorSubject<Product> = new BehaviorSubject(null);
+    public product$: BehaviorSubject<Product> = new BehaviorSubject(null);
 
     private defaultSalesAccount: Account;
 

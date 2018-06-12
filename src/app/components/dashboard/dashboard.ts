@@ -24,7 +24,7 @@ export class Dashboard {
     public widgetCanvas: UniWidgetCanvas;
 
     public welcomeHidden: boolean = this.browserStorage.getItem('welcomeHidden');
-    private layout: any[] = [];
+    public layout: any[] = [];
 
     constructor(
         private http: UniHttp,

@@ -13,7 +13,7 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    private salaryTransaction$: BehaviorSubject<SalaryTransaction> = new BehaviorSubject(new SalaryTransaction());
+    public salaryTransaction$: BehaviorSubject<SalaryTransaction> = new BehaviorSubject(new SalaryTransaction());
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     constructor() { }
 

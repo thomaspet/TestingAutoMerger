@@ -97,42 +97,51 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private companySettings: CompanySettings;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
-    private newOrderItem: CustomerOrderItem;
-    private order: CustomerOrder;
-    private orderItems: CustomerOrderItem[];
-
-    public contextMenuItems: IContextMenuItem[] = [];
-    public shareActions: IShareAction[];
-    public saveActions: IUniSaveAction[] = [];
-
-    public currencyInfo: string;
-    public summaryLines: ISummaryLine[];
-
-    public toolbarconfig: IToolbarConfig;
-    private vatTypes: VatType[];
-    private currencyCodes: Array<CurrencyCode>;
-    private currencyCodeID: number;
-    private currencyExchangeRate: number;
-    public currentCustomer: Customer;
-    public currentDeliveryTerm: Terms;
-    public currentUser: User;
-    private deliveryTerms: Terms[];
-    private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
-    private projects: Project[];
-    private departments: Department[];
-    public currentDefaultProjectID: number;
-    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    public currentOrderDate: LocalDate;
-    private dimensionTypes: any[];
-    private paymentInfoTypes: any[];
-    private distributionPlans: any[];
-    private reports: any[];
+
+    newOrderItem: CustomerOrderItem;
+    order: CustomerOrder;
+    orderItems: CustomerOrderItem[];
+
+    contextMenuItems: IContextMenuItem[] = [];
+    shareActions: IShareAction[];
+    saveActions: IUniSaveAction[] = [];
+
+    currencyInfo: string;
+    summaryLines: ISummaryLine[];
+
+    commentsConfig: ICommentsConfig;
+    toolbarconfig: IToolbarConfig;
+    vatTypes: VatType[];
+    currencyCodes: Array<CurrencyCode>;
+    currencyCodeID: number;
+    currencyExchangeRate: number;
+    currentCustomer: Customer;
+    currentDeliveryTerm: Terms;
+    currentUser: User;
+    deliveryTerms: Terms[];
+    paymentTerms: Terms[];
+
+    projects: Project[];
+    departments: Department[];
+    currentDefaultProjectID: number;
+    selectConfig: any;
+
+    sellers: Seller[];
+
+    currentOrderDate: LocalDate;
+    dimensionTypes: any[];
+    paymentInfoTypes: any[];
+    distributionPlans: any[];
+    reports: any[];
+
+
+    readonly: boolean;
+    recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -184,11 +193,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Account',
         'Dimensions.Project.ProjectTasks',
     ];
-
-    // New
-    public commentsConfig: ICommentsConfig;
-    private readonly: boolean;
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
     constructor(
         private addressService: AddressService,

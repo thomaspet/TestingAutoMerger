@@ -31,7 +31,7 @@ type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes
 export const view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
 @Component({
-    selector: view.name,
+    selector: 'timeentry',
     templateUrl: './timeentry.html'
 })
 export class TimeEntry {
@@ -39,7 +39,7 @@ export class TimeEntry {
     public missingWorker: boolean = false;
     public userName: string = '';
     public workRelations: Array<WorkRelation> = [];
-    private timeSheet: TimeSheet = new TimeSheet();
+    public timeSheet: TimeSheet = new TimeSheet();
     public currentBalance: WorkBalanceDto;
     public incomingBalance: WorkBalance;
     public teams: Array<Team>;
@@ -63,7 +63,7 @@ export class TimeEntry {
         askReload: () => this.reset(false)
     };
 
-    private actions: IUniSaveAction[] = [
+    public actions: IUniSaveAction[] = [
         { label: 'Lagre endringer', action: (done) => this.save(done), main: true, disabled: true }
     ];
 
@@ -206,7 +206,7 @@ export class TimeEntry {
         });
     }
 
-    private onMonthChanged(event) {
+    public onMonthChanged(event) {
         let endpoint;
         if (event.month() === new Date().getMonth() && event.year() === new Date().getFullYear()) {
             endpoint = 'workrelations/' + this.workRelations[0].ID + '?action=timesheet&fromdate='

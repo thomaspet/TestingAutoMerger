@@ -91,7 +91,7 @@ export class UniTags implements OnChanges {
     public autoCompleteModel: any = null;
     private autoCompleteField: UniFieldLayout;
     private searchBusy: boolean;
-    private listBusy: boolean;
+    public listBusy: boolean;
     private ignoreFilter: string;
 
     constructor(
@@ -119,7 +119,7 @@ export class UniTags implements OnChanges {
         }
     }
 
-    public tagsSummary(tags: ITag[]): string {
+    public tagsSummary(): string {
         const tagCount = (this.tags && this.tags.length) || 0;
         return tagCount === 1 ? tagCount + ' kategori' : tagCount + ' kategorier';
     }

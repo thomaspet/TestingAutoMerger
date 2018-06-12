@@ -6,7 +6,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {URLSearchParams} from '@angular/http';
 import {CustomerInvoice, Account, CompanySettings, LocalDate} from '../../../../unientities';
-import {JournalEntryManual} from  '../journalentrymanual/journalentrymanual';
+import {JournalEntryManual} from '../journalentrymanual/journalentrymanual';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {Router} from '@angular/router';
@@ -28,10 +28,10 @@ import { ToastService } from '@uni-framework/uniToast/toastService';
 })
 export class Payments {
     @ViewChild(UniTable) private table: UniTable;
-    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual) public journalEntryManual: JournalEntryManual;
 
     public contextMenuItems: IContextMenuItem[] = [];
-    private invoiceTable: UniTableConfig;
+    public invoiceTable: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
     private ignoreInvoiceIdList: Array<number> = [];
     private defaultBankAccount: Account;

@@ -9,7 +9,7 @@
     [placeholder]="field?.Placeholder || ''"
     [closeOnSelect]="field?.Options?.closeOnSelect || true"
     [class.has-all-button]="field?.Options?.showAllButton"
-    (focus)="focusHandler($event)"
+    (focus)="focusHandler()"
     (change)="onChange($event)"
     (keydown.enter)="onEnter($event)"
     (keydown.tab)="onTab($event)"

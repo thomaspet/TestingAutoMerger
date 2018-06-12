@@ -31,21 +31,21 @@ export interface IPopupItem {
             cursor: pointer;
             padding: 0.3em 0.7em 0.3em 0.7em;
         }
-        li:hover {            
+        li:hover {
             background-color: #efefef;
         }
         `
     ],
     host: {
         '(document:click)': 'onClickOutside()'
-      }    
+      }
 })
 export class PopupMenu {
     @Output() public menuclick: EventEmitter<any> = new EventEmitter();
     private rootElement: any;
     private clickOutsideHandlerActive: boolean = false;
     private isOpen: boolean = false;
-    private items: Array<IPopupItem> = [];
+    public items: Array<IPopupItem> = [];
     public tag: any;
 
     constructor(private myElement: ElementRef) {
@@ -67,7 +67,7 @@ export class PopupMenu {
     public activate(el: Element, tag) {
         if (tag === this.tag && this.IsOpen) {
             this.Hide();
-            return;            
+            return;
         }
         this.tag = tag;
         this.MoveTo(el);
@@ -101,9 +101,9 @@ export class PopupMenu {
     public Show() {
         (<HTMLElement>this.myElement.nativeElement).style.width = '0';
         setTimeout(() => {
-            (<HTMLElement>this.myElement.nativeElement).style.width = null;    
+            (<HTMLElement>this.myElement.nativeElement).style.width = null;
         });
-        (<HTMLElement>this.myElement.nativeElement).style.display = 'inline-block';        
+        (<HTMLElement>this.myElement.nativeElement).style.display = 'inline-block';
     }
 
     public get IsOpen() {
@@ -123,7 +123,7 @@ export class PopupMenu {
             // offset.top -= (this.rootElement.outerHeight() - el.outerHeight()) / 2;
             offset.left += el.outerWidth() + 5;
         }
-        
+
         this.rootElement.offset(offset);
         // Width ?
         var cellWidth = el.outerWidth();
@@ -139,6 +139,6 @@ export class PopupMenu {
         var st = ref[0].scrollTop;
         if (st) { return st; }
         return this.calcScroll(ref.parent());
-    }    
+    }
 
 }

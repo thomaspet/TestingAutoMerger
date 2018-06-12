@@ -95,45 +95,50 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private companySettings: CompanySettings;
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
-    private newQuoteItem: CustomerQuoteItem;
+
     private printStatusPrinted: string = '200';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
-    private quote: CustomerQuote;
-    private quoteItems: CustomerQuoteItem[];
-    private readonly: boolean;
-    private recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
-    public shareActions: IShareAction[];
-    public saveActions: IUniSaveAction[] = [];
 
-    private currencyCodeID: number;
-    private currencyCodes: Array<CurrencyCode>;
-    private currencyExchangeRate: number;
-    public currentCustomer: Customer;
-    public currentDeliveryTerm: Terms;
-    public currentUser: User;
-    private deliveryTerms: Terms[];
-    private paymentTerms: Terms[];
-    private projects: Project[];
-    private departments: Department[];
-    public currentDefaultProjectID: number;
-    private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    public currentQuoteDate: LocalDate;
-    private vatTypes: VatType[];
-    public toolbarconfig: IToolbarConfig;
-    public contextMenuItems: IContextMenuItem[] = [];
-
-    public currencyInfo: string;
-    public summaryLines: ISummaryLine[];
-
-    public selectedNumberSeries: NumberSeries;
-    public selectedNumberSeriesTaskID: number;
-    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private dimensionTypes: any[];
-    private distributionPlans: any[];
-    private reports: any[];
+
+    newQuoteItem: CustomerQuoteItem;
+    quote: CustomerQuote;
+    quoteItems: CustomerQuoteItem[];
+    readonly: boolean;
+    recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
+    shareActions: IShareAction[];
+    saveActions: IUniSaveAction[] = [];
+
+    currencyCodeID: number;
+    currencyCodes: Array<CurrencyCode>;
+    currencyExchangeRate: number;
+    currentCustomer: Customer;
+    currentDeliveryTerm: Terms;
+    currentUser: User;
+    deliveryTerms: Terms[];
+    paymentTerms: Terms[];
+    projects: Project[];
+    departments: Department[];
+    currentDefaultProjectID: number;
+    sellers: Seller[];
+
+    currentQuoteDate: LocalDate;
+    vatTypes: VatType[];
+    commentsConfig: ICommentsConfig;
+    toolbarconfig: IToolbarConfig;
+    contextMenuItems: IContextMenuItem[] = [];
+
+    currencyInfo: string;
+    summaryLines: ISummaryLine[];
+
+    selectedNumberSeries: NumberSeries;
+    selectedNumberSeriesTaskID: number;
+    selectConfig: any;
+    dimensionTypes: any[];
+    distributionPlans: any[];
+    reports: any[];
 
     private customerExpands: string[] = [
         'Info',
@@ -179,8 +184,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
     ];
-
-    public commentsConfig: ICommentsConfig;
 
     constructor(
         private customerService: CustomerService,

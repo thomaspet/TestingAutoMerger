@@ -19,15 +19,17 @@ const SELECTED_KEY = '_rowSelected';
     templateUrl: './salarybalanceList.html',
 })
 export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
+    @ViewChild(UniTable) private table: UniTable;
 
-    public tableConfig: UniTableConfig;
     @Input() public salarybalances: SalaryBalance[];
-    private salaryBalances$: BehaviorSubject<SalaryBalance[]> = new BehaviorSubject([]);
     @Input() public lightWeight: boolean;
+
     @Output() public selectedSalarybalance: EventEmitter<SalaryBalance> = new EventEmitter();
     @Output() public updatedList: EventEmitter<SalaryBalance[]> = new EventEmitter();
     @Output() public createSalaryBalance: EventEmitter<any> = new EventEmitter<any>();
-    @ViewChild(UniTable) private table: UniTable;
+
+    public tableConfig: UniTableConfig;
+    public salaryBalances$: BehaviorSubject<SalaryBalance[]> = new BehaviorSubject([]);
     private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
     public busy: boolean;
 

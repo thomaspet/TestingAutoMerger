@@ -11,8 +11,8 @@ import {Observable} from 'rxjs/Observable';
     templateUrl: './payrollrunList.html'
 })
 export class PayrollrunList implements OnInit {
-    private payrollrunListConfig: UniTableConfig;
-    private payrollRuns$: Observable<PayrollRun>;
+    public payrollrunListConfig: UniTableConfig;
+    public payrollRuns$: Observable<PayrollRun>;
     public busy: boolean;
 
     constructor(

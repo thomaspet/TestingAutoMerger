@@ -70,8 +70,6 @@ export interface IGroupConfig {
                 (keypress)="busy = true"
                 (keydown)="onKeyDown($event)"
                 role="combobox"
-                aria-autocomplete="inline"
-                [attr.aria-owns]="autocomplete-results"
             />
 
             <button class="uni-autocomplete-searchBtn"

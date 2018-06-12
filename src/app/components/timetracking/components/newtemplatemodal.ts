@@ -59,9 +59,9 @@ export class UniTemplateModal implements IUniModal {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private template: ITemplate = this.getCleanTemplate();
-    private tableConfig: UniTableConfig;
-    private onEdit: any = {
+    public template: ITemplate = this.getCleanTemplate();
+    public tableConfig: UniTableConfig;
+    public onEdit: any = {
         isEdit: false,
         index: null
     };
@@ -162,7 +162,7 @@ export class UniTemplateModal implements IUniModal {
         };
     }
 
-    private onEditChange(event) {
+    public onEditChange(event) {
         if (event.field === 'StartTime' || event.field === 'EndTime') {
             event.rowModel[event.field] = this.formatHours(event.rowModel[event.field]);
             event.rowModel.Minutes = this.calcMinutesOnLine(event.rowModel);

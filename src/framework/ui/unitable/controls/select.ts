@@ -59,8 +59,8 @@ export class UnitableSelect {
     public expanded: boolean = false;
     private options: ISelectOptions;
 
-    private items: any[];
-    private focusedIndex: number;
+    public items: any[];
+    public focusedIndex: number;
     private selectedItem: any;
 
     constructor(private renderer: Renderer) {}

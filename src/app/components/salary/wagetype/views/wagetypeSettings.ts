@@ -12,7 +12,7 @@ import {Observable} from 'rxjs/Observable';
     templateUrl: './wagetypeSettings.html'
 })
 export class WageTypeSettings extends UniView {
-    private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
+    public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 

@@ -16,7 +16,7 @@ import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 export class SupplierList implements OnInit {
 
     private companySettings: CompanySettings;
-    private supplierTable: UniTableConfig;
+    public supplierTable: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams, filter?: string) => any;
 
     private filter: string = `StatusCode eq ${StatusCode.Active}`;

@@ -20,13 +20,14 @@ interface IStatSource {
 })
 export class RegtimeTotals {
     private timesheet: TimeSheet;
-    private config: { columns: Array<ICol>; items: Array<any>; sums: any };
-    private filters: Array<IFilter>;
-    private currentFilter: IFilter;
-    private currentSource: IStatSource;
-    private busy: boolean = true;
+    public config: { columns: Array<ICol>; items: Array<any>; sums: any };
+    public busy: boolean = true;
 
-    private sources: Array<IStatSource>;
+    public filters: Array<IFilter>;
+    public currentFilter: IFilter;
+
+    public sources: Array<IStatSource>;
+    public currentSource: IStatSource;
 
     constructor(
         private workerService: WorkerService,
@@ -97,7 +98,7 @@ export class RegtimeTotals {
         ];
     }
 
-    private onFilterClick(filter: IFilter) {
+    public onFilterClick(filter: IFilter) {
         this.currentFilter = filter;
         this.queryTotals();
     }

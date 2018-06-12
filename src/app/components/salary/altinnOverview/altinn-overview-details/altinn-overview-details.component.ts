@@ -11,11 +11,12 @@ import {ErrorService} from '@app/services/services';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AltinnOverviewDetailsComponent implements OnInit, OnChanges {
-
     @Input() public receipt: AltinnReceipt;
+
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
     public altinnReceipts$: BehaviorSubject<IAltinnResponseReceiptDto[]> = new BehaviorSubject([]);
     public errorMessage$: BehaviorSubject<string> = new BehaviorSubject('');
+    public dataOpen: boolean;
 
     constructor(private errorService: ErrorService) {}
 

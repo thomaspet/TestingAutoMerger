@@ -43,7 +43,7 @@ export class UniQueryDetails {
 
     private showAllFields: boolean = false;
     private showAllModels: boolean = false;
-    private queryDefinition: UniQueryDefinition;
+    public queryDefinition: UniQueryDefinition;
     private queryDefinitionID: number;
     private editMode: boolean = false;
     private hideModel: boolean = true;

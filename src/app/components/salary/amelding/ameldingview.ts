@@ -33,33 +33,33 @@ import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 export class AMeldingView implements OnInit {
     public busy: boolean = true;
-    private initialized: boolean;
+    public initialized: boolean;
     public currentPeriod: number;
     public currentMonth: string;
     public currentSumsInPeriod: any[] = [];
     public currentAMelding: any;
     public currentSumUp: any;
-    private aMeldingerInPeriod: AmeldingData[];
+    public aMeldingerInPeriod: AmeldingData[];
     public contextMenuItems: IContextMenuItem[] = [];
     public actions: IUniSaveAction[];
-    private clarifiedDate: string = '';
-    private submittedDate: string = '';
-    private feedbackObtained: boolean = false;
+    public clarifiedDate: string = '';
+    public submittedDate: string = '';
+    public feedbackObtained: boolean = false;
 
-    private totalAGAFeedback: number = 0;
-    private totalAGAFeedBackStr: string;
-    private totalAGASystem: number = 0;
-    private totalAGASystemStr: string;
-    private totalFtrekkFeedback: number = 0;
-    private totalFtrekkFeedbackStr: string;
-    private totalFtrekkSystem: number = 0;
-    private totalFtrekkSystemStr: string;
+    public totalAGAFeedback: number = 0;
+    public totalAGAFeedBackStr: string;
+    public totalAGASystem: number = 0;
+    public totalAGASystemStr: string;
+    public totalFtrekkFeedback: number = 0;
+    public totalFtrekkFeedbackStr: string;
+    public totalFtrekkSystem: number = 0;
+    public totalFtrekkSystemStr: string;
 
-    private legalEntityNo: string;
+    public legalEntityNo: string;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public toolbarConfig: IToolbarConfig;
-    private toolbarSearchConfig: IToolbarSearchConfig;
-    private periodStatus: string;
+    public toolbarSearchConfig: IToolbarSearchConfig;
+    public periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
 

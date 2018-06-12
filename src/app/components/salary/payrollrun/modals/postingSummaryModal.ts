@@ -29,13 +29,13 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             numberseriesID: null,
             hasGrouping: true
         });
-    private showReceipt: boolean = false;
-    private accountTableConfig: UniTableConfig;
+    public showReceipt: boolean = false;
+    public accountTableConfig: UniTableConfig;
     private payrollrunID: number;
     public summary: any;
     private journalNumber: string;
     private journalDate: string;
-    private headerString: string = 'Konteringssammendrag';
+    public headerString: string = 'Konteringssammendrag';
     private numberSeries: NumberSeries[] = [];
 
     constructor(

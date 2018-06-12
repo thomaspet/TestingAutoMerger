@@ -14,8 +14,8 @@ import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 })
 export class ApiKeyComponent implements OnInit {
     @ViewChild(UniTable) private table: UniTable;
-    private apikeysConfig: UniTableConfig;
-    private apikeys: ApiKey[] = [];
+    public apikeysConfig: UniTableConfig;
+    public apikeys: ApiKey[] = [];
 
     constructor(
         private router: Router,

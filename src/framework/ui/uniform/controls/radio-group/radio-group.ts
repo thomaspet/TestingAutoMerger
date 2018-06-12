@@ -23,7 +23,7 @@ export class UniRadiogroupInput extends BaseControl implements OnChanges {
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<UniRadiogroupInput> = new EventEmitter<UniRadiogroupInput>(true);
 
-    private items: any[] = [];
+    public items: any[] = [];
     public initValue: any;
 
     constructor(public elementRef: ElementRef) {

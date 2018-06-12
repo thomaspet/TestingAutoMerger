@@ -38,8 +38,8 @@ export class MatchCustomerManualModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private customers: any[];
-    private selectedCustomerID: number;
+    public customers: any[];
+    public selectedCustomerID: number;
 
     constructor(
         private customerService: CustomerService,

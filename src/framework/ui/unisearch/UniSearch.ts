@@ -21,7 +21,6 @@ import {IUniSearchConfig} from './IUniSearchConfig';
             <button class="searchBtn"
                     [disabled]="disabled"
                     (click)="onBtnClick()"
-                    (keydown.esc)="onKeydown($event)"
                     [attr.aria-busy]="uniSearchAttr.busy"
                     type="button"
                     tabindex="-1">
@@ -33,13 +32,13 @@ import {IUniSearchConfig} from './IUniSearchConfig';
 })
 export class UniSearch {
     @ViewChild(UniSearchAttr)
-    private uniSearchAttr: UniSearchAttr;
+    public uniSearchAttr: UniSearchAttr;
 
     @Input()
-    private config: IUniSearchConfig;
+    public config: IUniSearchConfig;
 
     @Input()
-    private disabled: boolean;
+    public disabled: boolean;
 
     @Output()
     private changeEvent: EventEmitter<any> = new EventEmitter<any>();
@@ -52,7 +51,7 @@ export class UniSearch {
     public onChangeEvent(event) {
         this.changeEvent.emit(event);
     }
-    private getTitle() {
+    public getTitle() {
         return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
     }
     public focus() {

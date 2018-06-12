@@ -101,8 +101,8 @@ export class MyStringFilterPipe implements PipeTransform {
 export class UniAssignModal implements IUniModal {
     public isOpen: boolean = false;
     public busy: boolean = false;
-    private teams: Array<Team>;
-    private users: Array<any>;
+    public teams: Array<Team>;
+    public users: Array<any>;
     public currentTeam: Team;
     public currentUser: IAssignUser;
     public currentSelectedUsers: Array<any> = [];

@@ -33,8 +33,8 @@ declare const _;
 export class ReminderList {
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
-    private reminderTable: UniTableConfig;
-    private reminderList: any;
+    public reminderTable: UniTableConfig;
+    public reminderList: any;
     public saveActions: IUniSaveAction[] = [];
     private reminderSettings: CustomerInvoiceReminderSettings;
     public showInvoicesWithReminderStop: boolean = false;

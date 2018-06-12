@@ -28,7 +28,7 @@
                 (rowSelected)="onRowSelected($event)"
                 (rowDeleted)="onRowDeleted($event.rowModel)"
                 (pageChange)="onPageChange($event)"
-                (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
+                (rowSelectionChanged)="onRowSelectionChanged()">
             </uni-table>
 
             <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">

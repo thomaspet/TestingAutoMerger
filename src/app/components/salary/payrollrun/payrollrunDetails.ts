@@ -55,7 +55,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public searchConfig$: BehaviorSubject<IToolbarSearchConfig> = new BehaviorSubject(null);
 
-    private payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
+    public payrollrun$: BehaviorSubject<PayrollRun> = new BehaviorSubject(undefined);
     private payrollrunID: number;
     private payDate: Date = null;
     private payStatus: string;
@@ -73,7 +73,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private wagetypes: WageType[];
     private projects: Project[];
     private departments: Department[];
-    private detailsActive: boolean = false;
+    public detailsActive: boolean = false;
     private categories: EmployeeCategory[];
     private journalEntry: JournalEntry;
     private paymentStatus: PayrollRunPaymentStatus;

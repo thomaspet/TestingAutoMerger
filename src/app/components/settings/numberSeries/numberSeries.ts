@@ -36,7 +36,7 @@ export class NumberSeries {
     @ViewChildren(UniTable)
     private uniTables: QueryList<UniTable>;
 
-    private series: any[] = [];
+    public series: any[] = [];
     public current: any[] = [];
     public currentNumberSeriesType: NumberSeriesType;
 

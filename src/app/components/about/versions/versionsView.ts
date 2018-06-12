@@ -18,13 +18,14 @@ export class UniVersionsView {
         minVersion: APP_METADATA.APP_VERSION.substr(0, 6),
         buildDate: moment(APP_METADATA.APP_BUILD_DATE).format(VERSION_DATE_FORMAT),
     };
-    private backend: {
+
+    public backend: {
         fullVersion: string
         minVersion: string
         buildDate: string
     };
-    public toolbarConfig: IToolbarConfig = {title: 'Versjoner'};
 
+    public toolbarConfig: IToolbarConfig = {title: 'Versjoner'};
 
     constructor(
         private tabService: TabService,

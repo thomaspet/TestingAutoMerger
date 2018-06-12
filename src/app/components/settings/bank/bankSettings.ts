@@ -35,7 +35,7 @@ export class UniBankSettings {
 
     public tableConfig: UniTableConfig;
     public lookupFunction;
-    private data: any = [];
+    public data: any = [];
     private suggestedNames = ['Driftskonto', 'Konto for lønn', 'Valutakonto', 'Skattetrekkskonto', 'EURO']; // Backend? Needed?
     private yesno = ['Ja', 'Nei'];
     private accounts;
@@ -341,7 +341,7 @@ export class UniBankSettings {
         }
     }
 
-    private deleteSettings(row) {
+    public deleteSettings(row) {
         if (row.ID) {
             this.bankService.deleteCompanyBankAccount(row.ID).subscribe((res) => {
                 this.toastService.addToast('Sletting vellykket', ToastType.good);

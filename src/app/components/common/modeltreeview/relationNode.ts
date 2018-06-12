@@ -15,7 +15,7 @@ export class ModelTreeRelationNode implements OnChanges {
     @Input() private selectedFields: Array<UniTableColumn>;
     @Output() private fieldAdded: EventEmitter<any> = new EventEmitter<any>();
 
-    private model: {Relations: any, Fields: any[], fieldArray: string[]};
+    public model: {Relations: any, Fields: any[], fieldArray: string[]};
 
     constructor(private statisticsService: StatisticsService) {
 

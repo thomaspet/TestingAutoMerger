@@ -41,9 +41,9 @@ export class UniChangePasswordModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private formModel$: BehaviorSubject<IChangePasswordFields> = new BehaviorSubject(null);
-    private formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+    public formModel$: BehaviorSubject<IChangePasswordFields> = new BehaviorSubject(null);
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
 
     private passes: IChangePasswordFields = {
         OldPass: '',

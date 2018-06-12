@@ -14,7 +14,7 @@
     </article>
 
 	<footer>
-		<button *ngIf="!options.readOnly" class="good" (click)="close(true)">OK</button>
+		<button *ngIf="!options?.modalConfig?.readOnly" class="good" (click)="close(true)">OK</button>
 		<button class="bad" (click)="close(false)">Avbryt</button>
 	</footer>
 </section>

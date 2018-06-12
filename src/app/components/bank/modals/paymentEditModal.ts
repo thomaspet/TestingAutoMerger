@@ -80,10 +80,10 @@ export class UniPaymentEditModal implements IUniModal {
 
     public tableConfig: UniTableConfig;
     private companySettings: any;
-    private pendingPayments: Array<Payment> = [];
+    public pendingPayments: Array<Payment> = [];
 
-    private paymentCodes: PaymentCode[];
-    private paymentCodeFilterValue: number = 0;
+    public paymentCodes: PaymentCode[];
+    public paymentCodeFilterValue: number = 0;
 
     constructor(
         private toastService: ToastService,

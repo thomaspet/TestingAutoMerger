@@ -35,9 +35,9 @@ export class DimensionSummaryData {
     templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
-    @Input() private periodFilter1: PeriodFilter;
-    @Input() private periodFilter2: PeriodFilter;
-    @Input() private dimensionType: DimensionTypes;
+    @Input() public periodFilter1: PeriodFilter;
+    @Input() public periodFilter2: PeriodFilter;
+    @Input() public dimensionType: DimensionTypes;
     @Input() private filter: any;
 
     private dimensionEntityName: string = '';

@@ -42,13 +42,13 @@ export class AgaAndSubEntitySettings implements OnInit {
     private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    private companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
+    public companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
     public accounts: Account[] = [];
-    private mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    public mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 

@@ -12,11 +12,11 @@ import {EmployeeService, ErrorService} from '../../../services/services';
 })
 
 export class EmployeeList {
-    private employeeTableConfig: UniTableConfig;
-    private employees$: Observable<Employee>;
+    public employeeTableConfig: UniTableConfig;
+    public employees$: Observable<Employee>;
     public busy: boolean;
 
-    private toolbarActions = [{
+    public toolbarActions = [{
         label: 'Ny ansatt',
         action: this.newEmployee.bind(this),
         main: true,

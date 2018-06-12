@@ -12,7 +12,7 @@ import {environment} from '../../../environments/environment';
     `,
 })
 export class UniSalary {
-    private widgetLayout: IUniWidget[];
+    public widgetLayout: IUniWidget[];
 
     constructor(tabService: TabService) {
         tabService.addTab({

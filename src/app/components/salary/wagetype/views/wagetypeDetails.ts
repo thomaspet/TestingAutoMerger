@@ -45,7 +45,7 @@ type UniFormTabEvent = {
 export class WagetypeDetail extends UniView {
     private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell'
         + '/index.html#!Documents/lnnsinntekterrapportering.htm';
-    private wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
+    public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
     private incomeTypeDatasource: IncomeType[] = [];
     private benefitDatasource: Benefit[] = [];
@@ -55,7 +55,7 @@ export class WagetypeDetail extends UniView {
     private supplementPackages: code[] = [];
 
     private tilleggspakkeConfig: UniTableConfig;
-    private showSupplementaryInformations: boolean = false;
+    public showSupplementaryInformations: boolean = false;
     private hidePackageDropdown: boolean = true;
     private rateIsReadOnly: boolean;
     private basePayment: boolean;

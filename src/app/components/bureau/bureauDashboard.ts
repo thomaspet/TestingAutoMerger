@@ -41,28 +41,29 @@ interface AllTagsType {
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
-    public toolbarConfig: IToolbarConfig;
-    public saveActions: IUniSaveAction[];
+    @ViewChild('contextMenu') private contextMenu: ElementRef;
 
     private companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
-    private filteredCompanies: KpiCompany[];
-    public highlightedCompany: KpiCompany;
-
     private subscription: Subscription;
-    public searchControl: FormControl;
-    public busy: boolean = false;
-    public currentSortField: string;
-    public sortIsDesc: boolean = true;
-    public companyTags: BureauTagsDictionary = {};
 
-    public allTags: AllTagsType[];
-    public activeTag: string;
+    toolbarConfig: IToolbarConfig;
+    saveActions: IUniSaveAction[];
 
-    @ViewChild('contextMenu') private contextMenu: ElementRef;
+    filteredCompanies: KpiCompany[];
+    highlightedCompany: KpiCompany;
 
-    public tableConfig: UniTableConfig = this.getTableConfig();
-    public detailsTabs: IUniTab[] = [
+    searchControl: FormControl;
+    busy: boolean = false;
+    currentSortField: string;
+    sortIsDesc: boolean = true;
+    companyTags: BureauTagsDictionary = {};
+
+    allTags: AllTagsType[];
+    activeTag: string;
+
+    tableConfig: UniTableConfig = this.getTableConfig();
+    detailsTabs: IUniTab[] = [
         {name: 'Oppgaver', path: 'tasks'},
         {name: 'Firma', path: 'company'},
         {name: 'Regnskap', path: 'accounting'},
@@ -70,7 +71,6 @@ export class BureauDashboard {
         {name: 'Lønn', path: 'salary'},
         {name: 'Time', path: 'hours'},
     ];
-
 
     constructor(
         private errorService: ErrorService,

@@ -33,10 +33,10 @@ export class CurrencyOverrides {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private overridesTable: UniTableConfig;
+    public overridesTable: UniTableConfig;
     public saveActions: IUniSaveAction[] = [];
     private currencycodes: any;
-    private overrides: any;
+    public overrides: any;
     public isBusy: boolean = true;
     private isDirty: boolean = false;
 

@@ -26,7 +26,7 @@ declare const _; // lodash
 export class ProductGroups {
     @ViewChild('tree') private treeComponent: TreeComponent;
 
-    private nodes: any[];
+    public nodes: any[];
     private groups: ProductCategory[] = [];
     private activeProductGroupID: any = '';
 
@@ -35,7 +35,7 @@ export class ProductGroups {
     public contextMenuItems: any;
 
     private idParam: number;
-    private selectedGroup: ProductCategory;
+    public selectedGroup: ProductCategory;
 
     private init: number;
 
@@ -150,7 +150,7 @@ export class ProductGroups {
         });
     }
 
-    private createGroup(parentGroup?: ProductCategory) {
+    public createGroup(parentGroup?: ProductCategory) {
         if (!this.treeComponent) {
             return;
         }

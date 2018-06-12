@@ -14,7 +14,6 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
     selector: 'uni-project-lite-details',
     template: `
         <uni-toolbar
-            *ngIf="!modalMode"
             [config]="toolbarconfig"
             [saveactions]="saveActions">
         </uni-toolbar>
@@ -31,7 +30,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class ProjectLiteDetails {
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
+    public project$: BehaviorSubject<Project> = new BehaviorSubject(null);
 
     public saveActions: IUniSaveAction[] = [
         {

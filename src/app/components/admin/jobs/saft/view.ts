@@ -22,7 +22,7 @@ export class SaftExportView implements OnInit {
     @ViewChild('fileInput') private fileInput: any;
     public busy: boolean = false;
     public busyFetch: boolean = false;
-    private files: Array<ISaftFileInfo> = [];
+    public files: Array<ISaftFileInfo> = [];
     public currentFileId: number;
     private subscription: any;
     public jobName: string = JOBNAME;

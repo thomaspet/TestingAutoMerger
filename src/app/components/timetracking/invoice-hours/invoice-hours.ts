@@ -17,7 +17,7 @@ import { Observable } from 'rxjs/Observable';
 export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
 @Component({
-    selector: view.name,
+    selector: 'invoice-hours',
     templateUrl: './invoice-hours.html',
     styles: [
         `.less-margin { margin-top: 1em }
@@ -28,7 +28,7 @@ export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours',
 export class InvoiceHours implements OnInit {
     @ViewChild(UniTable) private uniTable: UniTable;
     private textFilter: string;
-    private searchControl: FormControl = new FormControl('');
+    public searchControl: FormControl = new FormControl('');
     public dataSource: (value: any) => {};
     public pageSize = 12;
     public limitRows = this.pageSize;

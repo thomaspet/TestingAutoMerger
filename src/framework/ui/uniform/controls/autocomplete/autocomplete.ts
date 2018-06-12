@@ -41,7 +41,7 @@ export class UniAutocompleteInput extends BaseControl {
 
     // state vars
     public busy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-    private guid: string;
+    public guid: string;
     private options: any;
     private source: Array<any>;
     public currentValue: any;
@@ -49,7 +49,7 @@ export class UniAutocompleteInput extends BaseControl {
     private initialDisplayValue: string;
     private selectedIndex: number = -1;
     private selectedItem: any = null;
-    private lookupResults: any[] = [];
+    public lookupResults: any[] = [];
     public isExpanded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private items$: Observable<any> = new Observable<any>();
     private focusPositionTop: number = 0;

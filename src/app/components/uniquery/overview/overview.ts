@@ -22,7 +22,7 @@ export class UniQueryOverview {
         this.tabService.addTab({ name: 'Uttrekkoversikt', url: '/uniqueries/overview', moduleID: UniModules.UniQuery, active: true });
     }
 
-    private newQuery() {
+    public newQuery() {
         this.router.navigateByUrl('/uniqueries/details/0');
     }
 

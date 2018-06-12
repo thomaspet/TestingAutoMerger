@@ -21,11 +21,9 @@ import * as moment from 'moment';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCommentList {
-    @ViewChild('commentList')
-    private commentList: ElementRef;
+    @ViewChild('commentList') private commentList: ElementRef;
 
-    @Input()
-    private comments: Comment[];
+    @Input() public comments: Comment[];
 
     private commentsWithMentions: Comment[];
 

@@ -24,8 +24,8 @@ declare const _;
 export class SellerList {
     @ViewChild(UniTable) public table: UniTable;
 
-    private sellerTableConfig: UniTableConfig;
-    private sellers: Seller[] = [];
+    public sellerTableConfig: UniTableConfig;
+    public sellers: Seller[] = [];
     private expandString = 'DefaultDimensions,DefaultDimensions.Project,'
         + 'DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo';
 

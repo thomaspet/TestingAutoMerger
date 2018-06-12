@@ -55,9 +55,9 @@ export class TimeentryImportModal implements IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
 
     private fileSummary: { count: number };
-    private workItems: WorkItem[] = [];
-    private workTypes: WorkType[] = [];
-    private defaultTypeName: string = '';
+    public workItems: WorkItem[] = [];
+    public workTypes: WorkType[] = [];
+    public defaultTypeName: string = '';
 
     public fileChecked: boolean;
 

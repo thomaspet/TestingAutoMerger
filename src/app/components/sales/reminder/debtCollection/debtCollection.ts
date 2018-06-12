@@ -33,10 +33,10 @@ export class DebtCollection implements OnInit {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private remindersToDebtCollect: any;
+    public remindersToDebtCollect: any;
 
     public remindersAll: any;
-    private reminderToDebtCollectTable: UniTableConfig;
+    public reminderToDebtCollectTable: UniTableConfig;
 
     private showInvoicesWithReminderStop: boolean = false;
 

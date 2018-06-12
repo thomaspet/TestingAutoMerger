@@ -22,7 +22,7 @@ declare var _;
 })
 export class ProjectDocument {
 
-    private project: Project;
+    public project: Project;
 
     // Table
     public tableConfig: UniTableConfig;

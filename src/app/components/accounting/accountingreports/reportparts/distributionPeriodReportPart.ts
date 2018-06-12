@@ -56,8 +56,8 @@ export class NumberAsMoneyPipe implements PipeTransform {
     templateUrl: './distributionPeriodReportPart.html',
 })
 export class DistributionPeriodReportPart implements OnChanges {
-    @Input() private accountYear1: number;
-    @Input() private accountYear2: number;
+    @Input() public accountYear1: number;
+    @Input() public accountYear2: number;
     @Input() private accountIDs: number[];
     @Input() private subaccountIDs: number[];
     @Input() public showHeader: boolean = false;
@@ -71,7 +71,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
     @Output() private yearChange: EventEmitter<boolean> = new EventEmitter();
 
-    private distributionPeriodData: Array<DistributionPeriodData> = [];
+    public distributionPeriodData: Array<DistributionPeriodData> = [];
     private dimensionEntityName: string;
     private showPercent: boolean = true;
     private showPreviousAccountYear: boolean = true;

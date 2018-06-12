@@ -11,7 +11,7 @@ import {IUniWidget} from '../widgets/widgetCanvas';
     `,
 })
 export class UniAccounting {
-    private widgetLayout: IUniWidget[];
+    public widgetLayout: IUniWidget[];
 
     constructor(tabService: TabService) {
         tabService.addTab({

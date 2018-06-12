@@ -26,9 +26,10 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     @ViewChild(UniTable) public table: UniTable;
 
     public tableEmps$: BehaviorSubject<Employee[]> = new BehaviorSubject<Employee[]>([]);
-    private emailEmps: Employee[] = [];
-    private printEmps: Employee[] = [];
+    public emailEmps: Employee[] = [];
+    public printEmps: Employee[] = [];
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+
     constructor(
         private reportDefinitionService: ReportDefinitionService,
         private errorService: ErrorService,

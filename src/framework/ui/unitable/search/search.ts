@@ -387,7 +387,7 @@ export class UniTableSearch implements OnChanges {
         }
     }
 
-    private newFilter() {
+    public newFilter() {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }

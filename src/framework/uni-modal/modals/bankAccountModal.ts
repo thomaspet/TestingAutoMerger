@@ -23,7 +23,7 @@ import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
-                    (readyEvent)="onReady($event)"
+                    (readyEvent)="onReady()"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
             </article>

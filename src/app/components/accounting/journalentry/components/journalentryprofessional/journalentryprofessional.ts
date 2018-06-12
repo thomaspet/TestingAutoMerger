@@ -104,7 +104,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
-    private journalEntryTableConfig: UniTableConfig;
+    public journalEntryTableConfig: UniTableConfig;
     public createdNewAccount: any;
     private selectedNumberSeriesTaskID: number;
 

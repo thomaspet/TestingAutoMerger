@@ -23,11 +23,11 @@ declare var _;
 export class BalanceReport implements OnInit {
     public filterVisible: boolean = false;
 
-    private periodFilter1: PeriodFilter;
-    private periodFilter2: PeriodFilter;
-    private filter: any;
-    private yearSelectConfig: ISelectConfig;
-    private yearItems: any[];
+    public periodFilter1: PeriodFilter;
+    public periodFilter2: PeriodFilter;
+    public filter: any;
+    public yearSelectConfig: ISelectConfig;
+    public yearItems: any[];
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: false,
@@ -46,8 +46,7 @@ export class BalanceReport implements OnInit {
         private departmentService: DepartmentService,
         private periodFilterHelper: PeriodFilterHelper,
         private financialYearService: FinancialYearService
-                ) {
-
+    ) {
         this.tabService.addTab({
             name: 'Balanse - oversikt',
             url: '/accounting/accountingreports/balance',

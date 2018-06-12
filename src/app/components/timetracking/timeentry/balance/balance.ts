@@ -31,7 +31,7 @@ export class RegtimeBalance {
     public isDetailView: boolean = false;
     private current: WorkRelation;
     private hasDetails: boolean = false;
-    private groupedWeeks: IDetails = { weeks: [], sum: 0 };
+    public groupedWeeks: IDetails = { weeks: [], sum: 0 };
 
     constructor(
         private timesheetService: TimesheetService,
@@ -239,4 +239,5 @@ class WorkBalanceDto extends WorkBalance {
     public relationIsClosed: boolean;
     public Previous: any;
     public PreExpected: number;
+    public SumOvertime: number;
 }

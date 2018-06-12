@@ -13,8 +13,8 @@ export class TaxCardModal implements OnInit, IUniModal, AfterViewInit {
     @ViewChild(TaxCardRequest) private taxCardRequest: TaxCardRequest;
     @ViewChild(ReadTaxCard) private readTaxCard: ReadTaxCard;
 
-    private changeEvent: EventEmitter<any>;
-    private employeeID: number;
+    public changeEvent: EventEmitter<any>;
+    public employeeID: number;
     constructor() { }
 
     public ngOnInit() {

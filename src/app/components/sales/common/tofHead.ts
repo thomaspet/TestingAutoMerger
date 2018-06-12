@@ -29,7 +29,7 @@ export class TofHead implements OnChanges {
 
     @Input() public entityName: string;
     @Input() public readonly: boolean;
-    @Input() private data: any;
+    @Input() public data: any;
     @Input() public currencyCodes: Array<CurrencyCode>;
     @Input() public projects: Project;
     @Input() public paymentTerms: Terms[];

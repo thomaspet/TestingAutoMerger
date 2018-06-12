@@ -95,7 +95,7 @@ export class SupplierDetails implements OnInit {
     private currencyCodes: Array<CurrencyCode>;
     private numberSeries: NumberSeries[];
     private dropdownData: any;
-    private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
+    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     public commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     public selectConfig: any;

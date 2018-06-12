@@ -57,7 +57,7 @@ export class ReminderConfirmForm implements OnInit {
 export class ReminderConfirmModal {
     @ViewChild(UniModal) public modal: UniModal;
 
-    private config: IReminderConfirmModalConfig;
+    public config: IReminderConfirmModalConfig;
     public type: Type<any> = ReminderConfirmForm;
 
     constructor(

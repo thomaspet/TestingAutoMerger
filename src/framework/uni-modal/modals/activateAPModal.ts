@@ -64,7 +64,7 @@ export class UniActivateAPModal implements IUniModal {
     public formModel$: BehaviorSubject<ActivateAP> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private termsAgreed: boolean;
+    public termsAgreed: boolean;
 
     constructor(
         private ehfService: EHFService,

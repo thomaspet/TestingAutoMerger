@@ -3,7 +3,7 @@
         [class]="field?.Options?.class"
         [disabled]="readOnly$ | async"
         (click)="clickHandler($event)"
-        (focus)="focusHandler($event)"
+        (focus)="focusHandler()"
         type="button"
         [title]="field?.Label"
         tabindex="-1"

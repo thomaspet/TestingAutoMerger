@@ -26,7 +26,7 @@ export class PeriodPicker {
 
     }
 
-    private togglePicker() { // tslint:disable-line
+    public togglePicker() { // tslint:disable-line
         if (this.pickerAreaVisible) {
             this.hidePicker();
         } else {

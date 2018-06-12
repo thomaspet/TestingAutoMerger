@@ -18,7 +18,7 @@ import {KeyCodes} from '../../../app/services/common/keyCodes';
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
-                    (readyEvent)="onReady($event)"
+                    (readyEvent)="onReady()"
                     [model]="formModel$">
                 </uni-form>
             </article>

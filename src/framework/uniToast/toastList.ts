@@ -22,9 +22,7 @@ import {ToastService} from './toastService';
 })
 export class UniToastList {
 
-    constructor(
-        private toastService: ToastService,
-    ) {}
+    constructor(public toastService: ToastService) {}
 
     public toastDismissed(toast) {
         this.toastService.removeToast(toast.id);

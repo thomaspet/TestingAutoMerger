@@ -22,16 +22,15 @@ export class UniChooseReportModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
-    public reports: ReportDefinition[];
-    private selectedReport: any;
-    public index: number = 0;
+    reports: ReportDefinition[];
+    selectedReport: any;
 
-    public showParameters: boolean = false;
-    public fromNr: number;
-    public toNr: number;
-    public inputFromLabel: string;
-    public inputToLabel: string;
-    public inputType: any = {name: 'nr', secondInputType: null};
+    showParameters: boolean = false;
+    fromNr: number;
+    toNr: number;
+    inputFromLabel: string;
+    inputToLabel: string;
+    inputType: any = {name: 'nr', secondInputType: null};
 
     constructor(
         private reportService: ReportService,

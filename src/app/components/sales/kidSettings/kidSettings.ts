@@ -32,10 +32,10 @@ export class KIDSettings {
     listTableConfig: UniTableConfig;
     saveactions: IUniSaveAction[];
 
-    private sumDoesNotMatch: boolean = false;
+    public sumDoesNotMatch: boolean = false;
     public currentPaymentInfoType: PaymentInfoType;
     private initialActive: boolean;
-    private paymentInfoTypes: PaymentInfoType[];
+    public paymentInfoTypes: PaymentInfoType[];
     private paymentInfoTypePartsMacros: string[] = [];
     public toolbarconfig: IToolbarConfig = {
         title: 'KID-innstillinger',

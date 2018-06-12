@@ -10,16 +10,16 @@ import * as moment from 'moment';
 export class AmeldingSummaryView implements OnChanges {
     @Input() public currentSumUp: any;
     @Input() public currentAMelding: any;
-    private employeeTableConfig: UniTableConfig;
-    private leaveTableConfig: UniTableConfig;
-    private transactionTableConfig: UniTableConfig;
+    public employeeTableConfig: UniTableConfig;
+    public leaveTableConfig: UniTableConfig;
+    public transactionTableConfig: UniTableConfig;
     private employeeAndEmployments: any[] = [];
     private employeeleaves: any[] = [];
     private sumPerDescription: any[] = [];
-    private entitiesWithData: any[] = [];
-    private createdDate: string = '';
-    private sentDate: string = '';
-    private statusText: string;
+    public entitiesWithData: any[] = [];
+    public createdDate: string = '';
+    public sentDate: string = '';
+    public statusText: string;
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
 
     constructor() {

@@ -14,7 +14,6 @@
             class="sidemenu_calender"
             (dateChange)="onCalendarDateChange($event)"
             (monthChange)="onCalendarMonthChange($event)"
-            (keydown.esc)="hideCalendar()"
             [date]="initDate"
             [config]="calendarConfig">
         </unitable-calendar>

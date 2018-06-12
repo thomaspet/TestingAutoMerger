@@ -10,17 +10,17 @@ import {Logger} from '../../../../framework/core/logger';
     templateUrl: './resetPassword.html',
 })
 export class ResetPassword {
-    private code: string;
-    private userid: string;
+    public code: string;
+    public userid: string;
 
     public busy: boolean = false;
-    private emailSent: boolean = false;
-    private passwordChanged: boolean = false;
+    public emailSent: boolean = false;
+    public passwordChanged: boolean = false;
 
-    private successMessage: string = '';
+    public successMessage: string = '';
     public errorMessage: string = '';
-    private emailForm: FormGroup;
-    private passwordForm: FormGroup;
+    public emailForm: FormGroup;
+    public passwordForm: FormGroup;
 
     constructor(
         private route: ActivatedRoute,
@@ -75,9 +75,9 @@ export class ResetPassword {
     }
 
     public resetPassword() {
-        if(!this.passwordForm.valid){
-            this.passwordForm.controls.Password.markAsTouched()
-            this.passwordForm.controls.ConfirmPassword.markAsTouched()
+        if (!this.passwordForm.valid) {
+            this.passwordForm.controls.Password.markAsTouched();
+            this.passwordForm.controls.ConfirmPassword.markAsTouched();
             return;
         }
 

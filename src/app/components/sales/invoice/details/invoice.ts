@@ -115,50 +115,54 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     @Input() public invoiceID: any;
 
-    private invoice: CustomerInvoice;
-    private invoiceItems: CustomerInvoiceItem[];
-    private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
-    private newInvoiceItem: CustomerInvoiceItem;
     private printStatusPrinted: string = '200';
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
-    private projects: Project[];
-    private departments: Department[];
-    public currentDefaultProjectID: number;
-    private readonly: boolean;
-
-    private currencyInfo: string;
-    public summaryLines: ISummaryLine[];
-
-    public contextMenuItems: IContextMenuItem[] = [];
-    private companySettings: CompanySettings;
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
-    public saveActions: IUniSaveAction[] = [];
-    public shareActions: IShareAction[];
-    public toolbarconfig: IToolbarConfig;
-    public toolbarSubheads: IToolbarSubhead[];
-
-    private vatTypes: VatType[];
-    private currencyCodes: Array<CurrencyCode>;
-    private currencyCodeID: number;
-    private currencyExchangeRate: number;
-    public currentCustomer: Customer;
-    public currentPaymentTerm: Terms;
-    public currentDeliveryTerm: Terms;
-    public currentUser: User;
-    private deliveryTerms: Terms[];
-    private paymentTerms: Terms[];
-    public selectConfig: any;
+    private isDirty: boolean;
+    private itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
-    private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    public currentInvoiceDate: LocalDate;
-    private dimensionTypes: any[];
-    private paymentInfoTypes: any[];
-    private distributionPlans: any[];
-    private reports: any[];
+
+    readonly: boolean;
+    invoice: CustomerInvoice;
+    invoiceItems: CustomerInvoiceItem[];
+    newInvoiceItem: CustomerInvoiceItem;
+
+    projects: Project[];
+    departments: Department[];
+    currentDefaultProjectID: number;
+
+    currencyInfo: string;
+    summaryLines: ISummaryLine[];
+
+    contextMenuItems: IContextMenuItem[] = [];
+    companySettings: CompanySettings;
+    recalcDebouncer: EventEmitter<any> = new EventEmitter();
+    saveActions: IUniSaveAction[] = [];
+    shareActions: IShareAction[];
+    toolbarconfig: IToolbarConfig;
+    toolbarSubheads: IToolbarSubhead[];
+    commentsConfig: ICommentsConfig;
+
+    vatTypes: VatType[];
+    currencyCodes: Array<CurrencyCode>;
+    currencyCodeID: number;
+    currencyExchangeRate: number;
+    currentCustomer: Customer;
+    currentPaymentTerm: Terms;
+    currentDeliveryTerm: Terms;
+    currentUser: User;
+    deliveryTerms: Terms[];
+    paymentTerms: Terms[];
+    selectConfig: any;
+
+    sellers: Seller[];
+    currentInvoiceDate: LocalDate;
+    dimensionTypes: any[];
+    paymentInfoTypes: any[];
+    distributionPlans: any[];
+    reports: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -202,8 +206,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
     ];
-
-    public commentsConfig: ICommentsConfig;
 
     constructor(
         private businessRelationService: BusinessRelationService,

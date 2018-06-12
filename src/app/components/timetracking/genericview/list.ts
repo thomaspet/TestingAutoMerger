@@ -43,7 +43,7 @@ export class GenericListView implements OnInit {
     @Input() public viewconfig: IViewConfig;
     public label: string;
 
-    private lookupFunction: (value: any) => {};
+    public lookupFunction: (value: any) => {};
     public toolbarConfig: any = { title: '' };
     constructor(
         private tabService: TabService,

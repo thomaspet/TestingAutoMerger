@@ -28,7 +28,7 @@ export class TofDetailsForm {
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
     public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
-    private entity$: BehaviorSubject<any> = new BehaviorSubject({});
+    public entity$: BehaviorSubject<any> = new BehaviorSubject({});
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 

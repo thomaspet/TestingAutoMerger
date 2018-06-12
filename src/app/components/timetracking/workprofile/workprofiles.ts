@@ -7,7 +7,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
 
 @Component({
-    selector: view.name,
+    selector: 'workprofiles',
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorkprofileListview {

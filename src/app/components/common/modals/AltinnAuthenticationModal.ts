@@ -20,7 +20,7 @@ enum LoginState {
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
+                <h1>Resultat</h1>
             </header>
             <p [innerHTML]="userMessage" class="altinn-user-message"></p>
             <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">

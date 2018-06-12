@@ -3,10 +3,10 @@ import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {IViewConfig} from '../genericview/list';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-export var view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
+export const view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
 
 @Component({
-    selector: view.name,
+    selector: 'workers',
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorkerListview {
@@ -30,7 +30,7 @@ export class WorkerListview {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cols = [
+        const cols = [
             new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
                 .setWidth('10%')
                 .setFilterOperator('startswith'),

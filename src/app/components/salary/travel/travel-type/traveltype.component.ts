@@ -35,7 +35,7 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
     main: true
 }];
   private wagetypes: WageType[] = [];
-  private traveltypes: TravelType[] = [];
+  public traveltypes: TravelType[] = [];
 
   constructor(
     router: Router,

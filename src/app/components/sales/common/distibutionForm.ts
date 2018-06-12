@@ -23,7 +23,7 @@ export class UniDistibutionTOFView implements OnInit {
     @Input() public entityType: string;
     @Output() public entityChange: EventEmitter<any> = new EventEmitter();
 
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor() {}
