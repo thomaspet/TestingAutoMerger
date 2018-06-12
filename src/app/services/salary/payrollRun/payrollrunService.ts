@@ -9,7 +9,7 @@ import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
+import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineService';
 import {StatisticsService} from '../../common/statisticsService';

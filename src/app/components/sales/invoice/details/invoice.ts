@@ -75,7 +75,7 @@ import {ToastService, ToastType} from '../../../../../framework/uniToast/toastSe
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
-import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+import {InvoiceTypes} from '../../../../models/sales/invoiceTypes';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';

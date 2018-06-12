@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
+import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 
 @Injectable()
 export class VacationpayLineService extends BizHttp<VacationPayLine> {
