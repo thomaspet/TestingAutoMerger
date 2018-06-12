@@ -166,30 +166,18 @@ export class TransqueryDetails implements OnInit {
             searchValue = splitted[1];
         }
 
-        // If JournalEntryNumber is specified as urlParams
-        if (splitted[0].includes('JournalEntryNumber ') && !!searchValue) {
-            filters[0] = `JournalEntryNumber eq '${searchValue}'`;
-        // If search in unitable filter is text
-        } else if (isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
-            filters[0] = `contains(Description, '${searchValue}') or contains(Account.AccountName, '${searchValue}')`;
-        } else if (!isNaN(searchValue) && !!searchValue && this.allowManualSearch) {
-            filters[0] = `(contains(JournalEntryNumberNumeric,'${searchValue}') or ` +
-                `contains(JournalEntryNumber,'${searchValue}') or ` +
-                `Account.AccountNumber eq '${searchValue}')`;
-        } else {
+        // If not spedified filter from route params!
+        if (this.allowManualSearch) {
             if (filters && filters.length > 0) {
                 const newFilters = [];
                 const splitFilters = filters[0].split(' and ');
 
                 splitFilters.forEach(x => {
                     if (
-                        !this.allowManualSearch
-                        || (
-                            !x.includes('Period.AccountYear eq ')
-                            && !x.includes('JournalEntryNumberNumeric eq ')
-                            && !x.includes('Account.AccountNumber eq')
-                            && !x.includes('Amount eq'
-                            )
+                        !x.includes('Period.AccountYear eq ')
+                        && !x.includes('JournalEntryNumberNumeric eq ')
+                        && !x.includes('Account.AccountNumber eq')
+                        && !x.includes('Amount eq'
                         )
                     ) {
                         newFilters.push(x);
@@ -198,26 +186,27 @@ export class TransqueryDetails implements OnInit {
 
                 filters[0] = newFilters.join(' and ');
             }
+
+            const formFilters = [];
+            if (this.allowManualSearch) {
+                if (searchParams.AccountYear) {
+                    formFilters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
+                }
+                if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
+                    formFilters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
+                }
+                if (searchParams.Account && !isNaN(searchParams.Account)) {
+                    formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
+                }
+                if (searchParams.Amount && !isNaN(searchParams.Amount)) {
+                    formFilters.push(`Amount eq ${searchParams.Amount}`);
+                }
+            }
+            filters = filters.concat(formFilters);
+
+        } else if (splitted[0].includes('JournalEntryNumber ') && !!searchValue && !this.allowManualSearch) {
+            filters[0] = `JournalEntryNumber eq '${searchValue}'`;
         }
-
-
-        const formFilters = [];
-        if (this.allowManualSearch) {
-            if (searchParams.AccountYear) {
-                formFilters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
-            }
-            if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
-                formFilters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
-            }
-            if (searchParams.Account && !isNaN(searchParams.Account)) {
-                formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
-            }
-            if (searchParams.Amount && !isNaN(searchParams.Amount)) {
-                formFilters.push(`Amount eq ${searchParams.Amount}`);
-            }
-        }
-
-        filters = filters.concat(formFilters);
 
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)
@@ -435,6 +424,10 @@ export class TransqueryDetails implements OnInit {
                     group: 0, selectConfig: null
                 });
             }
+        } else if (routeParams['Account_AccountNumber']) {
+            const sp = this.searchParams$.value;
+            sp.Account = routeParams['Account_AccountNumber'];
+            this.searchParams$.next(sp);
         } else if (
             routeParams['vatCodesAndAccountNumbers']
             && routeParams['vatFromDate']
@@ -581,7 +574,7 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
                 .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
-                .setFilterOperator('eq')
+                .setFilterable(false)
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
@@ -592,7 +585,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.AccountAccountNumber)
                 .setLinkResolver(row => `/accounting/transquery;Account_AccountNumber=${row.AccountAccountNumber}`)
                 .setWidth('85px')
-                .setFilterOperator('eq'),
+                .setFilterable(false),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                 .setTemplate(line => line.AccountAccountName),
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
@@ -617,7 +610,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.JournalEntryLineVatDate),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                 .setWidth('20%')
-                .setFilterable(false)
+                .setFilterOperator('contains')
                 .setTemplate(line => line.JournalEntryLineDescription),
             new UniTableColumn('VatType.VatCode', 'Mva-kode', UniTableColumnType.Text)
             .setFilterable(false)
@@ -702,6 +695,7 @@ export class TransqueryDetails implements OnInit {
                 'Kreditert',
                 UniTableColumnType.Link)
                 .setTemplate(line => line.CreditJournalEntryReference || null)
+                .setFilterable(false)
                 .setVisible(false)
                 .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.CreditJournalEntryReference}`),
             new UniTableColumn('JournalEntry.JournalEntryAccrualID', 'Periodisering', UniTableColumnType.Link)
