@@ -3,7 +3,6 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {CompanySettings, ReportDefinition} from '../../../app/unientities';
 import {SendEmail} from '../../../../src/app/models/sendEmail';
-import {ToastService, ToastType} from '../../uniToast/toastService';
 import { CustomerService } from '@app/services/sales/customerService';
 import { UserService } from '@app/services/common/userService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
@@ -55,7 +54,6 @@ export class UniSendEmailModal implements IUniModal {
     public invalidEmail: boolean;
 
     constructor(
-        private toastService: ToastService,
         private customerService: CustomerService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService,
@@ -137,7 +135,7 @@ export class UniSendEmailModal implements IUniModal {
                 model.selectedForm.parameters = [];
             }
 
-            if (!model.sendEmail.EmailAddress || !model.sendEmail.EmailAddress.includes('@')) {
+            if (!model.sendEmail.EmailAddress || this.isValidEmailAddress(model.sendEmail.EmailAddress)) {
                 this.invalidEmail = true;
                 return;
             }
@@ -146,6 +144,12 @@ export class UniSendEmailModal implements IUniModal {
         } else {
             this.onClose.emit();
         }
+    }
+
+    // copied direclty from emailservice to avoid circular dependency
+    public isValidEmailAddress(email: string): boolean {
+        // <something>@<something>.<something>
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).toLowerCase());
     }
 
     private getFormFields(): UniFieldLayout[] {
