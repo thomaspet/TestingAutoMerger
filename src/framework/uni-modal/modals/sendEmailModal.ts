@@ -136,7 +136,7 @@ export class UniSendEmailModal implements IUniModal {
             if (model.selectedForm.parameters) {
                 model.selectedForm.parameters = [];
             }
-            return console.log(model, parameters);
+
             if (!model.sendEmail.EmailAddress || !model.sendEmail.EmailAddress.includes('@')) {
                 this.invalidEmail = true;
                 return;
