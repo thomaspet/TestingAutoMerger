@@ -76,7 +76,8 @@ import {
     UniFilesService,
     BankService,
     CustomDimensionService,
-    SupplierInvoiceItemService
+    SupplierInvoiceItemService,
+    FileService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -241,7 +242,8 @@ export class BillView implements OnInit {
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
         private bankService: BankService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private fileService: FileService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -3212,15 +3214,9 @@ export class BillView implements OnInit {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        const file = this.files.find(x => x.ID === fileID);
-        const tag = this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
-
-        this.supplierInvoiceService.send(
-            `filetags/${fileID}`,
-            undefined,
-            undefined,
-            { FileID: fileID, TagName: tag, Status: flagFileStatus }
-        ).subscribe(null, err => this.errorService.handle(err));
+        this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID).subscribe(tags => {
+            this.fileService.tag(fileID, tags.Data[0].tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));
+        });
     }
 
     private showErrMsg(msg: string, lookForMsg = false): string {
