@@ -3,7 +3,7 @@ import { Component, QueryList, ViewChild, } from '@angular/core';
 import { TabService, UniModules, } from '../../layout/navbar/tabstrip/tabService';
 import { UniHttp, } from '../../../../framework/core/http/http';
 import { ConfirmActions, UniModalService, } from '../../../../framework/uni-modal';
-import { Observable, } from 'rxjs/Observable';
+import { Observable, BehaviorSubject} from 'rxjs';
 import { ToastService, ToastType, ToastTime, } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction, } from '../../../../framework/save/save';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, } from '../../../../framework/ui/unitable/index';
@@ -11,7 +11,6 @@ import { ErrorService, PaymentInfoTypeService, StatusService, } from '../../../s
 import { PaymentInfoType } from '../../../unientities';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
 import { FieldType, UniField, } from '@uni-framework/ui/uniform';
 
 declare var _;

@@ -7,7 +7,7 @@ import {
     Pipe,
     PipeTransform
 } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {INumberFormat} from '../../../../../framework/ui/unitable/index';
 import {ChartHelper} from '../chartHelper';
 import {

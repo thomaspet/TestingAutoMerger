@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {
     UniModalService,
     IUniModal,

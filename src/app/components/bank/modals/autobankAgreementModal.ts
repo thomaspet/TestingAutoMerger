@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {
     UserService,
@@ -9,7 +9,6 @@ import {
     BankAccountService,
     BankService
 } from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
 import {BankAccount} from '@uni-entities';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniAgreementWarningModal} from '@app/components/bank/modals/agreement-warning.modal';

@@ -13,8 +13,7 @@ import {
     ErrorService,
     BankAccountService
 } from '../../../../src/app/services/services';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountModal';
 

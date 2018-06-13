@@ -1,5 +1,5 @@
 import {Component, OnInit, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {A06Options, AltinnReceipt, Maaned, ReportType} from '@uni-entities';
 import {AltinnIntegrationService, ErrorService, YearService} from '@app/services/services';
 import {AltinnErrorHandlerService} from '@app/components/salary/sharedServices/altinnErrorHandlerService';

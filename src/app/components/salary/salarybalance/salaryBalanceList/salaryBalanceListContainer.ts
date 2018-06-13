@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {SalarybalanceService, ErrorService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {SalaryBalance, SalBalDrawType} from '@uni-entities';
 
 @Component({

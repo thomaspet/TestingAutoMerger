@@ -3,7 +3,7 @@ import {URLSearchParams} from '@angular/http';
 import { StatisticsService } from '@app/services/services';
 import { Injectable } from '@angular/core';
 import { roundTo } from '@app/components/common/utils/utils';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 export interface ISumHours {
     customerHours: number;

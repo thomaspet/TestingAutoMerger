@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {Employee} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {EmployeeService, ErrorService} from '../../../services/services';

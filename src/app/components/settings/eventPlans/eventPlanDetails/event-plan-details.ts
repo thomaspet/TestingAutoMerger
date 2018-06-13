@@ -6,9 +6,8 @@ import { Eventplan } from '@app/unientities';
 import formFields from './form.config';
 import tableConfig from './table.config';
 import { ModelService } from '@app/services/admin/models/modelService';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { JobService } from '@app/services/admin/jobs/jobService';
-import { Observable } from 'rxjs/Observable';
 
 @Component({
     selector: 'event-plan-details',

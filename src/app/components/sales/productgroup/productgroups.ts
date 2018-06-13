@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig, ICommentsConfig} from './../../common/toolbar/toolbar';

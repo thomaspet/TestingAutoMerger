@@ -3,8 +3,7 @@ import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationD
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {TaxCardReadStatus} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 
 type TaxInfo = {
     receiptID: number,

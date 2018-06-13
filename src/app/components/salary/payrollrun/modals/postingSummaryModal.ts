@@ -5,7 +5,7 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 import {PostingSummary, LocalDate, PayrollRun, NumberSeries} from '../../../../unientities';
 import {PayrollrunService, ErrorService, ReportDefinitionService, NumberSeriesService} from '../../../../../app/services/services';
 import * as moment from 'moment';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 interface IBookingModel {
     date: LocalDate;
     numberseriesID: string;

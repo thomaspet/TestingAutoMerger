@@ -1,14 +1,12 @@
 import {Component, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {EmployeeTaxCard, Employee} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
     UniCacheService, ErrorService, EmployeeTaxCardService
 } from '../../../../services/services';
-import {Observable} from 'rxjs';
-import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 @Component({
     selector: 'employee-tax',

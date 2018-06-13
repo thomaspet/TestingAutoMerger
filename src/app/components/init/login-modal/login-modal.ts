@@ -4,7 +4,7 @@ import {AuthService} from '@app/authService';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {User} from '@uni-entities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'uni-login-modal',

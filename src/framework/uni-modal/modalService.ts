@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniConfirmModalV2} from './modals/confirmModal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Injectable()

@@ -7,7 +7,7 @@ import {AltinnAuthenticationService, ErrorService} from '../../../services/servi
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {KeyCodes} from '../../../services/common/keyCodes';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,

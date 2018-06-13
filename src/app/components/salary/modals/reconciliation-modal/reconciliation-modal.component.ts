@@ -2,12 +2,10 @@ import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angu
 import {IUniModal, IModalOptions, UniModalService} from '../../../../../framework/uni-modal';
 import {AltinnIntegrationService, ErrorService} from '../../../../services/services';
 import {A06Options, AltinnReceipt, A07Response} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject, ReplaySubject} from 'rxjs';
 import {
     IAltinnReceiptListOptions, AltinnReceiptListComponent
 } from '../../altinnReceiptList/altinn-receipt-list/altinn-receipt-list.component';
-import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationModal} from '@app/components/common/modals/AltinnAuthenticationModal';
 import {ReconciliationResponseModalComponent} from '../reconciliation-response-modal/reconciliation-response-modal.component';
 

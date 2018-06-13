@@ -2,7 +2,7 @@ import {Component, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ElsaProductService, ElsaProduct, ErrorService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 
 @Component({

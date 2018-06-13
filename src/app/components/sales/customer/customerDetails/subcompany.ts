@@ -1,8 +1,7 @@
 import {Component, Input, OnInit, Output, EventEmitter, ViewChild} from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Customer } from '@uni-entities';
 import { UniHttp } from '@uni-framework/core/http/http';
-import { Observable } from 'rxjs/Observable';
 import { GuidService } from '@app/services/services';
 import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 import { AuthService } from '@app/authService';

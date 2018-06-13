@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {PostPost, JournalEntryLine, LocalDate, StatusCodeJournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {from} from 'rxjs/observable/from';
 
 @Injectable()
@@ -61,13 +61,13 @@ export class PostPostService extends BizHttp<PostPost> {
 
             // fifo?
             const closeToZero = (sumBalance > -0.5 && sumBalance < -0.5);
-            if (closeToZero && 
+            if (closeToZero &&
                 ruleSet.indexOf(MatchingType.MatchFifo) >= 0 || ruleSet.indexOf(MatchingType.MatchCombineAll) >= 0) {
                 this.automark_MatchingBalance(sortedList, batch, false);
-            }   
-            
+            }
+
             resolve(batch.pairs);
-            
+
         }));
     }
 
@@ -138,7 +138,7 @@ export class Batch {
         this.pairs.push({
             JournalEntryLineId1: item1.ID,
             JournalEntryLineId2: item2.ID
-        });        
+        });
     }
 }
 
@@ -178,7 +178,7 @@ export class Group {
     }
 
     private setStatus(item: IEntryLine) {
-        item.StatusCode = item.RestAmount === 0 ? StatusCodeJournalEntryLine.Marked 
+        item.StatusCode = item.RestAmount === 0 ? StatusCodeJournalEntryLine.Marked
             : StatusCodeJournalEntryLine.PartlyMarked;
     }
 

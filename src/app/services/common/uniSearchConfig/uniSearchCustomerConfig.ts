@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {UniEntity, Customer, BusinessRelation, Address, Phone, Email} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '../statisticsService';
 import {CustomerService} from '../../sales/customerService';
 import {GuidService} from '../guidService';

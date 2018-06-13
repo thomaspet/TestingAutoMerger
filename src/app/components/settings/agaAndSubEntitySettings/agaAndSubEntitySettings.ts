@@ -1,12 +1,11 @@
 ﻿import {Component, OnInit, ViewChild} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {SubEntityList} from './subEntityList';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {GrantModal} from './modals/grantModal';
 import {FreeAmountModal} from './modals/freeamountModal';
-import {Observable} from 'rxjs/Observable';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     CompanySalary,

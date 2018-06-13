@@ -1,8 +1,7 @@
 import {EventEmitter, SimpleChange, SimpleChanges} from '@angular/core';
 import {UniFieldLayout} from '../interfaces';
 import {FormControl} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subscription} from 'rxjs/Subscription';
+import {BehaviorSubject, Subscription} from 'rxjs';
 
 declare const _;
 

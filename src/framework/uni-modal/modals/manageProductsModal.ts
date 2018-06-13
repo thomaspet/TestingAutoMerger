@@ -6,7 +6,7 @@ import {
     ElsaPurchaseForCompany, ElsaPurchaseForUserLicense
 } from '@app/services/elsa/elsaPurchasesService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs';
 import {ElsaProductService, ElsaProduct} from '@app/services/elsa/elsaProductService';
 import {ElsaCompanyLicenseService, ElsaPurchaseForLicense} from '@app/services/elsa/elsaCompanyLicenseService';
 import {IModalOptions, IUniModal} from '../interfaces';

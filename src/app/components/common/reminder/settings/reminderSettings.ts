@@ -7,7 +7,7 @@ import {
     CustomerInvoiceReminderSettingsService,
     ErrorService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'reminder-settings',

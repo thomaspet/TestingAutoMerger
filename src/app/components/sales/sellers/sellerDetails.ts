@@ -1,7 +1,6 @@
 import {Component, ViewChild, Input} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 
 import {UniForm, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';

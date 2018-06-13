@@ -2,10 +2,7 @@ import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core'
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {User} from '@app/unientities';
-
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
-import {KeyCodes} from '@app/services/common/keyCodes';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'uni-user-modal',

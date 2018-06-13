@@ -2,7 +2,7 @@ import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '
 import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 declare const _;
 
 interface ITaxRequestModel {

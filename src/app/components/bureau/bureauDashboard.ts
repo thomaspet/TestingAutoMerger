@@ -9,7 +9,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {UniNewCompanyModal} from './newCompanyModal';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {Subscription} from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 import {CompanyService} from '../../services/common/companyService';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {KpiCompany} from './kpiCompanyModel';

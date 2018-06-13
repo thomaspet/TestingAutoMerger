@@ -3,8 +3,7 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Phone, PhoneTypeEnum} from '../../../app/unientities';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({

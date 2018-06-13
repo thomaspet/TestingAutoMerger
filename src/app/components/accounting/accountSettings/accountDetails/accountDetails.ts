@@ -1,6 +1,5 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {Account, VatType, AccountGroup} from '../../../../unientities';

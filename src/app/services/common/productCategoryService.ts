@@ -2,10 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {ProductCategory, ProductCategoryLink} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {ITag} from '../../components/common/toolbar/tags';
 import {StatisticsService} from './statisticsService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Injectable()
 export class ProductCategoryService extends BizHttp<ProductCategory> {

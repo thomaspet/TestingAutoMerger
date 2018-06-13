@@ -10,8 +10,7 @@ import {
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
 } from '../../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 
 @Component({

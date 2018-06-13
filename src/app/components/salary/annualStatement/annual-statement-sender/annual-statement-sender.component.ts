@@ -2,8 +2,7 @@ import {Component, OnInit, ViewChild, Output, EventEmitter} from '@angular/core'
 import {EmployeeReportPickerListComponent} from '../../common/employee-report-picker-list/employee-report-picker-list.component';
 import {ErrorService, EmployeeService, AnnualStatementService, ReportNames} from '../../../../services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {Employee} from '../../../../unientities';
 
 @Component({

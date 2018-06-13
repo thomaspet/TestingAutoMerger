@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
 import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig } from '@uni-framework/ui/unitable';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { AccountService } from '@app/services/accounting/accountService';
@@ -9,7 +9,6 @@ import { PostPostService } from '@app/services/accounting/postPostService';
 import { ErrorService } from '@app/services/common/errorService';
 import { LocalDate, StatusCodeJournalEntryLine, Payment, JournalEntry, BusinessRelation } from '@uni-entities';
 import { JournalEntryService, BusinessRelationService, PaymentService, StatisticsService } from '@app/services/services';
-import { Observable } from 'rxjs/Observable';
 
 
 @Component({

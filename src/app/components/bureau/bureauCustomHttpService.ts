@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/http';
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';

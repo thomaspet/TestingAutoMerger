@@ -3,8 +3,7 @@ import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
 import {Http, URLSearchParams} from '@angular/http';
 import {ReportDefinitionParameter, ReportDefinition, LocalDate} from '@uni-entities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {UniForm, FieldType} from '@uni-framework/ui/uniform';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 

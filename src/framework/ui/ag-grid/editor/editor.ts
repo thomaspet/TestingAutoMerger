@@ -20,14 +20,9 @@ import {TableDataService} from '../services/data-service';
 import {TableUtils} from '../services/table-utils';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
-import {
-    GridApi,
-    ColDef,
-    IDatasource,
-} from 'ag-grid';
+import {GridApi} from 'ag-grid';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {Observable, Subject} from 'rxjs';
 import * as _ from 'lodash';
 import * as Immutable from 'immutable';
 

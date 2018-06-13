@@ -43,9 +43,7 @@ import {
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
-import * as _ from 'lodash';
+import {Observable, Subject} from 'rxjs';
 
 @Component({
     selector: 'ag-grid-wrapper',

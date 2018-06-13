@@ -1,6 +1,5 @@
 import {Component, OnInit, Input, Output, OnChanges, SimpleChanges, EventEmitter, OnDestroy} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
 import {TravelLine, Travel} from '@uni-entities';
 import {TravelService, FileService, ErrorService} from '@app/services/services';
 const DIRTY = '_isDirty';

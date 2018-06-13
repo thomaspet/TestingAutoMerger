@@ -6,7 +6,7 @@ import {
     ErrorService,
     BankFileDownloadService
 } from '../../../../src/app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     template: `

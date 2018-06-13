@@ -5,9 +5,7 @@ import {
     UniCacheService, ErrorService, SalarybalanceService,
     WageTypeService, EmployeeService, SupplierService, ModulusService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject, ReplaySubject, Observable, Subscription} from 'rxjs';
 import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
 import {
     SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType, SalaryBalanceLine
@@ -18,8 +16,6 @@ import {
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {Subscription} from 'rxjs/Subscription';
-import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 
 const SAVING_KEY = 'viewSaving';
 

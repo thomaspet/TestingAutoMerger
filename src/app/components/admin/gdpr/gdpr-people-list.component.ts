@@ -2,7 +2,7 @@ import { Component, ViewEncapsulation } from '@angular/core';
 import {IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import { URLSearchParams } from '@angular/http';
 import { PeopleService } from '@app/components/admin/gdpr/people.service';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { Form, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { tableConfig } from './table.config';

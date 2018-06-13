@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {CustomerService} from '@app/services/sales/customerService';
 import {URLSearchParams} from '@angular/http';
 import { SupplierService } from '@app/services/accounting/supplierService';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ContactService } from '@app/services/common/contactService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { WorkerService } from '@app/services/timetracking/workerService';

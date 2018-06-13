@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {PayrollrunService, ErrorService} from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval} from '../../../../unientities';
 import * as moment from 'moment';

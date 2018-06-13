@@ -9,7 +9,7 @@ import {
     EventEmitter,
     ChangeDetectorRef
 } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {
     UniTable,
     UniTableColumn,

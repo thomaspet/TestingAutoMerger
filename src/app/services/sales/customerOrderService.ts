@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerOrder, CustomerOrderItem} from '../../unientities';
 import {StatusCodeCustomerOrder, LocalDate} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ErrorService} from '../common/errorService';
 import {ITickerActionOverride} from '../../services/common/uniTickerService';
 import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';

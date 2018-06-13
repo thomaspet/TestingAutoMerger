@@ -11,7 +11,7 @@ import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
 import { WorkitemTransferWizardPreview } from './transfer-wizard-preview';
 import { InvoiceHourService, ISumHours } from './invoice-hours.service';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { roundTo, safeInt } from '@app/components/common/utils/utils';
 import { LocalDate } from '@uni-entities';

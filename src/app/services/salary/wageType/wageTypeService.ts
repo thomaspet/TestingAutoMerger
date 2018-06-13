@@ -2,11 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {WageType, Account, LimitType} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {AccountService} from '../../accounting/accountService';
 import {ErrorService} from '../../common/errorService';
-import {Observable} from 'rxjs/Observable';
-import 'rxjs/Observable';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {

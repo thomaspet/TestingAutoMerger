@@ -7,8 +7,7 @@ import {
     ErrorService
 } from '../../../app/services/services';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 

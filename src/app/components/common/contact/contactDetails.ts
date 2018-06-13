@@ -1,7 +1,6 @@
 import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';

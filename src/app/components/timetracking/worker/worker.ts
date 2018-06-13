@@ -8,10 +8,9 @@ import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, EmployeeService, UserService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {flatten} from '@angular/compiler';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {WorkEditor} from '@app/components/timetracking/components/workeditor';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 

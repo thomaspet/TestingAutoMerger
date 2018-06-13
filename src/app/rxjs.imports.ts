@@ -1,8 +1,3 @@
-import 'rxjs/Observable';
-import 'rxjs/Subject';
-import 'rxjs/ReplaySubject';
-import 'rxjs/Subscription';
-
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/empty';
 import 'rxjs/add/observable/combineLatest';

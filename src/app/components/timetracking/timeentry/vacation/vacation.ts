@@ -4,10 +4,9 @@ import {WorkTimeOff, FieldType} from '../../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, FieldSize, ControlTypes} from '../../../common/utils/utils';
 import {ChangeMap} from '../../../common/utils/utils';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {IResult} from '../../genericview/detail';
 import {ErrorService} from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 

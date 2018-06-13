@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
-import {UniEntity, Product} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {UniEntity} from '../../../unientities';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';

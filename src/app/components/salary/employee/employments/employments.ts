@@ -7,10 +7,8 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {Employee, Employment, SubEntity, Project, Department, EmploymentValidValues} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, ReplaySubject} from 'rxjs';
 
 @Component({
     selector: 'employments',

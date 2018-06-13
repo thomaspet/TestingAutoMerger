@@ -1,9 +1,8 @@
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/of';
 import {CompanySettings} from '../../unientities';
 import {Injectable} from '@angular/core';
 import {CompanySettingsService} from './companySettingsService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService} from '../../components/layout/navbar/tabstrip/tabService';
 import {Router} from '@angular/router';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';

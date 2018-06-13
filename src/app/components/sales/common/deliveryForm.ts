@@ -3,8 +3,7 @@ import {Address, LocalDate, Terms, StatusCodeCustomerInvoice, PaymentInfoType} f
 import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniModalService, UniAddressModal} from '../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 declare const _;
 

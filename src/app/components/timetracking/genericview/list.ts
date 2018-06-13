@@ -6,7 +6,7 @@ import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 
 export interface IViewConfig {

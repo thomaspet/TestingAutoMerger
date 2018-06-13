@@ -4,7 +4,7 @@ import { BizHttp, } from '../../../framework/core/http/BizHttp';
 import { PaymentInfoType, PaymentInfoTypePart, } from '../../unientities';
 import { UniHttp, } from '../../../framework/core/http/http';
 import { ErrorService, } from '../common/errorService';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class PaymentInfoTypeService extends BizHttp<PaymentInfoType> {

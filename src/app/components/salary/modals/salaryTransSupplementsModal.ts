@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {SalaryTransaction, SalaryTransactionSupplement, Valuetype} from '../../../unientities';
 

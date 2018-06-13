@@ -12,7 +12,7 @@ import {
     BrowserStorageService
 } from '../../../services/services';
 import {FieldType} from '../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {
     UniSearchAccountConfig
 } from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';

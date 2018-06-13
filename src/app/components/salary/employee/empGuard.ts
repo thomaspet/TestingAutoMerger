@@ -1,7 +1,7 @@
 import {CanActivate, Router, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
 import {Injectable} from '@angular/core';
 import {EmployeeService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 @Injectable()

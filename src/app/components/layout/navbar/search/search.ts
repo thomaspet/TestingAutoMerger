@@ -10,7 +10,7 @@ import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {NavbarLinkService} from '../navbar-link-service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ErrorService} from '../../../../services/services';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';

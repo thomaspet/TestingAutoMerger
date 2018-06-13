@@ -2,13 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {UniView} from '../../../../../framework/core/uniView';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniCacheService, SalaryBalanceLineService, SalarybalanceService, ErrorService} from '../../../../services/services';
-import {SalaryBalance, SalBalDrawType, SalBalType} from '../../../../unientities';
+import {SalaryBalance, SalBalType} from '../../../../unientities';
 import * as _ from 'lodash';
-import {UniTable} from '@uni-framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salarybalanceList';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 const SALARYBALANCES_KEY = 'salarybalances';

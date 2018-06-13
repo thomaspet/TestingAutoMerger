@@ -9,7 +9,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {ErrorService, CustomerInvoiceReminderRuleService} from '../../../../services/services';
 import {
     CustomerInvoiceReminderSettings,

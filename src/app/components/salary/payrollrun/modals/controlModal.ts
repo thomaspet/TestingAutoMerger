@@ -10,9 +10,7 @@ import {
     SalaryTransactionPay, SalaryTransactionPayLine,
     SalaryTransactionSums, SalaryTransaction, StdSystemType, PayrollRun
 } from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable, BehaviorSubject, ReplaySubject} from 'rxjs';
 
 type PaylistSection = {
     employeeInfo: {

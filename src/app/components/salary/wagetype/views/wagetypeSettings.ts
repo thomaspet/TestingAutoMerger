@@ -4,8 +4,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {WageType, LimitType, StdWageType, SpecialAgaRule} from '../../../../unientities';
 import {WageTypeService, UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {Observable, BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'uni-wagetype-settings',

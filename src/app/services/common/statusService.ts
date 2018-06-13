@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {StatisticsService} from './statisticsService';
 import {ErrorService} from './errorService';
 import {UserService} from './userService';

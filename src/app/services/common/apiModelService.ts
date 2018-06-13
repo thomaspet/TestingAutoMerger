@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Http} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../authService';
 import {ErrorService} from './errorService';

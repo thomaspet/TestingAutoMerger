@@ -5,7 +5,7 @@ import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
     Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary, PostingSummary
 } from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ErrorService} from '../../common/errorService';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';

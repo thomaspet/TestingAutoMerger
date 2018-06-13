@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '@uni-framework/save/save';
 
 @Injectable()
