@@ -242,9 +242,7 @@ export class WageTypeView extends UniView implements OnDestroy {
 
             return wageType;
         })
-        .switchMap(wageType => (wageType.ID > 0)
-            ? this.wageTypeService.Put(wageType.ID, wageType)
-            : this.wageTypeService.Post(wageType))
+        .switchMap(wageType => this.wageTypeService.save(wageType))
         .do((wt: WageType) => {
             if (updateView) {
                 return;
