@@ -21,6 +21,13 @@ export class WagetypeList implements OnInit {
     public contextMenuItems: IContextMenuItem[] = [];
     public busy: boolean;
 
+    public toolbarActions = [{
+        label: 'Ny lønnsart',
+        action: this.createWageType.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private _router: Router,
         private tabSer: TabService,

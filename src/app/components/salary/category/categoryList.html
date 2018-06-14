@@ -1,5 +1,7 @@
-<uni-toolbar [config]="{title: 'Kategorier', omitFinalCrumb: true}"></uni-toolbar>
+<uni-toolbar 
+    [config]="{title: 'Kategorier', omitFinalCrumb: true}"
+    [saveactions]="toolbarActions">
+</uni-toolbar>
 <article class="application">
-    <button (click)="createCategory()" class="new-button">Ny kategori</button>
     <uni-table [resource]="categories$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>

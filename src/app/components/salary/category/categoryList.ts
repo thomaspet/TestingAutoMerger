@@ -15,6 +15,13 @@ export class CategoryList implements OnInit {
     public tableConfig: UniTableConfig;
     public categories$: Observable<EmployeeCategory>;
 
+    public toolbarActions = [{
+        label: 'Ny kategori',
+        action: this.createCategory.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private _router: Router,
         private tabSer: TabService,

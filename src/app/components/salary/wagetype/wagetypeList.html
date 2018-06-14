@@ -1,5 +1,8 @@
-<uni-toolbar [config]="{title: 'Lønnsarter', omitFinalCrumb: true}" [contextmenu]="contextMenuItems"></uni-toolbar>
+<uni-toolbar 
+    [config]="{title: 'Lønnsarter', omitFinalCrumb: true}" 
+    [contextmenu]="contextMenuItems"
+    [saveactions]="toolbarActions">
+</uni-toolbar>
 <article class="application wagetype" [attr.aria-busy] = "busy">
-    <button (click)="createWageType()" class="new-button">Ny lønnsart</button>
     <uni-table [resource]="wageTypes$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>
