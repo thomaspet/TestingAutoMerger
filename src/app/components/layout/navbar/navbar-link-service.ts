@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS, INavbarLinkSection, INavbarLink} from './navbar-links';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
+import {Observable} from 'rxjs/Observable';
 import * as _ from 'lodash';
 
 export {INavbarLinkSection, INavbarLink} from './navbar-links';

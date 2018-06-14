@@ -1,7 +1,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {SubEntityService} from '../common/subEntityService';
 import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';

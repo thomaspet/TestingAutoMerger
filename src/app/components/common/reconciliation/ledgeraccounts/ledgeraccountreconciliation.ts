@@ -29,7 +29,7 @@ import {
     BankAccountService,
     CompanySettingsService
 } from '../../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 import { JournalEntryData } from '@app/models/models';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';

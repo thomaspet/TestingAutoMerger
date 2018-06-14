@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ElsaProduct} from '@app/services/elsa/elsaProductService';
 import {ElsaPurchaseForLicense} from '@app/services/elsa/elsaCompanyLicenseService';
 import {UserLicense} from '@app/unientities';

@@ -10,7 +10,8 @@ import {ImageModal} from '../modals/ImageModal';
 import {UniImageSize} from '../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {saveAs} from 'file-saver';
-import {Observable, ReplaySubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
 
 const PAPERCLIP = '📎';
 

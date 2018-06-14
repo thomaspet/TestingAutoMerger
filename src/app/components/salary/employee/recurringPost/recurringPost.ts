@@ -16,7 +16,7 @@ import {
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniModalService} from '../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 

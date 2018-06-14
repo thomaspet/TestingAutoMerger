@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/core';
 import {UniModalService} from '../../modalService';
 import {IUniModal, IModalOptions, ConfirmActions} from '../../interfaces';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinition} from '@uni-entities';
 

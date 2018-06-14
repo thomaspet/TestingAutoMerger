@@ -6,7 +6,7 @@ import {WorkType, WageType} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {SYSTEMTYPES} from '../../common/utils/pipes';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ProductService, WageTypeService, ErrorService} from '@app/services/services';
 import {URLSearchParams} from '@angular/http';
 import {isObject, isString} from 'util';

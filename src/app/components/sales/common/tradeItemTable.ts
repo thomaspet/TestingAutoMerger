@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';

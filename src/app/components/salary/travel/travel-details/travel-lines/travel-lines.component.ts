@@ -4,7 +4,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {UniMath} from '@uni-framework/core/uniMath';
 import {IRowChangeEvent} from '@uni-framework/ui/ag-grid/interfaces';
 import {WageTypeService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 const DIRTY = '_isDirty';
 
 @Component({

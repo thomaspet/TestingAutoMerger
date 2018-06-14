@@ -8,7 +8,7 @@ import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {VideoMappingService} from '../../../services/services';
 import {IToolbarSearchConfig} from './toolbarSearch';
 import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 declare const _; // lodash
 
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';

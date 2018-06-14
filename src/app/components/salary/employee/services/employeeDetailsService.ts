@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 import {Employee, UniEntity, SalaryBalance} from '../../../../unientities';
 import {EmployeeService, ErrorService, SalarybalanceService} from '../../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 export interface ISaveInfo {
     newAfterSave: Type<UniEntity>;

@@ -4,7 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import 'rxjs/add/operator/switchMap';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class FileService extends BizHttp<File> {

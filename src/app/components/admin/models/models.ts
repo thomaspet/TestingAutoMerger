@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTable, UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../framework/ui/unitable/index';
 import {Model} from '../../../unientities';
 import {ModelService, ErrorService} from '../../../services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {FieldType, UniField} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';

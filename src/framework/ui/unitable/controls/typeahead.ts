@@ -8,7 +8,7 @@ import {
     OnInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';

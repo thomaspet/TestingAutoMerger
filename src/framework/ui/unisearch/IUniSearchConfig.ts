@@ -1,4 +1,5 @@
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 export enum SearchType1880 {
     searchCompanies,

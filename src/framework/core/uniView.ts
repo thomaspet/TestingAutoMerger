@@ -1,5 +1,6 @@
 import {UniCacheService} from '../../app/services/services';
-import {Observable, ReplaySubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
 
 export class UniView {
     protected cacheService: UniCacheService;

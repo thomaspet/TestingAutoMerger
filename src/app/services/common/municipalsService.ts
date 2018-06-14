@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Municipal} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class MunicipalService extends BizHttp<Municipal> {

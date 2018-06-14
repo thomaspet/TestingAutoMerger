@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {ReportDefinition} from '../../unientities';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 export enum ReportNames {
     PAYCHECK_FROM_TO = 'Lønnslipp',

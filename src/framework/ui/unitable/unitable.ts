@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnChanges, HostListener, ElementRef, ViewChild, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/fromPromise';

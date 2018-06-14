@@ -1,5 +1,5 @@
 import {Injectable, SecurityContext} from '@angular/core';
-import {ReplaySubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {DomSanitizer} from '@angular/platform-browser';
 
 export enum ToastType {

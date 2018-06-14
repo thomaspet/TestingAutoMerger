@@ -25,7 +25,8 @@ import {
     CompanySettingsService,
     ProductCategoryService
 } from '../../../services/services';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
 declare const _; // lodash
 

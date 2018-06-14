@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {AGASums, FreeAmountSummary, ApiKey, TypeOfIntegration} from '../../unientities';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class ApiKeyService extends BizHttp<ApiKey> {

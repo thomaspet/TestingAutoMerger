@@ -1,6 +1,6 @@
 import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '../../../services/services';
 import {SubEntity, Municipal, AGAZone} from '../../../unientities';
 import {SubEntityDetails} from './subEntityDetails';

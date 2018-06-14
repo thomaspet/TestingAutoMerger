@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {UniHttp} from '../core/http/http';
 import {ErrorService, CompanyService} from '../../app/services/services';
 import {Notification, NotificationStatus, Company} from '../../app/unientities';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {AuthService} from '../../app/authService';
 import {UniModalService, ConfirmActions} from '../uni-modal';
 

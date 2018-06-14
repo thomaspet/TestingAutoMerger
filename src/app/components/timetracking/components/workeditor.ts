@@ -4,7 +4,7 @@ import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetrac
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {ErrorService, BrowserStorageService, EmploymentService} from '../../../services/services';
 import {safeDec, filterInput, getDeepValue} from '../../common/utils/utils';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {WorkType, WorkItem, LocalDate} from '../../../unientities';
 import * as moment from 'moment';
 

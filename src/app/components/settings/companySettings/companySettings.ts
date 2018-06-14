@@ -68,7 +68,8 @@ import {
 } from '@uni-framework/uni-modal';
 import {SettingsService} from '../settings-service';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import { AgreementService } from '@app/services/common/agreementService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 

@@ -3,7 +3,8 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Email} from '../../../app/unientities';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({

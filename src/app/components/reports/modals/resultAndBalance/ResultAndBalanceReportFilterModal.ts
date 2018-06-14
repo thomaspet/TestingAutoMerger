@@ -5,7 +5,7 @@ import {ReportDefinitionParameterService, FinancialYearService, ErrorService} fr
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'result-and-balance-report-filter-form',

@@ -1,10 +1,13 @@
 import {Component, Input, SimpleChanges, ChangeDetectorRef} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import {ApiKeyService, TravelService, ErrorService} from '@app/services/services';
 import {ApiKey, TypeOfIntegration} from '@uni-entities';
+import * as _ from 'lodash';
 import {Router} from '@angular/router';
 import {WidgetDataService} from '@app/components/widgets/widgetDataService';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 interface IIntegrationConfig {
     label: string;

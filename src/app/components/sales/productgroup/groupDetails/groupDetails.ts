@@ -6,7 +6,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {UniSearchProductConfig} from '@app/services/common/uniSearchConfig/uniSearchProductConfig';
 
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as _ from 'lodash';
 
 class ExtendedProductCategory extends ProductCategory {

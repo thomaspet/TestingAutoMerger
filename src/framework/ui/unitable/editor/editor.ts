@@ -14,7 +14,7 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
 import {IEditorData} from '../config/unitableConfig';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromPromise';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';

@@ -34,9 +34,10 @@ import {
 } from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import { FieldType } from '../../../../framework/ui/uniform/field-type.enum';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import { Observable } from 'rxjs/Observable';
 
 interface ILocalValidation {
     success: boolean;

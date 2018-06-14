@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {
     UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
 } from '../../../../../framework/ui/unitable/index';

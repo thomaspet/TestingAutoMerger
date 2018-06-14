@@ -4,7 +4,8 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../..
 import {
     GrantService, SubEntityService, ErrorService, YearService, PayrollrunService, AgaSumService
 } from '../../../../services/services';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {FreeAmountSummary, AGASums} from './../../../../unientities';
 interface IFreeAmountData {

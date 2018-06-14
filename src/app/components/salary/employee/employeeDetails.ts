@@ -1,5 +1,6 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
-import {Observable, ReplaySubject, Subscription} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
@@ -33,6 +34,7 @@ import {
     ModulusService, SalarybalanceService, SalaryBalanceLineService, SupplementService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
+import {Subscription} from 'rxjs/Subscription';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';

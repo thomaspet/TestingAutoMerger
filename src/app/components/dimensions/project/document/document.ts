@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {Project} from '../../../../unientities';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniImageSize} from '../../../../../framework/uniImage/uniImage';

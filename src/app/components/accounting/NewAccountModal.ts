@@ -2,7 +2,7 @@ import {Component, Input, Output, ViewChild, EventEmitter, SimpleChange, AfterVi
 import {IUniModal, IModalOptions} from '../../../framework/uni-modal';
 import {UniForm} from '../../../framework/ui/uniform/index';
 import {BusinessRelation, Email, Phone, Address, Customer, Supplier} from '../../unientities';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig, UniSearch} from '../../../framework/ui/unisearch/index';
 import {AccountService, CustomerService, SupplierService} from '../../services/services';
 import {UniSearchCustomerConfig} from '../../services/common/uniSearchConfig/uniSearchCustomerConfig';

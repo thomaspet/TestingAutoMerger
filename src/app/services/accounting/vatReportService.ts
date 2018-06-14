@@ -11,8 +11,9 @@ import {
     AltinnSigning
 } from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable, Subject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
+import {Subject} from 'rxjs/Subject';
 
 @Injectable()
 export class VatReportService extends BizHttp<VatReport> {

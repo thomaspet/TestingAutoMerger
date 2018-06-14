@@ -2,7 +2,7 @@ import {EventEmitter, Injectable} from '@angular/core';
 import {RequestMethod} from '@angular/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {StimulsoftReportWrapper} from '../../../framework/wrappers/reporting/reportWrapper';
 import {ErrorService} from '../common/errorService';
 import {EmailService} from '../common/emailService';
@@ -12,6 +12,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {ReportDefinition, ReportDefinitionParameter, ReportDefinitionDataSource} from '../../unientities';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '../../authService';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportStep} from '@app/components/reports/report-step';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {StatisticsService} from '@app/services/common/statisticsService';

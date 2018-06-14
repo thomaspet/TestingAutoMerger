@@ -9,7 +9,7 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 import {ErrorService} from '../../../../services/services';
 
 declare var _;
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'balance-report-filter-form',

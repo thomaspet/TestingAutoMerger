@@ -23,7 +23,8 @@ import {
     UniModalService,
     UniBankAccountModal
 } from '../../../../framework/uni-modal';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';

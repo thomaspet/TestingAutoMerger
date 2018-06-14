@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {IUniTab} from './tabstrip';
 import {Router, NavigationEnd} from '@angular/router';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 // The enum is numbered based on its parent app:

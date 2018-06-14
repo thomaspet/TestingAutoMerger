@@ -15,7 +15,10 @@ import {UniView} from '../../../../framework/core/uniView';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 
-import {Observable, ReplaySubject, BehaviorSubject, Subscription} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subscription} from 'rxjs/Subscription';
 
 const WAGETYPE_KEY = 'wagetype';
 

@@ -2,7 +2,7 @@
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Worker, WorkRelation, WorkProfile, WorkItem} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {UserService} from '../common/userService';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';

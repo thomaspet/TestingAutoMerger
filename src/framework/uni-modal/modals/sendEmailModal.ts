@@ -9,7 +9,8 @@ import { UserService } from '@app/services/common/userService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'uni-send-email-modal',

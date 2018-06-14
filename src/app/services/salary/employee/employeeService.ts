@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {Employee, Operator, EmployeeCategory, Municipal, CompanySettings, SubEntity} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';

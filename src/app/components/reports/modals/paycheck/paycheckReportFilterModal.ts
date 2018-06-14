@@ -11,7 +11,8 @@ import {
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 type ModalConfig = {
     report: any,

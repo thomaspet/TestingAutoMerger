@@ -14,7 +14,7 @@ import {
 // import html from './UniSearchAttrHtml';
 // import css from './UniSearchAttrCss';
 import {IUniSearchConfig, SearchType1880} from './IUniSearchConfig';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/debounceTime';

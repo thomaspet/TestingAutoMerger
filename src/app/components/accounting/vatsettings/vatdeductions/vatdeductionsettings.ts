@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {VatDeduction} from '../../../../unientities';
 import {VatDeductionService, ErrorService} from '../../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';

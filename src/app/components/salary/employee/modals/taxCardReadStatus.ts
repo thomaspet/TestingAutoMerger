@@ -4,7 +4,7 @@ import {
 } from '../../../../../framework/ui/unitable';
 import {TaxCardReadStatus, Employee, EmployeeStatus} from '../../../../unientities';
 import {EmployeeService, ErrorService} from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'tax-card-read-status',

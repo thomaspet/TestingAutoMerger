@@ -1,6 +1,6 @@
 import {Component, OnInit, Output, Input, ViewChild, EventEmitter, OnChanges} from '@angular/core';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReportDefinitionService, ErrorService} from '../../../../services/services';
 import {Employee} from '../../../../unientities';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';

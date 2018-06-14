@@ -3,7 +3,7 @@ import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS} from '../navbar/navbar-links';
 import {NavbarLinkService, INavbarLinkSection, SidebarState} from '../navbar/navbar-link-service';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({

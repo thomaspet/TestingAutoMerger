@@ -1,7 +1,8 @@
 import {Component, OnInit, OnChanges, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
 import {AltinnReceiptService, ErrorService, YearService} from '../../../../services/services';
 import {AltinnReceipt} from '@uni-entities';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import {UniTableColumn, UniTableConfig, UniTableColumnType} from '../../../../../framework/ui/unitable';
 
 export interface IAltinnReceiptListOptions {

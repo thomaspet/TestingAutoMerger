@@ -4,7 +4,7 @@ import {ErrorService} from '../../../../services/services';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {ConfirmActions} from '../../../../../framework/uni-modal';
 import {LocalDate} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
 export interface IReminderConfirmModalConfig {

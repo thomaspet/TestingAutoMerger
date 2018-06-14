@@ -1,6 +1,6 @@
 import {UniTableColumn, IUniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './unitableColumn';
 import {IContextMenuItem, ITableFilter, IExpressionFilterValue} from '../unitable';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 export interface IDeleteButton {
     deleteHandler: (rowModel?: any) => any;

@@ -12,7 +12,8 @@ import {
 } from '../../../../../../app/services/services';
 import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySettingsModal';
 import {ToastService, ToastType} from '../../../../../../framework/uniToast/toastService';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';

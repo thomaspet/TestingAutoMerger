@@ -1,9 +1,10 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {IUniSearchConfig, UniSearch} from '@uni-framework/ui/unisearch';
 import {ErrorService} from '@app/services/common/errorService';
 import {CompanySettings, Company} from '@app/unientities';
+import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {CompanyService} from '@app/services/common/companyService';

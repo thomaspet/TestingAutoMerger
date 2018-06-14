@@ -4,8 +4,9 @@ import {
 } from '../../../services/services';
 import {SubEntity, PostalCode, Municipal} from '../../../unientities';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 declare var _;
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'sub-entity-details',

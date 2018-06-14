@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryTransactionSums, SalaryTransactionPeriodSums} from '../../../unientities';
 
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SalarySumsService extends BizHttp<SalaryTransactionSums> {

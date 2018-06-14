@@ -2,7 +2,7 @@ import {ViewChild, Component, SimpleChanges, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
@@ -79,6 +79,7 @@ import {
     SupplierInvoiceItemService,
     FileService
 } from '../../../../services/services';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';

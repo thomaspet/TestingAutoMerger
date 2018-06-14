@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Subject} from 'rxjs';
+import {Subject} from 'rxjs/Subject';
 
 @Component({
     selector: 'uni-password-guide',

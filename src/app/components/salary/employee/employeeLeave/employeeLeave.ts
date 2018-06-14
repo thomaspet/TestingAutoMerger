@@ -4,7 +4,7 @@ import {Employment, EmployeeLeave, Leavetype, LocalDate} from '../../../../unien
 import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService, EmployeeLeaveService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'employee-permision',

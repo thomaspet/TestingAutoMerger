@@ -2,7 +2,8 @@ import {Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit
 import {Travel} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {ReplaySubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TravelService} from '@app/services/services';
 const SELECTED_KEY = '_rowSelected';
 const PAGE_SIZE = 12;

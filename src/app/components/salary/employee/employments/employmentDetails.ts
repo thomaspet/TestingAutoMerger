@@ -2,7 +2,8 @@ import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChan
 import {Employment, Account, SubEntity, Project, Department} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TypeOfEmployment} from '@uni-entities';
 import {
     EmployeeService,

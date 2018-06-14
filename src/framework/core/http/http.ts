@@ -2,7 +2,7 @@
 import {Http, Headers, URLSearchParams, Request, RequestMethod} from '@angular/http';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '../../../app/authService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 

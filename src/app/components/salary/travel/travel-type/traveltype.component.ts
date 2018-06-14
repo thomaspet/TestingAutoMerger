@@ -5,7 +5,8 @@ import { TravelType, WageType  } from '@uni-entities';
 
 // import {TravelTypeService, WageTypeService} from '../../../../services/services';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TravelTypeService, WageTypeService } from '@app/services/salaryServicesModule';
 import {ErrorService } from '@app/services/common/errorService';
 import {UniView } from '@uni-framework/core/uniView';
@@ -13,6 +14,7 @@ import {Router, ActivatedRoute } from '@angular/router';
 import {UniCacheService } from '@app/services/services';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniSaveAction } from '@uni-framework/save/save';
+import { Observable } from 'rxjs/Observable';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { forkJoin } from 'rxjs/observable/forkJoin';
 

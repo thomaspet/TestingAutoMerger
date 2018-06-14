@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {CONTROLS_ENUM} from '../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SubEntityService extends BizHttp<SubEntity> {

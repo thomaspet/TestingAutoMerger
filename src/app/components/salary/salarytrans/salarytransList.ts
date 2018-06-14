@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, EventEmitter, Output, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {
     UniTableColumnType,
     UniTableColumn,

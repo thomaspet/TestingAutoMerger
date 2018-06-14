@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype, SalaryTransaction, WageType} from '../../../unientities';
 import * as moment from 'moment';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
 import {WageTypeService} from '../wageType/wageTypeService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';

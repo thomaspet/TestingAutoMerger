@@ -3,7 +3,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 interface IChangePasswordFields {
     OldPass: string;

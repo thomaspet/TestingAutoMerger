@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {Altinn} from '../../../unientities';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {
     ErrorService,
@@ -10,6 +10,7 @@ import {
     CompanySettingsService
 } from '../../../services/services';
 import {SettingsService} from '../settings-service';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 

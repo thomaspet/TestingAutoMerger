@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class CustomerService extends BizHttp<Customer> {

@@ -6,7 +6,7 @@ import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {ErrorService} from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'account-report-filter-form',

@@ -1,9 +1,10 @@
 import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {AltinnReceiptService} from '@app/services/services';
-import {ReplaySubject, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AltinnReceipt} from '@uni-entities';
 import {IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '@uni-framework/ui/unitable';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 
 @Component({
     selector: 'uni-altinn-overview',

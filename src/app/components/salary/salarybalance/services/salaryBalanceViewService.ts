@@ -6,7 +6,7 @@ import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class SalaryBalanceViewService {

@@ -11,7 +11,7 @@ import {
 } from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {CurrencyCode} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {CurrencyOverride, LocalDate, CurrencySourceEnum} from '../../../unientities';

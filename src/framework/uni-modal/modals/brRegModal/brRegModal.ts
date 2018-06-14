@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 import {CompanySettings, Address, Phone} from '@app/unientities';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';

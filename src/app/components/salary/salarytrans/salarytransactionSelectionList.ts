@@ -15,7 +15,8 @@ import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {ILinkMenuItem} from '../../common/linkMenu/linkMenu';
-import {Observable, ReplaySubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
 import {
     EmployeeService,
     PayrollrunService,

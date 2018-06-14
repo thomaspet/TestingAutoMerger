@@ -7,7 +7,8 @@ import {
     ErrorService
 } from '../../../../src/app/services/services';
 
-import { BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'uni-send-vipps-invoice-modal',

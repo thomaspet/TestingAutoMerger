@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {WageTypeService, ErrorService} from '../../../../services/services';
 import {WageType} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';

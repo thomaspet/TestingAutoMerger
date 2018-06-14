@@ -4,9 +4,12 @@ import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
 import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
+import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
-import {Observable, BehaviorSubject, Subject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Subject} from 'rxjs/Subject';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 

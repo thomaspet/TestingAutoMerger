@@ -1,9 +1,11 @@
 import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {Http, Headers} from '@angular/http';
+import {Observable} from 'rxjs/Observable';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto} from './unientities';
-import {Observable, ReplaySubject, Subject} from 'rxjs';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Subject} from 'rxjs/Subject';
 import 'rxjs/add/operator/map';
 
 import * as $ from 'jquery';

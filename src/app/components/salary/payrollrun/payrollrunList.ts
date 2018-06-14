@@ -4,7 +4,7 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../fr
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
 import {PayrollrunService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'payrollrun-list',

@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {WageTypeService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 import {WageType} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';

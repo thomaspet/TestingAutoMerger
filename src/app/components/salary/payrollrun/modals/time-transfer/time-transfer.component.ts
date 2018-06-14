@@ -1,10 +1,11 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {UniTable, IRowChangeEvent, UniTableColumn, UniTableColumnType, IUniTableConfig, UniTableConfig} from '@uni-framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {LocalDate, Employee, Employment, WorkItemToSalary, WorkItem} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService, PayrollrunService} from '@app/services/services';
 
 @Component({

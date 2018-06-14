@@ -3,7 +3,7 @@ import {RequestMethod} from '@angular/http';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AnnualStatement, Employee} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 
 @Injectable()
 export class AnnualStatementService extends BizHttp<AnnualStatement> {

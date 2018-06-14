@@ -20,7 +20,7 @@ import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceIn
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {UniAddFileModal} from '../../bill/detail/addFileModal';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 import {
     ToastService,

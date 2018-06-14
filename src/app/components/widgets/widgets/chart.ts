@@ -7,7 +7,7 @@
 import {IUniWidget} from '../uniWidget';
 import {WidgetDatasetBuilder} from '../widgetDatasetBuilder';
 import {WidgetDataService} from '../widgetDataService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {FinancialYearService} from '../../../services/services';
 import * as Chart from 'chart.js';
 

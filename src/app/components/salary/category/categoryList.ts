@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {EmployeeCategoryService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {EmployeeCategory} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 declare const _;
 

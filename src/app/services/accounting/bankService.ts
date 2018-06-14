@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Bank} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {BankData} from '../../models/models';
 
 @Injectable()

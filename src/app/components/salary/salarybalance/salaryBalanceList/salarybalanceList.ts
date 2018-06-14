@@ -2,8 +2,11 @@ import {Component, OnInit, ViewChild, Input, Output, EventEmitter, OnChanges, Af
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTable} from '../../../../../framework/ui/unitable/index';
 import {SalarybalanceService, ErrorService, NumberFormat} from '../../../../services/services';
-import {SalaryBalance} from '../../../../unientities';
-import {ReplaySubject, BehaviorSubject} from 'rxjs';
+import {SalaryBalance, SalBalDrawType} from '../../../../unientities';
+import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 interface BalanceActionFormattedType {
     salaryBalanceID: number;

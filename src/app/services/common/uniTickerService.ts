@@ -4,7 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Http} from '@angular/http';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
 import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';

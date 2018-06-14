@@ -2,7 +2,7 @@ import {Injectable, SimpleChange} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {BusinessRelation, CompanySettings, CompanyType} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {RequestMethod} from '@angular/http';
 import {BankAccountService} from '../accounting/bankAccountService';
 import {ErrorService} from '../common/errorService';

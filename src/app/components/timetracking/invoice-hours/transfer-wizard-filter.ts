@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, ViewChild} from '@angular/core';
 import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import {URLSearchParams} from '@angular/http';
 import { IWizardOptions, WizardSource } from './wizardoptions';
 import { InvoiceHourService } from './invoice-hours.service';

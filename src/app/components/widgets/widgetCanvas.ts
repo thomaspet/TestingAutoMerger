@@ -9,7 +9,7 @@ import {
     ChangeDetectorRef,
     EventEmitter,
 } from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';

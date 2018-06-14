@@ -12,7 +12,8 @@ import {
     PayrollRun, SalaryTransaction, Employee,
      SalaryTransactionSupplement, Valuetype
 } from '../../../unientities';
-import {Observable, ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 type HashMap<T> = {

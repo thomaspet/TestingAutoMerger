@@ -1,6 +1,7 @@
 import {Component, Input, ViewChild, Output, EventEmitter, OnChanges, OnInit} from '@angular/core';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 import {VatReportReference} from '../../../../unientities';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';

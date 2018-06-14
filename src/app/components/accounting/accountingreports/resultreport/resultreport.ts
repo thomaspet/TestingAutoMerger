@@ -3,7 +3,8 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {ISelectConfig, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 import {
     Project,
     Department

@@ -13,7 +13,7 @@ import {
     TransqueryDetailsCalculationsSummary
 } from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {JournalEntry, Account, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -39,6 +39,7 @@ import {
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
 import * as moment from 'moment';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as _ from 'lodash';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip

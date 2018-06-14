@@ -1,5 +1,5 @@
 import {ViewChild, Component, HostListener} from '@angular/core';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -9,6 +9,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
+import {Observable} from 'rxjs/Observable';
 import {
     Customer,
     Supplier,

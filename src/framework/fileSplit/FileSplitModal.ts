@@ -5,7 +5,7 @@ import {environment} from 'src/environments/environment';
 import {Http} from '@angular/http';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {ToastService, ToastType, ToastTime} from '../uniToast/toastService';
 import {KeyCodes} from '../../app/services/common/keyCodes';

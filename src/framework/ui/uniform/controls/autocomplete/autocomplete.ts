@@ -10,8 +10,9 @@ import {
     SimpleChanges
 } from '@angular/core';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {BaseControl} from '../baseControl';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces';
 
 import 'rxjs/add/observable/of';

@@ -4,7 +4,7 @@ import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientiti
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     ReportDefinitionParameterService,
     ErrorService,

@@ -17,7 +17,10 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import {UniTableUtils, ISavedFilter} from '../../unitable/unitableUtils';
 import {IUniTableConfig} from '../../unitable/config/unitableConfig';
 
-import {Observable, Subject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
+import * as Immutable from 'immutable';
+
 
 interface IUniTableSearchOperator {
     verb: string;

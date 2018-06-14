@@ -6,7 +6,7 @@ import {UniFieldLayout} from '../../interfaces';
 import {autocompleteDate} from '../../shared/autocompleteDate';
 import {UniCalendar} from '../calendar/calendar';
 import * as moment from 'moment';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {BaseControl} from '../baseControl';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';

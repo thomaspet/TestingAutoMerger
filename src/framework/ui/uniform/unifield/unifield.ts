@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import {UniFormError} from '@uni-framework/ui/uniform/interfaces/uni-form-error.interface';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces/uni-field-layout.interface';
 

@@ -13,7 +13,7 @@ import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
 @Component({

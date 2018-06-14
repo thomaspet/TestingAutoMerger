@@ -9,7 +9,8 @@ import {IViewConfig} from './list';
 import {getDeepValue, trimLength} from '../../common/utils/utils';
 import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {Observable, BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs/Observable';
 
 enum IAction {
     Save = 0,

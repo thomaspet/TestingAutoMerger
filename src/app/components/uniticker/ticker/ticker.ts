@@ -39,7 +39,7 @@ import {
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniModalService} from '../../../../framework/uni-modal';

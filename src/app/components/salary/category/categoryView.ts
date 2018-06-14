@@ -11,7 +11,8 @@ import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar
 import {UniView} from '../../../../framework/core/uniView';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
-import {Observable, BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     selector: 'uni-employeecategory-view',

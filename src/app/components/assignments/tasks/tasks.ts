@@ -1,6 +1,6 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Observable';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {Task, TaskType, TaskStatus, User} from '../../../unientities';
