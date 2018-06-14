@@ -1217,6 +1217,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         post.IsRecurringPost = true;
                         post.EmployeeID = employee.ID;
                         post.EmployeeNumber = employee.EmployeeNumber;
+                        post.EmploymentID = post.EmploymentID || 0;
 
                         if (post.Supplements) {
                             post.Supplements
