@@ -1278,33 +1278,24 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 // that is the same as using the credit field and a positive amount. Therefore we
                 // add the sum to the correct sum (this will also be done automatically in the
                 // API, because there we have no concept of debit/credit, just +/-)
-                if (debitData.amountNet > 0) {
-                    sum.SumDebet += debitData.amountNet;
+
+                // In stead of calculating summary using the netAmount for debi
+                // just use the gross amount, to prevent rounding errors, since JS is amazeballs at floating point numbers
+                if (debitData.amountGross > 0) {
+                    sum.SumDebet += debitData.amountGross;
                 } else {
-                    sum.SumCredit += debitData.amountNet;
+                    sum.SumCredit += debitData.amountGross;
                 }
-                if (creditData.amountNet < 0) {
-                    sum.SumCredit += creditData.amountNet;
+                if (creditData.amountGross < 0) {
+                    sum.SumCredit += creditData.amountGross;
                 } else {
-                    sum.SumDebet += creditData.amountNet;
+                    sum.SumDebet += creditData.amountGross;
                 }
 
                 const incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
                 sum.IncomingVat += incomingVat;
                 const outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
                 sum.OutgoingVat += outgoingVat;
-
-                if (incomingVat > 0) {
-                    sum.SumDebet += incomingVat;
-                } else {
-                    sum.SumCredit += incomingVat;
-                }
-
-                if (outgoingVat > 0) {
-                    sum.SumDebet += outgoingVat;
-                } else {
-                    sum.SumCredit += outgoingVat;
-                }
             });
         }
 
