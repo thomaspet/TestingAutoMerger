@@ -1,8 +1,10 @@
-import {Component, OnInit, Input, Output, OnChanges, SimpleChanges, EventEmitter, OnDestroy} from '@angular/core';
+import {
+    Component, OnInit, Input, Output, OnChanges, SimpleChanges,
+    EventEmitter, OnDestroy, SimpleChange
+} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
 import {TravelLine, Travel} from '@uni-entities';
-import {TravelService, FileService, ErrorService} from '@app/services/services';
+import {TravelService} from '@app/services/services';
 const DIRTY = '_isDirty';
 
 @Component({
@@ -20,11 +22,10 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
     public travelFormModel$: BehaviorSubject<Travel> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public filesBusy: boolean;
-    public busy: boolean;
+    public viewActive: boolean;
 
     constructor(
-        private travelService: TravelService,
-        private errorService: ErrorService
+        private travelService: TravelService
     ) { }
 
     public ngOnInit() {
@@ -37,6 +38,7 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
         if (changes['travel']) {
             this.travelLines$.next((this.travel && this.travel.TravelLines) || []);
             this.travelFormModel$.next(this.travel);
+            this.refreshForm(changes['travel']);
         }
     }
 
@@ -62,6 +64,14 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
     private emitChange(travel: Travel) {
         this.travelChange.next(travel);
+    }
+    private refreshForm(change: SimpleChange) {
+        if (!change || change.firstChange || change.currentValue.EmployeeNumber ||
+            change.currentValue.EmployeeNumber === change.previousValue.EmployeeNumber) {
+            return;
+        }
+        this.viewActive = true;
+        setTimeout(() => this.viewActive = false);
     }
 
 }
