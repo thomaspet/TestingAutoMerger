@@ -17,6 +17,7 @@ import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmail
 import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
 import * as moment from 'moment';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 @Injectable()
 export class CustomerOrderService extends BizHttp<CustomerOrder> {
@@ -196,10 +197,14 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                             const parameters = [{ Name: defaultReportParameterName, value: value }];
 
                             this.modalService.open(UniSendEmailModal, {
-                                data: model
+                                data: {model: model, reportType: ReportTypeEnum.ORDER, entity: order, parameters}
                             }).onClose.subscribe(email => {
                                 if (email) {
-                                    this.emailService.sendEmailWithReportAttachment(defaultOrderReportForm.Name, email, parameters);
+                                    this.emailService.sendEmailWithReportAttachment(
+                                        email.model.selectedForm.Name,
+                                        email.model.sendEmail,
+                                        email.parameters
+                                    );
                                 }
                                 resolve();
                             }, err => {

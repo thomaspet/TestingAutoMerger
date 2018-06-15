@@ -6,7 +6,7 @@ import {UniPreviewModal} from '@app/components/reports/modals/preview/previewMod
 import {ReportDefinition} from '@uni-entities';
 
 import {
-    ReportService,
+    ReportTypeService,
     ErrorService,
     BrowserStorageService,
     ReportDefinitionParameterService,
@@ -33,7 +33,7 @@ export class UniChooseReportModal implements IUniModal {
     inputType: any = {name: 'nr', secondInputType: null};
 
     constructor(
-        private reportService: ReportService,
+        private reportTypeService: ReportTypeService,
         private errorService: ErrorService,
         private browserStorageService: BrowserStorageService,
         private modalService: UniModalService,
@@ -43,7 +43,7 @@ export class UniChooseReportModal implements IUniModal {
 
     ngOnInit() {
         Observable.forkJoin(
-            this.reportService.getFormType(this.options.data.type),
+            this.reportTypeService.getFormType(this.options.data.type),
             this.companySettingsService.Get(1)
         ).subscribe(
             data => {

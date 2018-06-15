@@ -46,7 +46,6 @@ import {
     DimensionSettingsService,
     CustomDimensionService,
     DepartmentService,
-    ReportTypeEnum,
     ModulusService,
 } from '../../../../services/services';
 
@@ -63,6 +62,7 @@ import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {GetPrintStatusText} from '../../../../models/printStatus';
+import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 

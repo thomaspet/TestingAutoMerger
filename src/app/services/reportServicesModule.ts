@@ -4,12 +4,14 @@ import {ReportDefinitionParameterService} from './reports/reportDefinitionParame
 import {ReportDefinitionService} from './reports/reportDefinitionService';
 import {ReportService} from './reports/reportService';
 import {CampaignTemplateService} from './reports/campaignTemplateService';
+import {ReportTypeService} from './reports/reportTypeService';
 
 export * from './reports/reportDefinitionDataSourceService';
 export * from './reports/reportDefinitionParameterService';
 export * from './reports/reportDefinitionService';
 export * from './reports/reportService';
 export * from './reports/campaignTemplateService';
+export * from './reports/reportTypeService';
 
 @NgModule({
     // providers: [
@@ -27,6 +29,7 @@ export class ReportServicesModule {
                 ReportDefinitionParameterService,
                 ReportDefinitionService,
                 ReportService,
+                ReportTypeService,
                 CampaignTemplateService
             ]
         };

@@ -51,7 +51,7 @@ import {
     CampaignTemplateService,
     SubEntityService,
     ReportService,
-    ReportTypeEnum,
+    ReportTypeService,
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -72,6 +72,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import { AgreementService } from '@app/services/common/agreementService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
+import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
 declare var _;
 
@@ -211,7 +212,7 @@ export class CompanySettingsComponent implements OnInit {
         private subEntityService: SubEntityService,
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
-        private reportService: ReportService,
+        private reportTypeService: ReportTypeService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -249,9 +250,9 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getOrderTemplateText(),
             this.campaignTemplateService.getQuoteTemplateText(),
             this.isEHFBought(),
-            this.reportService.getFormType(ReportTypeEnum.QUOTE),
-            this.reportService.getFormType(ReportTypeEnum.ORDER),
-            this.reportService.getFormType(ReportTypeEnum.INVOICE),
+            this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
+            this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
+            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
