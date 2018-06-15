@@ -487,7 +487,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     public onOrderChange(order) {
         this.isDirty = true;
-        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         const customerChanged: boolean = this.didCustomerChange(order);
@@ -561,6 +560,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.currentOrderDate = order.OrderDate;
 
         this.order = _.cloneDeep(order);
+        this.updateSaveActions();
     }
 
     private updateCurrency(order: CustomerOrder, getCurrencyRate: boolean) {
@@ -1044,7 +1044,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     });
                 }
             },
-            disabled: transitions && !transitions['register'],
+            disabled: transitions
+                && !transitions['register']
+                || !this.currentCustomer
+                || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
             main: (!transitions || transitions['register']) && !printStatus
         });
 
