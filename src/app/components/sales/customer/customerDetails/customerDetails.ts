@@ -418,7 +418,7 @@ export class CustomerDetails implements OnInit {
                         cancel: 'Avbryt'
                     }
                 }).onClose.subscribe(res => {
-                    if (!res) { return observer.next(false); }
+                    if (res === null || res === undefined) { return observer.next(false); }
                     if (res === ConfirmActions.ACCEPT) {
                         this.saveCustomer((done) => {
                             observer.next(true);
