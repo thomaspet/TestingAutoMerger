@@ -473,7 +473,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
-        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         if (this.didCustomerChange(quote)) {
@@ -551,6 +550,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.currentQuoteDate = quote.QuoteDate;
 
         this.quote = _.cloneDeep(quote);
+        this.updateSaveActions();
     }
 
     private updateCurrency(quote: CustomerQuote, getCurrencyRate: boolean) {
@@ -1091,7 +1091,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
-            disabled: transitions && !transitions['register'],
+            disabled: transitions
+                && !transitions['register']
+                || !this.currentCustomer
+                || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
             main: !transitions || transitions['register']
         });
 
