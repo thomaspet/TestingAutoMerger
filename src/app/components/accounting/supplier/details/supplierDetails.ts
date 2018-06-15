@@ -398,6 +398,7 @@ export class SupplierDetails implements OnInit {
     public canDeactivate(): Observable<boolean> {
         const supplier = this.supplier$.value;
         if (this.isDirty
+            && (!supplier.Info.Addresses[0].CountryCode || supplier.Info.Addresses[0].CountryCode === 'NO')
             && supplier.OrgNumber
             && !this.modulusService.isValidOrgNr(supplier.OrgNumber)
         ) {

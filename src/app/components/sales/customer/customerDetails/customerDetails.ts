@@ -407,7 +407,9 @@ export class CustomerDetails implements OnInit {
             return true;
         }
 
-        if (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber)) {
+        if ((!customer.Info.Addresses[0].CountryCode || customer.Info.Addresses[0].CountryCode === 'NO')
+            && (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber))
+        ) {
             return Observable.create(observer => {
                 this.modalService.open(UniConfirmModalV2, {
                     header: 'Lagre kunde?',
