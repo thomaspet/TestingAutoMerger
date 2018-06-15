@@ -1055,6 +1055,8 @@ export class CustomerOrder extends UniEntity {
     public PaymentTermsID: number;
     public PrintStatus: number;
     public Requisition: string;
+    public RestAmountCurrency: number;
+    public RestExclusiveAmountCurrency: number;
     public SalesPerson: string;
     public ShippingAddressLine1: string;
     public ShippingAddressLine2: string;
@@ -1779,6 +1781,7 @@ export class TravelLine extends UniEntity {
     public TypeID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Travel: Travel;
     public travelType: TravelType;
     public CustomFields: any;
 }
@@ -5738,11 +5741,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -6051,9 +6054,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6613,11 +6616,16 @@ export class AGASums extends UniEntity {
 }
 
 
-export class AltinnAuthChallenge extends UniEntity {
+export class AuthenticationChallengeBE extends UniEntity {
     public Message: string;
-    public Status: string;
+    public Status: ChallengeRequestResult;
     public ValidFrom: Date;
     public ValidTo: Date;
+    public ExtensionData: ExtensionDataObject;
+}
+
+
+export class ExtensionDataObject extends UniEntity {
 }
 
 
@@ -6808,6 +6816,27 @@ export class JournalEntryLinePostPostData extends UniEntity {
 
 export class CreatePaymentBatchDTO extends UniEntity {
     public Password: string;
+}
+
+
+export class PaymentAttachmentDto extends UniEntity {
+    public CustomerNumber: number;
+    public dueAmount: string;
+    public ExternalBankAccountNumber: string;
+    public InvoiceNumber: string;
+    public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
+    public KID: string;
+    public Name: string;
+    public NumberOfPayments: number;
+    public PaidAmount: string;
+    public paymentAmount: string;
+    public PaymentFileID: number;
+    public ReceiptDate: Date;
+    public RestAmount: string;
+    public SerialNumberOrAcctSvcrRef: string;
+    public TotalAmount: string;
+    public Year: number;
 }
 
 
@@ -7503,6 +7532,17 @@ export enum WorkStatus{
     Complete = 2,
     OvertimeOrFlex = 3,
     ValidTimeOff = 4,
+}
+
+
+export enum ChallengeRequestResult{
+    Ok = 0,
+    InvalidCredentials = 1,
+    NoPinFound = 2,
+    NoPhoneNumber = 3,
+    UserLockedOut = 4,
+    InvalidPinType = 5,
+    StatusDead = 6,
 }
 
 

@@ -66,7 +66,7 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -902,6 +902,23 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
+    private getToolbarSubheads() {
+        if (!this.order) {
+            return;
+        }
+
+        const subheads: IToolbarSubhead[] = [];
+
+        if (this.order.RestExclusiveAmountCurrency) {
+            subheads.push({
+                label: 'Restbeløp',
+                title: this.numberFormat.asMoney(Math.abs(this.order.RestExclusiveAmountCurrency)) + ' eks. mva'
+            }); 
+        }
+        
+        return subheads;
+    }
+
     private updateToolbar() {
         let orderText = '';
         if (this.order.OrderNumber) {
@@ -936,6 +953,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         this.toolbarconfig = {
             title: orderText,
+            subheads: this.getToolbarSubheads(),
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousOrder.bind(this),
