@@ -13,7 +13,7 @@
         lazy loading tab content is available
         (coming in version 6, currently in release candidate)
     -->
-    <uni-tabs [tabs]="tabs" (tabClick)="activeTab = $event"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [activeIndex]="activeTabIndex" (tabClick)="activeTab = $event"></uni-tabs>
 
     <uni-form
         *ngIf="!activeTab?.value"

@@ -55,6 +55,7 @@ export class SellerDetails {
     public toolbarSubheads: IToolbarSubhead[];
 
     public activeTab: IUniTab;
+    public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {name: 'Detaljer'},
         {name: 'Tilbud', value: 'quotes'},
@@ -110,6 +111,16 @@ export class SellerDetails {
 
             this.setupForm();
             this.loadSalesSums();
+        });
+    }
+
+    ngOnInit() {
+        this.route.url.subscribe(url => {
+            // if seller url has sales as last url, use invoice as active tab
+            if (url[2] && url[2].path === 'sales') {
+                this.activeTabIndex = 3;
+                this.activeTab = { name: 'Faktura', value: 'invoices' };
+            }
         });
     }
 
