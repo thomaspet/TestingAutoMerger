@@ -600,7 +600,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     public onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
-        this.updateSaveActions();
         let shouldGetCurrencyRate: boolean = false;
 
         const customerChanged: boolean = this.didCustomerChange(invoice);
@@ -677,6 +676,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.currentInvoiceDate = invoice.InvoiceDate;
 
         this.invoice = _.cloneDeep(invoice);
+        this.updateSaveActions();
     }
 
     private updateCurrency(invoice: CustomerInvoice, getCurrencyRate: boolean) {
@@ -1318,8 +1318,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
-            disabled: id > 0 && !transitions['invoice'] && !transitions['credit'],
-            main: !id || (transitions && (transitions['invoice'] || transitions['credit']))
+            disabled: id > 0 && !transitions['invoice'] && !transitions['credit']
+                || !this.currentCustomer || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
+            main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
         });
 
         this.saveActions.push({

@@ -398,6 +398,7 @@ export class SupplierDetails implements OnInit {
     public canDeactivate(): Observable<boolean> {
         const supplier = this.supplier$.value;
         if (this.isDirty
+            && (!supplier.Info.Addresses[0].CountryCode || supplier.Info.Addresses[0].CountryCode === 'NO')
             && supplier.OrgNumber
             && !this.modulusService.isValidOrgNr(supplier.OrgNumber)
         ) {
@@ -411,9 +412,13 @@ export class SupplierDetails implements OnInit {
                         cancel: 'Avbryt'
                     }
                 }).onClose.subscribe(res => {
-                    if (!res) { return observer.next(false); }
+                    if (res === null || res === undefined) { return observer.next(false); }
                     if (res === ConfirmActions.ACCEPT) {
-                        this.saveSupplier(() => { });
+                        this.saveSupplier(() => {
+                            observer.next(true);
+                            return observer.complete();
+                        });
+
                     } else if (res === ConfirmActions.REJECT) {
                         this.isDirty = false;
                         if (this.ledgerAccountReconciliation) {

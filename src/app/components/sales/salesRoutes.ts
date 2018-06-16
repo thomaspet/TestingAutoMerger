@@ -101,6 +101,11 @@ export const salesRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
+        path: 'sellers/:id/sales',
+        component: SellerDetails,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
         path: 'kidsettings',
         component: KIDSettings,
         canDeactivate: [CanDeactivateGuard],

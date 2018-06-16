@@ -407,7 +407,9 @@ export class CustomerDetails implements OnInit {
             return true;
         }
 
-        if (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber)) {
+        if ((!customer.Info.Addresses[0].CountryCode || customer.Info.Addresses[0].CountryCode === 'NO')
+            && (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber))
+        ) {
             return Observable.create(observer => {
                 this.modalService.open(UniConfirmModalV2, {
                     header: 'Lagre kunde?',
@@ -418,7 +420,7 @@ export class CustomerDetails implements OnInit {
                         cancel: 'Avbryt'
                     }
                 }).onClose.subscribe(res => {
-                    if (!res) { return observer.next(false); }
+                    if (res === null || res === undefined) { return observer.next(false); }
                     if (res === ConfirmActions.ACCEPT) {
                         this.saveCustomer((done) => {
                             observer.next(true);

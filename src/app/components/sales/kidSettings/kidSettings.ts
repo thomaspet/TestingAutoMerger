@@ -6,9 +6,9 @@ import { ConfirmActions, UniModalService, } from '../../../../framework/uni-moda
 import { Observable, } from 'rxjs/Observable';
 import { ToastService, ToastType, ToastTime, } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction, } from '../../../../framework/save/save';
-import { UniTableColumn, UniTableColumnType, UniTableConfig, } from '../../../../framework/ui/unitable/index';
+import { UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem, } from '../../../../framework/ui/unitable/index';
 import { ErrorService, PaymentInfoTypeService, StatusService, } from '../../../services/services';
-import { PaymentInfoType } from '../../../unientities';
+import { PaymentInfoType, StatusCodePaymentInfoType } from '../../../unientities';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
@@ -31,6 +31,13 @@ export class KIDSettings {
     hasUnsavedChanges: boolean = false;
     listTableConfig: UniTableConfig;
     saveactions: IUniSaveAction[];
+    showInactiveInList: boolean = false;
+    initialPaymentInfoTypeList: PaymentInfoType[];
+    contextMenu: IContextMenuItem[] = [{
+        label: 'Vis inaktive',
+        action: () => this.toggleInactive(),
+        disabled: () => false
+    }];
 
     public sumDoesNotMatch: boolean = false;
     public currentPaymentInfoType: PaymentInfoType;
@@ -54,6 +61,21 @@ export class KIDSettings {
         this.tabService.addTab({name: 'KID-innstillinger', url: '/sales/kidsettings', moduleID: UniModules.KIDSettings, active: true});
         this.requestData();
     }
+
+    toggleInactive() {
+        if (!this.showInactiveInList) {
+            this.paymentInfoTypes = this.initialPaymentInfoTypeList;
+            this.showInactiveInList = true;
+            this.contextMenu[0].label = 'Skjul inaktive';
+        } else {
+            this.paymentInfoTypes = this.paymentInfoTypes.filter(
+                paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
+            );
+            this.showInactiveInList = false;
+            this.contextMenu[0].label = 'Vis inaktive';
+        }
+    }
+
 
     canDeactivate() {
         return new Promise((resolve, reject) => {
@@ -239,7 +261,8 @@ export class KIDSettings {
         this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
         ).subscribe(
             response => {
-                this.paymentInfoTypes = response[0];
+                this.initialPaymentInfoTypeList = response[0];
+                this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
