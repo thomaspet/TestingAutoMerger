@@ -675,7 +675,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.currentInvoiceDate = invoice.InvoiceDate;
 
-        this.invoice = _.cloneDeep(invoice);
+        this.invoice = invoice;
         this.updateSaveActions();
     }
 

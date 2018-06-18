@@ -562,8 +562,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.updateCurrency(order, shouldGetCurrencyRate);
 
         this.currentOrderDate = order.OrderDate;
-
-        this.order = _.cloneDeep(order);
         this.updateSaveActions();
     }
 
@@ -913,9 +911,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
             subheads.push({
                 label: 'Restbeløp',
                 title: this.numberFormat.asMoney(Math.abs(this.order.RestExclusiveAmountCurrency)) + ' eks. mva'
-            }); 
+            });
         }
-        
+
         return subheads;
     }
 

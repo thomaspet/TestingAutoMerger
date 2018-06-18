@@ -88,7 +88,7 @@ export class TofHead implements OnChanges {
         updatedEntity.Comment = this.commentControl.value;
 
         this.dataChange.emit(updatedEntity);
-        this.data = _.cloneDeep(updatedEntity);
+        // this.data = _.cloneDeep(updatedEntity);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {

@@ -551,8 +551,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.updateCurrency(quote, shouldGetCurrencyRate);
 
         this.currentQuoteDate = quote.QuoteDate;
-
-        this.quote = _.cloneDeep(quote);
         this.updateSaveActions();
     }
 
