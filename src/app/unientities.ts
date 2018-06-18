@@ -6515,17 +6515,18 @@ export class UserLicense extends UniEntity {
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
-    public Agreement: LicenseAgreement;
+    public CustomerAgreement: CustomerLicenseAgreement;
     public UserType: UserLicenseType;
     public Company: CompanyLicense;
     public ContractType: ContractLicenseType;
+    public UserLicenseAgreement: LicenseAgreement;
 }
 
 
-export class LicenseAgreement extends UniEntity {
+export class CustomerLicenseAgreement extends UniEntity {
     public AgreementId: number;
     public CanAgreeToLicense: boolean;
-    public HasAgreededToLicense: boolean;
+    public HasAgreedToLicense: boolean;
 }
 
 
@@ -6554,6 +6555,12 @@ export class Agency extends UniEntity {
 export class ContractLicenseType extends UniEntity {
     public TypeID: number;
     public TypeName: string;
+}
+
+
+export class LicenseAgreement extends UniEntity {
+    public AgreementId: number;
+    public HasAgreedToLicense: boolean;
 }
 
 

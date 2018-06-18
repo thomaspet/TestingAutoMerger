@@ -82,12 +82,12 @@ export class App {
     }
 
     private hasAcceptedLicense(user: UserDto): boolean {
-        return (user && user.License && user.License.Agreement) ?
-            (!!user.License.Agreement.HasAgreededToLicense || user.License.Agreement.AgreementId === 0) : true;
+        return (user && user.License && user.License.CustomerAgreement) ?
+            (!!user.License.CustomerAgreement.HasAgreedToLicense || user.License.CustomerAgreement.AgreementId === 0) : true;
     }
 
     private canAcceptLicense(user: UserDto): boolean {
-        return !!user.License.Agreement.CanAgreeToLicense;
+        return !!user.License.CustomerAgreement.CanAgreeToLicense;
     }
 
     private checkForChangelog(user: UserDto) {
@@ -120,7 +120,7 @@ export class App {
                 if (response === ConfirmActions.ACCEPT) {
                     this.uniHttp.asPOST()
                         .usingBusinessDomain()
-                        .withEndPoint('users?action=accept-agreement')
+                        .withEndPoint('users?action=accept-CustomerAgreement')
                         .send()
                         .map(res => res.json())
                         .subscribe(
