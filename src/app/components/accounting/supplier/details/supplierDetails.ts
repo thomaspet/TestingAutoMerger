@@ -253,7 +253,7 @@ export class SupplierDetails implements OnInit {
 
     private blockSupplier(supplierID: number) {
         const supplierIsBeingBlocked = this.supplier$.getValue().StatusCode !== StatusCode.Error;
-        this.supplierService.blockSupplier(supplierID).subscribe((res) => {
+        this.supplierService.blockSupplier(supplierID, supplierIsBeingBlocked).subscribe((res) => {
             const supplier = this.supplier$.getValue();
             if (supplierIsBeingBlocked) {
                 this.setSupplierStatusInToolbar(StatusCode.Error);

@@ -46,11 +46,12 @@ export class SupplierService extends BizHttp<Supplier> {
             .send();
     }
 
-    public blockSupplier(id: number) {
+    public blockSupplier(id: number, isBlock: boolean = false) {
+        const action: string = isBlock ? 'block' : 'unblock';
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withEndPoint(`${this.relativeURL}?action=block&ID=${id}`)
+            .withEndPoint(`${this.relativeURL}?action=${action}&ID=${id}`)
             .send();
     }
 
