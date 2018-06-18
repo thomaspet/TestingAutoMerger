@@ -24,7 +24,7 @@ export class BillHistoryView {
     ) {}
 
     public ngOnChanges() {
-        if (this.parentID && this.supplierID) {
+        if (this.supplierID) {
             this.refreshList();
         }
     }
