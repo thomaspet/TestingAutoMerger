@@ -312,7 +312,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                             }).onClose.subscribe(email => {
                                 if (email) {
                                     this.emailService.sendEmailWithReportAttachment(
-                                        email.selectedForm.Name,
+                                        email.model.selectedForm.Name,
                                         email.model.sendEmail,
                                         email.parameters
                                     );
