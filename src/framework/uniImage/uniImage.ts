@@ -92,6 +92,9 @@ export class UniImage {
     public imageDeleted: EventEmitter<File> = new EventEmitter<File>();
 
     @Output()
+    public imageUnlinked: EventEmitter<File> = new EventEmitter<File>();
+
+    @Output()
     public imageClicked: EventEmitter<File> = new EventEmitter<File>();
 
     @Output()
@@ -235,8 +238,7 @@ export class UniImage {
         if (!this.token || !this.activeCompany) {
             return;
         }
-
-        if (this.fileIDs && this.fileIDs.length > 0) {
+        if (this.fileIDs && this.fileIDs.length > 0 && !(this.entity && this.entityID)) {
             const requestFilter = 'ID eq ' + this.fileIDs.join(' or ID eq ');
             this.http.asGET()
                 .usingBusinessDomain()
@@ -461,38 +463,74 @@ export class UniImage {
     }
 
     public deleteImage() {
+        const oldFileID = this.files[this.currentFileIndex].ID;
+        let endpoint = `files/${oldFileID}`;
+
+        const buttonLabels: any = {
+            reject: 'Slett',
+            cancel: 'Avbryt'
+        };
+
+        // When endpoint is supplierInvoice, should emit change
+        if (this.entity === 'SupplierInvoice') {
+            buttonLabels.accept = 'Legg tilbake i innboks';
+        }
+
+        if (this.entity && this.entityID) {
+            endpoint = `files/${this.entity}/${this.entityID}/${oldFileID}`;
+        }
+
         this.modalService.confirm({
             header: 'Bekreft sletting',
             message: 'Vennligst bekreft sletting av fil',
-            buttonLabels: {
-                accept: 'Slett',
-                cancel: 'Avbryt'
-            }
+            buttonLabels: buttonLabels
         }).onClose.subscribe(response => {
-            if (response === ConfirmActions.ACCEPT) {
-                const oldFileID = this.files[this.currentFileIndex].ID;
+            if (response === ConfirmActions.REJECT) {
                 this.http.asDELETE()
                     .usingBusinessDomain()
-                    .withEndPoint(`files/${oldFileID}`)
+                    .withEndPoint(endpoint)
                     .send()
                     .subscribe(
                         res => {
-                            const current = this.files[this.currentFileIndex];
-
-                            this.files.splice(this.currentFileIndex, 1);
-                            this.currentFileIndex--;
-                            if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
-
-                            if (this.currentFileIndex >= 0) { this.loadImage(); }
-                            if (!this.singleImage) { this.loadThumbnails(); }
-
-                            this.fileListReady.emit(this.files);
-                            this.imageDeleted.emit(current);
+                            this.removeImage();
                         },
                         err => this.errorService.handle(err)
                     );
+            } else if (response === ConfirmActions.ACCEPT) {
+                if (this.entity && this.entityID) {
+                    endpoint = `files/${this.files[this.currentFileIndex].ID}?action=unlink`
+                        + `&entitytype=${this.entity}&entityid=${this.entityID}`;
+                    this.http
+                        .asPOST()
+                        .usingBusinessDomain()
+                        .withEndPoint(endpoint)
+                        .send()
+                        .subscribe((res) => {
+                            this.removeImage(true);
+                        });
+                } else {
+                    this.removeImage(true);
+                }
             }
         });
+    }
+
+    private removeImage(isUnlink: boolean = false) {
+        const current = this.files[this.currentFileIndex];
+
+        this.files.splice(this.currentFileIndex, 1);
+        this.currentFileIndex--;
+        if (this.currentFileIndex < 0 && this.files.length > 0) { this.currentFileIndex = 0; }
+
+        if (this.currentFileIndex >= 0) { this.loadImage(); }
+        if (!this.singleImage) { this.loadThumbnails(); }
+
+        this.fileListReady.emit(this.files);
+        this.imageDeleted.emit(current);
+
+        if (isUnlink) {
+            this.imageUnlinked.emit(current);
+        }
     }
 
     public onLoadImageError(error) {
