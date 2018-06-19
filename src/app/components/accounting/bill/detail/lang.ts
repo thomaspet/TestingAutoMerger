@@ -51,6 +51,7 @@ export const billViewLanguage = {
     err_missing_journalEntries: 'Kontering mangler!',
     err_diff: 'Differanse i posteringer!',
     err_supplieraccount_not_found: 'Fant ikke leverandørkonto!',
+    err_journal: 'Bokføring feilet',
 
     ask_archive: 'Arkivere faktura ',
     ask_journal_msg: 'Bokføre fakturamottak med beløp ',

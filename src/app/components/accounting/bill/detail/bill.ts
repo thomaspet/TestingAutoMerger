@@ -184,7 +184,7 @@ export class BillView implements OnInit {
     private rootActions: IUniSaveAction[] = [
         {
             label: lang.tool_save,
-            action: (done) => this.save(done),
+            action: (done) => this.save(done).catch(() => {}),
             main: true,
             disabled: true
         },
@@ -1869,7 +1869,7 @@ export class BillView implements OnInit {
                     if (result) {
                         done(lang.save_success);
                     } else {
-                        done();
+                        done(lang.err_journal);
                     }
                 });
 
@@ -2165,7 +2165,6 @@ export class BillView implements OnInit {
                 });
 
             }, (err) => {
-                this.errorService.handle(err);
                 reject(err);
             });
         });
@@ -2577,16 +2576,10 @@ export class BillView implements OnInit {
                     } else {
                         reload();
                     }
-                }, (error) => {
-                    let msg = error.statusText;
-                    if (error._body) {
-                        msg = trimLength(error._body, 150, true);
-                        this.showErrMsg(msg, true);
-                    } else {
-                        this.userMsg(lang.save_error);
-                    }
-                    if (done) { done(lang.save_error + ': ' + msg); }
-                    reject({ success: false, errorMessage: msg });
+                }, (err) => {
+                    this.errorService.handle(err);
+                    if (done) { done(lang.save_error); }
+                    reject({ success: false, errorMessage: lang.save_error });
                 });
             };
 
@@ -3038,6 +3031,9 @@ export class BillView implements OnInit {
                     this.save(undefined, false).then(() => {
                         this.busy = false;
                         resolve(true);
+                    }).catch(() => {
+                        this.busy = false;
+                        resolve(false);
                     });
                 } else if (response === ConfirmActions.REJECT) {
                     if (this.hasUploaded) {
