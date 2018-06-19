@@ -69,13 +69,14 @@
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"
-            [entity]="(current | async)?.ID ? 'SupplierInvoice' : ''"
+            [entity]="'SupplierInvoice'"
             [entityID]="(current | async)?.ID"
             [size]="1200"
             [splitAllowed]="true"
             [rotateAllowed]="true"
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
+            (imageUnlinked)="imageUnlinked($event)"
             (imageClicked)="onImageClicked($event)"
             (useWord)="onUseWord($event)">
         </uni-image>

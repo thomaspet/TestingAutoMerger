@@ -817,6 +817,10 @@ export class BillView implements OnInit {
         }
     }
 
+    public imageUnlinked(file: any) {
+        this.tagFileStatus(file.ID, 0);
+    }
+
     private hasChangedFiles(files: Array<any>) {
         if ((!this.files) && (!files)) { return false; }
         if ((!this.files) || (!files)) { return true; }
