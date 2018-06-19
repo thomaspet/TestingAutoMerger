@@ -20,6 +20,14 @@
             "FilterOperator": "startswith"
         },
         {
+            "Header": "Bilagsnr.",
+            "Field": "JournalEntry.JournalEntryNumber",
+            "Type": "link",
+            "ExternalModel": "JournalEntry",
+            "LinkNavigationProperty": "JournalEntryID",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
