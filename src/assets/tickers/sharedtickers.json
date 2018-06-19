@@ -124,117 +124,126 @@
                 "Width": "7rem"
             }
         ],
-            "Filters": [
-                {
-                    "Name": "Alle",
-                    "Code": "all_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": false,
-                            "FieldFilters": [{
-                                    "Field": "StatusCode",
-                                    "Operator": "ne",
-                                    "Value": "42001"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Mine",
-                    "Code": "my_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": true,
-                            "FieldFilters": [{
-                                    "Field": "CreatedBy",
-                                    "Operator": "eq",
-                                    "Value": ":currentuserid"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Pågående",
-                    "Code": "inprogress_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": true,
-                            "FieldFilters": [{
-                                    "Field": "StatusCode",
-                                    "Operator": "eq",
-                                    "Value": "70001"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Feilede",
-                    "Code": "failed_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": true,
-                            "FieldFilters": [{
-                                    "Field": "StatusCode",
-                                    "Operator": "eq",
-                                    "Value": "70002"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Ferdigbehandlet",
-                    "Code": "completed_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": true,
-                            "FieldFilters": [{
-                                    "Field": "StatusCode",
-                                    "Operator": "eq",
-                                    "Value": "70003"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Faktura",
-                    "Code": "customerinvoice_sharings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": false,
-                            "FieldFilters": [{
-                                    "Field": "EntityType",
-                                    "Operator": "eq",
-                                    "Value": "CustomerInvoice"
-                                }, {
-                                    "Field": "EntityType",
-                                    "Operator": "eq",
-                                    "Value": "CustomerInvoiceReminder"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "Name": "Lønnsavregning",
-                    "Code": "payroll_sharingings",
-                    "UseAllCriterias": true,
-                    "FilterGroups": [{
-                            "UseAllCriterias": true,
-                            "FieldFilters": [{
-                                    "Field": "EntityType",
-                                    "Operator": "eq",
-                                    "Value": "PayrollRun"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
+        "Actions": [
+            {
+                "Name": "Eksporter",
+                "Code": "export_sharings",
+                "Type": "export",
+                "ExecuteWithMultipleSelections": true,
+                "ExecuteWithoutSelection": true
+            }
+        ],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": false,
+                        "FieldFilters": [{
+                                "Field": "StatusCode",
+                                "Operator": "ne",
+                                "Value": "42001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Mine",
+                "Code": "my_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                                "Field": "CreatedBy",
+                                "Operator": "eq",
+                                "Value": ":currentuserid"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Pågående",
+                "Code": "inprogress_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "70001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Feilede",
+                "Code": "failed_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "70002"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Ferdigbehandlet",
+                "Code": "completed_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "70003"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Faktura",
+                "Code": "customerinvoice_sharings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": false,
+                        "FieldFilters": [{
+                                "Field": "EntityType",
+                                "Operator": "eq",
+                                "Value": "CustomerInvoice"
+                            }, {
+                                "Field": "EntityType",
+                                "Operator": "eq",
+                                "Value": "CustomerInvoiceReminder"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Lønnsavregning",
+                "Code": "payroll_sharingings",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                        "UseAllCriterias": true,
+                        "FieldFilters": [{
+                                "Field": "EntityType",
+                                "Operator": "eq",
+                                "Value": "PayrollRun"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
     },
     {
         "Name": "Delinger",
