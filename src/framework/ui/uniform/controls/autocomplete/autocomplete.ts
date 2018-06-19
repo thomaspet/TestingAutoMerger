@@ -29,6 +29,10 @@ import * as _ from 'lodash';
 import {IGroupConfig} from '@uni-framework/ui/unitable/controls/autocomplete';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
+export interface IAutocompleteCache {
+    templates?: string[];
+    search?: any[];
+}
 
 @Component({
     selector: 'uni-autocomplete-input',

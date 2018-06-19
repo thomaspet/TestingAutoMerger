@@ -5,6 +5,7 @@ import {DateUtil} from '../common/DateUtil';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 import {LocalDate} from '../../../../../app/unientities';
 import { UniTableColumn } from '@uni-framework/ui/unitable';
+import * as Immutable from 'immutable';
 
 
 @Component({
