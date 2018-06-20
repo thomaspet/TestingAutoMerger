@@ -7,6 +7,7 @@
                 [config]="config$"
                 [fields]="fields$"
                 [model]="project$"
+                (changeEvent)="onFormChange($event)"
                 (moveOutEvent)="onMoveOutOfForm($event)">
             </uni-form>
         </section>
