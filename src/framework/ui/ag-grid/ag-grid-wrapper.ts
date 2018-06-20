@@ -469,6 +469,8 @@ export class AgGridWrapper {
         }
 
         this.modalService.open(ColumnMenuNew, {
+            closeOnClickOutside: true,
+            closeOnEscape: true,
             data: {
                 columns: this.columns,
                 tableConfig: this.config
