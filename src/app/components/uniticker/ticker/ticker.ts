@@ -97,7 +97,8 @@ export class UniTicker {
     private canShowTicker: boolean = true;
 
     public contextMenuItems: any[];
-    private openAction: TickerAction;
+    public openAction: TickerAction;
+    public newWithEntityAction: TickerAction;
 
     private unitableFilter: string;
 
@@ -222,6 +223,10 @@ export class UniTicker {
                 return action.Type === 'details' && action.ExecuteWithoutSelection;
             });
 
+            this.newWithEntityAction = actions && actions.find(action => {
+                return action.Type === 'newwithentityaction';
+            });
+
             // locally store the default expand from .json to revert to it when user changes column setup
             this.defaultExpand = this.ticker.Expand;
             this.headers = '';
@@ -263,6 +268,14 @@ export class UniTicker {
 
     public onTableReady() {
         this.busy = false;
+    }
+
+    public openNewWithEntity(action) {
+        if (action && this.parentModel) {
+            let url = action.Route + this.parentModel.ID;
+            url += this.parentModel.ProjectID ? ';projectID=' + this.parentModel.ProjectID : '';
+            this.router.navigateByUrl(url);
+        }
     }
 
     public actionsToContextMenuItems(actions) {

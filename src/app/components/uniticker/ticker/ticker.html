@@ -14,7 +14,7 @@
             <span class="ticker-title">{{ticker.Name}}</span>
 
             <uni-context-menu
-                *ngIf="contextMenuItems?.length"
+                *ngIf="contextMenuItems?.length && !newWithEntityAction"
                 [actions]="contextMenuItems"
                 class="ticker-context-menu">
             </uni-context-menu>
@@ -25,6 +25,14 @@
                 class="sub-ticker-open-button"
                 (click)="onExecuteAction(openAction)">
                 Åpne
+            </button>
+
+            <button
+                *ngIf="newWithEntityAction"
+                type="button"
+                class="sub-ticker-open-button"
+                (click)="openNewWithEntity(newWithEntityAction)">
+                Ny
             </button>
         </header>
     </ng-template>
