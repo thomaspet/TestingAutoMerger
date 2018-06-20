@@ -7,7 +7,6 @@ import {
     Ticker,
     TickerGroup,
     ITickerActionOverride,
-    TickerAction,
     ITickerColumnOverride
 } from '../../services/common/uniTickerService';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
@@ -23,7 +22,7 @@ import {
     UniAutobankAgreementListModal,
     MatchCustomerManualModal
 } from './modals';
-import {File, Payment, PaymentBatch, LocalDate, CustomerInvoice} from '../../unientities';
+import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -38,6 +37,7 @@ import {
     CustomerInvoiceService,
     ElsaProductService,
     ElsaPurchaseService,
+    CompanySettingsService,
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -92,6 +92,7 @@ export class BankComponent implements AfterViewInit {
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];
+    private companySettings: CompanySettings;
     public hasAccessToAutobank: boolean;
 
     public toolbarconfig: IToolbarConfig = {
@@ -167,6 +168,16 @@ export class BankComponent implements AfterViewInit {
             Template: (row) => {
                 return row.ToBankAccountAccountNumber || row.PaymentExternalBankAccountNumber;
             }
+        },
+        {
+            Field: 'BusinessRelation.Name',
+            Template: (row) => {
+                if (!this.companySettings || !this.companySettings.TaxBankAccount || row.BusinessRelationName) {
+                    return row.BusinessRelationName;
+                }
+                if (row.ToBankAccountAccountNumber === this.companySettings.TaxBankAccount.AccountNumber) {return 'Forskuddstrekk'; }
+                return '';
+            }
         }
     ];
 
@@ -197,13 +208,18 @@ export class BankComponent implements AfterViewInit {
         private journalEntryService: JournalEntryService,
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchaseService
+        private elsaPurchasesService: ElsaPurchaseService,
+        private companySettingsService: CompanySettingsService,
     ) {
         this.updateTab();
         this.checkAutobankAccess();
     }
 
     public ngAfterViewInit() {
+        this.companySettingsService
+            .getCompanySettings(['TaxBankAccount'])
+            .subscribe(companySettings => this.companySettings = companySettings);
+
         this.uniTickerService.getTickers().then(tickers => {
             this.tickers = tickers;
             this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers)
