@@ -292,6 +292,12 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "E-post",
+                "Field": "EmailAddress",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
                 "Header": "Valuta",
                 "Field": "CurrencyCode.Code",
                 "Width": "65px",
@@ -396,6 +402,49 @@
                 "ExecuteWithoutSelection": true,
                 "Route": "/sales/invoices/0;customerID=",
                 "Type": "newWithEntityAction"
+            },
+            {
+                "Name": "Registrer betaling",
+                "Code": "invoice_registerpayment",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Lag kreditnota",
+                "Code": "invoice_createcreditnote",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Krediter kreditnota",
+                "Code": "invoice_creditcreditnote",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "NeedsActionOverride": true,
+                "Options": {
+                    "Transition": "invoice"
+                }
+            },
+            {
+                "Name": "Skriv ut/Eksporter",
+                "Code": "invoice_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Send på e-post",
+                "Code": "tof_sendemail",
+                "Type": "details",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
             }
         ]
     },
@@ -441,6 +490,12 @@
                 "Header": "Deres referanse",
                 "Field": "YourReference",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "E-post",
+                "Field": "EmailAddress",
+                "DefaultHidden": true,
+                "SelectRequired": true
             },
             {
                 "Header": "Valuta",
@@ -526,6 +581,40 @@
                 "ExecuteWithoutSelection": true,
                 "Route": "/sales/orders/0;customerID=",
                 "Type": "newWithEntityAction"
+            },
+            {
+                "Name": "Send på e-post",
+                "Code": "customer_order_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Skriv ut/Eksporter",
+                "Code": "customer_order_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Slett",
+                "Code": "customer_order_delete",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Avslutt",
+                "Code": "order_finish",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "complete"
+                }
             }
         ]
     },
@@ -577,6 +666,12 @@
                 "Header": "Deres referanse",
                 "Field": "YourReference",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "E-post",
+                "Field": "EmailAddress",
+                "DefaultHidden": true,
+                "SelectRequired": true
             },
             {
                 "Header": "Valuta",
@@ -642,6 +737,61 @@
                 "ExecuteWithoutSelection": true,
                 "Route": "/sales/quotes/0;customerID=",
                 "Type": "newWithEntityAction"
+            },
+            {
+                "Name": "Skriv ut/Eksporter",
+                "Code": "quote_print",
+                "Type": "print",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Send på e-post",
+                "Code": "customer_quote_sendemail",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInActionBar": true
+            },
+            {
+                "Name": "Overfør til ordre",
+                "Code": "quote_transfer_order",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "Options": {
+                    "Transition": "toOrder"
+                }
+            },
+            {
+                "Name": "Overfør til faktura",
+                "Code": "quote_transfer_invoice",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "Options": {
+                    "Transition": "toInvoice"
+                }
+            },
+            {
+                "Name": "Avslutt",
+                "Code": "quote_transfer_complete",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "Options": {
+                    "Transition": "complete"
+                }
+            },
+            {
+                "Name": "Slett",
+                "Code": "quote_delete",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": true,
+                "NeedsActionOverride": true
             }
         ]
     }

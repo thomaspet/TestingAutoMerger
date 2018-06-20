@@ -10,7 +10,10 @@ import {
 import {
     CustomerService,
     ErrorService,
-    CompanySettingsService
+    CompanySettingsService,
+    CustomerInvoiceService,
+    CustomerQuoteService,
+    CustomerOrderService
 } from '../../../../services/services';
 
 @Component({
@@ -20,7 +23,48 @@ import {
 export class CustomerList implements OnInit {
 
     public actionOverrides: Array<ITickerActionOverride> = [
-
+        {
+            Code: 'tof_sendemail',
+            ExecuteActionHandler: (selectedRows) => this.customerInvoiceService.onSendEmail(selectedRows)
+        },
+        {
+            Code: 'invoice_registerpayment',
+            ExecuteActionHandler: (selectedRows) => this.customerInvoiceService.onRegisterPayment(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => this.customerInvoiceService.onCheckRegisterPaymentDisabled(selectedRow)
+        },
+        {
+            Code: 'invoice_createcreditnote',
+            CheckActionIsDisabled: (selectedRow) => this.customerInvoiceService.onCheckCreateCreditNoteDisabled(selectedRow),
+            ExecuteActionHandler: (selectedRows) => this.customerInvoiceService.onCreateCreditNote(selectedRows)
+        },
+        {
+            Code: 'invoice_creditcreditnote',
+            CheckActionIsDisabled: (selectedRow) => this.customerInvoiceService.onCheckCreditCreditNoteDisabled(selectedRow)
+        },
+        {
+            Code: 'customer_quote_sendemail',
+            ExecuteActionHandler: (selectedRows) => this.customerQuoteService.onSendEmail(selectedRows)
+        },
+        {
+            Code: 'quote_delete',
+            ExecuteActionHandler: (selectedRows) => this.customerQuoteService.deleteQuotes(selectedRows)
+        },
+        {
+            Code: 'quote_print',
+            AfterExecuteActionHandler: (selectedRows) => this.customerQuoteService.onAfterPrintQuote(selectedRows)
+        },
+        {
+            Code: 'customer_order_sendemail',
+            ExecuteActionHandler: (selectedRows) => this.customerOrderService.onSendEmail(selectedRows)
+        },
+        {
+            Code: 'customer_order_delete',
+            ExecuteActionHandler: (selectedRows) => this.customerOrderService.deleteOrders(selectedRows)
+        },
+        {
+            Code: 'customer_order_print',
+            AfterExecuteActionHandler: (selectedRows) => this.customerOrderService.onAfterPrintOrder(selectedRows)
+        }
     ];
 
     private companySettings: CompanySettings;
@@ -38,6 +82,9 @@ export class CustomerList implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
+        private customerInvoiceService: CustomerInvoiceService,
+        private customerQuoteService: CustomerQuoteService,
+        private customerOrderService: CustomerOrderService
     ) { }
 
     public ngOnInit() {
