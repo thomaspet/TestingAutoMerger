@@ -113,7 +113,7 @@ export class Project {
             if (params && +params['projectID']) {
                 this.activeProjectID = +params['projectID'];
                 this.projectService
-                    .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
+                    .Get(this.activeProjectID, ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources,WorkPlaceAddress'])
                     .subscribe(project => {
                         const projectNumber = project.ProjectNumber + ' - ' || '';
                         this.toolbarconfig.title = projectNumber + project.Name;
@@ -213,7 +213,7 @@ export class Project {
     private setUpTable() {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
-            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources');
+            urlParams.set('expand', 'ProjectTasks.ProjectTaskSchedules,ProjectResources,WorkPlaceAddress');
 
             const activeFilter = this.filters[this.activeFilterIndex];
             return this.projectService.FindProjects(urlParams, activeFilter && activeFilter.value)
@@ -271,6 +271,10 @@ export class Project {
 
     public saveProject(done: Function) {
         const project = this.projectService.currentProject.getValue();
+        if (project.WorkPlaceAddress.ID === 0) {
+            project.WorkPlaceAddress._createguid = this.projectService.getNewGuid();
+        }
+
         if (project.ProjectResources) {
             project.ProjectResources = project.ProjectResources.filter(r => !r['_isEmpty']);
         }

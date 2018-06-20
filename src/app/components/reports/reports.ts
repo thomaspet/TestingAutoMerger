@@ -6,12 +6,7 @@ import {ReportDefinition, UniQueryDefinition} from '../../unientities';
 import {ReportDefinitionService, UniQueryDefinitionService, ErrorService} from '../../services/services';
 import {Report} from '../../models/reports/report';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
-import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
-import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
-import {CustomerAccountReportFilterModal} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
-import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
 import {SalaryPaymentListReportFilterModal} from './modals/salaryPaymentList/salaryPaymentListReportFilterModal';
 import {VacationPayBaseReportFilterModal} from './modals/vacationPayBase/vacationPayBaseReportFilterModal';
 import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdingAndAGA/salaryWithholdingAndAGAReportFilterModal';
@@ -45,43 +40,21 @@ interface ISubGroup {
 })
 export class UniReports implements OnInit {
 
-    // TODO: rewrite old modals..
-    @ViewChild(BalanceReportFilterModal)
-    private balanceListModal: BalanceReportFilterModal;
+    // TODO: remove old modals when they are written using generic modal (ReportParamModal)
+    @ViewChild(BalanceReportFilterModal) private balanceListModal: BalanceReportFilterModal;
 
-    @ViewChild(AccountReportFilterModal)
-    private accountReportFilterModal: AccountReportFilterModal;
+    @ViewChild(ResultAndBalanceReportFilterModal) private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
 
-    @ViewChild(PostingJournalReportFilterModal)
-    private postingJournalModal: PostingJournalReportFilterModal;
+    @ViewChild(SalaryPaymentListReportFilterModal) private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
 
-    @ViewChild(ResultAndBalanceReportFilterModal)
-    private resultAndBalanceModal: ResultAndBalanceReportFilterModal;
-
-    @ViewChild(BalanceGeneralLedgerFilterModal)
-    private balanceGeneralLedgerFilterModal: BalanceGeneralLedgerFilterModal;
-
-    @ViewChild(CustomerAccountReportFilterModal)
-    private customerAccountModal: CustomerAccountReportFilterModal;
-
-    @ViewChild(SupplierAccountReportFilterModal)
-    private supplierAccountModal: SupplierAccountReportFilterModal;
-
-    @ViewChild(SalaryPaymentListReportFilterModal)
-    private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
-
-    @ViewChild(VacationPayBaseReportFilterModal)
-    private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
+    @ViewChild(VacationPayBaseReportFilterModal) private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
 
     @ViewChild(SalaryWithholdingAndAGAReportFilterModal)
-    private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
+        private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
 
-    @ViewChild(PayCheckReportFilterModal)
-    private paycheckReportFilterModal: PayCheckReportFilterModal;
+    @ViewChild(PayCheckReportFilterModal) private paycheckReportFilterModal: PayCheckReportFilterModal;
 
     public activeTabIndex: number = 0;
-    public busy: boolean = true;
-
     public mainGroups: Array<IMainGroup> = [
         { name: 'Sales', label: 'Salg', groups: [
             { name: 'Quote', label: 'Tilbud', reports: [], keywords: ['Sales.Quote'] },
@@ -144,7 +117,7 @@ export class UniReports implements OnInit {
         }
     }
 
-    public showReportParams(report: ReportDefinition) {
+    private showReportParams(report: ReportDefinition) {
         switch (report.Name) {
             case 'Årsoppgave':
                 this.openReportModal(AnnualSatementReportFilterModalComponent, report);
@@ -173,21 +146,6 @@ export class UniReports implements OnInit {
                 break;
             case 14:
                 this.resultAndBalanceModal.open(report);
-                break;
-            case 15:
-                this.balanceGeneralLedgerFilterModal.open(report);
-                break;
-            case 16:
-                this.postingJournalModal.open(report);
-                break;
-            case 17:
-                this.accountReportFilterModal.open(report);
-                break;
-            case 18:
-                this.customerAccountModal.open(report);
-                break;
-            case 19:
-                this.supplierAccountModal.open(report);
                 break;
             default:
                 this.defaultRunReport(report);
@@ -219,21 +177,19 @@ export class UniReports implements OnInit {
         })
         .onClose
         .filter(modalResult => modalResult === ConfirmActions.ACCEPT)
-        .subscribe(modalResult => this.uniModalService.open(UniPreviewModal, {
+        .subscribe(() => this.uniModalService.open(UniPreviewModal, {
             data: report
         }));
     }
 
-    public showUniQuery(report: UniQueryDefinition) {
+    private showUniQuery(report: UniQueryDefinition) {
         this.router.navigateByUrl('/uniqueries/details/' + report.ID);
     }
 
     public ngOnInit() {
-        this.busy = true;
         Observable.forkJoin(
             this.reportDefinitionService.GetAll<ReportDefinition>(null),
             this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null))
-            .finally( () => this.busy = false )
             .subscribe( result => this.showReportsEx(result)
             , err => this.errorService.handle(err));
     }

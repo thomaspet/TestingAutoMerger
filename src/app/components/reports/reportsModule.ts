@@ -13,26 +13,14 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
 // routes
-import {AccountReportFilterForm} from './modals/account/AccountReportFilterModal';
-import {AccountReportFilterModal} from './modals/account/AccountReportFilterModal';
-import {BalanceGeneralLedgerFilterForm} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
-import {BalanceGeneralLedgerFilterModal} from './modals/balanceGeneralLedgerFilter/BalanceGeneralLedgerFilterModal';
 import {BalanceReportFilterForm} from './modals/balanceList/BalanceReportFilterModal';
 import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
-import {CustomerAccountReportFilterForm} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {
-    CustomerAccountReportFilterModal
-} from './modals/customerAccountReportFilter/CustomerAccountReportFilterModal';
-import {PostingJournalReportFilterForm} from './modals/postingJournal/PostingJournalReportFilterModal';
-import {PostingJournalReportFilterModal} from './modals/postingJournal/PostingJournalReportFilterModal';
 
 import {UniPreviewModal} from './modals/preview/previewModal';
 import {UniPrintModal} from './modals/print/printModal';
 
 import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
-import {SupplierAccountReportFilterModal} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
-import {SupplierAccountReportFilterForm} from './modals/supplierAccountReportFilter/SupplierAccountReportFilterModal';
 import {
     SalaryPaymentListReportFilterModal,
     SalaryPaymentListReportFilterModalContent
@@ -76,21 +64,11 @@ import {UniReportProgressComponent} from '@app/components/reports/modals/preview
     ],
     declarations: [
         UniReports,
-        AccountReportFilterForm,
-        AccountReportFilterModal,
-        BalanceGeneralLedgerFilterForm,
-        BalanceGeneralLedgerFilterModal,
         BalanceReportFilterForm,
         BalanceReportFilterModal,
-        CustomerAccountReportFilterForm,
-        CustomerAccountReportFilterModal,
-        PostingJournalReportFilterForm,
-        PostingJournalReportFilterModal,
         UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
-        SupplierAccountReportFilterForm,
-        SupplierAccountReportFilterModal,
         SalaryPaymentListReportFilterModal,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModal,
@@ -107,12 +85,7 @@ import {UniReportProgressComponent} from '@app/components/reports/modals/preview
     ],
     entryComponents: [
         BalanceReportFilterForm,
-        AccountReportFilterForm,
-        BalanceGeneralLedgerFilterForm,
-        CustomerAccountReportFilterForm,
-        PostingJournalReportFilterForm,
         ResultAndBalanceReportFilterForm,
-        SupplierAccountReportFilterForm,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
@@ -125,21 +98,11 @@ import {UniReportProgressComponent} from '@app/components/reports/modals/preview
     ],
     exports: [
         UniReports,
-        AccountReportFilterForm,
-        AccountReportFilterModal,
-        BalanceGeneralLedgerFilterForm,
-        BalanceGeneralLedgerFilterModal,
         BalanceReportFilterForm,
         BalanceReportFilterModal,
-        CustomerAccountReportFilterForm,
-        CustomerAccountReportFilterModal,
-        PostingJournalReportFilterForm,
-        PostingJournalReportFilterModal,
         UniPreviewModal,
         ResultAndBalanceReportFilterForm ,
         ResultAndBalanceReportFilterModal,
-        SupplierAccountReportFilterForm,
-        SupplierAccountReportFilterModal,
         SalaryPaymentListReportFilterModal,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModal,

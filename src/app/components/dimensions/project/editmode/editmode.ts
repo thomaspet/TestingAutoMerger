@@ -1,11 +1,11 @@
-﻿import {Component, ViewChild} from '@angular/core';
+﻿import {Component, ViewChild, SimpleChange} from '@angular/core';
 import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ProjectResponsibility} from '../../../../models/models';
 import {Observable} from 'rxjs/Observable';
-import {Project, Address, User} from '@app/unientities';
+import {Project, Address, User, Country} from '@app/unientities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     UniTableColumn,
@@ -17,7 +17,9 @@ import {
     ErrorService,
     UniSearchCustomerConfig,
     AddressService,
-    UserService
+    UserService,
+    CountryService,
+    PostalCodeService,
 } from '@app/services/services';
 
 declare var _;
@@ -55,7 +57,9 @@ export class ProjectEditmode {
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private addressService: AddressService,
         private userService: UserService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private countryService: CountryService,
+        private postalCodeService: PostalCodeService,
     ) {
         this.setupTable();
     }
@@ -68,6 +72,9 @@ export class ProjectEditmode {
                 project.ProjectResources = [];
             }
 
+            project.WorkPlaceAddress = project.WorkPlaceAddress || new Address();
+            project.WorkPlaceAddress.ID = project.WorkPlaceAddressID || 0;
+
             this.actionLabel = project && project.ID
                 ? 'Rediger prosjekt - '
                 + project.Name + ':' : 'Nytt prosjekt:';
@@ -76,6 +83,20 @@ export class ProjectEditmode {
             this.project = project;
             this.extendFormConfig();
         });
+    }
+
+    onFormChange(changes: SimpleChange) {
+        if (changes['WorkPlaceAddress.PostalCode'] && changes['WorkPlaceAddress.PostalCode'].currentValue) {
+            const project = this.project$.getValue();
+            this.postalCodeService.GetAll(`filter=Code eq ${project.WorkPlaceAddress.PostalCode}&top=1`)
+                .subscribe(
+                    res => {
+                        project.WorkPlaceAddress.City = (res.length) ? res[0].City : '';
+                        this.project$.next(project);
+                    },
+                    err => this.errorService.handle(err)
+                );
+        }
     }
 
     public onTableChange() {
@@ -102,28 +123,6 @@ export class ProjectEditmode {
         customer.Options = {
             uniSearchConfig: this.uniSearchConfig,
             valueProperty: 'ID'
-        };
-
-        const invoiceaddress: UniFieldLayout = fields[6];
-
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: 'Info.Addresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: 'WorkPlaceAddressID',
-            storeIdInProperty: 'WorkPlaceAddressID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address(),
-                    header: 'Arbeidssted'
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
         };
     }
 
@@ -251,14 +250,78 @@ export class ProjectEditmode {
                 FieldSetColumn: 1,
                 Legend: 'Kunde'
             },
-            <any>{
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Arbeidssted',
-                Property: 'WorkPlaceAddressID',
+             <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.AddressLine1',
+                FieldType: FieldType.TEXT,
+                Label: 'Adresselinje 1',
                 Section: 0,
                 FieldSet: 4,
                 FieldSetColumn: 1,
                 Legend: 'Lokasjon'
+            },
+            <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.AddressLine2',
+                FieldType: FieldType.TEXT,
+                Label: 'Adresselinje 2',
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+            },
+            <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.AddressLine3',
+                FieldType: FieldType.TEXT,
+                Label: 'Adresselinje 3',
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+            },
+            <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.PostalCode',
+                FieldType: FieldType.TEXT,
+                Label: 'Postnr.',
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+            },
+            <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.City',
+                FieldType: FieldType.TEXT,
+                Label: 'Poststed',
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+            },
+            <any> {
+                EntityType: 'Address',
+                Property: 'WorkPlaceAddress.Country',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Land',
+                Section: 0,
+                FieldSet: 4,
+                FieldSetColumn: 1,
+                Options: {
+                    search: (query) => {
+                        const filter = query && query.length
+                            ? `filter=startswith(Name,'${query}')&top=20`
+                            : 'top=20';
+
+                        return this.countryService.GetAll(filter);
+                    },
+                    events: {
+                        select: (model: Address, selectedItem: Country) => {
+                            model.Country = selectedItem.Name;
+                            model.CountryCode = selectedItem.CountryCode;
+                        }
+                    },
+
+                    valueProperty: 'Name',
+                    displayProperty: 'Name',
+                }
             },
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
@@ -278,7 +341,7 @@ export class ProjectEditmode {
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Startdato',
-                Property: 'Startdate',
+                Property: 'StartDate',
                 FieldSet: 5,
                 FieldSetColumn: 1
 
@@ -286,7 +349,7 @@ export class ProjectEditmode {
             <any>{
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Sluttdato',
-                Property: 'Enddate',
+                Property: 'EndDate',
                 FieldSet: 5,
                 FieldSetColumn: 1
             },
