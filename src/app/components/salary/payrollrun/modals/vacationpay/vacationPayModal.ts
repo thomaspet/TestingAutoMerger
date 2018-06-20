@@ -110,6 +110,12 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     public saveVacationpayLines() {
+        this.saveVacationpayLinesObs()
+            .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
+            .subscribe(model => this.getVacationpayData(model));
+    }
+
+    public saveVacationpayLinesObs(): Observable<VacationPayLine[]> {
         this.busy = true;
         this.vacationpayBasis = this.table.getTableData();
         const saveObservables: Observable<any>[] = [];
@@ -119,7 +125,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 saveObservables.push(this.vacationpaylineService.Post(vacationpayLine));
         });
 
-        Observable.forkJoin(saveObservables)
+        return Observable.forkJoin(saveObservables)
             .finally(() => this.busy = false)
             .do(() => {
                 this.saveIsActive = false;
@@ -127,9 +133,7 @@ export class VacationPayModal implements OnInit, IUniModal {
                 this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
             })
             .do(() => this.toastService.addToast('Feriepengelinjer lagret', ToastType.good, 4))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(() => this.vacationHeaderModel$.asObservable().take(1))
-            .subscribe(model => this.getVacationpayData(model));
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public createVacationPayments() {
@@ -283,9 +287,46 @@ export class VacationPayModal implements OnInit, IUniModal {
                 break;
         }
         this.setProperBasicAmount(headerModel);
-        this.getVacationpayData(headerModel);
+        this.promptUserIfNeededAndGetData(headerModel);
         this.setUpRates(this.vacationBaseYear);
         return headerModel;
+    }
+
+    private promptUserIfNeededAndGetData(headerModel: IVacationPayHeader) {
+        Observable
+            .of(this.saveIsActive)
+            .do(activeSave => {
+                if (!activeSave) {return; }
+                this.fields$.next(this.fields$.getValue().map(field => {
+                    field.ReadOnly = true;
+                    return field;
+                }));
+            })
+            .switchMap(activeSave =>
+                activeSave
+                    ? this.modalService.confirm(
+                        {
+                            header: 'Lagre',
+                            message: 'Du har ulagrede endringer, vil du lagre?',
+                            buttonLabels: {accept: 'Lagre', reject: 'Forkast'}
+                        })
+                        .onClose
+                    : Observable.of(ConfirmActions.REJECT))
+            .map(result => result === ConfirmActions.ACCEPT)
+            .switchMap(save => {
+                if (!save) {
+                    return Observable.of(null);
+                }
+                return this.saveVacationpayLinesObs();
+            })
+            .subscribe(() => {
+                const fields = this.fields$.getValue();
+                if (fields.some(field => field.ReadOnly)) {
+                    fields.forEach(field => field.ReadOnly = false);
+                    this.fields$.next(fields);
+                }
+                this.getVacationpayData(headerModel);
+            });
     }
 
     private setProperBasicAmount(headerModel: IVacationPayHeader) {
