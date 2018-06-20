@@ -54,11 +54,17 @@
 
             </ng-template>
 
-            <uni-bill-history
+            <uni-bill-previous
                 *ngIf="activeTabIndex === 1"
                 [supplierID]="(current | async)?.SupplierID"
-                [parentID]="(current | async)?.ID">
-            </uni-bill-history>
+                [supplierInvoiceID]="(current | async)?.ID">
+            </uni-bill-previous>                
+    
+            <uni-bill-history
+                *ngIf="activeTabIndex === 2"
+                [supplierID]="(current | async)?.SupplierID"
+                [supplierInvoiceID]="(current | async)?.ID">
+            </uni-bill-history>                
 
         </section>
     </section>

@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../../framework/ui/unitable/index';
-import {StatisticsService, SupplierInvoiceService, ErrorService} from '../../../../../services/services';
+import {SupplierInvoiceService, ErrorService} from '../../../../../services/services';
 import {URLSearchParams} from '@angular/http';
 import * as moment from 'moment';
 
@@ -10,7 +10,7 @@ import * as moment from 'moment';
 })
 export class BillHistoryView {
     @Input() public supplierID: number;
-    @Input() public parentID: number;
+    @Input() public supplierInvoiceID: number;
 
     public tableConfig: UniTableConfig;
     public listOfInvoices: Array<any> = [];
@@ -19,7 +19,6 @@ export class BillHistoryView {
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
-        private statisticsService: StatisticsService,
         private errorService: ErrorService
     ) {}
 
@@ -65,10 +64,10 @@ export class BillHistoryView {
     }
 
     private removeSelfFromList(list: Array<any>): boolean {
-        if (list && list.length > 0 && this.parentID) {
+        if (list && list.length > 0 && this.supplierInvoiceID) {
             const n = list.length - 1;
             for (let i = n; i >= 0; i--) {
-                if (list[i].ID === this.parentID ) {
+                if (list[i].ID === this.supplierInvoiceID) {
                     list.splice(i, 1);
                     return true;
                 }

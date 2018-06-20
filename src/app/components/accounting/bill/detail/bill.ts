@@ -176,6 +176,7 @@ export class BillView implements OnInit {
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {name: 'Kontering'},
+        {name: 'Forrige faktura'},
         {name: 'Leverandørhistorikk'}
     ];
 

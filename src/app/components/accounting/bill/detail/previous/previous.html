@@ -1,0 +1,14 @@
+<article *ngIf="!(supplierInvoice$ | async)">
+    Ingen tidligere fakturaer å vise for denne leverandøren
+</article>
+<article *ngIf="(supplierInvoice$ | async)">    
+    <uni-form [config]="uniformConfig$" [fields]="uniformFields$" [model]="supplierInvoice$"></uni-form>
+        
+    <journal-entry-manual
+        [mode]="2"
+        [editmode]="false"
+        [journalEntryID]="(supplierInvoice$ | async)?.JournalEntryID"
+        [runAsSubComponent]="true"
+        [doValidateBalance]="false">
+    </journal-entry-manual>
+</article>
