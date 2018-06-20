@@ -27,7 +27,7 @@
 
     <ul class="uni-multivalue-values" [attr.aria-expanded]="isOpen">
         <li class="multivalue-help">
-            <small>Slett rad (del)</small>
+            <small *ngIf="!field?.Options?.hideDeleteButton">Slett rad (del)</small>
             <small>Rediger rad (F1)</small>
             <small><a (click)="addNew(filter)">Legg til (F3)</a></small>
         </li>
@@ -53,11 +53,12 @@
                 (click)="selectRow(row)">
 
                 <div *ngIf="!row.Deleted">
-                            <span class="uni-multivalue-value">
-                                  {{getDisplayValue(row)}}
-                            </span>
+                    <span class="uni-multivalue-value">
+                            {{getDisplayValue(row)}}
+                    </span>
 
                     <button type="button"
+                            *ngIf="!field?.Options?.hideDeleteButton"
                             class="uni-multivalue_edit_action-delete"
                             (click)="delete(row, $event)">
                         Delete

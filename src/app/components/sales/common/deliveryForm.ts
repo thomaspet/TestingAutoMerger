@@ -1,12 +1,12 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
-import {Address, LocalDate, Terms, StatusCodeCustomerInvoice, PaymentInfoType} from '../../../unientities';
-import {AddressService, BusinessRelationService, ErrorService} from '../../../services/services';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {UniModalService, UniAddressModal} from '../../../../framework/uni-modal';
+import {Address, LocalDate, Terms, PaymentInfoType} from '@app/unientities';
+import {AddressService, BusinessRelationService, ErrorService} from '@app/services/services';
+import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
+import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
-declare const _;
 
 @Component({
     selector: 'tof-delivery-form',
@@ -36,7 +36,8 @@ export class TofDeliveryForm implements OnInit {
         private addressService: AddressService,
         private businessRelationService: BusinessRelationService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
@@ -97,48 +98,38 @@ export class TofDeliveryForm implements OnInit {
             }
         }
 
-        const shippingAddress = changes['_shippingAddress'];
-        if (shippingAddress) {
-            this.saveAddressOnCustomer(shippingAddress.currentValue).subscribe(
-                res => {
-                    this.addressService.addressToShipping(model, res);
-                    this.model$.next(model);
-                    this.entityChange.emit(model);
-                },
-                err => this.errorService.handle(err)
-            );
-        } else {
-            this.model$.next(model);
-            this.entityChange.emit(model);
+        const address = model['_shippingAddress'];
+        if (changes['_shippingAddress'] && address) {
+            if (address['_isDirty']) {
+                address['_isDirty'] = false;
+                this.saveAddressAndEmitChange(address);
+                return;
+            } else {
+                this.addressService.addressToShipping(model, address);
+            }
         }
+
+        this.model$.next(model);
+        this.entityChange.emit(model);
     }
 
-    private saveAddressOnCustomer(address: Address): Observable<Address> {
-        let idx = 0;
-
-        if (!address.ID || address.ID === 0) {
-            address['_createguid'] = this.addressService.getNewGuid();
-            this.entity.Customer.Info.Addresses.push(address);
-            idx = this.entity.Customer.Info.Addresses.length - 1;
-        } else {
-            idx = this.entity.Customer.Info.Addresses.findIndex((a) => a.ID === address.ID);
-            this.entity.Customer.Info.Addresses[idx] = address;
-        }
-
-        // remove entries with equal _createguid
-        this.entity.Customer.Info.Addresses = _.uniqBy(this.entity.Customer.Info.Addresses, '_createguid');
-
-        const saveObservable = this.businessRelationService.Put(
-            this.entity.Customer.Info.ID,
-            this.entity.Customer.Info
-        ).catch(err => this.errorService.handleRxCatch(err, saveObservable))
-        .map((response) => {
-            this.entity.Customer.Info = response;
-            this.model$.next(this.entity);
-            return response.Addresses[idx];
+    private saveAddressAndEmitChange(address) {
+        const businessRelation = this.entity.Customer.Info;
+        const addressIndex = businessRelation.Addresses.findIndex(a => {
+            return a['_createguid'] === address['_createguid']
+                || a.ID === address.ID;
         });
 
-        return saveObservable;
+        this.businessRelationService.Put(businessRelation.ID, businessRelation).subscribe(
+            res => {
+                this.entity.Customer.Info = res;
+                this.addressService.addressToShipping(this.entity, res.Addresses[addressIndex]);
+                this.model$.next(this.entity);
+                this.entityChange.emit(this.entity);
+
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private initFormLayout() {
@@ -148,13 +139,30 @@ export class TofDeliveryForm implements OnInit {
             displayValue: 'AddressLine1',
             linkProperty: 'ID',
             storeResultInProperty: '_shippingAddress',
+            hideDeleteButton: true,
             editor: (value) => {
+                if (!this.entity || !this.entity.Customer) {
+                    this.toastService.addToast(
+                        'Kan ikke opprette addresse uten kunde',
+                        ToastType.warn,
+                        5
+                    );
+
+                    return Promise.resolve(null);
+                }
+
                 const modal = this.modalService.open(UniAddressModal, {
                     data: value || new Address(),
                     header: 'Leveringsadresse'
                 });
 
-                return modal.onClose.take(1).toPromise();
+                return modal.onClose.take(1).map(address => {
+                    if (address && !address.ID) {
+                        address['_createguid'] = this.addressService.getNewGuid();
+                    }
+
+                    return address;
+                }).toPromise();
             },
             display: (address: Address) => {
                 return this.addressService.displayAddress(address);

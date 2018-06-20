@@ -8,7 +8,7 @@
         "Group": "Salg",
         "DefaultTabIndex": "1",
         "Model": "Customer",
-        "Expand": "",
+        "Expand": "Dimensions, Dimensions.Project",
         "Columns": [
             {
                 "Header": "Kundenr.",
@@ -49,6 +49,16 @@
                 "FilterOperator": "startswith"
             },
             {
+                "Header": "Prosjekt",
+                "Field": "Dimensions.Project.Name"
+            },
+            {
+                "Header": "ProsjektID",
+                "Field": "Dimensions.Project.ID",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
                 "Header": "Statuskode",
                 "Field": "Customer.StatusCode",
                 "DefaultHidden": true,
@@ -78,7 +88,7 @@
                 "ExecuteWithoutSelection": true
             }
         ],
-        "SubTickersCodes": ["customer_details", "contact_list", "invoice_list", "order_list", "quote_list"],
+        "SubTickersCodes": ["customer_details", "contact_list", "customer_invoice_list", "customer_order_list", "customer_quote_list"],
         "Filters": [
             {
                 "Name": "Lead",
@@ -229,6 +239,409 @@
                         "Field": "Info.ShippingAddress.City"
                     }
                 ]
+            }
+        ]
+    },
+    {
+        "Name": "Faktura",
+        "Code": "customer_invoice_list",
+        "RequiredUIPermissions": ["ui_sales_invoices"],
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerInvoice",
+        "Expand": "",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Fakturanr.",
+                "Field": "InvoiceNumber",
+                "Alias": "InvoiceNumber",
+                "Placeholder": "Kladd",
+                "Width": 100,
+                "Type": "link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate",
+                "FilterOperator": "gt",
+                "Width": 100
+            },
+            {
+                "Header": "Forfallsdato",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed",
+                "FilterOperator": "gt",
+                "Width": 100
+            },
+            {
+                "Header": "Leveringsdato",
+                "Field": "DeliveryDate",
+                "FilterOperator": "gt",
+                "Width": 100,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Deres referanse",
+                "Field": "YourReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Width": "65px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum eks. mva",
+                "Field": "TaxExclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum inkl. mva",
+                "Field": "TaxInclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "SumColumn": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Rest",
+                "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "SumColumn": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Kreditert",
+                "Field": "CreditedAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum inkl. mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum eks. mva [BASECURRENCY]",
+                "Field": "TaxExclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Restsum [BASECURRENCY]",
+                "Field": "RestAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Kreditert [BASECURRENCY]",
+                "Field": "CreditedAmount",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Fakturaref.",
+                "Field": "InvoiceReference.InvoiceNumber",
+                "DefaultHidden": true,
+                "Type": "link",
+                "LinkNavigationProperty": "InvoiceReferenceID"
+            },
+            {
+                "Header": "Fakturatype",
+                "Field": "InvoiceType",
+                "Type": "dontdisplay"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "125px"
+            },
+            {
+                "Header": "Utskrift",
+                "Field": "PrintStatus",
+                "Width": "125px",
+                "DefaultHidden": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Ny faktura",
+                "Code": "new_customer_invoice",
+                "ExecuteWithoutSelection": true,
+                "Route": "/sales/invoices/0;customerID=",
+                "Type": "newWithEntityAction"
+            }
+        ]
+    },
+    {
+        "Name": "Ordre",
+        "Type": "Table",
+        "Code": "customer_order_list",
+        "RequiredUIPermissions": ["ui_sales_orders"],
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerOrder",
+        "Expand": "Customer,Customer.Info,Items",
+        "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Ordrenr.",
+                "Field": "OrderNumber",
+                "Alias": "OrderNumber",
+                "Placeholder": "Kladd",
+                "Width": "6rem",
+                "Type": "Link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Ordredato",
+                "Field": "OrderDate",
+                "FilterOperator": "gt",
+                "Width": "100px"
+            },
+            {
+                "Header": "Leveringsdato",
+                "Field": "DeliveryDate",
+                "FilterOperator": "gt",
+                "Width": "100px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Deres referanse",
+                "Field": "YourReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Width": "65px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum eks. mva",
+                "Field": "TaxExclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum inkl. mva",
+                "Field": "TaxInclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "SumColumn": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum inkl. mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum eks. mva [BASECURRENCY]",
+                "Field": "TaxExclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Restsum eks. mva",
+                "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVatCurrency\\,0))",
+                "Alias": "Restsumexmva",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "FilterOperator": "gt",
+                "Type": "money"
+            },
+            {
+                "Header": "Restsum inkl. mva",
+                "Field": "TaxExclusiveAmountCurrency",
+                "Alias": "Restsum",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "FilterOperator": "gt",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Hovedselger",
+                "Field": "DefaultSeller.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "125px"
+            },
+            {
+                "Header": "Utskrift",
+                "Field": "PrintStatus",
+                "Width": "125px",
+                "DefaultHidden": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Ny ordre",
+                "Code": "new_customer_order",
+                "ExecuteWithoutSelection": true,
+                "Route": "/sales/orders/0;customerID=",
+                "Type": "newWithEntityAction"
+            }
+        ]
+    },
+    {
+        "Name": "Tilbud",
+        "Code": "customer_quote_list",
+        "RequiredUIPermissions": ["ui_sales_quotes"],
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "CustomerQuote",
+        "Expand": "Customer,Customer.Info",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Tilbudsnr.",
+                "Field": "QuoteNumber",
+                "Alias": "QuoteNumber",
+                "Placeholder": "Kladd",
+                "Type": "Link",
+                "Width": "6rem",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Tilbudsdato",
+                "Field": "QuoteDate",
+                "Width": "100px",
+                "FilterOperator": "gt"
+            },
+            {
+                "Header": "Gyldig til",
+                "Field": "ValidUntilDate",
+                "Format": "DatePassed",
+                "Width": "100px",
+                "FilterOperator": "gt"
+            },
+            {
+                "Header": "Leveringsdato",
+                "Field": "DeliveryDate",
+                "FilterOperator": "gt",
+                "Width": "100px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Vår referanse",
+                "Field": "OurReference"
+            },
+            {
+                "Header": "Deres referanse",
+                "Field": "YourReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Width": "65px",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum eks. mva",
+                "Field": "TaxExclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum eks. mva [BASECURRENCY]",
+                "Field": "TaxExclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Sum inkl. mva",
+                "Field": "TaxInclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "120px",
+                "SumColumn": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sum inkl. mva [BASECURRENCY]",
+                "Field": "TaxInclusiveAmount",
+                "Format": "NumberPositiveNegative",
+                "DefaultHidden": true,
+                "SumColumn": true
+            },
+            {
+                "Header": "Hovedselger",
+                "Field": "DefaultSeller.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "Width": "140px"
+            },
+            {
+                "Header": "Utskrift",
+                "Field": "PrintStatus",
+                "Width": "125px",
+                "DefaultHidden": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "CustomerID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Nytt tilbud",
+                "Code": "new_customer_quote",
+                "ExecuteWithoutSelection": true,
+                "Route": "/sales/quotes/0;customerID=",
+                "Type": "newWithEntityAction"
             }
         ]
     }

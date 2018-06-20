@@ -1,16 +1,15 @@
-import {Component, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Component, Output, EventEmitter} from '@angular/core';
 import {IUniModal, ConfirmActions} from '../interfaces';
 
 
 @Component({
-    selector: 'license-agreement-modal',
+    selector: 'customer-license-agreement-modal',
     template: `
         <section role="dialog" class="uni-modal"
                 (clickOutside)="reject()"
                 (keydown.esc)="reject()">
             <header>
-                <h1>Lisens</h1>
+                <h1>Selskaps Lisens</h1>
                 <button class="modal-close-button" (click)="reject()"></button>
             </header>
             <article>
@@ -30,7 +29,7 @@ import {IUniModal, ConfirmActions} from '../interfaces';
         </section>
     `
 })
-export class LicenseAgreementModal implements IUniModal {
+export class CustomerLicenseAgreementModal implements IUniModal {
     @Output() public onClose: EventEmitter<ConfirmActions> = new EventEmitter<ConfirmActions>();
 
     public licenseAgreement: boolean = false;

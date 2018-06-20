@@ -1069,6 +1069,7 @@ export class TickerAction {
     public DisplayForSubTickers?: boolean = true;
     public NeedsActionOverride?: boolean = false;
     public Options: TickerActionOptions;
+    public Route?: String;
 }
 
 export class TickerActionOptions {
