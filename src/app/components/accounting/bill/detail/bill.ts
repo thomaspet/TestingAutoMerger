@@ -431,6 +431,12 @@ export class BillView implements OnInit {
                 Section: 0
             },
             <any> {
+                Property: 'DeliveryDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Leveringsdato',
+                Section: 0
+            },
+            <any> {
                 Property: 'InvoiceNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Fakturanummer',
@@ -950,6 +956,7 @@ export class BillView implements OnInit {
         current.TaxInclusiveAmountCurrency = +safeDec(ocr.TaxInclusiveAmount).toFixed(2);
         if (ocr.InvoiceDate) {
             current.InvoiceDate = new LocalDate(moment(ocr.InvoiceDate).toDate());
+            current.DeliveryDate = new LocalDate(moment(ocr.InvoiceDate).toDate());
         }
         if (ocr.PaymentDueDate) {
             current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
@@ -1398,7 +1405,25 @@ export class BillView implements OnInit {
                     );
             }
 
-            this.updateJournalEntryManualFinancialDate(change['InvoiceDate'].currentValue, change['InvoiceDate'].previousValue);
+            // if invoicedate has the same value as deliverydate, update deliverydate also
+            // when invoicedate is changed
+            if ((!model.DeliveryDate && model.InvoiceDate)
+                || (change['InvoiceDate'].previousValue
+                    && model.DeliveryDate.toString() === change['InvoiceDate'].previousValue.toString())) {
+                this.updateJournalEntryManualFinancialDate(model.InvoiceDate, model.DeliveryDate);
+
+                // deliverydate is default value for financialdate in the journalentry draftlines, so
+                // if any of the lines have the same value as the old deliverydate, update them to the
+                // new delivery date
+                model.DeliveryDate = model.InvoiceDate;
+            }
+        }
+
+        if (change['DeliveryDate']) {
+            // deliverydate is default value for financialdate in the journalentry draftlines, so
+            // if any of the lines have the same value as the old deliverydate, update them to the
+            // new delivery date
+            this.updateJournalEntryManualFinancialDate(change['DeliveryDate'].currentValue, change['DeliveryDate'].previousValue);
         }
 
         if (change['CurrencyCodeID']) {
@@ -2266,7 +2291,7 @@ export class BillView implements OnInit {
                 if (previousLine && previousLine.FinancialDate) {
                     line.FinancialDate = previousLine.FinancialDate;
                 } else {
-                    line.FinancialDate = current.InvoiceDate;
+                    line.FinancialDate = current.DeliveryDate || current.InvoiceDate;
                 }
             }
 
