@@ -1,7 +1,3 @@
-
-# App Frontend
-Uni Economy Angular2 version
-
 # Getting Started
 
 1. Clone this repo
@@ -14,15 +10,13 @@ Uni Economy Angular2 version
 `yarn start.local` / `npm run start.local` to start with local backend</br>
 `yarn start.pilot` / `npm run start.pilot` to start app with proxy to prod api</br>
 
+`yarn start.cheap` / `npm run start.cheap` will start dev serve with eval-sourcemaps. Eval-sourcemaps are much "cheaper" and compile time should be a lot quicker. They are not as good as normal sourcemaps for debugging in the browser, but should be sufficient most of the time. </br>
+`yarn start.local.cheap` / `npm run start.local.cheap` Same as above but with local backend.</br>
+
+
 The app will run on localhost:3000</br>
 
-# Type checking
-
-Type checking is part of the build process of the application.
-
 # NPM scripts
-`build.vendors` will build vendors.bundle.js. This was previously done in our start task, but has been moved out to improve build times. Should run automatically after `npm install`. </br>
-
 Start tasks covered in previous section. </br>
 
 `build.dev`, `build.test`, `build.pilot`, `build.prod` are just building sass + ts once, no watchers and no dev server. These tasks are for deployment, and probably wont be used in a dev enviroment. </br>
