@@ -244,6 +244,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                         return this.rows;
                     }
 
+                    editedEntity['_isDirty'] = true;
                     const index = this.rows.findIndex(r => r === row);
                     if (index >= 0) {
                         this.rows[index] = editedEntity;

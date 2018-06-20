@@ -48,11 +48,7 @@ article.tof-head
             max-width: none
 
         uni-field
-            label span
-                width: 10rem
-
-            label span+*
-                width: calc(100% - 10rem)
+            @include labelLength(10rem)
 
     .tof-freetext,
     .tof-attachments,
