@@ -10,7 +10,8 @@ import {NavbarLinkService} from './components/layout/navbar/navbar-link-service'
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {
     UniModalService,
-    LicenseAgreementModal,
+    CustomerLicenseAgreementModal,
+    UserLicenseAgreementModal,
     UniConfirmModalV2,
     UniChangelogModal
 } from '@uni-framework/uni-modal';
@@ -67,11 +68,13 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
-                if (!this.hasAcceptedLicense(authDetails.user)) {
-                    if (this.canAcceptLicense(authDetails.user)) {
-                        this.showLicenseModal();
+                if (!this.hasAcceptedUserLicense(authDetails.user)) {
+                    this.showUserLicenseModal();
+                } else if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
+                    if (this.canAcceptCustomerLicense(authDetails.user)) {
+                        this.showCustomerLicenseModal();
                     } else {
-                        this.showCanNotAcceptLicenseModal(authDetails.user);
+                        this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
                     }
                 }
 
@@ -81,13 +84,18 @@ export class App {
         } /* don't need error handling */);
     }
 
-    private hasAcceptedLicense(user: UserDto): boolean {
+    private hasAcceptedCustomerLicense(user: UserDto): boolean {
         return (user && user.License && user.License.CustomerAgreement) ?
             (!!user.License.CustomerAgreement.HasAgreedToLicense || user.License.CustomerAgreement.AgreementId === 0) : true;
     }
 
-    private canAcceptLicense(user: UserDto): boolean {
+    private canAcceptCustomerLicense(user: UserDto): boolean {
         return !!user.License.CustomerAgreement.CanAgreeToLicense;
+    }
+
+    private hasAcceptedUserLicense(user: UserDto): boolean {
+        return (user && user.License && user.License.UserLicenseAgreement) ?
+            (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
     }
 
     private checkForChangelog(user: UserDto) {
@@ -112,9 +120,9 @@ export class App {
         }
     }
 
-    private showLicenseModal() {
+    private showCustomerLicenseModal() {
         this.modalService
-            .open(LicenseAgreementModal)
+            .open(CustomerLicenseAgreementModal)
             .onClose
             .subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
@@ -128,7 +136,7 @@ export class App {
                                 'Suksess',
                                 ToastType.good,
                                 ToastTime.short,
-                                'Lisens-godkjenning lagret',
+                                'Selskaps-Lisens godkjenning lagret',
                             ),
                             err => this.errorService.handle(err),
                         );
@@ -138,7 +146,7 @@ export class App {
             });
     }
 
-    private showCanNotAcceptLicenseModal(user: UserDto) {
+    private showCanNotAcceptCustomerLicenseModal(user: UserDto) {
         const company = user.License.Company;
 
         this.modalService
@@ -148,12 +156,38 @@ export class App {
                           <b>Kontaktinfo:</b><br />
                           ${company.ContactPerson}<br />
                           ${company.ContactEmail}`,
-                header: `Lisens må godkjennes`,
+                header: `Kunde-Lisens må godkjennes`,
                 buttonLabels: {
                     accept: 'OK'
                 }
             })
             .onClose
             .subscribe(()=>{});
+    }
+
+    private showUserLicenseModal() {
+        this.modalService
+            .open(UserLicenseAgreementModal)
+            .onClose
+            .subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.uniHttp.asPOST()
+                        .usingBusinessDomain()
+                        .withEndPoint('users?action=accept-UserLicenseAgreement')
+                        .send()
+                        .map(res => res.json())
+                        .subscribe(
+                            success => this.toastService.addToast(
+                                'Suksess',
+                                ToastType.good,
+                                ToastTime.short,
+                                'Bruker-Lisens godkjenning lagret',
+                            ),
+                            err => this.errorService.handle(err),
+                        );
+                } else {
+                    this.authService.clearAuthAndGotoLogin();
+                }
+            });
     }
 }

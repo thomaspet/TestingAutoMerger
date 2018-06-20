@@ -13,7 +13,8 @@ import {UniActivateAPModal} from './modals/activateAPModal';
 import {UniApproveModal} from './modals/approveModal';
 import {UniDownloadPaymentsModal} from './modals/downloadPaymentsModal';
 import {SingleTextFieldModal} from './modals/singleTextFieldModal';
-import {LicenseAgreementModal} from '@uni-framework/uni-modal/modals/licenseAgreementModal';
+import {CustomerLicenseAgreementModal} from './modals/customerLicenseAgreementModal';
+import {UserLicenseAgreementModal} from './modals/userLicenseAgreementModal';
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
@@ -38,7 +39,8 @@ export * from './modals/activateAPModal';
 export * from './modals/approveModal';
 export * from './modals/downloadPaymentsModal';
 export * from './modals/singleTextFieldModal';
-export * from './modals/licenseAgreementModal';
+export * from './modals/customerLicenseAgreementModal';
+export * from './modals/userLicenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
 export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
@@ -61,7 +63,8 @@ export const MODALS = [
     UniApproveModal,
     UniDownloadPaymentsModal,
     SingleTextFieldModal,
-    LicenseAgreementModal,
+    CustomerLicenseAgreementModal,
+    UserLicenseAgreementModal,
     UniBrRegModal,
     ManageProductsModal,
     UniBankModal,
