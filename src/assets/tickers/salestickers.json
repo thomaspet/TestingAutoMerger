@@ -755,26 +755,6 @@
                 "DisplayInActionBar": true
             },
             {
-                "Name": "Overfør til ordre",
-                "Code": "quote_transfer_order",
-                "Type": "transition",
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": true,
-                "Options": {
-                    "Transition": "toOrder"
-                }
-            },
-            {
-                "Name": "Overfør til faktura",
-                "Code": "quote_transfer_invoice",
-                "Type": "transition",
-                "DisplayInContextMenu": true,
-                "DisplayInActionBar": true,
-                "Options": {
-                    "Transition": "toInvoice"
-                }
-            },
-            {
                 "Name": "Avslutt",
                 "Code": "quote_transfer_complete",
                 "Type": "transition",
