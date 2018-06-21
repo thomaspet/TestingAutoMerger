@@ -48,10 +48,9 @@ export class Signup {
             this.successMessage = undefined;
             this.errorMessage = undefined;
 
-            // TODO: find out what the route param is (from email link)
             if (params['code']) {
                 this.confirmationCode = params['code'];
-                this.validateConfirmationCode(this.confirmationCode)
+                this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
             } else {
                 this.step1Form.enable();
@@ -84,8 +83,9 @@ export class Signup {
                     this.step1Form.value.RecaptchaResponse = null;
                     try {
                         const errorBody = err.json();
-                        if (errorBody.Message) this.errorMessage = errorBody.Message
-                        else {
+                        if (errorBody.Message) {
+                            this.errorMessage = errorBody.Message;
+                        } else {
                             this.errorMessage = 'Noe gikk galt under verifisering.'
                             + 'Vennligst sjekk detaljer og prøv igjen.';
                         }
@@ -98,12 +98,15 @@ export class Signup {
     }
 
     public submitStep2Form() {
-        if(!this.step2Form.valid){
-            this.step2Form.controls.Password.markAsTouched()
-            this.step2Form.controls.ConfirmPassword.markAsTouched()
-            this.step2Form.controls.UserName.markAsTouched()
+        if (!this.step2Form.valid) {
+            this.errorMessage = 'Skjemaet er ikke gyldig. Vennligst påse at alle felter er fylt ut i henhold til kravene.';
+
+            this.step2Form.controls.Password.markAsTouched();
+            this.step2Form.controls.ConfirmPassword.markAsTouched();
+            this.step2Form.controls.UserName.markAsTouched();
             return;
         }
+
         this.errorMessage = '';
         this.busy = true;
         const formValues = this.step2Form.value;
@@ -120,53 +123,46 @@ export class Signup {
             .withBody(requestBody)
             .send()
             .subscribe(
-            res => {
-                this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
-            },
-            err => {
-                this.busy = false;
-                try {
-                    const errorBody = err.json();
-                    if (errorBody.Message) this.errorMessage = errorBody.Message
-                    else if (errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0) {
-                        this.errorMessage = 'E-posten er allerede i bruk';
-                    } else {
-                        this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
-                    }
-                } catch (error) {
-                    this.errorMessage = 'Noe gikk galt under registrering, vennligst prøv igjen';
+                res => {
+                    this.attemptLogin(requestBody.UserName, requestBody.Password, res.json());
+                },
+                err => {
+                    this.busy = false;
+                    let errorMessage;
+                    try {
+                        const errorBody = err.json();
+                        errorMessage = errorBody.Message || errorBody.Messages[0].Message;
+                    } catch (error) {}
+
+                    this.errorMessage = errorMessage || 'Noe gikk galt under registrering, vennligst prøv igjen';
                 }
-            }
             );
     }
 
     public validateConfirmationCode(code) {
-
         this.http.asGET()
             .usingInitDomain()
             .withEndPoint(`validate-confirmation?code=${code}`)
             .send()
             .subscribe(
-            res => {
+                () => {},
+                err => {
+                    let usernameExists;
 
-            },
-            err => {
-                let usernameExists;
+                    // Try catch to avoid having to null check everything
+                    try {
+                        const errorBody = err.json();
+                        usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
+                    } catch (e) { }
 
-                // Try catch to avoid having to null check everything
-                try {
-                    const errorBody = err.json();
-                    usernameExists = errorBody.Messages[0].Message.toLowerCase().indexOf('username') >= 0;
-                } catch (e) { }
+                    if (usernameExists) {
+                        this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
+                    } else {
+                        this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                    }
 
-                if (usernameExists) {
-                    this.errorMessage = 'Du er allerede registrert. Vennligst gå til innloggingssiden.';
-                } else {
-                    this.errorMessage = 'Bekreftelseskoden er utløpt. Vennligst prøv å registrere deg igjen.';
+                    this.busy = false;
                 }
-
-                this.busy = false;
-            }
             );
     }
 
@@ -184,10 +180,10 @@ export class Signup {
             username: username,
             password: password
         }).subscribe(
-            success => {
+            () => {
                 this.authService.setActiveCompany(company);
             },
-            err => {
+            () => {
                 this.router.navigateByUrl('/init/login');
             }
         );

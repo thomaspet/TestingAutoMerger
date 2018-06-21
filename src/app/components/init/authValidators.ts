@@ -1,12 +1,14 @@
-import {AbstractControl} from '@angular/forms';
+import {FormControl, AbstractControl} from '@angular/forms';
 
-export function passwordValidator(control) {
-    let password = control.value;
+export function passwordValidator(control: FormControl) {
+    if (!control.value) {
+        return null;
+    }
 
-    let hasLowerCase = /[a-zæøå]/.test(password);
-    let hasUpperCase = /[A-ZÆØÅ]/.test(password);
-    let hasNumber   = /[\d]/.test(password);
-    let hasSymbol    = /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(password);
+    const hasLowerCase = /[a-zæøå]/.test(control.value);
+    const hasUpperCase = /[A-ZÆØÅ]/.test(control.value);
+    const hasNumber   = /[\d]/.test(control.value);
+    const hasSymbol    = /[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\|\\\:\‘\,\.\?\/\`\~\“\(\)\;]/.test(control.value);
 
     let counter = 0;
     if (hasLowerCase) {
@@ -22,34 +24,30 @@ export function passwordValidator(control) {
         counter++;
     }
 
-    if (counter < 3) {
-        return {'passwordValidator': true};
+    if (control.value.length < 8 || counter < 3) {
+        return {'passwordValidator': 'Passord er ikke gyldig'};
     }
 
     return null;
 }
 
 export function passwordMatchValidator(formGroup: AbstractControl) {
-    const password = formGroup.get('Password').value;
-    const confirmPassword = formGroup.get('ConfirmPassword').value;
+    const password = formGroup.get('Password');
+    const confirmPassword = formGroup.get('ConfirmPassword');
 
-    if (password !== confirmPassword) {
-        formGroup.get('ConfirmPassword').setErrors({
-            passwordMatchValidator: 'Passord må være like'
-        });
-    } else {
-        if(formGroup.get('ConfirmPassword').errors){
-            if(formGroup.get('ConfirmPassword').errors.passwordMatchValidator){
-                formGroup.get('ConfirmPassword').setErrors(null);
-            }
+    if (password.touched && confirmPassword.touched) {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setErrors({
+                'passwordMatchValidator': 'Passordene er ikke like'
+            });
+        } else {
+            confirmPassword.setErrors(null);
         }
-        return null;
     }
 }
 
-export function usernameValidator(control) {
-    const invalid = /[^a-zA-Z0-9-_.]/g.test(control.value);
-    if (invalid) {
+export function usernameValidator(control: FormControl) {
+    if (control.value && /[^a-zA-Z0-9-_.]/g.test(control.value)) {
         return {'usernameValidator': 'Brukernavn kan bare inneholde bokstaver (a-z), tall, bindestrek, understrek og punktom'};
     } else {
         return null;
