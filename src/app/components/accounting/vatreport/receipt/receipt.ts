@@ -56,7 +56,7 @@ export class ReceiptVat {
                     this.busy = false;
                 } else {
                     this.vatReportService.Get(
-                        this.vatReport.ID, ['TerminPeriod', 'VatReportType', 'VatReportArchivedSummary']
+                        this.vatReport.ID, ['TerminPeriod', 'VatReportType', 'JournalEntry', 'VatReportArchivedSummary']
                     ).subscribe(updatedVatReport => {
                         this.vatReport = updatedVatReport;
                         this.vatReportDidChange.emit(updatedVatReport);
