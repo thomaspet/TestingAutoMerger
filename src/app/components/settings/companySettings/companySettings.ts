@@ -1109,6 +1109,15 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'BookCustomerInvoiceOnDeliveryDate',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Periodiser etter leveringsdato',
+                FieldSet: 1,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'AccountGroupSetID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Kontoplan',
