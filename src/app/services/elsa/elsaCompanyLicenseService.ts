@@ -2,39 +2,10 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {
-    ElsaPurchasesForUserLicenseByCompany,
-    ElsaPurchaseForUserLicense
-} from '@app/services/elsa/elsaPurchasesService';
-
-export interface ElsaPurchaseForLicense {
-    id: number;
-    contractID: number;
-    startDate: Date;
-    endDate?: Date;
-    licenseKey: string;
-    companyName: string;
-    companyKey: string;
-    statusCode: number;
-    orgNumber?: string;
-    customerID: number;
-    customerName: string;
-    contractType: number;
-}
-
-export interface ElsaUserLicense {
-    id: number;
-    companyLicense?: any;
-    companyLicenseID: number;
-    startDate: Date;
-    endDate?: Date;
-    userLicenseKey: string;
-    userName: string;
-    userIdentity: string;
-    statusCode: number;
-    userLicenseType: number;
-    purchases?: any;
-    agreementAcceptances?: any;
-}
+    ElsaPurchaseForLicense,
+    ElsaUserLicense,
+    ElsaPurchasesForUserLicenseByCompany
+} from '@app/services/elsa/elsaModels';
 
 @Injectable()
 export class ElsaCompanyLicenseService {
@@ -76,12 +47,21 @@ export class ElsaCompanyLicenseService {
             .send()
             .map(req => req.json());
     }
-
+j
     public PurchasesForUserLicense(companyKey: string): Observable<ElsaPurchasesForUserLicenseByCompany[]> {
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
             .withEndPoint(`/api/CompanyLicenses/${companyKey}/purchasesForUserLicenseByCompanyKey`)
+            .send()
+            .map(req => req.json());
+    }
+
+    public GetAllUsers(companyLicenseId: string): Observable<ElsaUserLicense[]> {
+        return this.uniHttp
+            .asGET()
+            .usingElsaDomain()
+            .withEndPoint(`/api/CompanyLicenses/byCompanyKey/${companyLicenseId}/Userlicenses`)
             .send()
             .map(req => req.json());
     }

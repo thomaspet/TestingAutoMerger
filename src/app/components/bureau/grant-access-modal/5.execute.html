@@ -1,0 +1,32 @@
+<h1>Se gjennom valgene dine:</h1>
+
+<h2>Selskaper</h2>
+<section class="selection-list">
+    <span class="selection-item" *ngFor="let company of data.companies">
+        {{company.companyName}}
+        <span class="remove" *ngIf="data.companies.length > 1" (click)="deselectCompany(company)">&times;</span>
+    </span>
+</section>
+
+<h2>Brukere</h2>
+<section class="selection-list">
+    <span class="selection-item" *ngFor="let user of data.users">
+        {{user.userName}}
+        <span class="remove"*ngIf="data.users.length > 1" (click)="deselectUser(user)">&times;</span>
+    </span>
+</section>
+
+<h2>Produkter</h2>
+<section class="selection-list">
+    <span class="selection-item" *ngFor="let product of data.products">
+        {{product.name}}
+        <span class="remove" *ngIf="data.products.length > 1" (click)="deselectProduct(product)">&times;</span>
+    </span>
+</section>
+<p class="warn" *ngIf="warning">
+    {{warning}}
+</p>
+<br />
+<br />
+<button class="good" (click)="done()">Send inn</button>
+

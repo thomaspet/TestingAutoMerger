@@ -1,0 +1,25 @@
+<h1>Velg brukerene du bil ha i selskapene:</h1>
+<button class="good" (click)="done()">Neste</button>
+<p class="warn" *ngIf="warning">
+    {{warning}}
+</p>
+<ul class="list-of-companies">
+    <li>
+        <label>
+            <input type="checkbox" [checked]="isAllSelected()" (click)="toggleEverything($event.target)">
+            Velg alle
+        </label>
+    </li>
+    <hr />
+    <li *ngFor="let user of users">
+        <label>
+            <input type="checkbox" [(ngModel)]="user['_selected']">
+            {{user.userName}}
+        </label>
+    </li>
+    <li *ngIf="!users">Laster...</li>
+</ul>
+<p class="warn" *ngIf="warning">
+    {{warning}}
+</p>
+<button class="good" (click)="done()">Neste</button>

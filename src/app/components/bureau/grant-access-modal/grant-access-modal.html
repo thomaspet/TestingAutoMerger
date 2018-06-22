@@ -1,0 +1,67 @@
+<section role="dialog" class="uni-modal medium">
+    <header>
+        <h1>Gi tilgang</h1>
+    </header>
+
+    <section class="uni-statustrack" *ngIf="showProgressBar">
+        <ol>
+            <li (click)="currentPage = PageType.selectLicense"
+                [ngClass]="classToShow(PageType.selectLicense)">
+                <span class="statustrack_title">Velg lisens</span>
+            </li>
+            <li (click)="switchToPage(PageType.selectCompanies)"
+                [ngClass]="classToShow(PageType.selectCompanies)">
+                <span class="statustrack_title">Velg selskaper</span>
+            </li>
+            <li (click)="switchToPage(PageType.selectUsers)"
+                [ngClass]="classToShow(PageType.selectUsers)">
+                <span class="statustrack_title">Velg brukere</span>
+            </li>
+            <li (click)="switchToPage(PageType.selectProducts)"
+                [ngClass]="classToShow(PageType.selectProducts)">
+                <span class="statustrack_title">Velg produkter</span>
+            </li>
+            <li (click)="switchToPage(PageType.execute)"
+                [ngClass]="classToShow(PageType.execute)">
+                <span class="statustrack_title">Send inn</span>
+            </li>
+        </ol>
+    </section>
+
+    <article>
+        <select-license-for-bulk-access
+            *ngIf="currentPage === PageType.selectLicense"
+            [data]="grantAccessData"
+            (next)="goToNextPage()"
+        ></select-license-for-bulk-access>
+        <select-companies-for-bulk-access
+            *ngIf="currentPage === PageType.selectCompanies"
+            [data]="grantAccessData"
+            (next)="goToNextPage()"
+        ></select-companies-for-bulk-access>
+        <select-users-for-bulk-access
+            *ngIf="currentPage === PageType.selectUsers"
+            [data]="grantAccessData"
+            (next)="goToNextPage()"
+        ></select-users-for-bulk-access>
+        <select-products-for-bulk-access
+            *ngIf="currentPage === PageType.selectProducts"
+            [data]="grantAccessData"
+            (next)="goToNextPage()"
+        ></select-products-for-bulk-access>
+        <execute-for-bulk-access
+            *ngIf="currentPage === PageType.execute"
+            [data]="grantAccessData"
+            (next)="goToNextPage() && hideProgressBar()"
+        ></execute-for-bulk-access>
+        <receipt-for-bulk-access
+            *ngIf="currentPage === PageType.receipt"
+            [data]="grantAccessData"
+            (next)="close()"
+        ></receipt-for-bulk-access>
+    </article>
+
+    <footer>
+        <button class="warn" (click)="close()">Lukk</button>
+    </footer>
+</section>

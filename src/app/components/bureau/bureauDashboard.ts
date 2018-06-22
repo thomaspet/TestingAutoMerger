@@ -1,26 +1,29 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {ErrorService} from '../../services/common/errorService';
-import {AuthService} from '../../authService';
+import {Router, ActivationEnd} from '@angular/router';
 import {UniModalService} from '../../../framework/uni-modal/modalService';
-import {UniHttp} from '../../../framework/core/http/http';
-import {UserService} from '../../services/common/userService';
-import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {UniNewCompanyModal} from './newCompanyModal';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {Subscription} from 'rxjs/Subscription';
-import {CompanyService} from '../../services/common/companyService';
-import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
+import {UniNewCompanyModal} from './newCompanyModal';
+import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
 import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTextFieldModal';
 import {isNullOrUndefined} from 'util';
-import {Router, ActivationEnd} from '@angular/router';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {AuthService} from '../../authService';
+import {UniHttp} from '../../../framework/core/http/http';
+import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
-
+import {Subscription} from 'rxjs/Subscription';
+import {
+    ErrorService,
+    UserService,
+    CompanyService,
+    TeamService,
+    ElsaProductService,
+    BrowserStorageService
+} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
@@ -78,23 +81,30 @@ export class BureauDashboard {
         private uniModalService: UniModalService,
         private uniHttp: UniHttp,
         private userService: UserService,
-        private toastService: ToastService,
         private companyService: CompanyService,
         public currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
         private elementRef: ElementRef,
         private router: Router,
         private browserStorage: BrowserStorageService,
+        private teamService: TeamService,
+        private elsaProductService: ElsaProductService
     ) {
 
         this.toolbarConfig = {
             title: '',
         };
 
-        this.saveActions = [{
-            label : 'Opprett nytt selskap',
-            action: (doneCallback) => this.startCompanyCreation(doneCallback)
-        }];
+        this.saveActions = [
+            {
+                label : 'Opprett nytt selskap',
+                action: (doneCallback) => this.startCompanyCreation(doneCallback)
+            },
+            {
+                label : 'Gi tilgang til selskaper',
+                action: (doneCallback) => this.openInviteUsersModal(doneCallback)
+            }
+        ];
     }
 
     public ngOnInit() {
@@ -273,6 +283,14 @@ export class BureauDashboard {
         if (this.allTags && this.allTags[0]) {
             this.allTags[0].count = this.filteredCompanies.length;
         }
+    }
+
+    public openInviteUsersModal(doneCallback) {
+            return this.modalService.open(GrantAccessModal, {}).onClose
+                .subscribe(
+                    res => doneCallback(''),
+                    err => console.error(err)
+                );
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {

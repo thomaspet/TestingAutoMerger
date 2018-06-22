@@ -1,34 +1,8 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {ElsaPurchase} from '@app/services/elsa/elsaPurchasesService';
+import {ElsaProduct, ElsaPurchase} from '@app/services/elsa/elsaModels';
 
-export interface ElsaProduct {
-    id: number
-    imageReference: string
-    iconReference: string
-    productKey: string
-    name: string
-    label: string
-    description: string
-    price: number
-    isPerUser: boolean
-    isPerTransaction: boolean
-    isMonthly: boolean
-    listOfRoles: string
-    isBundle: boolean
-    productStatus: ElsaProductStatusCode
-    parentProductNames: string
-    subProducts?: ElsaProduct[]
-}
-
-
-export enum ElsaProductStatusCode {
-    Active = 0,
-    Beta = 1,
-    Deprecated = 2,
-    Discontinued = 3
-}
 
 @Injectable()
 export class ElsaProductService {

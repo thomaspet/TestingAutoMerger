@@ -1,6 +1,7 @@
 // angular
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/interval';
 
 // app
 import {environment} from 'src/environments/environment';
@@ -9,6 +10,27 @@ import {UniHttp} from '../../../../framework/core/http/http';
 // model
 import {Job} from '../../../models/admin/jobs/job';
 import {Trigger} from '../../../models/admin/jobs/trigger';
+import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProduct} from '@app/services/elsa/elsaModels';
+
+export interface JobLogProgress {
+    ID: number;
+    JobRunID: number;
+    JobRun?: any;
+    Progress: string;
+    Created: Date;
+}
+
+export interface JobLog {
+    ID: number;
+    HangfireJobId: string;
+    Created: Date;
+    Input: string;
+    Output: string;
+    Exception?: any;
+    JobName: string;
+    Progress: JobLogProgress[];
+    JobRunLogs: any[];
+}
 
 @Injectable()
 export class JobService {
@@ -22,10 +44,28 @@ export class JobService {
             .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns/latest?num=' + num);
     }
 
-    public getJobRun(jobName: string, hangfireJobId: string, loglimit: number = 50): Observable<any> {
+    public getJobRun(jobName: string, hangfireJobId: number, loglimit: number = 50): Observable<JobLog> {
         return this.uniHttp.asGET()
             .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns?job=' + jobName + '&run=' + hangfireJobId
-            + '&loglimit=' + loglimit);
+                + '&loglimit=' + loglimit)
+            .map(jobRun => {
+                if (jobRun.Exception) {
+                    throw new Error(jobRun.Exception);
+                }
+                return jobRun;
+            });
+    }
+
+    public getJobRunUntilNull(jobName: string, hangfireJobId: number): Observable<JobLog> {
+        let keepRequestingLogs = true;
+        const TenSeconds = 10 * 1000;
+        return Observable
+            .interval(TenSeconds)
+            .timeInterval()
+            .switchMap(() => this.getJobRun(jobName, hangfireJobId, 9999))
+            .takeWhile(() => keepRequestingLogs)
+            .do(jobRun => keepRequestingLogs = jobRun.Progress.every(p => p.Progress !== null))
+            .do(jobRun => jobRun.Progress = jobRun.Progress.filter(p => p.Progress !== null));
     }
 
     // jobs
@@ -34,7 +74,7 @@ export class JobService {
             .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobs');
     }
 
-    public startJob(name: string, minutes?: number, body?): Observable<any> {
+    public startJob(name: string, minutes?: number, body?): Observable<number> {
         let url: string = environment.UNI_JOB_SERVER_URL + 'jobs?job=' + name;
 
         if (minutes) {
@@ -43,7 +83,8 @@ export class JobService {
 
         return this.uniHttp.asPOST()
             .withBody(body)
-            .sendToUrl(url);
+            .sendToUrl(url)
+            .map(jobIDString => +jobIDString);
     }
 
     // schedules
@@ -126,4 +167,13 @@ export class JobService {
     public modifyTrigger(jobId: number, trigger: Trigger) {
 
     }
+}
+
+
+
+export interface JobServerMassInviteInput {
+    Contract: ElsaContract;
+    CompanyLicenses: ElsaCompanyLicense[];
+    UserLicenses: ElsaUserLicense[];
+    Products: ElsaProduct[];
 }
