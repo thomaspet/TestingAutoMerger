@@ -3,15 +3,19 @@ import {UniModalService} from '../../modalService';
 import {IUniModal, IModalOptions, ConfirmActions} from '../../interfaces';
 import {Observable} from 'rxjs/Observable';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
-import {ReportDefinition} from '@uni-entities';
+import {ReportDefinition, ReportParameter} from '@uni-entities';
 
 import {
     ReportTypeService,
     ErrorService,
-    BrowserStorageService,
     ReportDefinitionParameterService,
     CompanySettingsService,
 } from '@app/services/services';
+
+class CustomReportParameter extends ReportParameter {
+    Name: string;
+    value: string;
+}
 
 @Component({
     selector: 'choose-report-modal',
@@ -22,21 +26,18 @@ export class UniChooseReportModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
-    public reports: ReportDefinition[];
-    private selectedReport: any;
-    public index: number = 0;
-
-    public showParameters: boolean = false;
-    public fromNr: number;
-    public toNr: number;
-    public inputFromLabel: string;
-    public inputToLabel: string;
-    public inputType: any = {name: 'nr', secondInputType: null};
+    reports: ReportDefinition[];
+    selectedReport: any;
+    showParameters: boolean = false;
+    fromNr: string;
+    toNr: string;
+    inputFromLabel: string;
+    inputToLabel: string;
+    inputType: {name: string, secondInputType: string, secondName: string} = {name: 'nr', secondInputType: null, secondName: null};
 
     constructor(
         private reportTypeService: ReportTypeService,
         private errorService: ErrorService,
-        private browserStorageService: BrowserStorageService,
         private modalService: UniModalService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private companySettingsService: CompanySettingsService,
@@ -66,15 +67,15 @@ export class UniChooseReportModal implements IUniModal {
         }
     }
 
-    public loadReportParameters() {
+    loadReportParameters() {
         if (!this.selectedReport || !this.selectedReport.ID) {
             return;
         }
 
+        this.setReportParameters();
         this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + this.selectedReport.ID).subscribe(
             res => {
                 const name = res[0].Name.includes('Number') ? 'nr' : res[0].Name.toLowerCase();
-                const form = this.selectedReport;
                 this.inputType.name = res[0].Name;
                 this.inputType.secondInputType = null;
 
@@ -90,27 +91,33 @@ export class UniChooseReportModal implements IUniModal {
 
                 this.inputToLabel = `Til ${this.options.data.name.toLowerCase()} ${name}`;
 
-                this.selectedReport.parameters = [{
-                    Name: res[0].Name,
-                    value: this.fromNr
-                }];
-                if (res[1]) {
+                if (res[1] && res[1].Type === 'Number') {
                     this.inputType.secondName = res[1].Name;
                     this.inputType.secondInputType = res[1].Type;
-                    this.selectedReport.parameters = [{
-                        Name: res[1].Name,
-                        value: this.fromNr
-                    }, {
-                        Name: this.inputType.secondName,
-                        value: this.toNr
-                    }];
                 }
             },
             err => this.errorService.handle(err)
         );
     }
 
-    public acceptAndSendEmail() {
+    private setReportParameters(): CustomReportParameter[] {
+        if (this.inputType.secondName && this.inputType.secondInputType) {
+            return this.selectedReport.parameters = [ <CustomReportParameter> {
+                Name: this.inputType.name,
+                value: this.fromNr
+            }, <CustomReportParameter> {
+                Name: this.inputType.secondName,
+                value: this.toNr
+            }];
+        }
+        return this.selectedReport.parameters = [ <CustomReportParameter> {
+            Name: this.inputType.name,
+            value: this.fromNr
+        }];
+    }
+
+    acceptAndSendEmail() {
+        this.setReportParameters();
         this.onClose.emit({
             action: 'email',
             form: this.selectedReport,
@@ -120,20 +127,22 @@ export class UniChooseReportModal implements IUniModal {
         });
     }
 
-    public acceptAndPrintOut() {
+    acceptAndPrintOut() {
+        this.setReportParameters();
         this.onClose.emit({
             action: 'print',
             form: this.selectedReport,
         });
     }
 
-    public preview() {
-        return this.modalService.open(UniPreviewModal, {
+    preview() {
+        this.setReportParameters();
+        this.modalService.open(UniPreviewModal, {
             data: this.selectedReport
         });
     }
 
-    public cancel() {
+    cancel() {
         this.onClose.emit(ConfirmActions.CANCEL);
     }
 }
