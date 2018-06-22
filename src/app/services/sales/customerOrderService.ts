@@ -132,7 +132,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
         });
     }
 
-    private deleteOrders(selectedRows: Array<any>): Promise<any> {
+    public deleteOrders(selectedRows: Array<any>): Promise<any> {
         const order = selectedRows[0];
         return new Promise((resolve, reject) => {
             this.modalService.confirm({
@@ -180,6 +180,7 @@ export class CustomerOrderService extends BizHttp<CustomerOrder> {
                             const defaultReportParameterName = data[1][0].Name;
 
                             const model = new SendEmail();
+                            model.EmailAddress = order.CustomerOrderEmailAddress || '';
                             model.EntityType = 'CustomerOrder';
                             model.EntityID = order.ID;
                             model.CustomerID = order.CustomerID;

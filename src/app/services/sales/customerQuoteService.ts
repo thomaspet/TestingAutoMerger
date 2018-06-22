@@ -157,7 +157,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         });
     }
 
-    private deleteQuotes(selectedRows: Array<any>): Promise<any> {
+    public deleteQuotes(selectedRows: Array<any>): Promise<any> {
         const quote = selectedRows[0];
         return new Promise((resolve, reject) => {
             this.modalService.confirm({
@@ -204,6 +204,7 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
                             const defaultReportParameterName = data[1][0].Name;
 
                             const model = new SendEmail();
+                            model.EmailAddress = quote.CustomerQuoteEmailAddress || '';
                             model.EntityType = 'CustomerQuote';
                             model.EntityID = quote.ID;
                             model.CustomerID = quote.CustomerID;

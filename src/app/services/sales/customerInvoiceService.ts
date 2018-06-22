@@ -274,7 +274,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
         const invoice = selectedRows[0];
-
         return new Promise((resolve, reject) => {
             this.companySettingsService.Get(1)
                 .subscribe(settings => {
@@ -291,6 +290,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                             const defaultReportParameterName = data[1][0].Name;
 
                             const model = new SendEmail();
+                            model.EmailAddress = invoice.CustomerInvoiceEmailAddress || '';
                             model.EntityType = 'CustomerInvoice';
                             model.EntityID = invoice.ID;
                             model.CustomerID = invoice.CustomerID;

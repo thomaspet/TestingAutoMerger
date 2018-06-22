@@ -423,7 +423,7 @@ export class TableDataService {
         this.advancedSearchFilters = advancedSearchFilters;
         this.basicSearchFilters = basicSearchFilters;
 
-        const filterStrings: string[] = [];
+        let filterStrings: string[] = [];
         if (this.basicSearchFilters && this.basicSearchFilters.length) {
             filterStrings.push(this.getFilterString(this.basicSearchFilters, this.config.expressionFilterValues, 'or'));
         }
@@ -431,6 +431,8 @@ export class TableDataService {
         if (this.advancedSearchFilters && this.advancedSearchFilters.length) {
             filterStrings.push(this.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues));
         }
+
+        filterStrings = filterStrings.filter(res => res !== '');
 
         this.filterString = filterStrings.join(' and ');
 
@@ -493,6 +495,10 @@ export class TableDataService {
         // close last group if we are in a group
         if (isInGroup) {
             filterString += ' )';
+        }
+
+        if (filterString !== '') {
+            filterString = `( ${filterString} )`;
         }
 
         return filterString;

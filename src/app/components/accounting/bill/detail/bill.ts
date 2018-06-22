@@ -3240,10 +3240,10 @@ export class BillView implements OnInit {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID).subscribe(tags => {            
+        this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID).subscribe(tags => {
             const file = this.files.find(x => x.ID === fileID);
             const tagname = tags.Data.length ? tags.Data[0].tagname : this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
-            this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));                
+            this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));
         });
     }
 
