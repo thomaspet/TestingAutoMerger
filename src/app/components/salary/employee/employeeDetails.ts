@@ -8,6 +8,7 @@ import {
     WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
@@ -94,6 +95,37 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private subscriptions: Subscription[] = [];
 
     public categoryFilter: ITag[] = [];
+    public contextMenuItems: IContextMenuItem[] = [
+        {
+            label: 'Slett ansatt',
+            action: () => {
+                this.modalService.confirm({
+                    header: 'Slette ansatt',
+                    message: `Er du sikker på at du ønsker å slette ansatt ${this.employee.EmployeeNumber}`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei'
+                    }
+                })
+                .onClose.subscribe((res: ConfirmActions) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                            this.busy = true;
+                                this.employeeService.deleteEmployee(this.employee.ID)
+                                .finally(() => {this.busy = false; })
+                                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                                .subscribe((result) => {
+                                    this.router.navigateByUrl('/salary/employees');
+                                });
+                        }
+                        this.busy = false;
+                    }
+                );
+            },
+            disabled: (rowModel) => {
+                if (this.employee && this.employee.ID > 0) { return false; }
+                return true;
+            }
+        }];
     public tagConfig: IUniTagsConfig = {
         helpText: 'Kategorier på ansatt',
         truncate: 20,

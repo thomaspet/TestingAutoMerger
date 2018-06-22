@@ -114,6 +114,13 @@ export class EmployeeService extends BizHttp<Employee> {
             .send();
     }
 
+    public deleteEmployee(employeeID: number): Observable<boolean> {
+         return this.http.asDELETE().usingBusinessDomain().withEndPoint(
+             `${this.relativeURL}/${employeeID}`)
+             .send();
+    }
+
+
     public deleteEmployeeTag(employeeID: number, tag: ITag): Observable<boolean> {
         return (tag && tag.linkID
             ? this.deleteEmployeeCategory(employeeID, tag.linkID)
