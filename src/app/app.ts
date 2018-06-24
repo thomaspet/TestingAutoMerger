@@ -166,28 +166,29 @@ export class App {
     }
 
     private showUserLicenseModal() {
-        this.modalService
-            .open(UserLicenseAgreementModal)
-            .onClose
-            .subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.uniHttp.asPOST()
-                        .usingBusinessDomain()
-                        .withEndPoint('users?action=accept-UserLicenseAgreement')
-                        .send()
-                        .map(res => res.json())
-                        .subscribe(
-                            success => this.toastService.addToast(
-                                'Suksess',
-                                ToastType.good,
-                                ToastTime.short,
-                                'Bruker-Lisens godkjenning lagret',
-                            ),
-                            err => this.errorService.handle(err),
-                        );
-                } else {
-                    this.authService.clearAuthAndGotoLogin();
-                }
-            });
+        this.modalService.open(UserLicenseAgreementModal, {
+            hideCloseButton: true,
+            closeOnClickOutside: false,
+            closeOnEscape: false
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.uniHttp.asPOST()
+                    .usingBusinessDomain()
+                    .withEndPoint('users?action=accept-UserLicenseAgreement')
+                    .send()
+                    .map(res => res.json())
+                    .subscribe(
+                        success => this.toastService.addToast(
+                            'Suksess',
+                            ToastType.good,
+                            ToastTime.short,
+                            'Brukerlisens godkjenning lagret',
+                        ),
+                        err => this.errorService.handle(err),
+                    );
+            } else {
+                this.authService.clearAuthAndGotoLogin();
+            }
+        });
     }
 }
