@@ -166,9 +166,9 @@ body.modal-open
         button.modal-close-button
             @extend %hideText
             float: right
-            height: 2rem
+            height: 2.25rem
             width: 2rem
-            margin: .25rem 1rem
+            margin: 0 1rem
             padding: 0
             box-shadow: none
             border: none
@@ -183,6 +183,12 @@ body.modal-open
     > article
         box-sizing: border-box
         padding: 1rem
+
+        &.scrollable
+            width: 100%
+            max-height: calc(100vh - 10rem)
+            min-height: 10rem
+            overflow-y: auto
 
     footer
         width: 100%
