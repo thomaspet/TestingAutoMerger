@@ -8,6 +8,7 @@ import {UniMath} from '@uni-framework/core/uniMath';
 import {ITravelFilter} from '@app/components/salary/travel/travel-filter/travel-filter.component';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {ActivatedRoute} from '@angular/router';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
@@ -46,6 +47,7 @@ export class TravelComponent implements OnInit {
         private errorService: ErrorService,
         private wageTypeService: WageTypeService,
         private route: ActivatedRoute,
+        private modalService: UniModalService,
     ) {}
 
     public ngOnInit() {
@@ -73,7 +75,7 @@ export class TravelComponent implements OnInit {
             if (params['runID']) {
                 this.runID = +params['runID'];
             }
-        })
+        });
     }
 
     private getSaveActions(): IUniSaveAction[] {
@@ -89,7 +91,13 @@ export class TravelComponent implements OnInit {
                 action: done => this.transferToSalary(done),
                 main: false,
                 disabled: true,
-            }
+            },
+            {
+                label: 'Overfør til fakturamottak',
+                action: done => this.transferToSupplierInvoice(done),
+                main: false,
+                disabled: true,
+            },
         ];
     }
 
@@ -104,6 +112,13 @@ export class TravelComponent implements OnInit {
 
         if (this.travelSelection.length) {
             const action = saveActions.find(act => act.label === 'Overfør til lønn');
+            if (action) {
+                action.disabled = false;
+            }
+        }
+
+        if (this.travelSelection.filter(t => t.TravelLines.some(l => l.CostType === costtype.Expense)).length) {
+            const action = saveActions.find(act => act.label === 'Overfør til fakturamottak');
             if (action) {
                 action.disabled = false;
             }
@@ -219,10 +234,55 @@ export class TravelComponent implements OnInit {
             .take(1)
             .switchMap(() => this.travelService.createTransactions(this.travelSelection, this.travelOptions$.getValue().run.ID))
             .catch((err, obs) => {
-                done('Overføring feilet');
+                done('Overføring til lønn feilet');
                 return this.errorService.handleRxCatch(err, obs);
             })
-            .subscribe(() => done('Overføring fullført'));
+            .do(() => this.getTravels())
+            .subscribe(() => done('Overføring til lønn fullført'));
+    }
+
+    private transferToSupplierInvoice(done: (msg) => void) {
+        const travels = this.travelSelection.filter(x => x.TravelLines.some(line => line.CostType === costtype.Expense));
+        this.fetchingFiles$
+            .filter(fetching => !fetching)
+            .take(1)
+            .switchMap(() => this.promptUserIfNeeded(travels, done))
+            .filter(proceed => proceed)
+            .switchMap(() => this.travelService.createSupplierInvoices(travels))
+            .catch((err, obs) => {
+                done('Overføring til fakturamottak feilet');
+                return this.errorService.handleRxCatch(err, obs);
+            })
+            .do(() => this.getTravels())
+            .subscribe(() => done('Overføring til fakturamottak fullført'));
+    }
+
+    private promptUserIfNeeded(travels: Travel[], done: (msg) => void): Observable<boolean> {
+        if (!travels || !travels.length) {
+            return Observable.of(true);
+        }
+
+        const wts = this.wageTypes.filter(x => x.Benefit || x.IncomeType || x.Description);
+        if (travels.some(t => t.TravelLines.some(l => wts.some(wt => wt.WageTypeNumber === l.travelType.WageTypeNumber)))) {
+            return this.modalService.confirm({
+                header: 'Bekreft overføring',
+                message: 'Denne rapporten inneholder godtgjørelse som skal innrapporteres.' +
+                ' Vi anbefaler derfor å importere denne via lønn. Ønsker du å overføre reisen/utlegget via fakturamottak?',
+                buttonLabels: {
+                    accept: 'OK',
+                    cancel: 'Avbryt'
+                }
+            })
+            .onClose
+            .do(result => {
+                if (result !== ConfirmActions.ACCEPT) {
+                    done('Overføring til fakturamottak avbrutt');
+                }
+            })
+            .map(result => result === ConfirmActions.ACCEPT);
+        }
+
+        return Observable.of(true);
     }
 
     private checkFiles(travels: Travel[]): Travel[] {

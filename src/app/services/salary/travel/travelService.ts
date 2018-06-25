@@ -1,12 +1,14 @@
 import { Injectable } from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
-import {Travel, ApiKey, FieldType, Status, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction} from '@uni-entities';
+import {
+    Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice
+} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {EmployeeService} from '../salary/employee/employeeService';
-import {ApiKeyService} from '../common/apikeyService';
-import {FileService} from '../common/fileService';
+import {EmployeeService} from '../employee/employeeService';
+import {ApiKeyService} from '../../common/apikeyService';
+import {FileService} from '../../common/fileService';
 import {RequestMethod} from '@angular/http';
 
 @Injectable()
@@ -119,7 +121,14 @@ export class TravelService extends BizHttp<Travel> {
         if (!travels || !travels.length || !runID) {
             return Observable.of([]);
         }
-        return super.ActionWithBody(null, travels.map(t => t.ID), 'toSalary', RequestMethod.Put, `runID=${runID}`);
+        return super.ActionWithBody(null, travels.map(t => t.ID), 'tosalary', RequestMethod.Put, `runID=${runID}`);
+    }
+
+    public createSupplierInvoices(travels: Travel[]): Observable<SupplierInvoice[]> {
+        if (!travels || !travels.length) {
+            return Observable.of([]);
+        }
+        return super.ActionWithBody(null, travels.map(t => t.ID), 'toinvoice');
     }
 
     public layout(travel$: BehaviorSubject<Travel>): Observable<any> {
