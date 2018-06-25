@@ -60,8 +60,19 @@ export class StimulsoftReportWrapper {
         return this.loadStimulsoft()
             .then(() => this.loadStimulsoftCss())
             .then(() => this.loadStimulsoftViewer())
-            .then(() => Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE)
-            .then(() => Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('assets/stimulsoft/nb-NO.xml'));
+            .then(() => {
+                Stimulsoft.Base.StiLicense.key =
+                '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlXbCQbV15bhSTfOPS9A3vDEz1pnE84I0ULmUVLNU+bqiO0Zd' +
+                'sg3gTozn8iAaTn3bTfTlSeaDbhuDVqo+OhQlxYRwwEbbcaVdKYbnexBg/cOkVUkcn8CygEv36PJQ7XG7EbwvfqE4yM' +
+                'Y4kXwfZn5tvxMOWr7SJPb6lWu4o2YK+qpR+R06pfjofjmL6CdZHp8+ourIy4TYa++lEQcl3HbVp6ocfW6lqTKZwJCe' +
+                '/iySg9W0D2/UE9P/ilS2QXo5i96qG44Mx4Iqha6vqMKICP0RJsWkyQVZt5L2E3I++KdwP9pUYeVhUFmYnfX7kt1eaR' +
+                'HfBIUpBQUb8XL/xUnIfqS0tiXUYiw1EgVAejm9L0bAFt7gKMkWPXoWm5i09wIN3IhfUAHl7r2G4EFPRIa0wuBJBzVt' +
+                'PQWZURKLxzgC4TQH465uX9f63pfpsDgVTgoaN5mg87Oah+RevBnWYtqgfKOrKB1tlIBaA4ym0ToVv7uZwg/e2HJYUa' +
+                'KxQRslbGLgfUBN1Vsak3lrzjEZLhz7Rj9yUYxAviSpr2thbxYtvsteiiBKTt3HTz4vWtj5dGIk7+V/RyShkPokC6+C' +
+                'a7QfZdbPjRYb5ziMuSqC2TGkftrc+vnN+l566ggVDAbz8Z1zQfus4X+uoUuTLFoIG3LTxYnW21kLhMm+gYXx+E6ZvR' +
+                'yLbcrIS9CAIDOHRVCcxAE0ibEjiH+66SgS6BL0lMfzDWVApBL6sH1LaB3+05DUKIuyZKQk1KI32Aj/PI0k0NfebUjn' +
+                'I=';
+            }).then(() => Stimulsoft.Base.Localization.StiLocalization.setLocalizationFile('assets/stimulsoft/nb-NO.xml'));
     }
 
     private loadStimulsoft(): Promise<any> {
@@ -120,7 +131,16 @@ export class StimulsoftReportWrapper {
             return;
         }
         this.loadStimulsoft().then(() => this.loadStimulsoftViewer().then(() => {
-            Stimulsoft.Base.StiLicense.key = environment.STIMULSOFT_LICENSE; // Needed for newer versions
+            Stimulsoft.Base.StiLicense.key = '6vJhGtLLLz2GNviWmUTrhSqnOItdDwjBylQzQcAOiHlXbCQbV15bhSTfOPS9A3vDEz1pnE84I0ULmUVLNU+bqiO0Zd' +
+                'sg3gTozn8iAaTn3bTfTlSeaDbhuDVqo+OhQlxYRwwEbbcaVdKYbnexBg/cOkVUkcn8CygEv36PJQ7XG7EbwvfqE4yM' +
+                'Y4kXwfZn5tvxMOWr7SJPb6lWu4o2YK+qpR+R06pfjofjmL6CdZHp8+ourIy4TYa++lEQcl3HbVp6ocfW6lqTKZwJCe' +
+                '/iySg9W0D2/UE9P/ilS2QXo5i96qG44Mx4Iqha6vqMKICP0RJsWkyQVZt5L2E3I++KdwP9pUYeVhUFmYnfX7kt1eaR' +
+                'HfBIUpBQUb8XL/xUnIfqS0tiXUYiw1EgVAejm9L0bAFt7gKMkWPXoWm5i09wIN3IhfUAHl7r2G4EFPRIa0wuBJBzVt' +
+                'PQWZURKLxzgC4TQH465uX9f63pfpsDgVTgoaN5mg87Oah+RevBnWYtqgfKOrKB1tlIBaA4ym0ToVv7uZwg/e2HJYUa' +
+                'KxQRslbGLgfUBN1Vsak3lrzjEZLhz7Rj9yUYxAviSpr2thbxYtvsteiiBKTt3HTz4vWtj5dGIk7+V/RyShkPokC6+C' +
+                'a7QfZdbPjRYb5ziMuSqC2TGkftrc+vnN+l566ggVDAbz8Z1zQfus4X+uoUuTLFoIG3LTxYnW21kLhMm+gYXx+E6ZvR' +
+                'yLbcrIS9CAIDOHRVCcxAE0ibEjiH+66SgS6BL0lMfzDWVApBL6sH1LaB3+05DUKIuyZKQk1KI32Aj/PI0k0NfebUjn' +
+                'I='; // Needed for newer versions
             this.renderReport(template, reportData, parameters, localization, (report) => {
                 this.renderHtml(report, null);
             });
