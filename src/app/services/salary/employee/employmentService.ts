@@ -128,7 +128,10 @@ export class EmploymentService extends BizHttp<Employment> {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Stillingsprosent',
                     FieldSet: 1,
-                    Section: 0
+                    Section: 0,
+                    Options: {
+                        decimalLength: 2
+                    }
                 },
                 {
                     EntityType: 'Employment',
