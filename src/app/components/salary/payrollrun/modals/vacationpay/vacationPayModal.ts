@@ -223,6 +223,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
         this.basicamountBusy = true;
+        this.saveIsActive = false;
         this.vacationpaylineService
             .getVacationpayBasis(this.vacationBaseYear, this.options.data.ID)
             .finally(() => this.basicamountBusy = false)
