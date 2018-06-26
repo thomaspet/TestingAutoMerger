@@ -1,17 +1,17 @@
 <section class="splitview">
     <nav class="splitview_list">
-        <uni-table
-            [config]="tableConfig"
-            [resource]="employments"
-            (rowSelected)="onRowSelected($event)">
-        </uni-table>
-
-        <button (click)="newEmployment()" [disabled]="employee?.ID === 0 || btnDisabled()">
-            Nytt Arbeidsforhold
-        </button>
-        <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
+        <article>
+            <button class="new-button" (click)="newEmployment()" [disabled]="employee?.ID === 0 || btnDisabled()">
+                Nytt Arbeidsforhold
+            </button>
+            <uni-table
+                [config]="tableConfig"
+                [resource]="employments"
+                (rowSelected)="onRowSelected($event)">
+            </uni-table>
+            <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
+        </article>
     </nav>
-
     <main class="splitview_detail" *ngIf="employments">
         <employment-details
             [employment]="selectedEmployment$ | async"
