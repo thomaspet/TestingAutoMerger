@@ -27,7 +27,9 @@ import {
     MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatIconModule,
+    MatButtonModule
 } from '@angular/material';
 
 @NgModule({
@@ -36,6 +38,8 @@ import {
         MatTooltipModule,
         MatMenuModule,
         MatExpansionModule,
+        MatIconModule,
+        MatButtonModule,
 
         CommonModule,
         FormsModule,

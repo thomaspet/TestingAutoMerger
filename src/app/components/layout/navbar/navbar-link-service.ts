@@ -6,6 +6,7 @@ import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
+import {UniHttp} from '@uni-framework/core/http/http';
 import * as _ from 'lodash';
 
 export {INavbarLinkSection, INavbarLink} from './navbar-links';
@@ -23,7 +24,8 @@ export class NavbarLinkService {
     constructor(
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
-        private browserStorage: BrowserStorageService
+        private browserStorage: BrowserStorageService,
+        private http: UniHttp
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
@@ -50,6 +52,10 @@ export class NavbarLinkService {
             },
             err => console.error(err)
         );
+    }
+
+    public getApprovedRouteSearchQueries() {
+
     }
 
     private getLinksFilteredByPermissions(user): any[] {
@@ -83,6 +89,7 @@ export class NavbarLinkService {
                     name: 'Dimensjoner',
                     url: '',
                     icon: 'dimension',
+                    isSuperSearchComponent: true,
                     mdIcon: 'developer_board',
                     linkGroups: [{
                         name: '',
@@ -93,6 +100,14 @@ export class NavbarLinkService {
         } else {
             return Observable.of(null);
         }
+    }
+
+    public getQuery(url: string) {
+        return this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(url)
+            .send().map(res => res.json());
     }
 
     public getDimensionLinks(dimensions) {

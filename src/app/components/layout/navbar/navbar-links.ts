@@ -5,6 +5,12 @@ export interface INavbarLink {
     url: string;
     moduleID?: number;
     routerLinkActiveExact?: boolean;
+    isSuperSearchComponent?: boolean;
+    moduleName?: string;
+    selects?: string[];
+    searchFields?: string[];
+    expands?: string[];
+    joins?: string[];
 }
 
 export interface INavbarLinkSection {
@@ -100,17 +106,29 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Faktura',
                         url: '/sales/invoices',
-                        moduleID: UniModules.Invoices
+                        moduleID: UniModules.Invoices,
+                        isSuperSearchComponent: true,
+                        moduleName: 'CustomerInvoice',
+                        selects: ['ID', 'InvoiceNumber', 'CustomerName'],
+                        expands: ['customer']
                     },
                     {
                         name: 'Ordre',
                         url: '/sales/orders',
-                        moduleID: UniModules.Orders
+                        moduleID: UniModules.Orders,
+                        isSuperSearchComponent: true,
+                        moduleName: 'CustomerOrder',
+                        selects: ['ID', 'OrderNumber', 'CustomerName'],
+                        expands: ['customer']
                     },
                     {
                         name: 'Tilbud',
                         url: '/sales/quotes',
-                        moduleID: UniModules.Quotes
+                        moduleID: UniModules.Quotes,
+                        isSuperSearchComponent: true,
+                        moduleName: 'CustomerQuote',
+                        selects: ['ID', 'QuoteNumber', 'CustomerName'],
+                        expands: ['customer']
                     },
                     {
                         name: 'Purring',
@@ -130,12 +148,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Kunder',
                         url: '/sales/customer',
-                        moduleID: UniModules.Customers
+                        moduleID: UniModules.Customers,
+                        isSuperSearchComponent: true,
+                        moduleName: 'Customer',
+                        selects: ['ID', 'CustomerNumber', 'BusinessRelation.Name'],
+                        joins: ['Customer.BusinessRelationid eq BusinessRelation.id']
                     },
                     {
                         name: 'Produkter',
                         url: '/sales/products',
-                        moduleID: UniModules.Products
+                        moduleID: UniModules.Products,
+                        isSuperSearchComponent: true,
+                        moduleName: 'Product',
+                        selects: ['ID', 'PartName', 'Name']
                     },
                     {
                         name: 'Produktgrupper',
@@ -211,6 +236,10 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Leverandør',
                         url: '/accounting/suppliers',
                         moduleID: UniModules.Suppliers,
+                        isSuperSearchComponent: true,
+                        moduleName: 'Supplier',
+                        selects: ['ID', 'SupplierNumber', 'BusinessRelation.Name'],
+                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id']
                     },
                     {
                         name: 'Kontoplan',
@@ -309,6 +338,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Ansatte',
                         url: '/salary/employees',
                         moduleID: UniModules.Employees,
+                        isSuperSearchComponent: false,
+                        moduleName: 'Employee'
                     },
                     {
                         name: 'Lønnsarter',
@@ -387,7 +418,9 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 {
                     name: 'Oversikt',
                     url: '/dimensions/projects/overview',
-                    moduleID: UniModules.Projects
+                    moduleID: UniModules.Projects,
+                    isSuperSearchComponent: false,
+                    moduleName: 'Project'
                 },
                 {
                     name: 'Timer',
