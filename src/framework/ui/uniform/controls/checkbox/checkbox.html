@@ -3,7 +3,6 @@
     [checked]="checked"
     [labelPosition]="'before'"
     (change)="onChange($event)">
-    {{field?.Label}}
 </mat-slide-toggle>
 
 <ng-template #checkbox>
@@ -14,7 +13,6 @@
         [labelPosition]="'before'"
         [disableRipple]="true"
         [disabled]="!!field?.ReadOnly">
-        {{field?.Label}}
     </mat-checkbox>
 </ng-template>
 

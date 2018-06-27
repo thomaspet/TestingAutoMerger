@@ -1,7 +1,14 @@
 $radioBack: mix($uni-color-scale9, $uni-color-c2a, 90%)
 
 uni-checkbox-input
-    width: 100% !important
+    mat-checkbox
+        .mat-checkbox-label
+            width: 0 !important // use unifield's label
+        .mat-checkbox-layout
+            margin-top: 4px !important
+
+    .mat-slide-toggle-content
+        width: 0 !important
 
 mat-checkbox
     outline: none !important
