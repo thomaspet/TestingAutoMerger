@@ -61,24 +61,32 @@ export class ReminderSettings {
                 });
         }
 
-        let minimumAmountToRemind = new UniFieldLayout();
-        minimumAmountToRemind.EntityType = 'CustomerInvoiceReminderSettings';
-        minimumAmountToRemind.Property = 'MinimumAmountToRemind';
-        minimumAmountToRemind.FieldType = FieldType.TEXT;
-        minimumAmountToRemind.Label = 'Minste fakturabeløp å purre';
 
-        let remindersBeforeDebtCollection = new UniFieldLayout();
-        remindersBeforeDebtCollection.EntityType = 'CustomerInvoiceReminderSettings';
-        remindersBeforeDebtCollection.Property = 'RemindersBeforeDebtCollection';
-        remindersBeforeDebtCollection.FieldType = FieldType.TEXT;
-        remindersBeforeDebtCollection.Label = 'Antall purringer før inkasso';
+        const fields = [
+            {
+                Legend: 'Purreinnstillinger',
+                Property: 'MinimumAmountToRemind',
+                Label: 'Minste fakturabeløp å purre',
+                FieldType: FieldType.TEXT,
+                Section: 0,
+                FieldSet: 1,
+            },
+            {
+                Property: 'RemindersBeforeDebtCollection',
+                Label: 'Antall purringer før inkasso',
+                FieldType: FieldType.TEXT,
+                Section: 0,
+                FieldSet: 1
+            },
+            {
+                Property: 'AcceptPaymentWithoutReminderFee',
+                Label: 'Aksepter fakturabetaling uten purregebyr',
+                FieldType: FieldType.CHECKBOX,
+                Section: 0,
+                FieldSet: 1
+            },
+        ];
 
-        let acceptPaymentWithoutReminderFee = new UniFieldLayout();
-        acceptPaymentWithoutReminderFee.EntityType = 'CustomerInvoiceReminderSettings';
-        acceptPaymentWithoutReminderFee.Property = 'AcceptPaymentWithoutReminderFee';
-        acceptPaymentWithoutReminderFee.FieldType = FieldType.CHECKBOX;
-        acceptPaymentWithoutReminderFee.Label = 'Aksepter fakturabetaling uten purregebyr';
-
-        this.fields$.next([minimumAmountToRemind, remindersBeforeDebtCollection, acceptPaymentWithoutReminderFee]);
+        this.fields$.next(fields);
     }
 }
