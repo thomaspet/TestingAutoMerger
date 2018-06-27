@@ -1750,6 +1750,7 @@ export class Travel extends UniEntity {
     public SourceSystem: string;
     public State: state;
     public StatusCode: number;
+    public SupplierID: number;
     public TravelIdentificator: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -2487,6 +2488,7 @@ export class Confirmation extends UniEntity {
     public ExpirationDate: Date;
     public ID: number;
     public Phone: string;
+    public PostalCode: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -3121,6 +3123,7 @@ export class ReportDefinition extends UniEntity {
     public ReportSource: string;
     public ReportType: number;
     public TemplateLinkId: string;
+    public UniqueReportID: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Version: string;
@@ -3395,6 +3398,7 @@ export class CompanySettings extends UniEntity {
     public AutoJournalPayment: boolean;
     public BankChargeAccountID: number;
     public BaseCurrencyCodeID: number;
+    public BookCustomerInvoiceOnDeliveryDate: boolean;
     public CompanyBankAccountID: number;
     public CompanyName: string;
     public CompanyRegistered: boolean;
@@ -6670,6 +6674,7 @@ export class SendEmail extends UniEntity {
     public EntityType: string;
     public ExternalReference: string;
     public FromAddress: string;
+    public Localization: string;
     public Message: string;
     public ReportName: string;
     public Subject: string;

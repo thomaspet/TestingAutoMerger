@@ -144,11 +144,15 @@ export class TravelComponent implements OnInit {
     }
 
     private getTravels() {
-        this.travelService
+        this.getTravelsObs()
+            .subscribe((travels: any[]) => this.travels$.next(travels));
+    }
+
+    private getTravelsObs(): Observable<Travel[]> {
+        return this.travelService
             .GetAll('', ['TravelLines.TravelType'])
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)))
-            .subscribe((travels: any[]) => this.travels$.next(travels));
+            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)));
     }
 
     private markFirstTravel(travels: Travel[]) {
@@ -215,8 +219,8 @@ export class TravelComponent implements OnInit {
                 });
                 return Observable.forkJoin(obsList).map(() => travels);
             })
-            .do(travels => this.checkSave(travels))
-            .map(travels => this.fillInInfo(travels, this.wageTypes))
+            .switchMap(travels => this.getTravelsObs())
+            .map(travels => this.mapSelected(travels))
             .catch((err, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(err, obs);
@@ -226,6 +230,14 @@ export class TravelComponent implements OnInit {
                 done('Lagring fullført');
             })
             .subscribe(travels => this.travels$.next(travels));
+    }
+
+    private mapSelected(fetched: Travel[]): Travel[] {
+        const local = this.travels$.getValue();
+        fetched.forEach(travel => {
+            travel[SELECTED_KEY] = local.find(tr => tr.ID === travel.ID)[SELECTED_KEY];
+        });
+        return fetched;
     }
 
     private transferToSalary(done: (msg) => void) {

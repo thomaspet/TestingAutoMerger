@@ -65,13 +65,19 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
     private emitChange(travel: Travel) {
         this.travelChange.next(travel);
     }
-    private refreshForm(change: SimpleChange) {
-        if (!change || change.firstChange || change.currentValue.EmployeeNumber ||
-            change.currentValue.EmployeeNumber === change.previousValue.EmployeeNumber) {
-            return;
+    private refreshForm(change: SimpleChange): boolean {
+        return this.refreshFormWithProp(change, 'EmployeeNumber')
+        || this.refreshFormWithProp(change, 'SupplierID');
+    }
+    private refreshFormWithProp(change: SimpleChange, prop: string): boolean {
+        if (!change || change.firstChange || change.currentValue[prop] ||
+            change.currentValue[prop] === change.previousValue[prop]) {
+            return false;
         }
         this.viewActive = true;
         setTimeout(() => this.viewActive = false);
+
+        return true;
     }
 
 }
