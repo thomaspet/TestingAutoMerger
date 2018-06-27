@@ -102,7 +102,9 @@ export class StimulsoftReportWrapper {
         const dataset = new Stimulsoft.System.Data.DataSet('Data');
         dataset.readJson(data);
         report.regData('Data', 'Data', dataset);
-        if (localization && localization !== 'no') { report.localizeReport(localization); }
+        if (localization && localization !== 'no') {
+            try { report.localizeReport(localization); } catch(e) {}
+        }
         report.render();
         resolver(report);
     }
