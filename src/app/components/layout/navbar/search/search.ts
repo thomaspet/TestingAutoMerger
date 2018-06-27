@@ -14,6 +14,7 @@ import {Observable} from 'rxjs/Observable';
 import PerfectScrollbar from 'perfect-scrollbar';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'uni-navbar-search',
@@ -41,8 +42,8 @@ import 'rxjs/add/operator/debounceTime';
                 <ul #resultList id="full_screen_search_list">
                     <li
                         *ngFor="let res of searchResultViewConfig; let idx = index"
-                        [ngClass]="getClass(res)"
-                        [attr.aria-selected]="selectedIndex === idx"
+                        [ngClass]="{ 'isHeaderli' : res.isHeader }"
+                        [attr.aria-selected]="selectedIndex === idx && !res.isHeader"
                         (mouseover)="onMouseover(idx)"
                         (click)="confirmSelection()">
 
@@ -76,10 +77,14 @@ export class NavbarSearch implements AfterViewInit {
     private focusPositionTop: number = 0;
     private componentLookupSource: {name: string, url: string}[] = [];
     private confirmedSuperSearchRoutes = [];
+    private modelsInSearch = [];
+    private shortcuts = [];
     private superSearchTimeout;
     private scrollbar: PerfectScrollbar;
     public searchResultViewConfig = [];
     public displayFullscreenSearch: boolean = false;
+    public isPrefixSearch: boolean = false;
+    public prefixModule: any;
 
     constructor(
         public router: Router,
@@ -89,12 +94,16 @@ export class NavbarSearch implements AfterViewInit {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
+            this.shortcuts = [];
             linkSections.forEach(section => {
 
                 section.linkGroups.forEach(group => {
                     group.links.forEach( (link) => {
                         if (link.isSuperSearchComponent) {
                             this.confirmedSuperSearchRoutes.push(link);
+                        }
+                        if (link.shortcutName) {
+                            this.shortcuts.push(link);
                         }
                     });
                     this.componentLookupSource.push(...group.links);
@@ -123,7 +132,6 @@ export class NavbarSearch implements AfterViewInit {
         });
 
         this.inputControl.valueChanges.subscribe((inputValue) => {
-            this.scrollbar = new PerfectScrollbar('#full_screen_search_list');
             this.isExpanded = false;
             this.selectedIndex = 0;
             const query = inputValue.toLowerCase();
@@ -131,11 +139,17 @@ export class NavbarSearch implements AfterViewInit {
 
             clearTimeout(this.superSearchTimeout);
 
-            // Is the user searching for shortcut?
-            let isShortcutForNew: boolean = query.startsWith('ny') || query.startsWith('nytt') || query === '';
+            // Check if the user has prefixed the query to search only for a given model
+            this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
 
-            // Add new- and component shortcuts to the search
-            this.searchResultViewConfig = [].concat(this.getNewShortcutListInit(query), this.componentLookup(query));
+            let isShortcutForNew = false;
+            if (!this.isPrefixSearch) {
+                // Is the user searching for shortcut?
+                isShortcutForNew = query.startsWith('ny') || query.startsWith('nytt') || query === '';
+
+                // Add new- and component shortcuts to the search
+                this.searchResultViewConfig = [].concat(this.getNewShortcutListInit(query), this.componentLookup(query));
+            }
 
             // Set timeout so we dont call on every key down
             this.superSearchTimeout = setTimeout(() => {
@@ -157,9 +171,9 @@ export class NavbarSearch implements AfterViewInit {
                     }
                 }
 
-                if (!isShortcutForNew) {
-                    Observable.forkJoin(this.createQueryArray(inputValue))
-                    .debounceTime(250)
+                if ((!isShortcutForNew && query.length > 3) || this.isPrefixSearch || (query.length && !isNaN(parseInt(query, 10)))) {
+                    Observable.forkJoin(this.createQueryArray(query, this.isPrefixSearch, query.substr(0, 1)))
+                    .debounceTime(300)
                     .subscribe((res) => {
                         this.searchResultViewConfig = this.searchResultViewConfig.concat(this.generateConfigObject(res));
                         this.isExpanded = true;
@@ -187,7 +201,7 @@ export class NavbarSearch implements AfterViewInit {
                     dataForViewRender.push({
                         isHeader: true,
                         url: '',
-                        value: this.confirmedSuperSearchRoutes[ind].name
+                        value: this.isPrefixSearch ? this.prefixModule.name : this.modelsInSearch[ind].name
                     });
                 }
 
@@ -200,9 +214,13 @@ export class NavbarSearch implements AfterViewInit {
                     }
                 }
 
+                const url = this.isPrefixSearch
+                    ? this.prefixModule.url + '/' + dataset[Object.keys(dataset)[0]]
+                    : this.modelsInSearch[ind].url + '/' + dataset[Object.keys(dataset)[0]];
+
                 dataForViewRender.push({
                     isHeader: false,
-                    url: this.confirmedSuperSearchRoutes[ind].url + '/' + dataset[Object.keys(dataset)[0]],
+                    url: url,
                     value: valueString
                 });
             });
@@ -227,44 +245,88 @@ export class NavbarSearch implements AfterViewInit {
         event.preventDefault();
         this.displayFullscreenSearch = true;
         this.cdr.markForCheck();
+        // Show shortcuts and components on default open.. Should also get "Last 5 ..." from new history route in the future..
+        this.searchResultViewConfig = [].concat(this.getNewShortcutListInit(''), this.componentLookup(''));
+        this.selectedIndex = 1;
         setTimeout(() => {
             if (this.inputElement) {
                 this.inputElement.nativeElement.focus();
             }
-        }, 150);
+            this.scrollbar = new PerfectScrollbar('#full_screen_search_list');
+        }, 50);
     }
 
-    private createQueryArray(query: string) {
+    private checkPrefixForSpecificSearch(query: string) {
+        // Check first to see if the user has added a '.' as second character to indicate prefix search
+        if (query.substr(1, 1) === '.') {
+            // Check to see if the user has entered a valid prefic value before the '.'
+            if (['f', 'o', 't', 'a', 'l', 'p', 'k'].indexOf(query.substr(0, 1)) >= 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    private createQueryArray(query: string, withPrefix: boolean = false, prefix?: string) {
         const queries = [];
-        const filterValue = query.length > 3 ? 'contains' : 'startswith';
+        this.modelsInSearch = [];
+        let filterValue = 'startswith'; // query.length > 3 ? 'contains' : '';
 
-        this.confirmedSuperSearchRoutes.forEach((route) => {
-            let queryStringInit = '';
-            const selectString = route.selects.join(',');
+        const searchRoutes = withPrefix
+            ? this.confirmedSuperSearchRoutes.filter(route => route.prefix === prefix)
+            : this.confirmedSuperSearchRoutes;
 
-            queryStringInit += `?model=${route.moduleName}&select=${selectString}&filter=`;
+        if (searchRoutes.length) {
+            this.prefixModule = {
+                name: searchRoutes[0].name,
+                url: searchRoutes[0].url
+            };
+        }
+
+        query = withPrefix ? query.substr(2, query.length - 1) : query;
+
+        if (query.substr(0, 1) === '*') {
+            filterValue = 'contains';
+            query = query.substr(1, query.length - 1);
+        }
+
+        searchRoutes.forEach((route) => {
+            const filteredSelects = [route.selects[0]];
 
             for (let i = 1; i < route.selects.length; i++) {
-                queryStringInit += `${filterValue}(${route.selects[i]}, '${query}')`;
-                if (i !== route.selects.length - 1) {
-                    queryStringInit += ' or ';
-                } else {
-                    queryStringInit += '&';
+                if (route.selects[i].isNumeric !== isNaN(parseInt(query, 10))) {
+                    filteredSelects.push(route.selects[i]);
                 }
             }
 
-            if (route.expand) {
-                queryStringInit += 'expand=' + route.expands.join(',') + '&';
+            let queryStringInit = '';
+
+            if (filteredSelects.length > 1) {
+                this.modelsInSearch.push(route);
+                const selectString = route.selects.map(selKey => selKey.key).join(',');
+
+                queryStringInit += `?model=${route.moduleName}&select=${selectString}`;
+
+                for (let i = 1; i < filteredSelects.length; i++) {
+                    queryStringInit += (i === 1 ? '&filter=' : '');
+                    queryStringInit +=  `${filterValue}(${filteredSelects[i].key}, '${query}')`;
+                    if (i !==  filteredSelects.length - 1) {
+                        queryStringInit += ' or ';
+                    }
+                }
+
+                if (route.expand) {
+                    queryStringInit += '&expand=' + route.expands.join(',');
+                }
+
+                if (route.joins) {
+                    queryStringInit += '&join=' + route.joins.join(',');
+                }
+
+                queryStringInit += `&top=${withPrefix ? 100 : 5}&orderby=id desc&wrap=false`;
+
+                queries.push(this.navbarLinkService.getQuery(queryStringInit));
             }
-
-            if (route.joins) {
-                queryStringInit += 'join=' + route.joins.join(',') + '&';
-            }
-
-            queryStringInit += 'top=5&orderby=id desc&wrap=false';
-
-            queries.push(this.navbarLinkService.getQuery(queryStringInit));
         });
 
         return queries;
@@ -367,48 +429,24 @@ export class NavbarSearch implements AfterViewInit {
         }
     }
 
-    public getClass(res) {
-        return res.isHeader ? 'isHeaderli' : '';
-    }
-
     private getNewShortcutListInit(query: string) {
         // Create array of predefined shortcuts and filter based on query
-        const shortcuts = [
-            {
-                isHeader: false,
-                url: 'sales/invoices/0',
-                value: 'Ny faktura'
-            },
-            {
-                isHeader: false,
-                url: 'sales/orders/0',
-                value: 'Ny ordre'
-            },
-            {
-                isHeader: false,
-                url: 'sales/quotes/0',
-                value: 'Nytt tilbud'
-            },
-            {
-                isHeader: false,
-                url: 'sales/customer/0',
-                value: 'Ny kunde'
-            },
-            {
-                isHeader: false,
-                url: '/accounting/suppliers/0',
-                value: 'Ny leverandør'
-            }
-        ].filter(res => res.value.toLowerCase().includes(query));
+        let filteredShortCuts = _.cloneDeep(this.shortcuts);
+        filteredShortCuts = filteredShortCuts.filter(res => res.shortcutName.toLowerCase().includes(query));
+
+        filteredShortCuts.forEach(res => {
+            res.url += '/0';
+            res.value = res.shortcutName;
+        });
 
         // If shortcuts was found, add a header for that section
-        if (shortcuts.length) {
-            shortcuts.unshift({
+        if (filteredShortCuts.length) {
+            filteredShortCuts.unshift({
                 isHeader: true,
                 url: '/',
                 value: 'Snarveier'
             });
-            return shortcuts;
+            return filteredShortCuts;
         }
         return [];
     }
@@ -428,7 +466,7 @@ export class NavbarSearch implements AfterViewInit {
         const results: any = [
             {
                 isHeader: true,
-                value: 'Komponentsnarveier',
+                value: 'Modulsnarveier',
                 url: '/'
             }
         ];

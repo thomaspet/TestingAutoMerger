@@ -7,7 +7,9 @@ export interface INavbarLink {
     routerLinkActiveExact?: boolean;
     isSuperSearchComponent?: boolean;
     moduleName?: string;
-    selects?: string[];
+    shortcutName?: string;
+    prefix?: string;
+    selects?: any[];
     searchFields?: string[];
     expands?: string[];
     joins?: string[];
@@ -109,7 +111,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Invoices,
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerInvoice',
-                        selects: ['ID', 'InvoiceNumber', 'CustomerName'],
+                        shortcutName: 'Ny faktura',
+                        prefix: 'f',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'InvoiceNumber', isNumeric: true},
+                            {key: 'CustomerName', isNumeric: false}
+                        ],
                         expands: ['customer']
                     },
                     {
@@ -118,7 +126,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Orders,
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerOrder',
-                        selects: ['ID', 'OrderNumber', 'CustomerName'],
+                        shortcutName: 'Ny ordre',
+                        prefix: 'o',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'OrderNumber', isNumeric: true},
+                            {key: 'CustomerName', isNumeric: false}
+                        ],
                         expands: ['customer']
                     },
                     {
@@ -127,7 +141,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Quotes,
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerQuote',
-                        selects: ['ID', 'QuoteNumber', 'CustomerName'],
+                        shortcutName: 'Nytt tilbud',
+                        prefix: 't',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'QuoteNumber', isNumeric: true},
+                            {key: 'CustomerName', isNumeric: false}
+                        ],
                         expands: ['customer']
                     },
                     {
@@ -151,7 +171,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Customers,
                         isSuperSearchComponent: true,
                         moduleName: 'Customer',
-                        selects: ['ID', 'CustomerNumber', 'BusinessRelation.Name'],
+                        shortcutName: 'Ny kunde',
+                        prefix: 'k',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'CustomerNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
                         joins: ['Customer.BusinessRelationid eq BusinessRelation.id']
                     },
                     {
@@ -160,7 +186,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Products,
                         isSuperSearchComponent: true,
                         moduleName: 'Product',
-                        selects: ['ID', 'PartName', 'Name']
+                        shortcutName: 'Nytt produkt',
+                        prefix: 'p',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'PartName', isNumeric: false},
+                            {key: 'Name', isNumeric: false}
+                        ]
                     },
                     {
                         name: 'Produktgrupper',
@@ -238,7 +270,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Suppliers,
                         isSuperSearchComponent: true,
                         moduleName: 'Supplier',
-                        selects: ['ID', 'SupplierNumber', 'BusinessRelation.Name'],
+                        shortcutName: 'Ny leverandør',
+                        prefix: 'l',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'SupplierNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
                         joins: ['Supplier.BusinessRelationid eq BusinessRelation.id']
                     },
                     {
@@ -338,8 +376,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Ansatte',
                         url: '/salary/employees',
                         moduleID: UniModules.Employees,
-                        isSuperSearchComponent: false,
-                        moduleName: 'Employee'
+                        isSuperSearchComponent: true,
+                        moduleName: 'Employee',
+                        shortcutName: 'Ny ansatt',
+                        prefix: 'a',
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'EmployeeNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
+                        joins: ['Employee.BusinessRelationID eq BusinessRelation.ID']
                     },
                     {
                         name: 'Lønnsarter',
@@ -416,11 +462,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             name: '',
             links: [
                 {
-                    name: 'Oversikt',
-                    url: '/dimensions/projects/overview',
+                    name: 'Prosjekt',
+                    url: '/dimensions/projects/overview/1',
                     moduleID: UniModules.Projects,
-                    isSuperSearchComponent: false,
-                    moduleName: 'Project'
+                    isSuperSearchComponent: true,
+                    moduleName: 'Project',
+                    selects: [
+                        {key: 'ID', isNumeric: true},
+                        {key: 'ProjectNumber', isNumeric: true},
+                        {key: 'Name', isNumeric: false}
+                    ]
                 },
                 {
                     name: 'Timer',

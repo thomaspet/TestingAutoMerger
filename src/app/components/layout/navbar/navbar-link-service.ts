@@ -111,7 +111,7 @@ export class NavbarLinkService {
     }
 
     public getDimensionLinks(dimensions) {
-        const links = [
+        const links: any = [
             {
                 name: 'Prosjekt',
                 url: '/dimensions/overview/1' ,
@@ -130,7 +130,16 @@ export class NavbarLinkService {
                 {
                     name: dim.Label,
                     url: '/dimensions/overview/' + dim.Dimension ,
-                    moduleID: UniModules.Dimensions
+                    moduleID: UniModules.Dimensions,
+                    isSuperSearchComponent: false,
+                    moduleName: 'Dimension' + dim.Dimension,
+                    selects: [
+                        {key: 'ID', isNumeric: true},
+                        {key: 'Number', isNumeric: false},
+                        {key: 'Name', isNumeric: false}
+                    ],
+                    // shortcutName: 'Ny ' + dim.Label,
+                    prefix: 'dim' + dim.Dimension,
                 }
             );
         });
