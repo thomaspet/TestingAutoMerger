@@ -1,8 +1,7 @@
 <label *ngIf="field?.FieldType !== 1">
-    <span [hidden]="!isInput(field?.FieldType)"
-        [title]="field?.Label">
+    <span [hidden]="!isInput(field?.FieldType)">
 
-        {{field?.Label | isRequired:field}}
+        <span [title]="field?.Label">{{field?.Label | isRequired:field}}</span>
 
         <uni-tooltip *ngIf="field?.Tooltip"
             [type]="field.Tooltip.Type"
