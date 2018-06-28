@@ -43,6 +43,29 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .map(response => response.json());
     }
 
+    public getAvailableNumbersInNumberSeries(numberSeriesID: number): string[] {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(`${this.relativeURL}?action=get-available-numbers-in-numberseries&numberSeriesID=${numberSeriesID}`)
+        .send()
+        .map(response => response.json())
+        .map(numberIntervalsStrings => numberIntervalsStrings.map(x => x.replace(',', ' - ')));
+    }
+
+    public getMaxUsedNumberInNumberSeries(numberSeriesID: number) {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(`${this.relativeURL}?action=get-max-used-number&numberSeriesID=${numberSeriesID}`)
+        .send()
+        .map(response => response.json());
+    }
+
+
+
+
+
     public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {
         return numberSeries && numberSeries.length > 1 && ID === 0 ?
             {

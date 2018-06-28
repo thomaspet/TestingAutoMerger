@@ -2,7 +2,7 @@ import {Component, ViewChildren, QueryList} from '@angular/core';
 import {SettingsService} from '../settings-service';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions, UniConfirmModalV2} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs/Observable';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -404,6 +404,9 @@ export class NumberSeries {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
                     })
                     .setWidth('14rem'),
+                new UniTableColumn('AccountYear','År', UniTableColumnType.Text)
+                    .setEditable(false)
+                    .setWidth('4rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
                     .setEditable(row => {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
@@ -495,6 +498,22 @@ export class NumberSeries {
                         this.hasUnsavedChanges = true;
                         this.current = _.cloneDeep(this.current);
                     }
+                },
+                {
+                    label: 'Vis ledige numre i serien',
+                    action: (serie) => {
+                        this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
+                            .subscribe(
+                                numberIntervals =>
+                                    this.modalService.open(UniConfirmModalV2,
+                                        {
+                                            buttonLabels: { accept: 'OK' },
+                                            header: 'Ledige nummer i nummerserie',
+                                            message: numberIntervals.join(', '),
+                                        }),
+                                err => this.errorService.handle(err),
+                        );
+                    }
                 }
             ])
             .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
@@ -569,6 +588,22 @@ export class NumberSeries {
                         this.current[serie._originalIndex] = serie;
                         this.hasUnsavedChanges = true;
                         this.current = _.cloneDeep(this.current);
+                    }
+                },
+                {
+                    label: 'Vis ledige numre i serien',
+                    action: (serie) => {
+                        this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
+                            .subscribe(
+                                numberIntervals =>
+                                    this.modalService.open(UniConfirmModalV2,
+                                        {
+                                            buttonLabels: { accept: 'OK' },
+                                            header: 'Ledige nummer i nummerserie',
+                                            message: numberIntervals.join(', '),
+                                        }),
+                                err => this.errorService.handle(err),
+                        );
                     }
                 }
             ])
@@ -647,6 +682,24 @@ export class NumberSeries {
                         itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
                 ])
+                .setContextMenu([
+                    {
+                        label: 'Vis ledige numre i serien',
+                        action: (serie) => {
+                            this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
+                                .subscribe(
+                                    numberIntervals =>
+                                        this.modalService.open(UniConfirmModalV2,
+                                            {
+                                                buttonLabels: { accept: 'OK' },
+                                                header: 'Ledige nummer i nummerserie',
+                                                message: numberIntervals.join(', '),
+                                            }),
+                                    err => this.errorService.handle(err),
+                            );
+                        }
+                    }
+                ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
             .setDefaultRowData({
@@ -685,6 +738,24 @@ export class NumberSeries {
                         resource: [true, false],
                         itemTemplate: item => item ? 'Nei' : 'Ja'
                     })
+            ])
+            .setContextMenu([
+                {
+                    label: 'Vis ledige numre i serien',
+                    action: (serie) => {
+                        this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
+                            .subscribe(
+                                numberIntervals =>
+                                    this.modalService.open(UniConfirmModalV2,
+                                        {
+                                            buttonLabels: { accept: 'OK' },
+                                            header: 'Ledige nummer i nummerserie',
+                                            message: numberIntervals.join(', '),
+                                        }),
+                                err => this.errorService.handle(err),
+                        );
+                    }
+                }
             ])
             .setChangeCallback(event => this.onRowChanged(event))
             .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
