@@ -23,11 +23,12 @@ import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
 
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
-import {OverlayModule} from '@angular/cdk/overlay';
-
 import {UniSmartSearch} from './smart-search/smart-search';
 import {UniSmartSearchItem} from './smart-search/smart-search-item';
 import {SmartSearchService} from './smart-search/smart-search.service';
+
+import {A11yModule} from '@angular/cdk/a11y';
+import {OverlayModule} from '@angular/cdk/overlay';
 
 import {
     MatTabsModule,
@@ -38,7 +39,6 @@ import {
     MatButtonModule,
     MatProgressBarModule
 } from '@angular/material';
-import {CdkTrapFocus} from '@angular/cdk/a11y';
 
 @NgModule({
     imports: [
@@ -48,6 +48,7 @@ import {CdkTrapFocus} from '@angular/cdk/a11y';
         HttpModule,
         RouterModule,
 
+        A11yModule,
         OverlayModule,
         MatTabsModule,
         MatTooltipModule,
@@ -61,7 +62,6 @@ import {CdkTrapFocus} from '@angular/cdk/a11y';
         AppPipesModule
     ],
     declarations: [
-        CdkTrapFocus,
         UniTabs,
         UniNavbar,
         UniSidebar,
