@@ -21,7 +21,7 @@ export class SalaryTransViewService {
     public createSupplementsColumn(
         onSupplementsClose: (trans: SalaryTransaction) => any,
         isReadOnly: () => boolean): UniTableColumn {
-        return new UniTableColumn('Supplements', 'T', UniTableColumnType.Text, false)
+        return new UniTableColumn('Supplements', 'Tilleggsopplysning', UniTableColumnType.Text, false)
             .setWidth(40)
             .setResizeable(false)
             .setOnCellClick((rowModel: SalaryTransaction) => {
@@ -31,7 +31,7 @@ export class SalaryTransViewService {
 
                 this.openSupplements(rowModel, onSupplementsClose, isReadOnly());
             })
-            .setTemplate(row => '')
+            .setTemplate(() => '')
             .setTooltipResolver((row: SalaryTransaction) => {
                 if (!row.Supplements || !row.Supplements.filter(x => !x.Deleted).length || this.isOnlyAmountField(row)) {
                     return;
