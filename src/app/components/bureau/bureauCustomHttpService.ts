@@ -3,9 +3,7 @@ import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/htt
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class BureauCustomHttpService {
@@ -13,8 +11,6 @@ export class BureauCustomHttpService {
         private http: Http,
         private authService: AuthService,
         private browserStorage: BrowserStorageService,
-        private errorService: ErrorService,
-        private toastService: ToastService,
     ) {}
 
     public get(url: string, companyKey: string): Observable<any> {
