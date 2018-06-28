@@ -41,8 +41,8 @@ export class Employments extends UniView implements OnInit, OnDestroy {
             .setColumnMenuVisible(false)
             .setColumns([
                 new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
-                new UniTableColumn('JobName', 'Stillingsnavn'),
-                new UniTableColumn('JobCode', 'Stillingskode')
+                new UniTableColumn('JobName', 'Yrkestittel'),
+                new UniTableColumn('JobCode', 'Yrkeskode')
             ])
             .setSearchable(true);
     }

@@ -80,11 +80,11 @@ export class EmploymentService extends BizHttp<Employment> {
                     EntityType: 'Employment',
                     Property: 'JobCode',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Stillingskode',
+                    Label: 'Yrkeskode',
                     FieldSet: 1,
-                    Legend: 'Stillingsinformasjon',
+                    Legend: 'Arbeidsforhold',
                     Section: 0,
-                    Placeholder: 'Stillingskode',
+                    Placeholder: 'Yrkeskode',
                     Validations: [
                         (value: number, field: UniFieldLayout) => {
                             if (!!value) {
@@ -94,7 +94,7 @@ export class EmploymentService extends BizHttp<Employment> {
                             return {
                                 field: field,
                                 value: value,
-                                errorMessage: 'Stillingskode er påkrevd',
+                                errorMessage: 'Yrkeskode er påkrevd',
                                 isWarning: false
                             };
                         }
@@ -104,7 +104,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     EntityType: 'Employment',
                     Property: 'JobName',
                     FieldType: FieldType.TEXT,
-                    Label: 'Stillingsnavn',
+                    Label: 'Yrkestittel',
                     FieldSet: 1,
                     Section: 0,
                     Validations: [
@@ -116,7 +116,7 @@ export class EmploymentService extends BizHttp<Employment> {
                             return {
                                 field: field,
                                 value: value,
-                                errorMessage: 'Stillingsnavn er påkrevd',
+                                errorMessage: 'Yrkestittel er påkrevd',
                                 isWarning: false
                             };
                         }
