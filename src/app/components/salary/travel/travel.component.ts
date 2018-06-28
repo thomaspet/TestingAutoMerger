@@ -7,8 +7,9 @@ import {Observable} from 'rxjs/Observable';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {ITravelFilter} from '@app/components/salary/travel/travel-filter/travel-filter.component';
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {IContextMenuItem} from '@uni-framework/ui/unitable';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
@@ -34,6 +35,7 @@ export class TravelComponent implements OnInit {
     public travelSelection: Travel[] = [];
     public busy: boolean;
     public saveActions$: BehaviorSubject<IUniSaveAction[]> = new BehaviorSubject(this.getSaveActions());
+    public contextMenuItems: IContextMenuItem[] = [];
     public fileIDs$: BehaviorSubject<number[]> = new BehaviorSubject([]);
 
     private wageTypes: WageType[] = [];
@@ -48,6 +50,7 @@ export class TravelComponent implements OnInit {
         private wageTypeService: WageTypeService,
         private route: ActivatedRoute,
         private modalService: UniModalService,
+        private router: Router,
     ) {}
 
     public ngOnInit() {
@@ -56,9 +59,10 @@ export class TravelComponent implements OnInit {
             url: 'salary/travels',
             moduleID: UniModules.Travel
         });
+        this.contextMenuItems = this.getContextMenuItems();
+
         this.getTravels();
-        // const mock = this.fillInInfo(this.mockTravels());
-        // this.travels$.next(mock);
+
         this.travels$
             .do((travels) => this.checkSave(travels))
             .subscribe(travels => this.updateFilteredTravels(travels, this.travelOptions$.getValue()));
@@ -98,6 +102,15 @@ export class TravelComponent implements OnInit {
                 main: false,
                 disabled: true,
             },
+        ];
+    }
+
+    private getContextMenuItems(): IContextMenuItem[] {
+        return [
+            {
+                label: 'Reisetyper',
+                action: () => this.navigateToTravelTypes(),
+            }
         ];
     }
 
@@ -334,6 +347,10 @@ export class TravelComponent implements OnInit {
                 this.fileIDs$.next(fetchedTravelFiles.find(tf => tf.TravelID === selected.ID).FileIDs);
             })
             .subscribe(tf => this.travelFiles$.next([...travelFiles, ...tf]));
+    }
+
+    private navigateToTravelTypes() {
+        this.router.navigate(['salary/traveltypes']);
     }
 
     public selectedTravel(travel: Travel) {
