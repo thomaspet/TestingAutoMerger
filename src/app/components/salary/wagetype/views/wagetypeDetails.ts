@@ -120,10 +120,6 @@ export class WagetypeDetail extends UniView {
                         this.descriptionDatasource = [];
                         this.supplementPackages = [];
 
-                        if (!wageType.ID) {
-                            this.setDefaultValues(wageType);
-                        }
-
                         return this.setup(wageType);
                     } else {
                         return Observable.of(wageType);
@@ -134,13 +130,6 @@ export class WagetypeDetail extends UniView {
                     this.wageType$.next(wageType);
                 }, err => this.errorService.handle(err));
         });
-    }
-
-    private setDefaultValues(wageType: WageType) {
-        wageType.taxtype = TaxType.Tax_Table;
-        wageType.Base_Vacation = true;
-        wageType.Base_EmploymentTax = true;
-        wageType.Base_div1 = true;
     }
 
     private getBaseOptions(wageType: WageType): WageTypeBaseOptions[] {
@@ -667,6 +656,10 @@ export class WagetypeDetail extends UniView {
             .map((result: [WageType, any[]]) => {
                 const [wageType, fields] = result;
 
+                if (changes['taxtype'] || changes['Base_Payment']) {
+                    this.checkHideFromPaycheck(wageType);
+                }
+
                 if (changes['GetRateFrom']) {
                     this.setReadOnlyOnField(
                         fields,
@@ -678,7 +671,6 @@ export class WagetypeDetail extends UniView {
                     const basePayment = changes['Base_Payment'].currentValue;
                     this.setReadOnlyOnField(fields, 'HideFromPaycheck', basePayment);
                     this.setReadOnlyOnField(fields, 'AccountNumber_balance', basePayment);
-                    wageType.HideFromPaycheck = false;
                 }
 
                 if (changes['SupplementPackage']) {
@@ -710,6 +702,16 @@ export class WagetypeDetail extends UniView {
                 this.fields$.next(fields);
                 super.updateState('wagetype', wageType, true);
             });
+    }
+
+    private checkHideFromPaycheck(wageType: WageType): WageType {
+        if (!wageType.HideFromPaycheck) {
+            return wageType;
+        }
+        wageType.HideFromPaycheck = wageType.HideFromPaycheck && !(wageType.Base_Payment ||
+            wageType.taxtype === TaxType.Tax_Percent ||
+            wageType.taxtype === TaxType.Tax_Table);
+        return wageType;
     }
 
     private setReadOnlyOnBenefitAndDescription(fields: any[], value: string) {

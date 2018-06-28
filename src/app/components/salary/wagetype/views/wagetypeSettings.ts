@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {ActivatedRoute, Router} from '@angular/router';
-import {WageType, LimitType, StdWageType, SpecialAgaRule} from '../../../../unientities';
+import {WageType, LimitType, StdWageType, SpecialAgaRule, TaxType} from '../../../../unientities';
 import {WageTypeService, UniCacheService, ErrorService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -67,7 +67,7 @@ export class WageTypeSettings extends UniView {
     }
 
     public change(event) {
-        let wagetype = this.wageType$.getValue();
+        const wagetype = this.wageType$.getValue();
         this.updateFields(wagetype);
         super.updateState('wagetype', wagetype, true);
     }
@@ -143,6 +143,12 @@ export class WageTypeSettings extends UniView {
 
                 this.editField(fields, 'Limit_newRate', newrate => {
                     newrate.ReadOnly = !!wagetype.Limit_WageTypeNumber;
+                });
+
+                this.editField(fields, 'HideFromPaycheck', hideFromPaycheck => {
+                    hideFromPaycheck.ReadOnly = !!(wagetype.Base_Payment ||
+                        wagetype.taxtype === TaxType.Tax_Percent ||
+                        wagetype.taxtype === TaxType.Tax_Table);
                 });
 
                 return fields;
