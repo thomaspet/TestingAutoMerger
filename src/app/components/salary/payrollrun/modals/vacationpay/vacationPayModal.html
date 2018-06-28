@@ -2,7 +2,7 @@
     <header>
         <h1>Feriepenger - oppsett og utbetaling</h1>
     </header>
-    <article [attr.aria-busy]="busy">
+    <article [attr.aria-busy]="busy || !vacationpayBasis">
         <section class="vacationpay_Flexheader">
             <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
             <uni-information [config]="infoConfig$ | async" class="infoNote">
@@ -33,13 +33,13 @@
             </uni-information>
         </section>
 
-        <uni-table
+        <ag-grid-wrapper
             [resource]="vacationpayBasis"
             [config]="tableConfig"
-            (rowChanged)="rowChanged($event)"
-            (rowSelectionChanged)="onRowSelectionChange($event)"
+            (rowChange)="rowChanged($event)"
+            (rowSelectionChange)="onRowSelectionChange($event)"
             (dataLoaded)="updatetotalPay()">
-        </uni-table>
+        </ag-grid-wrapper>
 
         <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
     </article>

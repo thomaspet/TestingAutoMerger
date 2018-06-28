@@ -3,7 +3,7 @@ import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
 import {BasicAmount, VacationPayLine, CompanySalary, EmployeeCategory} from '../../../../../unientities';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 import {
-    UniTable, UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
+    UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
 } from '../../../../../../framework/ui/unitable/index';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
@@ -18,6 +18,7 @@ import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-m
 import {IUniSaveAction} from '../../../../../../framework/save/save';
 import {IUniInfoConfig} from '../../../../common/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 interface IVacationPayHeader {
     VacationpayYear?: number;
@@ -32,7 +33,7 @@ interface IVacationPayHeader {
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
 
@@ -64,9 +65,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     private saveIsActive: boolean;
     private createTransesIsActive: boolean;
     constructor(
-        private salarytransService: SalaryTransactionService,
         private basicamountService: BasicAmountService,
-        private payrollrunService: PayrollrunService,
         private vacationpaylineService: VacationpayLineService,
         private toastService: ToastService,
         private errorService: ErrorService,
@@ -74,8 +73,6 @@ export class VacationPayModal implements OnInit, IUniModal {
         private companysalaryService: CompanySalaryService,
         private companyVacationrateService: CompanyVacationRateService,
         private modalService: UniModalService,
-        private numberFormat: NumberFormat,
-        private vacationRateEmployeeService: VacationRateEmployeeService
     ) {}
 
     public ngOnInit() {
@@ -212,7 +209,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     public onRowSelectionChange(event) {
         this.updatetotalPay();
-        this.createTransesIsActive = this.table.getSelectedRows().length;
+        this.createTransesIsActive = !!this.table.getSelectedRows().length;
         this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
     }
 
@@ -410,7 +407,6 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private createTableConfig() {
         const nrCol = new UniTableColumn('Employee.EmployeeNumber', 'Nr', UniTableColumnType.Text, false)
-            .setWidth('4rem')
             .setTooltipResolver((rowModel: VacationPayLine) => {
                 if (this.empOver60(rowModel)) {
                     return {
@@ -420,13 +416,12 @@ export class VacationPayModal implements OnInit, IUniModal {
                 }
             });
         const nameCol = new UniTableColumn(
-            'Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false).setWidth('9rem');
+            'Employee.BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
         const systemGrunnlagCol = new UniTableColumn(
-            'SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false).setWidth('8rem');
+            'SystemVacationPayBase', 'Gr.lag system', UniTableColumnType.Money, false);
         const manuellGrunnlagCol = new UniTableColumn(
-            'ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money).setWidth('8rem');
+            'ManualVacationPayBase', 'Gr.lag manuelt', UniTableColumnType.Money);
         const rateCol = new UniTableColumn('_Rate', `Sats (${this.vacationBaseYear})`, UniTableColumnType.Money, true)
-            .setWidth('5rem')
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
                     return;
@@ -438,12 +433,10 @@ export class VacationPayModal implements OnInit, IUniModal {
                 }
             });
         const sixthCol = new UniTableColumn('_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, true)
-            .setWidth('4rem')
             .setOptions({
                 resource: ['Ja', 'Nei']
             });
         const vacationPayCol = new UniTableColumn('_VacationPay', 'Feriepenger', UniTableColumnType.Money, false)
-            .setWidth('7rem')
             .setTemplate((row: VacationPayLine) => {
                 if (row['_isEmpty']) {
                     return;
@@ -456,7 +449,6 @@ export class VacationPayModal implements OnInit, IUniModal {
                 }
             });
         const earlierPayCol = new UniTableColumn('PaidVacationPay', 'Tidl utbetalt', UniTableColumnType.Money, false)
-            .setWidth('7rem')
             .setTemplate((row: VacationPayLine) => '' + UniMath.useFirstTwoDecimals(row.PaidVacationPay));
         const payoutCol = new UniTableColumn('Withdrawal', 'Utbetales', UniTableColumnType.Money).setWidth('6rem');
 
