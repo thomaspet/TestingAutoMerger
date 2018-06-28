@@ -219,6 +219,14 @@
             }
         },
         {
+            "Name": "Fakturaprint",
+            "Code": "invoice_invoiceprint",
+            "Type": "action",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": false,
+            "NeedsActionOverride": true
+        },
+        {
             "Name": "Registrer betaling",
             "Code": "invoice_registerpayment",
             "Type": "action",

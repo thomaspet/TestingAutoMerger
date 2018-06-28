@@ -284,7 +284,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     customerID
                         ? this.customerService.Get(customerID, this.customerExpands)
                         : Observable.of(null),
-                    this.companySettingsService.Get(1),
+                    this.companySettingsService.Get(1, ["APOutgoing"]),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -363,7 +363,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 Observable.forkJoin(
                     this.getInvoice(this.invoiceID),
-                    this.companySettingsService.Get(1),
+                    this.companySettingsService.Get(1, ["APOutgoing"]),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -518,8 +518,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.companySettings.APActivated && this.companySettings.APGuid) {
+    private sendEHFAction(doneHandler: (msg: string) => void = null) { 
+        if (this.companySettings.APActivated && this.companySettings.APOutgoing.some(format => format.Name === "EHF INVOICE 2.0")) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
@@ -1263,6 +1263,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 disabled: () => false
             },
             {
+                label: 'Fakturaprint',
+                action: () => this.sendInvoicePrintAction(),
+                disabled: () => !(this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid)
+            },
+            {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
@@ -1691,6 +1696,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (res.action === 'email') {
                 this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
             }
+        });
+    }
+
+    private sendInvoicePrintAction(): Observable<any> {
+        const savedInvoice = this.isDirty
+        ? Observable.fromPromise(this.saveInvoice())
+        : Observable.of(this.invoice);
+
+        return savedInvoice.switchMap(invoice => {
+            return this.customerInvoiceService.sendInvoicePrint(invoice.ID);
         });
     }
 
