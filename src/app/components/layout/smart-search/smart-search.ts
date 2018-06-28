@@ -6,6 +6,7 @@ import {
     QueryList,
     ElementRef,
 } from '@angular/core';
+import {Router} from '@angular/router';
 
 import {OverlayRef} from '@angular/cdk/overlay';
 import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
@@ -18,6 +19,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 
 import {KeyCodes} from '@app/services/common/keyCodes';
 import {UniSmartSearchItem} from './smart-search-item';
+import {SmartSearchDataService} from './smart-search-data.service';
 
 @Component({
     selector: 'uni-smart-search',
@@ -32,17 +34,32 @@ export class UniSmartSearch {
     scrollbar: PerfectScrollbar;
 
     searchControl: FormControl = new FormControl('');
-    searchResults: any[];
+    searchResults: any[] = [];
     activeItemManager: ActiveDescendantKeyManager<UniSmartSearchItem>;
 
     loading$: Subject<boolean> = new Subject();
     componentDestroyed$: Subject<boolean> = new Subject();
 
-    constructor(@Inject(OverlayRef) private overlayRef: any) {
+    constructor(
+        @Inject(OverlayRef)
+        private overlayRef: any,
+        private dataService: SmartSearchDataService,
+        private router: Router
+    ) {
         this.searchControl.valueChanges
-            .debounceTime(250)
             .takeUntil(this.componentDestroyed$)
-            .subscribe(value => this.search(value));
+            .do(value => {
+                this.searchResults = this.dataService.syncLookup(value.toLowerCase());
+                setTimeout(() => this.activeItemManager.setFirstItemActive());
+            })
+            .debounceTime(300)
+            .do(() => this.loading$.next(true))
+            .switchMap(value => this.dataService.asyncLookup(value.toLowerCase()))
+            .subscribe(asyncResults => {
+                this.searchResults.push(...asyncResults);
+                this.loading$.next(false);
+                setTimeout(() => this.activeItemManager.setFirstItemActive());
+            });
     }
 
     ngAfterViewInit() {
@@ -75,7 +92,7 @@ export class UniSmartSearch {
 
     onItemSelected(item) {
         if (item && !item.isHeader) {
-            window.alert('Item selected: ' + item.name);
+            this.router.navigateByUrl(item.url);
             this.close();
         }
     }
@@ -178,91 +195,7 @@ export class UniSmartSearch {
             }
         }
     }
-
-    search(query: string) {
-        this.loading$.next(true);
-
-        // Mock async operation
-        setTimeout(() => {
-            const results = this.getMockItems();
-
-            this.searchResults = results.map((item, index) => {
-                // Used for calculating scroll
-                item['_indexIncludingHeaders'] = index;
-                return item;
-            });
-
-            this.loading$.next(false);
-
-            // Wait for bindings to update
-            setTimeout(() => {
-                this.scrollbar.update();
-                this.activeItemManager.setFirstItemActive();
-            });
-
-        }, 750);
-    }
-
     showHelp() {
         window.alert('Not yet implemented');
     }
-
-    getMockItems() {
-        return [
-            { name: 'Snarveier', isHeader: true },
-            { name: 'Ny faktura' },
-            { name: 'Ny ordre' },
-            { name: 'Nytt tilbud' },
-            { name: 'Ny kunde' },
-
-            { name: 'Menyvalg', isHeader: true },
-            { name: 'Faktura' },
-            { name: 'Fakturamottak' },
-
-            { name: 'Kunder', isHeader: true },
-            { name: '100020 - Faktum Faktura AS' },
-            { name: '100033 - iFaktura' },
-
-            { name: 'Leverandører', isHeader: true },
-            { name: '100000 - Heisann Sveisann' },
-            { name: '100002 - Uni Micro AS' },
-
-            // BIG LIST TEST
-            { name: 'Snarveier', isHeader: true },
-            { name: 'Ny faktura' },
-            { name: 'Ny ordre' },
-            { name: 'Nytt tilbud' },
-            { name: 'Ny kunde' },
-
-            { name: 'Menyvalg', isHeader: true },
-            { name: 'Faktura' },
-            { name: 'Fakturamottak' },
-
-            { name: 'Kunder', isHeader: true },
-            { name: '100020 - Faktum Faktura AS' },
-            { name: '100033 - iFaktura' },
-
-            { name: 'Leverandører', isHeader: true },
-            { name: '100000 - Heisann Sveisann' },
-            { name: '100002 - Uni Micro AS' },
-            { name: 'Snarveier', isHeader: true },
-            { name: 'Ny faktura' },
-            { name: 'Ny ordre' },
-            { name: 'Nytt tilbud' },
-            { name: 'Ny kunde' },
-
-            { name: 'Menyvalg', isHeader: true },
-            { name: 'Faktura' },
-            { name: 'Fakturamottak' },
-
-            { name: 'Kunder', isHeader: true },
-            { name: '100020 - Faktum Faktura AS' },
-            { name: '100033 - iFaktura' },
-
-            { name: 'Leverandører', isHeader: true },
-            { name: '100000 - Heisann Sveisann' },
-            // { name: '100002 - Uni Micro AS' },
-        ];
-    }
-
 }
