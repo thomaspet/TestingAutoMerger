@@ -1,0 +1,36 @@
+<section class="search-container">
+    <input type="text"
+        #searchInput
+        [formControl]="searchControl"
+        placeholder="Søk"
+        spellcheck="false"
+        cdkTrapFocus
+    />
+
+    <button class="close-button" mat-icon-button (click)="close()">
+        <mat-icon aria-label="close">close</mat-icon>
+    </button>
+</section>
+
+<section class="progress-container">
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+</section>
+
+<section #list id="results-container">
+    <smart-search-item
+        *ngFor="let item of searchResults"
+        [item]="item"
+        (click)="onItemSelected(item)">
+    </smart-search-item>
+</section>
+
+<section class="search-footer">
+    <small>Søket kan åpnes med tastatur <span>ctrl</span> + <span>space</span></small>
+    <small>
+        <a (click)="showHelp()">Slik bruker du søket</a>
+    </small>
+</section>

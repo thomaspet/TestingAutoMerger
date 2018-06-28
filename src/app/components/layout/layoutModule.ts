@@ -23,33 +23,45 @@ import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
 
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
+import {OverlayModule} from '@angular/cdk/overlay';
+
+import {UniSmartSearch} from './smart-search/smart-search';
+import {UniSmartSearchItem} from './smart-search/smart-search-item';
+import {SmartSearchService} from './smart-search/smart-search.service';
+
 import {
     MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
     MatExpansionModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatProgressBarModule
 } from '@angular/material';
+import {CdkTrapFocus} from '@angular/cdk/a11y';
 
 @NgModule({
     imports: [
+        CommonModule,
+        FormsModule,
+        ReactiveFormsModule,
+        HttpModule,
+        RouterModule,
+
+        OverlayModule,
         MatTabsModule,
         MatTooltipModule,
         MatMenuModule,
         MatExpansionModule,
         MatIconModule,
         MatButtonModule,
+        MatProgressBarModule,
 
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        HttpModule,
-        RouterModule,
         UniFrameworkModule,
         AppPipesModule
     ],
     declarations: [
+        CdkTrapFocus,
         UniTabs,
         UniNavbar,
         UniSidebar,
@@ -62,14 +74,18 @@ import {
         NavbarUserDropdown,
         UserSettingsModal,
         YearModal,
-        UniHelpText
+        UniHelpText,
+        UniSmartSearch,
+        UniSmartSearchItem
     ],
     providers: [
-        UniNumberFormatPipe
+        UniNumberFormatPipe,
+        SmartSearchService
     ],
     entryComponents: [
         YearModal,
-        UserSettingsModal
+        UserSettingsModal,
+        UniSmartSearch
     ],
     exports: [
         UniTabs,

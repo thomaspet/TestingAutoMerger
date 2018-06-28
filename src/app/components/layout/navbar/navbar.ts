@@ -4,6 +4,8 @@ import {TabService} from './tabstrip/tabService';
 import {UserService} from '@app/services/services';
 import {User} from '@uni-entities';
 
+import {SmartSearchService} from '../smart-search/smart-search.service';
+
 @Component({
     selector: 'uni-navbar',
     template: `
@@ -26,7 +28,11 @@ import {User} from '@uni-entities';
             </section>
 
             <section class="navbar-right">
-                <uni-navbar-search></uni-navbar-search>
+                <button mat-icon-button (click)="openSearch()">
+                    <mat-icon aria-label="Search">search</mat-icon>
+                </button>
+
+                <!--<uni-navbar-search></uni-navbar-search>-->
                 <navbar-create-new></navbar-create-new>
 
                 <i role="link" class="material-icons bureau-link" routerLink="bureau">
@@ -102,7 +108,8 @@ export class UniNavbar {
         public userService: UserService,
         public navbarService: NavbarLinkService,
         public tabService: TabService,
-        public cdr: ChangeDetectorRef
+        public cdr: ChangeDetectorRef,
+        private smartSearchService: SmartSearchService
     ) {}
 
     public ngOnInit() {
@@ -140,6 +147,17 @@ export class UniNavbar {
 
             this.cdr.markForCheck();
         });
+    }
+
+    // REMOVE ME!!
+    ngAfterViewInit() {
+        setTimeout(() => {
+            this.openSearch();
+        });
+    }
+
+    openSearch() {
+        this.smartSearchService.open();
     }
 
     public toggleSidebarState() {
