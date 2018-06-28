@@ -43,14 +43,14 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .map(response => response.json());
     }
 
-    public getAvailableNumbersInNumberSeries(numberSeriesID: number): string[] {
+    public getAvailableNumbersInNumberSeries(numberSeriesID: number): Observable<string[]> {
         return this.http
-        .asGET()
-        .usingBusinessDomain()
-        .withEndPoint(`${this.relativeURL}?action=get-available-numbers-in-numberseries&numberSeriesID=${numberSeriesID}`)
-        .send()
-        .map(response => response.json())
-        .map(numberIntervalsStrings => numberIntervalsStrings.map(x => x.replace(',', ' - ')));
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=get-available-numbers-in-numberseries&numberSeriesID=${numberSeriesID}`)
+            .send()
+            .map(response => response.json())
+            .map(numberIntervalsStrings => numberIntervalsStrings.map(x => x.replace(',', ' - ')));
     }
 
     public getMaxUsedNumberInNumberSeries(numberSeriesID: number) {
