@@ -370,17 +370,11 @@ export class BillsView implements OnInit {
 
     public onImageClicked(file: any) {
         const data = {
-            entity: 'SupplierInvoice',
-            entityID: this.currentFiles[0].ID || 0,
-            fileIDs: null,
-            showFileID: file.ID,
+            fileIDs: [file.ID],
             readonly: true,
             size: UniImageSize.large
         };
 
-        if (this.currentFiles) {
-            data.fileIDs = this.currentFiles.map(f => f.FileID);
-        }
         this.modalService.open(ImageModal, { data: data });
     }
 
