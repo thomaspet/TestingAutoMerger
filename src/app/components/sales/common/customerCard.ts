@@ -30,6 +30,7 @@ import * as moment from 'moment';
             <section class="addressCard" [attr.aria-readonly]="readonly">
                 <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
                 <section class="sharing-badges">
+                    <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">FAKTURAPRINT</span>
                     <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                     <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
                     <span [attr.title]="emailTitle" [ngClass]="emailClass">E-POST</span>
@@ -72,10 +73,12 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     public emailClass: string = 'badge-unavailable';
     public vippsClass: string = 'badge-unavailable';
     public printClass: string = 'badge-unavailable';
+    public invoicePrintClass: string = 'badge-unavailable';
     public ehfTitle: string;
     public emailTitle: string;
     public vippsTitle: string;
     public printTitle: string = 'Sendt til utskrift';
+    public invoicePrintTitle: string = 'Sendt til fakturaprint';
 
     public uniSearchConfig: IUniSearchConfig;
     public customerDueInvoiceData: any;
@@ -201,7 +204,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
             `model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}`
             + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`
         ).subscribe(sharings => {
-            [SharingType.AP, SharingType.Email, SharingType.Vipps, SharingType.Print].forEach(type => {
+            [SharingType.AP, SharingType.Email, SharingType.Vipps, SharingType.Print, SharingType.InvoicePrint].forEach(type => {
                 let cls = '';
                 let title = '';
                 const firstOfType = sharings.find(sharing => sharing.SharingType === type);
@@ -244,6 +247,11 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                         case SharingType.Print:
                             this.printClass = cls;
                             this.printTitle = title;
+                            break;
+                        case SharingType.InvoicePrint:
+                            this.invoicePrintClass = cls;
+                            this.invoicePrintTitle = title;
+                            break;
                     }
                 }
             });

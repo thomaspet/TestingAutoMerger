@@ -59,6 +59,7 @@ export const SharingTypeText = [
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
     {ID: SharingType.Vipps, Title: 'Vipps'},
+    {ID: SharingType.InvoicePrint, Title: 'Fakturaprint'}
 ];
 
 @Component({

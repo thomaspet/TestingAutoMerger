@@ -392,8 +392,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Role: Role;
     public Permission: Permission;
+    public Role: Role;
     public CustomFields: any;
 }
 
@@ -3572,7 +3572,7 @@ export class Tracelink extends UniEntity {
 
 
 export class Sharing extends UniEntity {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'sharings';
     public static EntityType = 'Sharing';
 
     public _createguid: string;
@@ -4786,6 +4786,34 @@ export class KpiValue extends UniEntity {
     public UpdatedBy: string;
     public UserIdentity: string;
     public ValueStatus: KpiValueStatus;
+    public CustomFields: any;
+}
+
+
+export class ProcessFileLog extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ProcessFileLog';
+
+    public _createguid: string;
+    public CompanyID: number;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityCount: number;
+    public EntityInstanceID: string;
+    public EntityName: string;
+    public FileID: number;
+    public FileName: string;
+    public FileType: number;
+    public ID: number;
+    public Message: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserIdentity: string;
+    public Company: Company;
     public CustomFields: any;
 }
 
@@ -6393,6 +6421,7 @@ export class SalaryTransactionPayLine extends UniEntity {
 
 export class SalaryBalancePayLine extends UniEntity {
     public Account: string;
+    public Kid: string;
     public Sum: number;
     public Text: string;
 }
@@ -7381,6 +7410,7 @@ export enum SharingType{
     AP = 3,
     Vipps = 4,
     Export = 5,
+    InvoicePrint = 6,
 }
 
 
