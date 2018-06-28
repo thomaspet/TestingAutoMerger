@@ -292,7 +292,10 @@ export class AMeldingView implements OnInit {
         this.activeTabIndex = 0;
         this._ameldingService
         .getAMeldingWithFeedback(amelding.ID)
-        .finally(() => this.initialized = true)
+        .finally(() => {
+            this.setStatusForPeriod();
+            this.initialized = true;
+        })
         .subscribe((ameldingAndFeedback) => {
             this.currentAMelding =  ameldingAndFeedback;
             this.getSumsInPeriod();
@@ -310,7 +313,6 @@ export class AMeldingView implements OnInit {
             }
             this.updateToolbar();
             this.updateSaveActions();
-            this.setStatusForPeriod();
         }, err => this.errorService.handle(err));
     }
 
@@ -440,7 +442,6 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-
             if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                 const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                 if (statusTextObject) {
@@ -478,6 +479,9 @@ export class AMeldingView implements OnInit {
                             && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
                                 mottakObject = this.checkMottattPeriode(alleMottak, typeData);
                         }
+                    } else {
+                        // mangler kalendermaaned i mottaket, sett som avvist
+                        mottakObject = {statusText: 'Avvist'};
                     }
                 }
             }
@@ -554,8 +558,8 @@ export class AMeldingView implements OnInit {
 
         this.spinner(this._ameldingService
             .getAMeldingForPeriod(this.currentPeriod, this.activeYear))
-                .subscribe((ameldinger: AmeldingData[]) => {
-                    this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID);
+                .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
+                .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
                         this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
                     } else {
@@ -565,7 +569,9 @@ export class AMeldingView implements OnInit {
                         this.getSumsInPeriod();
                         this.periodStatus = 'Ingen a-meldinger i perioden';
                     }
-                }, err => this.errorService.handle(err));
+                })
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .subscribe();
     }
 
     private setStatusForPeriod() {
@@ -618,7 +624,11 @@ export class AMeldingView implements OnInit {
                 break;
 
             case 3:
+                this.periodStatus = '';
                 const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
+                if (!!statusTextObject) {
+                    this.periodStatus = this.periodStatus !== '' ? 'Avvist' : statusTextObject.statusText;
+                }
                 break;
 
             default:
@@ -717,7 +727,7 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
-                    this.getAMeldingForPeriod();
+                    this.setAMelding(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
@@ -730,9 +740,22 @@ export class AMeldingView implements OnInit {
         if (done) {
             done('Feilet ved henting av tilbakemelding');
         }
-        this._toastService.addToast(`Feilet ved henting av tilbakemelding \n\n ${err}`, ToastType.warn, ToastTime.long);
+        const errMessage = err.json().Message ? err.json().Message : '';
+        let toastText = '';
+        if (errMessage.indexOf('Incorrect username') >= 0) {
+            toastText = 'Brukernavn og/eller passord er feil';
+        }
+        if (errMessage.indexOf('No reference found for') >= 0) {
+            toastText = 'Tilbakemelding er ikke klar i altinn, prøv igjen om noen minutter';
+        }
 
-        return this.errorService.handleRxCatch(err, obs);
+        if (toastText !== '') {
+            this._toastService
+                .addToast(toastText, ToastType.warn, ToastTime.long);
+            return Observable.of(null);
+        } else {
+            return this.errorService.handleRxCatch(err, obs);
+        }
     }
 
     private sendAmelding(done) {
