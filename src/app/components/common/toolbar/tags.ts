@@ -6,11 +6,13 @@ import * as _ from 'lodash';
 
 export interface IUniTagsConfig {
     description?: string;
+    helpTextOnEmpty?: string;
     helpText?: string;
     lookupLabel?: string;
     truncate?: number;
     readOnly?: boolean;
     toolTip?: string;
+    readOnlyMessage?: string;
     autoCompleteConfig?: ITagAutoComplete;
 }
 
@@ -43,7 +45,7 @@ export interface ITagAutoComplete {
             [attr.aria-expanded]="isOpen"
             [title]="config?.toolTip || ''">
 
-            <small *ngIf="config?.helpText">{{config.helpText}}</small>
+            <small *ngIf="config?.helpText">{{helpText}}</small>
 
             <ul class="tags_list"
                 [attr.aria-readonly]="config?.readOnly"
@@ -76,6 +78,9 @@ export interface ITagAutoComplete {
                     </uni-autocomplete-input>
                 </label>
             </section>
+            <section class="tags_lookup" *ngIf="config && config.readOnly">
+                {{config?.readOnlyMessage}}
+            </section>
         </article>
     </div>
     `
@@ -87,6 +92,7 @@ export class UniTags implements OnChanges {
     @ViewChild(UniAutocompleteInput) public autoComplete: UniAutocompleteInput;
 
     public isOpen: boolean = false;
+    public helpText: string;
     private newTag: string = '';
     public autoCompleteModel: any = null;
     private autoCompleteField: UniFieldLayout;
@@ -117,6 +123,8 @@ export class UniTags implements OnChanges {
         if (change['tags']) {
             this.buildNewIgnoreFilter(this.tags);
         }
+
+        this.helpText = this.getHelpText(this.config, this.tags);
     }
 
     public tagsSummary(): string {
@@ -166,6 +174,19 @@ export class UniTags implements OnChanges {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.searchBusy = false)
             .subscribe((newTag) => this.handleNewTags(newTag));
+    }
+
+    private getHelpText(config: IUniTagsConfig, tag: ITag[]): string {
+        if (!config) {
+            return '';
+        }
+        if (!config.helpTextOnEmpty) {
+            return config.helpText;
+        }
+        if (!tag || !tag.length) {
+            return config.helpTextOnEmpty;
+        }
+        return config.helpText;
     }
 
     private handleNewTags(tag: ITag) {

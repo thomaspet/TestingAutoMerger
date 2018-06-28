@@ -3,7 +3,7 @@ import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import {
     PayrollRun, SalaryTransaction, Employee, SalaryTransactionSupplement, WageType, Account, EmployeeTaxCard,
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, EmployeeCategory,
-    JournalEntry, LocalDate
+    JournalEntry, LocalDate, StdSystemType
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -82,6 +82,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public tagConfig: IUniTagsConfig = {
         description: 'Utvalg ',
         helpText: 'Ansatte i følgende kategorier er med i denne lønnsavregningen:',
+        helpTextOnEmpty: 'Ingen kategorier valgt for denne lønnsavregningen',
         truncate: 20,
         autoCompleteConfig: {
             template: (obj: EmployeeCategory) => obj ? obj.Name : '',
@@ -754,16 +755,19 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private toggleReadOnlyOnCategories(transes: SalaryTransaction[], run: PayrollRun) {
         transes = transes || [];
         const anyEditableTranses = transes
-            .some(trans => !trans.IsRecurringPost && !trans.SalaryBalanceID);
+            .some(trans => !trans.IsRecurringPost && trans.SystemType !== StdSystemType.HolidayPayDeduction && !trans.SalaryBalanceID);
             const runIsCalculated = run && run.StatusCode >= 1;
         this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
 
         if (runIsCalculated) {
             this.tagConfig.toolTip = 'Låst fordi lønnsavregningen er avregnet';
+            this.tagConfig.readOnlyMessage = 'Låst fordi lønnsavregningen er avregnet';
         } else if (anyEditableTranses) {
-            this.tagConfig.toolTip = 'Låst på grunn av variable poster';
+            this.tagConfig.toolTip = 'Lønnsavregningen inneholder variable lønnsposter, kategoriutvalget kan derfor ikke endres.';
+            this.tagConfig.readOnlyMessage = 'Lønnsavregningen inneholder variable lønnsposter, kategoriutvalget kan derfor ikke endres.';
         } else {
             this.tagConfig.toolTip = '';
+            this.tagConfig.readOnlyMessage = '';
         }
     }
 
