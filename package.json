@@ -30,7 +30,11 @@
     "check-aot": "ng build --configuration=aot-error-check",
 
     "high-memory-build": "node --max_old_space_size=6144 node_modules/@angular/cli/bin/ng",
-    "build.dev.aot": "npm run prebuild && npm run high-memory-build -- build --configuration=dev-aot"
+
+    "build.dev.aot": "npm run prebuild && npm run high-memory-build -- build --configuration=dev-aot",
+    "build.test.aot": "npm run prebuild && ng build --configuration=test --prod",
+    "build.pilot.aot": "npm run prebuild && ng build --configuration=pilot --prod"
+
   },
   "private": true,
   "dependencies": {
