@@ -27,7 +27,8 @@ export class SmartSearchService {
         const position = this.overlay
             .position()
             .global()
-            .centerHorizontally();
+            .centerHorizontally()
+            .top('1.5rem');
 
         const overlayRef = this.overlay.create({
             hasBackdrop: true,
@@ -42,11 +43,7 @@ export class SmartSearchService {
         );
 
         overlayRef.attach(smartSearch);
-
-        // TODO: fix positioning so backdrop click works
-
-        // overlayRef.backdropClick().subscribe(() => overlayRef.dispose());
-
+        overlayRef.backdropClick().subscribe(() => overlayRef.dispose());
         this.overlayRef = overlayRef;
     }
 

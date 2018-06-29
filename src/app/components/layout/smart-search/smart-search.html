@@ -1,9 +1,4 @@
 <section class="search-container">
-    <header>
-        <h1>Kommandolinje</h1>
-        <mat-icon aria-label="close" (click)="close()">close</mat-icon>
-    </header>
-
     <input type="search"
         #searchInput
         [formControl]="searchControl"
@@ -22,7 +17,7 @@
             <strong>leverandører</strong>,
             <strong>tilbud</strong>,
             <strong>ordre</strong> og <strong>faktura</strong>.
-            <a (click)="showHelp()">Se full oversikt over kommandoer</a>.
+            <!-- <a (click)="showHelp()">Se full oversikt over kommandoer</a>. -->
         </small>
     </section>
 </section>
@@ -36,6 +31,8 @@
 </section>
 
 <section #list id="results-container">
+    <small *ngIf="searchControl?.pristine" class="hint">Begynn å skriv i søkefeltet for å se flere valg</small>
+
     <smart-search-item
         *ngFor="let item of searchResults"
         [item]="item"
@@ -45,8 +42,4 @@
 
 <section class="search-footer">
     <small>Søket kan åpnes med tastatur <span>ctrl</span> + <span>space</span></small>
-
-    <!-- <small>
-        <a (click)="showHelp()">Slik bruker du søket</a>
-    </small> -->
 </section>

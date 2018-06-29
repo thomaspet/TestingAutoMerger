@@ -1,10 +1,8 @@
 @import '~src/styles/unibase/colors/__colors.sass'
 
+$horizontal-padding: 2rem
+
 \:host
-    display: block
-    margin-top: 3.5rem
-    margin-bottom: auto
-    max-height: calc(100vh - 5rem)
     box-sizing: border-box
     width: 40rem
     max-width: 95vw
@@ -15,33 +13,21 @@
 
 .search-container
     box-sizing: border-box
-    padding: .25rem .75rem
+    padding: .25rem $horizontal-padding
     border-bottom: 1px solid $uni-color-scale9
     background: #f3f3f3
     border-top-left-radius: 5px
     border-top-right-radius: 5px
 
-    header
-        display: flex
-        justify-content: space-between
-        h1
-            font-family: 'Roboto', sans-serif
-            font-weight: normal
-            font-size: 18px
-            margin: 0
-
-        mat-icon
-            margin: auto 0
-
     input
-        font-size: 16px
+        font-size: 18px
         width: 100%
-        height: 2.25rem
-        margin-bottom: .5rem
+        height: 2.5rem
+        margin: 1rem 0 .5rem
 
     .help-text
         display: flex
-        margin: .5rem 0
+        margin: .75rem 0
 
         i.material-icons
             margin-right: .25rem
@@ -54,15 +40,27 @@
             a
                 color: $uni-color-toolbar
 
+.progress-container
+    display: block
+    height: 5px
+
+    .uni-progress-bar
+        border-bottom: 1px solid $uni-color-scale9
+
 #results-container
     position: relative
     box-sizing: border-box
     background: #fff
     margin: 4px 0 12px
-    padding: 0 12px 0
+    padding: 0 $horizontal-padding 0
     overflow-y: auto
     max-height: calc(100vh - 18rem)
     min-height: 10rem
+
+    .hint
+        display: block
+        margin-top: .5rem
+        font-style: italic
 
     smart-search-item
         display: block
@@ -88,14 +86,13 @@
 
 .search-footer
     display: flex
-    height: 2.75rem
+    height: 2.5rem
     box-sizing: border-box
-    padding: 0 1rem
+    padding: 0 $horizontal-padding
+    margin-bottom: .25rem
     justify-content: space-between
-    // border-top: 1px solid $uni-color-scale9
     border-bottom-left-radius: 5px
     border-bottom-right-radius: 5px
-    // background: #f3f3f3
 
     small
         margin: auto 0
@@ -111,10 +108,6 @@
         a
             color: $uni-color-toolbar
 
-.progress-container
-    display: block
-    height: 5px
-
-    .uni-progress-bar
-        border-bottom: 1px solid $uni-color-scale9
-
+@media screen and (max-height: 500px)
+    .search-footer
+        display: none

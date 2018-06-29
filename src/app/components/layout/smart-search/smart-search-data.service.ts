@@ -182,7 +182,7 @@ export class SmartSearchDataService {
         return queries;
     }
 
-    private getNewShortcutListInit(query: string) {
+    getNewShortcutListInit(query: string) {
         // Create array of predefined shortcuts and filter based on query
         let filteredShortCuts = _.cloneDeep(this.shortcuts);
         filteredShortCuts = filteredShortCuts.filter(res => res.shortcutName.toLowerCase().includes(query));
@@ -190,6 +190,7 @@ export class SmartSearchDataService {
         filteredShortCuts.forEach(res => {
             res.url += '/0';
             res.value = res.shortcutName;
+            res.type = 'link';
         });
 
         // If shortcuts was found, add a header for that section
@@ -205,11 +206,15 @@ export class SmartSearchDataService {
     }
 
     private componentLookup(query: string) {
+        if (!query) {
+            return [];
+        }
+
         const results: any = [
             {
                 type: 'header',
-                value: 'Skjermbilder',
-                url: '/'
+                value: 'Gå til skjermbilde',
+                url: '/',
             }
         ];
 
@@ -222,6 +227,7 @@ export class SmartSearchDataService {
         this.componentLookupSource.forEach((component) => {
             const name = component && component.name;
             if (name && name.toLowerCase().indexOf(query) !== -1) {
+                component.type = 'link';
                 results.push(component);
             }
         });

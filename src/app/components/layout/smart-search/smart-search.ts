@@ -44,9 +44,9 @@ export class UniSmartSearch {
         @Inject(OverlayRef)
         private overlayRef: any,
         private dataService: SmartSearchDataService,
-        private router: Router
+        private router: Router,
     ) {
-
+        this.searchResults = this.dataService.getNewShortcutListInit('');
     }
 
     ngAfterViewInit() {
@@ -67,10 +67,6 @@ export class UniSmartSearch {
             .takeUntil(this.componentDestroyed$)
             .subscribe((event: KeyboardEvent) => this.keyHandler(event));
 
-        if (this.searchInput && this.searchInput.nativeElement) {
-            this.searchInput.nativeElement.focus();
-        }
-
         this.searchControl.valueChanges
             .takeUntil(this.componentDestroyed$)
             .do(value => {
@@ -85,6 +81,13 @@ export class UniSmartSearch {
                 this.loading$.next(false);
                 setTimeout(() => this.activeItemManager.setFirstItemActive());
             });
+
+        setTimeout(() => {
+            try {
+               (<any> document.activeElement).blur();
+                this.searchInput.nativeElement.focus();
+            } catch (e) {}
+        });
     }
 
     ngOnDestroy() {
@@ -150,9 +153,11 @@ export class UniSmartSearch {
                 this.goToNextSection();
             break;
             case KeyCodes.HOME:
+                event.preventDefault();
                 this.activeItemManager.setFirstItemActive();
             break;
             case KeyCodes.END:
+                event.preventDefault();
                 this.activeItemManager.setLastItemActive();
             break;
             case KeyCodes.ENTER:
