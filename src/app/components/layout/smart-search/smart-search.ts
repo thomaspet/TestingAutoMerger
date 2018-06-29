@@ -45,9 +45,7 @@ export class UniSmartSearch {
         private overlayRef: any,
         private dataService: SmartSearchDataService,
         private router: Router,
-    ) {
-        this.searchResults = this.dataService.getNewShortcutListInit('');
-    }
+    ) {}
 
     ngAfterViewInit() {
         this.scrollbar = new PerfectScrollbar('#results-container');
