@@ -16,6 +16,17 @@ export class SmartSearchDataService {
     public displayFullscreenSearch: boolean = false;
     public isPrefixSearch: boolean = false;
     public prefixModule: any;
+    private predifinedPrefixes = [
+        'f', 'o', 't', 'a', 'l', 'p', 'k',
+        'faktura',
+        'ordre',
+        'tilbud',
+        'ansatt',
+        'kunde',
+        'leverandør',
+        'prosjekt',
+        'produkt'
+    ];
 
     constructor(private navbarLinkService: NavbarLinkService) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
@@ -44,11 +55,11 @@ export class SmartSearchDataService {
     }
 
     public asyncLookup(query: string): Observable<any[]> {
-        if (query.startsWith('ny') || query.startsWith('nytt') || query === '' || query.length < 3) {
+        this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
+        if (query.startsWith('ny') || query.startsWith('nytt') || query === '' || (query.length < 3 && !this.isPrefixSearch)) {
             return Observable.of([]);
         }
 
-        this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
         return Observable.forkJoin(this.createQueryArray(query, this.isPrefixSearch, query.substr(0, 1)))
             .map((res) => {
                 return this.generateConfigObject(res);
@@ -65,7 +76,7 @@ export class SmartSearchDataService {
             data.forEach((dataset, index) => {
                 if (index === 0) {
                     dataForViewRender.push({
-                        isHeader: true,
+                        type: 'header',
                         url: '',
                         value: this.modelsInSearch[ind].name
                     });
@@ -81,30 +92,20 @@ export class SmartSearchDataService {
                 }
 
                 dataForViewRender.push({
-                    isHeader: false,
+                    type: 'link',
                     url: this.modelsInSearch[ind].url + '/' + dataset[Object.keys(dataset)[0]],
                     value: valueString
                 });
             });
         });
-
-        // if (!dataForViewRender.length && !this.searchResultViewConfig.length) {
-        //     dataForViewRender.push(
-        //         {
-        //             isHeader: true,
-        //             url: '/',
-        //             value: 'Ingen treff på søk. Skriveleif?'
-        //         }
-        //     );
-        // }
         return dataForViewRender;
     }
 
     private checkPrefixForSpecificSearch(query: string) {
-        // Check first to see if the user has added a '.' as second character to indicate prefix search
-        if (query.substr(1, 1) === '.') {
-            // Check to see if the user has entered a valid prefic value before the '.'
-            if (['f', 'o', 't', 'a', 'l', 'p', 'k'].indexOf(query.substr(0, 1)) >= 0) {
+        // Check first to see if the user has added a '.' in search to indicate prefix search
+        if (query.includes('.')) {
+            const firstWordSearched = query.split('.')[0];
+            if (this.predifinedPrefixes.indexOf(firstWordSearched) >= 0) {
                 return true;
             }
         }
@@ -127,7 +128,12 @@ export class SmartSearchDataService {
             };
         }
 
-        query = withPrefix ? query.substr(2, query.length - 1) : query;
+        // query = withPrefix ? query.substr(2, query.length - 1) : query;
+        if (withPrefix) {
+            const splittedQuery = query.split('.');
+            splittedQuery.shift();
+            query = splittedQuery.join('.');
+        }
 
         if (query.substr(0, 1) === '*') {
             filterValue = 'contains';
@@ -189,7 +195,7 @@ export class SmartSearchDataService {
         // If shortcuts was found, add a header for that section
         if (filteredShortCuts.length) {
             filteredShortCuts.unshift({
-                isHeader: true,
+                type: 'header',
                 url: '/',
                 value: 'Kommandoer'
             });
@@ -201,7 +207,7 @@ export class SmartSearchDataService {
     private componentLookup(query: string) {
         const results: any = [
             {
-                isHeader: true,
+                type: 'header',
                 value: 'Skjermbilder',
                 url: '/'
             }

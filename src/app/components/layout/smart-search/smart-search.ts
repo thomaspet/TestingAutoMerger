@@ -93,9 +93,11 @@ export class UniSmartSearch {
     }
 
     onItemSelected(item) {
-        if (item && !item.isHeader) {
+        if (item && item.type === 'link') {
             this.router.navigateByUrl(item.url);
             this.close();
+        } else if (item && item.type === 'action') {
+            // Predifined actions called here
         }
     }
 

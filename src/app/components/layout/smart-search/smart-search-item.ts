@@ -10,8 +10,9 @@ export class UniSmartSearchItem implements Highlightable {
     @Input() item: any; // type me?
     @HostBinding('class.active') isActive: boolean = false;
     @HostBinding('class.header') get isHeader() {
-        return this.item && this.item.isHeader;
+        return this.item && this.item.type === 'header';
     }
+    public type: string; // ENUM ?
 
     setActiveStyles() {
         this.isActive = true;
