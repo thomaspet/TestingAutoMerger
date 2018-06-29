@@ -1,11 +1,10 @@
-import {Component, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
-import {ToastService} from '../../../../framework/uniToast/toastService';
 import {KeyCodes} from '../../../services/common/keyCodes';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -42,6 +41,7 @@ enum LoginState {
                         [config]="emptyConfig$"
                         [fields]="pinFormFields$"
                         [model]="userLoginData$"
+                        (inputEvent)="onInputEvent($event)"
                     ></uni-form>
                 </article>
                 <footer>
@@ -60,6 +60,7 @@ enum LoginState {
 export class AltinnAuthenticationModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<AltinnAuthenticationData> = new EventEmitter<AltinnAuthenticationData>();
     @Input() public options: IModalOptions;
+    @ViewChild(UniForm) private form: UniForm;
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
     public userLoginData$: BehaviorSubject<AltinnAuthenticationData>
@@ -89,7 +90,6 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
-        private toastService: ToastService,
         private elementRef: ElementRef,
         private errorService: ErrorService
     ) {}
@@ -104,6 +104,18 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         });
         this.handleAuthentication()
             .then(auth => this.onClose.next(auth));
+    }
+
+    public onInputEvent(changes: SimpleChanges) {
+        if (changes['pin']) {
+            this.userLoginData$
+                .take(1)
+                .map(data => {
+                    data.pin = changes['pin'].currentValue;
+                    return data;
+                })
+                .subscribe(data => this.userLoginData$.next(data));
+        }
     }
 
     private handleAuthentication(): Promise<AltinnAuthenticationData> {
@@ -235,9 +247,8 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             }
 
             return this.userSubmittedPin
-                .subscribe(() => {
-                    resolve(this.userLoginData$.getValue());
-                }, err => this.errorService.handle(err));
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .subscribe(data => resolve(data));
         });
     }
 
