@@ -407,7 +407,8 @@ export class CustomerDetails implements OnInit {
             return true;
         }
 
-        if ((!customer.Info.Addresses[0].CountryCode || customer.Info.Addresses[0].CountryCode === 'NO')
+        if (((customer && customer.Info && customer.Info.Addresses[0]) &&
+            (!customer.Info.Addresses[0].CountryCode || customer.Info.Addresses[0].CountryCode === 'NO'))
             && (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber))
         ) {
             return Observable.create(observer => {
