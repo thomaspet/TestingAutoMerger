@@ -149,13 +149,6 @@ export class UniNavbar {
         });
     }
 
-    // REMOVE ME!!
-    ngAfterViewInit() {
-        setTimeout(() => {
-            this.openSearch();
-        });
-    }
-
     openSearch() {
         this.smartSearchService.open();
     }

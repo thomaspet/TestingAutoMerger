@@ -1,5 +1,10 @@
 <section class="search-container">
-    <input type="text"
+    <header>
+        <h1>Kommandolinje</h1>
+        <mat-icon aria-label="close" (click)="close()">close</mat-icon>
+    </header>
+
+    <input type="search"
         #searchInput
         [formControl]="searchControl"
         placeholder="Søk"
@@ -7,9 +12,19 @@
         cdkTrapFocus
     />
 
-    <button class="close-button" mat-icon-button (click)="close()">
-        <mat-icon aria-label="close">close</mat-icon>
-    </button>
+    <section class="help-text">
+        <i class="material-icons">find_in_page</i>
+        <small>
+            Her kan du kjøre forhåndsdefinerte kommandoer eller søke i og gå til
+            <strong>menyelementer</strong>,
+            <strong>kunder</strong>,
+            <strong>ansatte</strong>,
+            <strong>leverandører</strong>,
+            <strong>tilbud</strong>,
+            <strong>ordre</strong> og <strong>faktura</strong>.
+            <a (click)="showHelp()">Se full oversikt over kommandoer</a>.
+        </small>
+    </section>
 </section>
 
 <section class="progress-container">
@@ -30,7 +45,8 @@
 
 <section class="search-footer">
     <small>Søket kan åpnes med tastatur <span>ctrl</span> + <span>space</span></small>
-    <small>
+
+    <!-- <small>
         <a (click)="showHelp()">Slik bruker du søket</a>
-    </small>
+    </small> -->
 </section>

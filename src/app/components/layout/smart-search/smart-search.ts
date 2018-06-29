@@ -46,20 +46,7 @@ export class UniSmartSearch {
         private dataService: SmartSearchDataService,
         private router: Router
     ) {
-        this.searchControl.valueChanges
-            .takeUntil(this.componentDestroyed$)
-            .do(value => {
-                this.searchResults = this.dataService.syncLookup(value.toLowerCase());
-                setTimeout(() => this.activeItemManager.setFirstItemActive());
-            })
-            .debounceTime(300)
-            .do(() => this.loading$.next(true))
-            .switchMap(value => this.dataService.asyncLookup(value.toLowerCase()))
-            .subscribe(asyncResults => {
-                this.searchResults.push(...asyncResults);
-                this.loading$.next(false);
-                setTimeout(() => this.activeItemManager.setFirstItemActive());
-            });
+
     }
 
     ngAfterViewInit() {
@@ -83,6 +70,21 @@ export class UniSmartSearch {
         if (this.searchInput && this.searchInput.nativeElement) {
             this.searchInput.nativeElement.focus();
         }
+
+        this.searchControl.valueChanges
+            .takeUntil(this.componentDestroyed$)
+            .do(value => {
+                this.searchResults = this.dataService.syncLookup(value.toLowerCase());
+                setTimeout(() => this.activeItemManager.setFirstItemActive());
+            })
+            .debounceTime(300)
+            .do(() => this.loading$.next(true))
+            .switchMap(value => this.dataService.asyncLookup(value.toLowerCase()))
+            .subscribe(asyncResults => {
+                this.searchResults.push(...asyncResults);
+                this.loading$.next(false);
+                setTimeout(() => this.activeItemManager.setFirstItemActive());
+            });
     }
 
     ngOnDestroy() {

@@ -40,7 +40,7 @@ export class SmartSearchDataService {
     }
 
     public syncLookup(query: string): any[] {
-        return [].concat(this.getNewShortcutListInit(query), this.componentLookup(query));
+        return [].concat(this.componentLookup(query), this.getNewShortcutListInit(query));
     }
 
     public asyncLookup(query: string): Observable<any[]> {
@@ -88,15 +88,15 @@ export class SmartSearchDataService {
             });
         });
 
-        if (!dataForViewRender.length && !this.searchResultViewConfig.length) {
-            dataForViewRender.push(
-                {
-                    isHeader: true,
-                    url: '/',
-                    value: 'Ingen treff på søk. Skriveleif?'
-                }
-            );
-        }
+        // if (!dataForViewRender.length && !this.searchResultViewConfig.length) {
+        //     dataForViewRender.push(
+        //         {
+        //             isHeader: true,
+        //             url: '/',
+        //             value: 'Ingen treff på søk. Skriveleif?'
+        //         }
+        //     );
+        // }
         return dataForViewRender;
     }
 
@@ -191,7 +191,7 @@ export class SmartSearchDataService {
             filteredShortCuts.unshift({
                 isHeader: true,
                 url: '/',
-                value: 'Snarveier'
+                value: 'Kommandoer'
             });
             return filteredShortCuts;
         }
@@ -202,7 +202,7 @@ export class SmartSearchDataService {
         const results: any = [
             {
                 isHeader: true,
-                value: 'Modulsnarveier',
+                value: 'Skjermbilder',
                 url: '/'
             }
         ];
