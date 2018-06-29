@@ -284,7 +284,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     customerID
                         ? this.customerService.Get(customerID, this.customerExpands)
                         : Observable.of(null),
-                    this.companySettingsService.Get(1, ["APOutgoing"]),
+                    this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -363,7 +363,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 Observable.forkJoin(
                     this.getInvoice(this.invoiceID),
-                    this.companySettingsService.Get(1, ["APOutgoing"]),
+                    this.companySettingsService.Get(1),
                     this.currencyCodeService.GetAll(null),
                     this.termsService.GetAction(null, 'get-payment-terms'),
                     this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -519,7 +519,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) { 
-        if (this.companySettings.APActivated && this.companySettings.APOutgoing.some(format => format.Name === "EHF INVOICE 2.0")) {
+        if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
@@ -1265,7 +1265,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Fakturaprint',
                 action: () => this.sendInvoicePrintAction(),
-                disabled: () => !(this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid)
+                disabled: () => !this.ehfService.isActivated("NETSPRINT")
             },
             {
                 label: 'Send purring',

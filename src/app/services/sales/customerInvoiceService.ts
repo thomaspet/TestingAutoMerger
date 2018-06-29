@@ -13,6 +13,7 @@ import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
 import { ITickerActionOverride } from '../../services/common/uniTickerService';
 import { CompanySettingsService } from '../common/companySettingsService';
+import { EHFService } from '../common/EHFService';
 import { EmailService } from '../common/emailService';
 import { UniModalService } from '../../../framework/uni-modal/modalService';
 import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
@@ -58,7 +59,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         {
             Code: 'invoice_invoiceprint',
             ExecuteActionHandler: (selectedRows) => this.onSendInvoicePrint(selectedRows),
-            CheckActionIsDisabled: (selectedRows) => this.onCheckRegisterPaymentDisabled(selectedRows)
+            CheckActionIsDisabled: (selectedRows) => !this.ehfService.isActivated("NETSPRINT")
         },
         {
             Code: 'invoice_createcreditnote',
@@ -92,6 +93,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         private emailService: EmailService,
         private reportDefinitionService: ReportDefinitionService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private ehfService: EHFService
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
