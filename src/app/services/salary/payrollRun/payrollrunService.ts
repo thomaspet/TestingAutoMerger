@@ -193,7 +193,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(ID, 'postingsummary', `dimensionGrouping=${hasGrouping}`);
     }
 
-    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: string = null, hasGrouping: boolean = true) {
+    public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null, hasGrouping: boolean = true) {
         return super.PutAction(
             ID,
             'book',

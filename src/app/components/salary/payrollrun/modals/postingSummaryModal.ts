@@ -2,13 +2,14 @@ import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges} from '@an
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {PostingSummary, LocalDate, PayrollRun, NumberSeries} from '../../../../unientities';
-import {PayrollrunService, ErrorService, ReportDefinitionService, NumberSeriesService} from '../../../../../app/services/services';
+import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry} from '../../../../unientities';
+import {PayrollrunService, ErrorService, NumberSeriesService, BrowserStorageService, JournalEntryService} from '../../../../../app/services/services';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+const NUMBER_SERIES_KEY = 'numberSeriesID_salaryBooking';
 interface IBookingModel {
     date: LocalDate;
-    numberseriesID: string;
+    numberseriesID: number;
     hasGrouping: boolean;
 }
 @Component({
@@ -41,16 +42,45 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     constructor(
         private payrollService: PayrollrunService,
         private errorService: ErrorService,
-        private numberseriesService: NumberSeriesService
-    ) { }
+        private numberseriesService: NumberSeriesService,
+        private browserStorageService: BrowserStorageService,
+        private journalEntryService: JournalEntryService,
+    ) {}
 
     public ngOnInit() {
         const run: PayrollRun = this.options.data;
         this.payrollrunID = this.options.data.ID;
         this.getPostingSummary(this.payrollrunID);
-        this.formModel$.next({date: new LocalDate(run.PayDate), numberseriesID: null, hasGrouping: true});
+        this.setDefaults(run);
         this.createTableConfig();
         this.createFormConfig(run);
+    }
+
+    private setDefaults(run: PayrollRun) {
+        const numberSeriesID = this.browserStorageService.getItem(NUMBER_SERIES_KEY);
+        this.formModel$.next({
+            date: new LocalDate(run.PayDate),
+            numberseriesID: numberSeriesID,
+            hasGrouping: true
+        });
+        if (numberSeriesID) {
+            return;
+        }
+        this.setDefaultNumberSeries();
+    }
+
+    private setDefaultNumberSeries() {
+        this.payrollService
+            .getAll(`filter=StatusCode eq 5&orderby=PayDate desc&top=1`)
+            .filter(run => run && !!run.length)
+            .map(run => run[0])
+            .switchMap(run => this.journalEntryService.GetAll(`filter=JournalEntryNumber eq '${run.JournalEntryNumber}'&top=1`))
+            .map(je => je[0])
+            .switchMap((je: JournalEntry) => this.formModel$.take(1).map(model => {
+                model.numberseriesID = je && je.NumberSeriesID;
+                return model;
+            }))
+            .subscribe(model => this.formModel$.next(model));
     }
 
     private createFormConfig(run: PayrollRun) {
@@ -119,12 +149,20 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             });
     }
 
+    private cacheNumberSeriesID(model: IBookingModel) {
+        if (!model || !model.numberseriesID) {
+            return;
+        }
+        this.browserStorageService.setItem(NUMBER_SERIES_KEY, model.numberseriesID);
+    }
+
     public postTransactions() {
         this.busy = true;
         const model = this.formModel$.getValue();
         const date = model.date;
         const numberseriesID = model.numberseriesID;
         const hasGrouping = model.hasGrouping;
+        this.cacheNumberSeriesID(model);
 
         this.payrollService
             .postTransactions(this.payrollrunID, date, numberseriesID, hasGrouping)
