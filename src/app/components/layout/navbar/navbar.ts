@@ -136,9 +136,7 @@ export class UniNavbar {
                 const settingsSection = linkSections.find(section => section.url === '/settings');
                 this.settingsLinks = settingsSection.linkGroups[0].links;
                 this.adminLinks = settingsSection.linkGroups[1].links;
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();
         });
