@@ -178,33 +178,34 @@ export class UniBankAccountModal implements IUniModal {
 
             this.validateAccountNumber(account);
         }
-        if (changes['_manualAccountNumber']) {
-            const account = this.formModel$.getValue();
-            const fields = this.formFields$.getValue();
-            this.formFields$.getValue().forEach(field => {
-                if (field.FieldSet === 1 && field.Property === '_ibanAccountSearch') {
-                    field.ReadOnly = account['_manualAccountNumber'];
-                }
-                if (field.FieldSet === 2) {
-                    field.ReadOnly = !account['_manualAccountNumber'];
-                }
-            });
-            this.formFields$.next(fields);
-        }
-        if (changes['_ibanAccountSearch']) {
-            this.toastService.clear();
-            this.validAccount = false;
-            const account = this.formModel$.value;
+        // if (changes['_manualAccountNumber']) {
+        //     const account = this.formModel$.getValue();
+        //     const fields = this.formFields$.getValue();
+        //     this.formFields$.getValue().forEach(field => {
+        //         if (field.FieldSet === 1 && field.Property === '_ibanAccountSearch') {
+        //             field.ReadOnly = account['_manualAccountNumber'];
+        //         }
+        //         if (field.FieldSet === 2) {
+        //             field.ReadOnly = !account['_manualAccountNumber'];
+        //         }
+        //     });
+        //     this.formFields$.next(fields);
+        // }
+        // if (changes['_ibanAccountSearch']) {
+        //     this.toastService.clear();
+        //     this.validAccount = false;
+        //     const account = this.formModel$.value;
 
-            if (changes['_ibanAccountSearch'].currentValue) {
-                this.busy = true;
-                const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
-                this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
-                    this.busy = false;
-                    this.toastService.removeToast(toastSearchBankAccount);
-                }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount); this.errorService.handle(err); });
-            }
-        }
+        //     if (changes['_ibanAccountSearch'].currentValue) {
+        //         this.busy = true;
+        //         const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
+        //         this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
+        //             this.busy = false;
+        //             this.toastService.removeToast(toastSearchBankAccount);
+        //         }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount);
+        //              this.errorService.handle(err); });
+        //     }
+        // }
     }
 
     private validateAccountNumber(account: any) {
@@ -217,6 +218,7 @@ export class UniBankAccountModal implements IUniModal {
             this.validAccount = false;
             return;
         }
+        this.validAccount = valid;
     }
 
     private accountAndIBANSearch(searchValue: string) {
@@ -270,7 +272,8 @@ export class UniBankAccountModal implements IUniModal {
 
     private getFormFields(): UniFieldLayout[] {
         return [
-            <any> {
+            // Commented out because of error when searching valid iban/account numbers
+            /*<any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 Property: '_ibanAccountSearch',
@@ -285,14 +288,14 @@ export class UniBankAccountModal implements IUniModal {
                 FieldType: FieldType.CHECKBOX,
                 ReadOnly: false,
                 Label: 'Manuelt',
-            },
+            },*/
             <any> {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
                 Property: 'AccountNumber',
                 FieldType: FieldType.TEXT,
-                ReadOnly: true,
+                ReadOnly: false,
                 Label: 'Kontonummer',
             },
             <any> {
@@ -301,7 +304,7 @@ export class UniBankAccountModal implements IUniModal {
                 EntityType: 'BankAccount',
                 Property: 'IBAN',
                 FieldType: FieldType.TEXT,
-                ReadOnly: true,
+                ReadOnly: false,
                 Label: 'IBAN',
             },
             <any> {
@@ -338,7 +341,7 @@ export class UniBankAccountModal implements IUniModal {
                 EntityType: 'Bank',
                 Property: 'Bank.Name',
                 FieldType: FieldType.MULTIVALUE,
-                ReadOnly: true,
+                ReadOnly: false,
                 Label: 'Banknavn',
                 Options: {
                     listProperty: 'BankList',
