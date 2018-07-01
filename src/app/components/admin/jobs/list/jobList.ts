@@ -80,6 +80,7 @@ export class JobList implements OnInit {
         const tableConfig = new UniTableConfig('admin.jobs.jobruns', false, true, 20);
         tableConfig.columns = [
             new UniTableColumn('ID', 'Nr.').setWidth('4rem'),
+            new UniTableColumn('HangfireJobId', 'Jobb nr.').setWidth('5rem'),
             new UniTableColumn('JobName', 'Navn').setWidth('15rem'),
             new UniTableColumn('Created', 'Startet')
                 .setWidth('8rem')
