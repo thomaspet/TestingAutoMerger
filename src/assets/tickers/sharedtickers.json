@@ -122,6 +122,12 @@
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus",
                 "Width": "7rem"
+            },
+            {
+                "Header": "Jobb nr.",
+                "Field": "JobRunID",
+                "Type": "text",
+                "DefaultHidden": true
             }
         ],
         "Actions": [
@@ -306,6 +312,12 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus"
+            },
+            {
+                "Header": "Jobb nr.",
+                "Field": "JobRunID",
+                "Type": "text",
+                "DefaultHidden": true
             }
         ],
         "ParentFilter": {
@@ -370,6 +382,12 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus"
+            },
+            {
+                "Header": "Jobb nr.",
+                "Field": "JobRunID",
+                "Type": "text",
+                "DefaultHidden": true
             }
         ],
         "ParentFilter": {
@@ -434,6 +452,12 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus"
+            },
+            {
+                "Header": "Jobb nr.",
+                "Field": "JobRunID",
+                "Type": "text",
+                "DefaultHidden": true
             }
         ],
         "ParentFilter": {
