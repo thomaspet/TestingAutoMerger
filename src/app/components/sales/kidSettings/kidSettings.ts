@@ -262,7 +262,11 @@ export class KIDSettings {
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
-                this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
+                if (!this.showInactiveInList) {
+                    this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
+                } else {
+                    this.paymentInfoTypes = response[0];
+                }
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
