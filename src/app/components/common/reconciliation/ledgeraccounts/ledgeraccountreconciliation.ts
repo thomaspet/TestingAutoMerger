@@ -363,6 +363,7 @@ export class LedgerAccountReconciliation {
     }
 
     public autoMarkJournalEntries() {
+
         if (this.allMarkingSessions.length > 0) {
             this.toastService.addToast('Kan ikke kjøre automerking',
                 ToastType.bad,
@@ -376,8 +377,8 @@ export class LedgerAccountReconciliation {
 
         this.canAutoMark = false;
 
-        this.postPostService.automark(tableData)
-            .subscribe( result => {
+        this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID)
+            .then( result => {
                 if (result.length > 0) {
                     this.allMarkingSessions = result;
                     this.journalEntryLines = tableData;

@@ -36,6 +36,31 @@ export class PostPostService extends BizHttp<PostPost> {
             .map(response => response.json());
     }
 
+
+    public async automarkAccount(items: IEntryLine[], customerid?: number, supplierid?: number, accountid?: number,
+        ruleSet: Array<MatchingType> = [MatchingType.MatchCombineAll]): Promise<JournalEntryLineCouple[]> {
+
+            const filter = customerid ? `customerid=${customerid}` : supplierid ? `supplierid=${supplierid}` : `accountid=${accountid}`;
+            const route = `?action=get-suggestions&${filter}&methods=${ruleSet.join(',')}`;
+            return await this.http
+                .asGET().usingBusinessDomain()
+                .withEndPoint(this.relativeURL + route).send()
+                .map(response => {
+                    const result: { Pairs: any[], Entries: any[]} = response.json();
+                    if (result && result.Entries) {
+                        result.Entries.forEach(element => {
+                            const match = items.find( x => x.ID === element.ID);
+                            if (match) {
+                                match.RestAmount = element.RestAmount;
+                                match.StatusCode = element.StatusCode;
+                            }
+                        });
+                    }
+                    return result.Pairs;
+                })
+                .toPromise();
+    }
+
     // automark:
     //   Tries to auto-mark the list of items, and returns a list of suggestions
     //   Note! Does not call any server-side methods and only works on local-data.
@@ -44,7 +69,7 @@ export class PostPostService extends BizHttp<PostPost> {
         return from(new Promise( (resolve, reject) => {
 
             const batch: Batch = new Batch();
-            const sortedList = items.sort( (x,y) => x.FinancialDate > y.FinancialDate ? 1 : x.FinancialDate === y.FinancialDate ? 0 : -1);
+            const sortedList = items.sort( (x, y) => x.FinancialDate > y.FinancialDate ? 1 : x.FinancialDate === y.FinancialDate ? 0 : -1);
             const sumBalance = this.sumRemainder(sortedList);
 
             if (ruleSet.indexOf(MatchingType.MatchInvoiceExact) >= 0 || ruleSet.indexOf(MatchingType.MatchCombineAll) >= 0) {
@@ -61,18 +86,18 @@ export class PostPostService extends BizHttp<PostPost> {
 
             // fifo?
             const closeToZero = (sumBalance > -0.5 && sumBalance < -0.5);
-            if (closeToZero && 
+            if (closeToZero &&
                 ruleSet.indexOf(MatchingType.MatchFifo) >= 0 || ruleSet.indexOf(MatchingType.MatchCombineAll) >= 0) {
                 this.automark_MatchingBalance(sortedList, batch, false);
-            }   
-            
+            }
+
             resolve(batch.pairs);
-            
+
         }));
     }
 
     private sumRemainder(list: IEntryLine[]): number {
-        var sum = 0;
+        let sum = 0;
         list.forEach( x => sum += x.RestAmount);
         return sum;
     }
@@ -126,7 +151,7 @@ export class Batch {
 
     public markItems(item1: IEntryLine, item2: IEntryLine) {
         this.addPair(item1, item2);
-        for (var i=0; i<this.groups.length; i++) {
+        for (let i = 0; i < this.groups.length; i++) {
             if (this.groups[i].tryMark(item1, item2)) {
                 return;
             }
@@ -138,7 +163,7 @@ export class Batch {
         this.pairs.push({
             JournalEntryLineId1: item1.ID,
             JournalEntryLineId2: item2.ID
-        });        
+        });
     }
 }
 
@@ -147,7 +172,7 @@ export class Group {
     public keys: number[] = [];
     public balance: number = 0;
 
-    constructor(item1: IEntryLine, item2: IEntryLine, public name = "") {
+    constructor(item1: IEntryLine, item2: IEntryLine, public name = '') {
         this.markItems(item1, item2);
     }
 
@@ -174,11 +199,10 @@ export class Group {
         this.addKey(item1);
         this.addKey(item2);
         this.balance = absMax(item1.RestAmount, item2.RestAmount);
-        // console.log(`${this.name}: ${item1.ID}: ${item1.RestAmount}, ${item2.ID}: ${item2.RestAmount}, [${this.keys.join(',')}] groupBalance = ${this.balance}`);
     }
 
     private setStatus(item: IEntryLine) {
-        item.StatusCode = item.RestAmount === 0 ? StatusCodeJournalEntryLine.Marked 
+        item.StatusCode = item.RestAmount === 0 ? StatusCodeJournalEntryLine.Marked
             : StatusCodeJournalEntryLine.PartlyMarked;
     }
 
@@ -190,7 +214,7 @@ export class Group {
 
     private addKey(item: IEntryLine) {
         this.setStatus(item);
-        if (this.keys.indexOf(item.ID)<0) {
+        if (this.keys.indexOf(item.ID) < 0) {
             this.items.push(item);
             this.keys.push(item.ID);
         }
@@ -198,7 +222,7 @@ export class Group {
 
     private attach(item1: IEntryLine, item2: IEntryLine) {
         const ref2 = { JournalEntryNumber: item2.JournalEntryNumber};
-        const ref1 = { JournalEntryNumber: item1.JournalEntryNumber}
+        const ref1 = { JournalEntryNumber: item1.JournalEntryNumber};
         item1.Markings = item1.Markings || [];
         item2.Markings = item2.Markings || [];
         item1.Markings.push(ref2);
