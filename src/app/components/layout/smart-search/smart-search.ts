@@ -44,7 +44,7 @@ export class UniSmartSearch {
         @Inject(OverlayRef)
         private overlayRef: any,
         private dataService: SmartSearchDataService,
-        private router: Router,
+        private router: Router
     ) {}
 
     ngAfterViewInit() {
@@ -97,8 +97,16 @@ export class UniSmartSearch {
         if (item && item.type === 'link') {
             this.router.navigateByUrl(item.url);
             this.close();
+        } else if (item && item.type === 'report') {
+            const report = {
+                ID: item.actionValues[0] || 0,
+                Name: item.actionValues[1] || '',
+                Description: item.actionValues[2] || ''
+            };
+            this.dataService.openReportModal(report);
+            this.close();
         } else if (item && item.type === 'action') {
-            // Predifined actions called here
+             // Predifined actions called here
         }
     }
 
