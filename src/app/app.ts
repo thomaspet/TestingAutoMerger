@@ -68,19 +68,17 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
-                // if (!this.hasAcceptedUserLicense(authDetails.user)) {
-                //     this.showUserLicenseModal();
-                // } else if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
-                //     if (this.canAcceptCustomerLicense(authDetails.user)) {
-                //         this.showCustomerLicenseModal();
-                //     } else {
-                //         this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
-                //     }
-                // }
-
+                if (!this.hasAcceptedUserLicense(authDetails.user)) {
+                     this.showUserLicenseModal();
+                } else if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
+                    if (this.canAcceptCustomerLicense(authDetails.user)) {
+                        this.showCustomerLicenseModal();
+                    } else {
+                        this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
+                    }
+                }
                 this.checkForChangelog(authDetails.user);
             }
-
         } /* don't need error handling */);
     }
 
