@@ -26,6 +26,7 @@ import {
 } from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -80,15 +81,11 @@ export class BureauDashboard {
         private authService: AuthService,
         private uniModalService: UniModalService,
         private uniHttp: UniHttp,
-        private userService: UserService,
         private companyService: CompanyService,
         public currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
-        private elementRef: ElementRef,
         private router: Router,
         private browserStorage: BrowserStorageService,
-        private teamService: TeamService,
-        private elsaProductService: ElsaProductService
     ) {
 
         this.toolbarConfig = {
@@ -286,11 +283,11 @@ export class BureauDashboard {
     }
 
     public openInviteUsersModal(doneCallback) {
-            return this.modalService.open(GrantAccessModal, {}).onClose
-                .subscribe(
-                    res => doneCallback(''),
-                    err => console.error(err)
-                );
+        return this.modalService.open(GrantAccessModal, {}).onClose
+            .subscribe(
+                res => doneCallback(''),
+                err => console.error(err)
+            );
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
