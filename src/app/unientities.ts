@@ -7632,6 +7632,7 @@ export enum StatusCodeCustomerInvoiceReminder{
     Completed = 42104,
     Failed = 42105,
     SentToDebtCollection = 42106,
+    QueuedForDebtCollection = 42107,
 }
 
 

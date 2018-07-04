@@ -14,14 +14,14 @@ import {
     ErrorService,
     ReportDefinitionService,
     CustomerInvoiceReminderService,
-    NumberFormat,
     EmailService
 } from '../../../../services/services';
 import {
     UniTable,
     UniTableColumn,
     UniTableConfig,
-    UniTableColumnType
+    UniTableColumnType,
+    INumberFormat
 } from '../../../../../framework/ui/unitable/index';
 import * as moment from 'moment';
 
@@ -66,6 +66,12 @@ export class ReminderSending implements OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
+    private numberFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 2
+    };
+
     public saveactions: IUniSaveAction[] = [
          {
              label: 'Send og skriv ut valgte',
@@ -101,7 +107,6 @@ export class ReminderSending implements OnInit {
         private statisticsService: StatisticsService,
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
-        private numberFormat: NumberFormat,
         private modalService: UniModalService,
         private emailService: EmailService
     ) {}
@@ -451,6 +456,7 @@ export class ReminderSending implements OnInit {
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
                 return (+item.TaxInclusiveAmountCurrency >= 0)
@@ -462,6 +468,7 @@ export class ReminderSending implements OnInit {
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
                 return (+item.RestAmountCurrency >= 0) ? 'number-good' : 'number-bad';
@@ -471,6 +478,7 @@ export class ReminderSending implements OnInit {
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';

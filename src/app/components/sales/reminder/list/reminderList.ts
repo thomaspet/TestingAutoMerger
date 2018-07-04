@@ -13,7 +13,8 @@ import {
     UniTableColumnType,
     UniTableConfig,
     ITableFilter,
-    IContextMenuItem
+    IContextMenuItem,
+    INumberFormat
 } from '@uni-framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
@@ -49,6 +50,12 @@ export class ReminderList {
         restSumInvoicesToRemind: 0,
         restSumChecked: 0,
         SumFee: 0,
+    };
+
+    private numberFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 2
     };
 
     constructor(
@@ -273,6 +280,7 @@ export class ReminderList {
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.TaxInclusiveAmountCurrency >= 0)
                     ? 'number-good' : 'number-bad';
@@ -285,6 +293,7 @@ export class ReminderList {
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
@@ -293,6 +302,7 @@ export class ReminderList {
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });

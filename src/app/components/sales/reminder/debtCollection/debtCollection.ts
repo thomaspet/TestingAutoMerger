@@ -16,7 +16,8 @@ import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
-    IContextMenuItem
+    IContextMenuItem,
+    INumberFormat
 } from '../../../../../framework/ui/unitable/index';
 
 declare const _;
@@ -32,20 +33,22 @@ export class DebtCollection implements OnInit {
 
     @ViewChild(UniTable)
     private table: UniTable;
-
     public remindersToDebtCollect: any;
-
     public remindersAll: any;
     public reminderToDebtCollectTable: UniTableConfig;
-
     private showInvoicesWithReminderStop: boolean = false;
-
     public summaryFields: ISummaryConfig[] = [];
+    
     public summaryData: any = {
         restSumReadyForDebtCollection: 0,
         restSumChecked: 0
     };
 
+    private numberFormat: INumberFormat = {
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 2
+    };
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Inkasso',
@@ -127,8 +130,8 @@ export class DebtCollection implements OnInit {
             }
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
-                let selectedToDebtCollect = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
-                this.customerInvoiceReminderService.sendToDebtCollection(selectedToDebtCollect).subscribe(s => {
+                let selectedForDebtCollectionQueue = this.table.getSelectedRows().map(x => x.CustomerInvoiceID);
+                this.customerInvoiceReminderService.queueForDebtCollection(selectedForDebtCollectionQueue).subscribe(s => {
                     this.toastService.addToast(
                         'Inkasso', ToastType.good, 5, 'Merkede fakturaer ble sendt til inkasso'
                     );
@@ -136,8 +139,10 @@ export class DebtCollection implements OnInit {
                     donehandler('Merkede fakturaer sendt til inkasso');
                 }, err => {
                     this.errorService.handle(err);
-                    donehandler('En feil oppsto ved sending til inkasso');
+                    donehandler('En feil oppstod ved sending til inkasso');
                 });
+            } else if (response === ConfirmActions.CANCEL) {
+                donehandler("Sending til inkasso ble avbrutt");
             }
         });
     }
@@ -176,7 +181,6 @@ export class DebtCollection implements OnInit {
             }
         }, (err) => this.errorService.handle(err));
     }
-
 
     private setupRemindersToDebtCollectTable() {
         this.updateReminderTable();
@@ -217,6 +221,7 @@ export class DebtCollection implements OnInit {
             .setWidth('8%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.TaxInclusiveAmountCurrency >= 0)
                     ? 'number-good' : 'number-bad';
@@ -229,6 +234,7 @@ export class DebtCollection implements OnInit {
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });

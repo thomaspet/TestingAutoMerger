@@ -14,7 +14,8 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         { Code: StatusCodeCustomerInvoiceReminder.Paid, Text: 'Betalt' },
         { Code: StatusCodeCustomerInvoiceReminder.Completed, Text: 'Avsluttet' },
         { Code: StatusCodeCustomerInvoiceReminder.Failed, Text: 'Feilet' },
-        { Code: StatusCodeCustomerInvoiceReminder.SentToDebtCollection, Text: 'Sendt til inkasso' }
+        { Code: StatusCodeCustomerInvoiceReminder.SentToDebtCollection, Text: 'Sendt til inkasso' },
+        { Code: StatusCodeCustomerInvoiceReminder.QueuedForDebtCollection, Text: 'Lagt i kø for inkasso'}
     ];
 
     constructor(http: UniHttp) {
@@ -49,9 +50,10 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         return this.ActionWithBody(null, list, `get-invoicereminders-for-invoicelist`, RequestMethod.Post);
     }
 
-    public sendToDebtCollection(list): Observable<any> {
-        return this.ActionWithBody(null, list , 'send-to-debt-collection', RequestMethod.Put);
+    public queueForDebtCollection(list): Observable<any> {
+        return this.ActionWithBody(null, list, 'queue-for-debt-collection', RequestMethod.Put);
     }
+
     public sendAction(list): Observable<any> {
         return this.ActionWithBody(null, list, `send`, RequestMethod.Put);
     }
