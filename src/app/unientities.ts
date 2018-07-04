@@ -2344,6 +2344,7 @@ export class SalaryTransaction extends UniEntity {
     public ToDate: Date;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatTypeID: number;
     public WageTypeID: number;
     public WageTypeNumber: number;
     public payrollrun: PayrollRun;
@@ -2353,6 +2354,7 @@ export class SalaryTransaction extends UniEntity {
     public Dimensions: Dimensions;
     public Supplements: Array<SalaryTransactionSupplement>;
     public Taxbasis: TaxBasis;
+    public VatType: VatType;
     public CustomFields: any;
 }
 

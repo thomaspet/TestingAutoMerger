@@ -586,7 +586,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     .GetAll(
                     'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
-                        , 'Dimensions', 'Files'])
+                        , 'Dimensions', 'Files', 'VatType'])
                     .do((transes: SalaryTransaction[]) => {
                         if (this.selectionList) {
                             this.selectionList.updateSums();

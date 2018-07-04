@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {
-    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement
+    SalaryTransaction, SalaryTransactionSupplement, Valuetype, WageTypeSupplement, VatType, LocalDate
 } from '../../../unientities';
-import {SupplementService} from '../../../services/services';
+import {SupplementService, VatTypeService} from '../../../services/services';
 import {SalaryTransSupplementsModal} from '../modals/salaryTransSupplementsModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {
@@ -10,13 +10,91 @@ import {
     UniTableColumn
 } from '../../../../framework/ui/unitable/index';
 import * as _ from 'lodash';
+import {BehaviorSubject, Observable} from 'rxjs';
 
 @Injectable()
 export class SalaryTransViewService {
+
+    private vatTypes$: BehaviorSubject<VatType[]> = new BehaviorSubject(null);
     constructor(
         private supplementService: SupplementService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private vatTypesService: VatTypeService
     ) {}
+
+    public createVatTypeColumn(): UniTableColumn {
+        return new UniTableColumn('VatType', 'Moms', UniTableColumnType.Lookup)
+            .setVisible(false)
+            .setTemplate((rowModel: SalaryTransaction) => {
+                const vatType = rowModel.VatType;
+                if (vatType) {
+                    return `${vatType.VatCode}: ${this.getPercent(vatType, rowModel)}%`;
+                }
+                return '';
+            })
+            .setOptions({
+                itemTemplate: (selectedItem: VatType) => {
+                    return (`${selectedItem.VatCode}:${selectedItem.Name} - ${selectedItem.VatPercent || 0}%`);
+                },
+                lookupFunction: (searchValue) =>
+                    this.getVatTypes(
+                        type => type.VatCode.toString().startsWith(searchValue) ||
+                        type.VatPercent.toString().startsWith(searchValue) ||
+                        type.Name.toLowerCase().includes(searchValue.toLowerCase())),
+                groupConfig: {
+                    groupKey: 'VatCodeGroupingValue',
+                    visibleValueKey: 'Visible',
+                    groups: [
+                        {
+                            key: 1,
+                            header: 'Kjøp/kostnader.'
+                        },
+                        {
+                            key: 2,
+                            header: 'Kjøp/Importfaktura'
+                        },
+                        {
+                            key: 3,
+                            header: 'Import/Mva-beregning'
+                        },
+                        {
+                            key: 4,
+                            header: 'Salg/inntekter'
+                        },
+                        {
+                            key: 5,
+                            header: 'Salg uten mva.'
+                        },
+                        {
+                            key: 6,
+                            header: 'Kjøpskoder, spesielle'
+                        },
+                        {
+                            key: 7,
+                            header: 'Egendefinerte koder'
+                        }
+                    ]
+                }
+            });
+    }
+
+    private getPercent(vatType: VatType, rowModel: SalaryTransaction): number {
+        const percentage = vatType.VatTypePercentages.find(x =>
+            x.ValidFrom <= new LocalDate(rowModel.FromDate) &&
+            (x.ValidTo >= new LocalDate(rowModel.FromDate) || !x.ValidTo));
+        return vatType.VatPercent || percentage && percentage.VatPercent || 0;
+    }
+
+    private getVatTypes(filter: (type: VatType) => boolean): Observable<VatType[]> {
+        return this.vatTypes$
+            .take(1)
+            .switchMap(vatTypes => {
+                return vatTypes
+                    ? Observable.of(vatTypes)
+                    : this.vatTypesService.GetAll('').do(types => this.vatTypes$.next(types));
+            })
+            .map((vatTypes: VatType[]) => vatTypes.filter(filter));
+    }
 
     public createSupplementsColumn(
         onSupplementsClose: (trans: SalaryTransaction) => any,

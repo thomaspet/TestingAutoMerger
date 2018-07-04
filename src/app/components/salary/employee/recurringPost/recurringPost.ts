@@ -12,10 +12,9 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {
     Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account, SalBalType
+    SalaryTransactionSupplement, WageTypeSupplement, Account
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
-import {UniModalService} from '../../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
@@ -40,12 +39,11 @@ export class RecurringPost extends UniView {
     constructor(
         public router: Router,
         private wagetypeService: WageTypeService,
-        cacheService: UniCacheService,
-        route: ActivatedRoute,
+        protected cacheService: UniCacheService,
+        protected route: ActivatedRoute,
         private _accountService: AccountService,
         private errorService: ErrorService,
-        private sugestedValuesService: SalaryTransactionSuggestedValuesService,
-        private modalService: UniModalService,
+        private suggestedValuesService: SalaryTransactionSuggestedValuesService,
         private salaryTransViewService: SalaryTransViewService
     ) {
 
@@ -190,6 +188,8 @@ export class RecurringPost extends UniView {
                 }
             });
 
+        const VatTypeCol = this.salaryTransViewService.createVatTypeColumn();
+
         const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
@@ -254,21 +254,14 @@ export class RecurringPost extends UniView {
                 }
             }])
             .setColumns([
-                wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol,
+                wagetypeCol, descriptionCol, employmentIDCol, fromdateCol, todateCol, accountCol, VatTypeCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementsCol
             ])
             .setChangeCallback((event) => {
                 const row = event.rowModel;
-                let rateObservable = null;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
                     this.mapWagetypeToRecurringpost(row);
-                    rateObservable = this.getRate(row);
-                }
-
-                if (event.field === '_Employment') {
-                    this.mapEmploymentToTrans(row);
-                    rateObservable = this.getRate(row);
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
@@ -287,20 +280,31 @@ export class RecurringPost extends UniView {
                     this.mapDepartmentToTrans(row);
                 }
 
-                if (rateObservable) {
-                    return rateObservable
-                        .map(rate => {
-                            row['Rate'] = rate;
-                            row['EmployeeID'] = this.employeeID;
-                            return this.calcItem(row);
-                        })
-                        .switchMap(trans => this.sugestedValuesService.suggestFromDate(trans, true))
+                let obs = null;
+                if ((event.field === '_Wagetype' || event.field === '_Employment') && row['_Wagetype']) {
+                    obs = this.getRate(row);
+                }
+
+                if (event.field === '_Account' || event.field === '_Wagetype') {
+                    obs = obs ? obs.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
+                }
+
+                if (obs) {
+                    return obs
+                        .map((trans) => this.calcItem(trans))
+                        .switchMap(trans => this.suggestedValuesService.suggestFromDate(trans, true))
                         .do(trans => this.updateAndCacheSalaryTransactionRow(trans, true));
                 } else {
                     this.updateAndCacheSalaryTransactionRow(row);
                     return row;
                 }
             });
+    }
+
+    private suggestVatType(trans: SalaryTransaction) {
+        return this.suggestedValuesService
+            .suggestVatType(trans)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     private updateAndCacheSalaryTransactionRow(row, updateTable = false) {
@@ -376,7 +380,13 @@ export class RecurringPost extends UniView {
     }
 
     private getRate(rowModel: SalaryTransaction) {
-        return this.wagetypeService.getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
+        return this.wagetypeService
+            .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID'])
+            .map(rate => {
+                rowModel['Rate'] = rate;
+                rowModel['EmployeeID'] = this.employeeID;
+                return rowModel;
+            });
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction) {
@@ -418,14 +428,14 @@ export class RecurringPost extends UniView {
         rowModel.Dimensions.DepartmentID = department.ID;
     }
 
-    private calcItem(rowModel): SalaryTransaction {
-        let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
+    private calcItem(rowModel: SalaryTransaction): SalaryTransaction {
+        let decimals = rowModel.Amount ? rowModel.Amount.toString().split('.')[1] : null;
         const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
-        decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
+        decimals = rowModel.Rate ? rowModel.Rate.toString().split('.')[1] : null;
         const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        const sum = (Math.round((amountPrecision * rowModel['Amount']))
-            * Math.round((ratePrecision * rowModel['Rate']))) / (amountPrecision * ratePrecision);
-        rowModel['Sum'] = sum;
+        const sum = (Math.round((amountPrecision * rowModel.Amount))
+            * Math.round((ratePrecision * rowModel.Rate))) / (amountPrecision * ratePrecision);
+        rowModel.Sum = sum;
         return rowModel;
     }
 

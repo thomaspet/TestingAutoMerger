@@ -15,7 +15,7 @@ import {
 } from '../../../unientities';
 import {
     AccountService, ReportDefinitionService, UniCacheService,
-    ErrorService, NumberFormat, WageTypeService, SalaryTransactionService
+    ErrorService, NumberFormat, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService
 } from '../../../services/services';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 
@@ -63,20 +63,19 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         private wageTypeService: WageTypeService,
         private router: Router,
         private route: ActivatedRoute,
-        private numberFormat: NumberFormat,
         private _accountService: AccountService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private _reportDefinitionService: ReportDefinitionService,
         private salaryTransViewService: SalaryTransViewService,
         private salaryTransService: SalaryTransactionService,
+        private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
     ) {
         super(router.url, cacheService);
 
         this.deleteButton = {
             disableOnReadonlyRows: true,
             deleteHandler: (row: SalaryTransaction) => {
-                if (!row.IsRecurringPost && row.SystemType === StdSystemType.HolidayPayDeduction && !row['_isEmpty'] ) {
+                if (!row.IsRecurringPost && row.SystemType === StdSystemType.HolidayPayDeduction && !row['_isEmpty']) {
                     this.onRowDeleted(row);
                     return true;
                 } else {
@@ -209,6 +208,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             })
             .setWidth('4rem');
 
+        const vatTypeCol = this.salaryTransViewService.createVatTypeColumn();
+
         const projectCol = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
@@ -234,7 +235,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             });
 
-            const departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
+        const departmentCol = new UniTableColumn('_Department', 'Avdeling', UniTableColumnType.Lookup)
             .setTemplate((rowModel: SalaryTransaction) => {
 
                 const department: Department = rowModel['_Department'];
@@ -323,7 +324,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
             }])
             .setColumns([
-                wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol,
+                wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol, vatTypeCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol
             ])
             .setAutoAddNewRow(true)
@@ -331,27 +332,30 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
             .setPageable(false)
             .setChangeCallback((event) => {
-                const row = event.rowModel;
-                let fillInObs: Observable<SalaryTransaction> = null;
+                const row: SalaryTransaction = event.rowModel;
+                let obs: Observable<SalaryTransaction> = null;
 
                 if (event.field === 'Wagetype') {
                     this.mapWagetypeToTrans(row);
-                    if (row['Wagetype']) {
-                        fillInObs = this.fillIn(row);
-                    }
                 }
 
                 if (event.field === 'employment') {
                     this.mapEmploymentToTrans(row);
-                    fillInObs = this.fillIn(row);
                 }
+
+
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
                     this.calcItem(row);
                 }
 
+                if (event.field === 'VatType') {
+                    row.VatTypeID = row.VatType && row.VatType.ID;
+                }
+
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
+                    obs = this.suggestVatType(row);
                 }
 
                 if (event.field === '_Project') {
@@ -366,12 +370,16 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.checkDates(row);
                 }
 
-                if (fillInObs) {
-                    fillInObs.take(1).subscribe(trans => {
-                        row['Rate'] = trans.Rate;
-                        row['Text'] = trans.Text;
-                        row['Sum'] = trans.Sum;
-                        row['Amount'] = trans.Amount;
+                if ((event.field === 'Wagetype' || event.field === 'employment') && !row.Wagetype) {
+                    obs = obs.switchMap(this.fillIn);
+                }
+
+                if (event.field === '_Account' || event.field === 'Wagetype') {
+                    obs = obs ? obs.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
+                }
+
+                if (obs) {
+                    obs.take(1).subscribe(trans => {
                         this.calcItem(row);
                         this.updateSalaryChanged(row, true);
                     });
@@ -395,6 +403,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         if (event.column.field === '_FileIDs') {
             this.openDocumentsOnRow(event.row);
         }
+    }
+
+    private suggestVatType(trans: SalaryTransaction): Observable<SalaryTransaction> {
+        return this.salaryTransSuggestedValues
+            .suggestVatType(trans)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     private mapWagetypeToTrans(rowModel) {
@@ -453,7 +467,13 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.PayrollRunID = this.payrollRunID;
         rowModel.EmployeeID = this.employeeID;
-        return this.salaryTransService.completeTrans(rowModel);
+        return this.salaryTransService.completeTrans(rowModel).map(trans => {
+            rowModel['Rate'] = trans.Rate;
+            rowModel['Text'] = trans.Text;
+            rowModel['Sum'] = trans.Sum;
+            rowModel['Amount'] = trans.Amount;
+            return rowModel;
+        });
     }
 
     private mapEmploymentToTrans(rowModel: SalaryTransaction) {
