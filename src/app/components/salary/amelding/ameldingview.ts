@@ -290,30 +290,24 @@ export class AMeldingView implements OnInit {
 
     public setAMelding(amelding: AmeldingData) {
         this.activeTabIndex = 0;
-        this._ameldingService
-        .getAMeldingWithFeedback(amelding.ID)
-        .finally(() => {
-            this.setStatusForPeriod();
-            this.initialized = true;
-        })
-        .subscribe((ameldingAndFeedback) => {
-            this.currentAMelding =  ameldingAndFeedback;
-            this.getSumsInPeriod();
-            this.getSumUpForAmelding();
-            this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
-            if (this.currentAMelding.sent) {
-                this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
-            } else {
-                this.submittedDate = '';
-            }
-            if (this.currentAMelding.feedbackFileID) {
-                this.feedbackObtained = true;
-            } else {
-                this.feedbackObtained = false;
-            }
-            this.updateToolbar();
-            this.updateSaveActions();
-        }, err => this.errorService.handle(err));
+        this.currentAMelding = amelding;
+        this.getSumsInPeriod();
+        this.getSumUpForAmelding();
+        this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
+        if (this.currentAMelding.sent) {
+            this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+        } else {
+            this.submittedDate = '';
+        }
+        if (this.currentAMelding.feedbackFileID) {
+            this.feedbackObtained = true;
+        } else {
+            this.feedbackObtained = false;
+        }
+        this.updateToolbar();
+        this.updateSaveActions();
+        this.setStatusForPeriod();
+        this.initialized = true;
     }
 
     private getSumsInPeriod() {
@@ -584,7 +578,13 @@ export class AMeldingView implements OnInit {
 
     private getLastSentAmeldingWithFeedback() {
         // 1. if any with status 'mottatt' thats the period-status we want
-        const ameld: AmeldingData = this.aMeldingerInPeriod.find(a => a.altinnStatus === 'mottatt');
+        let ameld: AmeldingData = new AmeldingData();
+        for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
+            if (this.aMeldingerInPeriod[i].altinnStatus === 'mottatt') {
+                ameld = this.aMeldingerInPeriod[i];
+                break;
+            }
+        }
         if (!!ameld && ameld.altinnStatus === 'mottatt') {
             this._ameldingService
                 .getAMeldingWithFeedback(ameld.ID)
