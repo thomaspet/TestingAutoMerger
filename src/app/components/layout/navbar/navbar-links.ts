@@ -8,7 +8,7 @@ export interface INavbarLink {
     isSuperSearchComponent?: boolean;
     moduleName?: string;
     shortcutName?: string;
-    prefix?: string;
+    prefix?: string[];
     selects?: any[];
     searchFields?: string[];
     expands?: string[];
@@ -88,7 +88,15 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Rapporter',
                         url: '/reports',
-                        moduleID: UniModules.Reports
+                        moduleID: UniModules.Reports,
+                        isSuperSearchComponent: true,
+                        prefix: ['rapport'],
+                        moduleName: 'ReportDefinition',
+                        selects: [
+                            {key: 'ID', isNumeric: false},
+                            {key: 'Name', isNumeric: false},
+                            {key: 'Description', isNumeric: false}
+                        ]
                     },
                 ]
             }
@@ -112,7 +120,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerInvoice',
                         shortcutName: 'Ny faktura',
-                        prefix: 'f',
+                        prefix: ['f', 'faktura'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'InvoiceNumber', isNumeric: true},
@@ -127,7 +135,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerOrder',
                         shortcutName: 'Ny ordre',
-                        prefix: 'o',
+                        prefix: ['o', 'ordre'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'OrderNumber', isNumeric: true},
@@ -142,7 +150,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'CustomerQuote',
                         shortcutName: 'Nytt tilbud',
-                        prefix: 't',
+                        prefix: ['t', 'tilbud'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'QuoteNumber', isNumeric: true},
@@ -172,7 +180,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'Customer',
                         shortcutName: 'Ny kunde',
-                        prefix: 'k',
+                        prefix: ['k', 'kunde'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'CustomerNumber', isNumeric: true},
@@ -187,7 +195,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'Product',
                         shortcutName: 'Nytt produkt',
-                        prefix: 'p',
+                        prefix: ['p', 'produkt'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'PartName', isNumeric: false},
@@ -271,7 +279,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'Supplier',
                         shortcutName: 'Ny leverandør',
-                        prefix: 'l',
+                        prefix: ['l', 'leverandør'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'SupplierNumber', isNumeric: true},
@@ -379,7 +387,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         isSuperSearchComponent: true,
                         moduleName: 'Employee',
                         shortcutName: 'Ny ansatt',
-                        prefix: 'a',
+                        prefix: ['a', 'ansatt'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'EmployeeNumber', isNumeric: true},
@@ -467,6 +475,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     moduleID: UniModules.Projects,
                     isSuperSearchComponent: true,
                     moduleName: 'Project',
+                    prefix: ['prosjekt'],
                     selects: [
                         {key: 'ID', isNumeric: true},
                         {key: 'ProjectNumber', isNumeric: true},

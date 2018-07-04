@@ -4,6 +4,12 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';
+import {
+    UniModalService,
+    ConfirmActions
+} from '@uni-framework/uni-modal';
+import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
+import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 
 @Injectable()
 export class SmartSearchDataService {
@@ -25,10 +31,11 @@ export class SmartSearchDataService {
         'kunde',
         'leverandør',
         'prosjekt',
-        'produkt'
+        'produkt',
+        'rapport'
     ];
 
-    constructor(private navbarLinkService: NavbarLinkService) {
+    constructor(private navbarLinkService: NavbarLinkService, private uniModalService: UniModalService) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
@@ -51,7 +58,11 @@ export class SmartSearchDataService {
     }
 
     public syncLookup(query: string): any[] {
-        return [].concat(this.componentLookup(query), this.getNewShortcutListInit(query));
+        if (query.startsWith('ny') || query.startsWith('nytt')) {
+            return [].concat(this.getNewShortcutListInit(query), this.componentLookup(query));
+        } else {
+            return [].concat(this.componentLookup(query), this.getNewShortcutListInit(query));
+        }
     }
 
     public asyncLookup(query: string): Observable<any[]> {
@@ -60,7 +71,7 @@ export class SmartSearchDataService {
             return Observable.of([]);
         }
 
-        return Observable.forkJoin(this.createQueryArray(query, this.isPrefixSearch, query.substr(0, 1)))
+        return Observable.forkJoin(this.createQueryArray(query, this.isPrefixSearch, query.split('.')[0]))
             .map((res) => {
                 return this.generateConfigObject(res);
             });
@@ -74,6 +85,7 @@ export class SmartSearchDataService {
 
             // Loop all individual arrays of given component
             data.forEach((dataset, index) => {
+                let type = 'link';
                 if (index === 0) {
                     dataForViewRender.push({
                         type: 'header',
@@ -83,18 +95,30 @@ export class SmartSearchDataService {
                 }
 
                 let valueString = '';
+                const actionValues = [];
                 for (const key in dataset) {
                     if (valueString === '' && !key.includes('ID')) {
+                        actionValues.push(dataset[key]);
                         valueString += dataset[key] || 'Kladd';
                     } else if (!key.includes('ID')) {
+                        actionValues.push(dataset[key]);
                         valueString += ' - ' + dataset[key] || 'Kladd';
+                    } else {
+                        actionValues.push(dataset[key]);
                     }
                 }
 
+                // This can be expanded to fit more actions.. For now we are adding the reports
+                // and opening them where you are when clicked!
+                if (this.modelsInSearch[ind].name === 'Rapporter') {
+                    type = 'report';
+                }
+
                 dataForViewRender.push({
-                    type: 'link',
+                    type: type,
                     url: this.modelsInSearch[ind].url + '/' + dataset[Object.keys(dataset)[0]],
-                    value: valueString
+                    value: valueString,
+                    actionValues: actionValues
                 });
             });
         });
@@ -105,7 +129,7 @@ export class SmartSearchDataService {
         // Check first to see if the user has added a '.' in search to indicate prefix search
         if (query.includes('.')) {
             const firstWordSearched = query.split('.')[0];
-            if (this.predifinedPrefixes.indexOf(firstWordSearched) >= 0) {
+            if (this.predifinedPrefixes.indexOf(firstWordSearched.toLowerCase()) >= 0) {
                 return true;
             }
         }
@@ -115,10 +139,11 @@ export class SmartSearchDataService {
     private createQueryArray(query: string, withPrefix: boolean = false, prefix?: string) {
         const queries = [];
         this.modelsInSearch = [];
-        let filterValue = 'startswith'; // query.length > 3 ? 'contains' : '';
+        let filterValue = 'startswith';
 
         const searchRoutes = withPrefix
-            ? this.confirmedSuperSearchRoutes.filter(route => route.prefix === prefix)
+            ? this.confirmedSuperSearchRoutes.filter(route =>  route.prefix && !!route.prefix.filter(
+                (pre) => pre.toLowerCase() === prefix.toLowerCase()).length )
             : this.confirmedSuperSearchRoutes;
 
         if (searchRoutes.length) {
@@ -128,7 +153,6 @@ export class SmartSearchDataService {
             };
         }
 
-        // query = withPrefix ? query.substr(2, query.length - 1) : query;
         if (withPrefix) {
             const splittedQuery = query.split('.');
             splittedQuery.shift();
@@ -203,6 +227,20 @@ export class SmartSearchDataService {
             return filteredShortCuts;
         }
         return [];
+    }
+
+    public openReportModal(report) {
+        this.uniModalService.open(UniReportParamsModal,
+            {   data: report,
+                header: report.Name,
+                message: report.Description
+            }).onClose.subscribe(modalResult => {
+                if (modalResult === ConfirmActions.ACCEPT) {
+                    this.uniModalService.open(UniPreviewModal, {
+                        data: report
+                    });
+                }
+            });
     }
 
     private componentLookup(query: string) {

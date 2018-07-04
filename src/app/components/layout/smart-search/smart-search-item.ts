@@ -13,6 +13,7 @@ export class UniSmartSearchItem implements Highlightable {
         return this.item && this.item.type === 'header';
     }
     public type: string; // ENUM ?
+    public actionValues: any[];
 
     setActiveStyles() {
         this.isActive = true;
