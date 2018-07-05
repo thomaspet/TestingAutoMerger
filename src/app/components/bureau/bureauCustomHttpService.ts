@@ -13,7 +13,7 @@ export class BureauCustomHttpService {
         private browserStorage: BrowserStorageService,
     ) {}
 
-    public get(url: string, companyKey: string): Observable<any> {
+    private getWithoutUnAuthenticatedHandling(url: string, companyKey: string): Observable<any> {
         const token = this.authService.getToken();
         const headers: Headers = new Headers;
         headers.set('Accept', 'application/json');
@@ -25,7 +25,11 @@ export class BureauCustomHttpService {
         options.url = url;
         options.headers = headers;
         options.body = '';
-        return this.http.request(new Request(options))
+        return this.http.request(new Request(options));
+    }
+
+    public get(url: string, companyKey: string): Observable<any> {
+        return this.getWithoutUnAuthenticatedHandling(url, companyKey)
             .catch((err) => {
                 if (err.status === 401) {
                     this.authService.clearAuthAndGotoLogin();
@@ -60,5 +64,12 @@ export class BureauCustomHttpService {
             return obj.Data[0];
         }
         throw new Error('No elements found, can not return the first element');
+    }
+
+    public hasAccessToCompany(companyKey: string): Observable<boolean> {
+        return this.getWithoutUnAuthenticatedHandling('/api/biz', companyKey)
+            .map(() => true)
+            .catch(err => Observable.of(false));
+
     }
 }

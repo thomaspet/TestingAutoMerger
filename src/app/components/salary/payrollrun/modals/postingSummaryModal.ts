@@ -57,7 +57,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     }
 
     private setDefaults(run: PayrollRun) {
-        const numberSeriesID = this.browserStorageService.getItem(NUMBER_SERIES_KEY);
+        const numberSeriesID = this.browserStorageService.getItemFromCompany(NUMBER_SERIES_KEY);
         this.formModel$.next({
             date: new LocalDate(run.PayDate),
             numberseriesID: numberSeriesID,
@@ -153,7 +153,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
         if (!model || !model.numberseriesID) {
             return;
         }
-        this.browserStorageService.setItem(NUMBER_SERIES_KEY, model.numberseriesID);
+        this.browserStorageService.setItemOnCompany(NUMBER_SERIES_KEY, model.numberseriesID);
     }
 
     public postTransactions() {

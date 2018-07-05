@@ -1,6 +1,9 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
+import {IModalOptions, IUniModal, UniModalService, UniConfirmModalV2} from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense} from '@app/services/elsa/elsaModels';
+import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
+import {IAuthDetails, AuthService} from '@app/authService';
+import {ErrorService} from '@app/services/common/errorService';
 
 export enum PAGE_TYPE {
     selectLicense = 0,
@@ -39,6 +42,34 @@ export class GrantAccessModal implements IUniModal {
     grantAccessData: GrantAccessData = <any>{};
 
     showProgressBar = true;
+
+    constructor(
+        private bureauHttp: BureauCustomHttpService,
+        private modalService: UniModalService,
+        private authService: AuthService,
+        private errorService: ErrorService,
+    ) {}
+
+    ngOnInit() {
+        this.authService.authentication$
+            .switchMap((authentication: IAuthDetails) => {
+                const mainCompanyKey = authentication.user.License.Company.Agency.CompanyKey;
+                const mainCompanyName = authentication.user.License.Company.Agency.Name;
+                return this.bureauHttp.hasAccessToCompany(mainCompanyKey).do(hasAccess => {
+                    if (!hasAccess) {
+                        this.modalService.open(UniConfirmModalV2,
+                            {
+                                buttonLabels: {accept: 'OK'},
+                                header: 'Ikke tilgang',
+                                message: `Du må ha administartor tilgang i hoved selskapet "${mainCompanyName}" for å bruke bulk invitasjoner`,
+                            })
+                            .onClose
+                            .subscribe(() => this.close());
+                    }
+                });
+            })
+            .subscribe(null, err => this.errorService.handle(err));
+    }
 
     close() {
         this.onClose.emit();

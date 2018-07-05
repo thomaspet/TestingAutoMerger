@@ -3,6 +3,7 @@
     [contextmenu]="contextMenuItems"
     [saveactions]="toolbarActions">
 </uni-toolbar>
+<input type="hidden" value="Sync" style="background-color:red" (click)='onCustomClick()' id="letmesync">
 <article class="application wagetype" [attr.aria-busy] = "busy">
     <uni-table [resource]="wageTypes$ | async" [config]="tableConfig" (rowSelected)="rowSelected($event)"></uni-table>
 </article>
