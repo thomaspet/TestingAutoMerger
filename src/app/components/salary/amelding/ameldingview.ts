@@ -277,7 +277,7 @@ export class AMeldingView implements OnInit {
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
-            this.setAMelding(response);
+            this.refresh(response);
             this.checkForSaveDone(event.done);
             this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
@@ -288,7 +288,16 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    public setAMelding(amelding: AmeldingData) {
+    public getAmldWithFeedback(amldID: number) {
+        this._ameldingService
+            .getAMeldingWithFeedback(amldID)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((amldWithFeedback: AmeldingData) => {
+                this.refresh(amldWithFeedback);
+            });
+    }
+
+    public refresh(amelding: AmeldingData) {
         this.activeTabIndex = 0;
         this.currentAMelding = amelding;
         this.getSumsInPeriod();
@@ -411,7 +420,7 @@ export class AMeldingView implements OnInit {
 
     public setAmeldingFromEvent(event) {
         if (!event[0] || !event[0].data) { return; }
-        this.setAMelding(event[0].data);
+        this.getAmldWithFeedback(event[0].data.ID);
     }
 
     private updateAMeldingerInPeriod(newAMelding) {
@@ -555,7 +564,7 @@ export class AMeldingView implements OnInit {
                 .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
                 .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
-                        this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
+                        this.getAmldWithFeedback(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID);
                     } else {
                         this.initialized = true;
                         this.updateToolbar();
@@ -727,7 +736,7 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
-                    this.setAMelding(response);
+                    this.refresh(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
@@ -762,7 +771,7 @@ export class AMeldingView implements OnInit {
         this._ameldingService.sendAMelding(this.currentAMelding.ID)
         .subscribe((response: AmeldingData) => {
             if (response) {
-                this.setAMelding(response);
+                this.refresh(response);
                 if (this.currentAMelding.sent) {
                     this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
                 }
