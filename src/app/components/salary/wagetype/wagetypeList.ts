@@ -12,7 +12,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 
 @Component({
     selector: 'wagetypes',
-    templateUrl: './wagetypeList.html',
+    templateUrl: './wagetypeList.html'
 })
 export class WagetypeList implements OnInit {
 
@@ -44,9 +44,14 @@ export class WagetypeList implements OnInit {
                 label: 'Synkroniser lønnsarter',
                 action: () => {
                     this.syncWagetypes();
-                }
+                },
+                disabled: () => true
             }
         ];
+    }
+
+    public onCustomClick() {
+        this.syncWagetypes();
     }
 
     public ngOnInit() {
@@ -76,7 +81,7 @@ export class WagetypeList implements OnInit {
     private getWagetypes() {
         this.wageTypes$ = this._wageTypeService
             .GetAll('orderBy=WageTypeNumber ASC')
-            .finally(() => this.busy = false)
+            .finally(() => { this.busy = false; })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
