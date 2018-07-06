@@ -586,9 +586,15 @@ export class AMeldingView implements OnInit {
     }
 
     private getLastSentAmeldingWithFeedback() {
-        // 1. if any with status 'mottatt' thats the period-status we want
+        // 1. if any with status 'sent' set status to 'Tilbakemelding må hentes'
+        // 2. if any with altinnstatus 'mottatt' set period-status from feedback
         let ameld: AmeldingData = new AmeldingData();
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
+            if (this.aMeldingerInPeriod[i].status === 2) {
+                ameld = this.aMeldingerInPeriod[i];
+                this.setPeriodStatusFromAmeldingStatus(ameld);
+                return;
+            }
             if (this.aMeldingerInPeriod[i].altinnStatus === 'mottatt') {
                 ameld = this.aMeldingerInPeriod[i];
                 break;
@@ -602,7 +608,7 @@ export class AMeldingView implements OnInit {
                 });
             return;
         }
-        // 2. if none with status 'mottatt' then find the last one with status
+        // 3. if none with status 'sent' OR altinnstatus 'mottatt' then find the last one with status
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
             const amelding = this.aMeldingerInPeriod[i];
             if (amelding.status !== null) {
