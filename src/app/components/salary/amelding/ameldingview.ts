@@ -636,7 +636,7 @@ export class AMeldingView implements OnInit {
                 this.periodStatus = '';
                 const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
                 if (!!statusTextObject) {
-                    this.periodStatus = this.periodStatus !== '' ? 'Avvist' : statusTextObject.statusText;
+                    this.periodStatus = this.periodStatus === '' ? 'Avvist' : statusTextObject.statusText;
                 }
                 break;
 
