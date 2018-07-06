@@ -471,7 +471,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             links: [
                 {
                     name: 'Prosjekt',
-                    url: '/dimensions/projects/overview/1',
+                    url: '/dimensions/projects/overview',
                     moduleID: UniModules.Projects,
                     isSuperSearchComponent: true,
                     moduleName: 'Project',

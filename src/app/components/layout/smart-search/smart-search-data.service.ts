@@ -124,9 +124,11 @@ export class SmartSearchDataService {
                 }
 
                 // If the user wants to create new tof but searching for customers, set url to match given tof with customer ID attached..
+                // Also check if module is project, because the project url build up is different.. The other views might change ?
                 const url = this.isNewTOFWithCustomerSearch
                     ? this.newTOFWithCustomerURL + '/0;customerID=' + dataset[Object.keys(dataset)[0]]
-                    : this.modelsInSearch[ind].url + '/' + dataset[Object.keys(dataset)[0]];
+                    : this.modelsInSearch[ind].url + ((this.modelsInSearch[ind].moduleName === 'Project') ? '?projectID=' : '/')
+                    + dataset[Object.keys(dataset)[0]];
 
                 dataForViewRender.push({
                     type: type,
