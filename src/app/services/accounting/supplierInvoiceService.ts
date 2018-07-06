@@ -220,10 +220,12 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         .map(response => response.json());
     }
 
-    public checkInvoiceData(invoiceNumber: any, supplierID: number) {
+    public checkInvoiceData(invoiceNumber: any, supplierID: number, ID?: number) {
+        let endpoint = `?model=SupplierInvoice&filter=InvoiceNumber eq '${invoiceNumber}' and SupplierID eq '${supplierID}'`;
+        endpoint += ID ? ` and ID ne '${ID}'` : '';
         return this.http.asGET()
         .usingStatisticsDomain()
-        .withEndPoint(`?model=SupplierInvoice&filter=InvoiceNumber eq '${invoiceNumber}' and SupplierID eq '${supplierID}'`)
+        .withEndPoint(endpoint)
         .send()
         .map(response => response.json());
     }

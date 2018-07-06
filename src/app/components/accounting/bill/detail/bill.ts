@@ -2563,10 +2563,18 @@ export class BillView implements OnInit {
             };
 
             const isValidKID: boolean = this.modulusService.isValidKID(current.PaymentID);
-            if (current.ID) {
-                if (isValidKID) {
-                    saveFunc();
-                } else {
+            // Query to see if invoiceID/supplierID combo has been used before
+            this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID, current.ID)
+            .subscribe((data: any) => {
+                if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
+                    let message: string = '';
+                    if (!isValidKID) {
+                        message += `<li>KID-nr. er ikke gyldig.</li>`;
+                    }
+                    if (data && data.Data && data.Data[0].countid > 0) {
+                        message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
+                    }
+                    message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
                     this.modalService.open(UniConfirmModalV2,
                         {
                             buttonLabels: {
@@ -2574,7 +2582,7 @@ export class BillView implements OnInit {
                                 cancel: 'Avbryt'
                             },
                             header: 'Vil du lagre?',
-                            message: `<li>KID-nr. er ikke gyldig.</li><br>Du kan ignorere dette og lagre om ønskelig.`
+                            message: message
                         }).onClose.subscribe((res) => {
                             if (res === ConfirmActions.ACCEPT) {
                                 saveFunc();
@@ -2585,43 +2593,10 @@ export class BillView implements OnInit {
                                 }
                             }
                         });
+                } else {
+                    saveFunc();
                 }
-            } else {
-                // Query to see if invoiceID/supplierID combo has been used before
-                this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID)
-                .subscribe((data: any) => {
-                    if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
-                        let message: string = '';
-                        if (!isValidKID) {
-                            message += `<li>KID-nr. er ikke gyldig.</li>`;
-                        }
-                        if (data && data.Data && data.Data[0].countid > 0) {
-                            message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
-                        }
-                        message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
-                        this.modalService.open(UniConfirmModalV2,
-                            {
-                                buttonLabels: {
-                                    accept: 'Lagre',
-                                    cancel: 'Avbryt'
-                                },
-                                header: 'Vil du lagre?',
-                                message: message
-                            }).onClose.subscribe((res) => {
-                                if (res === ConfirmActions.ACCEPT) {
-                                    saveFunc();
-                                } else {
-                                    resolve({ success: false });
-                                    if (done) {
-                                        done('Lagring avbrutt');
-                                    }
-                                }
-                            });
-                    } else {
-                        saveFunc();
-                    }
-                });
-            }
+            });
         });
     }
 
