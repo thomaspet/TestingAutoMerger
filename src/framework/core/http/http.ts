@@ -202,7 +202,7 @@ export class UniHttp {
             .map((response: any) => response.json());
     }
 
-    public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null): Observable<any> {
+    public send(request: IUniHttpRequest = {}, searchParams: URLSearchParams = null, useCompanyKeyHeader: boolean = true): Observable<any> {
         const token = this.authService.getToken();
         const companyKey = this.authService.getCompanyKey();
         let year = this.browserStorage.getItemFromCompany('activeFinancialYear');
@@ -212,7 +212,7 @@ export class UniHttp {
             this.headers.set('Authorization', 'Bearer ' + token);
         }
 
-        if (companyKey) {
+        if (companyKey && useCompanyKeyHeader) {
             this.headers.set('CompanyKey', companyKey);
         }
 
