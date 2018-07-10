@@ -21,7 +21,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('number-series?hateoas=false&orderby=FromNumber,NumberSeriesTaskID,AccountYear desc&expand=NumberSeriesType,NumberSeriesTask,MainAccount')
+            .withEndPoint('number-series?hateoas=false&orderby=AccountYear desc,NumberSeriesTaskID,FromNumber&expand=NumberSeriesType,NumberSeriesTask,MainAccount')
             .send().map(response => response.json());
     }
 
@@ -89,11 +89,6 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         {Name: 'JournalEntry bank number series type', DisplayName: 'Bank', _Task: 'Bank', _Register: 'Bilag', NextNumber: null, _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null},
         {Name: 'JournalEntry vatreport number series type', DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
         {Name: 'JournalEntry invoice number series type', DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null},
-    ];
-
-    public yearly: any[] = [
-        {ID: true, DisplayName: 'Årlig'},
-        {ID: false, DisplayName: 'Fortløpende'}
     ];
 
     public asinvoicenumber: any[] = [

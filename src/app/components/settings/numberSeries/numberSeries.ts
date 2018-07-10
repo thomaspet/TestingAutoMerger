@@ -132,7 +132,7 @@ export class NumberSeries {
                     && (this.allYears || x.AccountYear === this.currentYear || !x.AccountYear)
                 );
                 // filter ions first, remove allready added to db
-                let journalEntryType = this.types.find(x => x.Name === 'JournalEntry number series type yearly');
+                const journalEntryType = this.types.find(x => x.Name === 'JournalEntry number series type yearly');
                 current = current.concat(this.numberSeriesService.suggestions.map(x => {
                     x.AccountYear = this.currentYear;
 
@@ -233,11 +233,14 @@ export class NumberSeries {
         return new Promise((resolve, reject) => {
             const all = this.uniTables.last.getVisibleTableData();
 
-            let numberSeriesTypeToPUTToServer: NumberSeriesType [] = [];
+            const numberSeriesTypeToPUTToServer: NumberSeriesType [] = [];
 
             all
                 .filter(uniTableNumberSeriesRow => uniTableNumberSeriesRow._isDirty)
                 .forEach(uniTableNumberSeriesDirtyRow => {
+                    if (!uniTableNumberSeriesDirtyRow.AccountYear) {
+                        uniTableNumberSeriesDirtyRow.AccountYear = 0;
+                    }
                     if (!numberSeriesTypeToPUTToServer
                         .some(nstype => nstype.ID === uniTableNumberSeriesDirtyRow.NumberSeriesTypeID)) {
                             numberSeriesTypeToPUTToServer.push(uniTableNumberSeriesDirtyRow.NumberSeriesType);
@@ -264,7 +267,7 @@ export class NumberSeries {
                             }
                         }
 
-                        if(!uniTableNumberSeriesRow.ID) {
+                        if (!uniTableNumberSeriesRow.ID) {
                             uniTableNumberSeriesRow['_createguid'] = this.numberSeriesService.getNewGuid();
                         }
 
@@ -273,7 +276,7 @@ export class NumberSeries {
                 });
             });
 
-            let saveTypeObservables: Observable<any>[] = numberSeriesTypeToPUTToServer.map(numberSeriesType => {
+            const saveTypeObservables: Observable<any>[] = numberSeriesTypeToPUTToServer.map(numberSeriesType => {
                 return this.numberSeriesTypeService.save(numberSeriesType);
 
             });
@@ -300,12 +303,13 @@ export class NumberSeries {
     public onRowChanged(event) {
         this.hasUnsavedChanges = true;
 
-        let row = event.rowModel;
-        let index = this.current.findIndex(x => x._originalIndex === row._originalIndex);
+
+        const row = event.rowModel;
+        const index = this.current.findIndex(x => x._originalIndex === row._originalIndex);
 
         row._isDirty = true;
-
         if (index >= 0) {
+
             if (!row.ID && !row.Name) {
                 row.Name = row.DisplayName;
             }
@@ -316,10 +320,6 @@ export class NumberSeries {
 
             if (row.MainAccount) {
                 row.MainAccountID = row.MainAccount.ID;
-            }
-
-            if (!row.ID && row._Yearly) {
-                row.AccountYear = row._Yearly.ID ? this.currentYear : 0;
             }
 
             if (row._AsInvoiceNumber.ID
@@ -360,14 +360,11 @@ export class NumberSeries {
                         row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
                     } else {
                         row.NumberSeriesType = this.types.find(
-                            x => x.Name === (row._Yearly && row._Yearly.ID
+                            x => x.Name === (row.AccountYear > 0
                                 ? 'JournalEntry number series type yearly'
                                 : 'JournalEntry number series type NOT yearly')
                         );
                         row.NumberSeriesTypeID = row.NumberSeriesType ? row.NumberSeriesType.ID : 0;
-                        if (!row.NumberSeriesType.Yearly) {
-                            row.AccountYear = 0;
-                        }
                     }
                 }
 
@@ -404,38 +401,28 @@ export class NumberSeries {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
                     })
                     .setWidth('14rem'),
-                new UniTableColumn('AccountYear','År', UniTableColumnType.Text)
-                    .setEditable(false)
+                new UniTableColumn('AccountYear', 'År', UniTableColumnType.Text)
+                    .setEditable(row => row._rowSelected && !row.ID)
                     .setWidth('4rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
                     .setEditable(row => {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
-                    })
-                    .setWidth('16rem'),
+                    }),
                 new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
+                    .setWidth('7rem')
                     .setEditable(row => {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
                     }),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
-                    .setEditable(row => {
+                .setWidth('7rem')
+                .setEditable(row => {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
                     })
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
+                    .setWidth('7rem')
                     .setEditable(row => {
                         return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
-                    }),
-                new UniTableColumn('_Yearly', 'Årlig?', UniTableColumnType.Select)
-                    .setTemplate(row => row.NumberSeriesType
-                        ? row.NumberSeriesType.Yearly ? 'Årlig' : 'Fortløpende'
-                        : '')
-                    .setEditable(row => {
-                        return  !row._rowSelected ? false : (row.Disabled ? false : true) ;
-                    })
-                    .setOptions({
-                        hideNotChosenOption: false,
-                        displayField: 'DisplayName',
-                        resource: this.numberSeriesService.yearly
                     }),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(row => {
@@ -445,7 +432,6 @@ export class NumberSeries {
                         if (!row.NumberSeriesTask) {
                             return 'Bokføring'; // Missing NumberSeriesTask
                         }
-
                         return row.NumberSeriesTask._DisplayName;
                     })
                     .setOptions({
@@ -455,6 +441,7 @@ export class NumberSeries {
                         resource: this.tasks.filter(x => x.EntityType === 'JournalEntry')
                     }),
                 new UniTableColumn('_AsInvoiceNumber', 'Lik fakturanr.', UniTableColumnType.Select)
+                    .setWidth('4rem')
                     .setEditable(row => {
                         return !row.ID && row._rowSelected
                         && row.Name === 'JournalEntry invoice number series type';
@@ -516,10 +503,13 @@ export class NumberSeries {
                     }
                 }
             ])
-            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
+            .setConditionalRowCls(
+                (serie) =>
+                    serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
                 NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
+                AccountYear: this.currentYear,
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
                 _rowSelected: false
             });
@@ -535,15 +525,17 @@ export class NumberSeries {
                     .setEditable(row => !row.ID || row.Disabled)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
-                    .setEditable(true)
-                    .setWidth('16rem'),
-                new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
                     .setEditable(true),
+                new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
+                    .setEditable(true)
+                    .setWidth('7rem'),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
-                    .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
+                    .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`)
+                    .setWidth('7rem'),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
-                    .setEditable(true),
+                    .setEditable(true)
+                    .setWidth('7rem'),
                 new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
                     .setVisible(false) // Hidden because we haven't defined any tasks for sales numberseries yet
                     .setEditable(row => !row.ID || row.Disabled)
@@ -626,15 +618,17 @@ export class NumberSeries {
                     .setEditable(row => !row.ID)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
-                    .setEditable(true)
-                    .setWidth('16rem'),
-                new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
                     .setEditable(true),
+                new UniTableColumn('FromNumber', 'Fra nr', UniTableColumnType.Number)
+                    .setEditable(true)
+                    .setWidth('7rem'),
                 new UniTableColumn('ToNumber', 'Til nr', UniTableColumnType.Number)
                     .setEditable(true)
+                    .setWidth('7rem')
                     .setTemplate(row => `${row.ToNumber === MAXNUMBER ? 'max' : row.ToNumber ? row.ToNumber : ''}`),
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
-                    .setEditable(true),
+                    .setEditable(true)
+                    .setWidth('7rem'),
                 new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
@@ -718,10 +712,10 @@ export class NumberSeries {
                     .setEditable(false)
                     .setWidth('14rem'),
                 new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
-                    .setEditable(true)
-                    .setWidth('16rem'),
-                new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true),
+                new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
+                    .setEditable(true)
+                    .setWidth('7rem'),
                 new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(false)
                     .setTemplate(row => row._Register && row._Register.DisplayName)
@@ -773,8 +767,8 @@ export class NumberSeries {
             let copyPasteFilter = '';
 
             if (searchValue.indexOf(':') > 0) {
-                let accountNumberPart = searchValue.split(':')[0].trim();
-                let accountNamePart = searchValue.split(':')[1].trim();
+                const accountNumberPart = searchValue.split(':')[0].trim();
+                const accountNamePart = searchValue.split(':')[1].trim();
 
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
                     + `and AccountName eq '${accountNamePart}')`;
@@ -789,14 +783,14 @@ export class NumberSeries {
 
     public onRowSelectionChange(event) {
         if (!event) {
-            let tableRows = this.uniTables && this.uniTables.last.getTableData();
+            const tableRows = this.uniTables && this.uniTables.last.getTableData();
             if (tableRows) {
                 this.current = tableRows.map(chosen => {
                     return this.setPredefinedOrNot(chosen);
                 });
             }
         } else {
-            var chosen = this.setPredefinedOrNot(event.rowModel);
+            const chosen = this.setPredefinedOrNot(event.rowModel);
             this.current[chosen._originalIndex] = chosen;
         }
 
@@ -822,7 +816,7 @@ export class NumberSeries {
     }
 
     public onEditChange(event) {
-        var value = event.rowModel[event.field];
+        const value = event.rowModel[event.field];
 
         if (!value) {
             return event.rowModel;
@@ -895,7 +889,6 @@ export class NumberSeries {
     private addCustomFields(result) {
         return result.map(x => {
             x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'JournalEntry');
-            x._Yearly = this.numberSeriesService.yearly.find(y => y.ID === x.NumberSeriesType.Yearly);
 
             switch (x.Name) {
                 case 'JournalEntry number series Yearly':
