@@ -1,7 +1,7 @@
 <uni-toolbar [config]="{title: 'Altinn oversikt'}"></uni-toolbar>
 <section class="splitview application">
     <nav class="splitview_list">
-        <uni-table [resource]="receipts$ | async" [config]="config$ | async" (rowSelected)="updateSelected($event)"></uni-table>
+        <ag-grid-wrapper [resource]="receipts$ | async" [config]="config$ | async" (rowSelectionChange)="updateSelected($event)"></ag-grid-wrapper>
     </nav>
     <main class="splitview_detail">
         <fieldset>

@@ -93,6 +93,7 @@ import {AltinnErrorHandlerService} from './sharedServices/altinnErrorHandlerServ
 import {AltinnResponseStatusComponent} from './common/altinn-response-status/altinn-response-status.component';
 import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-overview.component';
 import {AltinnOverviewDetailsComponent} from './altinnOverview/altinn-overview-details/altinn-overview-details.component';
+import {AltinnOverviewParser} from './altinnOverview/altinnOverviewParser';
 import {TimeTransferComponent} from './payrollrun/modals/time-transfer/time-transfer.component';
 import {EmpCanActivateGuard} from './employee/empGuard';
 import { TravelComponent } from './travel/travel.component';
@@ -102,7 +103,7 @@ import { TravelLinesComponent } from './travel/travel-details/travel-lines/trave
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
 import {MatSlideToggleModule} from '@angular/material';
-import { TraveltypeComponent } from './travel/travel-type/traveltype.component';
+import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 
 @NgModule({
     imports: [
@@ -234,7 +235,8 @@ import { TraveltypeComponent } from './travel/travel-type/traveltype.component';
         CategoryViewService,
         SalaryTransViewService,
         AltinnErrorHandlerService,
-        EmpCanActivateGuard
+        EmpCanActivateGuard,
+        AltinnOverviewParser
     ],
     exports: [
         UniSalary,

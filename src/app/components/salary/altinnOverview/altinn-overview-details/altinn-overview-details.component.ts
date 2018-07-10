@@ -3,6 +3,11 @@ import {AltinnReceipt, LocalDate} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {ErrorService} from '@app/services/services';
+import {
+    AltinnOverviewParser,
+    IAltinnResponseReceiptDto,
+    IAltinnResponseDto,
+} from '@app/components/salary/altinnOverview/altinnOverviewParser';
 
 @Component({
     selector: 'uni-altinn-overview-details',
@@ -18,7 +23,10 @@ export class AltinnOverviewDetailsComponent implements OnInit, OnChanges {
     public errorMessage$: BehaviorSubject<string> = new BehaviorSubject('');
     public dataOpen: boolean;
 
-    constructor(private errorService: ErrorService) {}
+    constructor(
+        private errorService: ErrorService,
+        private parser: AltinnOverviewParser,
+    ) {}
 
     public ngOnInit() {
         this.tableConfig$.next(this.getConfig());
@@ -28,19 +36,20 @@ export class AltinnOverviewDetailsComponent implements OnInit, OnChanges {
         this.handleReceipt(this.receipt);
     }
 
-
-
     private handleReceipt(receipt: AltinnReceipt) {
         if (!receipt) { return; }
         if (!(receipt.AltinnResponseData || receipt.XmlReceipt)) { return; }
 
         try {
-            const receipts: IAltinnResponseDto = JSON.parse(this.receipt.AltinnResponseData || this.receipt.XmlReceipt);
-            this.errorMessage$.next(this.getError(receipts));
-            this.altinnReceipts$.next(this.getFlattenedResponseReceipts(receipts));
+            this.useAltinnResponse(this.parser.parseReceipt(receipt));
         } catch (err) {
             this.errorService.handle(err);
         }
+    }
+
+    private useAltinnResponse(response: IAltinnResponseDto) {
+        this.errorMessage$.next(this.getError(response));
+        this.altinnReceipts$.next(this.getFlattenedResponseReceipts(response));
     }
 
     private getFlattenedResponseReceipts(response: IAltinnResponseDto): IAltinnResponseReceiptDto[] {
@@ -75,30 +84,8 @@ export class AltinnOverviewDetailsComponent implements OnInit, OnChanges {
         const receiptID = new UniTableColumn('ReceiptId', 'KvitteringsID', UniTableColumnType.Number, false);
         const receiptHistory = new UniTableColumn('ReceiptHistory', 'Log', UniTableColumnType.Text);
         return new UniTableConfig('salary.altinn-overview-details')
+            .setAutoAddNewRow(false)
             .setColumns([textCol, LastChanged, receiptID, receiptHistory]);
     }
 
-}
-
-interface IAltinnResponseDto {
-    receipt: IAltinnResponseReceiptDto;
-    ErrorMessage: string;
-}
-
-interface IAltinnResponseReceiptDto {
-    ReceiptId: number;
-    ReceiptText: string;
-    ReceiptHistory: string;
-    LastChanged: LocalDate;
-    ReceiptTypeName: number;
-    ReceiptStatusCode: number;
-    ParentReceiptId: number;
-    References: IAltinnReferenceDto[];
-    SubReceipts: IAltinnResponseReceiptDto[];
-}
-
-interface IAltinnReferenceDto {
-    ReferenceValue: string;
-    ReferenceTypeName: number;
-    ReporteeID: number;
 }

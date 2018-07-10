@@ -2,9 +2,11 @@ import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {AltinnReceiptService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AltinnReceipt} from '@uni-entities';
-import {IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '@uni-framework/ui/unitable';
+import {IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {Observable} from 'rxjs/Observable';
 
 @Component({
     selector: 'uni-altinn-overview',
@@ -17,8 +19,8 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
     public config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
     public selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
     public busy: boolean;
-    @ViewChild(UniTable) private table: UniTable;
-    private table$: ReplaySubject<UniTable> = new ReplaySubject(1);
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
     constructor(
         private altinnReceiptService: AltinnReceiptService,
         private tabService: TabService
@@ -98,22 +100,22 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         if (!receipt) {
             return;
         }
-        this.table$
+        this.receipts$
             .take(1)
             .delay(200)
-            .subscribe(table => {
-                const tableRow = table
-                    .getTableData()
-                    .find(row => row.ID === receipt.ID);
-                if (!tableRow) {
+            .switchMap(receipts => Observable.forkJoin(Observable.of(receipts), this.table$.take(1)))
+            .subscribe((result) => {
+                const [receipts, table] = result;
+                const receiptRows = receipts.find(row => row.ID === receipt.ID);
+                if (!receiptRows) {
                     return;
                 }
-                table.focusRow(tableRow['_originalIndex']);
+                table.focusRow(receiptRows['_originalIndex']);
             });
     }
 
-    public updateSelected(row: any) {
-        this.selectedReceipt$.next(row.rowModel);
+    public updateSelected(row: AltinnReceipt) {
+        this.selectedReceipt$.next(row);
     }
 
 }
