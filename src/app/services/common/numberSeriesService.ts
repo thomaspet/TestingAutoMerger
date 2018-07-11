@@ -53,6 +53,14 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
             .map(numberIntervalsStrings => numberIntervalsStrings.map(x => x.replace(',', ' - ')));
     }
 
+    public findAndSetNextNumber(numberSeriesID: number): Observable<any> {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=reset-numberseries-next-number&numberSeriesID=${numberSeriesID}`)
+            .send();
+    }
+
     public getMaxUsedNumberInNumberSeries(numberSeriesID: number) {
         return this.http
         .asGET()

@@ -102,6 +102,12 @@ export class NumberSeries {
                 action: (done) => this.onSaveClicked(done),
                 main: true,
                 disabled: false
+            },
+            {
+                label: 'Finn neste nr på alle nummerserier',
+                action: (done) => this.findAndSetNextNumberOnAllSeries(done),
+                main: false,
+                disabled: false
             }
         ]);
     }
@@ -115,6 +121,34 @@ export class NumberSeries {
         .catch(err => {
             this.errorService.handle(err);
             done('En feil oppstod!');
+        });
+    }
+
+    findAndSetNextNumberOnAllSeries(done) {
+        this.modalService.open(UniConfirmModalV2,
+        {
+            buttonLabels: { accept: 'Ja', reject: 'Nei' },
+            header: 'Resette neste nummer i alle nummerserier?',
+            message: 'Vil du sette neste ledige nummer på alle nummserier? ' +
+                'Alle nummerserier vil får neste nummer som det neste etter det høyeste brukte nummer i serien'
+        }).onClose.subscribe(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                this.busy = true;
+                this.numberSeriesService.findAndSetNextNumber(null).subscribe(
+                    () => {
+                        this.toastService.addToast('Neste nummer er oppdatert på nummerserier', ToastType.good, 5);
+                        done('Neste nummer er oppdatert på nummerserier');
+                        this.requestNumberSerie();
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        done('En feil oppstod ved oppdatering av neste nummer');
+                    },
+                    () => this.busy = false
+                );
+            } else {
+                done('');
+            }
         });
     }
 
