@@ -12,7 +12,7 @@ import { PaymentInfoType, StatusCodePaymentInfoType } from '../../../unientities
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
-import { FieldType, UniField, } from '@uni-framework/ui/uniform';
+import { FieldType, UniField, UniFieldLayout, UniFormError, } from '@uni-framework/ui/uniform';
 
 declare var _;
 
@@ -170,6 +170,18 @@ export class KIDSettings {
         });
     }
 
+    validateKidLength(value: number, field: UniFieldLayout): UniFormError | null {
+        if (value && value > 25) {
+            return {
+                value: value,
+                errorMessage: 'Maks KID-lengde er 25.',
+                field: field,
+                isWarning: true
+            };
+        }
+        return null;
+    }
+
     private initFormConfig() {
         this.formConfig$.next({});
         this.formFields$.next([
@@ -194,6 +206,7 @@ export class KIDSettings {
                 Property: 'Length',
                 FieldType: FieldType.NUMERIC,
                 Label: 'KID-lengde',
+                Validations: [this.validateKidLength],
                 Section: 0,
                 ReadOnly: this.currentPaymentInfoType.Locked,
             },
