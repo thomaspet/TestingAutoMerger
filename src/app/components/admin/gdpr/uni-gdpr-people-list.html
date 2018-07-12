@@ -1,8 +1,8 @@
-<uni-toolbar [config]="{title: 'GDPR', omitFinalCrumb: true}"></uni-toolbar>
+<uni-toolbar [config]="{title: 'Personopplysninger', hideBreadcrumbs: true}"></uni-toolbar>
 <section class="application">
     <input [formControl]="searchControl" type="search" placeholder="Filter" class="unitableSearch_input"/>
-    <span>
-        *data is limited to the top 50 entitites of each type. Use filter to be more specific
+    <span *ngIf="hasMoreThan50">
+        Søket ditt returnerer veldig mange treff. Vennligst gjør et mer spesifikt søk.
     </span>
     <ag-grid-wrapper
         [attr.aria-busy]="busy"
@@ -10,4 +10,5 @@
         [resource]="data"
         (rowSelectionChange)="onRowSelected($event)">
     </ag-grid-wrapper>
+    <p *ngIf="showNoDataMessage">Vi fant ingen personopplysninger relatert til søket ditt</p>
 </section>

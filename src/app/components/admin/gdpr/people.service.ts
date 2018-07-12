@@ -31,6 +31,7 @@ const employeesExpand = [
 
 @Injectable()
 export class PeopleService {
+    oneHasMoreThan50 = false;
     constructor(
         private customerService: CustomerService,
         private supplierService: SupplierService,
@@ -48,7 +49,16 @@ export class PeopleService {
             this.getContacts(urlParams),
             this.getWorkers(urlParams),
             this.getEmployees(urlParams, searchString)
-        ).map(x => [].concat.apply([], x));
+        )
+            .do(x => {
+                this.oneHasMoreThan50 = false;
+                x.forEach((data) => {
+                    if (data.length === 50) {
+                        this.oneHasMoreThan50 = true;
+                    }
+                });
+            })
+            .map(x => [].concat.apply([], x));
     }
 
     getCustomers(urlParams: URLSearchParams) {

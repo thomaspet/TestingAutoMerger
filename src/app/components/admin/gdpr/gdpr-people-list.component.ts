@@ -15,11 +15,14 @@ import { BrowserStorageService } from '@uni-framework/core/browserStorageService
     styles: [
         `
             uni-gdpr-people-list .ag-body  {
-                height: 70vh !important;
+                max-height: 70vh !important;
                 overflow-y: auto;
             }
             uni-gdpr-people-list .application input[type=search] {
                 margin: 1vh 0;
+            }
+            uni-gdpr-people-list .application > p {
+                text-align: center;
             }
         `
     ]
@@ -28,7 +31,7 @@ export class UniGdprPeopleList {
     public tableConfig: IUniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
     public searchControl: FormControl;
-    public data: any;
+    public data: Array<any> = [];
     public STORAGE_KEY = 'gdpr_filter';
     public busy = false;
 
@@ -41,7 +44,7 @@ export class UniGdprPeopleList {
         this.tableConfig = tableConfig;
         this.tabService.addTab({
             url: '/admin/gdpr',
-            name: 'GDPR',
+            name: 'Personopplysninger',
             active: true,
             moduleID: UniModules.GDPRList
         });
@@ -49,12 +52,19 @@ export class UniGdprPeopleList {
     }
 
     ngOnInit() {
+        setTimeout(() => this.data = []);
         this.searchControl.valueChanges
             .debounceTime(500)
             .subscribe(searchString => {
+                if (searchString === '') {
+                    this.busy = false;
+                    this.data = [];
+                    this.storage.setSessionItemOnCompany(this.STORAGE_KEY, searchString);
+                    return;
+                }
+                const filter = this.getFilter(searchString);
                 this.storage.setSessionItemOnCompany(this.STORAGE_KEY, searchString);
                 const params = new URLSearchParams();
-                const filter = this.getFilter(searchString);
                 params.set('filter', filter);
                 const data$ = this.peopleService.getPeople(params, searchString)
                     .do(x => this.busy = true);
@@ -62,18 +72,6 @@ export class UniGdprPeopleList {
                     this.busy = false;
                     this.data = x;
                 });
-            });
-
-        const initialparams = new URLSearchParams();
-        if (this.searchControl.value !== '') {
-            initialparams.set('filter', this.getFilter(this.searchControl.value));
-        }
-
-        this.peopleService.getPeople(initialparams, this.searchControl.value)
-            .do(() => this.busy = true)
-            .subscribe(x => {
-                this.busy = false;
-                this.data = x;
             });
     }
 
@@ -98,13 +96,23 @@ export class UniGdprPeopleList {
     }
 
     getFilter(searchString: string): string {
-        if (!searchString) {
-            return '';
-        }
         return [
             `contains(Info.DefaultEmail.EmailAddress, '${searchString}')`,
             `contains(Info.DefaultPhone.Number, '${searchString}')`,
             `contains(Info.Name, '${searchString}')`
         ].join(' or ');
     }
+
+    get hasMoreThan50() {
+        return this.peopleService.oneHasMoreThan50;
+    }
+
+    get showNoDataMessage() {
+        return this.data.length === 0 && this.searchControl.value !== '';
+    }
 }
+
+
+
+// WEBPACK FOOTER //
+// c:/Jenkins/workspace/Feature build and deploy frontend playground Arild/src/app/components/admin/gdpr/gdpr-people-list.component.ts
