@@ -1,6 +1,7 @@
 import {ReminderList} from './list/reminderList';
 import {ReminderSending} from './sending/reminderSending';
 import {DebtCollection} from './debtCollection/debtCollection';
+import {SentToDebtCollection} from './sentToDebtCollection/sentToDebtCollection';
 
 export const routes = [
     {
@@ -19,5 +20,9 @@ export const routes = [
     {
         path: 'debtcollect',
         component: DebtCollection
+    },
+    {
+        path: 'senttodebtcollect',
+        component: SentToDebtCollection
     }
 ];

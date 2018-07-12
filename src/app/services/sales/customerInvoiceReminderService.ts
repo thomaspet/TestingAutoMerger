@@ -30,8 +30,13 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
     public getCustomerInvoicesReadyForReminding(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, `get-customer-invoices-ready-for-reminding&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}` );
     }
+
     public getCustomerInvoicesReadyForDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, `get-customer-invoices-ready-for-debt-collection&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}`);
+    }
+
+    public getCustomerInvoicesSentToDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
+        return this.GetAction(null, 'get-customer-invoices-sent-to-debt-collection');
     }
 
     public createInvoiceRemindersForInvoicelist(list): Observable<any> {

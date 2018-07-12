@@ -41,8 +41,7 @@ export class ReminderList {
     public showInvoicesWithReminderStop: boolean = false;
 
     public toolbarconfig: IToolbarConfig = {
-        title: 'Purring',
-        omitFinalCrumb: true
+        title: 'Klar til purring',
     };
 
     public summaryFields: ISummaryConfig[] = [];
@@ -70,7 +69,7 @@ export class ReminderList {
         private modalService: UniModalService
     ) {
         this.tabService.addTab({
-            name: 'Purring',
+            name: 'Innfordring',
             url: '/sales/reminders',
             moduleID: UniModules.Reminders,
             active: true

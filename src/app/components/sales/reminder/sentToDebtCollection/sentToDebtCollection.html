@@ -1,0 +1,16 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveactions">
+</uni-toolbar>
+
+<section *ngIf="remindersToDebtCollect" class="uni-container">
+    <br><b>{{remindersToDebtCollect.length}} purringer er sendt til inkasso</b><br />
+
+    <ag-grid-wrapper
+        [resource]="remindersToDebtCollect"
+        [config]="reminderToDebtCollectTable"
+        (rowSelectionChange)="onRowSelectionChange($event)">
+    </ag-grid-wrapper>
+
+    <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
+</section>

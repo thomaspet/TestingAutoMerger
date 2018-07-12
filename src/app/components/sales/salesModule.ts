@@ -33,6 +33,7 @@ import {ReminderConfirmModal, ReminderConfirmForm} from './reminder/list/reminde
 import {UniReminderSendingModal} from './reminder/sending/reminderSendingModal';
 import {ReminderSending} from './reminder/sending/reminderSending';
 import {DebtCollection} from './reminder/debtCollection/debtCollection';
+import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
 import {TofDetailsForm} from './common/detailsForm';
@@ -113,6 +114,7 @@ import {MatSlideToggleModule} from '@angular/material';
         ReminderSending,
         UniReminderSendingModal,
         DebtCollection,
+        SentToDebtCollection,
         InvoiceReminders,
 
         ProductGroups,

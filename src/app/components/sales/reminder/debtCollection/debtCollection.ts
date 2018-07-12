@@ -51,7 +51,7 @@ export class DebtCollection implements OnInit {
     };
 
     public toolbarconfig: IToolbarConfig = {
-        title: 'Inkasso',
+        title: 'Klar til inkasso',
     };
 
     public saveactions: IUniSaveAction[] = [
