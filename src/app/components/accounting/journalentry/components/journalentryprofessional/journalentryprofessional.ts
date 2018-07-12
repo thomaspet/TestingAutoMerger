@@ -312,11 +312,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 this.companySettings = data[1];
-
-                if (data[4]) {
-                        this.predefinedDescriptions = data[2];
-                }
-
+                this.predefinedDescriptions = data[2] || [];
                 this.dimensionTypes = data[3];
 
                 this.setupUniTable();
@@ -1220,10 +1216,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
             .setOptions({
-                lookupFunction: (searchValue) => {
-                    return Observable.of(this.predefinedDescriptions.filter(
-                        x => x.Code.toString().indexOf(searchValue) === 0)
-                    );
+                lookupFunction: (query) => {
+                    const results = (this.predefinedDescriptions || []).filter(item => {
+                        const code = (item.Code || '').toString();
+                        const description = (item.Description || '').toLowerCase();
+                        query = query.toLowerCase();
+
+                        return code.startsWith(query) || description.includes(query);
+                    });
+
+                    return Observable.of(results);
                 },
                 itemTemplate: (item) => {
                     return (item.Code + ': ' + item.Description);
