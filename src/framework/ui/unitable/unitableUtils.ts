@@ -165,11 +165,10 @@ export class UniTableUtils {
      * @returns {string} filter url param
      */
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
-
-        // dont use filters that miss either field or operator - this is probably just a filter
-        // the user has not finished constructing yet
+        // Don't use filters that miss field, operator or searchValue
+        // These is probably filters the user has not finished making yet
         if (filters) {
-            filters = filters.filter(x => x.field && x.field !== '' && x.operator && x.operator !== '');
+            filters = filters.filter(f => !!f.field && !!f.operator && !!f.searchValue);
         }
 
         if (!filters || !filters.length) {

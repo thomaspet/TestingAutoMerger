@@ -11,16 +11,15 @@ import {
     ChangeDetectorRef
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {UniTableColumnType} from '../../unitable/config/unitableColumn';
-import {ITableFilter, UniTableColumn} from '../../unitable';
+import {ITableFilter, } from '../interfaces';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import {UniTableUtils, ISavedFilter} from '../../unitable/unitableUtils';
+import {UniTableColumn, UniTableColumnType} from '../../unitable/config/unitableColumn';
 import {IUniTableConfig} from '../../unitable/config/unitableConfig';
 
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
-import * as Immutable from 'immutable';
-
+import * as moment from 'moment';
 
 interface IUniTableSearchOperator {
     verb: string;
@@ -444,30 +443,72 @@ export class TableSearch implements OnChanges, AfterViewInit {
     }
 
     private getAdvancedFilters() {
-        const filters = [];
-        this.advancedSearchFilters.forEach((filter) => {
+        return this.advancedSearchFilters.map(filter => {
+            const column = this.columns.find(col => col.field === filter.field);
 
-            filter.searchValue = filter.value.toString();
+            if (column.type === UniTableColumnType.DateTime || column.type === UniTableColumnType.LocalDate) {
+                filter.isDate = true;
 
-            const cols = this.columns.filter(c => c.field === filter.field);
+                // No need to construct date string for these operators
+                if (filter.operator === 'contains'
+                    || filter.operator === 'startswith'
+                    || filter.operator === 'endswith'
+                ) {
+                    filter.searchValue = filter.value.toString();
+                // For the rest of the operators we need a valid date string to avoid errors
+                } else {
+                    let dateString = '';
 
-            cols.forEach(col => {
-                if (col.type === UniTableColumnType.DateTime || col.type === UniTableColumnType.LocalDate) {
-                    if (filter.value.toString().includes('.')) {
+                    // Split on space, dot, dash or slash
+                    let dateSplit = filter.value.toString().split(/[ .\-\/]/);
 
-                        const dateParts = filter.value.toString().split('.', 3);
-                        if (dateParts.length === 3) {
-                            filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-                        }
-                        if (dateParts.length === 2) {
-                            filter.searchValue = dateParts[1] + '-' + dateParts[0];
+                    // Remove non-numeric characters
+                    dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
+
+                    if (dateSplit[0]) {
+                        const day = dateSplit[0];
+                        const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
+                        const year = dateSplit[2] || new Date().getFullYear().toString();
+
+                        const momentDate = moment(`${month}-${day}-${year}`);
+                        if (momentDate.isValid()) {
+                            dateString = momentDate.format('YYYY-MM-DD');
                         }
                     }
+
+                    filter.searchValue = dateString;
                 }
-            });
-            filters.push(filter);
+            } else {
+                filter.searchValue = filter.value.toString();
+            }
+
+            return filter;
         });
 
-        return filters;
+        // const filters = [];
+        // this.advancedSearchFilters.forEach((filter) => {
+
+        //     filter.searchValue = filter.value.toString();
+
+        //     const cols = this.columns.filter(c => c.field === filter.field);
+
+        //     cols.forEach(col => {
+        //         if (col.type === UniTableColumnType.DateTime || col.type === UniTableColumnType.LocalDate) {
+        //             if (filter.value.toString().includes('.')) {
+
+        //                 const dateParts = filter.value.toString().split('.', 3);
+        //                 if (dateParts.length === 3) {
+        //                     filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
+        //                 }
+        //                 if (dateParts.length === 2) {
+        //                     filter.searchValue = dateParts[1] + '-' + dateParts[0];
+        //                 }
+        //             }
+        //         }
+        //     });
+        //     filters.push(filter);
+        // });
+
+        // return filters;
     }
 }
