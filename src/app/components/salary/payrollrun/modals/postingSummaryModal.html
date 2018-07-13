@@ -11,7 +11,7 @@
                 (changeEvent)="change($event)">
             </uni-form>
             <section [attr.aria-busy]="busy">
-                <uni-table *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></uni-table>
+                <ag-grid-wrapper *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></ag-grid-wrapper>
                 <label>Kontrollsum totalt: </label> {{sum$ | async | unicurrency }}
             </section>
         </section>

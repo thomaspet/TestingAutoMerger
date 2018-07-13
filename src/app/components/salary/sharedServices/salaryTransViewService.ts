@@ -79,6 +79,9 @@ export class SalaryTransViewService {
     }
 
     private getPercent(vatType: VatType, rowModel: SalaryTransaction): number {
+        if (!vatType.VatTypePercentages) {
+            return 0;
+        }
         const percentage = vatType.VatTypePercentages.find(x =>
             x.ValidFrom <= new LocalDate(rowModel.FromDate) &&
             (x.ValidTo >= new LocalDate(rowModel.FromDate) || !x.ValidTo));

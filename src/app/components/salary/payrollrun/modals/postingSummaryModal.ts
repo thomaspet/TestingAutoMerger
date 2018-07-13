@@ -2,7 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges} from '@an
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry} from '../../../../unientities';
+import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry, JournalEntryLine} from '../../../../unientities';
 import {PayrollrunService, ErrorService, NumberSeriesService, BrowserStorageService, JournalEntryService} from '../../../../../app/services/services';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -202,9 +202,17 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             .setWidth('6rem');
         const project = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Number)
             .setWidth('6rem');
+        const vat = new UniTableColumn('VatType', 'Moms', UniTableColumnType.Text)
+            .setTemplate((rowModel: JournalEntryLine) => {
+                if (!rowModel.VatType) {
+                    return '';
+                }
+                const vatType = rowModel.VatType;
+                return `${vatType.VatCode}:${vatType.VatPercent}%`;
+            });
         let cols = [nameCol, accountCol, sumCol];
         if (hasGrouping) {
-            cols = [...cols, department, project];
+            cols = [...cols, vat, department, project];
         }
         this.accountTableConfig = new UniTableConfig('salary.payrollrun.postingSummaryModalContent', false, false)
             .setColumns(cols)
