@@ -76,7 +76,6 @@ export class KIDSettings {
         }
     }
 
-
     canDeactivate() {
         return new Promise((resolve, reject) => {
             this.checkSave(true).then(ok => resolve(ok));
@@ -85,8 +84,8 @@ export class KIDSettings {
 
     onDataChange() {
         this.hasUnsavedChanges = true;
-        this.updateSaveActions();
         this.checkLength();
+        this.updateSaveActions();
     }
 
     onKidSelect(event) {
@@ -115,15 +114,15 @@ export class KIDSettings {
             label: 'Lagre innstillinger',
             action: (done) => this.onSaveClick(done),
             main: true,
-            disabled: !this.hasUnsavedChanges
+            disabled: this.sumDoesNotMatch || !this.hasUnsavedChanges
         }];
     }
 
     private checkLength() {
         let sum = 0;
-        this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part) => {
-            sum += !!part.Length ? part.Length : 0;
-        });
+        this.currentPaymentInfoType.PaymentInfoTypeParts
+            .filter(part => !part.Deleted)
+            .forEach(part => sum += part.Length || 0);
 
         this.sumDoesNotMatch = sum !== this.currentPaymentInfoType['Length'];
     }

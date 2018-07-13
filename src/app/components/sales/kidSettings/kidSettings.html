@@ -28,7 +28,6 @@
                 <ag-grid-wrapper #detailsTable *ngIf="currentPaymentInfoType"
                     [config]="detailsTableConfig"
                     [(resource)]="currentPaymentInfoType.PaymentInfoTypeParts"
-                    (rowChange)="onDataChange()"
                     (resourceChange)="onDataChange()">
                 </ag-grid-wrapper>
             </fieldset>
