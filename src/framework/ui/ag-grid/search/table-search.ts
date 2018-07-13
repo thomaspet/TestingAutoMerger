@@ -484,31 +484,5 @@ export class TableSearch implements OnChanges, AfterViewInit {
 
             return filter;
         });
-
-        // const filters = [];
-        // this.advancedSearchFilters.forEach((filter) => {
-
-        //     filter.searchValue = filter.value.toString();
-
-        //     const cols = this.columns.filter(c => c.field === filter.field);
-
-        //     cols.forEach(col => {
-        //         if (col.type === UniTableColumnType.DateTime || col.type === UniTableColumnType.LocalDate) {
-        //             if (filter.value.toString().includes('.')) {
-
-        //                 const dateParts = filter.value.toString().split('.', 3);
-        //                 if (dateParts.length === 3) {
-        //                     filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-        //                 }
-        //                 if (dateParts.length === 2) {
-        //                     filter.searchValue = dateParts[1] + '-' + dateParts[0];
-        //                 }
-        //             }
-        //         }
-        //     });
-        //     filters.push(filter);
-        // });
-
-        // return filters;
     }
 }

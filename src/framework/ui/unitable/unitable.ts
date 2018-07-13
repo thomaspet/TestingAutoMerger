@@ -31,6 +31,7 @@ export interface ITableFilter {
     group: number;
     searchValue: string;
     selectConfig: {options: Array<any>, valueField: string, displayField: string};
+    isDate?: boolean;
 }
 
 export interface IExpressionFilterValue {

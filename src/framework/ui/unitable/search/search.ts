@@ -466,6 +466,8 @@ export class UniTableSearch implements OnChanges {
             const column = this.columns.find(col => col.get('field') === filter.field);
 
             if (column.get('type') === UniTableColumnType.DateTime || column.get('type') === UniTableColumnType.LocalDate) {
+                filter.isDate = true;
+
                 // No need to construct date string for these operators
                 if (filter.operator === 'contains'
                     || filter.operator === 'startswith'
