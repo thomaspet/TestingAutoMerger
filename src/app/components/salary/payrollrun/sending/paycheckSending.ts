@@ -1,5 +1,5 @@
-import {Component, OnInit, Input, ViewChildren, ViewChild, QueryList, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
-import {Employee, PayrollRun} from '../../../../unientities';
+import {Component, OnInit, Input, ViewChild, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
+import {Employee} from '../../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -15,13 +15,17 @@ import {
     ErrorService,
     PayrollrunService,
     ReportDefinitionService,
-    ReportNames,
-    FinancialYearService
+    ReportNames
 } from '../../../../services/services';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'
+}
+
+interface IPaycheckFormModel {
+    grouped: boolean;
 }
 
 @Component({
@@ -39,11 +43,13 @@ export class PaycheckSending implements OnInit {
     public paychecksPrint: Employee[] = [];
     public employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    public formModel$: BehaviorSubject<IPaycheckFormModel> = new BehaviorSubject({grouped: false});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(
         private payrollrunService: PayrollrunService,
         private reportdefinitionService: ReportDefinitionService,
-        private financialYearService: FinancialYearService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private toastService: ToastService
@@ -52,6 +58,7 @@ export class PaycheckSending implements OnInit {
     public ngOnInit() {
         this.loadEmployeesInPayrollrun();
         this.setupPaycheckTable();
+        this.fields$.next(this.getLayout());
     }
 
     public handlePaychecks(printAll: boolean = false) {
@@ -80,7 +87,7 @@ export class PaycheckSending implements OnInit {
             .of(employees)
             .filter(emps => !!emps.length)
             .do(() => this.busy.next(true))
-            .switchMap(emps => this.payrollrunService.emailPaychecks(emps, this.runID))
+            .switchMap(emps => this.payrollrunService.emailPaychecks(emps, this.runID, this.formModel$.getValue().grouped))
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.busy.next(false))
             .do((response: boolean) => {
@@ -117,7 +124,8 @@ export class PaycheckSending implements OnInit {
 
                 report.parameters = [
                     {Name: 'EmployeeFilter', value: employeeFilter},
-                    {Name: 'RunID', value: this.runID}
+                    {Name: 'RunID', value: this.runID},
+                    {Name: 'Grouped', value: this.formModel$.getValue().grouped},
                 ];
 
                 this.modalService.open(UniPreviewModal, {data: report});
@@ -135,6 +143,20 @@ export class PaycheckSending implements OnInit {
 
     private getSelected(): Employee[] {
         return this.table.getSelectedRows();
+    }
+
+    private getLayout(): UniFieldLayout[] {
+        return [
+            <any>{
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Gruppering på lønnsart',
+                Property: 'grouped',
+                Tooltip: {
+                    Text: 'Grupperer på lønnsart når lønnsart og sats er lik. Tekst på lønnsposten blir lik lønnsartnavn',
+                    Alignment: 'bottom'
+                }
+            }
+        ];
     }
 
     private loadEmployeesInPayrollrun() {

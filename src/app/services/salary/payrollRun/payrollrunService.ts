@@ -16,6 +16,7 @@ import {StatisticsService} from '../../common/statisticsService';
 import {YearService} from '../../common/yearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {RequestMethod} from '@angular/http';
 enum StatusCodePayment {
     Queued = 44001,
     TransferredToBank = 44002, // Note: NOT in Use yet
@@ -242,8 +243,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
-    public emailPaychecks(emps: Employee[], runID: number) {
-        return super.ActionWithBody(runID, emps, 'email-paychecks');
+    public emailPaychecks(emps: Employee[], runID: number, grouping: boolean = false) {
+        return super.ActionWithBody(runID, emps, 'email-paychecks', RequestMethod.Put, `grouped=${grouping}`);
     }
 
 

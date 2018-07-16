@@ -14,36 +14,38 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 
-type ModalConfig = {
-    report: any,
-    title: string,
-    actions: { text: string, class?: string, method: () => void }[]
-};
+interface IModalConfig  {
+    report: any;
+    title: string;
+    actions: { text: string, class?: string, method: () => void }[];
+}
 
-type InputModel = {
-    EmpFrom: number,
-    EmpTo: number,
-    RunID: number
-};
+interface IInputModel {
+    EmpFrom: number;
+    EmpTo: number;
+    RunID: number;
+    Grouping: boolean;
+}
 
-type Hash = {
+interface IHash {
     [details: string]: any;
-};
+}
+
 @Component({
     selector: 'paycheck-report-filter-modal-content',
     templateUrl: 'paycheckReportFilterModal.html'
 })
 export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
 
-    @Input() public config: ModalConfig;
+    @Input() public config: IModalConfig;
     public currentYear: number;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<InputModel> = new BehaviorSubject({ EmpFrom: 0, EmpTo: 0, RunID: 0 });
+    public model$: BehaviorSubject<IInputModel> = new BehaviorSubject({ EmpFrom: 0, EmpTo: 0, RunID: 0, Grouping: false });
     private selectedPayrollRun: PayrollRun;
 
     private subscriptions: any[] = [];
-    public params$: BehaviorSubject<Hash> = new BehaviorSubject<Hash>([]);
+    public params$: BehaviorSubject<IHash> = new BehaviorSubject<IHash>([]);
 
     constructor(
         private payrollRunService: PayrollrunService,
@@ -66,7 +68,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                         .catch((err, obs) => this.errorService.handleRxCatch(err, obs)));
             })
             .subscribe((result: [Employee, PayrollRun]) => {
-                let [employee, payrollRun] = result;
+                const [employee, payrollRun] = result;
                 this.selectedPayrollRun = payrollRun;
                 this.fields$
                     .next(this.getLayout(payrollRun));
@@ -75,7 +77,8 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                     .next({
                         EmpFrom: 1,
                         EmpTo: employee.EmployeeNumber || 1,
-                        RunID: payrollRun.ID
+                        RunID: payrollRun.ID,
+                        Grouping: false,
                     });
             }));
     }
@@ -118,6 +121,15 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
                         select: (model: any, value: PayrollRun) => this.selectedPayrollRun = value
                     }
                 }
+            },
+            <any>{
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Gruppering på lønnsart',
+                Property: 'Grouping',
+                Tooltip: {
+                    Text: 'Grupperer på lønnsart når lønnsart og sats er lik. Tekst på lønnsposten blir lik lønnsartnavn',
+                    Alignment: 'bottom'
+                }
             }
         ];
     }
@@ -131,7 +143,7 @@ export class PayCheckReportFilterModal implements OnInit {
     @ViewChild(UniModal)
     private modal: UniModal;
 
-    public modalConfig: ModalConfig;
+    public modalConfig: IModalConfig;
     public type: Type<any> = PaycheckReportFilterModalContent;
     public inActive: boolean;
 
@@ -153,7 +165,7 @@ export class PayCheckReportFilterModal implements OnInit {
                         Observable
                             .fromPromise(this.modal.getContent())
                             .map((component: PaycheckReportFilterModalContent) => {
-                                let params = component.GetParams();
+                                const params = component.GetParams();
                                 component.config.report.parameters.map(param => {
                                     param.value = params[param.Name];
                                 });
