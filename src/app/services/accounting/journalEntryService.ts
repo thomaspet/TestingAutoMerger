@@ -228,11 +228,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // unitable to edit the dimension fields for existing rows)
         const journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
 
-        const journalEntryDataWithJournalEntryID =
-            journalEntryDataNew.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
-        journalEntryDataWithJournalEntryID.forEach(line => {
-            existingJournalEntryIDs.push(line.JournalEntryID);
+        journalEntryDataNew.forEach(line => {
+            const journalEntryID = line.JournalEntryID;
+            if (journalEntryID && existingJournalEntryIDs.indexOf(journalEntryID) < 0) {
+                existingJournalEntryIDs.push(journalEntryID);
+            }
         });
 
         if (existingJournalEntryIDs.length) {
