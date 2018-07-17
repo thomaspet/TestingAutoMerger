@@ -22,13 +22,13 @@ export class SalaryTransViewService {
         private vatTypesService: VatTypeService
     ) {}
 
-    public createVatTypeColumn(): UniTableColumn {
+    public createVatTypeColumn(visible: boolean = false, fromDateField: string = 'FromDate'): UniTableColumn {
         return new UniTableColumn('VatType', 'Moms', UniTableColumnType.Lookup)
-            .setVisible(false)
-            .setTemplate((rowModel: SalaryTransaction) => {
+            .setVisible(visible)
+            .setTemplate((rowModel: any) => {
                 const vatType = rowModel.VatType;
                 if (vatType) {
-                    return `${vatType.VatCode}: ${this.getPercent(vatType, rowModel)}%`;
+                    return `${vatType.VatCode}: ${this.getPercent(vatType, rowModel, fromDateField)}%`;
                 }
                 return '';
             })
@@ -78,13 +78,15 @@ export class SalaryTransViewService {
             });
     }
 
-    private getPercent(vatType: VatType, rowModel: SalaryTransaction): number {
+    private getPercent(vatType: VatType, rowModel: any, fromDateField: string): number {
+
         if (!vatType.VatTypePercentages) {
             return 0;
         }
+
         const percentage = vatType.VatTypePercentages.find(x =>
-            x.ValidFrom <= new LocalDate(rowModel.FromDate) &&
-            (x.ValidTo >= new LocalDate(rowModel.FromDate) || !x.ValidTo));
+            x.ValidFrom <= new LocalDate(rowModel[fromDateField]) &&
+            (x.ValidTo >= new LocalDate(rowModel[fromDateField]) || !x.ValidTo));
         return vatType.VatPercent || percentage && percentage.VatPercent || 0;
     }
 

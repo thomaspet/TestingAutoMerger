@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Travel, state, linestate, costtype, WageType} from '@uni-entities';
+import {Travel, state, linestate, costtype, WageType, Account} from '@uni-entities';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {TravelService, ErrorService, WageTypeService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
@@ -163,7 +163,16 @@ export class TravelComponent implements OnInit {
 
     private getTravelsObs(): Observable<Travel[]> {
         return this.travelService
-            .GetAll('', ['TravelLines.TravelType'])
+            .GetAll('', ['TravelLines.TravelType', 'TravelLines.VatType.VatTypePercentages'])
+            .map(travels => {
+                return travels.map(travel => {
+                    travel.TravelLines = travel.TravelLines.map(line => {
+                        line['_Account'] = new Account();
+                        return line;
+                    });
+                    return travel;
+                });
+            })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)));
     }

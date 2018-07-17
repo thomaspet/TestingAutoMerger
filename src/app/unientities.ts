@@ -392,8 +392,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Permission: Permission;
     public Role: Role;
+    public Permission: Permission;
     public CustomFields: any;
 }
 
@@ -726,11 +726,15 @@ export class CustomerInvoiceReminder extends UniEntity {
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
     public CustomerInvoiceID: number;
+    public DebtCollectionFee: number;
+    public DebtCollectionFeeCurrnecy: number;
     public Deleted: boolean;
     public Description: string;
     public DueDate: LocalDate;
     public EmailAddress: string;
     public ID: number;
+    public InterestFee: number;
+    public InterestFeeCurrency: number;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
     public ReminderFeeCurrency: number;
@@ -1730,6 +1734,36 @@ export class TaxCard extends UniEntity {
 }
 
 
+export class SalaryBalanceTemplate extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'SalaryBalanceTemplate';
+
+    public _createguid: string;
+    public Account: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreatePayment: boolean;
+    public Deleted: boolean;
+    public ID: number;
+    public Instalment: number;
+    public InstalmentPercent: number;
+    public InstalmentType: SalBalType;
+    public KID: string;
+    public MaxAmount: number;
+    public MinAmount: number;
+    public Name: string;
+    public SalarytransactionDescription: string;
+    public StatusCode: number;
+    public SupplierID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public WageTypeNumber: number;
+    public Supplier: Supplier;
+    public SalaryBalances: Array<SalaryBalance>;
+    public CustomFields: any;
+}
+
+
 export class Travel extends UniEntity {
     public static RelativeUrl = 'travels';
     public static EntityType = 'Travel';
@@ -1764,6 +1798,7 @@ export class TravelLine extends UniEntity {
     public static EntityType = 'TravelLine';
 
     public _createguid: string;
+    public AccountNumber: number;
     public Amount: number;
     public CostType: costtype;
     public CreatedAt: Date;
@@ -1782,7 +1817,9 @@ export class TravelLine extends UniEntity {
     public TypeID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public VatTypeID: number;
     public Travel: Travel;
+    public VatType: VatType;
     public travelType: TravelType;
     public CustomFields: any;
 }
@@ -1872,6 +1909,7 @@ export class SalaryBalance extends UniEntity {
     public InstalmentType: SalBalType;
     public KID: string;
     public Name: string;
+    public SalaryBalanceTemplateID: number;
     public Source: SalBalSource;
     public StatusCode: number;
     public SupplierID: number;
@@ -4685,6 +4723,7 @@ export class Company extends UniEntity {
     public static EntityType = 'Company';
 
     public _createguid: string;
+    public ClientNumber: number;
     public ConnectionString: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -6887,6 +6926,34 @@ export class JournalEntryLineCouple extends UniEntity {
 }
 
 
+export class MarkingResult extends UniEntity {
+    public Pairs: Array<JournalEntryLineCouple>;
+    public Entries: Array<MarkingEntry>;
+}
+
+
+export class MarkingEntry extends UniEntity {
+    public Amount: number;
+    public AmountCurrency: number;
+    public FinancialDate: Date;
+    public ID: number;
+    public InvoiceNumber: string;
+    public JournalEntryNumber: string;
+    public OriginalRestAmount: number;
+    public OriginalStatusCode: StatusCodeJournalEntryLine;
+    public RestAmount: number;
+    public RestAmountCurrency: number;
+    public StatusCode: StatusCodeJournalEntryLine;
+    public Markings: Array<MarkingReference>;
+}
+
+
+export class MarkingReference extends UniEntity {
+    public ID: number;
+    public JournalEntryNumber: string;
+}
+
+
 export class VatReportMessage extends UniEntity {
     public Level: ValidationLevel;
     public Message: string;
@@ -7136,6 +7203,15 @@ export enum TabellType{
 }
 
 
+export enum SalBalType{
+    Advance = 1,
+    Contribution = 2,
+    Outlay = 3,
+    Garnishment = 4,
+    Other = 5,
+}
+
+
 export enum state{
     Received = 0,
     Processed = 1,
@@ -7154,15 +7230,6 @@ export enum linestate{
     Received = 0,
     Processed = 1,
     Rejected = 3,
-}
-
-
-export enum SalBalType{
-    Advance = 1,
-    Contribution = 2,
-    Outlay = 3,
-    Garnishment = 4,
-    Other = 5,
 }
 
 
@@ -7614,6 +7681,14 @@ export enum ReportType{
 }
 
 
+export enum StatusCodeJournalEntryLine {
+    Open = 31001,
+    PartlyMarked = 31002,
+    Marked = 31003,
+    Credited = 31004,
+}
+
+
 export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
@@ -7729,15 +7804,6 @@ export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
 }
-
-
-export enum StatusCodeJournalEntryLine{
-    Open = 31001,
-    PartlyMarked = 31002,
-    Marked = 31003,
-    Credited = 31004,
-}
-
 
 export enum StatusCodeJournalEntryLineDraft{
     Journaled = 34001,

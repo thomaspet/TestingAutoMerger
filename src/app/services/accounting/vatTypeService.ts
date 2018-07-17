@@ -1,14 +1,18 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {VatType} from '../../unientities';
+import {VatType, Account} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
+import {AccountService} from '@app/services/accounting/accountService';
 
 @Injectable()
 export class VatTypeService extends BizHttp<VatType> {
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private accountService: AccountService
+    ) {
         super(http);
 
         this.relativeURL = VatType.RelativeUrl;
@@ -56,4 +60,21 @@ export class VatTypeService extends BizHttp<VatType> {
                 return response;
             });
     }
+
+    public getVatTypeOnAccount(accountNumber: number): Observable<VatType> {
+        if (!accountNumber) {
+            return Observable.of(null);
+        }
+
+        return this.accountService
+            .GetAll(`filter=AccountNumber eq ${accountNumber}&top=1`, ['VatType.VatTypePercentages'])
+            .map(accounts => accounts[0])
+            .map((account: Account) => {
+                if (!account || !account.VatType) {
+                    return null;
+                }
+                return account.VatType;
+            });
+    }
+
 }

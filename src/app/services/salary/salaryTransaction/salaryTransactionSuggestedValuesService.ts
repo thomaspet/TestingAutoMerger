@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {EmploymentService} from '../employee/employmentService';
 import {PayrollrunService} from '../payrollRun/payrollrunService';
-import {SalaryTransaction, LocalDate, Account} from '../../../unientities';
+import {SalaryTransaction, LocalDate, Account, VatType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
-import {AccountService} from '@app/services/accounting/accountService';
+import {VatTypeService} from '@app/services/accounting/vatTypeService';
 
 @Injectable()
 export class SalaryTransactionSuggestedValuesService {
@@ -14,7 +14,7 @@ export class SalaryTransactionSuggestedValuesService {
         private payrollRunService: PayrollrunService,
         private employmentService: EmploymentService,
         private salaryTransactionService: SalaryTransactionService,
-        private accountService: AccountService,
+        private vatTypeService: VatTypeService,
     ) { }
 
     public suggestFromDate(
@@ -68,15 +68,14 @@ export class SalaryTransactionSuggestedValuesService {
             trans.VatTypeID = null;
             return Observable.of(trans);
         }
-        return this.accountService
-            .GetAll(`filter=AccountNumber eq ${trans.Account}&top=1`, ['VatType.VatTypePercentages'])
-            .map(accounts => accounts[0])
-            .map((account: Account) => {
-                if (!account) {
+        return this.vatTypeService
+            .getVatTypeOnAccount(trans.Account)
+            .map((vatType) => {
+                if (!vatType) {
                     return trans;
                 }
-                trans.VatTypeID = account.VatTypeID;
-                trans.VatType = account.VatType;
+                trans.VatTypeID = vatType.ID;
+                trans.VatType = vatType;
                 return trans;
             });
     }
