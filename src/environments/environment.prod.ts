@@ -3,11 +3,11 @@ export const environment = {
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://files.unieconomy.no/',
-    UNI_PUSH_ADAPTER_URL: 'https://pushadapter.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://jobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://elsa.unieconomy.no',
+    BASE_URL_INTEGRATION: 'https://pilot-integration.unieconomy.no/',
+    BASE_URL_FILES: 'https://pilot-unifiles.unieconomy.no/',
+    UNI_PUSH_ADAPTER_URL: 'https://pilotapi-unipushadapter.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://pilot-unijobserver.unieconomy.no/api/',
+    ELSA_SERVER_URL: 'https://admin.unieconomy.no',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -39,5 +39,5 @@ export const environment = {
         + 'yXbhqZkmPRK07NnOKmeuxknE+/RywyCQZS9svfkZT1Jn0m0xdX4+rwma2fTSCluY4fUEF38fhNFj/keKeLIwIMwSOh'
         + 'Ypv0Eu/SeTn6DSEWgBGcW2jbWadOO+CmGAOg1XfM82jGlN68wfGjsNNswAez71QNSnBvMrFVsRFGDq+K/zAYRavq23'
         + 'xzCJ9QnukzFeuN1Juxtg3y2tRiJYPJyyrwHGhTY550oa1AP/trUev/gvk4gpFyGpAoFR8jca5GAGEDyTf2pi44J/S78=',
-        TRAVEL_DEACTIVATED: true
+    TRAVEL_DEACTIVATED: true
 };
