@@ -1,12 +1,11 @@
 
 ## Running the application
 
-<br>
-#### Installing dependencies
+### Installing dependencies
 `yarn install` / `npm install`
 
 - - - -
-#### Updating the entities file
+### Updating the entities file
 `yarn entities` / `npm run entities` 
 
 You also need to say which server you want to download unientites from with environment variables. E.g.
@@ -16,12 +15,12 @@ You also need to say which server you want to download unientites from with envi
 *Note that && to chain commands does not work in powershell, so use cmd on windows.*
 
 - - - -
-#### Checking for AOT errors before pushing
+### Checking for AOT errors before pushing
 
 Since we run JIT compile when developing some AOT specific errors might sneak in. To check for these before you push changes and make the build on jenkis fail you can use `yarn check-aot` / `npm run check-aot`
 
 - - - -
-#### Serve with recompile and livereload
+### Serve with recompile and livereload
 
 `yarn start` / `npm run start` to start with dev config</br>
 `yarn start.test` / `npm run start.test` to start with test config<br>
@@ -39,7 +38,7 @@ That said we recommend using the `*.cheap` tasks for building. These tasks will 
 The app will run on localhost:3000</br>
 
 - - - -
-#### Build
+### Build
 
 `yarn build.dev` / `npm run build.dev`<br>
 `yarn build.test` / `npm run build.test`<br>
@@ -51,19 +50,20 @@ The app will run on localhost:3000</br>
 
 To make it easier to find the commit you're looking for when checking history, resolving a merge conflict and so on please follow a few simple guidelines on writing a commit message.
 
-Header
+**Header**
 - Prefix with commit type (feat/fix/chore/..)
 - After prefix add the affected "area" of the application inside parentheses
 - After that add a short summary of the changes
 
-Body
+**Body**
 - Ideally describe the changes more in-depth here. Add an empty line between header and body.
 
-Footer
+**Footer**
 - Reference jira issue so the commit. This will make a link to the commit appear on the jira issue
 
 <br>
-Example
+**Example**
+<br>
 
 ```
 fix(signup): use button type=submit and remove click handler
