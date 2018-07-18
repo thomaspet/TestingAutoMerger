@@ -1,9 +1,6 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [saveactions]="saveactions">
-</uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
-<section>
+<section class="application">
     <section *ngIf="remindersToDebtCollect" class="uni-container">
         <mat-slide-toggle
             [(ngModel)]="showInvoicesWithReminderStop"

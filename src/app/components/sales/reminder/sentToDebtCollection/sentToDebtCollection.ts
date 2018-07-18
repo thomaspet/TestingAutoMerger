@@ -32,7 +32,7 @@ export class SentToDebtCollection implements OnInit {
     public reminderToDebtCollectTable: UniTableConfig;
     private showInvoicesWithReminderStop: boolean = false;
     public summaryFields: ISummaryConfig[] = [];
-    
+
     public summaryData: any = {
         restSumReadyForDebtCollection: 0,
         restSumChecked: 0
@@ -116,7 +116,7 @@ export class SentToDebtCollection implements OnInit {
             .setFilterOperator('contains')
             .setLinkResolver(row => `/sales/invoices/${row.CustomerInvoiceID}`);
 
-        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text, false)
+        const customerNumberCol = new UniTableColumn('CustomerNumber', 'Kundenr', UniTableColumnType.Text)
             .setFilterOperator('startswith')
             .setLinkResolver(row => `/sales/customer/${row.CustomerID}`);
 
@@ -130,17 +130,15 @@ export class SentToDebtCollection implements OnInit {
         const invoiceDueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.DateTime)
             .setFilterOperator('contains');
 
-        const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text, false)
+        const currencyCodeCol = new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
             .setWidth('100px')
             .setFilterOperator('contains');
 
         // StatusCode is a number, which is not very user friendly. This will be fixed with UC-1123
-        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text, false)
-            .setFilterOperator('contains')
+        const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+            .setFilterOperator('contains');
 
-        const taxInclusiveAmountCurrencyCol = new UniTableColumn(
-            'TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number, false
-        )
+        const taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number)
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
@@ -150,9 +148,7 @@ export class SentToDebtCollection implements OnInit {
             })
             .setCls('column-align-right');
 
-        const restAmountCurrencyCol = new UniTableColumn(
-            'RestAmountCurrency', 'Restsum', UniTableColumnType.Number, false
-        )
+        const restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
@@ -171,6 +167,6 @@ export class SentToDebtCollection implements OnInit {
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
                 invoiceDateCol, invoiceDueDateCol, statusCol
-            ])
+            ]);
     }
 }
