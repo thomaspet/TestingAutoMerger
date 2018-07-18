@@ -9,6 +9,7 @@ import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
 import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTextFieldModal';
+import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
 import {isNullOrUndefined} from 'util';
 import {AuthService} from '../../authService';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -25,8 +26,10 @@ import {
     BrowserStorageService
 } from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
+
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -46,6 +49,7 @@ interface AllTagsType {
 })
 export class BureauDashboard {
     @ViewChild('contextMenu') private contextMenu: ElementRef;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
@@ -190,6 +194,8 @@ export class BureauDashboard {
 
         const orgnrCol = new UniTableColumn('OrganizationNumber', 'Org.nr');
 
+        const clientNrCol = new UniTableColumn('ClientNumber', 'Klientnr');
+
         const inboxCol =  new UniTableColumn('_inboxCount', 'Fakturainnboks', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setAlignment('center');
@@ -210,7 +216,7 @@ export class BureauDashboard {
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
             .setColumnMenuVisible(true)
-            .setColumns([companyNameCol, orgnrCol, inboxCol, approvalCol, subCompanyCol])
+            .setColumns([companyNameCol, orgnrCol, clientNrCol, inboxCol, approvalCol, subCompanyCol])
             .setContextMenu([
                 {
                     label: 'Legg til i filter',
@@ -223,6 +229,10 @@ export class BureauDashboard {
                 {
                     label: 'Opprett som kunde',
                     action: item => this.createCustomer(item)
+                },
+                {
+                    label: 'Rediger klientnr',
+                    action: item => this.editClientNumber(item)
                 }
             ]);
     }
@@ -411,6 +421,30 @@ export class BureauDashboard {
                         this.loadSubCompanies(true);
                     }
                 });
+    }
+
+    public editClientNumber(company) {
+        const options = {
+            buttonLabels: {
+                accept: 'Oppdater klientnr',
+                cancel: 'Avbryt'
+            },
+            header: 'Rediger klientnr for: ' + company.Name,
+            data: {
+                ClientNumber: company.ClientNumber || 0
+            }
+        };
+
+        this.uniModalService.open(UniEditFieldModal, options).onClose.subscribe((res) => {
+            if (res) {
+                this.companyService.updateCompanyClientNumber(company.ID, res, company.Key).subscribe((comp) => {
+                    this.table.updateRow(company._originalIndex, comp);
+                }, (err) => {
+                    this.errorService.handle(err);
+                });
+            }
+        });
+
     }
 
     public companyHasTag(company: KpiCompany, tag: string): boolean {

@@ -21,6 +21,8 @@ export class SmartSearchDataService {
     public searchResultViewConfig = [];
     public displayFullscreenSearch: boolean = false;
     public isPrefixSearch: boolean = false;
+    public isNewTOFWithCustomerSearch: boolean = false;
+    public newTOFWithCustomerURL;
     public prefixModule: any;
     private predifinedPrefixes = [
         'f', 'o', 't', 'a', 'l', 'p', 'k',
@@ -67,11 +69,18 @@ export class SmartSearchDataService {
 
     public asyncLookup(query: string): Observable<any[]> {
         this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
-        if (query.startsWith('ny') || query.startsWith('nytt') || query === '' || (query.length < 3 && !this.isPrefixSearch)) {
+        this.isNewTOFWithCustomerSearch = this.checkPrefixForTOFWithNewCustomer(query);
+        if ((query.startsWith('ny') || query.startsWith('nytt') || query === '' || (query.length < 3 && !this.isPrefixSearch))
+            && !this.isNewTOFWithCustomerSearch ) {
             return Observable.of([]);
         }
 
-        return Observable.forkJoin(this.createQueryArray(query, this.isPrefixSearch, query.split('.')[0]))
+        return Observable.forkJoin(
+            // Use the isNewTOFWithCustomerSearch boolean to set prefix
+            this.createQueryArray(
+                query,
+                (this.isPrefixSearch || this.isNewTOFWithCustomerSearch),
+                this.isNewTOFWithCustomerSearch ? 'kunde' :  query.split('.')[0]))
             .map((res) => {
                 return this.generateConfigObject(res);
             });
@@ -114,9 +123,16 @@ export class SmartSearchDataService {
                     type = 'report';
                 }
 
+                // If the user wants to create new tof but searching for customers, set url to match given tof with customer ID attached..
+                // Also check if module is project, because the project url build up is different.. The other views might change ?
+                const url = this.isNewTOFWithCustomerSearch
+                    ? this.newTOFWithCustomerURL + '/0;customerID=' + dataset[Object.keys(dataset)[0]]
+                    : this.modelsInSearch[ind].url + ((this.modelsInSearch[ind].moduleName === 'Project') ? '?projectID=' : '/')
+                    + dataset[Object.keys(dataset)[0]];
+
                 dataForViewRender.push({
                     type: type,
-                    url: this.modelsInSearch[ind].url + '/' + dataset[Object.keys(dataset)[0]],
+                    url: url,
                     value: valueString,
                     actionValues: actionValues
                 });
@@ -136,6 +152,10 @@ export class SmartSearchDataService {
         return false;
     }
 
+    private checkPrefixForTOFWithNewCustomer(query) {
+        return (query.startsWith('ny faktura ') || query.startsWith('ny ordre ') || query.startsWith('nytt tilbud '));
+    }
+
     private createQueryArray(query: string, withPrefix: boolean = false, prefix?: string) {
         const queries = [];
         this.modelsInSearch = [];
@@ -153,10 +173,19 @@ export class SmartSearchDataService {
             };
         }
 
-        if (withPrefix) {
+        if (withPrefix && !this.isNewTOFWithCustomerSearch) {
             const splittedQuery = query.split('.');
             splittedQuery.shift();
             query = splittedQuery.join('.');
+        }
+
+        // IF the query starts with 'ny tilbud | ordre | faktura' set URL to given TOF and search for customers..
+        if (this.isNewTOFWithCustomerSearch) {
+            const splittedQuery = query.split(' ');
+            this.newTOFWithCustomerURL = this.confirmedSuperSearchRoutes.filter(route =>  route.prefix && !!route.prefix.filter(
+                (pre) => pre.toLowerCase() === splittedQuery[1].toLowerCase()).length )[0].url;
+            splittedQuery.splice(0, 2);
+            query = splittedQuery.join(' ');
         }
 
         if (query.substr(0, 1) === '*') {

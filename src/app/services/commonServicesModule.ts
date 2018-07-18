@@ -39,6 +39,7 @@ import {EmailService} from './common/emailService';
 import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfig} from './common/uniSearchConfig/uniSearchAccountConfig';
 import {UniSearchCustomerConfig} from './common/uniSearchConfig/uniSearchCustomerConfig';
+import {UniSearchDimensionConfig} from './common/uniSearchConfig/uniSearchDimensionConfig';
 import {UniSearchSupplierConfig} from './common/uniSearchConfig/uniSearchSupplierConfig';
 import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmployeeConfig';
 import {UniSearchProductConfig} from './common/uniSearchConfig/uniSearchProductConfig';
@@ -118,6 +119,7 @@ export * from './common/uniFilesService';
 export * from './common/validationService';
 export * from './common/videoMappingService';
 export * from './common/uniSearchConfig/uniSearchAccountConfig';
+export * from './common/uniSearchConfig/uniSearchDimensionConfig';
 export * from './common/uniSearchConfig/uniSearchCustomerConfig';
 export * from './common/uniSearchConfig/uniSearchEmployeeConfig';
 export * from './common/uniSearchConfig/uniSearchSupplierConfig';
@@ -173,6 +175,7 @@ export class CommonServicesModule {
                 UniSearchSupplierConfig,
                 UniSearchEmployeeConfig,
                 UniSearchProductConfig,
+                UniSearchDimensionConfig,
                 CurrencyOverridesService,
                 CurrencyCodeService,
                 UniTickerService,

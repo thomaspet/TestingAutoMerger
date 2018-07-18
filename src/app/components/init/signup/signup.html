@@ -50,11 +50,12 @@
 
         <re-captcha formControlName="RecaptchaResponse"></re-captcha>
 
-        <button class="auth-button bad"
+        <button
+            type="submit"
+            class="auth-button bad"
             *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
-            [disabled]="busy || !step1.form.valid"
-            (click)="submitStep1Form()">
+            [disabled]="busy || !step1.form.valid">
             START REGISTRERING
         </button>
     </form>
@@ -103,10 +104,11 @@
             [passwordControl]="step2Form.controls.Password">
         </uni-password-guide>
 
-        <button class="auth-button bad"
+        <button
+            type="submit"
+            class="auth-button bad"
             [attr.aria-busy]="busy"
-            [disabled]="busy"
-            (click)="submitStep2Form()">
+            [disabled]="busy">
             FULLFØR REGISTRERING
         </button>
     </form>

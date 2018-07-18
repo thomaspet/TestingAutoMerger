@@ -64,6 +64,7 @@ import {
     checkGuid,
     EHFService,
     UniSearchSupplierConfig,
+    UniSearchDimensionConfig,
     ModulusService,
     ProjectService,
     DepartmentService,
@@ -209,9 +210,6 @@ export class BillView implements OnInit {
         },
     ];
 
-    private projects: Project[];
-    private departments: Department[];
-
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -230,6 +228,7 @@ export class BillView implements OnInit {
         private currencyService: CurrencyService,
         private ehfService: EHFService,
         private uniSearchSupplierConfig: UniSearchSupplierConfig,
+        private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
@@ -285,15 +284,11 @@ export class BillView implements OnInit {
             Observable.forkJoin(
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
-                this.projectService.GetAll(null),
-                this.departmentService.GetAll(null),
                 this.customDimensionService.getMetadata()
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
-                this.projects = res[2];
-                this.departments = res[3];
-                this.customDimensions = res[4];
+                this.customDimensions = res[2];
 
                 if (id > 0) {
                     this.fetchInvoice(id, true);
@@ -301,15 +296,7 @@ export class BillView implements OnInit {
                     this.newInvoice(true);
                     this.checkPath();
                 }
-                if (projectID > 0) {
-                    this.projectService.Get(projectID).subscribe(project => {
-                        const model = this.current.getValue();
-                        model.DefaultDimensions.ProjectID = project.ID;
-                        model.DefaultDimensions.Project = project;
-                        this.current.next(model);
-                        this.expandProjectSection();
-                    });
-                }
+
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
@@ -329,21 +316,6 @@ export class BillView implements OnInit {
             source: this.currencyCodes,
             valueProperty: 'ID',
             displayProperty: 'Code',
-            debounceTime: 200
-        };
-        const projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
-        projectsField.Options = {
-            source: this.projects,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
-
-        const departmentsField = fields.find(f => f.Property === 'DefaultDimensions.DepartmentID');
-        departmentsField.Options = {
-            source: this.departments,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
             debounceTime: 200
         };
 
@@ -473,17 +445,25 @@ export class BillView implements OnInit {
             },
             <any> {
                 Property: 'DefaultDimensions.DepartmentID',
-                FieldType: FieldType.DROPDOWN,
+                FieldType: FieldType.UNI_SEARCH,
                 Label: 'Avdeling',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    uniSearchConfig: this.uniSearchDimensionConfig.generateDepartmentConfig(this.departmentService),
+                    valueProperty: 'ID'
+                }
             },
             <any> {
                 Property: 'DefaultDimensions.ProjectID',
-                FieldType: FieldType.DROPDOWN,
+                FieldType: FieldType.UNI_SEARCH,
                 Label: 'Prosjekt',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    uniSearchConfig: this.uniSearchDimensionConfig.generateProjectConfig(this.projectService),
+                    valueProperty: 'ID'
+                }
             }
         ];
 
@@ -1302,26 +1282,6 @@ export class BillView implements OnInit {
         const model = this.current.getValue();
 
         if (!model) { return; }
-
-        if (change['DefaultDimensions.ProjectID']) {
-            if (model.DefaultDimensions.ProjectID) {
-                model.DefaultDimensions.Project = this.projects.find(x => x.ID === model.DefaultDimensions.ProjectID);
-            } else {
-                model.DefaultDimensions.Project = null;
-            }
-
-            this.current.next(model);
-        }
-
-        if (change['DefaultDimensions.DepartmentID']) {
-            if (model.DefaultDimensions.DepartmentID) {
-                model.DefaultDimensions.Department = this.departments.find(x => x.ID === model.DefaultDimensions.DepartmentID);
-            } else {
-                model.DefaultDimensions.Department = null;
-            }
-
-            this.current.next(model);
-        }
 
         this.customDimensions.forEach((dim) => {
             if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
@@ -2240,9 +2200,6 @@ export class BillView implements OnInit {
                 this.lookupHistory();
 
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
-                if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID > 0) {
-                    this.expandProjectSection();
-                }
 
                 // set diff to null until the journalentry is loaded, the data is calculated correctly
                 // through the onJournalEntryManualDataLoaded event
@@ -2350,14 +2307,6 @@ export class BillView implements OnInit {
 
         // flag unsaved changes so the save button is activated
         this.flagUnsavedChanged();
-    }
-
-    private expandProjectSection() {
-        const formConfig = this.formConfig$.getValue();
-        formConfig.sections = {
-            1: {isOpen: true}
-        };
-        this.formConfig$.next(formConfig);
     }
 
     public onFormReady() {
@@ -2614,10 +2563,18 @@ export class BillView implements OnInit {
             };
 
             const isValidKID: boolean = this.modulusService.isValidKID(current.PaymentID);
-            if (current.ID) {
-                if (isValidKID) {
-                    saveFunc();
-                } else {
+            // Query to see if invoiceID/supplierID combo has been used before
+            this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID, current.ID)
+            .subscribe((data: any) => {
+                if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
+                    let message: string = '';
+                    if (!isValidKID) {
+                        message += `<li>KID-nr. er ikke gyldig.</li>`;
+                    }
+                    if (data && data.Data && data.Data[0].countid > 0) {
+                        message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
+                    }
+                    message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
                     this.modalService.open(UniConfirmModalV2,
                         {
                             buttonLabels: {
@@ -2625,7 +2582,7 @@ export class BillView implements OnInit {
                                 cancel: 'Avbryt'
                             },
                             header: 'Vil du lagre?',
-                            message: `<li>KID-nr. er ikke gyldig.</li><br>Du kan ignorere dette og lagre om ønskelig.`
+                            message: message
                         }).onClose.subscribe((res) => {
                             if (res === ConfirmActions.ACCEPT) {
                                 saveFunc();
@@ -2636,43 +2593,10 @@ export class BillView implements OnInit {
                                 }
                             }
                         });
+                } else {
+                    saveFunc();
                 }
-            } else {
-                // Query to see if invoiceID/supplierID combo has been used before
-                this.supplierInvoiceService.checkInvoiceData(current.InvoiceNumber, current.SupplierID)
-                .subscribe((data: any) => {
-                    if ((data && data.Data && data.Data[0].countid > 0) || !isValidKID) {
-                        let message: string = '';
-                        if (!isValidKID) {
-                            message += `<li>KID-nr. er ikke gyldig.</li>`;
-                        }
-                        if (data && data.Data && data.Data[0].countid > 0) {
-                            message += `<li>Faktura med samme fakturanr. og leverandør er allerede lagret.</li>`;
-                        }
-                        message += `<br>Du kan ignorere dette og lagre om ønskelig.`;
-                        this.modalService.open(UniConfirmModalV2,
-                            {
-                                buttonLabels: {
-                                    accept: 'Lagre',
-                                    cancel: 'Avbryt'
-                                },
-                                header: 'Vil du lagre?',
-                                message: message
-                            }).onClose.subscribe((res) => {
-                                if (res === ConfirmActions.ACCEPT) {
-                                    saveFunc();
-                                } else {
-                                    resolve({ success: false });
-                                    if (done) {
-                                        done('Lagring avbrutt');
-                                    }
-                                }
-                            });
-                    } else {
-                        saveFunc();
-                    }
-                });
-            }
+            });
         });
     }
 
