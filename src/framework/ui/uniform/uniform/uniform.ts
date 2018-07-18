@@ -302,6 +302,14 @@ export class UniForm implements OnChanges, OnInit {
         });
     }
 
+    onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === KeyCodes.TAB && event.shiftKey) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    }
+
     public onMoveBackward(action) {
         const field = action.field;
         const event = action.event;

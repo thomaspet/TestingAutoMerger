@@ -1,4 +1,4 @@
-<form (submit)="submit($event)" autocomplete="off">
+<form (submit)="submit($event)" autocomplete="off" (keydown)="onKeyDown($event)">
     <ng-template ngFor let-item [ngForOf]="_layout?.Fields | sectionIndexes" let-i="index">
         <uni-section
             [fields]="_layout?.Fields | bySection:item"
