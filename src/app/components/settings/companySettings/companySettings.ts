@@ -232,6 +232,11 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getDataAndSetupForm() {
+        this.isEHFBought()
+            .subscribe(
+                hasBoughtEHF => this.hasBoughtEHF = hasBoughtEHF,
+                err => console.log('Failed to check if EHF was bought: ', err)
+            );
 
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
@@ -249,7 +254,6 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getInvoiceTemplatetext(),
             this.campaignTemplateService.getOrderTemplateText(),
             this.campaignTemplateService.getQuoteTemplateText(),
-            this.isEHFBought(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
@@ -287,8 +291,6 @@ export class CompanySettingsComponent implements OnInit {
                         Template: ''
                     };
 
-                this.hasBoughtEHF = dataset[15];
-
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
                     orderTemplate: this.orderTemplate,
@@ -296,9 +298,9 @@ export class CompanySettingsComponent implements OnInit {
                     quoteTemplate: this.quoteTemplate
                 });
 
-                this.quoteFormList = dataset[16];
-                this.orderFormList = dataset[17];
-                this.invoiceFormList = dataset[18];
+                this.quoteFormList = dataset[15];
+                this.orderFormList = dataset[16];
+                this.invoiceFormList = dataset[17];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
