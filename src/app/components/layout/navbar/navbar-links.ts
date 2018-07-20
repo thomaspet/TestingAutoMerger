@@ -159,7 +159,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         expands: ['customer']
                     },
                     {
-                        name: 'Innfordring',
+                        name: 'Purring',
                         url: '/sales/reminders',
                         moduleID: UniModules.Reminders
                     },

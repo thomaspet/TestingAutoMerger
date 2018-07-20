@@ -263,7 +263,7 @@ export const SHORTCUT_LISTS = [
                     urlToNew: '/sales/products/0'
                 },
                 {
-                    label: 'Innfordring',
+                    label: 'Purring',
                     link: '/sales/reminders/ready',
                     urlToNew: ''
                 },

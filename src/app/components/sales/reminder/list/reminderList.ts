@@ -69,7 +69,7 @@ export class ReminderList {
         private modalService: UniModalService
     ) {
         this.tabService.addTab({
-            name: 'Innfordring',
+            name: 'Purring',
             url: '/sales/reminders',
             moduleID: UniModules.Reminders,
             active: true
