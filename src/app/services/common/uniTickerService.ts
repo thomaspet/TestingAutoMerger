@@ -333,6 +333,12 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
             });
     }
 
+    public getTicker(code: string): Observable<Ticker> {
+        return Observable
+            .fromPromise(this.getTickers())
+            .map(tickers => tickers.find(ticker => ticker.Code === code));
+    }
+
     public executeAction(action: TickerAction, ticker: Ticker, selectedRows: Array<any>): Promise<any> {
         return new Promise((resolve, reject) => {
             this.modelService.loadModelCache()

@@ -104,6 +104,8 @@ import { TravelFilterComponent } from './travel/travel-filter/travel-filter.comp
 
 import {MatSlideToggleModule} from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
+import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
+import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
 
 @NgModule({
     imports: [
@@ -112,6 +114,7 @@ import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
         ReactiveFormsModule,
         HttpModule,
         MatSlideToggleModule,
+        UniTickerModule,
 
         RouterModule.forChild(salaryRoutes),
 
@@ -209,6 +212,7 @@ import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
         TravelDetailsComponent,
         TravelLinesComponent,
         TravelFilterComponent,
+        EmployeeTransTickerComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -267,6 +271,7 @@ import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
         RecurringPost,
         EmployeeTax,
         EmployeeSalarybalance,
+        EmployeeTransTickerComponent,
 
         // Payrollrun
         VacationPayModal,
