@@ -2,13 +2,17 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {CONTROLS_ENUM} from '../../../framework/ui/uniform/index';
+import {CONTROLS_ENUM, UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs/Observable';
+import {ModulusService} from '@app/services/common/modulusService';
 
 @Injectable()
 export class SubEntityService extends BizHttp<SubEntity> {
 
-    constructor(protected http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private modulusService: ModulusService,
+    ) {
         super(http);
 
         this.relativeURL = SubEntity.RelativeUrl;
@@ -22,6 +26,21 @@ export class SubEntityService extends BizHttp<SubEntity> {
 
     public getFromEnhetsRegister(orgno: string) {
         return super.GetAction(null, 'sub-entities-from-brreg', 'orgno=' + orgno);
+    }
+
+    private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
+        return (value: any, field: UniFieldLayout) => {
+            if (!!value) {
+                return;
+            }
+
+            return {
+                field: field,
+                value: value,
+                errorMessage: `${field.Label} ${warn ? 'er påkrevd' : 'mangler'}`,
+                isWarning: warn,
+            };
+        };
     }
 
     public getLayout(layoutID: string) {
@@ -41,6 +60,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                     FieldType: CONTROLS_ENUM.TEXT,
                     Label: 'Orgnr for virksomhet',
                     FieldSet: 1,
+                    Validations: [this.modulusService.orgNrValidationUniForm],
                 },
                 {
                     EntityType: 'BusinessRelation',
@@ -61,6 +81,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
                     FieldType: CONTROLS_ENUM.AUTOCOMPLETE,
                     Label: 'Kommunenummer',
                     FieldSet: 1,
+                    Validations: [this.requiredValidation(true)],
                 },
                 {
                     Property: 'AgaZone',

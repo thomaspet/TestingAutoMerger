@@ -7,7 +7,7 @@ import {
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
@@ -219,7 +219,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return this.saveCategoryOnRun(runID, category)
             .filter(cat => !!cat)
             .map(cat => {
-                return { title: cat.Name, linkID: cat.ID};
+                return {title: cat.Name, linkID: cat.ID};
             });
     }
 
@@ -256,10 +256,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (!transes.length) {
             this.toastService
                 .addToast(
-                'Avregning avbrutt',
-                ToastType.bad,
-                ToastTime.medium,
-                'Ingen lønnsposter i lønnsavregning');
+                    'Avregning avbrutt',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Ingen lønnsposter i lønnsavregning');
             if (done) {
                 done('Avregning avbrutt');
             }
@@ -354,7 +354,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         const halfTax = 'Halv skatt(desember): Vil gi halv skatt på lønnsavregninger med månedslønn' +
             ' og ikke skatt på lønnsavregninger med 14-dagerslønn.' +
             ' Eventuelle unntak fra dette håndteres ut fra oppgitt skattekort.';
-            const noTax = 'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
+        const noTax = 'Ikke skatt: Systemet vil ikke beregne forskuddstrekk.' +
             ' Det er kun poster du taster manuelt som vil bli tatt med.' +
             ' Dette valget bør derfor kun benyttes for historikk og eventuelle korreksjoner.';
         return halfTax + `<br><br>` + noTax;
@@ -383,7 +383,19 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Label: 'Beskrivelse',
                     FieldSet: 1,
                     Section: 0,
-                    Classes: 'payrollDetails_description'
+                    Classes: 'payrollDetails_description',
+                    Validations: [(value, field: UniFieldLayout) => {
+                        if (!!value) {
+                            return;
+                        }
+
+                        return {
+                            field: field,
+                            value: value,
+                            errorMessage: `Må fylles ut før lønnspostene kan vises`,
+                            isWarning: false,
+                        };
+                    }]
                 },
                 {
                     EntityType: 'payrollrun',

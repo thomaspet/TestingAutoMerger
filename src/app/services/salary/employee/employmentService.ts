@@ -6,7 +6,7 @@ import {
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -71,6 +71,21 @@ export class EmploymentService extends BizHttp<Employment> {
 
     }
 
+    private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
+        return (value: any, field: UniFieldLayout) => {
+            if (!!value) {
+                return;
+            }
+
+            return {
+                field: field,
+                value: value,
+                errorMessage: `${field.Label} ${warn ? 'er påkrevd' : 'mangler'}`,
+                isWarning: warn,
+            };
+        };
+    }
+
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
@@ -85,20 +100,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Legend: 'Arbeidsforhold',
                     Section: 0,
                     Placeholder: 'Yrkeskode',
-                    Validations: [
-                        (value: number, field: UniFieldLayout) => {
-                            if (!!value) {
-                                return;
-                            }
-
-                            return {
-                                field: field,
-                                value: value,
-                                errorMessage: 'Yrkeskode er påkrevd',
-                                isWarning: false
-                            };
-                        }
-                    ]
+                    Validations: [this.requiredValidation()]
                 },
                 {
                     EntityType: 'Employment',
@@ -107,20 +109,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     Label: 'Yrkestittel',
                     FieldSet: 1,
                     Section: 0,
-                    Validations: [
-                        (value: number, field: UniFieldLayout) => {
-                            if (!!value) {
-                                return;
-                            }
-
-                            return {
-                                field: field,
-                                value: value,
-                                errorMessage: 'Yrkestittel er påkrevd',
-                                isWarning: false
-                            };
-                        }
-                    ]
+                    Validations: [this.requiredValidation()]
                 },
                 {
                     EntityType: 'Employment',

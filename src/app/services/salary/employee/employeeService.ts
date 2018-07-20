@@ -8,8 +8,9 @@ import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';
 import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {UserService} from '../../common/userService';
+import {ModulusService} from '@app/services/common/modulusService';
 
 @Injectable()
 export class EmployeeService extends BizHttp<Employee> {
@@ -38,7 +39,8 @@ export class EmployeeService extends BizHttp<Employee> {
         private userService: UserService,
         private municipalService: MunicipalService,
         private companySettingsService: CompanySettingsService,
-        private subEntityService: SubEntityService
+        private subEntityService: SubEntityService,
+        private modulusService: ModulusService,
     ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
@@ -180,6 +182,21 @@ export class EmployeeService extends BizHttp<Employee> {
         };
     }
 
+    private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
+        return (value: any, field: UniFieldLayout) => {
+            if (!!value) {
+                return;
+            }
+
+            return {
+                field: field,
+                value: value,
+                errorMessage: `${field.Label} ${warn ? 'er påkrevd' : 'mangler'}`,
+                isWarning: warn,
+            };
+        };
+    }
+
     public layout(layoutID: string, employee: Employee) {
         return Observable.from([{
             Name: layoutID,
@@ -223,7 +240,8 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Virksomhet',
                     FieldSet: 1,
-                    Section: 0
+                    Section: 0,
+                    Validations: [this.requiredValidation()],
                 },
                 {
                     EntityType: 'Employee',
@@ -306,7 +324,8 @@ export class EmployeeService extends BizHttp<Employee> {
                                 errorMessage: 'Fødselsnummer skal bare inneholde tall',
                                 isWarning: false
                             };
-                        }
+                        },
+                        this.modulusService.ssnValidationUniForm
                     ]
                 },
                 {

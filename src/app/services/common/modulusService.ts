@@ -88,6 +88,19 @@ export class ModulusService {
         };
     }
 
+    public ssnValidationUniForm = (ssn: string, field: UniFieldLayout) => {
+        if (this.validSSN(ssn)) {
+            return;
+        }
+
+        return {
+            value: ssn,
+            errorMessage: 'Ugyldig fødselsnummer',
+            field: field,
+            isWarning: false,
+        };
+    }
+
     public isValidOrgNr(orgNr: string): boolean {
         if (orgNr) {
             if (isNaN(parseInt(orgNr, 10))) {
