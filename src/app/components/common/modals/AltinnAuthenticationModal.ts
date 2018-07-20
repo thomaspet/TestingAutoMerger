@@ -168,6 +168,8 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         pinChoice.ReadOnly = false;
         pinChoice.Label = 'Gyldige pinvalg';
         pinChoice.Options = {
+            searchable: false,
+            hideDeleteButton: true,
             source: this.altinnAuthService.loginTypes,
             valueProperty: 'text',
             displayProperty: 'text',
