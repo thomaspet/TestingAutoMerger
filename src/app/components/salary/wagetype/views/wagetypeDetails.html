@@ -12,6 +12,6 @@
     <p>Valgte tilleggsopplysninger</p>
     <uni-table
         [config]="tilleggspakkeConfig"
-        [resource]="wageType$.getValue().SupplementaryInformations">
+        [resource]="(wageType$ | async)?.SupplementaryInformations">
     </uni-table>
 </ng-template>

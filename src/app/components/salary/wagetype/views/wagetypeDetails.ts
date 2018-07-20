@@ -280,16 +280,6 @@ export class WagetypeDetail extends UniView {
                 displayProperty: 'text',
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
-                events: {
-                    select: (model: WageType) => {
-                        this.showSupplementaryInformations = false;
-                        model.Description = '';
-                        model.Benefit = '';
-                        this.handleSupplementPackages(model);
-                        this.wageType$.next(model);
-                        this.uniform.field('Benefit').focus();
-                    }
-                }
             };
         });
 
@@ -300,15 +290,6 @@ export class WagetypeDetail extends UniView {
                 displayProperty: 'text',
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
-                events: {
-                    select: (model: WageType) => {
-                        this.showSupplementaryInformations = false;
-                        model.Description = '';
-                        this.handleSupplementPackages(model);
-                        this.wageType$.next(model);
-                        this.uniform.field('Description').focus();
-                    }
-                }
             };
         });
 
@@ -319,12 +300,6 @@ export class WagetypeDetail extends UniView {
                 displayProperty: 'text',
                 debounceTime: 200,
                 template: (obj) => obj ? `${obj.text}` : '',
-                events: {
-                    select: (model: WageType) => {
-                        this.handleSupplementPackages(model);
-                        this.uniform.field('SpecialTaxAndContributionsRule').focus();
-                    }
-                }
             };
         });
 
@@ -353,7 +328,7 @@ export class WagetypeDetail extends UniView {
 
     private handleSupplementPackages(
         wageType: WageType,
-        fields?: any[]) {
+        fields?: any[]): WageType {
         const filter: ValidValuesFilter = {
             IncomeType: (wageType && wageType.IncomeType) || '',
             Benefit: (wageType && wageType.Benefit) || '',
@@ -373,6 +348,8 @@ export class WagetypeDetail extends UniView {
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe(response => this.supplementPackages = response);
+
+        return wageType;
     }
 
     private setBenefitAndDescriptionSource(supplementPackages: code[], filter: ValidValuesFilter) {
@@ -651,10 +628,12 @@ export class WagetypeDetail extends UniView {
                 .keys(changes)
                 .some(key => {
                     const change = changes[key];
-                    return change.previousValue !== change.currentValue;
+                    return change.previousValue !== change.currentValue || key === 'IncomeType';
                 }))
             .map((result: [WageType, any[]]) => {
                 const [wageType, fields] = result;
+
+                this.handleAmeldingEvents(wageType, changes);
 
                 if (changes['taxtype'] || changes['Base_Payment']) {
                     this.checkHideFromPaycheck(wageType);
@@ -702,6 +681,16 @@ export class WagetypeDetail extends UniView {
                 this.fields$.next(fields);
                 super.updateState('wagetype', wageType, true);
             });
+    }
+
+    private handleAmeldingEvents(model: WageType, event: SimpleChanges): WageType {
+        if (!event['IncomeType'] && !event['Benefit'] && !event['Description']) {
+            return model;
+        }
+        this.showSupplementaryInformations = !!event['Description'];
+        model.Benefit = event['IncomeType'] ? '' : model.Benefit;
+        model.Description = !event['Description'] ? '' : model.Description;
+        return this.handleSupplementPackages(model);
     }
 
     private checkHideFromPaycheck(wageType: WageType): WageType {
