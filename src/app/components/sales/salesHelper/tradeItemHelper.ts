@@ -410,7 +410,7 @@ export class TradeItemHelper  {
         if (sums.SumTotalExVat) {
             summaryLines.push({
                 label: 'Nettosum',
-                value: this.numberFormat.asMoney(sums.SumTotalExVat || 0)
+                value: this.numberFormat.asMoney(sums.SumTotalExVatCurrency || 0)
             });
         }
 
