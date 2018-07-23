@@ -52,7 +52,7 @@ export class SentToDebtCollection implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
-        private customerInvoiceReminderService: CustomerInvoiceReminderService,
+        private reminderService: CustomerInvoiceReminderService,
         private customerInvoiceService: CustomerInvoiceService,
         private numberFormatService: NumberFormat,
         private modalService: UniModalService
@@ -86,23 +86,25 @@ export class SentToDebtCollection implements OnInit {
     }
 
     public updateReminderTable() {
-        this.customerInvoiceReminderService.getCustomerInvoicesSentToDebtCollection(
+        this.reminderService.getCustomerInvoicesSentToDebtCollection(
             this.showInvoicesWithReminderStop
-        ).subscribe((reminders) => {
-            if (reminders.length > 0) {
-                this.remindersToDebtCollect = reminders;
+        ).subscribe(
+            res => {
+                // Add status code text to reminders
+                this.remindersToDebtCollect = (res || []).map(reminder => {
+                    reminder['_statusText'] = this.reminderService.getStatusText(reminder.StatusCode);
+                    return reminder;
+                });
+    
+                this.summaryData.restSumChecked = 0;
                 this.summaryData.restSumReadyForDebtCollection = _.sumBy(
                     this.remindersToDebtCollect, x => x.RestAmount
                 );
-                this.summaryData.restSumChecked = 0;
+                
                 this.setSums();
-            } else {
-                this.remindersToDebtCollect = [];
-                this.summaryData.restSumReadyForDebtCollection = 0;
-                this.summaryData.restSumChecked = 0;
-                this.setSums();
-            }
-        }, (err) => this.errorService.handle(err));
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private setupRemindersToDebtCollectTable() {
@@ -134,9 +136,9 @@ export class SentToDebtCollection implements OnInit {
             .setWidth('100px')
             .setFilterOperator('contains');
 
-        // StatusCode is a number, which is not very user friendly. This will be fixed with UC-1123
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-            .setFilterOperator('contains');
+            .setFilterOperator('contains')
+            .setTemplate(row => row['_statusText']);
 
         const taxInclusiveAmountCurrencyCol = new UniTableColumn('TaxInclusiveAmountCurrency', 'Fakturasum', UniTableColumnType.Number)
             .setFilterOperator('eq')
