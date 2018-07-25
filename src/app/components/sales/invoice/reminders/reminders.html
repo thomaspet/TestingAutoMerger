@@ -3,6 +3,6 @@
             [config]="reminderTable">
     </uni-table>
     <aside>
-        <b>Restsum: {{numberFormat.asMoney(customerInvoice.RestAmount + sumFee)}}</b>
+        <b *ngIf="restAmountOnInvoice || sumFee">Restsum: {{(restAmountOnInvoice + sumFee) | uninumberformat: 'money'}}</b>
     </aside>
 </section>

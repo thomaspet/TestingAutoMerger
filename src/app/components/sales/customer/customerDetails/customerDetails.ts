@@ -55,6 +55,7 @@ import {
     ConfirmActions,
     UniBankAccountModal,
     UniConfirmModalV2,
+    IModalOptions,
 } from '../../../../../framework/uni-modal';
 import {UniHttp} from '../../../../../framework/core/http/http';
 import {SubCompanyComponent} from './subcompany';
@@ -402,58 +403,46 @@ export class CustomerDetails implements OnInit {
     }
 
     public canDeactivate(): boolean | Observable<boolean> {
-        const customer = this.customer$.value;
-        if (!this.isDirty && !(this.ledgerAccountReconciliation && this.ledgerAccountReconciliation.isDirty)) {
+        if (!this.isDirty) {
             return true;
         }
 
-        if ((!customer.Info.Addresses[0].CountryCode || customer.Info.Addresses[0].CountryCode === 'NO')
-            && (customer.OrgNumber && !this.modulusService.isValidOrgNr(customer.OrgNumber))
-        ) {
-            return Observable.create(observer => {
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Lagre kunde?',
-                    message: `Kunden har ett ugyldig org.nr. '${customer.OrgNumber}'. Vil du lagre før du fortsetter?`,
-                    buttonLabels: {
-                        accept: 'Ja',
-                        reject: 'Nei',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(res => {
-                    if (res === null || res === undefined) { return observer.next(false); }
-                    if (res === ConfirmActions.ACCEPT) {
-                        this.saveCustomer((done) => {
-                            observer.next(true);
-                            observer.complete();
-                        });
-                    } else {
-                        observer.next(res !== ConfirmActions.CANCEL);
-                        if (res === ConfirmActions.REJECT) {
-                            this.isDirty = false;
-                            this.setupSaveActions();
-                        }
-                        observer.complete();
-                    }
-                }, err => this.errorService.handle(err));
-            });
+        const customer = this.customer$.value;
+        const invoiceAddress = customer.Info && customer.Info.InvoiceAddress;
+
+        const isForeign = invoiceAddress
+            && invoiceAddress.CountryCode
+            && invoiceAddress.CountryCode !== 'NO';
+
+        const validOrgNumber = !!isForeign
+            || !customer.OrgNumber
+            || this.modulusService.isValidOrgNr(customer.OrgNumber);
+
+        const modalOptions: IModalOptions = {
+            header: 'Ulagrede endringer',
+            message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            }
+        };
+
+        if (!validOrgNumber) {
+            modalOptions.warning = 'Advarsel: Organisasjonsnummer er ikke gyldig';
         }
 
-        return Observable.create(observer => {
-            this.modalService.openUnsavedChangesModal().onClose.subscribe(res => {
-                if (res === ConfirmActions.ACCEPT) {
-                    this.saveCustomer((done) => {
-                        observer.next(true);
-                        observer.complete();
-                    });
-                } else {
-                    observer.next(res !== ConfirmActions.CANCEL);
-                    if (res === ConfirmActions.REJECT) {
-                        this.isDirty = false;
-                        this.setupSaveActions();
-                    }
-                    observer.complete();
+        return this.modalService.confirm(modalOptions).onClose.map(modalResult => {
+            if (modalResult === ConfirmActions.ACCEPT) {
+                this.saveCustomer(() => {});
+            } else if (modalResult === ConfirmActions.REJECT) {
+                this.isDirty = false;
+                if (this.ledgerAccountReconciliation) {
+                    this.ledgerAccountReconciliation.isDirty = false;
                 }
-            });
+            }
+
+            return modalResult !== ConfirmActions.CANCEL;
         });
     }
 

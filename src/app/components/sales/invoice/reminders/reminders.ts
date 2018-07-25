@@ -1,16 +1,17 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
-import {Router} from '@angular/router';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable/index';
 import {
-    CustomerInvoice
-} from '../../../../unientities';
+    CustomerInvoice,
+    CustomerInvoiceReminder,
+    StatusCodeCustomerInvoiceReminder
+} from '@app/unientities';
 
 import {
     NumberFormat,
     CustomerInvoiceReminderService,
     StatisticsService,
     ErrorService
-} from '../../../../services/services';
+} from '@app/services/services';
 
 declare const _;
 
@@ -22,19 +23,20 @@ export class InvoiceReminders implements OnInit {
     @Input()
     public customerInvoice: CustomerInvoice;
 
-    private reminderTable: UniTableConfig;
-    private reminderList: any;
-    private sumFee: number = 0;
+    reminderTable: UniTableConfig;
+    reminderList: CustomerInvoiceReminder[];
+
+    restAmountOnInvoice: number = 0;
+    sumFee: number = 0;
 
     private reminderQuery: string = 'model=CustomerInvoiceReminder'
         + '&join=CustomerInvoiceReminder.CreatedBy%20eq%20User.'
         + 'GlobalIdentity&select=ID,StatusCode as StatusCode,RemindedDate as RemindedDate,'
-        + 'ReminderNumber as ReminderNumber,DueDate as DueDate,ReminderFee as ReminderFee,'
+        + 'ReminderNumber as ReminderNumber,DueDate as DueDate,ReminderFeeCurrency as ReminderFeeCurrency,'
         + 'User.DisplayName as CreatedBy&orderby=ID desc&filter=customerinvoiceid%20eq%20';
 
     constructor(
-        private router: Router,
-        private numberFormat: NumberFormat,
+        numberFormat: NumberFormat,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private customerInvoiceReminderService: CustomerInvoiceReminderService
@@ -47,15 +49,32 @@ export class InvoiceReminders implements OnInit {
         this.updateReminderTable();
     }
 
+    ngOnChanges() {
+        if (this.customerInvoice && this.customerInvoice.RestAmountCurrency) {
+            this.restAmountOnInvoice = this.customerInvoice.RestAmountCurrency;
+        }
+    }
+
     private updateReminderTable() {
         this.statisticsService.GetAll(this.reminderQuery + this.customerInvoice.ID)
             .map(x => x.Data)
-                .subscribe((reminders) => {
+            .subscribe(
+                (reminders: CustomerInvoiceReminder[]) => {
                     this.reminderList = reminders;
-                    this.sumFee = this.reminderList.length > 0
-                        ? this.reminderList.map(r => r.ReminderFee).reduce((a, b) => a + b)
-                        : 0;
-                }, (err) => this.errorService.handle(err));
+
+                    let sumFee = 0;
+                    if (this.reminderList && this.reminderList.length) {
+                        sumFee = this.reminderList.reduce((sum, reminder) => {
+                            return reminder.StatusCode < StatusCodeCustomerInvoiceReminder.Paid
+                                ? sum + reminder.ReminderFeeCurrency
+                                : sum;
+                        }, 0);
+                    }
+
+                    this.sumFee = sumFee || 0;
+                },
+                (err) => this.errorService.handle(err)
+            );
     }
 
     private setupReminderTable() {
@@ -69,7 +88,7 @@ export class InvoiceReminders implements OnInit {
                 return this.customerInvoiceReminderService.getStatusText(reminder.StatusCode);
             });
 
-        const feeAmountCol = new UniTableColumn('ReminderFee', 'Gebyr', UniTableColumnType.Number)
+        const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
             .setFormat('{0:n}')
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';

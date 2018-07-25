@@ -465,6 +465,10 @@ export class UniTableSearch implements OnChanges {
         return this.advancedSearchFilters.map(filter => {
             const column = this.columns.find(col => col.get('field') === filter.field);
 
+            if (!column) {
+                return filter;
+            }
+
             if (column.get('type') === UniTableColumnType.DateTime || column.get('type') === UniTableColumnType.LocalDate) {
                 filter.isDate = true;
 

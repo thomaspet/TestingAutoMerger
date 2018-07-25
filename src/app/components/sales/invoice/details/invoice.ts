@@ -22,6 +22,7 @@ import {
     Department,
     User,
     ReportDefinition,
+    StatusCodeCustomerInvoiceReminder,
 } from '../../../../unientities';
 
 import {
@@ -189,7 +190,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller'
+        'DefaultSeller',
+        'CustomerInvoiceReminders'
     ].concat(this.customerExpands.map(option => 'Customer.' + option));
 
     private invoiceItemExpands: string[] = [
@@ -1743,10 +1745,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const title = `Register betaling, Kunde-faktura ${this.invoice.InvoiceNumber || ''}, `
             + `${this.invoice.CustomerName || ''}`;
 
+        let amount = this.invoice.RestAmount || 0;
+        let amountCurrency = this.invoice.RestAmountCurrency || 0;
+        const reminders = this.invoice.CustomerInvoiceReminders || [];
+
+        reminders.forEach(reminder => {
+            if (reminder.StatusCode < StatusCodeCustomerInvoiceReminder.Paid) {
+                amount += reminder.ReminderFee;
+                amountCurrency += reminder.ReminderFeeCurrency;
+            }
+        });
+
         const invoicePaymentData: InvoicePaymentData = {
-            Amount: roundTo(this.invoice.RestAmount),
-            AmountCurrency: this.invoice.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID ?
-                roundTo(this.invoice.RestAmount) : roundTo(this.invoice.RestAmountCurrency),
+            Amount: amount,
+            AmountCurrency: amountCurrency,
             BankChargeAmount: 0,
             CurrencyCodeID: this.invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
@@ -1765,9 +1777,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 currencyExchangeRate: this.invoice.CurrencyExchangeRate
             }
         });
-
-
-        // HOME OFFICE FROM HERE
 
         paymentModal.onClose.subscribe((payment) => {
             if (payment) {
