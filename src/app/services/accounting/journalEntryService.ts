@@ -254,11 +254,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // dont post any rows that are already booked, they will be credited with by the action
         const journalEntryDataNew = journalEntryData.filter(x => !x.StatusCode);
 
-        const journalEntryDataWithJournalEntryID =
-            journalEntryDataNew.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
-        journalEntryDataWithJournalEntryID.forEach(line => {
-            existingJournalEntryIDs.push(line.JournalEntryID);
+        journalEntryDataNew.forEach(line => {
+            const id = line.JournalEntryID;
+            if (id && existingJournalEntryIDs.indexOf(id) < 0) {
+                existingJournalEntryIDs.push(id);
+            }
         });
 
         if (existingJournalEntryIDs.length) {
