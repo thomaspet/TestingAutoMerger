@@ -446,6 +446,10 @@ export class TableSearch implements OnChanges, AfterViewInit {
         return this.advancedSearchFilters.map(filter => {
             const column = this.columns.find(col => col.field === filter.field);
 
+            if (!column) {
+                return filter;
+            }
+
             if (column.type === UniTableColumnType.DateTime || column.type === UniTableColumnType.LocalDate) {
                 filter.isDate = true;
 
