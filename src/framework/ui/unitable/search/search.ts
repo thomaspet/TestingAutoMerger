@@ -438,7 +438,7 @@ export class UniTableSearch implements OnChanges {
                 filters.push({
                     field: column.get('displayField') || column.get('field'),
                     operator: column.get('filterOperator'),
-                    value: value,
+                    searchValue: value,
                     group: ''
                 });
             }

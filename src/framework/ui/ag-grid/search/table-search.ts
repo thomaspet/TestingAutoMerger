@@ -419,7 +419,7 @@ export class TableSearch implements OnChanges, AfterViewInit {
                 filters.push({
                     field: column.displayField || column.field,
                     operator: column.filterOperator,
-                    value: value,
+                    searchValue: value,
                     group: ''
                 });
             }
