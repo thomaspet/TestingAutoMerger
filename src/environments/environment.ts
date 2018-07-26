@@ -4,7 +4,7 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-    production: false,
+    useProdMode: false,
     BASE_URL_INIT: '',
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',

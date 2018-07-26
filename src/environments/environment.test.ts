@@ -1,5 +1,5 @@
 export const environment = {
-    production: false,
+    useProdMode: true,
 
     BASE_URL_INIT: '',
     BASE_URL: '',
