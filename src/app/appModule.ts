@@ -58,11 +58,6 @@ import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 // TODO: Allow users to change this during runtime
 moment.locale('nb');
 
-declare var window;
-if (window.ENV === 'production') {
-    enableProdMode();
-}
-
 @NgModule({
     imports: [
         BrowserModule,
