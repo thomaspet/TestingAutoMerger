@@ -7,7 +7,7 @@ import {CompanySettingsService} from '../../../services/common/companySettingsSe
 import {AgreementService} from '../../../services/common/agreementService';
 import {ErrorService} from '../../../services/common/errorService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {UniModalService, UniActivateAPModal, ConfirmActions} from '@uni-framework/uni-modal';
+import {UniModalService, UniActivateAPModal, UniActivateInvoicePrintModal, ConfirmActions} from '@uni-framework/uni-modal';
 import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AuthService, IAuthDetails} from '@app/authService';
@@ -181,6 +181,24 @@ export class MarketplaceAddOnsDetails implements AfterViewInit {
     private showActivateModal(product: ElsaProduct): Promise<any> {
         return new Promise((resolve, reject) => {
             switch (product.name) {
+                case 'INVOICEPRINT':
+                    this.modalService.open(UniActivateInvoicePrintModal)
+                        .onClose.subscribe((response) =>
+                            {
+                                // if the modal is closed without the activation status indicating that the
+                                // EHF/AP is activated, don't purchase the product
+                                if (response === ActivationEnum.ACTIVATED || response === ActivationEnum.CONFIRMATION) {
+                                    this.canActivate$.next(false);
+                                } else {
+                                    reject();
+                                }
+                            }
+                            , err => {
+                                this.errorService.handle(err)
+                                reject();
+                            }
+                        );
+                    break;
                 case 'EHF':
                     this.modalService.open(UniActivateAPModal)
                         .onClose.subscribe((response) =>

@@ -10,5 +10,6 @@ export class ActivateAP {
     public contactemail: string;
     public incommingInvoice: boolean;
     public outgoingInvoice: boolean;
+    public outgoingInvoicePrint: boolean;
     public settings: CompanySettings;
 }

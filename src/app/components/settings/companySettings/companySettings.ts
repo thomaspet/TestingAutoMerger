@@ -58,6 +58,7 @@ import {CompanySettingsViewService} from './services/companySettingsViewService'
 import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
     UniActivateAPModal,
+    UniActivateInvoicePrintModal,
     UniAddressModal,
     UniBankAccountModal,
     UniEmailModal,
@@ -172,6 +173,7 @@ export class CompanySettingsComponent implements OnInit {
     private quoteTemplate: CampaignTemplate;
 
     private hasBoughtEHF: boolean = false;
+    private hasBoughtInvoicePrint: boolean = false;
     private hideXtraPaymentOrgXmlTagValue: boolean;
     private hideBankValues: boolean;
 
@@ -232,12 +234,18 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getDataAndSetupForm() {
-        this.isEHFBought()
+        this.isProductBought('EHF')
             .subscribe(
                 hasBoughtEHF => this.hasBoughtEHF = hasBoughtEHF,
                 err => console.log('Failed to check if EHF was bought: ', err.message)
             );
 
+        this.isProductBought('INVOICEPRINT')
+        .subscribe(
+            hasBoughtInvoicePrint => this.hasBoughtInvoicePrint = hasBoughtInvoicePrint,
+            err => console.log('Failed to check if InvoicePrint was bought: ', err.message)
+        );
+            
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
             this.vatReportFormService.GetAll(null),
@@ -856,8 +864,12 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.hasBoughtEHF ? (settings.APActivated ? 'Reaktiver EHF' : 'Aktiver EHF') : 'Til markedsplass';
-        apActivated.Options.class = settings.APActivated ? 'good' : '';
+        apActivated.Label = this.hasBoughtEHF ? (this.ehfService.isActivated('EHF INVOICE 2.0') ? 'Reaktiver EHF' : 'Aktiver EHF') : 'EHF på markesplassen';
+        apActivated.Options.class = this.ehfService.isActivated('EHF INVOICE 2.0') ? 'good' : '';
+
+        const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
+        invoicePrint.Label = this.hasBoughtInvoicePrint ? (this.ehfService.isActivated("NETSPRINT") ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint') : 'Fakturaprint på markedsplas';
+        invoicePrint.Options.class = this.ehfService.isActivated("NETSPRINT" ? 'good' : '');
 
         this.fields$.next(fields);
     }
@@ -1409,6 +1421,19 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'InvoicePrint',
+                FieldType: FieldType.BUTTON,
+                Label: 'Kjøp fakturaprint fra markedsplassen',
+                Sectionheader: 'Fakturaprint',
+                Section: 1,
+                FieldSet: 7,
+                Legend: 'Elektroniske Faktura',
+                Options: {
+                    click: () => this.activateProduct('INVOICEPRINT', this.openActivateInvoicePrintModal)
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'APActivated',
                 FieldType: FieldType.BUTTON,
                 Label: 'Kjøp EHF fra markedsplassen',
@@ -1417,7 +1442,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 7,
                 Legend: 'Elektroniske Faktura',
                 Options: {
-                    click: () => this.activateAP()
+                    click: () => this.activateProduct('EHF', this.openActivateAPModal)
                 }
             },
             {
@@ -1647,25 +1672,29 @@ export class CompanySettingsComponent implements OnInit {
         }
     }
 
-    private isEHFBought(): Observable<boolean> {
-        return this.elsaProductService.FindProductByName('EHF')
+    private isProductBought(name: string): Observable<boolean> {
+        return this.elsaProductService.FindProductByName(name)
             .switchMap(product => {
                 return this.elsaPurchasesService.GetAll()
                     .map(purchases => purchases.some(purchase => purchase.productID === product.id));
         });
     }
 
-    private activateAP() {
-        this.elsaProductService.FindProductByName('EHF')
-            .subscribe(product => {
+    private activateProduct(name: string, modal: () => void) {
+        this.elsaProductService.FindProductByName(name)
+        .subscribe(product => {
+            if (product) {
                 this.elsaPurchasesService.GetAll()
-                    .map(purchases => purchases.some(purchase => purchase.productID === product.id))
-                    .subscribe(hasBought => {
-                        hasBought
-                        ? this.openActivateAPModal()
-                        : this.router.navigateByUrl('/marketplace/add-ons/' + product.id);
-                    });
-            });
+                .map(purchases => purchases.some(purchase => purchase.productID === product.id))
+                .subscribe(hasBought => {
+                    hasBought
+                    ? modal()
+                    : this.router.navigateByUrl('/marketplace/add-ons/' + product.id);
+                });
+            } else {
+                this.toastService.addToast(`Produkt ${name} ikke tilgjengelig`, ToastType.bad, ToastTime.short);
+            }
+        });
     }
 
     private openActivateAPModal() {
@@ -1679,6 +1708,20 @@ export class CompanySettingsComponent implements OnInit {
                         this.companySettings$.next(company);
                     });
                 }
+        }, err => this.errorService.handle(err));
+    }
+
+    private openActivateInvoicePrintModal() {
+        this.modalService.open(UniActivateInvoicePrintModal)
+        .onClose.subscribe((status) => {
+            if (status !== 0) {
+                this.companySettingsService.Get(1).subscribe(settings => {
+                    const company = this.companySettings$.getValue();
+                    company.BankAccounts = settings.BankAccounts;
+                    company.CompanyBankAccount = settings.CompanyBankAccount;
+                    this.companySettings$.next(company);
+                });
+            }
         }, err => this.errorService.handle(err));
     }
 
