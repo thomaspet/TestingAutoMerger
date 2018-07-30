@@ -7,7 +7,8 @@ import {
     StatusCodeCustomerInvoice,
     LocalDate,
     InvoicePaymentData,
-    ReportDefinition
+    ReportDefinition,
+    StatusCodeCustomerInvoiceReminder
 } from '../../unientities';
 import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
@@ -149,22 +150,26 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
 
         return new Promise((resolve, reject) => {
             // get invoice from API - the data from the ticker may only be partial
-            Observable.forkJoin(
-                this.Get(row.ID, ['CurrencyCode']),
-                this.companySettingsService.Get(1)
-            ).subscribe(result => {
-                const [invoice, companySettings] = result;
-                const rowModel = invoice;
-                const title = `Register betaling, Faktura ${rowModel.InvoiceNumber || ''},`
-                    + ` ${rowModel.CustomerName || ''}`;
+            this.Get(row.ID, ['CurrencyCode', 'CustomerInvoiceReminders']).subscribe(invoice => {
+                const title = `Register betaling: Faktura ${invoice.InvoiceNumber || ''} - `
+                    + `${invoice.CustomerName || ''}`;
+
+                const reminders = invoice.CustomerInvoiceReminders || [];
+                let amount = invoice.RestAmount || 0;
+                let amountCurrency = invoice.RestAmountCurrency || 0;
+
+                reminders.forEach(reminder => {
+                    if (reminder.StatusCode < StatusCodeCustomerInvoiceReminder.Paid) {
+                        amount += reminder.ReminderFee;
+                        amountCurrency += reminder.ReminderFeeCurrency;
+                    }
+                });
 
                 const paymentData: InvoicePaymentData = {
-                    Amount: rowModel.RestAmount,
-                    AmountCurrency: rowModel.CurrencyCodeID === companySettings.BaseCurrencyCodeID
-                        ? rowModel.RestAmount
-                        : rowModel.RestAmountCurrency,
+                    Amount: amount,
+                    AmountCurrency: amountCurrency,
                     BankChargeAmount: 0,
-                    CurrencyCodeID: rowModel.CurrencyCodeID,
+                    CurrencyCodeID: invoice.CurrencyCodeID,
                     CurrencyExchangeRate: 0,
                     PaymentDate: new LocalDate(new Date()),
                     AgioAccountID: null,
@@ -176,9 +181,9 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                     data: paymentData,
                     header: title,
                     modalConfig: {
-                        currencyExchangeRate: rowModel.CurrencyExchangeRate,
+                        currencyExchangeRate: invoice.CurrencyExchangeRate,
                         entityName: 'CustomerInvoice',
-                        currencyCode: rowModel.CurrencyCode.Code
+                        currencyCode: invoice.CurrencyCode.Code
                     }
                 });
 
@@ -188,7 +193,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                         return;
                     }
 
-                    this.ActionWithBody(rowModel.ID, payment, 'payInvoice').subscribe(
+                    this.ActionWithBody(invoice.ID, payment, 'payInvoice').subscribe(
                         res => {
                             this.toastService.addToast(
                                 'Faktura er betalt. Bilagsnummer: ' + res.JournalEntryNumber,
@@ -288,7 +293,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                 this.errorService.handle(err);
                 reject();
             });
-        });            
+        });
     }
 
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
@@ -401,10 +406,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                     jobCreated ? 'Faktura sendt til fakturaprint jobb' : 'Faktura feilet å lage fakturaprint jobb',
                     jobCreated ? ToastType.good : ToastType.bad,
                     5
-                );    
+                );
                 obs.complete(jobCreated);
-            }, err => this.errorService.handle(err)); 
-        });        
+            }, err => this.errorService.handle(err));
+        });
     }
 
     public SendInvoiceToVippsWithText(invoice: Object): Observable<any> {
