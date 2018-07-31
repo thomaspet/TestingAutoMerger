@@ -171,7 +171,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 if (parameter.DefaultValueSource && !parameter.value) {
                     const qIndex = parameter.DefaultValueSource.indexOf('?');
                     const query = qIndex >= 0 ? parameter.DefaultValueSource.substr(qIndex + 1) : parameter.DefaultValueSource;
-                    chunkOfQuerys.push(this.statisticsService.GetAll(`${query}`));
+                    chunkOfQuerys.push(this.statisticsService.GetAllForCompany(`${query}`, this.report.companyKey));
                     topSourceIndex++;
                 }
 
@@ -219,11 +219,13 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 }
 
                 // Get param value
-                this.statisticsService.GetDataByUrlSearchParams(searchParams).subscribe((result: StatisticsResponse) => {
-                    const value = result.Data[0].NumberSeriesNextNumber - 1;
-                    if (value > 0) { param.value = value; }
-                    resolve(params);
-                }, err => this.errorService.handle(err));
+                this.statisticsService
+                    .GetDataByUrlSearchParamsForCompany(searchParams, this.report.companyKey)
+                    .subscribe((result: StatisticsResponse) => {
+                        const value = result.Data[0].NumberSeriesNextNumber - 1;
+                        if (value > 0) { param.value = value; }
+                        resolve(params);
+                    }, err => this.errorService.handle(err));
             } else {
                 resolve(params);
             }
@@ -364,7 +366,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 }
                 const valueProperty = JSON.parse(param.DefaultValueLookupType).ValueProperty;
 
-                return this.statisticsService.GetAll(`${query}`)
+                return this.statisticsService.GetAllForCompany(`${query}`, this.report.companyKey)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .map((resp: StatisticsResponse) => resp.Data)
                     .map((data: any[]) => {
@@ -396,4 +398,5 @@ interface ExtendedReportDefinitionParameter extends ReportDefinitionParameter {
 
 interface ExtendedReportDefinition extends ReportDefinition {
     parameters?: ExtendedReportDefinitionParameter[];
+    companyKey?: string;
 }

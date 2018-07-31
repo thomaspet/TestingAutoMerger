@@ -15,6 +15,11 @@ import {Subscription} from 'rxjs/Subscription';
 import {AuthService} from '../../../authService';
 import {ErrorService} from '../../../services/common/errorService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
+import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
+import {ReportDefinitionService} from '@app/services/services';
+import {ToastService} from '@uni-framework/uniToast/toastService';
 
 const BASE = environment.BASE_URL;
 
@@ -26,7 +31,7 @@ const BASE = environment.BASE_URL;
     <section class="tab-part">
         <section class="image-container">
             <img class="invoice-icon">
-            <span>Fakturamotak</span>
+            <span>Fakturamottak</span>
         </section>
         <section class="text-container">
             <p>
@@ -52,6 +57,16 @@ const BASE = environment.BASE_URL;
             </p>
         </section>
     </section>
+    <section class="tab-part">
+        <section class="image-container clickable" (click)="runReport('Økonomioversikt')">
+            <img class="journalentry-icon">
+            <span>Økonomirapport</span>
+        </section>
+        <section class="text-container">
+            <p><a (click)="runReport('Økonomioversikt')">Økonomirapport (med resultat og balanse)</a></p>
+            <p class="small-header"><a (click)="navigateToCompanyUrl('/reports?category=accounting')">Andre rapporter</a></p>
+        </section>
+    </section>
 </section>`
 })
 export class BureauAccountingTab implements AfterViewInit, OnDestroy {
@@ -59,6 +74,7 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
     public accountingYear: number;
     public viewData: any[];
     private subscription: Subscription;
+    private reportCache: Array<any> = [];
     @HostBinding('class.no_access') public noAccess: boolean = false;
 
     constructor(
@@ -69,6 +85,9 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
         yearService: YearService,
+        private uniModalService: UniModalService,
+        private reportService: ReportDefinitionService,
+        private toast: ToastService
     ) {
         this.accountingYear = yearService.selectedYear$.getValue();
     }
@@ -98,7 +117,7 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
                                 this.errorService.handle(err);
                             }
                         },
-                    )
+                    );
             });
     }
 
@@ -146,5 +165,38 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
     public navigateToCompanyUrl(url: string) {
         this.authService.setActiveCompany(<any>this.company, url);
         this.element.nativeElement.setAttribute('aria-busy', true);
+    }
+
+    public runReport(name: string, report?: any) {
+
+        if (!report) {
+            report = this.reportCache.find( x => x.Name === name);
+            if (!report) {
+                this.reportService.GetAll(`filter=name eq '${name}'`)
+                    .subscribe( (x: Array<any>) => {
+                        const rep = x.length > 0 ? x[0] : undefined;
+                        if (rep) {
+                            this.reportCache.push(rep);
+                            this.runReport('', rep);
+                        } else {
+                            this.toast.addToast('Ukjent rapport: ' + name);
+                        }
+                    });
+                return;
+            }
+        }
+
+        report.companyKey = this.company.Key;
+        this.uniModalService.open(UniReportParamsModal,
+            {   data: report,
+                header: `${this.company.Name} : ${report.Name}`,
+                message: report.Description
+            }).onClose.subscribe(modalResult => {
+                if (modalResult === ConfirmActions.ACCEPT) {
+                    this.uniModalService.open(UniPreviewModal, {
+                        data: report
+                    });
+                }
+            });
     }
 }

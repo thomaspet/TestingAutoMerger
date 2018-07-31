@@ -57,7 +57,7 @@ export class ReportService extends BizHttp<string> {
             .map(response => response.json());
     }
 
-    public getReportData(reportId, properties) {
+    public getReportData(reportId, properties, companyKey?: string) {
         // Map to object if its a property list
         if (properties instanceof Array) {
             const params = properties;
@@ -67,11 +67,12 @@ export class ReportService extends BizHttp<string> {
             });
         }
 
+        if (companyKey) { this.http.appendHeaders( { CompanyKey: companyKey }); }
         return this.http.asPOST()
             .usingRootDomain()
             .withEndPoint(`${this.relativeURL}/${reportId}`)
             .withBody(properties)
-            .send()
+            .send(undefined, undefined, !companyKey)
             .map(response => response.json());
     }
 
@@ -324,7 +325,7 @@ export class ReportService extends BizHttp<string> {
     }
 
     private getDataSourcesObservable(): Observable<any> {
-        return this.getReportData(this.report.ID, this.report.parameters)
+        return this.getReportData(this.report.ID, this.report.parameters, this.report['companyKey'])
             .map(dataSources => {
                 this.report.dataSources = dataSources;
                 if (!this.report.localization) {

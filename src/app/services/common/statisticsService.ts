@@ -7,7 +7,7 @@ import {StatisticsResponse} from '../../models/StatisticsResponse';
 
 @Injectable()
 export class StatisticsService extends BizHttp<string> {
-
+    // tslint:disable:max-line-length
     private notSoImportantFields: Array<string> = ['createdat', 'createdby', 'updatedat', 'updatedby', 'deleted'];
     private notSoImportantEntities: Array<string> = ['AccountAlias', 'AccountGroupSet', 'Accrual', 'Address', 'Altinn', 'AltinnCorrespondanceReader', 'CompanySalary', 'CompanySettings',
     'ComplexValidationRule', 'ComponentLayout', 'CustomField', 'Email', 'EmployeeCategoryLink', 'EntityValidationRule', 'FieldLayout', 'FileEntityLink', 'FinancialYear', 'JournalEntryMode',
@@ -26,12 +26,21 @@ export class StatisticsService extends BizHttp<string> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }
 
+    public GetDataByUrlSearchParamsForCompany<T>(params: URLSearchParams, companyKey?: string): Observable<StatisticsResponse> {
+        return this.GetAllByUrlSearchParams(params, false, companyKey).map(response => response.json());
+    }
+
     public GetAll(queryString: string): Observable<StatisticsResponse> {
+        return this.GetAllForCompany(queryString);
+    }
+
+    public GetAllForCompany(queryString: string, companyKey?: string): Observable<StatisticsResponse> {
+        if (companyKey) { this.http.appendHeaders({ CompanyKey: companyKey}); }
         return this.http
             .usingRootDomain()
             .asGET()
             .withEndPoint(this.relativeURL + '?' + queryString)
-            .send({})
+            .send({}, undefined, !companyKey)
             .map(response => {
                 const obj = response.json();
                 if (!obj.Success) {
@@ -46,7 +55,7 @@ export class StatisticsService extends BizHttp<string> {
             .map(response => response.Data);
     }
 
-    public GetAllByUrlSearchParams<T>(params: URLSearchParams, distinct = false): Observable<Response> {
+    public GetAllByUrlSearchParams<T>(params: URLSearchParams, distinct = false, companyKey?: string): Observable<Response> {
         // use default orderby for service if no orderby is specified
         if (!params.get('orderby') && this.DefaultOrderBy !== null) {
             params.set('orderby', this.DefaultOrderBy);
@@ -64,11 +73,13 @@ export class StatisticsService extends BizHttp<string> {
 
         params.set('distinct', distinct ? 'true' : 'false');
 
+        if (companyKey) { this.http.appendHeaders({ CompanyKey: companyKey}); }
+
         return this.http
             .usingRootDomain()
             .asGET()
             .withEndPoint(this.relativeURL)
-            .send({}, params)
+            .send({}, params, !companyKey)
             .map(response => {
                 const body = response.json();
                 if (!body.Success) {
@@ -80,7 +91,7 @@ export class StatisticsService extends BizHttp<string> {
 
     public GetExportedExcelFile<T>(model: string, selects: string, filters: string, expands: string, headings: string, joins: string): Observable<any> {
 
-        let params: URLSearchParams = new URLSearchParams();
+        const params: URLSearchParams = new URLSearchParams();
 
         params.set('model', model);
         params.set('select', selects);
