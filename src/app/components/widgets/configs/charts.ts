@@ -1,14 +1,5 @@
 export const CHARTS = [
     {
-        id: 'kpi',
-        description: 'Nøkkeltall',
-        permissions: ['ui_accounting_accountingreports'],
-        width: 4,
-        height: 3,
-        widgetType: 'kpi',
-        config: {}
-    },
-    {
         id: 'topten_customers',
         description: '10 største kunder',
         width: 4,

@@ -1,7 +1,7 @@
 export const MISC_WIDGETS = [
     {
         id: 'overview-widget',
-        description: 'Oversikt',
+        description: 'Nøkkeltall',
         width: 12,
         height: 1,
         widgetType: 'overview',
