@@ -19,7 +19,7 @@ import {EHFService} from '@app/services/services';
             </article>
 
             <footer>
-                <button class="good" (click)="send()">Send valgte</button>
+                <button class="good" (click)="send()">Send valgte til epost/utskrift</button>
                 <button *ngIf="ehfService.isActivated('NETSPRINT')" class="good" (click)="reminderSending.invoicePrint()">Send valgte til fakturaprint</button> 
                 <button class="warning" (click)="reminderSending.sendPrint(true)">Skriv ut valgte</button>
                 <button class="good" (click)="save()">Lagre endringer</button>
@@ -39,7 +39,7 @@ export class UniReminderSendingModal implements IUniModal {
     onClose: EventEmitter<boolean> = new EventEmitter();
 
     constructor(
-        private ehfService: EHFService
+        public ehfService: EHFService
     ) { 
     }
 
