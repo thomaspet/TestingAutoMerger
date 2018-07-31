@@ -21,7 +21,7 @@ export const adminRoutes = [
                 canDeactivate: [CanDeactivateGuard]
             },
             {
-                path: 'job-logs/:jobName/:jobRunId',
+                path: 'job-logs',
                 component: JobLog,
                 canDeactivate: [CanDeactivateGuard]
             },

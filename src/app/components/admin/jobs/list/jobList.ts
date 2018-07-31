@@ -127,7 +127,7 @@ export class JobList implements OnInit {
 
     public onJobRunSelected(event) {
         const item = event.rowModel;
-        this.router.navigateByUrl(`/admin/job-logs/${item.JobName}/${item.HangfireJobId}`);
+        this.router.navigateByUrl(`/admin/job-logs?jobName=${item.JobName}&jobID=${item.HangfireJobId}`);
     }
 
     public onTabChange(tab) {
