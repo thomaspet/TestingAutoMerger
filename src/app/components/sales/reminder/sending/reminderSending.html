@@ -16,7 +16,7 @@
         </uni-form>
 
         <section *ngIf="remindersEmail">
-            <p>{{remindersEmail.length}} purringer kan sendes på e-post</p>
+            <p>{{remindersEmail.length}} purringer kan sendes på e-post eller sendes til fakturaprint</p>
             <uni-table *ngIf="remindersEmail.length"
                 [resource]="remindersEmail"
                 [config]="reminderTable"
@@ -25,7 +25,7 @@
         </section>
 
         <section *ngIf="remindersPrint">
-            <p>{{remindersPrint.length}} purringer må skrives ut på papir</p>
+            <p>{{remindersPrint.length}} purringer må skrives ut på papir eller sendes til fakturaprint</p>
             <uni-table *ngIf="remindersPrint.length"
                 [resource]="remindersPrint"
                 [config]="reminderTable"

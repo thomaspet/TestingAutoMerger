@@ -1,6 +1,7 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReminderSending} from './reminderSending';
+import {EHFService} from '@app/services/services';
 
 @Component({
     selector: 'uni-reminder-sending-modal',
@@ -19,7 +20,8 @@ import {ReminderSending} from './reminderSending';
 
             <footer>
                 <button class="good" (click)="send()">Send valgte</button>
-                <button class="warning" (click)="print()">Skriv ut valgte</button>
+                <button *ngIf="ehfService.isActivated('NETSPRINT')" class="good" (click)="reminderSending.invoicePrint()">Send valgte til fakturaprint</button> 
+                <button class="warning" (click)="reminderSending.sendPrint(true)">Skriv ut valgte</button>
                 <button class="good" (click)="save()">Lagre endringer</button>
                 <button class="bad" (click)="close()">Avbryt</button>
             </footer>
@@ -28,36 +30,35 @@ import {ReminderSending} from './reminderSending';
 })
 export class UniReminderSendingModal implements IUniModal {
     @ViewChild(ReminderSending)
-    private sendingComponent: ReminderSending;
+    reminderSending: ReminderSending;
 
     @Input()
-    public options: IModalOptions = {};
+    options: IModalOptions = {};
 
     @Output()
-    public onClose: EventEmitter<boolean> = new EventEmitter();
+    onClose: EventEmitter<boolean> = new EventEmitter();
 
-    public ngAfterViewInit() {
-        if (this.options && this.options.data && this.sendingComponent) {
-            this.sendingComponent.updateReminderList(this.options.data);
+    constructor(
+        private ehfService: EHFService
+    ) { 
+    }
+
+    ngAfterViewInit() {
+        if (this.options && this.options.data && this.reminderSending) {
+            this.reminderSending.updateReminderList(this.options.data);
         }
     }
 
-    public send() {
-        this.sendingComponent.sendEmail();
-        this.sendingComponent.sendPrint(false);
+    send() {
+        this.reminderSending.sendEmail();
+        this.reminderSending.sendPrint(false);
     }
 
-    public print() {
-        this.sendingComponent.sendPrint(true);
+    save() {
+        setTimeout(() => this.reminderSending.saveReminders());
     }
 
-    public save() {
-        console.log('save clicked!');
-        setTimeout(() => this.sendingComponent.saveReminders());
-    }
-
-    public close(saveBeforeClosing?: boolean) {
+    close(saveBeforeClosing?: boolean) {
         this.onClose.emit();
     }
-
 }

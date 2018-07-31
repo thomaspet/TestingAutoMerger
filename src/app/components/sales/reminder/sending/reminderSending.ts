@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, ViewChildren, QueryList, SimpleChange} from '@angular/core';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {SendEmail} from '../../../../models/sendEmail';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -14,7 +14,8 @@ import {
     ErrorService,
     ReportDefinitionService,
     CustomerInvoiceReminderService,
-    EmailService
+    EmailService,
+    EHFService
 } from '../../../../services/services';
 import {
     UniTable,
@@ -36,12 +37,12 @@ export interface IRunNumberData {
     templateUrl: './reminderSending.html'
 })
 export class ReminderSending implements OnInit {
-    @Input() public config: any;
-    @Input() public modalMode: boolean;
+    @Input() config: any;
+    @Input() modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
-    public remindersEmail: any;
-    public remindersPrint: any;
+    remindersEmail: any;
+    remindersPrint: any;
     private remindersAll: any;
     private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
@@ -55,16 +56,16 @@ export class ReminderSending implements OnInit {
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
         + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
 
-    public currentRunNumber: number = 0;
-    public currentRunNumberData: IRunNumberData;
-    public runNumbers: IRunNumberData[];
-    public toolbarconfig: IToolbarConfig;
+    currentRunNumber: number = 0;
+    currentRunNumberData: IRunNumberData;
+    runNumbers: IRunNumberData[];
+    toolbarconfig: IToolbarConfig;
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];
 
-    public searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
+    config$: BehaviorSubject<any> = new BehaviorSubject({});
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
@@ -72,7 +73,7 @@ export class ReminderSending implements OnInit {
         decimalLength: 2
     };
 
-    public saveactions: IUniSaveAction[] = [
+    saveactions: IUniSaveAction[] = [
          {
              label: 'Send og skriv ut valgte',
              action: (done) => this.sendReminders(done, false),
@@ -83,6 +84,11 @@ export class ReminderSending implements OnInit {
              label: 'Send valgte på e-post',
              action: (done) => this.sendEmails(done),
              disabled: !!this.remindersEmail
+         },
+         {
+            label: 'Send alle valgte til fakturaprint',
+            action: (done) => this.sendInvoicePrint(done),
+            disabled: !this.ehfService.isActivated("NETSPRINT")
          },
          {
              label: 'Skriv ut valgte',
@@ -108,10 +114,11 @@ export class ReminderSending implements OnInit {
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
         private modalService: UniModalService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private ehfService: EHFService
     ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         this.setupReminderTable();
         this.statisticsService.GetAllUnwrapped(
             'model=CustomerInvoiceReminder'
@@ -128,7 +135,7 @@ export class ReminderSending implements OnInit {
             });
     }
 
-    public onRowChanged(data) {
+    onRowChanged(data) {
         if (!this.isWarnedAboutRememberToSaveChanges) {
             this.toastService.addToast(
                 'Lagre purringer',
@@ -154,7 +161,7 @@ export class ReminderSending implements OnInit {
         }
     }
 
-    public saveReminders(done: (msg: string) => void = () => {}) {
+    saveReminders(done: (msg: string) => void = () => {}) {
         const requests = [];
         for (let i = 0; i < this.changedReminders.length; i++) {
 
@@ -228,14 +235,14 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    private sendReminders(done, printonly) {
+    private sendReminders(done: (message: string) => void, printonly) {
         const selected = this.getSelected();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
                 ToastType.bad,
                 10,
-                'Vennligst velg hvilke linjer du vil sende purringer for, eller kryss av for alle'
+                'Vennligst velg hvilke purringer du vil sende, eller kryss av for alle'
             );
             done('Sending avbrutt');
             return;
@@ -251,14 +258,14 @@ export class ReminderSending implements OnInit {
         }
     }
 
-    private sendEmails(done) {
+    private sendEmails(done: (message: string) => void) {
         const selected = this.getSelectedEmail();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
                 ToastType.bad,
                 10,
-                'Vennligst velg hvilke linjer du vil sende purringer på e-post for, eller kryss av for alle'
+                'Vennligst velg hvilke purringer du vil sende på e-post, eller kryss av for alle'
             );
 
             done('Sending avbrutt');
@@ -271,7 +278,7 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    public updateToolbar() {
+    updateToolbar() {
         const toolbarconfig: IToolbarConfig = {
             title: 'Purrejobbnr. ' + this.currentRunNumber,
             subheads: [
@@ -287,7 +294,7 @@ export class ReminderSending implements OnInit {
         this.toolbarconfig = toolbarconfig;
     }
 
-    public loadRunNumber(runNumber): Promise<any> {
+    loadRunNumber(runNumber): Promise<any> {
         return new Promise((resolve, reject) => {
             if (this.modalMode || runNumber < 1) {
                 resolve(false);
@@ -325,7 +332,7 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    public previousRunNumber() {
+    previousRunNumber() {
         this.loadRunNumber(this.currentRunNumber - 1).then((ok) => {
             if (!ok) {
                this.toastService.addToast('Første purrejobb!', ToastType.warn, 5, 'Du har nådd første purrejobb.');
@@ -333,7 +340,7 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    public nextRunNumber() {
+    nextRunNumber() {
         this.loadRunNumber(this.currentRunNumber + 1).then((ok) => {
             if (!ok) {
                 this.toastService.addToast('Siste purrejobb!', ToastType.warn, 5, 'Du har nådd siste purrejobb.');
@@ -341,7 +348,7 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    public updateReminderList(reminders) {
+    updateReminderList(reminders) {
         if (this.currentRunNumber === 0) { this.currentRunNumber = reminders[0].RunNumber; }
         const filter = `RunNumber eq ${this.currentRunNumber}`;
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
@@ -356,7 +363,7 @@ export class ReminderSending implements OnInit {
             });
     }
 
-    public getSelected() {
+    getSelected() {
         const tables = this.tables.toArray();
         const emails = tables[0] && tables[0].getSelectedRows() || [];
         const print = tables[1] && tables[1].getSelectedRows() || [];
@@ -364,17 +371,17 @@ export class ReminderSending implements OnInit {
         return emails.concat(print);
     }
 
-    public getSelectedEmail() {
+    getSelectedEmail() {
         const tables = this.tables.toArray();
         return tables[0] && tables[0].getSelectedRows() || [];
     }
 
-    public getSelectedPrint() {
+    getSelectedPrint() {
         const tables = this.tables.toArray();
         return tables[1] && tables[1].getSelectedRows() || [];
     }
 
-    public sendEmail(doneHandler?) {
+    sendEmail(doneHandler?) {
         const emails = this.getSelectedEmail();
         if (emails.length === 0) { return; }
         this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
@@ -395,7 +402,7 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    public sendPrint(all) {
+    sendPrint(all) {
         const prints = all ? this.getSelected() : this.getSelectedPrint();
         if (prints.length === 0) { return; }
         this.reminderService.sendAction(prints.map(x => x.ID)).subscribe(() => {
@@ -411,6 +418,25 @@ export class ReminderSending implements OnInit {
                     });
                 }
             }, err => this.errorService.handle(err));
+        });
+    }
+
+    sendInvoicePrint(done?: (message: string) => void) {
+        const selected = this.getSelected();   
+        if (selected.length === 0) {
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                ToastTime.medium,
+                'Vennligst velg hvilke purringer du vil sende til print, eller kryss av for alle'
+            );
+
+            if (done) { done('Sending avbrutt'); }
+            return;
+        }
+        if (done) { done('Sender purringer til print'); }
+        this.reminderService.sendInvoicePrintAction(selected.map(reminder => reminder.ID)).subscribe(() => {
+            this.loadRunNumber(this.currentRunNumber);
         });
     }
 
@@ -510,11 +536,11 @@ export class ReminderSending implements OnInit {
             ]);
     }
 
-    public onEditChange(event) {
+    onEditChange(event) {
         return event.rowModel;
     }
 
-    public onFormFilterChange(event) {
+    onFormFilterChange(event) {
         const runnumber: SimpleChange = event.RunNumber;
         this.loadRunNumber(runnumber.currentValue);
     }

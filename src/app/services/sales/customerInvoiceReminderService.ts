@@ -4,11 +4,14 @@ import {CustomerInvoiceReminder, StatusCodeCustomerInvoiceReminder} from '../../
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {RequestMethod} from '@angular/http';
+import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
+import {ErrorService} from '../common/errorService';
 
 @Injectable()
 export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceReminder> {
+    private invoicePrintToast: number;
 
-    public statusTypes: Array<any> = [
+    statusTypes: Array<any> = [
         { Code: StatusCodeCustomerInvoiceReminder.Registered, Text: 'Registrert' },
         { Code: StatusCodeCustomerInvoiceReminder.Sent, Text: 'Sendt' },
         { Code: StatusCodeCustomerInvoiceReminder.Paid, Text: 'Betalt' },
@@ -18,7 +21,10 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         { Code: StatusCodeCustomerInvoiceReminder.QueuedForDebtCollection, Text: 'Lagt i kø for inkasso'}
     ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        http: UniHttp,
+        private toastService: ToastService
+    ) {
         super(http);
 
         this.relativeURL = CustomerInvoiceReminder.RelativeUrl;
@@ -27,47 +33,65 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         this.DefaultOrderBy = null;
     }
 
-    public getCustomerInvoicesReadyForReminding(includeInvoiceWithReminderStop: boolean): Observable<any> {
+    getCustomerInvoicesReadyForReminding(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, `get-customer-invoices-ready-for-reminding&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}` );
     }
 
-    public getCustomerInvoicesReadyForDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
+    getCustomerInvoicesReadyForDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, `get-customer-invoices-ready-for-debt-collection&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}`);
     }
 
-    public getCustomerInvoicesSentToDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
+    getCustomerInvoicesSentToDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, 'get-customer-invoices-sent-to-debt-collection');
     }
 
-    public createInvoiceRemindersForInvoicelist(list): Observable<any> {
+    createInvoiceRemindersForInvoicelist(list: number[]): Observable<any> {
         return this.ActionWithBody(null, list, `create-invoicereminders-for-invoicelist`, RequestMethod.Post);
     }
 
-    public createInvoiceRemindersFromReminderRules(): Observable<any> {
+    createInvoiceRemindersFromReminderRules(): Observable<any> {
         return this.PostAction(null, `create-invoicereminders-from-reminder-rules`);
     }
 
-    public getInvoiceRemindersFromReminderRules(): Observable<any> {
+    getInvoiceRemindersFromReminderRules(): Observable<any> {
         return this.PostAction(null, `get-invoicereminders-from-reminder-rules`);
     }
 
-    public getInvoiceRemindersForInvoicelist(list): Observable<any> {
+    getInvoiceRemindersForInvoicelist(list: number[]): Observable<any> {
         return this.ActionWithBody(null, list, `get-invoicereminders-for-invoicelist`, RequestMethod.Post);
     }
 
-    public queueForDebtCollection(list): Observable<any> {
+    queueForDebtCollection(list: number[]): Observable<any> {
         return this.ActionWithBody(null, list, 'queue-for-debt-collection', RequestMethod.Put);
     }
 
-    public sendAction(list): Observable<any> {
+    sendAction(list: number[]): Observable<any> {
         return this.ActionWithBody(null, list, `send`, RequestMethod.Put);
     }
 
-    public sendTransistion(reminder): Observable<any> {
+    sendInvoicePrintAction(list: number[]): Observable<void> {
+        this.invoicePrintToast = this.toastService.addToast(
+            'Sender purringer til print',
+            ToastType.warn,
+            ToastTime.forever
+        );
+     
+        var obs = this.ActionWithBody(null, list, `send-invoice-print`, RequestMethod.Put);
+        return obs.map(() => {
+            this.toastService.removeToast(this.invoicePrintToast);
+            this.toastService.addToast(
+                'Purringer sendt til print',
+                ToastType.good,
+                ToastTime.short
+            );
+        });
+    }
+
+    sendTransistion(reminder): Observable<any> {
         return this.Transition(reminder.ID, reminder, `send`);
     }
 
-    public getStatusText(statusCode: number): string {
+    getStatusText(statusCode: number): string {
         let statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
     };
