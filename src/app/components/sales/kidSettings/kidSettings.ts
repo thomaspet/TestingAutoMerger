@@ -1,14 +1,13 @@
-import { Component, QueryList, ViewChild, } from '@angular/core';
+import { Component, ViewChild, } from '@angular/core';
 
 import { TabService, UniModules, } from '../../layout/navbar/tabstrip/tabService';
-import { UniHttp, } from '../../../../framework/core/http/http';
 import { ConfirmActions, UniModalService, } from '../../../../framework/uni-modal';
 import { Observable, } from 'rxjs/Observable';
 import { ToastService, ToastType, ToastTime, } from '../../../../framework/uniToast/toastService';
 import { IUniSaveAction, } from '../../../../framework/save/save';
 import { UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem, } from '../../../../framework/ui/unitable/index';
-import { ErrorService, PaymentInfoTypeService, StatusService, } from '../../../services/services';
-import { PaymentInfoType, StatusCodePaymentInfoType } from '../../../unientities';
+import { ErrorService, PaymentInfoTypeService, CompanySettingsService} from '../../../services/services';
+import { PaymentInfoType, StatusCodePaymentInfoType, CompanySettings } from '../../../unientities';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
@@ -21,70 +20,50 @@ declare var _;
     templateUrl: './kidSettings.html'
 })
 export class KIDSettings {
-    @ViewChild('listTable') private listTable: AgGridWrapper;
     @ViewChild('detailsTable') private detailsTable: AgGridWrapper;
 
     detailsTableConfig: UniTableConfig;
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
     formModel$: BehaviorSubject<PaymentInfoType> = new BehaviorSubject(null);
-    hasUnsavedChanges: boolean = false;
     listTableConfig: UniTableConfig;
     saveactions: IUniSaveAction[];
-    showInactiveInList: boolean = false;
-    initialPaymentInfoTypeList: PaymentInfoType[];
     contextMenu: IContextMenuItem[] = [{
         label: 'Vis inaktive',
         action: () => this.toggleInactive(),
         disabled: () => false
     }];
-
-    public sumDoesNotMatch: boolean = false;
-    public currentPaymentInfoType: PaymentInfoType;
-    private initialActive: boolean;
-    public paymentInfoTypes: PaymentInfoType[];
-    private paymentInfoTypePartsMacros: string[] = [];
-    public toolbarconfig: IToolbarConfig = {
+    sumDoesNotMatch: boolean = false;
+    currentPaymentInfoType: PaymentInfoType;
+    paymentInfoTypes: PaymentInfoType[];
+    toolbarconfig: IToolbarConfig = {
         title: 'KID-innstillinger',
         omitFinalCrumb: true
     };
 
+    private hasUnsavedChanges: boolean = false;
+    private showInactiveInList: boolean = false;
+    private initialPaymentInfoTypeList: PaymentInfoType[];
+    private initialActive: boolean;
+    private paymentInfoTypePartsMacros: string[] = [];
+    private companySettings: CompanySettings;
+
     constructor(
         private errorService: ErrorService,
-        private http: UniHttp,
         private modalService: UniModalService,
         private paymentInfoTypeService: PaymentInfoTypeService,
-        private statusService: StatusService,
         private tabService: TabService,
         private toastService: ToastService,
+        private companySettingsService: CompanySettingsService,
     ) {
         this.tabService.addTab({name: 'KID-innstillinger', url: '/sales/kidsettings', moduleID: UniModules.KIDSettings, active: true});
         this.requestData();
     }
 
-    toggleInactive() {
-        if (!this.showInactiveInList) {
-            this.paymentInfoTypes = this.initialPaymentInfoTypeList;
-            this.showInactiveInList = true;
-            this.contextMenu[0].label = 'Skjul inaktive';
-        } else {
-            this.paymentInfoTypes = this.paymentInfoTypes.filter(
-                paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
-            );
-            this.showInactiveInList = false;
-            this.contextMenu[0].label = 'Vis inaktive';
-        }
-    }
-
-    canDeactivate() {
-        return new Promise((resolve, reject) => {
-            this.checkSave(true).then(ok => resolve(ok));
-        });
-    }
 
     onDataChange() {
         this.hasUnsavedChanges = true;
-        this.checkLength();
+        this.checkLengths();
         this.updateSaveActions();
     }
 
@@ -101,7 +80,7 @@ export class KIDSettings {
     }
 
     onSaveClick(done) {
-        this.save().then(success => {
+        this.save().then(() => {
             done('Lagring fullført');
         })
         .catch(err => {
@@ -109,26 +88,81 @@ export class KIDSettings {
         });
     }
 
-    updateSaveActions() {
-        this.saveactions = [{
-            label: 'Lagre innstillinger',
-            action: (done) => this.onSaveClick(done),
-            main: true,
-            disabled: this.sumDoesNotMatch || !this.hasUnsavedChanges
-        }];
-    }
+    private checkLengths() {
+        this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part, index) => {
+            if (part.Part === '<modulus10>') {
+                this.currentPaymentInfoType.PaymentInfoTypeParts[index].Length = 1;
+            }
+        });
+        this.currentPaymentInfoType = _.cloneDeep(this.currentPaymentInfoType);
 
-    private checkLength() {
         let sum = 0;
         this.currentPaymentInfoType.PaymentInfoTypeParts
             .filter(part => !part.Deleted)
             .forEach(part => sum += part.Length || 0);
-
         this.sumDoesNotMatch = sum !== this.currentPaymentInfoType['Length'];
     }
 
+    private checkPaymentInfoTypeParts() {
+        const currentPaymentInfoTypeParts = this.currentPaymentInfoType.PaymentInfoTypeParts.filter(row => !row.Deleted);
+
+        if (!currentPaymentInfoTypeParts.find(part => part.Part === '<modulus10>')) {
+            this.toastService.addToast(
+                'Feil ved lagring', ToastType.bad, ToastTime.long, 'Kontrollsiffer må være siste element i listen'
+            );
+            throw new Error('Kontrollsiffer må være siste element i listen');
+        }
+
+        currentPaymentInfoTypeParts.forEach((part, index) => {
+            if (!part._createguid) {
+                part._createguid = this.paymentInfoTypeService.getNewGuid();
+            }
+
+            if (part.Part === '<modulus10>' && index < currentPaymentInfoTypeParts.length - 1) {
+                    this.toastService.addToast(
+                        'Feil ved lagring', ToastType.bad, ToastTime.long, 'Kontrollsiffer må være siste element i listen'
+                    );
+                    throw new Error('Kontrollsiffer må være siste element i listen');
+            }
+
+            if (this.paymentInfoTypeService.macros.find(macro => macro.Macro === part.Part) === undefined) {
+                if (/\D/.test(part.Part)) {
+                    this.toastService.addToast(
+                        'Feil ved lagring',
+                        ToastType.bad,
+                        ToastTime.long,
+                        'Kun siffer er tillatt på egendefinert element'
+                    );
+                    throw new Error('Kun siffer er tillatt på egendefinerte element');
+                }
+                if (part.Part.length !== part.Length) {
+                    this.toastService.addToast(
+                        'Feil ved lagring',
+                        ToastType.bad,
+                        ToastTime.long,
+                        'Antall siffer, ' + part.Length + ', stemmer ikke overens med elementet ' + part.Part
+                    );
+                    throw new Error('Antall siffer, ' + part.Length + ', stemmer ikke overens med elementet ' + part.Part);
+                }
+            }
+        });
+    }
+
+    private checkShowKIDSettingInCompanySettings() {
+        if (this.companySettings.ShowKIDOnCustomerInvoice
+            && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
+                this.toastService.addToast(
+                    'Feil ved lagring',
+                    ToastType.bad,
+                    ToastTime.long,
+                    `'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`
+                );
+                throw new Error(`'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`);
+        }
+    }
+
     private checkSave(confirmBeforeSave: boolean): Promise<boolean> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             if (!this.hasUnsavedChanges) {
                 resolve(true);
                 return;
@@ -167,18 +201,6 @@ export class KIDSettings {
                     .catch(err => this.errorService.handle(err));
             }
         });
-    }
-
-    validateKidLength(value: number, field: UniFieldLayout): UniFormError | null {
-        if (value && value > 25) {
-            return {
-                value: value,
-                errorMessage: 'Maks KID-lengde er 25.',
-                field: field,
-                isWarning: true
-            };
-        }
-        return null;
     }
 
     private initFormConfig() {
@@ -271,14 +293,11 @@ export class KIDSettings {
         Observable.forkJoin(
         this.paymentInfoTypeService.GetAll(null),
         this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
+        this.companySettingsService.getCompanySettings(),
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
-                if (!this.showInactiveInList) {
-                    this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
-                } else {
-                    this.paymentInfoTypes = response[0];
-                }
+                this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
@@ -286,6 +305,7 @@ export class KIDSettings {
                 this.setCurrent(this.paymentInfoTypes[0]);
 
                 this.paymentInfoTypePartsMacros = response[1];
+                this.companySettings = response[2];
 
                 this.initFormConfig();
                 this.initTableConfigs();
@@ -298,45 +318,13 @@ export class KIDSettings {
     private save(): Promise<boolean>  {
         return new Promise((resolve, reject) => {
             let action: string;
+            const requests: Observable<any>[] = [];
 
-            this.currentPaymentInfoType.PaymentInfoTypeParts =
-                this.currentPaymentInfoType.PaymentInfoTypeParts.filter(row => !row['_isEmpty']);
-
-            this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part, index) => {
-                if (!part._createguid) {
-                    part._createguid = this.paymentInfoTypeService.getNewGuid();
-                }
-
-                if (part.Part === '<modulus10>' && index < this.currentPaymentInfoType.PaymentInfoTypeParts.length - 1) {
-                    this.toastService.addToast(
-                        'Feil ved lagring', ToastType.bad, ToastTime.long, 'Kontrollsiffer må være siste element i listen'
-                    );
-                    throw new Error('Kontrollsiffer må være siste element i listen');
-                }
-
-                if (this.paymentInfoTypeService.macros.find(macro => macro.Macro === part.Part) === undefined) {
-                    if (/\D/.test(part.Part)) {
-                        this.toastService.addToast(
-                            'Feil ved lagring',
-                            ToastType.bad,
-                            ToastTime.long,
-                            'Kun siffer er tillatt på egendefinert element'
-                        );
-                        throw new Error('Kun siffer er tillatt på egendefinerte element');
-                    }
-                    if (part.Part.length !== part.Length) {
-                        this.toastService.addToast(
-                            'Feil ved lagring',
-                            ToastType.bad,
-                            ToastTime.long,
-                            'Antall siffer, ' + part.Length + ', stemmer ikke overens med elementet ' + part.Part
-                        );
-                        throw new Error('Antall siffer, ' + part.Length + ', stemmer ikke overens med elementet ' + part.Part);
-                    }
-                }
-
-                part.SortIndex = index;
-            });
+            this.currentPaymentInfoType.PaymentInfoTypeParts = this.currentPaymentInfoType.PaymentInfoTypeParts
+                .filter(row => !row['_isEmpty']);
+            this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part, index) => part.SortIndex = index);
+            this.checkPaymentInfoTypeParts();
+            this.checkShowKIDSettingInCompanySettings();
 
             // save PaymentInfoType.StatusCode if change
             if (this.currentPaymentInfoType['_active'] !== this.initialActive) {
@@ -345,31 +333,25 @@ export class KIDSettings {
                 } else {
                     action = 'deactivate-paymentinfotype';
                 }
-                this.paymentInfoTypeService.PutAction(null, action, 'ID=' + this.currentPaymentInfoType.ID)
-                    .subscribe(
-                        response => {},
-                        error => {
-                            resolve(false);
-                            this.errorService.handle(error);
-                            return;
-                        }
-                    );
+                requests.push(this.paymentInfoTypeService.PutAction(null, action, 'ID=' + this.currentPaymentInfoType.ID));
             }
 
             this.currentPaymentInfoType['type'] = undefined;
             this.currentPaymentInfoType['_active'] = undefined;
 
             // save PaymentInfoType
-            this.paymentInfoTypeService.Put(this.currentPaymentInfoType.ID, this.currentPaymentInfoType)
+            requests.push(this.paymentInfoTypeService.Put(this.currentPaymentInfoType.ID, this.currentPaymentInfoType));
+
+            Observable.forkJoin(...requests)
                 .subscribe(
-                    response => {
+                    () => {
                         resolve(true);
                         this.hasUnsavedChanges = false;
                         this.updateSaveActions();
                         this.requestData();
                     },
                     error => {
-                        resolve(false);
+                        reject(error);
                         this.errorService.handle(error);
                     }
                 );
@@ -386,6 +368,41 @@ export class KIDSettings {
         this.formModel$.next(this.currentPaymentInfoType);
         this.hasUnsavedChanges = false;
         this.updateSaveActions();
+    }
+
+    private toggleInactive() {
+        if (!this.showInactiveInList) {
+            this.paymentInfoTypes = this.initialPaymentInfoTypeList;
+            this.showInactiveInList = true;
+            this.contextMenu[0].label = 'Skjul inaktive';
+        } else {
+            this.paymentInfoTypes = this.paymentInfoTypes.filter(
+                paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
+            );
+            this.showInactiveInList = false;
+            this.contextMenu[0].label = 'Vis inaktive';
+        }
+    }
+
+    private updateSaveActions() {
+        this.saveactions = [{
+            label: 'Lagre innstillinger',
+            action: (done) => this.onSaveClick(done),
+            main: true,
+            disabled: this.sumDoesNotMatch || !this.hasUnsavedChanges
+        }];
+    }
+
+    private validateKidLength(value: number, field: UniFieldLayout): UniFormError | null {
+        if (value && value > 25) {
+            return {
+                value: value,
+                errorMessage: 'Maks KID-lengde er 25.',
+                field: field,
+                isWarning: true
+            };
+        }
+        return null;
     }
 
 }

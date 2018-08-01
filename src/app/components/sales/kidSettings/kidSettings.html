@@ -31,7 +31,7 @@
                     (resourceChange)="onDataChange()">
                 </ag-grid-wrapper>
             </fieldset>
-            <h3 *ngIf="sumDoesNotMatch" style="padding: 0; padding-left: 20px; margin: 0; color: red;">Antall siffer stemmer ikke overens med KID-lengde</h3>
+            <h3 *ngIf="sumDoesNotMatch" class="validationError">Antall siffer stemmer ikke overens med KID-lengde</h3>
             <p class="modulus">*KID-innstillingene beregnes etter modulus 10</p>
         </main>
 

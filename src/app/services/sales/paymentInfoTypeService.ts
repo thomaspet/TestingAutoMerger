@@ -1,10 +1,8 @@
 import { Injectable, } from '@angular/core';
 
+import { PaymentInfoType, } from '../../unientities';
 import { BizHttp, } from '../../../framework/core/http/BizHttp';
-import { PaymentInfoType, PaymentInfoTypePart, } from '../../unientities';
 import { UniHttp, } from '../../../framework/core/http/http';
-import { ErrorService, } from '../common/errorService';
-import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class PaymentInfoTypeService extends BizHttp<PaymentInfoType> {
@@ -28,10 +26,7 @@ export class PaymentInfoTypeService extends BizHttp<PaymentInfoType> {
         { Code: 42401, Text: 'Inaktiv' },
     ];
 
-    constructor(
-        http: UniHttp,
-        private errorService: ErrorService,
-    ) {
+    constructor(http: UniHttp) {
         super(http);
         this.relativeURL = PaymentInfoType.RelativeUrl;
         this.entityType = PaymentInfoType.EntityType;
