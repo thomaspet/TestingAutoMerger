@@ -118,8 +118,9 @@ export class UniActivateAPModal implements IUniModal {
                     ? settings.APContact.Info.DefaultPhone.Number
                     : user.PhoneNumber;
 
-                model.incommingInvoice = settings.APIncomming.find(f => f.Name == 'EHF INVOICE 2.0') != null;
-                model.outgoingInvoice = settings.APOutgoing.find(f => f.Name == 'EHF INVOICE 2.0') != null;
+                model.incommingInvoice = settings.APIncomming.find(f => f.Name === 'EHF INVOICE 2.0') != null;
+                model.outgoingInvoice = settings.APOutgoing.find(f => f.Name === 'EHF INVOICE 2.0') != null;
+                model.outgoingInvoicePrint = settings.APOutgoing.find(f => f.Name === 'NETSPRINT') != null; 
 
                 model.settings = settings;
 
