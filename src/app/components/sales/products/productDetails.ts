@@ -583,7 +583,7 @@ export class ProductDetails {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Innpris eks. mva',
                     Options: {
-                        decimalLength: 2,
+                        format: 'money',
                         decimalSeparator: ','
                     }
                 },
@@ -595,7 +595,7 @@ export class ProductDetails {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Utpris eks. mva',
                     Options: {
-                        decimalLength: 2,
+                        format: 'money',
                         decimalSeparator: ','
                     }
                 },
@@ -607,7 +607,7 @@ export class ProductDetails {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Utpris inkl. mva',
                     Options: {
-                        decimalLength: 2,
+                        format: 'money',
                         decimalSeparator: ','
                     }
                 },

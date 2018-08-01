@@ -5,6 +5,8 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {BaseControl} from '../baseControl';
+import {NumberFormat} from '@app/services/common/numberFormatService';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
 import * as _ from 'lodash';
 
 export interface INumberOptions {
@@ -32,27 +34,41 @@ export class UniNumericInput extends BaseControl implements OnChanges {
     private lastControlValue: string;
     private options: INumberOptions;
 
-    constructor(private elementRef: ElementRef) {
+    private settingsDecimalLength: number;
+
+    constructor(
+        private elementRef: ElementRef,
+        private numberFormatter: NumberFormat,
+        private companySettingsService: CompanySettingsService
+    ) {
         super();
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.settingsDecimalLength = settings.ShowNumberOfDecimals;
+            this.initOptions();
+        });
     }
 
     public ngOnChanges(changes) {
         this.createControl();
         this.lastControlValue = this.control.value;
+
         if (this.controlSubscription) {
             this.controlSubscription.unsubscribe();
         }
-        this.controlSubscription = this.control.valueChanges.subscribe(() => {
-            if (this._parseValue(this.lastControlValue) !== this.getParsedValue()) {
-                this.emitInstantChange(this.lastControlValue, this.getParsedValue(), isNaN(this.getParsedValue()));
+
+        this.controlSubscription = this.control.valueChanges.subscribe(value => {
+            const parsed = this._parseValue(value);
+            if (this.control.dirty) {
+                this.emitInstantChange(this.lastControlValue, parsed, !isNaN(parsed));
             }
         });
+
         if (changes.field && this.field) {
-            this.initOptions(this.field.Options || {});
+            this.initOptions();
         }
 
         if (this.elementRef && document.activeElement !== this.elementRef.nativeElement) {
-            this.formatControlValue();
+            this.control.setValue(this.format(this.control.value));
         }
     }
 
@@ -63,194 +79,87 @@ export class UniNumericInput extends BaseControl implements OnChanges {
     }
 
     public blurHandler() {
-        if (this.lastControlValue !== this.control.value) {
-            this.unFormatControlValue();
+        if (this.control.dirty) {
+            const previousValue = _.get(this.model, this.field.Property);
+            const newValue = this._parseValue(this.control.value);
 
-            if (this.control.valid) {
-                const value = _.get(this.model, this.field.Property);
-                const parsedValue = this.getParsedValue();
-                if (value !== parsedValue) {
-                    _.set(this.model, this.field.Property, parsedValue);
-                    this.emitChange(value, parsedValue);
-                    this.lastControlValue = this.control.value;
-                }
-            }
+            this.emitChange(previousValue, newValue);
+            _.set(this.model, this.field.Property, newValue);
+
+            this.control.setValue(this.format(newValue));
+            this.control.markAsPristine();
         }
-
-        this.formatControlValue();
     }
 
     public focusHandler() {
         this.focusEvent.emit(this);
-        this.unFormatControlValue();
     }
 
-    private initOptions(fieldOptions: INumberOptions) {
-        // Should we get default values from locale?
+    private initOptions() {
+        const fieldOptions = (this.field && this.field.Options) || {};
+
         const options = {
             format: fieldOptions.format,
             thousandSeparator: fieldOptions.thousandSeparator || ' ',
             decimalSeparator: fieldOptions.decimalSeparator || ',',
-            decimalLength: fieldOptions.decimalLength
+            decimalLength: fieldOptions.decimalLength || 0
         };
 
-        if (!options.decimalLength && fieldOptions.format === 'money') {
-            options.decimalLength = 2;
+        if (this.settingsDecimalLength && options.format === 'money') {
+            options.decimalLength = this.settingsDecimalLength;
         }
 
         this.options = options;
     }
 
-    private justOneMinusSign(value) {
-        let negative = false;
-        if (value[0] === '-') {
-            negative = true;
-        }
-        value = value.toString().replace(new RegExp('-', 'g'), '');
-        return negative ? '-'.concat(value) : value;
-    }
-
-    private getDecimalSeparator(value) {
-        const result = this.options.decimalSeparator || ',';
-        let indexDot = -1;
-        let indexComma = -1;
-        for (let i = value.length - 1; i > 0; i--) {
-            if (value[i] === '.' && indexDot === -1) {
-                indexDot = i;
-            }
-            if (value[i] === ',' && indexComma === -1) {
-                indexComma = i;
-            }
-        }
-        if (indexDot > indexComma && indexDot !== -1) {
-            return '.';
-        }
-        if (indexComma > indexDot && indexComma !== -1) {
-            return ',';
-        }
-        return result;
-    }
-
-    private cleanNumber(value, decimalSeparator) {
-        let oneDecimal = false;
-        let result = '';
-        for (let i = value.length - 1; i >= 0; i--) {
-            if (value[i] === decimalSeparator && !oneDecimal) {
-                oneDecimal = true;
-                result = value[i] + result;
-            } else {
-                if (value[i] === decimalSeparator && oneDecimal) {
-                    continue;
-                } else {
-                    if ((value[i] >= 0 && value[i] <= 9) || value[i] === '-') {
-                        result = value[i] + result;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-
-    private addThousandSeparator(value, thousandSeparator, decimalSeparator) {
-        const parts = value.split(decimalSeparator);
-        let integerPart = '';
-        for (let i = parts[0].length - 1, j = 1; i >= 0; i--) {
-            if (j % 3 === 0 && parts[0].length > 3) {
-                integerPart = thousandSeparator + parts[0][i] + integerPart;
-            } else {
-                integerPart = parts[0][i] + integerPart;
-            }
-            j++;
-        }
-        if (!parts[1]) {
-            parts[1] = '';
-        } else {
-            parts[1] = decimalSeparator + parts[1];
-        }
-        return integerPart + parts[1];
-    }
-
-    private removeThousandSeparator(value, thousandSeparator) {
-        let result = '';
-        for (let i = 0; i < value.length; i++) {
-            if (value[i] !== thousandSeparator) {
-                result =  result + value[i];
-            }
-        }
-        return result;
-    }
-
-    private formatControlValue() {
-        if (!this.control.value || this.options.format === 'none') {
+    private format(value: number): string {
+        if (!value || this.options.format === 'none') {
             return;
         }
-        let value = this.control.value + '' || '';
-        value = this.justOneMinusSign(value);
-        let decimalSeparator = this.getDecimalSeparator(value);
-        if (decimalSeparator === this.options.thousandSeparator) {
-            decimalSeparator = this.options.decimalSeparator;
-        }
-        value = this.cleanNumber(value, decimalSeparator);
-        if (this.options.format === 'percent') {
-            value = value + '%';
-        }
-        if (this.options.decimalLength === undefined) {
-            this.options.decimalLength = 0;
-        }
-        if (this.options.format === 'money') {
-            this.options.decimalLength = 2;
-        }
-        value = value.replace(this.options.decimalSeparator, '.');
-        value = this.round(value, this.options.decimalLength).toString();
-        value = this.addThousandSeparator(value + '', this.options.thousandSeparator, '.');
-        value = value.replace('.', this.options.decimalSeparator);
-        this.control.setValue(value);
-    }
 
-    private unFormatControlValue() {
-        let value = this.control.value + '' || '';
-        let result = '';
-        let negative = false;
-        if  (value[0] === '-') {
-            negative = true;
-        }
-        value = this.removeThousandSeparator(value, this.options.thousandSeparator);
-        const decimalSeparator = this.getDecimalSeparator(value);
-        for (let i = 0; i < value.length; i++) {
-            const integer = value[i] >= '0' && value[i] <= '9';
-            const hasDecimalSeparator = value[i] === decimalSeparator;
-            if (integer || hasDecimalSeparator) {
-                result += value[i];
+        const decimals = value.toString().split('.')[1];
+        let formatNumberOfDecimals = this.options.decimalLength;
+
+        if (this.options.format === 'money') {
+            // On format 'money' we dont want to force fewer decimals, only fill with 0s if
+            // number of decimals is less than the defined number in companySettings.
+            // This is to avoid confusion with sums etc that could arise if the actual number
+            // contained more decimals than our format settings would display.
+            if (decimals && decimals.length > this.options.decimalLength) {
+                formatNumberOfDecimals = decimals.length;
             }
         }
-        // result = result.replace(decimalSeparator, '.');
-        if (negative) {
-            result = '-'.concat(result);
+
+        const parsed = this._parseValue((value || '').toString());
+        let formatted = this.numberFormatter.asNumber(parsed, {
+            decimalLength: formatNumberOfDecimals,
+            thousandSeparator: this.options.thousandSeparator
+        });
+
+        if (this.options.format === 'percent') {
+            formatted = formatted + '%';
         }
-        this.control.setValue(result);
-    }
 
-    public round(value: number | string, decimals = 2) {
-        return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
-    }
-
-    private getParsedValue(): number {
-        const value = this.control.value || '';
-        return this._parseValue(value);
+        return formatted;
     }
 
     private _parseValue(value): number {
         if (_.isNumber(value)) {
             return value;
         }
+
         if (value === null || value === undefined) {
             return null;
         }
-        value = this.removeThousandSeparator(value, this.options.thousandSeparator);
-        const parsedValue = this.round(value.replace(',', '.'), this.options.decimalLength);
-        if (isNaN(parsedValue)) {
-            return null;
+
+        if (this.options.thousandSeparator) {
+            value = value.replace(this.options.thousandSeparator, '');
         }
-        return parsedValue;
+
+        value = value.replace(' ', '');
+        value = value.replace(',', '.');
+
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? null : parsed;
     }
 }

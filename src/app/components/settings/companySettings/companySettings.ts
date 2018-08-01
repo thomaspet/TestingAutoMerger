@@ -142,8 +142,8 @@ export class CompanySettingsComponent implements OnInit {
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
         {Decimals: 2, Label: '2 desimaler'},
-        // {Decimals: 3, Label: '3 desimaler'},
-        // {Decimals: 4, Label: '4 desimaler'}
+        {Decimals: 3, Label: '3 desimaler'},
+        {Decimals: 4, Label: '4 desimaler'}
     ];
 
     private logoAlignOptions: {Alignment: number, Label: string}[] = [
