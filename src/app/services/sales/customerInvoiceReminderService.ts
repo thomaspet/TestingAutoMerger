@@ -71,7 +71,7 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
 
     sendInvoicePrintAction(list: number[]): Observable<void> {
         this.invoicePrintToast = this.toastService.addToast(
-            'Sender purringer til print',
+            'Sender purringer til fakturaprint',
             ToastType.warn,
             ToastTime.forever
         );
@@ -80,7 +80,7 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
         return obs.map(() => {
             this.toastService.removeToast(this.invoicePrintToast);
             this.toastService.addToast(
-                'Purringer sendt til print',
+                'Purringer sendt til fakturaprint',
                 ToastType.good,
                 ToastTime.short
             );
