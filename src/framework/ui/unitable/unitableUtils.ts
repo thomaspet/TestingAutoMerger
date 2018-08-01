@@ -165,10 +165,10 @@ export class UniTableUtils {
      * @returns {string} filter url param
      */
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
-        // Don't use filters that miss field, operator or searchValue
+        // Don't use filters that miss field, operator or value
         // These is probably filters the user has not finished making yet
         if (filters) {
-            filters = filters.filter(f => !!f.field && !!f.operator && !!f.searchValue);
+            filters = filters.filter(f => !!f.field && !!f.operator && !!f.value);
         }
 
         if (!filters || !filters.length) {
@@ -311,13 +311,44 @@ export class UniTableUtils {
     }
 
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {
+        let filterValue = filter.value.toString() || '';
 
-        let filterValue = filter.searchValue ? filter.searchValue.toString() :  filter.value.toString();
+        // If filter is date and operator requires complete date string
+        // we need to autocomplete the filter input
+        if (filter.isDate && (
+            filter.operator === 'eq'
+            || filter.operator === 'ne'
+            || filter.operator === 'lt'
+            || filter.operator === 'le'
+            || filter.operator === 'gt'
+            || filter.operator === 'ge'
+        )) {
+            let dateString = '';
+
+            // Split on space, dot, dash or slash
+            let dateSplit = filterValue.split(/[ .\-\/]/);
+
+            // Remove non-numeric characters
+            dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
+
+            if (dateSplit[0]) {
+                const day = dateSplit[0];
+                const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
+                const year = dateSplit[2] || new Date().getFullYear().toString();
+
+                const momentDate = moment(`${month}-${day}-${year}`);
+                if (momentDate.isValid()) {
+                    dateString = momentDate.format('YYYY-MM-DD');
+                }
+            }
+
+            filterValue = dateString;
+        }
 
         // if expressionfiltervalues are defined, e.g. ":currentuserid", check if any of the defined filters
         // should inject the expressionfiltervalue
         if (filterValue.toString().startsWith(':')) {
-            let expressionFilterValue = expressionFilterValues.find(efv => ':' + efv.expression === filterValue);
+            const expressionFilterValue = expressionFilterValues.find(efv => ':' + efv.expression === filterValue);
 
             if (expressionFilterValue) {
                 filterValue = expressionFilterValue.value;

@@ -281,7 +281,6 @@ export class UniDimensionView implements OnInit {
                 operator: 'eq',
                 value: this.currentItem.ID,
                 group: 0,
-                searchValue: '',
                 selectConfig: null
             };
 

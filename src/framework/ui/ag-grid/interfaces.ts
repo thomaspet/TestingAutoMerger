@@ -5,7 +5,6 @@ export interface ITableFilter {
     operator: string;
     value: string | number;
     group: number;
-    searchValue: string;
     selectConfig: {options: Array<any>, valueField: string, displayField: string};
     isDate?: boolean;
 }

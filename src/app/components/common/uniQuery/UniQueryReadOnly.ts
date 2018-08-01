@@ -155,7 +155,6 @@ export class UniQueryReadOnly implements OnChanges {
                                 operator: field.Operator,
                                 value: field.Value,
                                 group: field.Group,
-                                searchValue: '',
                                 selectConfig: null
                             };
 
