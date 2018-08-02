@@ -59,8 +59,8 @@ export class ReminderSending implements OnInit {
     private remindersAll: CustomReminder[];
     reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
-        + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency'
-        + ',CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
+        + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,'
+        + 'InterestFeeCurrency as InterestFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
         + 'CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,'
         + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
         + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
@@ -530,6 +530,14 @@ export class ReminderSending implements OnInit {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
 
+        const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
+            .setEditable(false)
+            .setVisible(false);
+
         if (!this.modalMode) {
             invoiceNumberCol.setType(UniTableColumnType.Link);
             invoiceNumberCol.setLinkResolver(reminder => `/sales/invoices/${reminder.InvoiceID}`);
@@ -544,7 +552,7 @@ export class ReminderSending implements OnInit {
 
         this.reminderTable = new UniTableConfig('sales.reminders.reminderSending', true, true, 25)
             .setSearchable(false)
-            .setColumnMenuVisible(false)
+            .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
@@ -552,7 +560,7 @@ export class ReminderSending implements OnInit {
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
                 emailCol, currencyCodeCol, taxInclusiveAmountCol, restAmountCol,
-                feeAmountCol, dueDateCol, statusCol
+                feeAmountCol, interestAmountCol, dueDateCol, statusCol
             ]);
     }
 

@@ -304,6 +304,14 @@ export class ReminderList {
             .setConditionalCls((item) => {
                 return (+item.RestAmount >= 0) ? 'number-good' : 'number-bad';
             });
+
+        const interestAmountCol = new UniTableColumn('Interest', 'Renter', UniTableColumnType.Number, false)
+            .setWidth('10%')
+            .setFilterOperator('eq')
+            .setFormat('{0:n}')
+            .setNumberFormat(this.numberFormat)
+            .setVisible(false)
+
         const invoiceDateCol = new UniTableColumn('InvoiceDate', 'Opprettet', UniTableColumnType.LocalDate, false)
             .setWidth('8%').setFilterOperator('eq');
         const dueDateCol = new UniTableColumn('DueDate', 'Forfallsdato', UniTableColumnType.LocalDate, true)
@@ -365,7 +373,7 @@ export class ReminderList {
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
-                feeAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol
+                feeAmountCol, interestAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol
             ])
             .setContextMenu(contextMenuItems);
     }
