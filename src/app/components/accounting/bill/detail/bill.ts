@@ -280,17 +280,27 @@ export class BillView implements OnInit {
         this.route.params.subscribe((params: any) => {
             const id = safeInt(params.id);
             const projectID = safeInt(params['projectID']);
+            const pageParams = this.pageStateService.getPageState();
+        
             if (id === this.currentID) { return; } // no-reload-required
             Observable.forkJoin(
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
-                this.customDimensionService.getMetadata()
+                this.customDimensionService.getMetadata(),
+                this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
                 this.customDimensions = res[2];
+                const links = res[3];
 
-                if (id > 0) {
+                if (links.length > 0) {
+                    if (links.length > 1) {
+                        this.toast.addToast('Flere fakturamottak knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                    }
+                    this.currentID = links[0].entityID;
+                    this.router.navigateByUrl('/accounting/bills/' + this.currentID);
+                } else if (id > 0) {
                     this.fetchInvoice(id, true);
                 } else {
                     this.newInvoice(true);
