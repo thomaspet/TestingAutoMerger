@@ -13,6 +13,7 @@ import {
     CompanySettings,
     ApprovalStatus
 } from '../../../unientities';
+import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
 import {safeInt} from '../../common/utils/utils';
 import {UniAssignModal, AssignDetails} from './detail/assignmodal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
@@ -24,7 +25,8 @@ import {
     PageStateService,
     CompanySettingsService,
     UserService,
-    JournalEntryService
+    JournalEntryService,
+    FileService
 } from '../../../services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {ImageModal} from '../../common/modals/ImageModal';
@@ -215,7 +217,8 @@ export class BillsView implements OnInit {
         private modalService: UniModalService,
         private userService: UserService,
         private approvalService: ApprovalService,
-        private journalEntryService: JournalEntryService
+        private journalEntryService: JournalEntryService,
+        private fileService: FileService
     ) {
         tabService.addTab({
             name: 'Fakturamottak',
@@ -945,28 +948,64 @@ export class BillsView implements OnInit {
             this.currentFilter.count--;
             const fileId = row.ID;
             if (fileId) {
-                const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Bekreft sletting',
-                    message: 'Slett aktuell fil: ' + row.Name
-                });
-
-                modal.onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        if (this.fileID && this.fileID[0] === fileId) {
-                            this.previewVisible = false;
-                            this.fileID = null;
-                        }
-                        this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
-                            res => {
-                                this.toast.addToast('Filen er slettet', ToastType.good, 2);
-                            },
-                            err => {
-                                this.errorService.handle(err);
+                // Is file allready used for supplier invoice?
+                this.fileService.getLinkedEntityID("SupplierInvoice", fileId).subscribe(links => {
+                    if (links.length > 0) {
+                        const completedModal = this.modalService.open(UniConfirmModalV2, {
+                            header: 'Bekreft fjerning fra innboks',
+                            message: 'Det finnes fakturamottak på ' + row.Name + ", fjerne fra innboksen?"
+                        });
+        
+                        completedModal.onClose.subscribe(response => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                if (this.fileID && this.fileID[0] === fileId) {
+                                    this.previewVisible = false;
+                                    this.fileID = null;
+                                }
+                                this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId).subscribe(
+                                    tags => {
+                                        this.fileService.tag(fileId, tags.Data[0].tagname, StatusCode.Completed).subscribe(() => {
+                                            this.toast.addToast('Filen er fjernet fra innboks', ToastType.good, 2);                                        
+                                        }, err => {
+                                            this.errorService.handle(err);
+                                            this.refreshList(this.currentFilter);   
+                                        });
+                                    }, err => {
+                                        this.errorService.handle(err);
+                                        this.refreshList(this.currentFilter);
+                                    }
+                                );
+                            }
+                            else 
+                            {
+                                this.refreshList(this.currentFilter);                                
+                            }
+                        });
+                    } else {
+                        const deleteModal = this.modalService.open(UniConfirmModalV2, {
+                            header: 'Bekreft sletting',
+                            message: 'Slett aktuell fil: ' + row.Name
+                        });
+        
+                        deleteModal.onClose.subscribe(response => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                if (this.fileID && this.fileID[0] === fileId) {
+                                    this.previewVisible = false;
+                                    this.fileID = null;
+                                }
+                                this.supplierInvoiceService.send('files/' + fileId, undefined, 'DELETE').subscribe(
+                                    res => {
+                                        this.toast.addToast('Filen er slettet', ToastType.good, 2);
+                                    },
+                                    err => {
+                                        this.errorService.handle(err);
+                                        this.refreshList(this.currentFilter);
+                                    }
+                                );        
+                            } else {
                                 this.refreshList(this.currentFilter);
                             }
-                        );
-                    } else {
-                        this.refreshList(this.currentFilter);
+                        });                                     
                     }
                 });
             }
