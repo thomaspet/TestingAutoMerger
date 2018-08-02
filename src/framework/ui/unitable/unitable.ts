@@ -29,7 +29,6 @@ export interface ITableFilter {
     operator: string;
     value: string | number;
     group: number;
-    searchValue: string;
     selectConfig: {options: Array<any>, valueField: string, displayField: string};
     isDate?: boolean;
 }
@@ -611,11 +610,23 @@ export class UniTable implements OnChanges {
     }
 
     private filterAndSortTable(emitFilterString: boolean = false) {
+        // Make sure date filters are correctly marked
+        this.advancedSearchFilters = (this.advancedSearchFilters || []).map(filter => {
+            const col = this.tableColumns.find(c => c.get('field') === filter.field);
+
+            filter.isDate = !!col && (
+                col.get('type') === UniTableColumnType.DateTime
+                || col.get('type') === UniTableColumnType.LocalDate
+            );
+
+            return filter;
+        });
+
         // Get filter string
-        var filterString = '';
+        let filterString = '';
         if (this.remoteData || emitFilterString) {
-            let basicFilter = this.utils.getFilterString(this.basicSearchFilters, this.config.expressionFilterValues, 'or');
-            let advancedFilter = this.utils.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues);
+            const basicFilter = this.utils.getFilterString(this.basicSearchFilters, this.config.expressionFilterValues, 'or');
+            const advancedFilter = this.utils.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues);
 
             if (basicFilter.length && advancedFilter.length) {
                 // extra spaces before/after filters is intentional, missing spaces sometimes causes

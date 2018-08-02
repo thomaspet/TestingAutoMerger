@@ -454,6 +454,19 @@ export class TableDataService {
         advancedSearchFilters = advancedSearchFilters.filter(f => !!f.field && !!f.operator);
         basicSearchFilters = basicSearchFilters.filter(f => !!f.field && !!f.operator);
 
+        // Make sure date filters are correctly marked (for date autocompletion)
+        advancedSearchFilters = advancedSearchFilters.map(filter => {
+            const col = this.config.columns.find(c => c.field === filter.field);
+
+            filter.isDate = !!col && (
+                col.type === UniTableColumnType.DateTime
+                || col.type === UniTableColumnType.LocalDate
+            );
+
+            return filter;
+        });
+
+
         // Sort advanced filters by group
         advancedSearchFilters = advancedSearchFilters.sort((a, b) => a.group - b.group);
 
@@ -489,7 +502,7 @@ export class TableDataService {
 
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
         if (filters) {
-            filters = filters.filter(f => !!f.searchValue);
+            filters = filters.filter(f => !!f.value);
         }
 
         if (!filters || !filters.length) {
@@ -546,9 +559,39 @@ export class TableDataService {
     }
 
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {
-        let filterValue = filter.searchValue
-            ? filter.searchValue || ''
-            : filter.value || '';
+        let filterValue = filter.value.toString() || '';
+
+        // If filter is date and operator requires complete date string
+        // we need to autocomplete the filter input
+        if (filter.isDate && (
+            filter.operator === 'eq'
+            || filter.operator === 'ne'
+            || filter.operator === 'lt'
+            || filter.operator === 'le'
+            || filter.operator === 'gt'
+            || filter.operator === 'ge'
+        )) {
+            let dateString = '';
+
+            // Split on space, dot, dash or slash
+            let dateSplit = filterValue.split(/[ .\-\/]/);
+
+            // Remove non-numeric characters
+            dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
+
+            if (dateSplit[0]) {
+                const day = dateSplit[0];
+                const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
+                const year = dateSplit[2] || new Date().getFullYear().toString();
+
+                const momentDate = moment(`${month}-${day}-${year}`);
+                if (momentDate.isValid()) {
+                    dateString = momentDate.format('YYYY-MM-DD');
+                }
+            }
+
+            filterValue = dateString;
+        }
 
         // If expressionfiltervalues are defined, e.g. ":currentuserid",
         // check if any of the defined filters should inject the expressionfiltervalue

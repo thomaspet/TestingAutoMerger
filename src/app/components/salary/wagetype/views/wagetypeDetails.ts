@@ -600,8 +600,8 @@ export class WagetypeDetail extends UniView {
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)
             .setFilters([
-                { field: '_setDelete', operator: 'ne', value: 'true', group: 0, searchValue: '', selectConfig: null },
-                { field: 'Deleted', operator: 'ne', value: 'true', group: 0, searchValue: '', selectConfig: null }
+                { field: '_setDelete', operator: 'ne', value: 'true', group: 0, selectConfig: null },
+                { field: 'Deleted', operator: 'ne', value: 'true', group: 0, selectConfig: null }
             ])
             .setColumns([tilleggsopplysning, suggestedValue])
             .setAutoAddNewRow(false)

@@ -371,7 +371,7 @@ export class TimesheetService {
             if (autoCreate) {
                 relationsSource = this.workerService.getRelationsForUser(userID);
             } else {
-                const route = `workrelations?expand=worker&filter=worker.userid eq ${userID}&hateoas=false`;
+                const route = `workrelations?expand=worker,workprofile&filter=worker.userid eq ${userID}&hateoas=false`;
                 relationsSource = this.workerService.get<Observable<WorkRelation[]>>(route);
             }
 

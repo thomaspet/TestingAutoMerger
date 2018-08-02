@@ -372,12 +372,12 @@ export class TableSearch implements OnChanges, AfterViewInit {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }
+
         this.advancedSearchFilters.push({
             field: '',
             operator: 'contains',
             value: '',
             group: 0,
-            searchValue: '',
             selectConfig: null
         });
     }
@@ -419,7 +419,7 @@ export class TableSearch implements OnChanges, AfterViewInit {
                 filters.push({
                     field: column.displayField || column.field,
                     operator: column.filterOperator,
-                    searchValue: value,
+                    value: value,
                     group: ''
                 });
             }
@@ -437,56 +437,8 @@ export class TableSearch implements OnChanges, AfterViewInit {
         this.emitFiltersTimeout = setTimeout(() => {
             this.filtersChange.emit({
                 basicSearchFilters: this.basicSearchFilters,
-                advancedSearchFilters: this.getAdvancedFilters()
+                advancedSearchFilters: this.advancedSearchFilters
             });
         }, 250);
-    }
-
-    private getAdvancedFilters() {
-        return this.advancedSearchFilters.map(filter => {
-            const column = this.columns.find(col => col.field === filter.field);
-
-            if (!column) {
-                return filter;
-            }
-
-            if (column.type === UniTableColumnType.DateTime || column.type === UniTableColumnType.LocalDate) {
-                filter.isDate = true;
-
-                // No need to construct date string for these operators
-                if (filter.operator === 'contains'
-                    || filter.operator === 'startswith'
-                    || filter.operator === 'endswith'
-                ) {
-                    filter.searchValue = filter.value.toString();
-                // For the rest of the operators we need a valid date string to avoid errors
-                } else {
-                    let dateString = '';
-
-                    // Split on space, dot, dash or slash
-                    let dateSplit = filter.value.toString().split(/[ .\-\/]/);
-
-                    // Remove non-numeric characters
-                    dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
-
-                    if (dateSplit[0]) {
-                        const day = dateSplit[0];
-                        const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
-                        const year = dateSplit[2] || new Date().getFullYear().toString();
-
-                        const momentDate = moment(`${month}-${day}-${year}`);
-                        if (momentDate.isValid()) {
-                            dateString = momentDate.format('YYYY-MM-DD');
-                        }
-                    }
-
-                    filter.searchValue = dateString;
-                }
-            } else {
-                filter.searchValue = filter.value.toString();
-            }
-
-            return filter;
-        });
     }
 }

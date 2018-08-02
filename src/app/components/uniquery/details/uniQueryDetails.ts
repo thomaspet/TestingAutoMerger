@@ -194,7 +194,6 @@ export class UniQueryDetails {
                            operator: field.Operator,
                            value: field.Value,
                            group: field.Group,
-                           searchValue: '',
                            selectConfig: null
                        };
 

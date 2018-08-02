@@ -27,7 +27,6 @@ import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
             </article>
-
             <footer>
                 <button class="good"
                         (click)="close(true)"
@@ -94,7 +93,6 @@ export class UniBankAccountModal implements IUniModal {
             const first = inputs[0];
             first.focus();
             first.value = first.value; // set cursor at end of text
-
             const last = inputs[inputs.length - 1];
             Observable.fromEvent(last, 'keydown')
                 .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)

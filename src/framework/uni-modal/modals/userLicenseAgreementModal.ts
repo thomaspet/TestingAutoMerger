@@ -30,7 +30,7 @@ import {IUniModal, ConfirmActions} from '../interfaces';
 
             <footer>
                 <mat-checkbox [(ngModel)]="licenseAgreement">
-                    Godta lisensavtale
+                    Godta databehandleravtale
                 </mat-checkbox>
 
                 <button class="good" (click)="confirm()" [disabled]="!licenseAgreement">Bekreft</button>

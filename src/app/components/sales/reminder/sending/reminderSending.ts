@@ -4,7 +4,7 @@ import {SendEmail} from '../../../../models/sendEmail';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {Observable} from 'rxjs/Observable';
-import {LocalDate, CustomerInvoiceReminder} from '../../../../unientities';
+import {LocalDate, CustomerInvoiceReminder, ReportDefinition} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -32,6 +32,19 @@ export interface IRunNumberData {
     RemindedDate: LocalDate;
 }
 
+export interface CustomReminder extends CustomerInvoiceReminder {
+    InvoiceID: number;
+    InvoiceNumber: number;
+    InvoiceDueDate: LocalDate;
+    InvoiceDate: LocalDate;
+    CustomerID: number;
+    CustomerName: string;
+    RestAmountCurrency: number;
+    TaxInclusiveAmountCurrency: number;
+    CustomerNumber: number;
+    _CurrencyCode: string;
+}
+
 @Component({
     selector: 'reminder-sending',
     templateUrl: './reminderSending.html'
@@ -41,10 +54,10 @@ export class ReminderSending implements OnInit {
     @Input() modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
-    remindersEmail: any;
-    remindersPrint: any;
-    private remindersAll: any;
-    private reminderTable: UniTableConfig;
+    remindersEmail: CustomReminder[];
+    remindersPrint: CustomReminder[];
+    private remindersAll: CustomReminder[];
+    reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency'
         + ',CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
@@ -352,23 +365,23 @@ export class ReminderSending implements OnInit {
         if (this.currentRunNumber === 0) { this.currentRunNumber = reminders[0].RunNumber; }
         const filter = `RunNumber eq ${this.currentRunNumber}`;
         this.statisticsService.GetAllUnwrapped(this.reminderQuery + filter)
-            .subscribe((remindersAll) => {
-                this.remindersAll = remindersAll.map((r) => {
-                    r._rowSelected = true;
-                    return r;
+            .subscribe((remindersAll: CustomReminder[]) => {
+                this.remindersAll = remindersAll.map(reminder => {
+                    reminder['_rowSelected'] = true;
+                    return reminder;
                 });
 
-                this.remindersEmail = this.remindersAll.filter((r) => !!r.EmailAddress);
-                this.remindersPrint = this.remindersAll.filter((r) => this.remindersEmail.indexOf(r) < 0);
+                this.remindersEmail = this.remindersAll.filter(reminder => !!reminder.EmailAddress);
+                this.remindersPrint = this.remindersAll.filter(reminder => this.remindersEmail.indexOf(reminder) < 0);
             });
     }
 
     getSelected() {
         const tables = this.tables.toArray();
-        const emails = tables[0] && tables[0].getSelectedRows() || [];
-        const print = tables[1] && tables[1].getSelectedRows() || [];
+        const emailReminders: CustomReminder[] = tables[0] && tables[0].getSelectedRows() || [];
+        const printReminders: CustomReminder[] = tables[1] && tables[1].getSelectedRows() || [];
 
-        return emails.concat(print);
+        return emailReminders.concat(printReminders);
     }
 
     getSelectedEmail() {
@@ -382,36 +395,43 @@ export class ReminderSending implements OnInit {
     }
 
     sendEmail(doneHandler?) {
-        const emails = this.getSelectedEmail();
-        if (emails.length === 0) { return; }
-        this.reminderService.sendAction(emails.map(x => x.ID)).subscribe(() => {
+        const emailReminders = this.getSelectedEmail();
+        if (emailReminders.length === 0) { return; }
+        this.reminderService.sendAction(emailReminders.map(reminder => reminder.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
-            emails.forEach((r) => {
+            emailReminders.forEach(reminder => {
                 const email = new SendEmail();
                 email.Format = 'pdf';
-                email.EmailAddress = r.EmailAddress;
+                email.EmailAddress = reminder.EmailAddress;
                 email.EntityType = 'CustomerInvoiceReminder';
-                email.EntityID = r.ID;
-                email.Subject = `Purring fakturanr. ${r.InvoiceNumber}`;
-                email.Message = `Vedlagt finner du purring ${r.ReminderNumber} for faktura ${r.InvoiceNumber}`;
+                email.EntityID = reminder.ID;
+                email.Subject = `Purring fakturanr. ${reminder.InvoiceNumber}`;
+                email.Message = `Vedlagt finner du purring ${reminder.ReminderNumber} for faktura ${reminder.InvoiceNumber}`;
 
-                const parameters = [{Name: 'odatafilter', value: `ID eq ${r.ID}`}];
+                const parameters = [
+                    {Name: 'CustomerInvoiceID', value: reminder.InvoiceID},
+                    {Name: 'ReminderNumber', value: reminder.ReminderNumber}
+                ];
                 this.emailService.sendEmailWithReportAttachment('Purring', email, parameters, doneHandler);
             });
         });
     }
 
-    sendPrint(all) {
-        const prints = all ? this.getSelected() : this.getSelectedPrint();
-        if (prints.length === 0) { return; }
-        this.reminderService.sendAction(prints.map(x => x.ID)).subscribe(() => {
+    sendPrint(all: boolean) {
+        const printReminders: CustomReminder[] = all ? this.getSelected() : this.getSelectedPrint();
+        if (printReminders.length === 0) { return; }
+        this.reminderService.sendAction(printReminders.map(reminder => reminder.ID)).subscribe(() => {
             this.loadRunNumber(this.currentRunNumber);
 
-            this.reportDefinitionService.getReportByName('Purring').subscribe((report) => {
+            this.reportDefinitionService.getReportByName('Purring').subscribe((report: ReportDefinition) => {
                 if (report) {
-                    const filter = prints.map((r) => 'ID eq ' + r.ID).join(' or ');
-                    report.parameters = [{Name: 'odatafilter', value: filter}];
+                    const invoiceIDParam = printReminders.map(reminder => reminder.InvoiceID).join(' or ');
+                    const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).join(' or ');
+                    report['parameters'] = [
+                        {Name: 'CustomerInvoiceID', value: invoiceIDParam},
+                        {Name: 'ReminderNumber', value: reminderNumberParam}
+                    ];
 
                     this.modalService.open(UniPreviewModal, {
                         data: report

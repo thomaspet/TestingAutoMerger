@@ -360,7 +360,6 @@ export class TransqueryDetails implements OnInit {
             filter.push({
                 field: 'Account.AccountNumber',
                 operator: 'eq',
-                searchValue: routeParams['Account_AccountNumber'],
                 value: routeParams['Account_AccountNumber'],
                 group: 0,
                 selectConfig: null
@@ -370,8 +369,8 @@ export class TransqueryDetails implements OnInit {
                 filter.push({
                     field: 'FinancialDate',
                     operator: 'lt',
-                    searchValue: accountYear,
                     value: accountYear,
+                    isDate: true,
                     group: 0,
                     selectConfig: null
                 });
@@ -380,8 +379,8 @@ export class TransqueryDetails implements OnInit {
                     filter.push({
                         field: 'FinancialDate',
                         operator: 'lt',
-                        searchValue: nextAccountYear,
                         value: nextAccountYear,
+                        isDate: true,
                         group: 0,
                         selectConfig: null
                     });
@@ -389,8 +388,8 @@ export class TransqueryDetails implements OnInit {
                     filter.push({
                         field: 'FinancialDate',
                         operator: 'ge',
-                        searchValue: accountYear,
                         value: accountYear,
+                        isDate: true,
                         group: 0,
                         selectConfig: null
                     });
@@ -398,8 +397,8 @@ export class TransqueryDetails implements OnInit {
                     filter.push({
                         field: 'FinancialDate',
                         operator: 'lt',
-                        searchValue: nextAccountYear,
                         value: nextAccountYear,
+                        isDate: true,
                         group: 0,
                         selectConfig: null
                     });
@@ -410,8 +409,8 @@ export class TransqueryDetails implements OnInit {
                 filter.push({
                     field: 'FinancialDate',
                     operator: 'ge',
-                    searchValue: periodDates.firstDayOfPeriod,
                     value: periodDates.firstDayOfPeriod,
+                    isDate: true,
                     group: 0,
                     selectConfig: null
                 });
@@ -419,8 +418,8 @@ export class TransqueryDetails implements OnInit {
                 filter.push({
                     field: 'FinancialDate',
                     operator: 'le',
-                    searchValue: periodDates.lastDayOfPeriod,
                     value: periodDates.lastDayOfPeriod,
+                    isDate: true,
                     group: 0, selectConfig: null
                 });
             }
@@ -485,7 +484,6 @@ export class TransqueryDetails implements OnInit {
                 field: 'JournalEntryNumber',
                 operator: 'eq',
                 value: routeParams['JournalEntryNumber'],
-                searchValue: routeParams['JournalEntryNumber'],
                 group: 0,
                 selectConfig: null
             });
@@ -497,7 +495,6 @@ export class TransqueryDetails implements OnInit {
                     field: field.replace('_', '.'),
                     operator: 'eq',
                     value: routeParams[field],
-                    searchValue: routeParams[field],
                     group: 0,
                     selectConfig: null
                 });
