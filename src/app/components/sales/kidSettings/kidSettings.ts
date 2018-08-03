@@ -1,17 +1,17 @@
-import { Component, ViewChild, } from '@angular/core';
+import { Component, ViewChild, SimpleChanges, } from '@angular/core';
 
-import { TabService, UniModules, } from '../../layout/navbar/tabstrip/tabService';
-import { ConfirmActions, UniModalService, } from '../../../../framework/uni-modal';
-import { Observable, } from 'rxjs/Observable';
-import { ToastService, ToastType, ToastTime, } from '../../../../framework/uniToast/toastService';
-import { IUniSaveAction, } from '../../../../framework/save/save';
-import { UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem, } from '../../../../framework/ui/unitable/index';
-import { ErrorService, PaymentInfoTypeService, CompanySettingsService} from '../../../services/services';
-import { PaymentInfoType, StatusCodePaymentInfoType, CompanySettings } from '../../../unientities';
-import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
-import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
-import { FieldType, UniField, UniFieldLayout, UniFormError, } from '@uni-framework/ui/uniform';
+import { Observable, } from 'rxjs/Observable';
+import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
+import { TabService, UniModules, } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ErrorService, PaymentInfoTypeService, CompanySettingsService} from '@app/services/services';
+import { IUniSaveAction, } from '@uni-framework/save/save';
+import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { FieldType, UniField, UniFieldLayout, UniFormError, UniForm, } from '@uni-framework/ui/uniform';
+import { UniTableColumn, UniTableColumnType, UniTableConfig, } from '@uni-framework/ui/unitable/index';
+import { ToastService, ToastType, ToastTime, } from '@uni-framework/uniToast/toastService';
+import { ConfirmActions, UniModalService, } from '@uni-framework/uni-modal';
+import { PaymentInfoType, StatusCodePaymentInfoType, CompanySettings } from '@uni-entities';
 
 declare var _;
 
@@ -21,48 +21,65 @@ declare var _;
 })
 export class KIDSettings {
     @ViewChild('detailsTable') private detailsTable: AgGridWrapper;
+    @ViewChild(UniForm) private form: UniForm;
 
+    currentPaymentInfoType: PaymentInfoType;
     detailsTableConfig: UniTableConfig;
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
     formModel$: BehaviorSubject<PaymentInfoType> = new BehaviorSubject(null);
+    isKidLengthOK: boolean = true;
     listTableConfig: UniTableConfig;
     saveactions: IUniSaveAction[];
-    contextMenu: IContextMenuItem[] = [{
-        label: 'Vis inaktive',
-        action: () => this.toggleInactive(),
-        disabled: () => false
-    }];
-    sumDoesNotMatch: boolean = false;
-    currentPaymentInfoType: PaymentInfoType;
     paymentInfoTypes: PaymentInfoType[];
+    showInactiveInList: boolean = false;
+    toggleBtnLabel: string = 'Vis inaktive';
     toolbarconfig: IToolbarConfig = {
         title: 'KID-innstillinger',
         omitFinalCrumb: true
     };
 
+    private companySettings: CompanySettings;
     private hasUnsavedChanges: boolean = false;
-    private showInactiveInList: boolean = false;
     private initialPaymentInfoTypeList: PaymentInfoType[];
     private initialActive: boolean;
     private paymentInfoTypePartsMacros: string[] = [];
-    private companySettings: CompanySettings;
 
     constructor(
+        private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private paymentInfoTypeService: PaymentInfoTypeService,
         private tabService: TabService,
         private toastService: ToastService,
-        private companySettingsService: CompanySettingsService,
     ) {
         this.tabService.addTab({name: 'KID-innstillinger', url: '/sales/kidsettings', moduleID: UniModules.KIDSettings, active: true});
         this.requestData();
     }
 
+    checkInactive() {
+        if (this.showInactiveInList) {
+            this.paymentInfoTypes = this.initialPaymentInfoTypeList;
+        } else {
+            this.paymentInfoTypes = this.paymentInfoTypes.filter(
+                paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
+            );
+        }
+    }
 
-    onDataChange() {
+    onDataChange(formChanges?: SimpleChanges) {
         this.hasUnsavedChanges = true;
+        if (formChanges) {
+            const paymentInfoType = this.formModel$.getValue();
+            if (formChanges['_active']) {
+                paymentInfoType.StatusCode = formChanges['_active'].currentValue
+                    ? StatusCodePaymentInfoType.Active
+                    : StatusCodePaymentInfoType.Disabled;
+            }
+            this.form.validateForm();
+            this.currentPaymentInfoType = paymentInfoType;
+            this.formModel$.next(paymentInfoType);
+        }
         this.checkLengths();
         this.updateSaveActions();
     }
@@ -100,7 +117,7 @@ export class KIDSettings {
         this.currentPaymentInfoType.PaymentInfoTypeParts
             .filter(part => !part.Deleted)
             .forEach(part => sum += part.Length || 0);
-        this.sumDoesNotMatch = sum !== this.currentPaymentInfoType['Length'];
+        this.isKidLengthOK = (sum === this.currentPaymentInfoType.Length);
     }
 
     private checkPaymentInfoTypeParts() {
@@ -148,19 +165,6 @@ export class KIDSettings {
         });
     }
 
-    private checkShowKIDSettingInCompanySettings() {
-        if (this.companySettings.ShowKIDOnCustomerInvoice
-            && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
-                this.toastService.addToast(
-                    'Feil ved lagring',
-                    ToastType.bad,
-                    ToastTime.long,
-                    `'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`
-                );
-                throw new Error(`'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`);
-        }
-    }
-
     private checkSave(confirmBeforeSave: boolean): Promise<boolean> {
         return new Promise(resolve => {
             if (!this.hasUnsavedChanges) {
@@ -203,6 +207,19 @@ export class KIDSettings {
         });
     }
 
+    private checkShowKIDSettingInCompanySettings() {
+        if (this.companySettings.ShowKIDOnCustomerInvoice
+            && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
+                this.toastService.addToast(
+                    'Feil ved lagring',
+                    ToastType.bad,
+                    ToastTime.long,
+                    `'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`
+                );
+                throw new Error(`'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`);
+        }
+    }
+
     private initFormConfig() {
         this.formConfig$.next({});
         this.formFields$.next([
@@ -212,7 +229,7 @@ export class KIDSettings {
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -229,7 +246,7 @@ export class KIDSettings {
                 Label: 'KID-lengde',
                 Validations: [this.validateKidLength],
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -238,7 +255,7 @@ export class KIDSettings {
                 Label: 'Aktiv',
                 Classes: ['toggle'],
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
         ]);
     }
@@ -263,10 +280,11 @@ export class KIDSettings {
                     }),
             ]);
 
-        this.detailsTableConfig = new UniTableConfig('sales.kidsettings.details', !this.currentPaymentInfoType.Locked, true, 15)
+        this.detailsTableConfig = new UniTableConfig(
+            'sales.kidsettings.details', this.currentPaymentInfoType ? !this.currentPaymentInfoType.Locked : false, true, 15)
             .setSortable(false)
             .setRowDraggable(true)
-            .setDeleteButton(true, !this.currentPaymentInfoType.Locked)
+            .setDeleteButton(true, true)
             .setColumns([
                 new UniTableColumn('Part', 'Element', UniTableColumnType.Typeahead)
                     .setTemplate(item => {
@@ -297,18 +315,21 @@ export class KIDSettings {
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
-                this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
+                this.paymentInfoTypes = response[0];
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
                 });
-                this.setCurrent(this.paymentInfoTypes[0]);
+                if (this.paymentInfoTypes.find(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
+                    this.setCurrent(this.paymentInfoTypes[0]);
+                }
 
                 this.paymentInfoTypePartsMacros = response[1];
                 this.companySettings = response[2];
 
                 this.initFormConfig();
                 this.initTableConfigs();
+                this.checkInactive();
                 this.updateSaveActions();
             },
             error => this.errorService.handle(error)
@@ -323,6 +344,8 @@ export class KIDSettings {
             this.currentPaymentInfoType.PaymentInfoTypeParts = this.currentPaymentInfoType.PaymentInfoTypeParts
                 .filter(row => !row['_isEmpty']);
             this.currentPaymentInfoType.PaymentInfoTypeParts.forEach((part, index) => part.SortIndex = index);
+            const currentIdx = this.paymentInfoTypes.findIndex(paymentInfoType => paymentInfoType.ID === this.currentPaymentInfoType.ID);
+            this.paymentInfoTypes[currentIdx] = this.currentPaymentInfoType;
             this.checkPaymentInfoTypeParts();
             this.checkShowKIDSettingInCompanySettings();
 
@@ -370,26 +393,12 @@ export class KIDSettings {
         this.updateSaveActions();
     }
 
-    private toggleInactive() {
-        if (!this.showInactiveInList) {
-            this.paymentInfoTypes = this.initialPaymentInfoTypeList;
-            this.showInactiveInList = true;
-            this.contextMenu[0].label = 'Skjul inaktive';
-        } else {
-            this.paymentInfoTypes = this.paymentInfoTypes.filter(
-                paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active
-            );
-            this.showInactiveInList = false;
-            this.contextMenu[0].label = 'Vis inaktive';
-        }
-    }
-
     private updateSaveActions() {
         this.saveactions = [{
             label: 'Lagre innstillinger',
             action: (done) => this.onSaveClick(done),
             main: true,
-            disabled: this.sumDoesNotMatch || !this.hasUnsavedChanges
+            disabled: !this.isKidLengthOK || !this.hasUnsavedChanges
         }];
     }
 
