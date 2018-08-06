@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -750,7 +750,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public CurrencyExchangeRate: number;
     public CustomerInvoiceID: number;
     public DebtCollectionFee: number;
-    public DebtCollectionFeeCurrnecy: number;
+    public DebtCollectionFeeCurrency: number;
     public Deleted: boolean;
     public Description: string;
     public DueDate: LocalDate;
@@ -758,6 +758,7 @@ export class CustomerInvoiceReminder extends UniEntity {
     public ID: number;
     public InterestFee: number;
     public InterestFeeCurrency: number;
+    public Notified: boolean;
     public RemindedDate: LocalDate;
     public ReminderFee: number;
     public ReminderFeeCurrency: number;
@@ -6169,9 +6170,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6216,6 +6217,7 @@ export class InvoicesAndRemindersReadyToRemind extends UniEntity {
     public DueDate: Date;
     public EmailAddress: string;
     public Fee: number;
+    public Interest: number;
     public InvoiceDate: Date;
     public InvoiceNumber: number;
     public ReminderNumber: number;
@@ -6873,6 +6875,7 @@ export class EHFActivate extends UniEntity {
     public orgnumber: string;
     public orgphone: string;
     public outgoingInvoice: boolean;
+    public outgoingInvoicePrint: boolean;
 }
 
 
@@ -7072,6 +7075,10 @@ export class AltinnSigningTextResponse extends UniEntity {
 export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
     public Message: string;
     public Status: AltinnGetVatReportDataFromAltinnStatus;
+}
+
+
+export class IEnumerable`1 extends UniEntity {
 }
 
 
@@ -7845,6 +7852,14 @@ export enum StatusCodeAltinnSigning{
 export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
+}
+
+
+export enum StatusCodeJournalEntryLine{
+    Open = 31001,
+    PartlyMarked = 31002,
+    Marked = 31003,
+    Credited = 31004,
 }
 
 

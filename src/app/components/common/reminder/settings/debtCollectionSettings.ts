@@ -15,11 +15,11 @@ export class DebtCollectionSetting {
     @Input() public settings: CustomerInvoiceReminderSettings;
     @Output() public change: EventEmitter<any> = new EventEmitter();
 
-    private debtCollectionSettings$: BehaviorSubject<DebtCollectionSettings> = new BehaviorSubject(null);
-    public settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    debtCollectionSettings$: BehaviorSubject<DebtCollectionSettings> = new BehaviorSubject(null);
+    settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    public ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(changes: SimpleChanges) {
         if (changes['settings'] && this.settings) {
             if (!this.settings.DebtCollectionSettings) {
                 this.settings.DebtCollectionSettings = <DebtCollectionSettings> {}
@@ -30,7 +30,7 @@ export class DebtCollectionSetting {
         }
     }
 
-    public onChange() {
+    onChange() {
         const debtCollectionSettings = this.debtCollectionSettings$.getValue();
         this.settings.DebtCollectionSettings = debtCollectionSettings;
         this.change.emit(this.settings);
