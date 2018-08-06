@@ -179,7 +179,7 @@ export class KIDSettings {
                 FieldType: FieldType.TEXT,
                 Label: 'Navn',
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -195,7 +195,7 @@ export class KIDSettings {
                 FieldType: FieldType.NUMERIC,
                 Label: 'KID-lengde',
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
@@ -204,7 +204,7 @@ export class KIDSettings {
                 Label: 'Aktiv',
                 Classes: ['toggle'],
                 Section: 0,
-                ReadOnly: this.currentPaymentInfoType.Locked,
+                ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
         ]);
     }
@@ -229,7 +229,8 @@ export class KIDSettings {
                     }),
             ]);
 
-        this.detailsTableConfig = new UniTableConfig('sales.kidsettings.details', !this.currentPaymentInfoType.Locked, true, 15)
+        this.detailsTableConfig = new UniTableConfig(
+            'sales.kidsettings.details', this.currentPaymentInfoType ? !this.currentPaymentInfoType.Locked : false, true, 15)
             .setSortable(false)
             .setRowDraggable(true)
             .setDeleteButton(true, !this.currentPaymentInfoType.Locked)
@@ -262,12 +263,14 @@ export class KIDSettings {
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
-                this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
+                this.paymentInfoTypes = response[0];
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;
                 });
-                this.setCurrent(this.paymentInfoTypes[0]);
+                if (this.paymentInfoTypes.find(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
+                    this.setCurrent(this.paymentInfoTypes[0]);
+                }
 
                 this.paymentInfoTypePartsMacros = response[1];
 
