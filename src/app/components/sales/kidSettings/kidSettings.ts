@@ -262,6 +262,7 @@ export class KIDSettings {
 
     private initTableConfigs() {
         this.listTableConfig = new UniTableConfig('sales.kidsettings', false, true, 15)
+            .setColumnMenuVisible(false)
             .setSortable(false)
             .setColumns([
                 new UniTableColumn('ID', 'ID', UniTableColumnType.Text)
@@ -282,6 +283,7 @@ export class KIDSettings {
 
         this.detailsTableConfig = new UniTableConfig(
             'sales.kidsettings.details', this.currentPaymentInfoType ? !this.currentPaymentInfoType.Locked : false, true, 15)
+            .setColumnMenuVisible(false)
             .setSortable(false)
             .setRowDraggable(true)
             .setDeleteButton(true, true)
