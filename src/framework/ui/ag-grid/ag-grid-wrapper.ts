@@ -590,7 +590,7 @@ export class AgGridWrapper {
 
         if (this.config.columnMenuVisible || this.config.deleteButton) {
             const menuColumn: ColDef = {
-                headerComponent: CellRenderer.getColMenu(),
+                headerComponent: this.config.columnMenuVisible ? CellRenderer.getColMenu() : null,
                 width: 40,
                 pinned: 'right',
                 headerClass: 'col-menu',

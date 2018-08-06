@@ -124,7 +124,7 @@ export class UniTableConfig implements IUniTableConfig {
         this.configStoreKey = configStoreKey;
         this.editable = (editable !== undefined) ? editable : true;
         this.pageable = (pageable !== undefined) ? pageable : true;
-        this.columnMenuVisible = false;
+        this.columnMenuVisible = true;
         this.pageSize = pageSize || 20;
         this.autoAddNewRow = true;
         this.allowGroupFilter = false;
