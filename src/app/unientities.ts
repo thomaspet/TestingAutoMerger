@@ -7726,14 +7726,6 @@ export enum ReportType{
 }
 
 
-export enum StatusCodeJournalEntryLine{
-    Open = 31001,
-    PartlyMarked = 31002,
-    Marked = 31003,
-    Credited = 31004,
-}
-
-
 export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
