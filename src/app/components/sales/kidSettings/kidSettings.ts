@@ -233,7 +233,7 @@ export class KIDSettings {
             'sales.kidsettings.details', this.currentPaymentInfoType ? !this.currentPaymentInfoType.Locked : false, true, 15)
             .setSortable(false)
             .setRowDraggable(true)
-            .setDeleteButton(true, !this.currentPaymentInfoType.Locked)
+            .setDeleteButton(true, true)
             .setColumns([
                 new UniTableColumn('Part', 'Element', UniTableColumnType.Typeahead)
                     .setTemplate(item => {
