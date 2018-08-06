@@ -11,10 +11,8 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
             </header>
 
             <article>
+                <p class="warn" *ngIf="options.warning" [innerHtml]="options.warning"></p>
                 <section [innerHtml]="options.message"></section>
-                <p class="warn" *ngIf="options.warning">
-                    {{options.warning}}
-                </p>
             </article>
 
             <footer>

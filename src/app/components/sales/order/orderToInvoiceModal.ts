@@ -36,7 +36,7 @@ export class UniOrderToInvoiceModal implements IUniModal {
     @Output() public onClose: EventEmitter<CustomerOrder> = new EventEmitter();
 
     public tableConfig: UniTableConfig;
-    private order: CustomerOrder;
+    public order: CustomerOrder;
 
     constructor(
         private orderService: CustomerOrderService,

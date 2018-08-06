@@ -1,12 +1,13 @@
-import {Component, Input, Output, OnInit, AfterViewInit, EventEmitter} from '@angular/core';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {ErrorService, YearService, ReportDefinitionParameterService, StatisticsService} from '@app/services/services';
-import {Http, URLSearchParams} from '@angular/http';
-import {ReportDefinitionParameter, ReportDefinition, LocalDate} from '@uni-entities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniForm, FieldType} from '@uni-framework/ui/uniform';
-import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, SimpleChanges } from '@angular/core';
+import { URLSearchParams } from '@angular/http';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+
+import { StatisticsResponse } from '@app/models/StatisticsResponse';
+import { ErrorService, YearService, ReportDefinitionParameterService, StatisticsService } from '@app/services/services';
+import { ReportDefinitionParameter, ReportDefinition, LocalDate } from '@uni-entities';
+import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
+import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-report-params-modal',
@@ -25,7 +26,8 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
                 <uni-form
                     [fields]="fields$"
                     [model]="model$"
-                    [config]="formConfig$">
+                    [config]="formConfig$"
+                    (changeEvent)="onChangeEvent($event)">
                 </uni-form>
             </article>
 
@@ -46,134 +48,43 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
     `
 })
 export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    busy: boolean = false;
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    model$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    public busy: boolean = false;
-
-    // Parameter form
-    public model$: BehaviorSubject<any> = new BehaviorSubject({});
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    private hasParameterDependency: boolean = false;
+    private report: ExtendedReportDefinition;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private http: Http,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private modalService: UniModalService,
         private yearService: YearService,
-    ) {}
+    ) { }
 
-    public ngOnInit() {
-        if (!this.options.buttonLabels) {
-            this.options.buttonLabels = {
-                accept: 'Vis rapport',
-                cancel: 'Avbryt'
-            };
-        }
-
-        if (this.options && this.options.data) {
-            this.busy = true;
-            this.loadParameters(this.options.data).then(() => {
-                this.fields$.next(this.options.data.parameters.map(p => {
-                    let type;
-                    let options;
-
-                    switch (p.Type) {
-                        case 'Number':
-                            type = FieldType.NUMERIC;
-                            break;
-                        case 'Boolean':
-                            type = FieldType.CHECKBOX;
-                            p.DefaultValue = (p.DefaultValue === 'true' || p.DefaultValue === '1');
-                            p.value = p.DefaultValue;
-                            break;
-                        case 'Dropdown':
-                            type = FieldType.DROPDOWN;
-                            const source = p.DefaultValueList ? JSON.parse(p.DefaultValueList) : p.DefaultValueSourceData || [];
-                            p.value = p.DefaultValue;
-                            if (source.length > 0) {
-                                p.value = p.Name === 'OrderBy' ? source[0].Label : source[0].Value;
-                            }
-                            options = {
-                                source: source,
-                                valueProperty: (p.Name === 'OrderBy') ? 'Label' : 'Value',
-                                displayProperty: 'Label',
-                                searchable: false,
-                                hideDeleteButton: true,
-                            };
-                            break;
-                        case 'Date':
-                            type = FieldType.LOCAL_DATE_PICKER;
-                            p.value = p.Defaultvalue || new LocalDate();
-                            break;
-                        case 'Date':
-                            type = FieldType.LOCAL_DATE_PICKER;
-                            p.value = p.Defaultvalue || new LocalDate();
-                            break;
-                        default:
-                            type = FieldType.TEXT;
-                            break;
-                    }
-
-                    // Check for system values
-                    if (p.Name.includes('System_')) {
-                        switch (p.Name.split('_')[1]) {
-                            case 'PeriodAccountYear':
-                                this.yearService.getActiveYear().subscribe(res => p.value = res.toString());
-                                break;
-                        }
-                    }
-
-                    return {
-                        Property: p.Name,
-                        Label: p.Label,
-                        FieldType: type,
-                        Options: options
-                    };
-                }));
-
-                const model = {};
-                this.options.data.parameters.map(p => {
-                    model[p.Name] = p.value;
-                });
-
-                this.model$.next(model);
-
-                this.busy = false;
-            });
-        }
-    }
-
-    public ngAfterViewInit() {
-        setTimeout(function() {
-            document.getElementById('good_button_ok').focus();
-        });
-    }
-
-    public accept() {
+    accept() {
         const model = this.model$.getValue();
 
-        this.options.data.parameters.map(p => {
-            if (!model[p.Name] && p.Type === 'Number') {
-                model[p.Name] = 0;
+        this.report.parameters.map(param => {
+            if (!model[param.Name] && param.Type === 'Number') {
+                model[param.Name] = 0;
             }
 
-            p.value = model[p.Name];
+            param.value = model[param.Name];
 
-            if (p.Type === 'Boolean') {
-                if (p.value === true) {
-                    p. value = 1;
+            if (param.Type === 'Boolean') {
+                if (param.value === true) {
+                    param.value = 1;
                 } else {
-                    p. value = 0;
+                    param.value = 0;
                 }
-            } else if (p.Name === 'OrderBy') {
-                const source: any[] = JSON.parse(p.DefaultValueList);
-                const selectedSort = source.find(element => element.Label === p.value);
+            } else if (param.Name === 'OrderBy') {
+                const source: any[] = JSON.parse(param.DefaultValueList);
+                const selectedSort = source.find(element => element.Label === param.value);
 
                 if (selectedSort) {
                     selectedSort.Value.forEach(sortValue => {
@@ -184,80 +95,101 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                             case 'OrderByGroup':
                                 model['OrderByGroup'] = sortValue.Field;
 
-                                const orderByGroup = {
+                                const orderByGroup = <ExtendedReportDefinitionParameter>{
                                     Name: 'OrderByGroup',
                                     value: model['OrderByGroup']
                                 };
-                                this.options.data.parameters.push(orderByGroup);
+                                this.report.parameters.push(orderByGroup);
                                 break;
                         }
                     });
                 }
 
-                p.value = model[p.Name];
+                param.value = model[param.Name];
             }
         });
 
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
-    public reject() {
-        this.onClose.emit(ConfirmActions.REJECT);
-    }
-
-    public cancel() {
+    cancel() {
         this.onClose.emit(ConfirmActions.CANCEL);
     }
 
-    private loadParameters(report: IExtendedReportDefinition) {
-        return new Promise( (resolve, rejest) => {
+    ngOnInit() {
+        if (!this.options.buttonLabels) {
+            this.options.buttonLabels = {
+                accept: 'Vis rapport',
+                cancel: 'Avbryt'
+            };
+        }
+        this.report = this.options.data;
+        this.initForm();
+    }
 
-            this.reportDefinitionParameterService.GetAll(
-                'filter=ReportDefinitionId eq ' + report.ID
-            )
-            .subscribe(params => {
-                if (params && params.length > 0) {
-                    this.fetchDefaultValues(params).then( updatedParams => {
-                        report.parameters = <any>updatedParams;
-                        resolve(true);
-                    });
-                } else {
-                    resolve(true);
-                }
-            }, err => { this.errorService.handle(err); resolve(false); });
+    ngAfterViewInit() {
+        setTimeout(function () {
+            document.getElementById('good_button_ok').focus();
         });
     }
 
-    private fetchDefaultValues(params: Array<IParameterDto >): Promise<Array<IParameterDto >> {
-        return new Promise( (resolve, reject) => {
+    onChangeEvent(changes: SimpleChanges) {
+        if (this.hasParameterDependency) {
+            const changedParamName: string = Object.keys(changes)[0];
+            const changedParam = this.report.parameters.find(param => param.Name === changedParamName);
+            changedParam.value = changes[changedParamName].currentValue;
+
+            // find the changed param's idx in {this.report.parameters} to get which params to re-resolve
+            const changedParamIdx = this.report.parameters.findIndex(param => param.Name === changedParamName);
+            const paramsToBeResolved = this.report.parameters.slice(changedParamIdx + 1);
+            this.resolveParamValues(paramsToBeResolved)
+                .then(params => {
+                    // only fields that has been re-resolved should be re-generated
+                    let paramsIdx = 0;
+                    const fields: UniFieldLayout[] = this.fields$.getValue();
+                    for (let i = changedParamIdx + 1; i < this.report.parameters.length; i++) {
+                        fields[i] = this.generateFields(params[paramsIdx]);
+                        paramsIdx++;
+                    }
+                    this.fields$.next(fields);
+                });
+        }
+    }
+
+    reject() {
+        this.onClose.emit(ConfirmActions.REJECT);
+    }
+
+    private fetchDefaultValues(params: ExtendedReportDefinitionParameter[]): Promise<ExtendedReportDefinitionParameter[]> {
+        return new Promise(resolve => {
 
             // Defaultvalue-parameter-queries defined in report?
             const chunkOfQuerys = [];
             let topSourceIndex = -1;
             for (let i = 0; i < params.length; i++) {
-                const par: any = params[i];
-                if (par.DefaultValueSource) {
-                    const qIndex = par.DefaultValueSource.indexOf('?');
-                    const query = qIndex >= 0 ? par.DefaultValueSource.substr(qIndex + 1) : par.DefaultValueSource;
+                const parameter = params[i];
+                if (parameter.DefaultValueSource && !parameter.value) {
+                    const qIndex = parameter.DefaultValueSource.indexOf('?');
+                    const query = qIndex >= 0 ? parameter.DefaultValueSource.substr(qIndex + 1) : parameter.DefaultValueSource;
                     chunkOfQuerys.push(this.statisticsService.GetAll(`${query}`));
                     topSourceIndex++;
                 }
 
                 // This should be set as standard for reports?
-                if (par.Name === 'System_PeriodAccountYear' || par.Name === 'PeriodAccountYear') {
+                if (parameter.Name === 'System_PeriodAccountYear' || parameter.Name === 'PeriodAccountYear') {
                     this.yearService.getActiveYear().subscribe(year => params[i].value = '' + year);
                 }
 
-                par.SourceIndex = topSourceIndex;
+                parameter.SourceIndex = topSourceIndex;
             }
             if (chunkOfQuerys.length > 0) {
-                Observable.forkJoin(...chunkOfQuerys).subscribe( results => {
+                Observable.forkJoin(...chunkOfQuerys).subscribe((results: StatisticsResponse[]) => {
                     for (let i = 0; i < params.length; i++) {
-                        const reportParam: { SourceIndex?: number } = <any>params[i];
-                        const dataset: any = reportParam.SourceIndex !== undefined ? results[reportParam.SourceIndex] : undefined;
+                        const reportParam = params[i];
+                        const dataset = reportParam.SourceIndex !== undefined ? results[reportParam.SourceIndex] : undefined;
                         // If the value already has been set (if the param field is year), skip it!
                         if (dataset && dataset.Success && dataset.Data.length > 0 && !params[i].value) {
-                            params[i].value = this.pickValueFromResult(<any>reportParam, dataset.Data[0] );
+                            params[i].value = this.pickValueFromResult(reportParam, dataset.Data[0]);
                         }
                     }
                     resolve(params);
@@ -266,30 +198,30 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             }
 
             // Auto-detect default-value:
-            const param: CustomReportDefinitionParameter = <any>params.find(
+            const param: ExtendedReportDefinitionParameter = <any>params.find(
                 x => ['InvoiceNumber', 'OrderNumber', 'QuoteNumber'].indexOf(x.Name) >= 0
             );
             if (param) {
-                const statparams = new URLSearchParams();
-                statparams.set('model', 'NumberSeries');
-                statparams.set('select', 'NextNumber');
+                const searchParams = new URLSearchParams();
+                searchParams.set('model', 'NumberSeries');
+                searchParams.set('select', 'NextNumber');
 
                 switch (param.Name) {
                     case 'InvoiceNumber':
-                        statparams.set('filter', 'Name eq \'Customer Invoice number series\'');
+                        searchParams.set('filter', 'Name eq \'Customer Invoice number series\'');
                         break;
                     case 'OrderNumber':
-                        statparams.set('filter', 'Name eq \'Customer Order number series\'');
+                        searchParams.set('filter', 'Name eq \'Customer Order number series\'');
                         break;
                     case 'QuoteNumber':
-                        statparams.set('filter', 'Name eq \'Customer Quote number series\'');
+                        searchParams.set('filter', 'Name eq \'Customer Quote number series\'');
                         break;
                 }
 
                 // Get param value
-                this.statisticsService.GetDataByUrlSearchParams(statparams).subscribe(stat => {
-                    const val = stat.Data[0].NumberSeriesNextNumber - 1;
-                    if (val > 0) { param.value = val; }
+                this.statisticsService.GetDataByUrlSearchParams(searchParams).subscribe((result: StatisticsResponse) => {
+                    const value = result.Data[0].NumberSeriesNextNumber - 1;
+                    if (value > 0) { param.value = value; }
                     resolve(params);
                 }, err => this.errorService.handle(err));
             } else {
@@ -298,7 +230,103 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         });
     }
 
-    pickValueFromResult(param: IParameterDto, result: any): any {
+    private generateFields(param: ExtendedReportDefinitionParameter): UniFieldLayout {
+        switch (param.Type) {
+            case 'Number':
+                return <UniFieldLayout>{
+                    Property: param.Name,
+                    Label: param.Label,
+                    FieldType: FieldType.NUMERIC,
+                    Options: undefined,
+                };
+            case 'Boolean':
+                param.DefaultValue = <any>(param.DefaultValue === 'true' || param.DefaultValue === '1');
+                param.value = param.DefaultValue;
+                return <UniFieldLayout>{
+                    Property: param.Name,
+                    Label: param.Label,
+                    FieldType: FieldType.CHECKBOX,
+                    Options: undefined,
+                };
+            case 'Dropdown':
+                param.value = param.value || param.DefaultValue;
+                if (param.DefaultValueList.includes('/api/statistics')) {
+                    return <UniFieldLayout>{
+                        Property: param.Name,
+                        Label: param.Label,
+                        FieldType: FieldType.DROPDOWN,
+                        Options: {
+                            source: param.source,
+                            valueProperty: JSON.parse(param.DefaultValueLookupType).ValueProperty,
+                            displayProperty: JSON.parse(param.DefaultValueLookupType).DisplayProperty,
+                            searchable: false,
+                            hideDeleteButton: true,
+                        },
+                    };
+                } else {
+                    const source = JSON.parse(param.DefaultValueList);
+                    param.value = param.Name === 'OrderBy' ? source[0].Label : source[0].Value;
+                    return <UniFieldLayout>{
+                        Property: param.Name,
+                        Label: param.Label,
+                        FieldType: FieldType.DROPDOWN,
+                        Options: {
+                            source: source,
+                            valueProperty: (param.Name === 'OrderBy') ? 'Label' : 'Value',
+                            displayProperty: 'Label',
+                            searchable: false,
+                            hideDeleteButton: true,
+                        },
+                    };
+                }
+            case 'Date':
+                param.value = param.DefaultValue || new LocalDate();
+                return <UniFieldLayout>{
+                    Property: param.Name,
+                    Label: param.Label,
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Options: undefined,
+                };
+            default:
+                return <UniFieldLayout>{
+                    Property: param.Name,
+                    Label: param.Label,
+                    FieldType: FieldType.TEXT,
+                    Options: undefined,
+                };
+        }
+    }
+
+    private initForm() {
+        if (this.report) {
+            this.busy = true;
+            this.loadParams(this.report)
+                .switchMap(loadedParams => this.resolveParamValues(loadedParams))
+                .subscribe(resolvedParams => {
+                    this.report.parameters = resolvedParams;
+                    this.fields$.next(resolvedParams.map(param => this.generateFields(param)));
+                    const model = this.model$.getValue();
+                    resolvedParams.map(field => {
+                        model[field.Name] = field.value;
+                    });
+                    this.model$.next(model);
+                    this.busy = false;
+                }, err => this.errorService.handle(err));
+        }
+    }
+
+    private loadParams(report: ExtendedReportDefinition): Observable<ExtendedReportDefinitionParameter[]> {
+        return this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
+            .map(params => {
+                if (!params || params.length === 0) {
+                    throw new Error('Did not find any report definition parameters!');
+                }
+                return params;
+            })
+            .switchMap(params => Observable.fromPromise(this.fetchDefaultValues(params)));
+    }
+
+    private pickValueFromResult(param: ExtendedReportDefinitionParameter, result: any): any {
         if ((!!param.DefaultValue) || param.DefaultValue === '0') {
             if (result.hasOwnProperty(param.DefaultValue)) {
                 return result[param.DefaultValue];
@@ -313,27 +341,59 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         }
     }
 
+    // find the value of the parameter that is requested and return a query string that replaces {ParameterName} by the current value
+    private replaceParamWithValue(query: string, params: ExtendedReportDefinitionParameter[]): string {
+        this.hasParameterDependency = true;
+        const paramName = query.substring(query.indexOf('{') + 1, query.indexOf('}'));
+        const param = params.find(parameter => parameter.Name === paramName)
+            || this.report.parameters.find(parameter => parameter.Name === paramName);
+        const paramValue: string | number = param.value || param.DefaultValue;
+        return query.replace(`{${paramName}}`, paramValue.toString());
+    }
+
+    private resolveParamValues(params: ExtendedReportDefinitionParameter[]): Promise<ExtendedReportDefinitionParameter[]> {
+        return this.resolvePromisesSequentially(params.map(param => () => {
+            // check if parameter has an API source to get the list for dropdown
+            if (param.Type === 'Dropdown' && param.DefaultValueList.includes('/api/statistics')) {
+                const qIndex = param.DefaultValueList.indexOf('?');
+                let query = qIndex >= 0 ? param.DefaultValueList.substr(qIndex + 1) : param.DefaultValueList;
+                // check if the API source is dependent of another parameter, then written as {ParameterName} instead of the value
+                // example => {PeriodID} in '/api/statistics?model=VatReport&select=ID&filter=TerminPeriodID eq {PeriodID}'
+                if (query.includes('{')) {
+                    query = this.replaceParamWithValue(query, params);
+                }
+                const valueProperty = JSON.parse(param.DefaultValueLookupType).ValueProperty;
+
+                return this.statisticsService.GetAll(`${query}`)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                    .map((resp: StatisticsResponse) => resp.Data)
+                    .map((data: any[]) => {
+                        param.source = data;
+                        param.value = data[0] ? data[0][valueProperty] : undefined;
+                        return param;
+                    }).toPromise();
+            }
+            return Promise.resolve(param);
+        }));
+    }
+
+    // executes Promises sequentially
+    // {functions} = An array of funcs that return promises
+    private resolvePromisesSequentially<T>(functions: Array<() => Promise<T>>): Promise<Array<T>> {
+        const reducer = (promise, func) => promise.then(result => func().then(Array.prototype.concat.bind(result)));
+        return functions.reduce(reducer, Promise.resolve([]));
+    }
+
 }
 
 
 
-class CustomReportDefinitionParameter extends ReportDefinitionParameter {
-    public value: any;
+interface ExtendedReportDefinitionParameter extends ReportDefinitionParameter {
+    value?: any;
+    source?: any[];
+    SourceIndex?: number;
 }
 
-interface IParameterDto {
-    ID: number;
-    Name: string;
-    Label: string;
-    Type: string;
-    value?: string;
-    DefaultValue?: string;
-    DefaultValueSource?: string;
-    DefaultValueSourceData?: object;
-    DefaultValueList?: string;
-    DefaultValueLookupType?: string;
-}
-
-interface IExtendedReportDefinition extends ReportDefinition {
-    parameters?: Array<CustomReportDefinitionParameter>;
+interface ExtendedReportDefinition extends ReportDefinition {
+    parameters?: ExtendedReportDefinitionParameter[];
 }

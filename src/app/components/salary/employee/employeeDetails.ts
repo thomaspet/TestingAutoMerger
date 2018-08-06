@@ -5,21 +5,20 @@ import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, OperationType, Operator
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
     IToolbarConfig,
-    IAutoCompleteConfig,
     IToolbarSearchConfig,
     IToolbarValidation,
     UniToolbar
 } from '../../common/toolbar/toolbar';
 
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
-import {IPosterWidget} from '../../common/poster/poster';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniView} from '../../../../framework/core/uniView';
 import {TaxCardModal} from './modals/taxCardModal';
@@ -84,8 +83,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[];
 
     public toolbarConfig: IToolbarConfig;
-    private toolbarSearchConfig: IToolbarSearchConfig;
-    private toolbarValidation: IToolbarValidation[];
+    public toolbarSearchConfig: IToolbarSearchConfig;
+    public toolbarValidation: IToolbarValidation[];
 
     private employeeTaxCard: EmployeeTaxCard;
     private wageTypes: WageType[] = [];
@@ -96,6 +95,37 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private subscriptions: Subscription[] = [];
 
     public categoryFilter: ITag[] = [];
+    public contextMenuItems: IContextMenuItem[] = [
+        {
+            label: 'Slett ansatt',
+            action: () => {
+                this.modalService.confirm({
+                    header: 'Slette ansatt',
+                    message: `Er du sikker på at du ønsker å slette ansatt ${this.employee.EmployeeNumber}`,
+                    buttonLabels: {
+                        accept: 'Ja',
+                        reject: 'Nei'
+                    }
+                })
+                .onClose.subscribe((res: ConfirmActions) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                            this.busy = true;
+                                this.employeeService.deleteEmployee(this.employee.ID)
+                                .finally(() => {this.busy = false; })
+                                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                                .subscribe((result) => {
+                                    this.router.navigateByUrl('/salary/employees');
+                                });
+                        }
+                        this.busy = false;
+                    }
+                );
+            },
+            disabled: (rowModel) => {
+                if (this.employee && this.employee.ID > 0) { return false; }
+                return true;
+            }
+        }];
     public tagConfig: IUniTagsConfig = {
         helpText: 'Kategorier på ansatt',
         truncate: 20,
@@ -151,14 +181,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     ) {
         super(router.url, cacheService);
 
-        this.childRoutes = [
-            {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Skatt', path: 'employee-tax'},
-            {name: 'Arbeidsforhold', path: 'employments'},
-            {name: 'Faste poster', path: 'recurring-post'},
-            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
-            {name: 'Permisjon', path: 'employee-leave'}
-        ];
+        this.childRoutes = this.getPaths();
 
         this.subscriptions
             .push(this.yearService
@@ -363,6 +386,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             }));
     }
 
+    private getPaths(): any[] {
+        return [
+            {name: 'Detaljer', path: 'personal-details'},
+            {name: 'Skatt', path: 'employee-tax'},
+            {name: 'Arbeidsforhold', path: 'employments'},
+            {name: 'Faste poster', path: 'recurring-post'},
+            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
+            {name: 'Permisjon', path: 'employee-leave'}
+        ];
+    }
+
     private fillInnSubEntityOnEmp(employee: Employee): void {
         if (employee.SubEntityID) {
             return;
@@ -505,8 +539,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             if (canDeactivate) {
                 this.employeeService.get(0).subscribe((emp: Employee) => {
                     this.employee = emp;
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + emp.ID + '/' + childRoute);
+                    this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then(() => this.childRoutes = this.getPaths());
                 }, err => this.errorService.handle(err));
             }
         });
@@ -607,8 +640,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private getSalarybalancesObservable(): Observable<SalaryBalance[]> {
         return this.salarybalanceService
             .GetAll(
-            'filter=EmployeeID eq ' + this.employeeID,
-            ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions.SalaryTransaction.payrollrun'])
+                'filter=EmployeeID eq ' + this.employeeID,
+                ['Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount', 'Transactions.SalaryTransaction.payrollrun'])
             .switchMap(salBals => (salBals && salBals.length) || !this.employeeID
                 ? Observable.of(salBals || [])
                 : this.salarybalanceService
@@ -845,51 +878,53 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 return this.errorService.handleRxCatch(error, obs);
             })
             .switchMap(
-            (employee) => {
+                (employee) => {
 
-                if (!this.employeeID && !config.ignoreRefresh) {
-                    super.updateState(EMPLOYEE_KEY, this.employee, false);
+                    if (!this.employeeID && !config.ignoreRefresh) {
+                        super.updateState(EMPLOYEE_KEY, this.employee, false);
 
-                    config.done('Lagring fullført');
+                        config.done('Lagring fullført');
 
-                    const childRoute = this.router.url.split('/').pop();
-                    this.savedNewEmployee = true;
-                    this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute).then(value => {
-                        this.savedNewEmployee = false;
-                    });
-                    return Observable.of([this.employee]);
+                        const childRoute = this.router.url.split('/').pop();
+                        this.savedNewEmployee = true;
+                        this.router.navigateByUrl(this.url + employee.ID + '/' + childRoute).then(value => {
+                            this.savedNewEmployee = false;
+                        });
+                        return Observable.of([this.employee]);
+                    }
+
+                    // REVISIT: GETing the employee after saving is a bad "fix" but currenctly necessary
+                    // because response will not contain any new email/address/phone.
+                    // Anders is looking for a better way to solve this..
+                    return this.employeeService
+                        .get(employee.ID)
+                        .catch((err, obs) => {
+                            config.done('Feil ved lagring');
+                            return this.errorService.handleRxCatch(err, obs);
+                        })
+                        .switchMap((emp) => {
+                            if (!config.ignoreRefresh) {
+                                super.updateState(EMPLOYEE_KEY, emp, false);
+                            }
+
+                            this.saveStatus = {
+                                numberOfRequests: 0,
+                                completeCount: 0,
+                                hasErrors: false,
+                            };
+
+                            const obsList: Observable<any>[] = saveObjects
+                                .map(obj => this.saveSubField(config, obj, emp))
+                                .filter(obs => !!obs);
+
+                            if (!this.saveStatus.numberOfRequests) {
+                                this.saveActions[0].disabled = true;
+                                config.done('Lagring fullført');
+                            }
+
+                            return Observable.forkJoin(obsList);
+                        });
                 }
-
-                // REVISIT: GETing the employee after saving is a bad "fix" but currenctly necessary
-                // because response will not contain any new email/address/phone.
-                // Anders is looking for a better way to solve this..
-                return this.employeeService
-                    .get(employee.ID)
-                    .catch((err, obs) => {
-                        config.done('Feil ved lagring');
-                        return this.errorService.handleRxCatch(err, obs);
-                    })
-                    .switchMap((emp) => {
-                        if (!config.ignoreRefresh) {
-                            super.updateState(EMPLOYEE_KEY, emp, false);
-                        }
-
-                        this.saveStatus = {
-                            numberOfRequests: 0,
-                            completeCount: 0,
-                            hasErrors: false,
-                        };
-
-                        const obsList: Observable<any>[] = saveObjects.map(obj => this.saveSubField(config, obj, emp)).filter(obs => !!obs);
-
-                        if (!this.saveStatus.numberOfRequests) {
-                            this.saveActions[0].disabled = true;
-                            config.done('Lagring fullført');
-                        }
-
-                        return Observable.forkJoin(obsList);
-                    });
-            }
             );
     }
 
@@ -902,15 +937,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         }
         switch (saveObj.key) {
             case EMPLOYMENTS_KEY:
-            return this.saveEmploymentsObs(config, saveObj.state, parentState);
+                return this.saveEmploymentsObs(config, saveObj.state, parentState);
             case RECURRING_POSTS_KEY:
-            return this.saveRecurringPostsObs(config, saveObj.state, parentState);
+                return this.saveRecurringPostsObs(config, saveObj.state, parentState);
             case SALARYBALANCES_KEY:
-            return this.saveSalarybalancesObs(config, saveObj.state, parentState);
+                return this.saveSalarybalancesObs(config, saveObj.state, parentState);
             case EMPLOYEE_LEAVE_KEY:
-            return this.saveEmployeeLeaveObs(config, saveObj.state);
+                return this.saveEmployeeLeaveObs(config, saveObj.state);
             case EMPLOYEE_TAX_KEY:
-            return this.saveTax(config, saveObj.state, parentState);
+                return this.saveTax(config, saveObj.state, parentState);
         }
         if (saveObj.dirty) {
             this.saveStatus.numberOfRequests--;
@@ -1108,15 +1143,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         this.checkForSaveDone(config.done);
                     })
                     .do(
-                    () => {
-                        if (!config.ignoreRefresh) {
-                            this.getEmployments();
-                        }
-                    })
+                        () => {
+                            if (!config.ignoreRefresh) {
+                                this.getEmployments();
+                            }
+                        })
                     .map((emp: Employee) => {
                         return emp.Employments;
                     });
-        });
+            });
     }
 
     private saveSalarybalancesObs(config: IEmployeeSaveConfig, salBals: SalaryBalance[], employee: Employee): Observable<SalaryBalance[]> {
@@ -1336,46 +1371,50 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 let saveCount = 0;
                 let hasErrors = false;
 
-                employeeLeave.forEach((leave) => {
-                    if (leave['_isDirty'] || leave.Deleted) {
-                        changeCount++;
+                employeeLeave
+                    .forEach((leave, index) => {
+                        if (!leave['_isEmpty'] && (leave['_isDirty'] || leave.Deleted)) {
+                            changeCount++;
 
-                        const source = (leave.ID > 0)
-                            ? this.employeeLeaveService.Put(leave.ID, leave)
-                            : this.employeeLeaveService.Post(leave);
+                            const source = (leave.ID > 0)
+                                ? this.employeeLeaveService.Put(leave.ID, leave)
+                                : this.employeeLeaveService.Post(leave);
 
-                        // Check if we are done saving all employeeLeave items
-                        const newObs = source.finally(() => {
-                            if (saveCount === changeCount) {
-                                this.saveStatus.completeCount++;
-                                // If we have errors, indicate this in the main save status
-                                // if not, update employeeLeave cache and set dirty to false
-                                if (hasErrors) {
-                                    this.saveStatus.hasErrors = true;
-                                } else if (!config.ignoreRefresh) {
-                                    super.updateState(EMPLOYEE_LEAVE_KEY, employeeLeave, false);
+                            // Check if we are done saving all employeeLeave items
+                            const newObs = source.finally(() => {
+                                if (saveCount === changeCount) {
+                                    this.saveStatus.completeCount++;
+                                    // If we have errors, indicate this in the main save status
+                                    // if not, update employeeLeave cache and set dirty to false
+                                    if (hasErrors) {
+                                        this.saveStatus.hasErrors = true;
+                                    } else if (!config.ignoreRefresh) {
+                                        super.updateState(
+                                            EMPLOYEE_LEAVE_KEY,
+                                            employeeLeave.filter(l => !l.Deleted),
+                                            false);
+                                    }
+                                    this.checkForSaveDone(config.done); // check if all save functions are finished
                                 }
-                                this.checkForSaveDone(config.done); // check if all save functions are finished
-                            }
-                        })
-                            .catch((err, obs) => {
-                                leave.Deleted = false;
-                                hasErrors = true;
-                                saveCount++;
-                                const rules = this.errorService.extractEntityValidationRules(err);
-                                if (rules.find(x => x.PropertyName === 'EmploymentID' && x.Operator === Operator.Required)) {
-                                    leave['_isDirty'] = false;
-                                    super.updateState(EMPLOYEE_LEAVE_KEY, employeeLeave, false);
-                                }
-                                return this.errorService.handleRxCatch(err, obs);
                             })
-                            .do((res: EmployeeLeave) => {
-                                leave = res;
-                                saveCount++;
-                            });
-                        obsList.push(newObs);
-                    }
-                });
+                                .catch((err, obs) => {
+                                    leave.Deleted = false;
+                                    hasErrors = true;
+                                    saveCount++;
+                                    const rules = this.errorService.extractEntityValidationRules(err);
+                                    if (rules.find(x => x.PropertyName === 'EmploymentID' && x.Operator === Operator.Required)) {
+                                        employeeLeave[index]['_isDirty'] = false;
+                                        super.updateState(EMPLOYEE_LEAVE_KEY, employeeLeave, false);
+                                    }
+                                    return this.errorService.handleRxCatch(err, obs);
+                                })
+                                .do((res: EmployeeLeave) => {
+                                    employeeLeave[index] = res;
+                                    saveCount++;
+                                });
+                            obsList.push(newObs);
+                        }
+                    });
 
                 return Observable.forkJoin(obsList);
             });

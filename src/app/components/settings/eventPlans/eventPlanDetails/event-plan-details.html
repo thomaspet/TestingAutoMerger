@@ -7,7 +7,7 @@
         [config]="formConfig"
         [fields]="fields$ | async"
         [model]="eventplan"
-        (inputEvent)="onFormInput($event)">
+        (inputEvent)="onFormInput()">
     </uni-form>
     <ag-grid-wrapper
         [config]="tableConfig"

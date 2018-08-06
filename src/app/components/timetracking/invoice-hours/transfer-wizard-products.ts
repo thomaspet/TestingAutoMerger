@@ -117,7 +117,7 @@ export class WorkitemTransferWizardProducts implements OnInit {
         return this.productService.GetAllByUrlSearchParams(params).map( result => result.json() );
     }
 
-    private onEditChange(event: { originalIndex: number, field: string, rowModel: IWorkProduct }) {
+    public onEditChange(event: { originalIndex: number, field: string, rowModel: IWorkProduct }) {
         const change = new ValueItem(event.field, event.rowModel[event.field], event.originalIndex);
         switch (event.field) {
             case 'PartName':

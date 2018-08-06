@@ -21,9 +21,9 @@ const SELECTED_KEY = '_rowSelected';
     templateUrl: './employeeSalarybalance.html'
 })
 export class EmployeeSalarybalance extends UniView implements OnInit {
-    private employeeID: number;
-    private selectedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject(1);
-    private salarybalances: SalaryBalance[] = [];
+    public employeeID: number;
+    public selectedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject(1);
+    public salarybalances: SalaryBalance[] = [];
 
     constructor(
         private router: Router,
@@ -49,7 +49,13 @@ export class EmployeeSalarybalance extends UniView implements OnInit {
             })
             .switchMap(() => super.getStateSubject(SALARYBALANCES_KEY))
             .do(model => this.selectSalaryBalance(model))
+            .map(salarybalances => this.sortList(salarybalances))
             .subscribe(model => this.refreshSalaryBalances(model));
+    }
+
+    private sortList(salaryBalances: SalaryBalance[]): SalaryBalance[] {
+        return salaryBalances
+            .sort((salBal1, salBal2) => salBal2.ID - salBal1.ID);
     }
 
     private refreshSalaryBalances(salaryBalances: SalaryBalance[]) {

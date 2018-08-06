@@ -16,7 +16,7 @@ import {ModulusService} from '../../common/modulusService';
 import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 import {UniModalService} from '../../../../framework/uni-modal/modalService';
 import {ConfirmActions} from '../../../../framework/uni-modal/interfaces';
-import {SalaryTransactionService} from '../salarytransaction/salaryTransactionService';
+import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 interface IFieldFunc {

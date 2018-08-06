@@ -1,13 +1,13 @@
 import {Component, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {EmployeeTaxCard, Employee} from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
     UniCacheService, ErrorService, EmployeeTaxCardService
 } from '../../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 @Component({
@@ -19,7 +19,7 @@ import { SimpleChange } from '@angular/core/src/change_detection/change_detectio
 export class EmployeeTax extends UniView implements OnInit {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    private employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
+    public employeeTaxCard$: BehaviorSubject<EmployeeTaxCard> = new BehaviorSubject(new EmployeeTaxCard());
     private previousYear: number = 0;
 
     constructor(
@@ -72,17 +72,20 @@ export class EmployeeTax extends UniView implements OnInit {
         taxCardOptions: { openModal: () => void },
         employee: Employee,
         employeeTaxCard: EmployeeTaxCard) {
-        this.employeeTaxCardService.getLayout('EmployeeTaxCardForm', employeeTaxCard).subscribe(layout => {
-            const taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
-            taxButton.Options = {
-                click: (event) => {
-                    taxCardOptions.openModal();
-                }
-            };
-            this.updateFields(layout, employeeTaxCard);
-            this.toggleTaxButtonActive(employee, <any>layout.Fields);
-            this.fields$.next(layout.Fields);
-        }, err => this.errorService.handle(err));
+        this.employeeTaxCardService.getLayout('EmployeeTaxCardForm', employeeTaxCard).subscribe(
+            layout => {
+                const taxButton = this.findByProperty(layout.Fields, 'TaxBtn');
+                taxButton.Options = {
+                    click: (event) => {
+                        taxCardOptions.openModal();
+                    }
+                };
+                this.updateFields(layout, employeeTaxCard);
+                this.toggleTaxButtonActive(employee, <any>layout.Fields);
+                this.fields$.next(layout.Fields);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     public onFormChange(changes: SimpleChanges) {

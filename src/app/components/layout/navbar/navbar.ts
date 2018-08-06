@@ -4,6 +4,8 @@ import {TabService} from './tabstrip/tabService';
 import {UserService} from '@app/services/services';
 import {User} from '@uni-entities';
 
+import {SmartSearchService} from '../smart-search/smart-search.service';
+
 @Component({
     selector: 'uni-navbar',
     template: `
@@ -17,11 +19,20 @@ import {User} from '@uni-entities';
                     [routerLink]="'/'"
                 />
 
-                <uni-hamburger-menu></uni-hamburger-menu>
+                <i
+                    class="material-icons hamburger-toggle"
+                    role="button"
+                    (click)="toggleSidebarState()">
+                    menu
+                </i>
             </section>
 
             <section class="navbar-right">
-                <uni-navbar-search></uni-navbar-search>
+                <button mat-icon-button (click)="openSearch()">
+                    <mat-icon aria-label="Search">search</mat-icon>
+                </button>
+
+                <!--<uni-navbar-search></uni-navbar-search>-->
                 <navbar-create-new></navbar-create-new>
 
                 <i role="link" class="material-icons bureau-link" routerLink="bureau">
@@ -69,7 +80,7 @@ import {User} from '@uni-entities';
 
         </section>
 
-        <section class="tab-strip" *ngIf="tabstripVisible" [ngClass]="'sidebar-' + sidebarState">
+        <section class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
             <uni-tabstrip></uni-tabstrip>
 
             <!--
@@ -86,8 +97,6 @@ import {User} from '@uni-entities';
 })
 export class UniNavbar {
     public sidebarState: string;
-    public sidebarVisible: boolean;
-    public tabstripVisible: boolean;
 
     public user: User;
     public licenseRole: string;
@@ -99,7 +108,8 @@ export class UniNavbar {
         public userService: UserService,
         public navbarService: NavbarLinkService,
         public tabService: TabService,
-        public cdr: ChangeDetectorRef
+        public cdr: ChangeDetectorRef,
+        private smartSearchService: SmartSearchService
     ) {}
 
     public ngOnInit() {
@@ -123,8 +133,6 @@ export class UniNavbar {
 
         this.navbarService.sidebarState$.subscribe(state => {
             this.sidebarState = state;
-            this.sidebarVisible = state !== 'hidden';
-            this.setTabstripVisibility(true);
         });
 
         this.navbarService.linkSections$.subscribe(linkSections => {
@@ -135,28 +143,20 @@ export class UniNavbar {
                 const settingsSection = linkSections.find(section => section.url === '/settings');
                 this.settingsLinks = settingsSection.linkGroups[0].links;
                 this.adminLinks = settingsSection.linkGroups[1].links;
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();
         });
-
-        this.tabService.tabs$.subscribe(tabs => {
-            const tabstripVisible = this.sidebarVisible || (tabs && tabs.length > 0);
-            this.setTabstripVisibility(tabstripVisible);
-        });
     }
 
-    public setTabstripVisibility(visible: boolean) {
-        if (this.tabstripVisible !== visible) {
-            this.tabstripVisible = visible;
-            const pageContainer = document.getElementById('page-container');
-            if (pageContainer) {
-                pageContainer.style.paddingTop = visible ? '4.75rem' : '2.75rem';
-            }
+    openSearch() {
+        this.smartSearchService.open();
+    }
 
-            this.cdr.detectChanges();
-        }
+    public toggleSidebarState() {
+        const newState = this.navbarService.sidebarState$.value === 'expanded'
+            ? 'collapsed' : 'expanded';
+
+        this.navbarService.sidebarState$.next(newState);
     }
 }

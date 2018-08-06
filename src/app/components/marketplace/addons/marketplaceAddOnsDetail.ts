@@ -1,7 +1,7 @@
 import {Component, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ElsaProductService, ElsaProduct, ElsaPurchaseService} from '@app/services/services';
+import {ElsaProductService, ElsaPurchaseService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
 import {CompanySettingsService} from '../../../services/common/companySettingsService';
 import {AgreementService} from '../../../services/common/agreementService';
@@ -12,6 +12,7 @@ import {ActivationEnum} from '../../../../../src/app/models/activationEnum';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AuthService, IAuthDetails} from '@app/authService';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
+import {ElsaProduct} from '@app/services/elsa/elsaModels';
 
 @Component({
     selector: 'uni-marketplace-add-ons-details',

@@ -9,12 +9,12 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '');
 
 @Component({
-    selector: view.name,
+    selector: 'workprofiles',
     template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
 })
 export class WorkprofileDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
-    private viewconfig: IViewConfig;
+    public viewconfig: IViewConfig;
     constructor() {
         this.viewconfig = this.createLayout();
     }

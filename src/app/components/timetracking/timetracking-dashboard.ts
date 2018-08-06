@@ -11,7 +11,7 @@ import {IUniWidget} from '../widgets/widgetCanvas';
     `,
 })
 export class TimetrackingDashboard {
-    private widgetLayout: IUniWidget[] = [];
+    public widgetLayout: IUniWidget[] = [];
 
     constructor(private tabService: TabService) {
         this.tabService.addTab({

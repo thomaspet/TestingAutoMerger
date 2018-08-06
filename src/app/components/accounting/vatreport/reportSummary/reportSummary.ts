@@ -17,7 +17,7 @@ export class VatSummaryPerPost implements OnChanges {
     @Input() private vatReportID: number = 0;
     @Input() private vatReportMessages: VatReportMessage[];
 
-    private vatReportMessagesImportant: VatReportMessage[];
+    public vatReportMessagesImportant: VatReportMessage[];
 
     public ngOnChanges(changes: SimpleChanges) {
         this.postGroups = this.groupVatReportsByVatCodeGroupID(this.reportSummaryPerPost || []);

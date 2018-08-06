@@ -15,16 +15,16 @@ import {
     templateUrl: './dimensionresultreport.html',
 })
 export class DimensionResultReport {
-    private periodFilter1: PeriodFilter;
-    private periodFilter2: PeriodFilter;
+    public periodFilter1: PeriodFilter;
+    public periodFilter2: PeriodFilter;
 
     public treeSummaryList: ResultSummaryData[] = [];
     public flattenedTreeSummaryList: ResultSummaryData[] = [];
 
-    private dimensionType: number;
+    public dimensionType: number;
     private dimensionEntityName: string = '';
     private dimensionDisplayName: string = '';
-    private filterDimensionID: number = 0;
+    public filterDimensionID: number = 0;
     private filterDimensionNumber: number = 0;
     private filterDimensionName: string = '';
     private pageTitle: string = '';

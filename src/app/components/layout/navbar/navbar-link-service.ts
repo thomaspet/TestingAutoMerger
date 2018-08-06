@@ -6,10 +6,11 @@ import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
+import {UniHttp} from '@uni-framework/core/http/http';
 import * as _ from 'lodash';
 
 export {INavbarLinkSection, INavbarLink} from './navbar-links';
-export type SidebarState = 'hidden' | 'collapsed' | 'expanded';
+export type SidebarState = 'collapsed' | 'expanded';
 
 @Injectable()
 export class NavbarLinkService {
@@ -23,7 +24,8 @@ export class NavbarLinkService {
     constructor(
         private authService: AuthService,
         private dimensionSettingsService: DimensionSettingsService,
-        private browserStorage: BrowserStorageService
+        private browserStorage: BrowserStorageService,
+        private http: UniHttp
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
@@ -50,6 +52,10 @@ export class NavbarLinkService {
             },
             err => console.error(err)
         );
+    }
+
+    public getApprovedRouteSearchQueries() {
+
     }
 
     private getLinksFilteredByPermissions(user): any[] {
@@ -83,6 +89,7 @@ export class NavbarLinkService {
                     name: 'Dimensjoner',
                     url: '',
                     icon: 'dimension',
+                    isSuperSearchComponent: true,
                     mdIcon: 'developer_board',
                     linkGroups: [{
                         name: '',
@@ -95,8 +102,16 @@ export class NavbarLinkService {
         }
     }
 
+    public getQuery(url: string) {
+        return this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(url)
+            .send().map(res => res.json());
+    }
+
     public getDimensionLinks(dimensions) {
-        const links = [
+        const links: any = [
             {
                 name: 'Prosjekt',
                 url: '/dimensions/overview/1' ,
@@ -115,7 +130,16 @@ export class NavbarLinkService {
                 {
                     name: dim.Label,
                     url: '/dimensions/overview/' + dim.Dimension ,
-                    moduleID: UniModules.Dimensions
+                    moduleID: UniModules.Dimensions,
+                    isSuperSearchComponent: false,
+                    moduleName: 'Dimension' + dim.Dimension,
+                    selects: [
+                        {key: 'ID', isNumeric: true},
+                        {key: 'Number', isNumeric: false},
+                        {key: 'Name', isNumeric: false}
+                    ],
+                    // shortcutName: 'Ny ' + dim.Label,
+                    prefix: 'dim' + dim.Dimension,
                 }
             );
         });

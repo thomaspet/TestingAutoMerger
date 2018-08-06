@@ -145,13 +145,13 @@
                 "FilterOperator": "startswith"
             },
             {
-                "Header": "Stillingskode",
+                "Header": "Yrkeskode",
                 "Field": "JobCode",
                 "Alignment": "right",
                 "Width": "7rem"
             },
             {
-                "Header": "Stillingsnavn",
+                "Header": "Yrkesnavn",
                 "Field": "JobName",
                 "Type": "link",
                 "LinkNavigationProperties": [
@@ -314,12 +314,12 @@
         "Expand": "",
         "Columns": [
             {
-                "Header": "Stillingskode",
+                "Header": "Yrkeskode",
                 "Field": "JobCode",
                 "Type": "text"
             },
             {
-                "Header": "Stillingsnavn",
+                "Header": "Yrkesnavn",
                 "Field": "JobName",
                 "Type": "link",
                 "LinkNavigationProperties": [

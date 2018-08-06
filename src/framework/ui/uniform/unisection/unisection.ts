@@ -31,8 +31,8 @@ export class UniSection {
     public sectionId: number;
     public isOpen: boolean = false;
 
-    private groupedFields: any;
-    private config: any = {};
+    public groupedFields: any;
+    public config: any = {};
     private readyFields: number;
     private hidden: boolean = false;
 

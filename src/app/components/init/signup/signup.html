@@ -3,9 +3,9 @@
         Vennligst registrer deg her for å prøve Uni Economy gratis i 30 dager.
     </p>
 
-    <p class="registration-step-info" *ngIf="confirmationCode && !successMessage && !errorMessage">
+    <small class="validation info" *ngIf="confirmationCode && !successMessage && !errorMessage">
         Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
-    </p>
+    </small>
 
     <small class="validation error" *ngIf="errorMessage">
         {{errorMessage}}
@@ -38,7 +38,7 @@
 
         <label for="phoneInput">Telefonnummer</label>
         <input id="phoneInput"
-            type="phone"
+            type="tel"
             placeholder="Telefonnummer"
             formControlName="PhoneNumber"
         />
@@ -50,11 +50,12 @@
 
         <re-captcha formControlName="RecaptchaResponse"></re-captcha>
 
-        <button class="auth-button bad"
+        <button
+            type="submit"
+            class="auth-button bad"
             *ngIf="!confirmationCode"
             [attr.aria-busy]="busy"
-            [disabled]="busy || !step1.form.valid"
-            (click)="submitStep1Form()">
+            [disabled]="busy || !step1.form.valid">
             START REGISTRERING
         </button>
     </form>
@@ -77,37 +78,37 @@
         <input id="usernameInput"
             type="text"
             autofocus
-            placeholder="Brukernavn"
+            placeholder="Brukernavn *"
             formControlName="UserName"
         />
-        <div *ngIf="(step2Form?.controls.UserName.touched && step2Form?.controls.UserName.invalid)" class="bad">Nødvendig*</div>
-        <div class="bad">{{step2Form?.controls.UserName.errors?.usernameValidator}}</div>
+        <small class="bad">{{step2Form?.get('UserName').errors?.usernameValidator}}</small>
 
         <label for="passwordInput">Passord</label>
         <input id="passwordInput"
             type="password"
-            placeholder="Passord"
+            placeholder="Passord *"
             formControlName="Password"
         />
-        <div *ngIf="(step2Form?.controls.Password.touched && step2Form?.controls.Password.invalid)" class="bad">Nødvendig*</div>
+
+        <small class="bad">{{step2Form?.get('Password').errors?.passwordValidator}}</small>
 
         <label for="confirmPasswordInput">Bekreft passord</label>
         <input id="confirmPasswordInput"
             type="password"
-            placeholder="Bekreft passord"
+            placeholder="Bekreft passord *"
             formControlName="ConfirmPassword"
         />
-        <div *ngIf="step2Form?.controls.ConfirmPassword.touched && step2Form?.controls.ConfirmPassword.invalid" class="bad">Nødvendig*</div>
-        <div class="bad">{{step2Form?.controls.ConfirmPassword.errors?.passwordMatchValidator}}</div>
+        <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
 
         <uni-password-guide *ngIf="step2Form?.controls"
             [passwordControl]="step2Form.controls.Password">
         </uni-password-guide>
 
-        <button class="auth-button bad"
+        <button
+            type="submit"
+            class="auth-button bad"
             [attr.aria-busy]="busy"
-            [disabled]="busy"
-            (click)="submitStep2Form()">
+            [disabled]="busy">
             FULLFØR REGISTRERING
         </button>
     </form>

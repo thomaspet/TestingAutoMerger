@@ -1,11 +1,10 @@
 <article class="salarybalance" [attr.aria-busy]="busy">
+    <button *ngIf="lightWeight" class="new-button" (click)="createSalarybalance()">
+        Nytt forskudd/trekk
+    </button>
     <uni-table
         [resource]="salaryBalances$ | async"
         [config]="tableConfig"
         (rowSelected)="rowSelected($event)">
     </uni-table>
-
-    <button class="splitview-list-button" (click)="createSalarybalance()">
-        Nytt forskudd/trekk
-    </button>
 </article>

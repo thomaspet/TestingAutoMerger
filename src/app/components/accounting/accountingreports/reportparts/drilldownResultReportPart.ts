@@ -40,8 +40,8 @@ export class ResultSummaryData {
     templateUrl: './drilldownResultReportPart.html',
 })
 export class DrilldownResultReportPart implements OnChanges {
-    @Input() private periodFilter1: PeriodFilter;
-    @Input() private periodFilter2: PeriodFilter;
+    @Input() public periodFilter1: PeriodFilter;
+    @Input() public periodFilter2: PeriodFilter;
     @Input() private dimensionType: number;
     @Input() private dimensionId: number;
     @Input() private filter: any;

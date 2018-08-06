@@ -53,10 +53,10 @@ export class ReminderSending implements OnInit {
     @Input() public modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
-    remindersEmail: CustomReminder[];
-    remindersPrint: CustomReminder[];
+    public remindersEmail: CustomReminder[];
+    public remindersPrint: CustomReminder[];
     private remindersAll: CustomReminder[];
-    reminderTable: UniTableConfig;
+    private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency'
         + ',CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
@@ -70,7 +70,7 @@ export class ReminderSending implements OnInit {
 
     public currentRunNumber: number = 0;
     public currentRunNumberData: IRunNumberData;
-    private runNumbers: IRunNumberData[];
+    public runNumbers: IRunNumberData[];
     public toolbarconfig: IToolbarConfig;
     private isWarnedAboutRememberToSaveChanges: Boolean = false;
     private changedReminders: CustomerInvoiceReminder[] = [];

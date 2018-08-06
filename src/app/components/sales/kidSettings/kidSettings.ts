@@ -39,10 +39,10 @@ export class KIDSettings {
         disabled: () => false
     }];
 
-    private sumDoesNotMatch: boolean = false;
+    public sumDoesNotMatch: boolean = false;
     public currentPaymentInfoType: PaymentInfoType;
     private initialActive: boolean;
-    private paymentInfoTypes: PaymentInfoType[];
+    public paymentInfoTypes: PaymentInfoType[];
     private paymentInfoTypePartsMacros: string[] = [];
     public toolbarconfig: IToolbarConfig = {
         title: 'KID-innstillinger',
@@ -263,7 +263,11 @@ export class KIDSettings {
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
-                this.paymentInfoTypes = response[0];
+                if (!this.showInactiveInList) {
+                    this.paymentInfoTypes = response[0].filter(x => x.StatusCode === StatusCodePaymentInfoType.Active);
+                } else {
+                    this.paymentInfoTypes = response[0];
+                }
                 this.paymentInfoTypes.forEach(paymentInfoType => {
                     paymentInfoType['_type'] = this.paymentInfoTypeService.kidTypes
                         .find(type => type.Type === paymentInfoType['Type']).Text;

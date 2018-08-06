@@ -33,33 +33,33 @@ import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 
 export class AMeldingView implements OnInit {
     public busy: boolean = true;
-    private initialized: boolean;
+    public initialized: boolean;
     public currentPeriod: number;
     public currentMonth: string;
     public currentSumsInPeriod: any[] = [];
     public currentAMelding: any;
     public currentSumUp: any;
-    private aMeldingerInPeriod: AmeldingData[];
+    public aMeldingerInPeriod: AmeldingData[];
     public contextMenuItems: IContextMenuItem[] = [];
     public actions: IUniSaveAction[];
-    private clarifiedDate: string = '';
-    private submittedDate: string = '';
-    private feedbackObtained: boolean = false;
+    public clarifiedDate: string = '';
+    public submittedDate: string = '';
+    public feedbackObtained: boolean = false;
 
-    private totalAGAFeedback: number = 0;
-    private totalAGAFeedBackStr: string;
-    private totalAGASystem: number = 0;
-    private totalAGASystemStr: string;
-    private totalFtrekkFeedback: number = 0;
-    private totalFtrekkFeedbackStr: string;
-    private totalFtrekkSystem: number = 0;
-    private totalFtrekkSystemStr: string;
+    public totalAGAFeedback: number = 0;
+    public totalAGAFeedBackStr: string;
+    public totalAGASystem: number = 0;
+    public totalAGASystemStr: string;
+    public totalFtrekkFeedback: number = 0;
+    public totalFtrekkFeedbackStr: string;
+    public totalFtrekkSystem: number = 0;
+    public totalFtrekkSystemStr: string;
 
-    private legalEntityNo: string;
+    public legalEntityNo: string;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
     public toolbarConfig: IToolbarConfig;
-    private toolbarSearchConfig: IToolbarSearchConfig;
-    private periodStatus: string;
+    public toolbarSearchConfig: IToolbarSearchConfig;
+    public periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
 
@@ -277,7 +277,7 @@ export class AMeldingView implements OnInit {
         .subscribe(response => {
             this.saveStatus.completeCount++;
             this.updateAMeldingerInPeriod(response);
-            this.setAMelding(response);
+            this.refresh(response);
             this.checkForSaveDone(event.done);
             this._toastService.addToast('A-melding generert', ToastType.good, 4);
         },
@@ -288,30 +288,35 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    public setAMelding(amelding: AmeldingData) {
-        this.activeTabIndex = 0;
+    public getAmldWithFeedback(amldID: number) {
         this._ameldingService
-        .getAMeldingWithFeedback(amelding.ID)
-        .finally(() => this.initialized = true)
-        .subscribe((ameldingAndFeedback) => {
-            this.currentAMelding =  ameldingAndFeedback;
-            this.getSumsInPeriod();
-            this.getSumUpForAmelding();
-            this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
-            if (this.currentAMelding.sent) {
-                this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
-            } else {
-                this.submittedDate = '';
-            }
-            if (this.currentAMelding.feedbackFileID) {
-                this.feedbackObtained = true;
-            } else {
-                this.feedbackObtained = false;
-            }
-            this.updateToolbar();
-            this.updateSaveActions();
-            this.setStatusForPeriod();
-        }, err => this.errorService.handle(err));
+            .getAMeldingWithFeedback(amldID)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((amldWithFeedback: AmeldingData) => {
+                this.refresh(amldWithFeedback);
+            });
+    }
+
+    public refresh(amelding: AmeldingData) {
+        this.activeTabIndex = 0;
+        this.currentAMelding = amelding;
+        this.getSumsInPeriod();
+        this.getSumUpForAmelding();
+        this.clarifiedDate = moment(this.currentAMelding.created).format('DD.MM.YYYY HH:mm');
+        if (this.currentAMelding.sent) {
+            this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
+        } else {
+            this.submittedDate = '';
+        }
+        if (this.currentAMelding.feedbackFileID) {
+            this.feedbackObtained = true;
+        } else {
+            this.feedbackObtained = false;
+        }
+        this.updateToolbar();
+        this.updateSaveActions();
+        this.setStatusForPeriod();
+        this.initialized = true;
     }
 
     private getSumsInPeriod() {
@@ -415,7 +420,7 @@ export class AMeldingView implements OnInit {
 
     public setAmeldingFromEvent(event) {
         if (!event[0] || !event[0].data) { return; }
-        this.setAMelding(event[0].data);
+        this.getAmldWithFeedback(event[0].data.ID);
     }
 
     private updateAMeldingerInPeriod(newAMelding) {
@@ -440,7 +445,6 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-
             if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
                 const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
                 if (statusTextObject) {
@@ -478,6 +482,9 @@ export class AMeldingView implements OnInit {
                             && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
                                 mottakObject = this.checkMottattPeriode(alleMottak, typeData);
                         }
+                    } else {
+                        // mangler kalendermaaned i mottaket, sett som avvist
+                        mottakObject = {statusText: 'Avvist'};
                     }
                 }
             }
@@ -554,10 +561,10 @@ export class AMeldingView implements OnInit {
 
         this.spinner(this._ameldingService
             .getAMeldingForPeriod(this.currentPeriod, this.activeYear))
-                .subscribe((ameldinger: AmeldingData[]) => {
-                    this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID);
+                .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
+                .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
-                        this.setAMelding(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1]);
+                        this.getAmldWithFeedback(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID);
                     } else {
                         this.initialized = true;
                         this.updateToolbar();
@@ -565,7 +572,9 @@ export class AMeldingView implements OnInit {
                         this.getSumsInPeriod();
                         this.periodStatus = 'Ingen a-meldinger i perioden';
                     }
-                }, err => this.errorService.handle(err));
+                })
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .subscribe();
     }
 
     private setStatusForPeriod() {
@@ -578,7 +587,13 @@ export class AMeldingView implements OnInit {
 
     private getLastSentAmeldingWithFeedback() {
         // 1. if any with status 'mottatt' thats the period-status we want
-        const ameld: AmeldingData = this.aMeldingerInPeriod.find(a => a.altinnStatus === 'mottatt');
+        let ameld: AmeldingData = new AmeldingData();
+        for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
+            if (this.aMeldingerInPeriod[i].altinnStatus === 'mottatt') {
+                ameld = this.aMeldingerInPeriod[i];
+                break;
+            }
+        }
         if (!!ameld && ameld.altinnStatus === 'mottatt') {
             this._ameldingService
                 .getAMeldingWithFeedback(ameld.ID)
@@ -618,7 +633,11 @@ export class AMeldingView implements OnInit {
                 break;
 
             case 3:
+                this.periodStatus = '';
                 const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
+                if (!!statusTextObject) {
+                    this.periodStatus = this.periodStatus === '' ? 'Avvist' : statusTextObject.statusText;
+                }
                 break;
 
             default:
@@ -717,7 +736,7 @@ export class AMeldingView implements OnInit {
             .catch((err, obs) => this.handleError(err, obs, done))
             .subscribe((response: AmeldingData) => {
                 if (response) {
-                    this.getAMeldingForPeriod();
+                    this.refresh(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
@@ -730,16 +749,29 @@ export class AMeldingView implements OnInit {
         if (done) {
             done('Feilet ved henting av tilbakemelding');
         }
-        this._toastService.addToast(`Feilet ved henting av tilbakemelding \n\n ${err}`, ToastType.warn, ToastTime.long);
+        const errMessage = err.json().Message ? err.json().Message : '';
+        let toastText = '';
+        if (errMessage.indexOf('Incorrect username') >= 0) {
+            toastText = 'Brukernavn og/eller passord er feil';
+        }
+        if (errMessage.indexOf('No reference found for') >= 0) {
+            toastText = 'Tilbakemelding er ikke klar i altinn, prøv igjen om noen minutter';
+        }
 
-        return this.errorService.handleRxCatch(err, obs);
+        if (toastText !== '') {
+            this._toastService
+                .addToast(toastText, ToastType.warn, ToastTime.long);
+            return Observable.of(null);
+        } else {
+            return this.errorService.handleRxCatch(err, obs);
+        }
     }
 
     private sendAmelding(done) {
         this._ameldingService.sendAMelding(this.currentAMelding.ID)
         .subscribe((response: AmeldingData) => {
             if (response) {
-                this.setAMelding(response);
+                this.refresh(response);
                 if (this.currentAMelding.sent) {
                     this.submittedDate = moment(this.currentAMelding.sent).format('DD.MM.YYYY HH:mm');
                 }

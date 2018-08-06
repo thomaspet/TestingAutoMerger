@@ -7,7 +7,7 @@ import {Subject} from 'rxjs/Subject';
     template: `
         <ul class="password-validation">
             <li [ngClass]="{'completed': passwordLength}">
-                Mer enn 8 tegn
+                Minimum 8 tegn
             </li>
 
             <li [ngClass]="{'completed': upperCase}">

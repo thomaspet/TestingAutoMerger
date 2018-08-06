@@ -104,7 +104,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
-    private journalEntryTableConfig: UniTableConfig;
+    public journalEntryTableConfig: UniTableConfig;
     public createdNewAccount: any;
     private selectedNumberSeriesTaskID: number;
 
@@ -115,8 +115,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
 
     private predefinedDescriptions: Array<any>;
-    private projects: Project[];
-    private departments: Department[];
     private dimensionTypes: any[];
 
     private SAME_OR_NEW_NEW: string = '1';
@@ -297,34 +295,25 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setupJournalEntryTable() {
 
         Observable.forkJoin(
-            this.departmentService.GetAll(null),
-            this.projectService.GetAll(null),
             this.accountService.GetAll('filter=AccountNumber eq 1920'),
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
             this.customDimensionService.getMetadata()
         ).subscribe(
             (data) => {
-                this.departments = data[0];
-                this.projects = data[1];
-
                 if (this.companySettings
                     && this.companySettings.CompanyBankAccount
                     && this.companySettings.CompanyBankAccount.Account) {
                     this.defaultAccountPayments = this.companySettings.CompanyBankAccount.Account;
                 } else {
-                    if (data[2] && data[2].length && data[2].length > 0) {
-                        this.defaultAccountPayments = data[2][0];
+                    if (data[0] && data[0].length && data[0].length > 0) {
+                        this.defaultAccountPayments = data[0][0];
                     }
                 }
 
-                this.companySettings = data[3];
-
-                if (data[4]) {
-                        this.predefinedDescriptions = data[4];
-                }
-
-                this.dimensionTypes = data[5];
+                this.companySettings = data[1];
+                this.predefinedDescriptions = data[2] || [];
+                this.dimensionTypes = data[3];
 
                 this.setupUniTable();
                 this.dataLoaded.emit(this.journalEntryLines);
@@ -1160,7 +1149,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setWidth('90px');
 
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
-            .setWidth('8%')
+            .setDisplayField('Project.ProjectNumber')
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Project && rowModel.Dimensions.Project.Name) {
                     const project = rowModel.Dimensions.Project;
@@ -1168,20 +1157,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 return '';
             })
+            .setWidth('12%')
             .setOptions({
-                itemTemplate: (item) => {
-                    return (item.ProjectNumber + ' - ' + item.Name);
+                itemTemplate: (selectedItem) => {
+                    return `${selectedItem.ProjectNumber} - ${selectedItem.Name}`;
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.projects.filter(
-                        (project) => project.ProjectNumber.toString().startsWith(searchValue)
-                        || (project.Name || '').toLowerCase().indexOf(searchValue) >= 0
-                    )]);
+                    return this.projectSearch(searchValue);
                 }
             });
 
         const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
-            .setWidth('8%')
+            .setWidth('12%')
             .setTemplate((rowModel) => {
                 if (rowModel.Dimensions && rowModel.Dimensions.Department && rowModel.Dimensions.Department.Name) {
                     const dep = rowModel.Dimensions.Department;
@@ -1194,10 +1181,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return (item.DepartmentNumber + ' - ' + item.Name);
                 },
                 lookupFunction: (searchValue) => {
-                    return Observable.from([this.departments.filter(
-                        (dep) => dep.DepartmentNumber.toString().startsWith(searchValue)
-                        || dep.Name.toLowerCase().indexOf(searchValue) >= 0
-                    )]);
+                    return this.departmentSearch(searchValue);
                 }
             });
 
@@ -1232,10 +1216,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
             .setOptions({
-                lookupFunction: (searchValue) => {
-                    return Observable.of(this.predefinedDescriptions.filter(
-                        x => x.Code.toString().indexOf(searchValue) === 0)
-                    );
+                lookupFunction: (query) => {
+                    const results = (this.predefinedDescriptions || []).filter(item => {
+                        const code = (item.Code || '').toString();
+                        const description = (item.Description || '').toLowerCase();
+                        query = query.toLowerCase();
+
+                        return code.startsWith(query) || description.includes(query);
+                    });
+
+                    return Observable.of(results);
                 },
                 itemTemplate: (item) => {
                     return (item.Code + ': ' + item.Description);
@@ -2003,6 +1993,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+    }
+
+    private projectSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=Project&select=ProjectNumber as ProjectNumber,Name as Name,ID as ID&` +
+        `filter=contains(ProjectNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
+    }
+
+    private departmentSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=Department&select=DepartmentNumber as DepartmentNumber,Name as Name,ID as ID&` +
+        `filter=contains(DepartmentNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
     }
 
     private deleteLine(line) {

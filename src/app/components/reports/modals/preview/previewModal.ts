@@ -105,7 +105,7 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
         }
     }
 
-    public download(format: string) {
+    public download(format) {
         this.reportService.generateReportFormat(format, this.modalConfig.reportDefinition);
     }
 

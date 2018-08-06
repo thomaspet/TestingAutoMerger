@@ -64,7 +64,7 @@ export class UniActivateAPModal implements IUniModal {
     public formModel$: BehaviorSubject<ActivateAP> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    private termsAgreed: boolean;
+    public termsAgreed: boolean;
 
     constructor(
         private ehfService: EHFService,
@@ -158,6 +158,7 @@ export class UniActivateAPModal implements IUniModal {
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                        this.ehfService.updateActivated();
                     } else if (status === ActivationEnum.CONFIRMATION) {
                         this.toastService.addToast(
                             'Aktivering på vent',

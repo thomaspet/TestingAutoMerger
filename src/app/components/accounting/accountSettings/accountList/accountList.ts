@@ -25,7 +25,7 @@ import {AccountService, ErrorService} from '../../../../services/services';
 export class AccountList implements OnInit, AfterViewInit {
     @Output() public uniAccountChange: EventEmitter<Account> = new EventEmitter<Account>();
     @ViewChild(UniTable) private table: UniTable;
-    private accountTable: UniTableConfig;
+    public accountTable: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
 
     constructor(

@@ -6,8 +6,7 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
     templateUrl: './init.html',
 })
 export class UniInit {
-    private registrationFormExpanded: boolean;
-    private marketingContentHidden: boolean;
+    public marketingContentHidden: boolean;
     public currentYear: number; // used in copyright footer
 
     constructor(private browserStorage: BrowserStorageService) {
@@ -22,6 +21,5 @@ export class UniInit {
     public toggleMarketingContent() {
         this.marketingContentHidden = !this.marketingContentHidden;
         this.browserStorage.setItem('marketingContent_hidden', this.marketingContentHidden);
-        this.registrationFormExpanded = false;
     }
 }

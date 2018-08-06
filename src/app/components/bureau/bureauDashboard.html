@@ -3,7 +3,6 @@
     [saveactions]="saveActions">
 </uni-toolbar>
 
-
 <section class="application bureau-splitview">
 
     <section class="uni-container bureau-company-list">
@@ -27,101 +26,6 @@
         <uni-tabs [tabs]="detailsTabs"></uni-tabs>
 
         <router-outlet></router-outlet>
-
-        <!-- <uni-dashboard-detail-view *ngIf="highlightedCompany">
-            <router-outlet></router-outlet>
-        </uni-dashboard-detail-view> -->
     </section>
 
 </section>
-
-<!-- <section class="list-content application" [attr.aria-busy]="busy">
-    <ul class="bureau-predefined-filters">
-        <li [routerLink]="[]"
-            routerLinkActive="router-link-active"
-            [queryParams]="{noTag: true}">
-            Alle
-            <span class="ticker-filter-count">
-                {{filteredCompanies?.length || 0}}
-            </span>
-        </li>
-        <li *ngFor="let tag of allTags"
-            [routerLink]="[]"
-            routerLinkActive="router-link-active"
-            [queryParams]="{tag: tag.name}">
-            {{tag.name}}
-            <span class="ticker-filter-count">
-                {{tag.count}}
-            </span>
-        </li>
-    </ul>
-
-    <input class="table-filter"
-        [formControl]="searchControl"
-        type="search"
-        placeholder="Filtrer selskaper"
-    />
-
-    <section class="uni-split-view-container">
-        <section class="left-side">
-            <ag-grid-wrapper
-                [config]="tableConfig"
-                [resource]="filteredCompanies">
-            </ag-grid-wrapper> -->
-            <!-- <table class="uni-table">
-                <section [ngClass]="{hidden: !contextMenuCompany}" #contextMenu class="unitable-contextmenu bureau-context-menu">
-                    <ul>
-                        <li (click)="addLabel(contextMenuCompany)">Editer filter</li>
-                        <li (click)="editPurchases(contextMenuCompany)">Administrer produkter</li>
-                    </ul>
-                </section>
-                <thead>
-                    <tr>
-                        <th (click)="sortBy('Name', true)" >
-                            Selskaper <i>{{getSortArrow('Name')}}</i>
-                        </th>
-                        <th (click)="sortBy('OrganizationNumber', true)" >
-                            Organisasjonsnr <i>{{getSortArrow('OrganizationNumber')}}</i>
-                        </th>
-                        <th class="bureau-count-col" (click)="sortBy('_inboxCount', true)">
-                            Fakturainnboks <i>{{getSortArrow('_inboxCount')}}</i>
-                        </th>
-                        <th class="bureau-count-col" (click)="sortBy('_approvedCount', true)">
-                            Godkjente faktura <i>{{getSortArrow('_approvedCount')}}</i>
-                        </th>
-                        <th class="select-column"></th>
-                    </tr>
-                </thead>
-                <ng-container *ngFor="let company of filteredCompanies">
-                    <tr *ngIf="companyHasTag(company, activeTag)"
-                        (click)="onRowClick(company)"
-                        [attr.aria-selected]="company === highlightedCompany">
-                        <td><a (click)="onCompanyNameClick(company)">{{company.Name}}</a></td>
-                        <td>{{company.OrganizationNumber}}</td>
-                        <td class="bureau-count-col">
-                            <a *ngIf="company._inboxCount" (click)="onCompanyInboxClick(company)">
-                                {{company._inboxCount}}
-                            </a>
-                        </td>
-                        <td class="bureau-count-col">
-                            <a *ngIf="company._approvedCount" (click)="onCompanyApprovalsClick(company)">
-                                {{company._approvedCount}}
-                            </a>
-                        </td>
-                        <td tabindex="-1" class="contextMenu">
-                            <button class="table-button" (click)="openContextMenu($event, company)">
-                                ...
-                            </button>
-                        </td>
-                    </tr>
-                </ng-container>
-            </table> -->
-        <!-- </section>
-        <section class="right-side" *ngIf="!!highlightedCompany">
-            <uni-dashboard-detail-view>
-                <router-outlet></router-outlet>
-            </uni-dashboard-detail-view>
-        </section>
-    </section>
-</section>
--->

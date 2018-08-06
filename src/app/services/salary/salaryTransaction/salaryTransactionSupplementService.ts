@@ -5,7 +5,7 @@ import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype, SalaryTransa
 import * as moment from 'moment';
 import {Observable} from 'rxjs/Observable';
 import {ErrorService} from '../../common/errorService';
-import {WageTypeService} from '../wagetype/wageTypeService';
+import {WageTypeService} from '../wageType/wageTypeService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 export enum SalaryTransactionSupplementValidationCodes {

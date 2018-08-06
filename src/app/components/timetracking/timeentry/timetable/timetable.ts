@@ -424,7 +424,7 @@ export class TimeTableReport {
         });
     }
 
-    private onFilterClick(filter: IFilter) {
+    public onFilterClick(filter: IFilter) {
         this.currentFilter = filter;
         this.refreshReport(true);
     }

@@ -29,8 +29,8 @@ export class DateTimePickerInput extends BaseControl implements OnChanges, After
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<DateTimePickerInput> = new EventEmitter<DateTimePickerInput>();
 
-    private calendarOpen: boolean;
-    private selectedDate: Date;
+    public calendarOpen: boolean;
+    public selectedDate: Date;
     private options: any;
 
     constructor(private cd: ChangeDetectorRef) {

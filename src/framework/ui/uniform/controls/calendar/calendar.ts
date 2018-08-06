@@ -9,10 +9,10 @@ export class UniCalendar implements OnChanges {
     @Input() private date: Date;
     @Output() private dateChange: EventEmitter<Date> = new EventEmitter<Date>();
 
-    private weekdays: string[];
+    public weekdays: string[];
     public selectedDate: moment.Moment;
-    private calendarDate: moment.Moment;
-    private calendarWeeks: any[] = [];
+    public calendarDate: moment.Moment;
+    public calendarWeeks: any[] = [];
 
     constructor() {
         this.weekdays = moment.weekdaysMin(true);

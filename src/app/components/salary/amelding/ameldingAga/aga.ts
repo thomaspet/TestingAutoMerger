@@ -8,8 +8,8 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../..
 
 export class AmeldingAgaView {
     @Input() public currentSumUp: any;
-    private agaTableConfig: UniTableConfig;
-    private showTable: boolean;
+    public agaTableConfig: UniTableConfig;
+    public showTable: boolean;
 
     constructor() {
         this.setupTableConfig();

@@ -1,28 +1,35 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {ErrorService} from '../../services/common/errorService';
-import {AuthService} from '../../authService';
+import {Router, ActivationEnd} from '@angular/router';
 import {UniModalService} from '../../../framework/uni-modal/modalService';
-import {UniHttp} from '../../../framework/core/http/http';
-import {UserService} from '../../services/common/userService';
-import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {UniNewCompanyModal} from './newCompanyModal';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {Subscription} from 'rxjs/Subscription';
-import {CompanyService} from '../../services/common/companyService';
-import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
+import {UniNewCompanyModal} from './newCompanyModal';
+import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
 import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTextFieldModal';
+import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
 import {isNullOrUndefined} from 'util';
-import {Router, ActivationEnd} from '@angular/router';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {AuthService} from '../../authService';
+import {UniHttp} from '../../../framework/core/http/http';
+import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
-
+import {Subscription} from 'rxjs/Subscription';
+import {
+    ErrorService,
+    UserService,
+    CompanyService,
+    TeamService,
+    ElsaProductService,
+    BrowserStorageService
+} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
+
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -41,28 +48,30 @@ interface AllTagsType {
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
-    public toolbarConfig: IToolbarConfig;
-    public saveActions: IUniSaveAction[];
+    @ViewChild('contextMenu') private contextMenu: ElementRef;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
-    private filteredCompanies: KpiCompany[];
-    public highlightedCompany: KpiCompany;
-
     private subscription: Subscription;
-    public searchControl: FormControl;
-    public busy: boolean = false;
-    public currentSortField: string;
-    public sortIsDesc: boolean = true;
-    public companyTags: BureauTagsDictionary = {};
 
-    public allTags: AllTagsType[];
-    public activeTag: string;
+    toolbarConfig: IToolbarConfig;
+    saveActions: IUniSaveAction[];
 
-    @ViewChild('contextMenu') private contextMenu: ElementRef;
+    filteredCompanies: KpiCompany[];
+    highlightedCompany: KpiCompany;
 
-    public tableConfig: UniTableConfig = this.getTableConfig();
-    public detailsTabs: IUniTab[] = [
+    searchControl: FormControl;
+    busy: boolean = false;
+    currentSortField: string;
+    sortIsDesc: boolean = true;
+    companyTags: BureauTagsDictionary = {};
+
+    allTags: AllTagsType[];
+    activeTag: string;
+
+    tableConfig: UniTableConfig = this.getTableConfig();
+    detailsTabs: IUniTab[] = [
         {name: 'Oppgaver', path: 'tasks'},
         {name: 'Firma', path: 'company'},
         {name: 'Regnskap', path: 'accounting'},
@@ -71,18 +80,14 @@ export class BureauDashboard {
         {name: 'Time', path: 'hours'},
     ];
 
-
     constructor(
         private errorService: ErrorService,
         private authService: AuthService,
         private uniModalService: UniModalService,
         private uniHttp: UniHttp,
-        private userService: UserService,
-        private toastService: ToastService,
         private companyService: CompanyService,
         public currentCompanyService: BureauCurrentCompanyService,
         private modalService: UniModalService,
-        private elementRef: ElementRef,
         private router: Router,
         private browserStorage: BrowserStorageService,
     ) {
@@ -91,10 +96,16 @@ export class BureauDashboard {
             title: '',
         };
 
-        this.saveActions = [{
-            label : 'Opprett nytt selskap',
-            action: (doneCallback) => this.startCompanyCreation(doneCallback)
-        }];
+        this.saveActions = [
+            {
+                label : 'Opprett nytt selskap',
+                action: (doneCallback) => this.startCompanyCreation(doneCallback)
+            },
+            {
+                label : 'Gi tilgang til selskaper',
+                action: (doneCallback) => this.openInviteUsersModal(doneCallback)
+            }
+        ];
     }
 
     public ngOnInit() {
@@ -183,6 +194,8 @@ export class BureauDashboard {
 
         const orgnrCol = new UniTableColumn('OrganizationNumber', 'Org.nr');
 
+        const clientNrCol = new UniTableColumn('ClientNumber', 'Klientnr');
+
         const inboxCol =  new UniTableColumn('_inboxCount', 'Fakturainnboks', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setAlignment('center');
@@ -203,7 +216,7 @@ export class BureauDashboard {
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
             .setColumnMenuVisible(true)
-            .setColumns([companyNameCol, orgnrCol, inboxCol, approvalCol, subCompanyCol])
+            .setColumns([companyNameCol, orgnrCol, clientNrCol, inboxCol, approvalCol, subCompanyCol])
             .setContextMenu([
                 {
                     label: 'Legg til i filter',
@@ -216,6 +229,10 @@ export class BureauDashboard {
                 {
                     label: 'Opprett som kunde',
                     action: item => this.createCustomer(item)
+                },
+                {
+                    label: 'Rediger klientnr',
+                    action: item => this.editClientNumber(item)
                 }
             ]);
     }
@@ -273,6 +290,14 @@ export class BureauDashboard {
         if (this.allTags && this.allTags[0]) {
             this.allTags[0].count = this.filteredCompanies.length;
         }
+    }
+
+    public openInviteUsersModal(doneCallback) {
+        return this.modalService.open(GrantAccessModal, {}).onClose
+            .subscribe(
+                res => doneCallback(''),
+                err => console.error(err)
+            );
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
@@ -396,6 +421,30 @@ export class BureauDashboard {
                         this.loadSubCompanies(true);
                     }
                 });
+    }
+
+    public editClientNumber(company) {
+        const options = {
+            buttonLabels: {
+                accept: 'Oppdater klientnr',
+                cancel: 'Avbryt'
+            },
+            header: 'Rediger klientnr for: ' + company.Name,
+            data: {
+                ClientNumber: company.ClientNumber || 0
+            }
+        };
+
+        this.uniModalService.open(UniEditFieldModal, options).onClose.subscribe((res) => {
+            if (res) {
+                this.companyService.updateCompanyClientNumber(company.ID, res, company.Key).subscribe((comp) => {
+                    this.table.updateRow(company._originalIndex, comp);
+                }, (err) => {
+                    this.errorService.handle(err);
+                });
+            }
+        });
+
     }
 
     public companyHasTag(company: KpiCompany, tag: string): boolean {

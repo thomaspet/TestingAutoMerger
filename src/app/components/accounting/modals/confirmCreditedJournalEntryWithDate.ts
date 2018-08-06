@@ -62,17 +62,20 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal, OnInit, A
     public message: string;
     public relatedJournalEntriesMessage: string;
 
-    private creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
+    public creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
 
-    private showVatLockedDateInfo: boolean = false;
-    private showAccountingLockedInfo: boolean = false;
+    public showVatLockedDateInfo: boolean = false;
+    public showAccountingLockedInfo: boolean = false;
 
-    private formReady: boolean = false;
+    public formReady: boolean = false;
 
-    constructor(private companySettingsService: CompanySettingsService, private journalEntryService: JournalEntryService) {}
+    constructor(
+        private companySettingsService: CompanySettingsService,
+        private journalEntryService: JournalEntryService
+    ) {}
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {

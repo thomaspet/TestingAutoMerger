@@ -62,7 +62,7 @@ export class TradeItemTable {
     @Input() public vatTypes: VatType[];
     private foreignVatType: VatType;
     public tableConfig: UniTableConfig;
-    private settings: CompanySettings;
+    public settings: CompanySettings;
     private defaultProject: Project;
 
     constructor(

@@ -37,7 +37,10 @@ export class TableDataService {
     // Only maintained for inifinite scroll tables!
     private rowCountOnRemote: number;
 
-    constructor(private statisticsService: StatisticsService) {}
+    constructor(
+        private statisticsService: StatisticsService,
+        private utils: TableUtils
+    ) {}
 
     public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
         this.gridApi = gridApi;
@@ -151,7 +154,7 @@ export class TableDataService {
                                 this.sumRow$.next(undefined);
                                 return Observable.empty();
                             })
-                            .subscribe(sums => {
+                            .subscribe((sums: {[field: string]: number | boolean}) => {
                                 if (sums) {
                                     sums['_isSumRow'] = true;
                                 }
@@ -293,6 +296,7 @@ export class TableDataService {
             data = data.filter(item => {
                 const ungroupedCheck = ungroupedFilters.every(filter => this.checkFilter(filter, item));
                 const groupsCheck = filterGroups.every(group => {
+
                     // Filters inside a group are separated by 'or'
                     return group.some(filter => {
                         return this.checkFilter(filter, item);
@@ -321,6 +325,10 @@ export class TableDataService {
 
         if (!query || !query.length) {
             return true;
+        }
+
+        if (filter.isDate) {
+            return this.checkDateFilter(query, value, filter.operator);
         }
 
         const isNumber = (val) => !isNaN(value) && isFinite(value);
@@ -357,7 +365,36 @@ export class TableDataService {
                 }
                 return parseInt(value, 10) <= parseInt(query, 10);
         }
+    }
 
+    private checkDateFilter(query: string, value: string, operator) {
+        const queryMoment = moment(query);
+        const valueMoment = moment(value);
+
+        if (!valueMoment.isValid()) {
+            return false;
+        }
+
+        switch (operator) {
+            case 'contains':
+                return valueMoment.format('DD.MM.YYYY').includes(query);
+            case 'startswith':
+                return valueMoment.format('DD.MM.YYYY').startsWith(query);
+            case 'endswith':
+                return valueMoment.format('DD.MM.YYYY').endsWith(query);
+            case 'eq':
+                return queryMoment.format('DD.MM.YYYY') === valueMoment.format('DD.MM.YYYY');
+            case 'ne':
+                return queryMoment.format('DD.MM.YYYY') !== valueMoment.format('DD.MM.YYYY');
+            case 'gt':
+                return valueMoment.isAfter(queryMoment.add(1, 'days'));
+            case 'ge':
+                return valueMoment.isAfter(queryMoment);
+            case 'lt':
+                return valueMoment.isBefore(queryMoment);
+            case 'le':
+                return valueMoment.isBefore(queryMoment.add(1, 'days'));
+        }
     }
 
     public sortLocalData(data: any[], column: UniTableColumn, direction: 'asc'|'desc'): any[] {
@@ -451,6 +488,10 @@ export class TableDataService {
     }
 
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
+        if (filters) {
+            filters = filters.filter(f => !!f.searchValue);
+        }
+
         if (!filters || !filters.length) {
             return '';
         }

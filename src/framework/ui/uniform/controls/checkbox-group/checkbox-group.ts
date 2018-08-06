@@ -29,8 +29,8 @@ export class UniCheckboxgroupInput extends BaseControl implements OnChanges {
     @Output() public readyEvent: EventEmitter<UniCheckboxgroupInput> = new EventEmitter<UniCheckboxgroupInput>(true);
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
 
-    private items: any[] = [];
-    private selectedItems: any[] = [];
+    public items: any[] = [];
+    public selectedItems: any[] = [];
 
     constructor(public elementRef: ElementRef) {
         super();

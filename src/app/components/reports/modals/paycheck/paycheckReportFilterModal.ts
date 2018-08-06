@@ -133,7 +133,7 @@ export class PayCheckReportFilterModal implements OnInit {
 
     public modalConfig: ModalConfig;
     public type: Type<any> = PaycheckReportFilterModalContent;
-    private inActive: boolean;
+    public inActive: boolean;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,

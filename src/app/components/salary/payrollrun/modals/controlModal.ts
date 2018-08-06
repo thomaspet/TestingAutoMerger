@@ -38,7 +38,7 @@ export class ControlModal implements OnInit, IUniModal {
         employeeInfo: { name: string, payment: number},
         paymentLines: SalaryTransaction[], collapsed: boolean
     }[] = null;
-    private description$: ReplaySubject<string>;
+    public description$: ReplaySubject<string>;
     private transes: SalaryTransaction[];
     public model$: BehaviorSubject<{
         sums: SalaryTransactionSums,

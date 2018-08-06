@@ -52,9 +52,9 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
     ];
 
     // Uniform
-    private model$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model$: BehaviorSubject<any> = new BehaviorSubject({});
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    private fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     private formFields = [];
     private formOptions = {
         workerSelection: 'FilterByUser',

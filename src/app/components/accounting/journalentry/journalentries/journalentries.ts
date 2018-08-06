@@ -28,8 +28,7 @@ import { JournalEntryData } from '@app/models/models';
     templateUrl: './journalentries.html'
 })
 export class JournalEntries {
-    @ViewChild(JournalEntryManual)
-    private journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
     public contextMenuItems: IContextMenuItem[] = [];
 
     public toolbarConfig: IToolbarConfig = {
@@ -46,7 +45,7 @@ export class JournalEntries {
     public currentJournalEntryID: number;
     public editmode: boolean = false;
     public creditDate: LocalDate = null;
-    private selectedNumberSeries: NumberSeries;
+    public selectedNumberSeries: NumberSeries;
     private selectedNumberSeriesID: number;
     private selectedNumberSeriesTaskID: number;
     public selectConfig: any;

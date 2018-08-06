@@ -117,7 +117,7 @@ export class ColumnMenuModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private columns: Immutable.List<any>;
+    public columns: Immutable.List<any>;
     public tableConfig: UniTableConfig;
 
     // Drag and drop

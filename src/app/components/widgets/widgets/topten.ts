@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {Router} from '@angular/router/';
 import {YearService} from '../../../services/common/yearService';
 import {WidgetDataService} from '../widgetDataService';
+import {IUniWidget} from '../uniWidget';
 
 @Component({
     selector: 'uni-top-ten-widget',
@@ -51,10 +52,10 @@ import {WidgetDataService} from '../widgetDataService';
 })
 
 export class UniTopTenWidget {
-
-    private data = [];
+    public widget: IUniWidget;
+    public data = [];
     public currentYear: number;
-    private previousYear: number;
+    public previousYear: number;
 
     private numberFormat: any = {
         thousandSeparator: ' ',

@@ -1,5 +1,15 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy,
-    Renderer, SimpleChanges} from '@angular/core';
+import {
+    Component,
+    Input,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ElementRef,
+    ChangeDetectorRef,
+    ChangeDetectionStrategy,
+    SimpleChanges
+} from '@angular/core';
+
 import {Observable} from 'rxjs/Observable';
 import {BaseControl} from '../baseControl';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
@@ -19,6 +29,10 @@ import * as _ from 'lodash';
 import {IGroupConfig} from '@uni-framework/ui/unitable/controls/autocomplete';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
+export interface IAutocompleteCache {
+    templates?: string[];
+    search?: any[];
+}
 
 @Component({
     selector: 'uni-autocomplete-input',
@@ -41,7 +55,7 @@ export class UniAutocompleteInput extends BaseControl {
 
     // state vars
     public busy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-    private guid: string;
+    public guid: string;
     private options: any;
     private source: Array<any>;
     public currentValue: any;
@@ -49,7 +63,7 @@ export class UniAutocompleteInput extends BaseControl {
     private initialDisplayValue: string;
     private selectedIndex: number = -1;
     private selectedItem: any = null;
-    private lookupResults: any[] = [];
+    public lookupResults: any[] = [];
     public isExpanded$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
     private items$: Observable<any> = new Observable<any>();
     private focusPositionTop: number = 0;
@@ -60,7 +74,7 @@ export class UniAutocompleteInput extends BaseControl {
         search: [],
         templates: []
     };
-    constructor(private el: ElementRef, private renderer: Renderer, private cd: ChangeDetectorRef) {
+    constructor(private el: ElementRef, private cd: ChangeDetectorRef) {
         super();
         this.guid = 'autocomplete-' + performance.now();
     }
@@ -172,12 +186,16 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     public focus() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'focus', []);
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'select', []);
+        try {
+            this.inputElement.nativeElement.focus();
+            this.inputElement.nativeElement.select();
+        } catch (e) {}
     }
 
     public blur() {
-        this.renderer.invokeElementMethod(this.inputElement.nativeElement, 'blur', []);
+        try {
+            this.inputElement.nativeElement.blur();
+        } catch (e) {}
     }
 
     public onClickOutside() {

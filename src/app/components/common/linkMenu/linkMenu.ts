@@ -14,7 +14,7 @@ export interface ILinkMenuItem {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LinkMenu implements OnInit, OnChanges {
-    @Input() private menu: ILinkMenuItem[];
+    @Input() public menu: ILinkMenuItem[];
     constructor() { }
 
     public ngOnInit() { }

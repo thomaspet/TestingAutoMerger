@@ -47,15 +47,10 @@ export class SubCompanyModal implements IUniModal {
 
     constructor(
         private errorService: ErrorService,
-        private http: UniHttp) {
+        private http: UniHttp
+    ) {}
 
-    }
-
-    public ngOnInit() {
-    }
-
-
-    private onCloseAction(src: 'ok' | 'cancel') {
+    public onCloseAction(src: 'ok' | 'cancel') {
 
         if (src === 'ok') {
             this.busy = true;

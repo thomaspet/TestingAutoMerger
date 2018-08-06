@@ -6,6 +6,7 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TravelService} from '@app/services/services';
 const SELECTED_KEY = '_rowSelected';
+const PAGE_SIZE = 12;
 @Component({
     selector: 'uni-travel-list',
     templateUrl: './travel-list.component.html',
@@ -51,8 +52,12 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
         this.config = new UniTableConfig('salary.travel.travellist', false)
             .setMultiRowSelect(true)
             .setColumns([typeCol, nameCol, descriptionCol])
-            .setPageSize(12)
-            .setAutoScrollIfNewCellCloseToBottom(true);
+            .setPageSize(PAGE_SIZE)
+            .setConditionalRowCls(row => {
+                if (row[SELECTED_KEY]) {
+                    return 'selected-travel';
+                }
+            });
     }
 
     public rowSelected(row: Travel) {
@@ -86,6 +91,10 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
                     travels.findIndex(travel => focusTravel.ID
                         ? travel.ID === focusTravel.ID
                         : travel._createguid === focusTravel._createguid));
+                if (focusTravel['_originalIndex'] !== undefined) {
+                    const index = focusTravel['_originalIndex'];
+                    this.grid.paginationInputChange(Math.ceil((index + 1) / PAGE_SIZE));
+                }
             }
             this.rowSelected(focusTravel);
         });

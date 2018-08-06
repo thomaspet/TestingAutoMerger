@@ -35,8 +35,8 @@ export class BalanceSummaryData {
     templateUrl: './drilldownBalanceReportPart.html',
 })
 export class DrilldownBalanceReportPart implements OnChanges {
-    @Input() private periodFilter1: PeriodFilter;
-    @Input() private periodFilter2: PeriodFilter;
+    @Input() public periodFilter1: PeriodFilter;
+    @Input() public periodFilter2: PeriodFilter;
     @Input() private filter: any;
 
     public treeSummaryList: BalanceSummaryData[] = [];

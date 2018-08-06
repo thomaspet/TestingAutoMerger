@@ -392,8 +392,8 @@ export class RolePermission extends UniEntity {
     public RoleID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Role: Role;
     public Permission: Permission;
+    public Role: Role;
     public CustomFields: any;
 }
 
@@ -1055,6 +1055,8 @@ export class CustomerOrder extends UniEntity {
     public PaymentTermsID: number;
     public PrintStatus: number;
     public Requisition: string;
+    public RestAmountCurrency: number;
+    public RestExclusiveAmountCurrency: number;
     public SalesPerson: string;
     public ShippingAddressLine1: string;
     public ShippingAddressLine2: string;
@@ -1748,6 +1750,7 @@ export class Travel extends UniEntity {
     public SourceSystem: string;
     public State: state;
     public StatusCode: number;
+    public SupplierID: number;
     public TravelIdentificator: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -1779,6 +1782,7 @@ export class TravelLine extends UniEntity {
     public TypeID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public Travel: Travel;
     public travelType: TravelType;
     public CustomFields: any;
 }
@@ -2484,6 +2488,7 @@ export class Confirmation extends UniEntity {
     public ExpirationDate: Date;
     public ID: number;
     public Phone: string;
+    public PostalCode: string;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -3118,6 +3123,7 @@ export class ReportDefinition extends UniEntity {
     public ReportSource: string;
     public ReportType: number;
     public TemplateLinkId: string;
+    public UniqueReportID: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Version: string;
@@ -3392,6 +3398,7 @@ export class CompanySettings extends UniEntity {
     public AutoJournalPayment: boolean;
     public BankChargeAccountID: number;
     public BaseCurrencyCodeID: number;
+    public BookCustomerInvoiceOnDeliveryDate: boolean;
     public CompanyBankAccountID: number;
     public CompanyName: string;
     public CompanyRegistered: boolean;
@@ -3565,7 +3572,7 @@ export class Tracelink extends UniEntity {
 
 
 export class Sharing extends UniEntity {
-    public static RelativeUrl = '';
+    public static RelativeUrl = 'sharings';
     public static EntityType = 'Sharing';
 
     public _createguid: string;
@@ -4783,6 +4790,34 @@ export class KpiValue extends UniEntity {
 }
 
 
+export class ProcessFileLog extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ProcessFileLog';
+
+    public _createguid: string;
+    public CompanyID: number;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityCount: number;
+    public EntityInstanceID: string;
+    public EntityName: string;
+    public FileID: number;
+    public FileName: string;
+    public FileType: number;
+    public ID: number;
+    public Message: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserIdentity: string;
+    public Company: Company;
+    public CustomFields: any;
+}
+
+
 export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
@@ -5738,11 +5773,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -6051,9 +6086,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6386,6 +6421,7 @@ export class SalaryTransactionPayLine extends UniEntity {
 
 export class SalaryBalancePayLine extends UniEntity {
     public Account: string;
+    public Kid: string;
     public Sum: number;
     public Text: string;
 }
@@ -6620,11 +6656,16 @@ export class AGASums extends UniEntity {
 }
 
 
-export class AltinnAuthChallenge extends UniEntity {
+export class AuthenticationChallengeBE extends UniEntity {
     public Message: string;
-    public Status: string;
+    public Status: ChallengeRequestResult;
     public ValidFrom: Date;
     public ValidTo: Date;
+    public ExtensionData: ExtensionDataObject;
+}
+
+
+export class ExtensionDataObject extends UniEntity {
 }
 
 
@@ -6662,6 +6703,7 @@ export class SendEmail extends UniEntity {
     public EntityType: string;
     public ExternalReference: string;
     public FromAddress: string;
+    public Localization: string;
     public Message: string;
     public ReportName: string;
     public Subject: string;
@@ -6815,6 +6857,27 @@ export class JournalEntryLinePostPostData extends UniEntity {
 
 export class CreatePaymentBatchDTO extends UniEntity {
     public Password: string;
+}
+
+
+export class PaymentAttachmentDto extends UniEntity {
+    public CustomerNumber: number;
+    public dueAmount: string;
+    public ExternalBankAccountNumber: string;
+    public InvoiceNumber: string;
+    public JournalEntryNumber: string;
+    public JournalEntryNumberNumeric: number;
+    public KID: string;
+    public Name: string;
+    public NumberOfPayments: number;
+    public PaidAmount: string;
+    public paymentAmount: string;
+    public PaymentFileID: number;
+    public ReceiptDate: Date;
+    public RestAmount: string;
+    public SerialNumberOrAcctSvcrRef: string;
+    public TotalAmount: string;
+    public Year: number;
 }
 
 
@@ -7347,6 +7410,7 @@ export enum SharingType{
     AP = 3,
     Vipps = 4,
     Export = 5,
+    InvoicePrint = 6,
 }
 
 
@@ -7510,6 +7574,17 @@ export enum WorkStatus{
     Complete = 2,
     OvertimeOrFlex = 3,
     ValidTimeOff = 4,
+}
+
+
+export enum ChallengeRequestResult{
+    Ok = 0,
+    InvalidCredentials = 1,
+    NoPinFound = 2,
+    NoPhoneNumber = 3,
+    UserLockedOut = 4,
+    InvalidPinType = 5,
+    StatusDead = 6,
 }
 
 

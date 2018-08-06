@@ -34,8 +34,8 @@ export class WorkEditor {
     @Output() public valueChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniTable) private uniTable: UniTable;
-    private tableConfig: UniTableConfig;
-    private timeSheet: TimeSheet = new TimeSheet();
+    public tableConfig: UniTableConfig;
+    public timeSheet: TimeSheet = new TimeSheet();
     private workTypes: Array<WorkType> = [];
     private visibleColumns: Array<string>;
     private defaultRow: any = { Date: new LocalDate() };

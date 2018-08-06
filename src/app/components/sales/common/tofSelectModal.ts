@@ -31,7 +31,7 @@ export class UniTofSelectModal implements IUniModal {
     public onClose: EventEmitter<number> = new EventEmitter();
 
     public lookupFunction: any;
-    private tableData: UniTableConfig;
+    public tableData: UniTableConfig;
 
     constructor(
         private errorService: ErrorService

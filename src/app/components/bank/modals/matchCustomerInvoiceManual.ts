@@ -53,14 +53,14 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     @ViewChild(UniTable)
     private table: UniTable;
 
-    private customerInvoices: Array<any> = [];
+    public customerInvoices: Array<any> = [];
     public uniTableConfig: UniTableConfig;
     private showPaidInvoices: boolean = false;
-    private paymentData: any;
+    public paymentData: any;
     private journalEntryID: number;
-    private amountLeftToDistribute: number;
-    private sumOfSelectedRows: number = 0;
-    private isOkEnabled: boolean = false;
+    public amountLeftToDistribute: number;
+    public sumOfSelectedRows: number = 0;
+    public isOkEnabled: boolean = false;
 
     constructor(
         private customerInvoiceService: CustomerInvoiceService,

@@ -12,7 +12,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
     templateUrl: './productList.html'
 })
 export class ProductList {
-    private productTable: UniTableConfig;
+    public productTable: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
     public saveActions: IUniSaveAction[];
 

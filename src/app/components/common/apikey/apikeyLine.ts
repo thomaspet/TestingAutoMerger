@@ -1,4 +1,4 @@
-import {Component, OnInit, Output, EventEmitter, keyframes} from '@angular/core';
+import {Component, OnInit, Output, EventEmitter} from '@angular/core';
 import {ApiKey} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniComponentLayout, LayoutBuilder, FieldSize, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
@@ -13,7 +13,7 @@ export class ApikeyLine implements OnInit {
 
     public busy: boolean;
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private apikeyLine$: BehaviorSubject<ApiKey> = new BehaviorSubject(new ApiKey());
+    public apikeyLine$: BehaviorSubject<ApiKey> = new BehaviorSubject(new ApiKey());
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor(

@@ -11,28 +11,28 @@ import * as moment from 'moment';
 })
 
 export class AmeldingPeriodSummaryView {
+    @Input() public systemData: SalaryTransactionPeriodSums[] = [];
+    @Input() public currentAMelding: any;
+    @Input() public aMeldingerInPeriod: AmeldingData[];
+
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
-    private systemTableConfig: UniTableConfig;
+    public systemTableConfig: UniTableConfig;
 
     private forfallsdato: string = '';
     private sumAmldAga: number = 0;
     private sumAmldFtrekk: number = 0;
-    private amldData: any[] = [];
-    private amldTableConfig: UniTableConfig;
+    public amldData: any[] = [];
+    public amldTableConfig: UniTableConfig;
 
-    private systemPeriodSums: ISummaryConfig[] = [];
-    private ameldingPeriodSums: ISummaryConfig[] = [];
-
-    @Input() private systemData: SalaryTransactionPeriodSums[] = [];
-    @Input() public currentAMelding: any;
-    @Input() public aMeldingerInPeriod: AmeldingData[];
+    public systemPeriodSums: ISummaryConfig[] = [];
+    public ameldingPeriodSums: ISummaryConfig[] = [];
 
     public collapsePaymentInfo: boolean = false;
-    private kidAGA: string;
-    private kidTrekk: string;
-    private accountNumber: string;
+    public kidAGA: string;
+    public kidTrekk: string;
+    public accountNumber: string;
 
     constructor(private numberFormat: NumberFormat) {
         this.setupSystemTableConfig();

@@ -176,7 +176,7 @@ export class UniSendEmailModal implements IUniModal {
                 Options: {
                     source: this.formList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },

@@ -52,7 +52,7 @@ export class PersonalDetails extends UniView {
     ];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
+    public employee$: BehaviorSubject<Employee> = new BehaviorSubject(new Employee());
 
     private employeeID: number;
     public collapseTax: boolean;

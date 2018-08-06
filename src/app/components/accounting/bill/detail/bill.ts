@@ -64,6 +64,7 @@ import {
     checkGuid,
     EHFService,
     UniSearchSupplierConfig,
+    UniSearchDimensionConfig,
     ModulusService,
     ProjectService,
     DepartmentService,
@@ -76,7 +77,8 @@ import {
     UniFilesService,
     BankService,
     CustomDimensionService,
-    SupplierInvoiceItemService
+    SupplierInvoiceItemService,
+    FileService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -120,6 +122,11 @@ interface IJournalHistoryItem {
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
+    @ViewChild(UniForm) public uniForm: UniForm;
+    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
+    @ViewChild(UniImage) public uniImage: UniImage;
+    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
+    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
 
     public busy: boolean = true;
     public toolbarConfig: any;
@@ -139,7 +146,7 @@ export class BillView implements OnInit {
 
     private myUser: User;
     private myUserRoles: UserRole[] = [];
-    private files: Array<any> = [];
+    public files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
     private supplierIsReadOnly: boolean = false;
@@ -160,12 +167,6 @@ export class BillView implements OnInit {
     public hasLoadedCustomDimensions: boolean = false;
     public isBlockedSupplier: boolean = false;
 
-    @ViewChild(UniForm) public uniForm: UniForm;
-    @ViewChild(BillHistoryView) private historyView: BillHistoryView;
-    @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniApproveModal) private approveModal: UniApproveModal;
-    @ViewChild(JournalEntryManual) private journalEntryManual: JournalEntryManual;
-
     private supplierExpandOptions: Array<string> = [
         'Info',
         'Info.BankAccounts',
@@ -176,6 +177,7 @@ export class BillView implements OnInit {
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {name: 'Kontering'},
+        {name: 'Forrige faktura'},
         {name: 'Leverandørhistorikk'}
     ];
 
@@ -184,7 +186,7 @@ export class BillView implements OnInit {
     private rootActions: IUniSaveAction[] = [
         {
             label: lang.tool_save,
-            action: (done) => this.save(done),
+            action: (done) => this.save(done).catch(() => {}),
             main: true,
             disabled: true
         },
@@ -208,9 +210,6 @@ export class BillView implements OnInit {
         },
     ];
 
-    private projects: Project[];
-    private departments: Department[];
-
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -229,6 +228,7 @@ export class BillView implements OnInit {
         private currencyService: CurrencyService,
         private ehfService: EHFService,
         private uniSearchSupplierConfig: UniSearchSupplierConfig,
+        private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
@@ -242,7 +242,8 @@ export class BillView implements OnInit {
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
         private bankService: BankService,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private fileService: FileService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -283,15 +284,11 @@ export class BillView implements OnInit {
             Observable.forkJoin(
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
-                this.projectService.GetAll(null),
-                this.departmentService.GetAll(null),
                 this.customDimensionService.getMetadata()
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
-                this.projects = res[2];
-                this.departments = res[3];
-                this.customDimensions = res[4];
+                this.customDimensions = res[2];
 
                 if (id > 0) {
                     this.fetchInvoice(id, true);
@@ -299,15 +296,7 @@ export class BillView implements OnInit {
                     this.newInvoice(true);
                     this.checkPath();
                 }
-                if (projectID > 0) {
-                    this.projectService.Get(projectID).subscribe(project => {
-                        const model = this.current.getValue();
-                        model.DefaultDimensions.ProjectID = project.ID;
-                        model.DefaultDimensions.Project = project;
-                        this.current.next(model);
-                        this.expandProjectSection();
-                    });
-                }
+
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
 
@@ -327,21 +316,6 @@ export class BillView implements OnInit {
             source: this.currencyCodes,
             valueProperty: 'ID',
             displayProperty: 'Code',
-            debounceTime: 200
-        };
-        const projectsField = fields.find(f => f.Property === 'DefaultDimensions.ProjectID');
-        projectsField.Options = {
-            source: this.projects,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200
-        };
-
-        const departmentsField = fields.find(f => f.Property === 'DefaultDimensions.DepartmentID');
-        departmentsField.Options = {
-            source: this.departments,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
             debounceTime: 200
         };
 
@@ -471,17 +445,25 @@ export class BillView implements OnInit {
             },
             <any> {
                 Property: 'DefaultDimensions.DepartmentID',
-                FieldType: FieldType.DROPDOWN,
+                FieldType: FieldType.UNI_SEARCH,
                 Label: 'Avdeling',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    uniSearchConfig: this.uniSearchDimensionConfig.generateDepartmentConfig(this.departmentService),
+                    valueProperty: 'ID'
+                }
             },
             <any> {
                 Property: 'DefaultDimensions.ProjectID',
-                FieldType: FieldType.DROPDOWN,
+                FieldType: FieldType.UNI_SEARCH,
                 Label: 'Prosjekt',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    uniSearchConfig: this.uniSearchDimensionConfig.generateProjectConfig(this.projectService),
+                    valueProperty: 'ID'
+                }
             }
         ];
 
@@ -1301,26 +1283,6 @@ export class BillView implements OnInit {
 
         if (!model) { return; }
 
-        if (change['DefaultDimensions.ProjectID']) {
-            if (model.DefaultDimensions.ProjectID) {
-                model.DefaultDimensions.Project = this.projects.find(x => x.ID === model.DefaultDimensions.ProjectID);
-            } else {
-                model.DefaultDimensions.Project = null;
-            }
-
-            this.current.next(model);
-        }
-
-        if (change['DefaultDimensions.DepartmentID']) {
-            if (model.DefaultDimensions.DepartmentID) {
-                model.DefaultDimensions.Department = this.departments.find(x => x.ID === model.DefaultDimensions.DepartmentID);
-            } else {
-                model.DefaultDimensions.Department = null;
-            }
-
-            this.current.next(model);
-        }
-
         this.customDimensions.forEach((dim) => {
             if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
                 model.DefaultDimensions['Dimension' + dim.Dimension] =
@@ -1897,7 +1859,7 @@ export class BillView implements OnInit {
                     if (result) {
                         done(lang.save_success);
                     } else {
-                        done();
+                        done(lang.err_journal);
                     }
                 });
 
@@ -2193,7 +2155,6 @@ export class BillView implements OnInit {
                 });
 
             }, (err) => {
-                this.errorService.handle(err);
                 reject(err);
             });
         });
@@ -2239,9 +2200,6 @@ export class BillView implements OnInit {
                 this.lookupHistory();
 
                 this.uniSearchConfig.initialItem$.next(invoice.Supplier);
-                if (invoice.DefaultDimensions && invoice.DefaultDimensions.ProjectID > 0) {
-                    this.expandProjectSection();
-                }
 
                 // set diff to null until the journalentry is loaded, the data is calculated correctly
                 // through the onJournalEntryManualDataLoaded event
@@ -2349,14 +2307,6 @@ export class BillView implements OnInit {
 
         // flag unsaved changes so the save button is activated
         this.flagUnsavedChanged();
-    }
-
-    private expandProjectSection() {
-        const formConfig = this.formConfig$.getValue();
-        formConfig.sections = {
-            1: {isOpen: true}
-        };
-        this.formConfig$.next(formConfig);
     }
 
     public onFormReady() {
@@ -2605,16 +2555,10 @@ export class BillView implements OnInit {
                     } else {
                         reload();
                     }
-                }, (error) => {
-                    let msg = error.statusText;
-                    if (error._body) {
-                        msg = trimLength(error._body, 150, true);
-                        this.showErrMsg(msg, true);
-                    } else {
-                        this.userMsg(lang.save_error);
-                    }
-                    if (done) { done(lang.save_error + ': ' + msg); }
-                    reject({ success: false, errorMessage: msg });
+                }, (err) => {
+                    this.errorService.handle(err);
+                    if (done) { done(lang.save_error); }
+                    reject({ success: false, errorMessage: lang.save_error });
                 });
             };
 
@@ -3041,6 +2985,9 @@ export class BillView implements OnInit {
                     this.save(undefined, false).then(() => {
                         this.busy = false;
                         resolve(true);
+                    }).catch(() => {
+                        this.busy = false;
+                        resolve(false);
                     });
                 } else if (response === ConfirmActions.REJECT) {
                     if (this.hasUploaded) {
@@ -3217,15 +3164,11 @@ export class BillView implements OnInit {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        const file = this.files.find(x => x.ID === fileID);
-        const tag = this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
-
-        this.supplierInvoiceService.send(
-            `filetags/${fileID}`,
-            undefined,
-            undefined,
-            { FileID: fileID, TagName: tag, Status: flagFileStatus }
-        ).subscribe(null, err => this.errorService.handle(err));
+        this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID).subscribe(tags => {
+            const file = this.files.find(x => x.ID === fileID);
+            const tagname = tags.Data.length ? tags.Data[0].tagname : this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+            this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));
+        });
     }
 
     private showErrMsg(msg: string, lookForMsg = false): string {

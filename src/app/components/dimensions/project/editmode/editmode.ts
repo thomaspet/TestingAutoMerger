@@ -34,8 +34,8 @@ export class ProjectEditmode {
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    private project$: BehaviorSubject<Project> = new BehaviorSubject(null);
-    private actionLabel: string = '';
+    public project$: BehaviorSubject<Project> = new BehaviorSubject(null);
+    public actionLabel: string = '';
     public uniSearchConfig: IUniSearchConfig;
     public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
@@ -48,7 +48,7 @@ export class ProjectEditmode {
     ];
 
     public tableConfig: UniTableConfig;
-    private project: Project;
+    public project: Project;
     private users: User[] = [];
 
     constructor(

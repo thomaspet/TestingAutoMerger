@@ -11,9 +11,16 @@ import {Observable} from 'rxjs/Observable';
     templateUrl: './payrollrunList.html'
 })
 export class PayrollrunList implements OnInit {
-    private payrollrunListConfig: UniTableConfig;
-    private payrollRuns$: Observable<PayrollRun>;
+    public payrollrunListConfig: UniTableConfig;
+    public payrollRuns$: Observable<PayrollRun>;
     public busy: boolean;
+
+    public toolbarActions = [{
+        label: 'Ny lønnsavregning',
+        action: this.newPayrollrun.bind(this),
+        main: true,
+        disabled: false
+    }];
 
     constructor(
         private router: Router,
@@ -34,7 +41,7 @@ export class PayrollrunList implements OnInit {
         const nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setTemplate((payrollRun) => {
-                var status = this.payrollService.getStatus(payrollRun);
+                const status = this.payrollService.getStatus(payrollRun);
                 return status.text;
             });
         const payStatusCol = new UniTableColumn(

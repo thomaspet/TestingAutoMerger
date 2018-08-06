@@ -25,11 +25,10 @@ import {AuthService} from '../../../authService';
 })
 
 export class UniShortcutListWidget {
-
     public LISTTITLE: string = 'Gå til liste';
     public NEWTITLE: string = 'Opprett ny';
     public widget: IUniWidget;
-    private items: Array<any>;
+    public items: Array<any>;
 
     constructor(
         private authService: AuthService,

@@ -21,6 +21,7 @@ import {UniBankModal} from './modals/bankModal';
 import {UniChangelogModal} from './modals/changelog-modal/changelog-modal';
 import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportModal';
 import {SubCompanyModal} from './modals/subCompanyModal';
+import {UniEditFieldModal} from './modals/editFieldModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -46,6 +47,7 @@ export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
 export * from './modals/changelog-modal/changelog-modal';
 export * from './modals/choose-report-modal/chooseReportModal';
+export * from './modals/editFieldModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -71,5 +73,6 @@ export const MODALS = [
     UniChangelogModal,
     UniChooseReportModal,
     SubCompanyModal,
+    UniEditFieldModal,
 ];
 

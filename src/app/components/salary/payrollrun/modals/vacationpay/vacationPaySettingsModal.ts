@@ -20,20 +20,23 @@ import * as moment from 'moment';
 })
 
 export class VacationPaySettingsModal implements OnInit, IUniModal {
+    @ViewChild(UniTable) private table: UniTable;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
+
     public busy: boolean;
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
-    @ViewChild(UniTable) private table: UniTable;
+    public companysalaryModel$: BehaviorSubject<any> = new BehaviorSubject({});
+
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public tableConfig: UniTableConfig;
-    private vacationRates: CompanyVacationRate[] = [];
+    public vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
-    private infoText: string;
+    public infoText: string;
     private originalDeduction: number;
     public dueToHolidayChanged: boolean = false;
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
+
     constructor(
         private _companysalaryService: CompanySalaryService,
         private _companyvacationRateService: CompanyVacationRateService,

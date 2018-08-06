@@ -57,21 +57,22 @@ import { Observable } from 'rxjs/Observable';
 export class BookPaymentManualModal implements IUniModal {
     @Input()
     public options: IModalOptions = {};
+
+    @Output()
+    public onClose: EventEmitter<any> = new EventEmitter();
+
     public supplierID: number;
     public customerID: number;
     public accountID: number;
     public pointInTime: LocalDate;
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
     private companySettings: any;
-    private journalEntryLines: Array<any> = [];
+    public journalEntryLines: Array<any> = [];
     public uniTableConfig: UniTableConfig;
-    private selectedRow: any;
+    public selectedRow: any;
     private paymentData: any;
-    private businessRelations: any[];
-    private selectedBusinessRelationID: number;
+    public businessRelations: any[];
+    public selectedBusinessRelationID: number;
     private showMarkedPosts: boolean = false;
 
     constructor(

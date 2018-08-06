@@ -14,6 +14,12 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
+// HasSystemPw is not in the database but will still come from backend
+// Create an extended class so typescript is happy
+class AltinnExtended extends Altinn {
+    HasSystemPw: boolean;
+}
+
 @Component({
     selector: 'altinn-settings',
     templateUrl: './altinnSettings.html'
@@ -22,7 +28,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 export class AltinnSettings implements OnInit {
     public formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private altinn$: BehaviorSubject<Altinn> = new BehaviorSubject(null);
+    public altinn$: BehaviorSubject<AltinnExtended> = new BehaviorSubject(null);
     public busy: boolean;
 
     public loginErr: string = '';
@@ -90,9 +96,9 @@ export class AltinnSettings implements OnInit {
         Observable.forkJoin(
             this._altinnService
                 .GetAll('')
-                .switchMap((altinn: Altinn[]) =>
+                .switchMap((altinn: AltinnExtended[]) =>
                     altinn.length ? Observable.of(altinn[0]) : this._altinnService.GetNewEntity([], 'altinn')),
-            this._altinnService.getLayout()).subscribe((response: [Altinn, any]) => {
+            this._altinnService.getLayout()).subscribe((response: [AltinnExtended, any]) => {
                 const [altinn, layout] = response;
                 this.altinn$.next(altinn);
                 this.fields$.next(this.prepareLayout(layout.Fields, altinn));
@@ -118,7 +124,7 @@ export class AltinnSettings implements OnInit {
                         })
                     : Observable.of(retrievedAltinn)
             )
-            .subscribe((response: Altinn) => {
+            .subscribe((response: AltinnExtended) => {
                 this.isDirty = false;
                 this.altinn$.next(response);
                 this.fields$.next(this.prepareLayout(this.fields$.getValue(), response));

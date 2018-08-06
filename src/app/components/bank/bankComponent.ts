@@ -7,7 +7,6 @@ import {
     Ticker,
     TickerGroup,
     ITickerActionOverride,
-    TickerAction,
     ITickerColumnOverride
 } from '../../services/common/uniTickerService';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
@@ -23,7 +22,7 @@ import {
     UniAutobankAgreementListModal,
     MatchCustomerManualModal
 } from './modals';
-import {File, Payment, PaymentBatch, LocalDate, CustomerInvoice} from '../../unientities';
+import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -38,11 +37,12 @@ import {
     CustomerInvoiceService,
     ElsaProductService,
     ElsaPurchaseService,
+    CompanySettingsService,
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
-import { RequestMethod } from '@angular/http';
+import { RequestMethod, Http } from '@angular/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 
@@ -86,13 +86,14 @@ export class BankComponent implements AfterViewInit {
     @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
 
     private tickers: Ticker[];
-    private tickerGroups: TickerGroup[];
-    private selectedTicker: Ticker;
+    public tickerGroups: TickerGroup[];
+    public selectedTicker: Ticker;
     public actions: IUniSaveAction[];
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[];
-    private hasAccessToAutobank: boolean;
+    private companySettings: CompanySettings;
+    public hasAccessToAutobank: boolean;
 
     public toolbarconfig: IToolbarConfig = {
         title: '',
@@ -131,7 +132,9 @@ export class BankComponent implements AfterViewInit {
         {
             Code: 'remove_payment',
             ExecuteActionHandler: (selectedRows) => this.removePayment(selectedRows),
-            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
+            CheckActionIsDisabled: (selectedRow) =>
+                selectedRow.PaymentStatusCode !== 44001 &&
+                !this.isAllowedToForceDeletePayment(selectedRow)
         },
         {
             Code: 'book_manual',
@@ -167,6 +170,16 @@ export class BankComponent implements AfterViewInit {
             Template: (row) => {
                 return row.ToBankAccountAccountNumber || row.PaymentExternalBankAccountNumber;
             }
+        },
+        {
+            Field: 'BusinessRelation.Name',
+            Template: (row) => {
+                if (!this.companySettings || !this.companySettings.TaxBankAccount || row.BusinessRelationName) {
+                    return row.BusinessRelationName;
+                }
+                if (row.ToBankAccountAccountNumber === this.companySettings.TaxBankAccount.AccountNumber) {return 'Forskuddstrekk'; }
+                return '';
+            }
         }
     ];
 
@@ -179,6 +192,11 @@ export class BankComponent implements AfterViewInit {
         // incase payment is rejected and done manualy in a bankprogram you can still book the payment
         const enabledForStatuses = [44003, 44006, 44010, 44012, 44014];
         return !enabledForStatuses.includes(selectedRow.PaymentStatusCode);
+    }
+
+    public isAllowedToForceDeletePayment(selectedRow: any): boolean {
+        const enabledForStatuses = [44002, 44007, 44008, 44009, 44011];
+        return enabledForStatuses.includes(selectedRow.PaymentStatusCode);
     }
 
     constructor(
@@ -197,13 +215,18 @@ export class BankComponent implements AfterViewInit {
         private journalEntryService: JournalEntryService,
         private customerInvoiceService: CustomerInvoiceService,
         private elsaProductService: ElsaProductService,
-        private elsaPurchasesService: ElsaPurchaseService
+        private elsaPurchasesService: ElsaPurchaseService,
+        private companySettingsService: CompanySettingsService,
     ) {
         this.updateTab();
         this.checkAutobankAccess();
     }
 
     public ngAfterViewInit() {
+        this.companySettingsService
+            .getCompanySettings(['TaxBankAccount'])
+            .subscribe(companySettings => this.companySettings = companySettings);
+
         this.uniTickerService.getTickers().then(tickers => {
             this.tickers = tickers;
             this.tickerGroups = this.uniTickerService.getGroupedTopLevelTickers(tickers)
@@ -535,9 +558,14 @@ export class BankComponent implements AfterViewInit {
     public removePayment(selectedRows: any) {
         return new Promise(() => {
         const row = selectedRows[0];
+        const warningMessage = this.isAllowedToForceDeletePayment(row) ?
+        `Viktig, betalinger er sendt til banken og må stoppes manuelt der før du kan slette betalingen.<br>
+        Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
+        : '';
         const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Slett betaling',
-            message: `Vil du slette betaling${row.Description ? ' ' + row.Description : ''}?`,
+            message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
+            warning: warningMessage,
             buttonLabels: {
                 accept: 'Slett betaling',
                 reject: 'Avbryt'
@@ -546,7 +574,8 @@ export class BankComponent implements AfterViewInit {
 
         modal.onClose.subscribe((result) => {
             if (result === ConfirmActions.ACCEPT) {
-                this.paymentService.Remove(row.ID).subscribe(paymentResponse => {
+                this.paymentService.Action(row.ID, 'force-delete', null, RequestMethod.Delete)
+                .subscribe(paymentResponse => {
                     this.tickerContainer.mainTicker.reloadData(); // refresh table
                     this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
                     });

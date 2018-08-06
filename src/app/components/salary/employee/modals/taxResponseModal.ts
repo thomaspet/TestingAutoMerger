@@ -19,9 +19,11 @@ type TaxInfo = {
 export class TaxResponseModal implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    private taxStatus$: BehaviorSubject<TaxCardReadStatus> = new BehaviorSubject(new TaxCardReadStatus());
-    private header: string;
+
+    public taxStatus$: BehaviorSubject<TaxCardReadStatus> = new BehaviorSubject(new TaxCardReadStatus());
+    public header: string;
     public busy: boolean;
+
     constructor(
         private altinnService: AltinnIntegrationService,
         private errorService: ErrorService

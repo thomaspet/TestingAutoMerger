@@ -20,7 +20,7 @@ declare const _;
 })
 export class InvoiceReminders implements OnInit {
     @Input()
-    private customerInvoice: CustomerInvoice;
+    public customerInvoice: CustomerInvoice;
 
     private reminderTable: UniTableConfig;
     private reminderList: any;

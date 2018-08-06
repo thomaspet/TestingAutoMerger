@@ -13,6 +13,7 @@ import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
 import { ITickerActionOverride } from '../../services/common/uniTickerService';
 import { CompanySettingsService } from '../common/companySettingsService';
+import { EHFService } from '../common/EHFService';
 import { EmailService } from '../common/emailService';
 import { UniModalService } from '../../../framework/uni-modal/modalService';
 import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
@@ -56,6 +57,11 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             AfterExecuteActionHandler: (selectedRows) => this.onAfterPrintInvoice(selectedRows)
         },
         {
+            Code: 'invoice_invoiceprint',
+            ExecuteActionHandler: (selectedRows) => this.onSendInvoicePrint(selectedRows),
+            CheckActionIsDisabled: (selectedRows) => !this.ehfService.isActivated("NETSPRINT")
+        },
+        {
             Code: 'invoice_createcreditnote',
             CheckActionIsDisabled: (selectedRow) => this.onCheckCreateCreditNoteDisabled(selectedRow),
             ExecuteActionHandler: (selectedRows) => this.onCreateCreditNote(selectedRows)
@@ -87,6 +93,7 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         private emailService: EmailService,
         private reportDefinitionService: ReportDefinitionService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private ehfService: EHFService
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
@@ -272,6 +279,18 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
+    public onSendInvoicePrint(selectedRows: Array<any>): Promise<any> {
+        const invoice = selectedRows[0];
+        return new Promise((resolve, reject) => {
+            this.sendInvoicePrint(invoice.ID).subscribe(jobCreated => {
+                resolve(jobCreated)
+            }, err => {
+                this.errorService.handle(err);
+                reject();
+            });
+        });            
+    }
+
     public onSendEmail(selectedRows: Array<any>): Promise<any> {
         const invoice = selectedRows[0];
         return new Promise((resolve, reject) => {
@@ -371,8 +390,21 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         return super.PutAction(invoiceId, 'set-customer-invoice-printstatus', 'ID=' + invoiceId + '&printStatus=' + printStatus);
     }
 
-     public validateVippsCustomer(invoiceId: number): Observable<any> {
+    public validateVippsCustomer(invoiceId: number): Observable<any> {
         return super.GetAction(invoiceId, 'validate-vipps-user');
+    }
+
+    public sendInvoicePrint(currentInvoiceID: number): Observable<any> {
+        return Observable.create(obs => {
+            return super.PutAction(currentInvoiceID, 'send-invoice-print').subscribe(jobCreated => {
+                this.toastService.addToast(
+                    jobCreated ? 'Faktura sendt til fakturaprint jobb' : 'Faktura feilet å lage fakturaprint jobb',
+                    jobCreated ? ToastType.good : ToastType.bad,
+                    5
+                );    
+                obs.complete(jobCreated);
+            }, err => this.errorService.handle(err)); 
+        });        
     }
 
     public SendInvoiceToVippsWithText(invoice: Object): Observable<any> {

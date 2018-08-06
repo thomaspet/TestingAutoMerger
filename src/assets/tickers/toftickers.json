@@ -20,6 +20,14 @@
             "FilterOperator": "startswith"
         },
         {
+            "Header": "Bilagsnr.",
+            "Field": "JournalEntry.JournalEntryNumber",
+            "Type": "link",
+            "ExternalModel": "JournalEntry",
+            "LinkNavigationProperty": "JournalEntryID",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kundenr.",
             "Field": "Customer.CustomerNumber",
             "Type": "Link",
@@ -209,6 +217,14 @@
             "Options": {
                 "Transition": "invoice"
             }
+        },
+        {
+            "Name": "Fakturaprint",
+            "Code": "invoice_invoiceprint",
+            "Type": "action",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": false,
+            "NeedsActionOverride": true
         },
         {
             "Name": "Registrer betaling",
@@ -1312,7 +1328,7 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerOrder",
-    "Expand": "Customer,Customer.Info,Items",
+    "Expand": "Customer,Customer.Info",
     "CountExpand": "Customer.Info,CurrencyCode,DefaultSeller",
     "OrderBy": "ID DESC",
     "Columns": [
@@ -1401,21 +1417,21 @@
         },
         {
             "Header": "Restsum eks. mva",
-            "Field": "sum(casewhen(items.statuscode eq 41102\\,items.SumTotalExVatCurrency\\,0))",
-            "Alias": "Restsumexmva",
+            "Field": "RestExclusiveAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "150px",
             "FilterOperator": "gt",
-            "Type": "money"
+            "Type": "money",
+            "SumColumn": true
         },
         {
             "Header": "Restsum inkl. mva",
-            "Field": "TaxExclusiveAmountCurrency",
-            "Alias": "Restsum",
+            "Field": "RestAmountCurrency",
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "FilterOperator": "gt",
-            "DefaultHidden": true
+            "DefaultHidden": true,
+            "SumColumn": true
         },
         {
             "Header": "Hovedselger",

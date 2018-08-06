@@ -33,26 +33,24 @@ export class Users {
     private tables: QueryList<UniTable>;
 
     private hasUnsavedChanges: boolean;
-
-    // New user Form
-    private newUserForm: FormGroup;
-    public errorMessage: string;
-
-    // Users table
-    private roles: Role[];
-    private users: User[] = [];
-    private userRoles: UserRole[] = [];
     private currentUser: User;
-
-    private selectedUser: User;
     private selectedIndex: number = 0;
-    private userTableConfig: UniTableConfig;
-    private roleTableConfig: UniTableConfig;
     private hasAutobankProduct: boolean = false;
 
-    public formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
+    newUserForm: FormGroup;
+    errorMessage: string;
+
+    roles: Role[];
+    users: User[] = [];
+    userRoles: UserRole[] = [];
+    selectedUser: User;
+
+    userTableConfig: UniTableConfig;
+    roleTableConfig: UniTableConfig;
+
+    formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
 
     // Misc
     public busy: boolean = false;
@@ -303,7 +301,7 @@ export class Users {
             );
     }
 
-    private sendInvite(user?) {
+    public sendInvite(user?) {
         this.errorMessage = '';
         const companyId = this.browserStorage.getItem('activeCompany').id;
         const newUser = user || this.newUserForm.value;

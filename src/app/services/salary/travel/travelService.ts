@@ -1,23 +1,29 @@
 import { Injectable } from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
-import {Travel, ApiKey, FieldType, Status, state, costtype, Employee, TypeOfIntegration, File} from '@uni-entities';
+import {
+    Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
+} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {EmployeeService} from '../salary/employee/employeeService';
-import {ApiKeyService} from '../common/apikeyService';
-import {FileService} from '../common/fileService';
+import {EmployeeService} from '../employee/employeeService';
+import {ApiKeyService} from '../../common/apikeyService';
+import {FileService} from '../../common/fileService';
+import {RequestMethod} from '@angular/http';
+import {SupplierService} from '@app/services/accounting/supplierService';
 
 @Injectable()
 export class TravelService extends BizHttp<Travel> {
 
     private emps$: BehaviorSubject<Employee[]> = new BehaviorSubject(null);
+    private suppliers$: BehaviorSubject<Supplier[]> = new BehaviorSubject(null);
 
     constructor(
         protected http: UniHttp,
         private employeeService: EmployeeService,
         private apiKeyService: ApiKeyService,
         private fileService: FileService,
+        private supplierService: SupplierService,
     ) {
         super(http);
         this.entityType = Travel.EntityType;
@@ -76,6 +82,17 @@ export class TravelService extends BizHttp<Travel> {
             .map(emps => emps.filter(emp => filter(emp)));
     }
 
+    private getSuppliers(filter: (sup: Supplier) => boolean): Observable<Supplier[]> {
+        return this.suppliers$
+            .take(1)
+            .switchMap(suppliers => suppliers
+                ? Observable.of(suppliers)
+                : this.supplierService
+                    .GetAll('', ['Info'])
+                    .do(s => this.suppliers$.next(s)))
+            .map(suppliers => suppliers.filter(supplier => filter(supplier)));
+    }
+
     private getEmpOptions(travel$: BehaviorSubject<Travel>) {
         let currTravel: Travel = null;
         return {
@@ -91,6 +108,24 @@ export class TravelService extends BizHttp<Travel> {
             search: (query: string) => this.getEmps(emp =>
                 emp.EmployeeNumber.toString().startsWith(query)
                 || emp.BusinessRelationInfo.Name.toLowerCase().includes(query))
+        };
+    }
+
+    private getSupplierOptions(travel$: BehaviorSubject<Travel>) {
+        let currTravel: Travel = null;
+        return {
+            getDefaultData: () => {
+                return travel$
+                    .take(1)
+                    .filter(travel => !currTravel || currTravel.ID !== travel.ID)
+                    .do(travel => currTravel = travel)
+                    .switchMap(travel => this.getSuppliers(x => x.ID === travel.SupplierID));
+            },
+            valueProperty: 'ID',
+            template: (supplier: Supplier) => supplier ? `${supplier.ID} - ${supplier.Info.Name}` : '',
+            search: (query: string) => this.getSuppliers(supplier =>
+                supplier.ID.toString().startsWith(query)
+                || supplier.Info.Name.toLowerCase().includes(query))
         };
     }
 
@@ -112,6 +147,20 @@ export class TravelService extends BizHttp<Travel> {
                 ? super.PutAction(null, 'ttpdf', `apikeyID=${key.ID}&ID=${travel.ID}`)
                     .map((file: File) => file ? [file] : [])
                 : Observable.of([]));
+    }
+
+    public createTransactions(travels: Travel[], runID: number): Observable<SalaryTransaction[]> {
+        if (!travels || !travels.length || !runID) {
+            return Observable.of([]);
+        }
+        return super.ActionWithBody(null, travels.map(t => t.ID), 'tosalary', RequestMethod.Put, `runID=${runID}`);
+    }
+
+    public createSupplierInvoices(travels: Travel[]): Observable<SupplierInvoice[]> {
+        if (!travels || !travels.length) {
+            return Observable.of([]);
+        }
+        return super.ActionWithBody(null, travels.map(t => t.ID), 'toinvoice');
     }
 
     public layout(travel$: BehaviorSubject<Travel>): Observable<any> {
@@ -151,6 +200,14 @@ export class TravelService extends BizHttp<Travel> {
                         Label: 'Ansatt',
                         Options: this.getEmpOptions(travel$),
                         classes: 'quarter-width',
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'SupplierID',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Leverandør',
+                        Options: this.getSupplierOptions(travel$),
+                        classes: 'quarter-width'
                     },
                     {
                         EntityType: 'Travel',

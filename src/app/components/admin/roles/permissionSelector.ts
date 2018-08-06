@@ -19,8 +19,8 @@ export class PermissionSelector {
     @Output()
     public permissionSelected: EventEmitter<Permission> = new EventEmitter<Permission>();
 
-    private model: any = {};
-    private field: UniFieldLayout;
+    public model: any = {};
+    public field: UniFieldLayout;
 
     constructor() {}
 

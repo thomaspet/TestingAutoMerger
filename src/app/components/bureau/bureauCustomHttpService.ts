@@ -3,9 +3,7 @@ import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/htt
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs/Observable';
-import {ErrorService} from '../../services/common/errorService';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class BureauCustomHttpService {
@@ -13,11 +11,9 @@ export class BureauCustomHttpService {
         private http: Http,
         private authService: AuthService,
         private browserStorage: BrowserStorageService,
-        private errorService: ErrorService,
-        private toastService: ToastService,
     ) {}
 
-    public get(url: string, companyKey: string): Observable<any> {
+    private getWithoutUnAuthenticatedHandling(url: string, companyKey: string): Observable<any> {
         const token = this.authService.getToken();
         const headers: Headers = new Headers;
         headers.set('Accept', 'application/json');
@@ -29,7 +25,11 @@ export class BureauCustomHttpService {
         options.url = url;
         options.headers = headers;
         options.body = '';
-        return this.http.request(new Request(options))
+        return this.http.request(new Request(options));
+    }
+
+    public get(url: string, companyKey: string): Observable<any> {
+        return this.getWithoutUnAuthenticatedHandling(url, companyKey)
             .catch((err) => {
                 if (err.status === 401) {
                     this.authService.clearAuthAndGotoLogin();
@@ -64,5 +64,12 @@ export class BureauCustomHttpService {
             return obj.Data[0];
         }
         throw new Error('No elements found, can not return the first element');
+    }
+
+    public hasAccessToCompany(companyKey: string): Observable<boolean> {
+        return this.getWithoutUnAuthenticatedHandling('/api/biz', companyKey)
+            .map(() => true)
+            .catch(err => Observable.of(false));
+
     }
 }

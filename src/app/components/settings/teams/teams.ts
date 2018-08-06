@@ -237,7 +237,7 @@ export class Teams {
         });
     }
 
-    public onDelete(event) {
+    public onDelete() {
         if (!this.current || !this.current.ID) {
             return;
         }

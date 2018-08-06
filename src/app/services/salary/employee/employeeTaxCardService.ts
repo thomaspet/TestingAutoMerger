@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {EmployeeTaxCard, TaxCard, FreeAmountType} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
@@ -70,7 +70,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     emptaxcard.loennFraHovedarbeidsgiver.NonTaxableAmount = employeetaxcard.NonTaxableAmount;
                 }
                 emptaxcard.NotMainEmployer = employeetaxcard.NotMainEmployer;
-                
+
                 return Observable.of(emptaxcard);
             });
     }
@@ -80,7 +80,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             year = employeeTaxCard.Year;
         }
         if (year > 2017) {
-                    
+
             if (!!employeeTaxCard.loennFraHovedarbeidsgiver) {
                 employeeTaxCard.loennFraHovedarbeidsgiver.Percent = employeeTaxCard.loennFraHovedarbeidsgiver.Percent || 0;
             }
@@ -96,7 +96,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger) {
                 employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
             }
-            
+
         }
         else {
             if (!!employeeTaxCard.Percent) {
@@ -105,7 +105,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             if (!!employeeTaxCard.SecondaryPercent) {
                 employeeTaxCard.SecondaryPercent = employeeTaxCard.SecondaryPercent || 0;
             }
-            
+
         }
     }
 
@@ -173,9 +173,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         return (taxCard.Table || taxCard.Percent) ? [taxCard] : [];
     }
 
-    public getLayout(layoutID: string, employeeTaxcard: EmployeeTaxCard) {
+    public getLayout(layoutID: string, employeeTaxcard: EmployeeTaxCard): Observable<any> {
         if (employeeTaxcard.Year > 2017) {
-            return Observable.from([{
+            return Observable.of({
                 Name: layoutID,
                 BaseEntity: 'EmployeeTaxCard',
                 Fields: [
@@ -466,9 +466,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                             decimalLength: 2
                         }
                     }]
-            }]);
+            });
         } else {
-            return Observable.from([{
+            return Observable.of({
                 Name: layoutID,
                 BaseEntity: 'EmployeeTaxCard',
                 Fields: [
@@ -567,7 +567,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                             decimalLength: 2
                         }
                     }]
-            }]);
+            });
         }
     }
 }

@@ -59,6 +59,7 @@ export const SharingTypeText = [
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
     {ID: SharingType.Vipps, Title: 'Vipps'},
+    {ID: SharingType.InvoicePrint, Title: 'Fakturaprint'}
 ];
 
 @Component({
@@ -83,24 +84,24 @@ export class UniTicker {
 
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
-    private model: any;
+    public model: any;
 
     private selects: string;
     private headers: string;
     private defaultExpand: string;
     public tableConfig: UniTableConfig;
-    private prefetchDataLoaded: boolean = false;
+    public prefetchDataLoaded: boolean = false;
     public lookupFunction: (urlParams: URLSearchParams) => Observable<any>;
-    private columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
+    public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
 
     private selectedRow: any = null;
-    private canShowTicker: boolean = true;
+    public canShowTicker: boolean = true;
 
     public contextMenuItems: any[];
     public openAction: TickerAction;
     public newWithEntityAction: TickerAction;
 
-    private unitableFilter: string;
+    public unitableFilter: string;
 
     public busy: boolean = false;
 

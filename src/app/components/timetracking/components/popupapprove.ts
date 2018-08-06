@@ -6,26 +6,26 @@ import {WorkRelation} from '../../../unientities';
 @Component({
     selector: 'time-approve-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">            
-            <article class="uniModal_bounds">                
+        <dialog class="uniModal" [attr.open]="isOpen">
+            <article class="uniModal_bounds">
                 <button (click)="close('cancel')" class="closeBtn"></button>
-                <article class="modal-content" [attr.aria-busy]="busy" >
+                <article class="modal-content">
                     <h3>{{workrelation?.Worker?.Info?.Name}} - {{workrelation?.Description}} {{workrelation?.WorkPercentage}}%</h3>
                     <div class="dialog-container">
                         <timetracking-timetable [workrelation]="workrelation"></timetracking-timetable>
                     </div>
-                    <footer>                         
+                    <footer>
                         <button (click)="close('ok')" class="good">Lukk</button>
                     </footer>
                 </article>
             </article>
         </dialog>
-    `    
+    `
 })
 export class TimeApproveModal {
 
-    @Input() public workrelation: WorkRelation;    
-    private isOpen: boolean = false;
+    @Input() public workrelation: WorkRelation;
+    public isOpen: boolean = false;
 
     constructor(private errorService: ErrorService) {
     }
@@ -35,9 +35,9 @@ export class TimeApproveModal {
         this.onClose(false);
     }
 
-    private onClose: (ok: boolean) => void = () => {};
+    public onClose: (ok: boolean) => void = () => {};
 
-    @HostListener('keydown', ['$event']) 
+    @HostListener('keydown', ['$event'])
     public keyHandler(event: KeyboardEvent) {
         if (!this.isOpen) { return; }
         switch (event.keyCode) {
@@ -56,7 +56,7 @@ export class TimeApproveModal {
         this.workrelation = relation;
         this.isOpen = true;
         return new Promise((resolve, reject) => {
-            this.onClose = ok => resolve(ok);            
+            this.onClose = ok => resolve(ok);
         });
     }
 

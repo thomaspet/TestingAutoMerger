@@ -6,9 +6,7 @@ import {HttpModule} from '@angular/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
 import {UniSidebar} from './sidebar/sidebar';
-import {UniHamburgerMenu} from './navbar/hamburger/hamburger';
 import {NavbarCreateNew} from './navbar/create-new/navbar-create-new';
-import {NavbarSearch} from './navbar/search/search';
 import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
@@ -24,60 +22,76 @@ import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
 
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
+import {UniSmartSearch} from './smart-search/smart-search';
+import {UniSmartSearchItem} from './smart-search/smart-search-item';
+import {SmartSearchService} from './smart-search/smart-search.service';
+import {SmartSearchDataService} from './smart-search/smart-search-data.service';
+
+import {A11yModule} from '@angular/cdk/a11y';
+import {OverlayModule} from '@angular/cdk/overlay';
+
 import {
     MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule
 } from '@angular/material';
 
 @NgModule({
     imports: [
-        MatTabsModule,
-        MatTooltipModule,
-        MatMenuModule,
-        MatExpansionModule,
-
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
+
+        A11yModule,
+        OverlayModule,
+        MatTabsModule,
+        MatTooltipModule,
+        MatMenuModule,
+        MatExpansionModule,
+        MatIconModule,
+        MatButtonModule,
+        MatProgressBarModule,
+
         UniFrameworkModule,
         AppPipesModule
     ],
     declarations: [
-        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
         UniMegaMenu,
         NavbarCreateNew,
-        NavbarSearch,
         UniTabStrip,
         UniTabstripHelp,
         UniCompanyDropdown,
         NavbarUserDropdown,
         UserSettingsModal,
         YearModal,
-        UniHelpText
+        UniHelpText,
+        UniSmartSearch,
+        UniSmartSearchItem
     ],
     providers: [
-        UniNumberFormatPipe
+        UniNumberFormatPipe,
+        SmartSearchService,
+        SmartSearchDataService
     ],
     entryComponents: [
         YearModal,
-        UserSettingsModal
+        UserSettingsModal,
+        UniSmartSearch
     ],
     exports: [
-        UniHamburgerMenu,
         UniTabs,
         UniNavbar,
         UniSidebar,
         NavbarCreateNew,
-        NavbarSearch,
-        // UniTabStrip,
-        // UniTabstripHelp,
         UniCompanyDropdown,
         YearModal,
         UniHelpText

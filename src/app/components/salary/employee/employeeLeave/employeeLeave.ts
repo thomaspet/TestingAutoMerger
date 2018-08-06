@@ -5,6 +5,7 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, Uni
 import {UniCacheService, ErrorService, EmployeeLeaveService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 
 @Component({
     selector: 'employee-permision',
@@ -14,7 +15,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 export class EmployeeLeaves extends UniView {
     private employeeID: number;
     private employments: Employment[] = [];
-    private employeeleaveItems: EmployeeLeave[] = [];
+    public employeeleaveItems: EmployeeLeave[] = [];
     public tableConfig: UniTableConfig;
     private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
@@ -34,7 +35,7 @@ export class EmployeeLeaves extends UniView {
 
             this.employeeID = +paramsChange['id'];
 
-            super.getStateSubject('employeeLeave')
+            super.getStateSubject(EMPLOYEE_LEAVE_KEY)
                 .subscribe(
                 employeeleave => this.employeeleaveItems = employeeleave,
                 err => this.errorService.handle(err)
@@ -75,7 +76,6 @@ export class EmployeeLeaves extends UniView {
                 lookupFunction: (searchValue) => {
                     return this.employeeLeaveService.getOnlyNewTypes().filter(lt => lt.text.toLowerCase().indexOf(searchValue) > -1);
                 },
-
             });
 
         const employmentIDCol = new UniTableColumn('_Employment', 'Arbeidsforhold', UniTableColumnType.Lookup)
@@ -115,7 +115,7 @@ export class EmployeeLeaves extends UniView {
                 // Update local array and cache
                 row['_isDirty'] = true;
                 this.employeeleaveItems[row['_originalIndex']] = row;
-                super.updateState('employeeLeave', this.employeeleaveItems, true);
+                super.updateState(EMPLOYEE_LEAVE_KEY, this.employeeleaveItems, true);
 
                 return row;
             });
@@ -150,20 +150,11 @@ export class EmployeeLeaves extends UniView {
         }
     }
 
-    public onRowDeleted(event) {
-        const row: EmployeeLeave = event.rowModel;
+    public onRowDeleted(row: EmployeeLeave) {
         if (row['_isEmpty']) {
             return;
         }
-        const deletedIndex = row['_originalIndex'];
-        let hasDirtyRow = true;
-        if (this.employeeleaveItems[deletedIndex].ID) {
-            this.employeeleaveItems[deletedIndex].Deleted = true;
-        } else {
-            this.employeeleaveItems.splice(deletedIndex, 1);
-            hasDirtyRow = this.employeeleaveItems.some(x => x['_isDirty']);
-        }
-
-        super.updateState('employeeLeave', this.employeeleaveItems, hasDirtyRow);
+        const hasDirtyRow = this.employeeleaveItems.some(x => x['_isDirty'] || x.Deleted);
+        super.updateState(EMPLOYEE_LEAVE_KEY, this.employeeleaveItems, hasDirtyRow);
     }
 }

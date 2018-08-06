@@ -7,6 +7,7 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import { Observable } from 'rxjs/Observable';
 import {UniFormError} from '@uni-framework/ui/uniform/interfaces/uni-form-error.interface';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces/uni-field-layout.interface';
+import {FieldType} from '../field-type.enum';
 
 @Component({
     selector: 'uni-field',
@@ -206,8 +207,7 @@ export class UniField {
     }
 
     public isInput(type) {
-        const notInputs = [1, 5, 7];
-        return notInputs.indexOf(type) === -1;
+        return type !== FieldType.BUTTON;
     }
 
     /**********

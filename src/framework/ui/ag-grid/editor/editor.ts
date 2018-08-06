@@ -8,7 +8,6 @@ import {
     ComponentFactoryResolver,
     ElementRef,
     ApplicationRef,
-    Renderer,
     ComponentRef,
     ViewChild,
     ViewContainerRef
@@ -85,7 +84,6 @@ export class TableEditor {
         private cdr: ChangeDetectorRef,
         private componentFactoryResolver: ComponentFactoryResolver,
         private appRef: ApplicationRef,
-        private renderer: Renderer,
         private elRef: ElementRef
     ) {
         this.dataService.localDataChange$.subscribe(() => {
@@ -191,12 +189,8 @@ export class TableEditor {
         component.column = Immutable.Map(this.currentColumn);
 
         setTimeout(() => {
-            try {
-                this.renderer.invokeElementMethod(component.inputElement.nativeElement, 'focus', []);
-                if (this.currentColumn.type !== UniTableColumnType.Select) {
-                    this.renderer.invokeElementMethod(component.inputElement.nativeElement, 'select', []);
-                }
-            } catch (e) {}
+            component.inputElement.nativeElement.focus();
+            component.inputElement.nativeElement.select();
         });
 
         this.editorVisible = true;

@@ -3,7 +3,6 @@ import {
     Input,
     Output,
     EventEmitter,
-    Renderer,
     ViewChildren,
     ElementRef,
     QueryList,
@@ -113,10 +112,7 @@ export class UniTableRow implements OnChanges {
     public singleItemMenu: boolean = true;
     public rowMenuItem: IContextMenuItem = undefined;
 
-    public constructor(
-        private renderer: Renderer,
-        private router: Router
-    ) {}
+    public constructor(private router: Router) {}
 
     public ngOnChanges(changes) {
         if (changes['config'] && this.config) {

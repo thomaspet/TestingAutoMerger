@@ -20,10 +20,10 @@ declare var _; // lodash
 export class CategoryDetail extends UniView {
     public currentCategory$: BehaviorSubject<EmployeeCategory> = new BehaviorSubject(new EmployeeCategory());
     private categoryID: number;
-    private categoriesUsedInEmployeesConfig: UniTableConfig;
-    private categoriesUsedInPayrollrunConfig: UniTableConfig;
-    private categoriesUsedInEmployees: any[] = [];
-    private categoriesUsedInPayrollruns: any[] = [];
+    public categoriesUsedInEmployeesConfig: UniTableConfig;
+    public categoriesUsedInPayrollrunConfig: UniTableConfig;
+    public categoriesUsedInEmployees: any[] = [];
+    public categoriesUsedInPayrollruns: any[] = [];
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({
         autofocus: true,

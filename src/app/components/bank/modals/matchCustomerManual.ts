@@ -1,31 +1,27 @@
 import { IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { IModalOptions } from '@uni-framework/uni-modal';
 import { Input, EventEmitter, Output, Component } from '@angular/core';
-import { CustomerService } from '@app/services/services';
+import { UniSearchCustomerConfig } from '@app/services/services';
+import { IUniSearchConfig } from '../../../../framework/ui/unisearch/index';
 
 @Component({
     selector: 'book-payment-manual-modal',
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>Valg kunde manuelt</h1>
+                <h1>Velg kunde manuelt</h1>
             </header>
             <article>
-                <p>Valg enn kunde for betaling</p>
-                <label>Kunde:
-                    <select style='width:300px'
-                        [(ngModel)]="selectedCustomerID">
-                        <option></option>
-                        <option *ngFor="let customer of customers"
-                            [value]="customer.ID">
-                            ({{customer.CustomerNumber}}) {{customer.Info.Name}}
-                        </option>
-                    </select>
-                </label>
+                <p>Velg en kunde for betaling</p>
+                <uni-search
+                    [config]="uniSearchConfig"
+                    (changeEvent)="customerSelected($event)"
+                    [disabled]="false">
+                </uni-search>
             </article>
 
             <footer>
-                <button class="good" [disabled]="!selectedCustomerID" (click)="close(true)">Bøkfor valgt rad</button>
+                <button class="good" [disabled]="!selectedCustomerID" (click)="close(selectedCustomerID)">Bøkfor valgt rad</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
         </section>
@@ -38,28 +34,29 @@ export class MatchCustomerManualModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    private customers: any[];
-    private selectedCustomerID: number;
+    public customers: any[];
+    public selectedCustomerID: number;
+    public uniSearchConfig: IUniSearchConfig;
+    private customerExpands: string[] = [
+        'Info.Addresses',
+        'Info.ShippingAddress',
+        'Info.InvoiceAddress',
+        'Info.DefaultContact.Info',
+        'Info.DefaultEmail'
+    ];
 
-    constructor(
-        private customerService: CustomerService,
-    ) { }
+    constructor( private uniSearchCustomerConfig: UniSearchCustomerConfig ) { }
 
     public ngOnInit() {
-        this.customerService.GetAll(null, ['Info']).subscribe(data => this.customers = data);
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
     }
 
-    public onCustomerFilterChange(event) {
-
+    public customerSelected(customer) {
+        this.selectedCustomerID = customer.ID;
     }
 
-    public close(emitValue?: boolean) {
-        let value: any;
-        if (emitValue) {
-            value = this.selectedCustomerID;
-        }
-
-        this.onClose.emit(value);
+    public close(emitValue: any) {
+        this.onClose.emit(emitValue);
     }
 
 }

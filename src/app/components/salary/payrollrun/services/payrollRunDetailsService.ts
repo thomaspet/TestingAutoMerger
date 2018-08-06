@@ -117,6 +117,10 @@ export class PayrollRunDetailsService {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
+    public routeToTravel(run: PayrollRun) {
+        this.router.navigate(['salary/travels'], {queryParams: {runID: run.ID}});
+    }
+
     private getResetRunMessage(): string {
         return '<p>Lønnsavregninger som er bokført og/eller utbetalt bør ikke nullstilles. ' +
         'Vi anbefaler da å lage en ny lønnsavregning hvor man korrigerer lønnspostene som har blitt feil.</p>' +

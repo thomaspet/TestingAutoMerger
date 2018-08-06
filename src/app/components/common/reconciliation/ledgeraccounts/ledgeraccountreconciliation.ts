@@ -70,7 +70,7 @@ export class LedgerAccountReconciliation {
     public canAutoMark: boolean = false;
     private showMarkedEntries: boolean = false;
     public uniTableConfig: UniTableConfig;
-    private journalEntryLines: Array<any> = [];
+    public journalEntryLines: Array<any> = [];
 
     public itemsSummaryData: any = {};
 

@@ -96,6 +96,8 @@ export class AuthService {
                         token: undefined,
                         user: undefined
                     });
+
+                    this.clearAuthAndGotoLogin();
                 }
             );
         } else {
@@ -295,7 +297,10 @@ export class AuthService {
                 'CompanyKey': this.activeCompany
             });
 
-            this.http.post(url, '', {headers: headers}).subscribe();
+            this.http.post(url, '', {headers: headers}).subscribe(
+                () => {},
+                () => {/* ignore errors */}
+            );
         }
 
         this.storage.removeOnUser('jwt');
@@ -304,6 +309,8 @@ export class AuthService {
         this.jwt = undefined;
         this.jwtDecoded = undefined;
         this.activeCompany = undefined;
+
+        this.setLoadIndicatorVisibility(false);
         this.router.navigateByUrl('init/login');
     }
 

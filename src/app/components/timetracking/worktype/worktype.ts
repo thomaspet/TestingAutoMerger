@@ -16,12 +16,12 @@ export let view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '
 const defaultSystemType = 1; // 1 - Hours (default)
 
 @Component({
-    selector: view.name,
+    selector: 'worktypes',
     template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
 })
 export class WorktypeDetailview {
     @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
-    private viewconfig: IViewConfig;
+    public viewconfig: IViewConfig;
     private productService: ProductService;
     private wagetypeService: WageTypeService;
     private errorService: ErrorService;

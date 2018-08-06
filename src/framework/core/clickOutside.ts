@@ -23,6 +23,13 @@ export class ClickOutsideDirective {
             return;
         }
 
+        try {
+            // Avoid closing on angular material/cdk overlays
+            if ((<any> event.target).classList.contains('cdk-overlay-backdrop')) {
+                return;
+            }
+        } catch (e) {}
+
         if (!this.elementRef.nativeElement.contains(event.target)) {
             this.clickOutside.emit(true);
         }

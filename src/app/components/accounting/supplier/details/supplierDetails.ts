@@ -95,7 +95,7 @@ export class SupplierDetails implements OnInit {
     private currencyCodes: Array<CurrencyCode>;
     private numberSeries: NumberSeries[];
     private dropdownData: any;
-    private supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
+    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(new Supplier());
     public commentsConfig: ICommentsConfig;
     private isDirty: boolean = false;
     public selectConfig: any;
@@ -253,7 +253,7 @@ export class SupplierDetails implements OnInit {
 
     private blockSupplier(supplierID: number) {
         const supplierIsBeingBlocked = this.supplier$.getValue().StatusCode !== StatusCode.Error;
-        this.supplierService.blockSupplier(supplierID).subscribe((res) => {
+        this.supplierService.blockSupplier(supplierID, supplierIsBeingBlocked).subscribe((res) => {
             const supplier = this.supplier$.getValue();
             if (supplierIsBeingBlocked) {
                 this.setSupplierStatusInToolbar(StatusCode.Error);

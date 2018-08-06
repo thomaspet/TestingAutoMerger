@@ -37,8 +37,8 @@ export class CurrencyExchange {
     public table: UniTable;
 
     public isBusy: boolean = true;
-    private exchangeTable: UniTableConfig;
-    private exchangelist: any;
+    public exchangeTable: UniTableConfig;
+    public exchangelist: any;
     private inthefuturetoast: number;
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({CurrencyDate: new LocalDate(), ShortCode: 'NOK'});

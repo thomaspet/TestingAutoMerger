@@ -12,7 +12,7 @@ import {ToastService} from '../../../framework/uniToast/toastService';
     `,
 })
 export class UniSales {
-    private widgetLayout: IUniWidget[] = [];
+    public widgetLayout: IUniWidget[] = [];
 
     constructor(
         private tabService: TabService,

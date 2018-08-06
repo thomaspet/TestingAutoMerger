@@ -232,6 +232,11 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getDataAndSetupForm() {
+        this.isEHFBought()
+            .subscribe(
+                hasBoughtEHF => this.hasBoughtEHF = hasBoughtEHF,
+                err => console.log('Failed to check if EHF was bought: ', err)
+            );
 
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
@@ -249,7 +254,6 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getInvoiceTemplatetext(),
             this.campaignTemplateService.getOrderTemplateText(),
             this.campaignTemplateService.getQuoteTemplateText(),
-            this.isEHFBought(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
@@ -287,8 +291,6 @@ export class CompanySettingsComponent implements OnInit {
                         Template: ''
                     };
 
-                this.hasBoughtEHF = dataset[15];
-
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
                     orderTemplate: this.orderTemplate,
@@ -296,9 +298,9 @@ export class CompanySettingsComponent implements OnInit {
                     quoteTemplate: this.quoteTemplate
                 });
 
-                this.quoteFormList = dataset[16];
-                this.orderFormList = dataset[17];
-                this.invoiceFormList = dataset[18];
+                this.quoteFormList = dataset[15];
+                this.orderFormList = dataset[16];
+                this.invoiceFormList = dataset[17];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -1543,13 +1545,42 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 1,
             },
             {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Blankett',
+                Property: 'company.DefaultCustomerQuoteReportID',
+                Options: {
+                    source: this.quoteFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Legend: 'Tilbud',
+                Section: 0,
+                FieldSet: 2,
+            },
+            {
                 FieldType: FieldType.TEXTAREA,
                 EntityType: 'CampaignTemplate',
                 Label: 'Fast tekst tilbud',
                 Property: 'quoteTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 2,
-                Legend: 'Tilbud',
+                Section: 0,
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Blankett',
+                Property: 'company.DefaultCustomerOrderReportID',
+                Options: {
+                    source: this.orderFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 3,
+                Legend: 'Ordre',
                 Section: 0,
             },
             {
@@ -1559,8 +1590,22 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'orderTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 3,
-                Legend: 'Ordre',
                 Section: 0
+            },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Blankett',
+                Property: 'company.DefaultCustomerInvoiceReportID',
+                Options: {
+                    source: this.invoiceFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                Section: 0,
+                FieldSet: 4,
+                Legend: 'Faktura',
             },
             {
                 FieldType: FieldType.TEXTAREA,
@@ -1569,51 +1614,7 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'invoiceTemplate.Template',
                 Validations: [this.defaultTextValidation],
                 FieldSet: 4,
-                Legend: 'Faktura',
                 Section: 0,
-            },
-            {
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Tilbud',
-                Property: 'company.DefaultCustomerQuoteReportID',
-                Options: {
-                    source: this.quoteFormList,
-                    valueProperty: 'ID',
-                    displayProperty: 'Description',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                Legend: 'Blankett',
-                Section: 0,
-                FieldSet: 5,
-            },
-            {
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Ordre',
-                Property: 'company.DefaultCustomerOrderReportID',
-                Options: {
-                    source: this.orderFormList,
-                    valueProperty: 'ID',
-                    displayProperty: 'Description',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                FieldSet: 5,
-                Section: 0,
-            },
-            {
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Faktura',
-                Property: 'company.DefaultCustomerInvoiceReportID',
-                Options: {
-                    source: this.invoiceFormList,
-                    valueProperty: 'ID',
-                    displayProperty: 'Description',
-                    hideDeleteButton: true,
-                    searchable: false,
-                },
-                Section: 0,
-                FieldSet: 5,
             },
         ]);
     }

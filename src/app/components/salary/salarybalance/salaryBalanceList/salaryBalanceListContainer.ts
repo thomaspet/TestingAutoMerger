@@ -13,6 +13,13 @@ import {SalaryBalance, SalBalDrawType} from '@uni-entities';
 export class SalaryBalanceListContainer implements OnInit {
     public salaryBalances$: BehaviorSubject<SalaryBalance[]> = new BehaviorSubject([]);
 
+    public toolbarActions = [{
+        label: 'Nytt forskudd/trekk',
+        action: this.handleCreateSalaryBalance.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private router: Router,
         private route: ActivatedRoute,

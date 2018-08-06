@@ -117,7 +117,7 @@ export class GenericDetailview implements OnInit, OnChanges {
 
     }
 
-    public onReady(event) {
+    public onReady() {
         this.loadCurrent(this.ID);
     }
 

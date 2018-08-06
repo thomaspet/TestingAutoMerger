@@ -1,15 +1,14 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
-import {
-    ElsaPurchaseService,
-    ElsaPurchasesForUserLicenseByCompany,
-    ElsaPurchase,
-    ElsaPurchaseForCompany, ElsaPurchaseForUserLicense
-} from '@app/services/elsa/elsaPurchasesService';
+import {ElsaPurchaseService} from '@app/services/elsa/elsaPurchasesService';
 import {ErrorService} from '@app/services/common/errorService';
 import {Observable} from 'rxjs/Rx';
-import {ElsaProductService, ElsaProduct} from '@app/services/elsa/elsaProductService';
-import {ElsaCompanyLicenseService, ElsaPurchaseForLicense} from '@app/services/elsa/elsaCompanyLicenseService';
+import {ElsaProductService} from '@app/services/elsa/elsaProductService';
+import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 import {IModalOptions, IUniModal} from '../interfaces';
+import {
+    ElsaPurchasesForUserLicenseByCompany, ElsaPurchaseForUserLicense,
+    ElsaPurchaseForCompany, ElsaPurchase, ElsaProduct, ElsaPurchaseForLicense
+} from '@app/services/elsa/elsaModels';
 
 interface UserLine   {
     userLicenseID: number;

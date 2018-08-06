@@ -1,0 +1,43 @@
+<section class="search-container">
+    <input type="search"
+        #searchInput
+        [formControl]="searchControl"
+        placeholder="Søk"
+        spellcheck="false"
+        cdkTrapFocus
+    />
+
+    <section class="help-text">
+        <i class="material-icons">find_in_page</i>
+        <small>
+            Her kan du kjøre forhåndsdefinerte kommandoer eller søke i og gå til
+            <strong>menyelementer</strong>,
+            <strong>kunder</strong>,
+            <strong>ansatte</strong>,
+            <strong>leverandører</strong>,
+            <strong>tilbud</strong>,
+            <strong>ordre</strong> og <strong>faktura</strong>.
+            <!-- <a (click)="showHelp()">Se full oversikt over kommandoer</a>. -->
+        </small>
+    </section>
+</section>
+
+<section class="progress-container">
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+</section>
+
+<section #list id="results-container">
+    <smart-search-item
+        *ngFor="let item of searchResults"
+        [item]="item"
+        (click)="onItemSelected(item)">
+    </smart-search-item>
+</section>
+
+<section class="search-footer">
+    <small>Søket kan åpnes med tastatur <span>ctrl</span> + <span>space</span></small>
+</section>

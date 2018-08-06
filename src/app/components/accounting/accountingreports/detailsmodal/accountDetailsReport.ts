@@ -37,8 +37,7 @@ declare var _;
 })
 export class AccountDetailsReport {
     @ViewChild(UniSearch) searchElement: UniSearch;
-    @Input()
-    public config: {
+    @Input() config: {
         close: () => void,
         modalMode: boolean,
         accountID: number,
@@ -47,29 +46,25 @@ export class AccountDetailsReport {
         dimensionType: number,
         dimensionId: number,
         isSubAccount: boolean
-
     };
 
-    public searchConfig = this.uniSearchAccountConfig.generateAllAccountsConfig();
-    public uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
+    toolbarconfig: IToolbarConfig;
+    searchConfig = this.uniSearchAccountConfig.generateAllAccountsConfig();
+    uniTableConfigTransactions$: BehaviorSubject<UniTableConfig> = new BehaviorSubject<UniTableConfig>(null);
 
-    private financialYears: Array<FinancialYear> = null;
-    private activeFinancialYear: FinancialYear;
+    periodFilter1$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
+    periodFilter2$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
+    periodFilter3$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
+    accountIDs: Array<number> = [];
+    subAccountIDs: Array<number> = [];
+    includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    private periodFilter1$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
-    private periodFilter2$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
-    private periodFilter3$: BehaviorSubject<PeriodFilter> = new BehaviorSubject<PeriodFilter>(null);
-    private accountIDs: Array<number> = [];
-    private subAccountIDs: Array<number> = [];
-    private includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    transactionsLookupFunction: (urlParams: URLSearchParams) => any;
+    doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     private dimensionEntityName: string;
-
-    private transactionsLookupFunction: (urlParams: URLSearchParams) => any;
-    private doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
-    public toolbarconfig: IToolbarConfig;
-
+    private financialYears: Array<FinancialYear> = null;
+    private activeFinancialYear: FinancialYear;
 
     constructor(
         private statisticsService: StatisticsService,

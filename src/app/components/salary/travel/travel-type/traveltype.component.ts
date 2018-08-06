@@ -35,12 +35,9 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
     main: true
 }];
   private wagetypes: WageType[] = [];
-  private traveltypes: TravelType[] = [];
+  public traveltypes: TravelType[] = [];
 
   constructor(
-    router: Router,
-    cacheService: UniCacheService,
-    route: ActivatedRoute,
     private errorService: ErrorService,
     private tabService: TabService,
     private travelService: TravelTypeService,
@@ -51,7 +48,7 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
 
   ngOnInit() {
     this.tabService.addTab({
-      moduleID: UniModules.Travel,
+      moduleID: UniModules.TravelType,
       url: 'salary/traveltypes',
       name: 'Reisetyper'
     });
@@ -107,6 +104,7 @@ export class TraveltypeComponent /* extends UniView { */ implements OnInit  {
             });
           }}).setWidth('50rem')
     ])
+    .setSearchable(true)
     .setEditable(true)
     .setPageSize(20)
     .setChangeCallback((event) => {

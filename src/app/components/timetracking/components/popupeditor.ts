@@ -51,8 +51,8 @@ export class UniTimeModal implements IUniModal {
     @ViewChild(WorkEditor)
     private editor: WorkEditor;
 
-    private date: Date;
-    private busy: boolean = false;
+    public date: Date;
+    public busy: boolean = false;
 
     constructor(
         private timesheetService: TimesheetService,

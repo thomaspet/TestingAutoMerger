@@ -25,7 +25,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
                     [fields]="formFields$"
                     [model]="formModel$"
                     (changeEvent)="formChange($event)"
-                    (readyEvent)="onReady($event)">
+                    (readyEvent)="onReady()">
                 </uni-form>
             </article>
 

@@ -30,7 +30,7 @@ declare var _;
 export class EmploymentDetails implements OnChanges {
     @ViewChild(UniForm) private form: UniForm;
 
-    @Input() private employment: Employment;
+    @Input() public employment: Employment;
     @Input() private subEntities: SubEntity[];
     @Input() private projects: Project[];
     @Input() private departments: Department[];

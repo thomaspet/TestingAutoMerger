@@ -165,11 +165,10 @@ export class UniTableUtils {
      * @returns {string} filter url param
      */
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
-
-        // dont use filters that miss either field or operator - this is probably just a filter
-        // the user has not finished constructing yet
+        // Don't use filters that miss field, operator or searchValue
+        // These is probably filters the user has not finished making yet
         if (filters) {
-            filters = filters.filter(x => x.field && x.field !== '' && x.operator && x.operator !== '');
+            filters = filters.filter(f => !!f.field && !!f.operator && !!f.searchValue);
         }
 
         if (!filters || !filters.length) {
@@ -433,41 +432,79 @@ export class UniTableUtils {
     }
 
     private localDataFilter(filter: ITableFilter, filterValue: string, row): boolean {
-        let fieldValue = (row.getIn(filter['field'].split('.')) || '').toString().toLowerCase();
-        filterValue = filterValue.toLowerCase();
+        const fieldValue = (row.getIn(filter['field'].split('.')) || '').toString().toLowerCase();
+        const query = filterValue.toLowerCase();
+
+        if (!query || !query.length) {
+            return true;
+        }
+
+        if (filter.isDate) {
+            return this.checkDateFilter(query, fieldValue, filter.operator);
+        }
 
         switch (filter.operator) {
             case 'contains':
-                return fieldValue.indexOf(filterValue) >= 0;
+                return fieldValue.indexOf(query) >= 0;
             case 'startswith':
-                return fieldValue.indexOf(filterValue) === 0;
+                return fieldValue.indexOf(query) === 0;
             case 'endswith':
-                return fieldValue.indexOf(filterValue) === (fieldValue.length - filterValue.length);
+                return fieldValue.indexOf(query) === (fieldValue.length - query.length);
             case 'eq':
-                return fieldValue === filterValue;
+                return fieldValue === query;
             case 'ne':
-                return fieldValue !== filterValue;
+                return fieldValue !== query;
             case 'gt':
-                if (!this.isNumber(fieldValue) || !this.isNumber(filterValue)) {
+                if (!this.isNumber(fieldValue) || !this.isNumber(query)) {
                     return false;
                 }
-                return parseInt(fieldValue) > parseInt(filterValue);
+                return parseInt(fieldValue, 10) > parseInt(query, 10);
             case 'lt':
-                if (!this.isNumber(fieldValue) || !this.isNumber(filterValue)) {
+                if (!this.isNumber(fieldValue) || !this.isNumber(query)) {
                     return false;
                 }
-                return parseInt(fieldValue) < parseInt(filterValue);
+                return parseInt(fieldValue, 10) < parseInt(query, 10);
             case 'ge':
-                if (!this.isNumber(fieldValue) || !this.isNumber(filterValue)) {
+                if (!this.isNumber(fieldValue) || !this.isNumber(query)) {
                     return false;
                 }
-                return parseInt(fieldValue) >= parseInt(filterValue);
+                return parseInt(fieldValue, 10) >= parseInt(query, 10);
             case 'le':
-                if (!this.isNumber(fieldValue) || !this.isNumber(filterValue)) {
+                if (!this.isNumber(fieldValue) || !this.isNumber(query)) {
                     return false;
                 }
-                return parseInt(fieldValue) <= parseInt(filterValue);
-            }
+                return parseInt(fieldValue, 10) <= parseInt(query, 10);
+        }
+    }
+
+    private checkDateFilter(query: string, value: string, operator) {
+        const queryMoment = moment(query);
+        const valueMoment = moment(value);
+
+        if (!valueMoment.isValid()) {
+            return false;
+        }
+
+        switch (operator) {
+            case 'contains':
+                return valueMoment.format('DD.MM.YYYY').includes(query);
+            case 'startswith':
+                return valueMoment.format('DD.MM.YYYY').startsWith(query);
+            case 'endswith':
+                return valueMoment.format('DD.MM.YYYY').endsWith(query);
+            case 'eq':
+                return queryMoment.format('DD.MM.YYYY') === valueMoment.format('DD.MM.YYYY');
+            case 'ne':
+                return queryMoment.format('DD.MM.YYYY') !== valueMoment.format('DD.MM.YYYY');
+            case 'gt':
+                return valueMoment.isAfter(queryMoment.add(1, 'days'));
+            case 'ge':
+                return valueMoment.isAfter(queryMoment);
+            case 'lt':
+                return valueMoment.isBefore(queryMoment);
+            case 'le':
+                return valueMoment.isBefore(queryMoment.add(1, 'days'));
+        }
     }
 
 }

@@ -1,8 +1,10 @@
-import {Component, OnInit, Input, Output, OnChanges, SimpleChanges, EventEmitter, OnDestroy} from '@angular/core';
+import {
+    Component, OnInit, Input, Output, OnChanges, SimpleChanges,
+    EventEmitter, OnDestroy, SimpleChange
+} from '@angular/core';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
 import {TravelLine, Travel} from '@uni-entities';
-import {TravelService, FileService, ErrorService} from '@app/services/services';
+import {TravelService} from '@app/services/services';
 const DIRTY = '_isDirty';
 
 @Component({
@@ -12,18 +14,18 @@ const DIRTY = '_isDirty';
 })
 export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
 
-    @Input() travel: Travel;
+    @Input() public travel: Travel;
+    @Input() public fileIDs: number[] = [];
     @Output() public travelChange: EventEmitter<Travel> = new EventEmitter();
 
     public travelLines$: BehaviorSubject<TravelLine[]> = new BehaviorSubject([]);
     public travelFormModel$: BehaviorSubject<Travel> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public fileIDs$: BehaviorSubject<number[]> = new BehaviorSubject([]);
     public filesBusy: boolean;
+    public viewActive: boolean;
 
     constructor(
-        private travelService: TravelService,
-        private errorService: ErrorService
+        private travelService: TravelService
     ) { }
 
     public ngOnInit() {
@@ -36,7 +38,7 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
         if (changes['travel']) {
             this.travelLines$.next((this.travel && this.travel.TravelLines) || []);
             this.travelFormModel$.next(this.travel);
-            this.checkFiles(this.travel);
+            this.refreshForm(changes['travel']);
         }
     }
 
@@ -51,22 +53,31 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
                 travel[DIRTY] = true;
                 return travel;
             })
-            .subscribe(travel => this.travelChange.next(travel));
+            .subscribe(travel => this.emitChange(travel));
     }
 
     public linesChanged(lines: TravelLine[]) {
         this.travel[DIRTY] = true;
         this.travel.TravelLines = lines;
-        this.travelChange.next(this.travel);
+        this.emitChange(this.travel);
     }
 
-    private checkFiles(travel: Travel) {
-        this.fileIDs$.next([]);
-        this.travelService
-            .getFiles(travel)
-            // .finally(() => this.filesBusy = false)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(files => this.fileIDs$.next(files.map(file => file.ID)));
+    private emitChange(travel: Travel) {
+        this.travelChange.next(travel);
+    }
+    private refreshForm(change: SimpleChange): boolean {
+        return this.refreshFormWithProp(change, 'EmployeeNumber')
+        || this.refreshFormWithProp(change, 'SupplierID');
+    }
+    private refreshFormWithProp(change: SimpleChange, prop: string): boolean {
+        if (!change || change.firstChange || change.currentValue[prop] ||
+            change.currentValue[prop] === change.previousValue[prop]) {
+            return false;
+        }
+        this.viewActive = true;
+        setTimeout(() => this.viewActive = false);
+
+        return true;
     }
 
 }

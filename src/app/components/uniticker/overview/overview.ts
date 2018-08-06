@@ -21,10 +21,10 @@ export class UniTickerOverview {
     private tickerContainer: UniTickerContainer;
 
     private tickers: Ticker[];
-    private tickerGroups: TickerGroup[];
-    private selectedTicker: Ticker;
+    public tickerGroups: TickerGroup[];
+    public selectedTicker: Ticker;
 
-    private actionOverrides: Array<ITickerActionOverride>;
+    public actionOverrides: Array<ITickerActionOverride>;
 
     public tickerTitle: string;
     public createNewAction: TickerAction;

@@ -20,8 +20,8 @@ export class RoleSelector {
     @Output()
     public roleSelected: EventEmitter<Role> = new EventEmitter<Role>();
 
-    private model: any = {};
-    private field: UniFieldLayout;
+    public model: any = {};
+    public field: UniFieldLayout;
 
     constructor() {}
 

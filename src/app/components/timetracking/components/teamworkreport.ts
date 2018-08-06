@@ -77,9 +77,9 @@ export class TeamworkReport {
     public teams: Team[];
     public currentTeam: Team;
 
-    private report: TeamReport;
-    private memberCount: number = 0;
-    private busy: boolean = true;
+    public report: TeamReport;
+    public memberCount: number = 0;
+    public busy: boolean = true;
     private currentRelation: WorkRelation;
 
     constructor(private workerService: WorkerService) {

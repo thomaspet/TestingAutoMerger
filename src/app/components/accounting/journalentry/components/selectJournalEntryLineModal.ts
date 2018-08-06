@@ -43,7 +43,7 @@ export class SelectJournalEntryLineModal implements IUniModal {
 
     public uniTableConfig: UniTableConfig;
     private periodDateFormat: PeriodDateFormatPipe;
-    private config: any = {};
+    public config: any = {};
 
     constructor(
         private periodService: PeriodService,

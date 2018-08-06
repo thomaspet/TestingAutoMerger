@@ -5,11 +5,11 @@ import {AltinnIntegrationService, ErrorService} from '../../../../../app/service
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 declare const _;
 
-type TaxRequestModel = {
-    singleEmpChoice: number,
-    multiEmpChoice: number,
-    empsAndChanged: boolean
-};
+interface ITaxRequestModel {
+    singleEmpChoice: number;
+    multiEmpChoice: number;
+    empsAndChanged: boolean;
+}
 
 @Component({
     selector: 'tax-card-request',
@@ -27,7 +27,7 @@ export class TaxCardRequest {
 
     @Output() public newReceipt: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
-    public model$: BehaviorSubject<TaxRequestModel> = new BehaviorSubject<TaxRequestModel>(
+    public model$: BehaviorSubject<ITaxRequestModel> = new BehaviorSubject<ITaxRequestModel>(
         { singleEmpChoice: 1, multiEmpChoice: 1, empsAndChanged: false });
     public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -49,7 +49,7 @@ export class TaxCardRequest {
         this.exitButton = 'Avbryt';
         this.error = '';
         this.model$.next({ singleEmpChoice: 1, multiEmpChoice: 1, empsAndChanged: false });
-        let singleChoice: any = {
+        const singleChoice: any = {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
@@ -67,7 +67,7 @@ export class TaxCardRequest {
             },
 
         };
-        let multipleChoice: any = {
+        const multipleChoice: any = {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
@@ -79,14 +79,14 @@ export class TaxCardRequest {
             Options: {
                 source: [
                     { id: 1, text: 'Alle ansatte (uten sluttdato)' },
-                    { id: 2, text: 'Aktive ansatte' },
+                    // { id: 2, text: 'Aktive ansatte' },
                     { id: 3, text: 'Endrede skattekort' }
                 ],
                 labelProperty: 'text',
                 valueProperty: 'id'
             }
         };
-        let empsAndChangedField: any = {
+        const empsAndChangedField: any = {
             FieldSet: 0,
             Section: 0,
             Combo: 0,
@@ -102,7 +102,7 @@ export class TaxCardRequest {
     }
 
     public submit() {
-        let model = this.model$.getValue();
+        const model = this.model$.getValue();
         let option = '';
         if (model.singleEmpChoice === 2) {
             switch (model.multiEmpChoice) {
@@ -157,7 +157,7 @@ export class TaxCardRequest {
 
     public change(changes: SimpleChanges) {
         this.uniform.Hidden = false;
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
         if (this.model$.getValue().singleEmpChoice === 2) {
             fields[2].Hidden = false;
         } else {

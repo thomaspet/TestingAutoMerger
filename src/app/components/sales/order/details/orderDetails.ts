@@ -66,7 +66,7 @@ import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
@@ -97,42 +97,51 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private companySettings: CompanySettings;
     private itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
-    private newOrderItem: CustomerOrderItem;
-    private order: CustomerOrder;
-    private orderItems: CustomerOrderItem[];
-
-    public contextMenuItems: IContextMenuItem[] = [];
-    public shareActions: IShareAction[];
-    public saveActions: IUniSaveAction[] = [];
-
-    public currencyInfo: string;
-    public summaryLines: ISummaryLine[];
-
-    public toolbarconfig: IToolbarConfig;
-    private vatTypes: VatType[];
-    private currencyCodes: Array<CurrencyCode>;
-    private currencyCodeID: number;
-    private currencyExchangeRate: number;
-    public currentCustomer: Customer;
-    public currentDeliveryTerm: Terms;
-    public currentUser: User;
-    private deliveryTerms: Terms[];
-    private paymentTerms: Terms[];
     private printStatusPrinted: string = '200';
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
-    private projects: Project[];
-    private departments: Department[];
-    public currentDefaultProjectID: number;
-    public selectConfig: any;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    public currentOrderDate: LocalDate;
-    private dimensionTypes: any[];
-    private paymentInfoTypes: any[];
-    private distributionPlans: any[];
-    private reports: any[];
+
+    newOrderItem: CustomerOrderItem;
+    order: CustomerOrder;
+    orderItems: CustomerOrderItem[];
+
+    contextMenuItems: IContextMenuItem[] = [];
+    shareActions: IShareAction[];
+    saveActions: IUniSaveAction[] = [];
+
+    currencyInfo: string;
+    summaryLines: ISummaryLine[];
+
+    commentsConfig: ICommentsConfig;
+    toolbarconfig: IToolbarConfig;
+    vatTypes: VatType[];
+    currencyCodes: Array<CurrencyCode>;
+    currencyCodeID: number;
+    currencyExchangeRate: number;
+    currentCustomer: Customer;
+    currentDeliveryTerm: Terms;
+    currentUser: User;
+    deliveryTerms: Terms[];
+    paymentTerms: Terms[];
+
+    projects: Project[];
+    departments: Department[];
+    currentDefaultProjectID: number;
+    selectConfig: any;
+
+    sellers: Seller[];
+
+    currentOrderDate: LocalDate;
+    dimensionTypes: any[];
+    paymentInfoTypes: any[];
+    distributionPlans: any[];
+    reports: any[];
+
+
+    readonly: boolean;
+    recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -184,11 +193,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Account',
         'Dimensions.Project.ProjectTasks',
     ];
-
-    // New
-    public commentsConfig: ICommentsConfig;
-    private readonly: boolean;
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
 
     constructor(
         private addressService: AddressService,
@@ -558,8 +562,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.updateCurrency(order, shouldGetCurrencyRate);
 
         this.currentOrderDate = order.OrderDate;
-
-        this.order = _.cloneDeep(order);
         this.updateSaveActions();
     }
 
@@ -898,6 +900,23 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
+    private getToolbarSubheads() {
+        if (!this.order) {
+            return;
+        }
+
+        const subheads: IToolbarSubhead[] = [];
+
+        if (this.order.RestExclusiveAmountCurrency) {
+            subheads.push({
+                label: 'Restbeløp',
+                title: this.numberFormat.asMoney(Math.abs(this.order.RestExclusiveAmountCurrency)) + ' eks. mva'
+            });
+        }
+
+        return subheads;
+    }
+
     private updateToolbar() {
         let orderText = '';
         if (this.order.OrderNumber) {
@@ -932,6 +951,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         this.toolbarconfig = {
             title: orderText,
+            subheads: this.getToolbarSubheads(),
             statustrack: this.getStatustrackConfig(),
             navigation: {
                 prev: this.previousOrder.bind(this),

@@ -26,9 +26,9 @@ export class View {
     public list: Array<WorkBalance>;
     public currentRelation: WorkRelation;
     private isActivated: boolean = false;
-    private tableConfig: UniTableConfig;
+    public tableConfig: UniTableConfig;
     private unsavedChanges: boolean = false;
-    private busy: boolean = false;
+    public busy: boolean = false;
 
     private changeMap: ChangeMap = new ChangeMap();
 
@@ -272,7 +272,7 @@ export class View {
         return item;
     }
 
-    private onEditChange(event) {
+    public onEditChange(event) {
         if (!(event || event.rowModel )) { return; }
         var value = event.rowModel[event.field];
         var item: WorkBalance;

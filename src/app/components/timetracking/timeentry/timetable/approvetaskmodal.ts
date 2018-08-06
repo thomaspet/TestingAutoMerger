@@ -26,12 +26,10 @@ const approvalStatusLabels = {
 @Component({
     selector: 'uni-approvetask-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">            
-            <article class="uniModal_bounds">                
+        <dialog class="uniModal" [attr.open]="isOpen">
+            <article class="uniModal_bounds">
                 <article class="modal-content" [attr.aria-busy]="busy" >
-                    
-                    <h3>{{currentTask?.Title}}</h3>
-                    
+
                     <header class="regtime_filters no-print">
                         <ul>
                             <li>
@@ -45,11 +43,11 @@ const approvalStatusLabels = {
                                 </a>
                             </li>
                         </ul>
-                    </header>    
+                    </header>
 
                     <section class="tab-page">
 
-                        <article [hidden]="rejectTab">     
+                        <article [hidden]="rejectTab">
                             <strong>{{labels.status}}:</strong>
                             <table>
                                 <tr *ngFor="let approval of approvals">
@@ -58,7 +56,7 @@ const approvalStatusLabels = {
                                 </tr>
                             </table>
                         </article>
-                        
+
                         <article [hidden]="!rejectTab">
                             {{labels.msg_reject_with_comment}}
                             <textarea [(ngModel)]="rejectMessage"></textarea>
@@ -66,7 +64,7 @@ const approvalStatusLabels = {
 
                     </section>
 
-                    <footer>                         
+                    <footer>
                         <button [disabled]="!canApprove" (click)="onCloseAction('ok')" class="good">{{okButtonLabel}}</button>
                         <button (click)="onCloseAction('cancel')" class="bad">{{labels.cancel}}</button>
                     </footer>
@@ -75,21 +73,21 @@ const approvalStatusLabels = {
             </article>
         </dialog>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush    
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniApproveTaskModal {
 
-    private isOpen: boolean = false;
-    private busy: boolean = false;
-    private rejectTab: boolean = false;
+    public isOpen: boolean = false;
+    public busy: boolean = false;
+    public rejectTab: boolean = false;
 
     private modelName: string;
     private entityId: number;
-    private taskID: number; 
-    private approvals: Array<Approval>;
+    private taskID: number;
+    public approvals: Array<Approval>;
 
-    private rejectMessage: string = '';
-    private canApprove: boolean = false;
+    public rejectMessage: string = '';
+    public canApprove: boolean = false;
     private myApproval: Approval;
     private myUser: User;
     public labels: any = lang;
@@ -110,17 +108,17 @@ export class UniApproveTaskModal {
     }
 
     public get currentDetails(): ApprovalDetails {
-        var details = new ApprovalDetails();
+        const details = new ApprovalDetails();
         if (this.rejectTab) {
             details.rejected = true;
         } else {
             details.approved = true;
         }
-        return details;        
+        return details;
     }
 
-    private onCloseAction(src: 'ok' | 'cancel') {
-        
+    public onCloseAction(src: 'ok' | 'cancel') {
+
         if (src === 'ok') {
 
             if (this.rejectTab && !this.rejectMessage) {
@@ -128,18 +126,18 @@ export class UniApproveTaskModal {
                 return;
             }
 
-            var prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
-            prom.then( result => { if (result) { this.closeAndHide(true); } } );                        
+            const prom: Promise<boolean> = (this.rejectTab) ? this.reject() : this.approve();
+            prom.then( result => { if (result) { this.closeAndHide(true); } } );
             return;
-        } 
-        
+        }
+
         this.closeAndHide(false);
-    }    
+    }
 
     private closeAndHide(result: boolean) {
         this.isOpen = false;
         this.onClose(result);
-        this.refresh();        
+        this.refresh();
     }
 
     private approve(): Promise<boolean> {
@@ -149,8 +147,8 @@ export class UniApproveTaskModal {
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {
                     resolve(true);
-                    }, 
-                    err => this.errorService.handle(err) 
+                    },
+                    err => this.errorService.handle(err)
                 );
         });
     }
@@ -165,12 +163,12 @@ export class UniApproveTaskModal {
                 .finally( () => this.goBusy(false) )
                 .subscribe( result => {
                     resolve(true);
-                    }, 
-                    err => this.errorService.handle(err) 
+                    },
+                    err => this.errorService.handle(err)
                 );
         });
     }
-    
+
     public goBusy(busy: boolean = true) {
         this.busy = busy;
         this.refresh();
@@ -183,9 +181,9 @@ export class UniApproveTaskModal {
         this.refresh();
     }
 
-    private onClose: (ok: boolean) => void = () => {};
+    public onClose: (ok: boolean) => void = () => {};
 
-    @HostListener('keydown', ['$event']) 
+    @HostListener('keydown', ['$event'])
     public keyHandler(event: KeyboardEvent) {
         if (!this.isOpen) { return; }
         switch (event.keyCode) {
@@ -229,10 +227,10 @@ export class UniApproveTaskModal {
         this.isOpen = true;
         this.refresh();
         return new Promise((resolve, reject) => {
-            this.onClose = ok => resolve(ok);            
+            this.onClose = ok => resolve(ok);
         });
     }
-    
+
     private refresh() {
         if (this.changeDetectorRef) {
             this.changeDetectorRef.markForCheck();
@@ -257,7 +255,7 @@ export class UniApproveTaskModal {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
         .map(response => response.json());
-    }   
+    }
 
 }
 

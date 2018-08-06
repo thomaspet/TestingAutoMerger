@@ -90,7 +90,7 @@ export class UniTabStrip {
     private homeTabActive: boolean;
     private lastActiveTab: IUniTab;
 
-    private collapseTabs: boolean;
+    public collapseTabs: boolean;
     private componentDestroyedSubject: Subject<any> = new Subject();
 
     public tabContextMenu: ITabContextMenuData;

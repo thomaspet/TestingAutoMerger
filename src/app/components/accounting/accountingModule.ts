@@ -50,6 +50,7 @@ import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
 import {BillHistoryView} from './bill/detail/history/history';
+import {BillPreviousView} from './bill/detail/previous/previous';
 import {UniAssignModal} from './bill/detail/assignmodal';
 import {UniAddFileModal} from './bill/detail/addFileModal';
 import {MyStringFilterPipe} from './bill/detail/assignmodal';
@@ -118,6 +119,7 @@ import {MatTabsModule} from '@angular/material';
         BillsView,
         BillView,
         BillHistoryView,
+        BillPreviousView,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
         UniAssignModal, MyStringFilterPipe,

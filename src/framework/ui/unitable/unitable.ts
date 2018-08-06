@@ -31,6 +31,7 @@ export interface ITableFilter {
     group: number;
     searchValue: string;
     selectConfig: {options: Array<any>, valueField: string, displayField: string};
+    isDate?: boolean;
 }
 
 export interface IExpressionFilterValue {
@@ -78,7 +79,7 @@ export class UniTable implements OnChanges {
     private urlSearchParams: URLSearchParams;
 
     private tableDataOriginal: Immutable.List<any>; // for sorting, filtering etc.
-    private tableData: Immutable.List<any>;
+    public tableData: Immutable.List<any>;
     public tableColumns: Immutable.List<any>;
 
     private basicSearchFilters: ITableFilter[];
@@ -89,7 +90,7 @@ export class UniTable implements OnChanges {
     private lastFocusedRowModel: any;
     public currentRowModel: any;
 
-    private rowCount: number;
+    public rowCount: number;
     private skip: number = 0;
     private sortInfo: ISortInfo;
     private resize$: any;

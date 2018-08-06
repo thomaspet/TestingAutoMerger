@@ -42,13 +42,13 @@ export class AgaAndSubEntitySettings implements OnInit {
     private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    private accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
-    private companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
+    public companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
     public accounts: Account[] = [];
-    private mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    public mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 
@@ -124,6 +124,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgName.Section = 0;
         mainOrgName.FieldSet = 1;
         mainOrgName.Legend = 'Juridisk enhet';
+        mainOrgName.ReadOnly = true;
 
         const mainOrgOrg = new UniFieldLayout();
         mainOrgOrg.Label = 'Orgnummer';
@@ -132,6 +133,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.FieldType = FieldType.TEXT;
         mainOrgOrg.Section = 0;
         mainOrgOrg.FieldSet = 1;
+        mainOrgOrg.ReadOnly = true;
 
         const mainOrgFreeAmount = new UniFieldLayout();
         mainOrgFreeAmount.Label = 'Totalt fribeløp for juridisk enhet';

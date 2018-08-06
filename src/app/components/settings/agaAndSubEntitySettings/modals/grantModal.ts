@@ -16,12 +16,15 @@ import {Observable} from 'rxjs/Observable';
 })
 
 export class GrantModal implements OnInit, IUniModal {
+    @ViewChild(UniTable) private table: UniTable;
+
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    private grantTableConfig: UniTableConfig;
-    private grantData: any[] = [];
-    private infoText: string;
-    @ViewChild(UniTable) private table: UniTable;
+
+    public grantTableConfig: UniTableConfig;
+    public grantData: any[] = [];
+    public infoText: string;
+
     private allSubEntities: SubEntity[];
 
     constructor(

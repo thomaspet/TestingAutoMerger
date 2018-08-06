@@ -71,6 +71,7 @@ export enum UniModules {
     AnnualStatements  = 508,
     AltinnOverview = 509,
     Travel = 510,
+    TravelType = 511,
 
     WorkProfiles    = 600,
     Workers         = 601,

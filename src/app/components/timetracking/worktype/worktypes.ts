@@ -8,7 +8,7 @@ import {IViewConfig} from '../genericview/list';
 export const view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
 
 @Component({
-    selector: view.name,
+    selector: 'worktypes',
     template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
 })
 export class WorktypeListview {

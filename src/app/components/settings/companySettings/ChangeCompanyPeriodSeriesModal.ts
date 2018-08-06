@@ -37,7 +37,7 @@ declare const _; // lodash
 
                 <uni-select [config]="periodSeriesConfig"
                     [items]="periodSeriesAccountList"
-                    (valueChange)="periodSeriesChanged($event, item)"
+                    (valueChange)="periodSeriesChanged($event)"
                     [value]="periodSeriesAccount">
                 </uni-select>
             </div><BR/>
@@ -46,7 +46,7 @@ declare const _; // lodash
             <div>
                 <uni-select [config]="periodSeriesConfig"
                     [items]="periodSeriesVatList"
-                    (valueChange)="periodSeriesChanged($event, item)"
+                    (valueChange)="periodSeriesChanged($event)"
                     [value]="periodSeriesVat">
                 </uni-select>
             </div>
@@ -65,14 +65,14 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    private periodSeriesConfig: ISelectConfig;
+    public periodSeriesConfig: ISelectConfig;
     public currentAccountYear: number;
-    private periodSeriesAccount: PeriodSeries;
-    private periodSeriesVat: PeriodSeries;
-    private isPeriodSeriesChanged: boolean;
-    private companySettings: CompanySettings;
-    private periodSeriesAccountList: Array<PeriodSeries>;
-    private periodSeriesVatList: Array<PeriodSeries>;
+    public periodSeriesAccount: PeriodSeries;
+    public periodSeriesVat: PeriodSeries;
+    public isPeriodSeriesChanged: boolean;
+    public companySettings: CompanySettings;
+    public periodSeriesAccountList: Array<PeriodSeries>;
+    public periodSeriesVatList: Array<PeriodSeries>;
 
     constructor(
         private errorService: ErrorService,
@@ -117,7 +117,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
 
     public close(action: any) {
         if (action === 'cancel') {
-            this.CancelAndClose();
+            this.cancelAndClose();
         }
         if (action === 'save') {
             this.changeCompanySettingsPeriodSeriesAndClose();
@@ -139,7 +139,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
             this.periodSeriesVat.ID !== this.companySettings.PeriodSeriesVatID;
     }
 
-    private CancelAndClose() {
+    private cancelAndClose() {
         this.onClose.emit(false);
     }
 

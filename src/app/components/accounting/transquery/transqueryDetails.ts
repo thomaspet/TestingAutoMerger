@@ -66,7 +66,7 @@ export class TransqueryDetails implements OnInit {
     public uniTableConfig: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
     private configuredFilter: string;
-    private allowManualSearch: boolean = true;
+    public allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
     private lastFilterString: string;
     private dimensionTypes: any[];

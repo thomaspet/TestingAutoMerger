@@ -22,14 +22,14 @@ export class Login {
     @ViewChild('companySelector')
     private companySelector: ElementRef;
 
-    private usernameControl: FormControl = new FormControl('', Validators.required);
-    private passwordControl: FormControl = new FormControl('', Validators.required);
+    public usernameControl: FormControl = new FormControl('', Validators.required);
+    public passwordControl: FormControl = new FormControl('', Validators.required);
 
     public working: boolean;
     public errorMessage: string = '';
     public missingCompanies: boolean;
 
-    private availableCompanies: any[];
+    public availableCompanies: any[];
     public selectConfig: ISelectConfig;
 
     constructor(

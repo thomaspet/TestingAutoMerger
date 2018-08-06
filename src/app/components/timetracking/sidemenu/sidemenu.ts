@@ -45,9 +45,9 @@ export class SideMenu {
 
     @HostBinding('class.minimized') public minimized: boolean;
 
-    private timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
+    public timeTrackingTemplates: ITemplate[] = this.dummyTemplates();
     // public sidemenuMinified: boolean = false;
-    private initDate: Date = new Date();
+    public initDate: Date = new Date();
     public calendarConfig: any = {
         allowSelection: true,
         dailyProgress: []
@@ -94,7 +94,7 @@ export class SideMenu {
             });
     }
 
-    private onTemplateModalClose(item: ITemplateReturnObject) {
+    public onTemplateModalClose(item: ITemplateReturnObject) {
         // Item is null when modal closes on backdrop click
         if (!item) {
             return;

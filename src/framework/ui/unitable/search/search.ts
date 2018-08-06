@@ -18,6 +18,7 @@ import {IUniTableConfig} from '../config/unitableConfig';
 
 import {Observable} from 'rxjs/Observable';
 import {Subject} from 'rxjs/Subject';
+import * as moment from 'moment';
 import * as Immutable from 'immutable';
 
 
@@ -387,7 +388,7 @@ export class UniTableSearch implements OnChanges {
         }
     }
 
-    private newFilter() {
+    public newFilter() {
         if (!this.advancedSearchFilters) {
             this.advancedSearchFilters = [];
         }
@@ -461,30 +462,46 @@ export class UniTableSearch implements OnChanges {
     }
 
     private getAdvancedFilters() {
-        var filters = [];
-        this.advancedSearchFilters.forEach((filter) => {
+        return this.advancedSearchFilters.map(filter => {
+            const column = this.columns.find(col => col.get('field') === filter.field);
 
-            filter.searchValue = filter.value.toString();
+            if (column.get('type') === UniTableColumnType.DateTime || column.get('type') === UniTableColumnType.LocalDate) {
+                filter.isDate = true;
 
-            let cols = this.columns.filter(c => c.get('field') === filter.field);
+                // No need to construct date string for these operators
+                if (filter.operator === 'contains'
+                    || filter.operator === 'startswith'
+                    || filter.operator === 'endswith'
+                ) {
+                    filter.searchValue = filter.value.toString();
+                // For the rest of the operators we need a valid date string to avoid errors
+                } else {
+                    let dateString = '';
 
-            cols.forEach(col => {
-                if (col.get('type') === UniTableColumnType.DateTime || col.get('type') === UniTableColumnType.LocalDate) {
-                    if (filter.value.toString().includes('.')) {
+                    // Split on space, dot, dash or slash
+                    let dateSplit = filter.value.toString().split(/[ .\-\/]/);
 
-                        let dateParts = filter.value.toString().split('.', 3);
-                        if (dateParts.length === 3) {
-                            filter.searchValue = dateParts[2] + '-' + dateParts[1] + '-' + dateParts[0];
-                        }
-                        if (dateParts.length === 2) {
-                            filter.searchValue = dateParts[1] + '-' + dateParts[0];
+                    // Remove non-numeric characters
+                    dateSplit = dateSplit.map(part => part.replace(/\D/g, ''));
+
+                    if (dateSplit[0]) {
+                        const day = dateSplit[0];
+                        const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
+                        const year = dateSplit[2] || new Date().getFullYear().toString();
+
+                        const momentDate = moment(`${month}-${day}-${year}`);
+                        if (momentDate.isValid()) {
+                            dateString = momentDate.format('YYYY-MM-DD');
                         }
                     }
-                }
-            });
-            filters.push(filter);
-        });
 
-        return filters;
+                    filter.searchValue = dateString;
+                }
+            } else {
+                filter.searchValue = filter.value.toString();
+            }
+
+            return filter;
+        });
     }
 }

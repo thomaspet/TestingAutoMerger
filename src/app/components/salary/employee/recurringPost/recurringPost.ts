@@ -29,7 +29,7 @@ export class RecurringPost extends UniView {
 
     private employeeID: number;
     public tableConfig: UniTableConfig;
-    private recurringPosts: SalaryTransaction[] = [];
+    public recurringPosts: SalaryTransaction[] = [];
     private employments: Employment[] = [];
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
@@ -101,7 +101,6 @@ export class RecurringPost extends UniView {
     }
 
     public onRowDeleted() {
-        console.log(this.recurringPosts);
         const hasDirtyRow = this.recurringPosts.some(post => post['_isDirty'] || post.Deleted);
         this.refresh = true;
         super.updateState('recurringPosts', this.recurringPosts, hasDirtyRow);

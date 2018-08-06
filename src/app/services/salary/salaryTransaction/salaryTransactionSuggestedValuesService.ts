@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {EmploymentService} from '../employee/employmentService';
-import {PayrollrunService} from '../payrollrun/payrollRunService';
+import {PayrollrunService} from '../payrollrun/payrollrunService';
 import {SalaryTransaction, LocalDate} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';
@@ -14,7 +14,7 @@ export class SalaryTransactionSuggestedValuesService {
     ) { }
 
     public suggestFromDate(
-        salaryTransaction: SalaryTransaction, 
+        salaryTransaction: SalaryTransaction,
         recurringPost: boolean = false): Observable<SalaryTransaction> {
         let employmentObs = salaryTransaction.EmploymentID
             ? this.employmentService.Get(salaryTransaction.EmploymentID)

@@ -1,71 +1,11 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
-import {ElsaProduct} from '@app/services/elsa/elsaProductService';
-import {ElsaPurchaseForLicense} from '@app/services/elsa/elsaCompanyLicenseService';
-import {UserLicense} from '@app/unientities';
-
-export interface ElsaPurchase {
-    id: number;
-    contract?: ElsaContract;
-    contractID: number;
-    startDate: string;
-    endDate?: null;
-    userLimit: number;
-    key: string;
-    product?: ElsaProduct;
-    productID: number;
-    companyPurchases?: ElsaPurchaseForCompany[];
-}
-
-export interface ElsaContract {
-    id: number;
-    customer?: any;
-    customerID: number;
-    contractType: number;
-    statusCode: number;
-    startDate: Date;
-    endDate?: any;
-    settledUntil?: any;
-    note?: any;
-    limit: number;
-    key: string;
-    purchases: ElsaPurchase[];
-    companyLicenses?: ElsaPurchaseForLicense[];
-}
-
-// This is called "PurchasesForUserLicenseByCompany" in the elsa backend
-export interface ElsaPurchasesForUserLicenseByCompany {
-    productName: string;
-    productID: number;
-    username: string;
-    userIdentity: string;
-    userLicenseID: number;
-    purchaseForCompanyID: number;
-    contractID: number;
-    isAssigned: boolean;
-}
-
-export interface ElsaPurchaseForCompany {
-    id: number;
-    purchaseID: number;
-    purchase?: ElsaPurchase;
-    startDate: Date;
-    endDate?: Date;
-    companyLicenseID: number;
-    companyLicense?: ElsaPurchaseForLicense;
-    userPurchases?: ElsaPurchasesForUserLicenseByCompany[];
-}
-
-export interface ElsaPurchaseForUserLicense {
-    id: number;
-    purchaseForCompanyID: number;
-    companyPurchase?: ElsaPurchaseForCompany;
-    userLicenseID: number;
-    userLicense?: UserLicense;
-    startDate: Date;
-    endDate?: Date;
-}
+import {
+    ElsaPurchase,
+    ElsaPurchaseForUserLicense,
+    ElsaPurchaseForCompany,
+} from '@app/services/elsa/elsaModels';
 
 
 @Injectable()

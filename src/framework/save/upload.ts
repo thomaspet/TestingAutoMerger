@@ -41,7 +41,7 @@ export class UniUploadFileSaveAction {
     private token: any;
     private activeCompany: any;
     private uploading: boolean;
-    private textOnButton: string = 'Last opp';
+    public textOnButton: string = 'Last opp';
 
     constructor(
         private ngHttp: Http,

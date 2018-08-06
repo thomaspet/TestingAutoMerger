@@ -20,7 +20,7 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
     `
 })
 export class BrowserWarning {
-    private showBrowserWarning: boolean = false;
+    public showBrowserWarning: boolean = false;
 
     constructor(
         private browserStorage: BrowserStorageService,

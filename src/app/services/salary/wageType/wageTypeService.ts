@@ -4,10 +4,11 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {WageType, Account, LimitType} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {AccountService} from '../../accounting/accountService';
+import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {ErrorService} from '../../common/errorService';
+import {FieldType} from '../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -37,7 +38,8 @@ export class WageTypeService extends BizHttp<WageType> {
     constructor(
         protected http: UniHttp,
         private accountService: AccountService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private salaryTransactionService: SalaryTransactionService
     ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
@@ -73,6 +75,16 @@ export class WageTypeService extends BizHttp<WageType> {
             .withEndPoint(this.relativeURL + '/?action=synchronize')
             .send()
             .map(response => response.json());
+    }
+
+    public save(wt: WageType): Observable<WageType> {
+        const obs = wt.ID ? super.Put(wt.ID, wt) : super.Post(wt);
+
+        return obs.do(() => this.cleanUpCache());
+    }
+
+    private cleanUpCache() {
+        this.salaryTransactionService.invalidateCache();
     }
 
     public getWageType(id: number | string, expand: string[] = null): Observable<any> {

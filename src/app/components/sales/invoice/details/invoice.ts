@@ -75,7 +75,7 @@ import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {ActivationEnum} from '../../../../models/activationEnum';
 import {GetPrintStatusText} from '../../../../models/printStatus';
 import {SendEmail} from '../../../../models/sendEmail';
-import {InvoiceTypes} from '../../../../models/Sales/InvoiceTypes';
+import {InvoiceTypes} from '../../../../models/sales/invoiceTypes';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
@@ -115,50 +115,54 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     @Input() public invoiceID: any;
 
-    private invoice: CustomerInvoice;
-    private invoiceItems: CustomerInvoiceItem[];
-    private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
-    private newInvoiceItem: CustomerInvoiceItem;
     private printStatusPrinted: string = '200';
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
-    private projects: Project[];
-    private departments: Department[];
-    public currentDefaultProjectID: number;
-    private readonly: boolean;
-
-    private currencyInfo: string;
-    public summaryLines: ISummaryLine[];
-
-    public contextMenuItems: IContextMenuItem[] = [];
-    private companySettings: CompanySettings;
-    private recalcDebouncer: EventEmitter<any> = new EventEmitter();
-    public saveActions: IUniSaveAction[] = [];
-    public shareActions: IShareAction[];
-    public toolbarconfig: IToolbarConfig;
-    public toolbarSubheads: IToolbarSubhead[];
-
-    private vatTypes: VatType[];
-    private currencyCodes: Array<CurrencyCode>;
-    private currencyCodeID: number;
-    private currencyExchangeRate: number;
-    public currentCustomer: Customer;
-    public currentPaymentTerm: Terms;
-    public currentDeliveryTerm: Terms;
-    public currentUser: User;
-    private deliveryTerms: Terms[];
-    private paymentTerms: Terms[];
-    public selectConfig: any;
+    private isDirty: boolean;
+    private itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private ehfEnabled: boolean = false;
-    private sellers: Seller[];
     private deletables: SellerLink[] = [];
-    public currentInvoiceDate: LocalDate;
-    private dimensionTypes: any[];
-    private paymentInfoTypes: any[];
-    private distributionPlans: any[];
-    private reports: any[];
+
+    readonly: boolean;
+    invoice: CustomerInvoice;
+    invoiceItems: CustomerInvoiceItem[];
+    newInvoiceItem: CustomerInvoiceItem;
+
+    projects: Project[];
+    departments: Department[];
+    currentDefaultProjectID: number;
+
+    currencyInfo: string;
+    summaryLines: ISummaryLine[];
+
+    contextMenuItems: IContextMenuItem[] = [];
+    companySettings: CompanySettings;
+    recalcDebouncer: EventEmitter<any> = new EventEmitter();
+    saveActions: IUniSaveAction[] = [];
+    shareActions: IShareAction[];
+    toolbarconfig: IToolbarConfig;
+    toolbarSubheads: IToolbarSubhead[];
+    commentsConfig: ICommentsConfig;
+
+    vatTypes: VatType[];
+    currencyCodes: Array<CurrencyCode>;
+    currencyCodeID: number;
+    currencyExchangeRate: number;
+    currentCustomer: Customer;
+    currentPaymentTerm: Terms;
+    currentDeliveryTerm: Terms;
+    currentUser: User;
+    deliveryTerms: Terms[];
+    paymentTerms: Terms[];
+    selectConfig: any;
+
+    sellers: Seller[];
+    currentInvoiceDate: LocalDate;
+    dimensionTypes: any[];
+    paymentInfoTypes: any[];
+    distributionPlans: any[];
+    reports: any[];
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -202,8 +206,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
     ];
-
-    public commentsConfig: ICommentsConfig;
 
     constructor(
         private businessRelationService: BusinessRelationService,
@@ -516,8 +518,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.companySettings.APActivated && this.companySettings.APGuid) {
+    private sendEHFAction(doneHandler: (msg: string) => void = null) { 
+        if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
@@ -673,7 +675,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.currentInvoiceDate = invoice.InvoiceDate;
 
-        this.invoice = _.cloneDeep(invoice);
+        this.invoice = invoice;
         this.updateSaveActions();
     }
 
@@ -1261,6 +1263,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 disabled: () => false
             },
             {
+                label: 'Fakturaprint',
+                action: () => this.sendInvoicePrintAction(),
+                disabled: () => !this.ehfService.isActivated("NETSPRINT")
+            },
+            {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
@@ -1689,6 +1696,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (res.action === 'email') {
                 this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
             }
+        });
+    }
+
+    private sendInvoicePrintAction(): Observable<any> {
+        const savedInvoice = this.isDirty
+        ? Observable.fromPromise(this.saveInvoice())
+        : Observable.of(this.invoice);
+
+        return savedInvoice.switchMap(invoice => {
+            return this.customerInvoiceService.sendInvoicePrint(invoice.ID);
         });
     }
 

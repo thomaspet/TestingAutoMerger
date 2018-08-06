@@ -7,7 +7,8 @@
             width: 27rem !important
 
         .authentication-component
-            max-width: 20rem
+            max-width: 25rem
+            padding: 1rem 2rem
 
 @media screen and (max-width: 1025px)
     .marketing-toggle-btn
@@ -316,14 +317,17 @@ uni-password-guide
         list-style: none
         margin-left: .5rem
         font-size: .9rem
+        display: flex
+        flex-flow: row wrap
+        justify-content: space-between
 
         li
-            display: inline-block
-            width: 40%
+            flex: 0 0 50%
             color: $uni-color-scale5
 
             &:before
                 content: '🞩'
+                color: $uni-color-bad
                 margin-right: .5rem
 
             &.completed

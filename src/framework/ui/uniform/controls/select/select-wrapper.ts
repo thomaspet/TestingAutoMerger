@@ -36,8 +36,8 @@ export class UniSelectInput extends BaseControl implements OnChanges {
 
     @ViewChild('uniselect') public uniSelect: UniSelect;
 
-    private items: any[];
-    private selectedItem: any;
+    public items: any[];
+    public selectedItem: any;
 
     constructor(public elementRef: ElementRef, private cd: ChangeDetectorRef) {
         super();
@@ -100,7 +100,7 @@ export class UniSelectInput extends BaseControl implements OnChanges {
         if (previousValue === currentValue) {
             return;
         }
-
+        this.selectedItem = currentValue;
         _.set(this.model, this.field.Property, currentValue);
         this.emitChange(previousValue, currentValue);
         this.emitInstantChange(previousValue, currentValue, true);

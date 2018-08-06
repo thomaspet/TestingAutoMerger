@@ -1,11 +1,10 @@
-import {Component, Input, Output, EventEmitter, ElementRef, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthRequest} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
-import {ToastService} from '../../../../framework/uniToast/toastService';
 import {KeyCodes} from '../../../services/common/keyCodes';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
@@ -20,7 +19,7 @@ enum LoginState {
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>{{atLogin ? "Personlig pålogging Altinn" : "Resultat"}}</h1>
+                <h1>Resultat</h1>
             </header>
             <p [innerHTML]="userMessage" class="altinn-user-message"></p>
             <div *ngIf="formState === LOGIN_STATE_ENUM.UsernameAndPasswordAndPinType" [attr.aria-busy]="busy">
@@ -42,6 +41,7 @@ enum LoginState {
                         [config]="emptyConfig$"
                         [fields]="pinFormFields$"
                         [model]="userLoginData$"
+                        (inputEvent)="onInputEvent($event)"
                     ></uni-form>
                 </article>
                 <footer>
@@ -60,6 +60,7 @@ enum LoginState {
 export class AltinnAuthenticationModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<AltinnAuthenticationData> = new EventEmitter<AltinnAuthenticationData>();
     @Input() public options: IModalOptions;
+    @ViewChild(UniForm) private form: UniForm;
     // Done so that angular template can access the enum
     public LOGIN_STATE_ENUM: any = LoginState;
     public userLoginData$: BehaviorSubject<AltinnAuthenticationData>
@@ -73,7 +74,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
         = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
-    private errorStatuses: string[] = ['invalidcredentials', 'userlockedout'];
+    private errorStatuses: number[] = [1, 2, 3, 4, 5, 6];
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
     private userSubmittedPin: EventEmitter<AltinnAuthenticationData> =
@@ -89,7 +90,6 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
 
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
-        private toastService: ToastService,
         private elementRef: ElementRef,
         private errorService: ErrorService
     ) {}
@@ -104,6 +104,18 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
         });
         this.handleAuthentication()
             .then(auth => this.onClose.next(auth));
+    }
+
+    public onInputEvent(changes: SimpleChanges) {
+        if (changes['pin']) {
+            this.userLoginData$
+                .take(1)
+                .map(data => {
+                    data.pin = changes['pin'].currentValue;
+                    return data;
+                })
+                .subscribe(data => this.userLoginData$.next(data));
+        }
     }
 
     private handleAuthentication(): Promise<AltinnAuthenticationData> {
@@ -213,8 +225,10 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
                             userLoginData.pin = '';
                             userLoginData.validTo = messageobj.ValidTo;
                             userLoginData.validFrom = messageobj.ValidFrom;
-                            this.userLoginData$.next(userLoginData);
                             this.formState = LoginState.Pin;
+
+                            this.userLoginData$.next(userLoginData);
+
                         }, error => {
                             // TODO: add proper wrong user/pass handling when
                             // we know what the service/altinn returns on bad user/pass
@@ -233,14 +247,13 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             }
 
             return this.userSubmittedPin
-                .subscribe(() => {
-                    resolve(this.userLoginData$.getValue());
-                }, err => this.errorService.handle(err));
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .subscribe(data => resolve(data));
         });
     }
 
     private messageStatus(messageObj): boolean {
-        const indx = this.errorStatuses.findIndex(stat => stat.toLowerCase() === messageObj.Status.toLowerCase());
+        const indx = this.errorStatuses.findIndex(stat => stat === messageObj.Status);
         return indx >= 0 ? true : false;
     }
 

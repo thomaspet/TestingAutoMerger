@@ -1,7 +1,6 @@
-import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {UniTable, IRowChangeEvent, UniTableColumn, UniTableColumnType, IUniTableConfig, UniTableConfig} from '@uni-framework/ui/unitable';
-import {SimpleChanges, AfterViewInit} from '@angular/core/src/metadata/lifecycle_hooks';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {LocalDate, Employee, Employment, WorkItemToSalary, WorkItem} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -21,9 +20,9 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     public uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public saveactions: IUniSaveAction[] = [];
-    private mainAction: IUniSaveAction;
+    public mainAction: IUniSaveAction;
     public uniTableConfig: UniTableConfig;
-    private data: WorkItemToSalary[] = [];
+    public data: WorkItemToSalary[] = [];
     private createTransesIsActive: boolean;
     public busy: boolean;
 

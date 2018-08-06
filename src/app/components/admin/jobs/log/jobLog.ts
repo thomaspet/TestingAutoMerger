@@ -59,7 +59,7 @@ export class JobLog {
             this.jobName = params['jobName'];
             let hangfireJobId: string = params['jobRunId'];
 
-            this.jobService.getJobRun(this.jobName, hangfireJobId)
+            this.jobService.getJobRun(this.jobName, +hangfireJobId)
             .finally( () => this.busy = false )
             .subscribe(
                 jobRun => {

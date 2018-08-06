@@ -16,8 +16,8 @@ export class SubEntityList implements OnInit {
 
     public currentSubEntity: SubEntity;
     public busy: boolean;
-    private allSubEntities: SubEntity[];
-    private subEntityListConfig: UniTableConfig;
+    public allSubEntities: SubEntity[];
+    public subEntityListConfig: UniTableConfig;
     private mainOrg: SubEntity;
 
     private municipalities: Municipal[] = [];

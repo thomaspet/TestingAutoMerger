@@ -242,9 +242,7 @@ export class WageTypeView extends UniView implements OnDestroy {
 
             return wageType;
         })
-        .switchMap(wageType => (wageType.ID > 0)
-            ? this.wageTypeService.Put(wageType.ID, wageType)
-            : this.wageTypeService.Post(wageType))
+        .switchMap(wageType => this.wageTypeService.save(wageType))
         .do((wt: WageType) => {
             if (updateView) {
                 return;
@@ -291,24 +289,28 @@ export class WageTypeView extends UniView implements OnDestroy {
     }
 
     private getWageType() {
-        this.wageTypeService.getWageType(this.wagetypeID).subscribe((wageType: WageType) => {
-            this.wageType = wageType;
-            if (this.wageType.ID === 0) {
-                this.setDefaultValues();
-            }
-            super.updateState('wagetype', wageType, false);
-        }, err => this.errorService.handle(err));
+        this.wageTypeService
+            .getWageType(this.wagetypeID)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((wageType: WageType) =>
+                super.updateState(
+                    'wagetype',
+                    wageType.ID ? wageType : this.setDefaultValues(wageType), false));
     }
 
-    private setDefaultValues() {
-        this.wageType.WageTypeNumber = null;
-        this.wageType.SpecialAgaRule = SpecialAgaRule.Regular;
-        this.wageType.AccountNumber = 5000;
-        this.wageType.Base_Payment = true;
-        this.wageType.SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
-        this.wageType.taxtype = TaxType.Tax_None;
-        this.wageType.StandardWageTypeFor = StdWageType.None;
-        this.wageType.GetRateFrom = GetRateFrom.WageType;
+    private setDefaultValues(wageType: WageType): WageType {
+        wageType.WageTypeNumber = null;
+        wageType.SpecialAgaRule = SpecialAgaRule.Regular;
+        wageType.AccountNumber = 5000;
+        wageType.Base_Payment = true;
+        wageType.SpecialTaxAndContributionsRule = SpecialTaxAndContributionsRule.Standard;
+        wageType.taxtype = TaxType.Tax_Table;
+        wageType.StandardWageTypeFor = StdWageType.None;
+        wageType.GetRateFrom = GetRateFrom.WageType;
+        wageType.Base_Vacation = true;
+        wageType.Base_EmploymentTax = true;
+        wageType.Base_div1 = true;
+        return wageType;
     }
 
     public previousWagetype() {
@@ -350,7 +352,7 @@ export class WageTypeView extends UniView implements OnDestroy {
                     if (response) {
                         this.wageType = response;
                         if (this.wageType.ID === 0) {
-                            this.setDefaultValues();
+                            this.setDefaultValues(this.wageType);
                         }
                         const childRoute = this.router.url.split('/').pop();
                         this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);

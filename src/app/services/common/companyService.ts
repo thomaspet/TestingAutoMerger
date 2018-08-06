@@ -11,4 +11,14 @@ export class CompanyService extends BizHttp<Company> {
         this.entityType = Company.EntityType;
         this.DefaultOrderBy = null;
     }
+
+    public updateCompanyClientNumber(companyID: number, clientNumber: number, key) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`companies/${companyID}?action=clientnumber&clientnumber=${clientNumber}`)
+            .withHeader('CompanyKey', key)
+            .send({}, null, false)
+            .map(res => res.json());
+    }
 }

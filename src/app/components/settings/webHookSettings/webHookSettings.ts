@@ -23,18 +23,18 @@ import {
 export class WebHookSettings {
     private noFilter: string = 'ffffffff-ffff-ffff-ffff-ffffffffffff';
 
-    private actionSelectConfig: ISelectConfig;
-    private objectiveSelectConfig: ISelectConfig;
+    public actionSelectConfig: ISelectConfig;
+    public objectiveSelectConfig: ISelectConfig;
 
-    private objectives: Array<IUmhObjective> = [];
+    public objectives: Array<IUmhObjective> = [];
     public actions: Array<IUmhAction> = [];
 
-    private subscription: IUmhSubscription = {};
-    private subscriptions: Array<IUmhSubscription> = [];
+    public subscription: IUmhSubscription = {};
+    public subscriptions: Array<IUmhSubscription> = [];
 
     private company: Company;
-    private isEnabled: boolean = false;
-    private isPermitted: boolean = false;
+    public isEnabled: boolean = false;
+    public isPermitted: boolean = false;
     public isBusy: boolean = true;
 
     private saveaction: IUniSaveAction = {

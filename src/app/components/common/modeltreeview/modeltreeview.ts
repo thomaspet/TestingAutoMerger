@@ -29,7 +29,7 @@ export class ModelTreeView implements OnChanges {
     @Output() private modelSelected: EventEmitter<any> = new EventEmitter<any>();
 
     private modules: Array<ModuleConfig> = [];
-    private visibleModules: Array<ModuleConfig> = [];
+    public visibleModules: Array<ModuleConfig> = [];
     private models: Array<any> = [];
 
     public model: {Relations: any, Fields: any[], fieldArray: string[]};

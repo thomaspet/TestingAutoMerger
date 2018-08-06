@@ -31,8 +31,8 @@ export class SellerSalesList {
     @Input() public mode: string;
     @Input() public sellerID: number;
 
-    private salesTableConfig: UniTableConfig;
-    private salesList: any;
+    public salesTableConfig: UniTableConfig;
+    public salesList: any;
     public busy: boolean = true;
 
     constructor(

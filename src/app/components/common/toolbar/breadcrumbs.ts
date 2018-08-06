@@ -15,7 +15,7 @@ export class UniBreadcrumbs {
     public omitFinalCrumb: boolean;
 
     private moduleID: UniModules;
-    private crumbs: any[] = [];
+    public crumbs: any[] = [];
 
     constructor(
         private tabService: TabService,

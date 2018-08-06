@@ -57,7 +57,7 @@ export class UniConfirmModalWithList implements IUniModal {
     @Output()
     public onClose: EventEmitter<IConfirmModalWithListReturnValue> = new EventEmitter();
 
-    private list: Array<boolean> = [];
+    public list: Array<boolean> = [];
 
     public ngOnInit() {
         if (!this.options.buttonLabels) {

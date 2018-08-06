@@ -7,8 +7,16 @@ import {Observable} from 'rxjs/Observable';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {ITravelFilter} from '@app/components/salary/travel/travel-filter/travel-filter.component';
 import {IUniSaveAction} from '@uni-framework/save/save';
+import {ActivatedRoute, Router} from '@angular/router';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {IContextMenuItem} from '@uni-framework/ui/unitable';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
+
+interface ITravelFile {
+    TravelID: number;
+    FileIDs: number[];
+}
 
 @Component({
     selector: 'uni-travel',
@@ -27,14 +35,22 @@ export class TravelComponent implements OnInit {
     public travelSelection: Travel[] = [];
     public busy: boolean;
     public saveActions$: BehaviorSubject<IUniSaveAction[]> = new BehaviorSubject(this.getSaveActions());
+    public contextMenuItems: IContextMenuItem[] = [];
+    public fileIDs$: BehaviorSubject<number[]> = new BehaviorSubject([]);
 
     private wageTypes: WageType[] = [];
+    private fetchingFiles$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    private travelFiles$: BehaviorSubject<ITravelFile[]> = new BehaviorSubject([]);
+    public runID: number;
 
     constructor(
         private tabService: TabService,
         private travelService: TravelService,
         private errorService: ErrorService,
         private wageTypeService: WageTypeService,
+        private route: ActivatedRoute,
+        private modalService: UniModalService,
+        private router: Router,
     ) {}
 
     public ngOnInit() {
@@ -43,9 +59,10 @@ export class TravelComponent implements OnInit {
             url: 'salary/travels',
             moduleID: UniModules.Travel
         });
+        this.contextMenuItems = this.getContextMenuItems();
+
         this.getTravels();
-        // const mock = this.fillInInfo(this.mockTravels());
-        // this.travels$.next(mock);
+
         this.travels$
             .do((travels) => this.checkSave(travels))
             .subscribe(travels => this.updateFilteredTravels(travels, this.travelOptions$.getValue()));
@@ -57,6 +74,12 @@ export class TravelComponent implements OnInit {
                     .map(travels => this.updateFilteredTravels(travels, options));
             })
             .subscribe();
+
+        this.route.queryParams.subscribe(params => {
+            if (params['runID']) {
+                this.runID = +params['runID'];
+            }
+        });
     }
 
     private getSaveActions(): IUniSaveAction[] {
@@ -72,6 +95,21 @@ export class TravelComponent implements OnInit {
                 action: done => this.transferToSalary(done),
                 main: false,
                 disabled: true,
+            },
+            {
+                label: 'Overfør til fakturamottak',
+                action: done => this.transferToSupplierInvoice(done),
+                main: false,
+                disabled: true,
+            },
+        ];
+    }
+
+    private getContextMenuItems(): IContextMenuItem[] {
+        return [
+            {
+                label: 'Reisetyper',
+                action: () => this.navigateToTravelTypes(),
             }
         ];
     }
@@ -87,6 +125,13 @@ export class TravelComponent implements OnInit {
 
         if (this.travelSelection.length) {
             const action = saveActions.find(act => act.label === 'Overfør til lønn');
+            if (action) {
+                action.disabled = false;
+            }
+        }
+
+        if (this.travelSelection.filter(t => t.TravelLines.some(l => l.CostType === costtype.Expense)).length) {
+            const action = saveActions.find(act => act.label === 'Overfør til fakturamottak');
             if (action) {
                 action.disabled = false;
             }
@@ -112,11 +157,15 @@ export class TravelComponent implements OnInit {
     }
 
     private getTravels() {
-        this.travelService
+        this.getTravelsObs()
+            .subscribe((travels: any[]) => this.travels$.next(travels));
+    }
+
+    private getTravelsObs(): Observable<Travel[]> {
+        return this.travelService
             .GetAll('', ['TravelLines.TravelType'])
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)))
-            .subscribe((travels: any[]) => this.travels$.next(travels));
+            .switchMap(travels => this.wageTypeService.GetAll('').do(wt => this.wageTypes = wt).map(wt => this.fillInInfo(travels, wt)));
     }
 
     private markFirstTravel(travels: Travel[]) {
@@ -183,8 +232,8 @@ export class TravelComponent implements OnInit {
                 });
                 return Observable.forkJoin(obsList).map(() => travels);
             })
-            .do(travels => this.checkSave(travels))
-            .map(travels => this.fillInInfo(travels, this.wageTypes))
+            .switchMap(travels => this.getTravelsObs())
+            .map(travels => this.mapSelected(travels))
             .catch((err, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(err, obs);
@@ -196,14 +245,120 @@ export class TravelComponent implements OnInit {
             .subscribe(travels => this.travels$.next(travels));
     }
 
+    private mapSelected(fetched: Travel[]): Travel[] {
+        const local = this.travels$.getValue();
+        fetched.forEach(travel => {
+            travel[SELECTED_KEY] = local.find(tr => tr.ID === travel.ID)[SELECTED_KEY];
+        });
+        return fetched;
+    }
+
     private transferToSalary(done: (msg) => void) {
-        setTimeout(() => {
-            done('overføring fullført');
-        }, 1000);
+        this.fetchingFiles$
+            .filter(fetching => !fetching)
+            .take(1)
+            .switchMap(() => this.travelService.createTransactions(this.travelSelection, this.travelOptions$.getValue().run.ID))
+            .catch((err, obs) => {
+                done('Overføring til lønn feilet');
+                return this.errorService.handleRxCatch(err, obs);
+            })
+            .do(() => this.getTravels())
+            .subscribe(() => done('Overføring til lønn fullført'));
+    }
+
+    private transferToSupplierInvoice(done: (msg) => void) {
+        const travels = this.travelSelection.filter(x => x.TravelLines.some(line => line.CostType === costtype.Expense));
+        this.fetchingFiles$
+            .filter(fetching => !fetching)
+            .take(1)
+            .switchMap(() => this.promptUserIfNeeded(travels, done))
+            .filter(proceed => proceed)
+            .switchMap(() => this.travelService.createSupplierInvoices(travels))
+            .catch((err, obs) => {
+                done('Overføring til fakturamottak feilet');
+                return this.errorService.handleRxCatch(err, obs);
+            })
+            .do(() => this.getTravels())
+            .subscribe(() => done('Overføring til fakturamottak fullført'));
+    }
+
+    private promptUserIfNeeded(travels: Travel[], done: (msg) => void): Observable<boolean> {
+        if (!travels || !travels.length) {
+            return Observable.of(true);
+        }
+
+        const wts = this.wageTypes.filter(x => x.Benefit || x.IncomeType || x.Description);
+        if (travels.some(t => t.TravelLines.some(l => wts.some(wt => wt.WageTypeNumber === l.travelType.WageTypeNumber)))) {
+            return this.modalService.confirm({
+                header: 'Bekreft overføring',
+                message: 'Denne rapporten inneholder godtgjørelse som skal innrapporteres.' +
+                ' Vi anbefaler derfor å importere denne via lønn. Ønsker du å overføre reisen/utlegget via fakturamottak?',
+                buttonLabels: {
+                    accept: 'OK',
+                    cancel: 'Avbryt'
+                }
+            })
+            .onClose
+            .do(result => {
+                if (result !== ConfirmActions.ACCEPT) {
+                    done('Overføring til fakturamottak avbrutt');
+                }
+            })
+            .map(result => result === ConfirmActions.ACCEPT);
+        }
+
+        return Observable.of(true);
+    }
+
+    private checkFiles(travels: Travel[]): Travel[] {
+
+        travels = travels.filter(travel => !!travel);
+        const obs: Observable<ITravelFile>[] = [];
+        const travelFiles = this.travelFiles$.getValue();
+        const travelsWithoutFiles = travels.filter(t => t && !travelFiles.some(tf => tf.TravelID === t.ID));
+
+        travelsWithoutFiles
+            .forEach(travel => {
+                obs.push(
+                    this.travelService
+                        .getFiles(travel)
+                        .map(files => files.map(file => file.ID))
+                        .map((fileIDs) => {
+                            return {
+                                TravelID: travel.ID,
+                                FileIDs: fileIDs
+                            };
+                        }));
+            });
+
+        if (!obs.length) {
+            return travels;
+        }
+
+        this.fetchingFiles$.next(true);
+        Observable
+            .forkJoin(obs)
+            .finally(() => this.fetchingFiles$.next(false))
+            .do(fetchedTravelFiles => {
+                const selected = this.selectedTravel$.getValue();
+                if (!selected || !fetchedTravelFiles.some(tf => tf.TravelID === selected.ID)) {
+                    return;
+                }
+                this.fileIDs$.next(fetchedTravelFiles.find(tf => tf.TravelID === selected.ID).FileIDs);
+            })
+            .subscribe(tf => this.travelFiles$.next([...travelFiles, ...tf]));
+    }
+
+    private navigateToTravelTypes() {
+        this.router.navigate(['salary/traveltypes']);
     }
 
     public selectedTravel(travel: Travel) {
         this.selectedTravel$.next(travel);
+        const travelFiles = this.travelFiles$.getValue();
+        const selectedTravelFiles = travelFiles.find(tf => travel && tf.TravelID === travel.ID);
+        this.fileIDs$.next((selectedTravelFiles && selectedTravelFiles.FileIDs) || []);
+        this.checkFiles([travel]);
     }
 
     public updatedList(travels: Travel[]) {
@@ -243,6 +398,7 @@ export class TravelComponent implements OnInit {
     public selectionChange(selection: Travel[]) {
         this.travelSelection = selection;
         this.checkSave(this.travels$.getValue());
+        this.checkFiles(selection);
     }
 
 }

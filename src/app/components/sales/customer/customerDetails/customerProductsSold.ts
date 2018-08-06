@@ -18,14 +18,14 @@ export class CustomerProductsSold {
     @Input() public customerID: number;
 
     // Filter
-    private datefieldFrom: UniFieldLayout = new UniFieldLayout();
-    private datefieldTo: UniFieldLayout = new UniFieldLayout();
-    private filterFrom: LocalDate;
-    private filterTo: LocalDate;
+    public datefieldFrom: UniFieldLayout = new UniFieldLayout();
+    public datefieldTo: UniFieldLayout = new UniFieldLayout();
+    public filterFrom: LocalDate;
+    public filterTo: LocalDate;
 
     // Table
     public tableConfig: UniTableConfig;
-    private products$: BehaviorSubject<any> = new BehaviorSubject(null);
+    public products$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     constructor(
         private statisticsService: StatisticsService

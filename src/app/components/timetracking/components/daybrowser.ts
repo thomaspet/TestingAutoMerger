@@ -11,8 +11,8 @@ import * as moment from 'moment';
             <span class="monthbutton" (click)="onOpenCalendar()">{{day.date|isotime:'UMMMM YYYY'}}</span>
             <span class="subtitle">Uke {{day.isoWeek}}</span>
             <div class="popup-calendar" *ngIf="calendarOpen" >
-                <unitable-calendar 
-                (clickOutside)="onCalBlur()" (dateChange)="onCalendarDateChange($event)" 
+                <unitable-calendar
+                (clickOutside)="onCalBlur()" (dateChange)="onCalendarDateChange($event)"
                 (keydown.esc)="hideCalendar()"
                 [date]="day.date"></unitable-calendar>
             </div>
@@ -21,7 +21,7 @@ import * as moment from 'moment';
             <tr>
                 <td (click)="onNavigate('left')" class="arrow"><div class="arrow-left"></div></td>
                 <td><table><tr>
-                    <td [class.is-active]="day.selected" [class.is-weekend]="day.isWeekend" 
+                    <td [class.is-active]="day.selected" [class.is-weekend]="day.isWeekend"
                     *ngFor="let day of days" (click)="onClick(day)">
                         <span class="small">{{day.date|isotime:'Udddd'}}</span>
                         <span [class.circle]="day.isToday" class="big">{{day.date|isotime:'D'}}</span>
@@ -38,10 +38,10 @@ import * as moment from 'moment';
 export class DayBrowser {
     public days: Array<Day> = [];
     public weekNumber: number;
-    private day: Day;
+    public day: Day;
     private numDayCounter: number = 0;
     private ignoreNextBlur: boolean = true;
-    private calendarOpen: boolean = false;
+    public calendarOpen: boolean = false;
 
     @Output() public clickday: EventEmitter<Day> = new EventEmitter();
     @Output() public requestsums: EventEmitter<ITimeSpan> = new EventEmitter();
@@ -50,12 +50,12 @@ export class DayBrowser {
     constructor(private changeDetectorRef: ChangeDetectorRef) {
         this.days = this.initWeekByDay( new Day(new Date() ) ); // new Date() );
     }
-    
+
     // tslint:disable:no-unused-variable
 
-    private fromNow() {
-        var dt = this.day.mDate;
-        var now = moment();
+    public fromNow() {
+        const dt = this.day.mDate;
+        const now = moment();
         dt.add(now.hours(), 'hours');
         dt.add(now.minutes(), 'minutes');
         dt.add(now.seconds(), 'seconds');
@@ -74,11 +74,11 @@ export class DayBrowser {
         this.setDay(day);
     }
 
-    private onClick(day: Day) {
+    public onClick(day: Day) {
         this.clickday.emit(day);
     }
-    
-    private onCalBlur() {
+
+    public onCalBlur() {
         if (!this.ignoreNextBlur) {
             this.hideCalendar();
         }
@@ -94,21 +94,21 @@ export class DayBrowser {
         this.calendarOpen = false;
     }
 
-    private onCalendarDateChange(date: Date) {
+    public onCalendarDateChange(date: Date) {
         this.clickday.emit(new Day(date));
         this.hideCalendar();
     }
 
     public reloadSums() {
-        this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date ); 
+        this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date );
     }
 
-    private onNavigate(direction: 'right'|'left') {
-        this.navigate.emit({ 
-            currentDate: this.day.date, 
-            leftDate: this.days[0].date, 
+    public onNavigate(direction: 'right'|'left') {
+        this.navigate.emit({
+            currentDate: this.day.date,
+            leftDate: this.days[0].date,
             rightDate: this.days[this.days.length - 1].date,
-            directionLeft: direction === 'left', 
+            directionLeft: direction === 'left',
             daysInView: this.days.length
         });
     }
@@ -121,7 +121,7 @@ export class DayBrowser {
             day.selected = true;
             this.days[match] = day;
             this.checkDaySums();
-        } else {            
+        } else {
             this.days = this.initWeekByDay(day);
         }
         this.refresh();
@@ -133,8 +133,8 @@ export class DayBrowser {
 
     private checkDaySums() {
         if (this.numDayCounter < this.days.length) {
-            this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date ); 
-        }        
+            this.emitRequestSums( this.days[0].date, this.days[this.days.length - 1].date );
+        }
     }
 
     private emitRequestSums(fromDate: Date, toDate: Date) {
@@ -160,14 +160,14 @@ export class DayBrowser {
         list.forEach( item => {
             var sum = 0;
             sumCols.forEach( y => { if (item[y]) { sum += item[y]; } } );
-            this.setDayCounter(item[dateCol], sum); 
+            this.setDayCounter(item[dateCol], sum);
         });
         this.numDayCounter = this.days.length;
         this.refresh();
     }
 
     private initWeekByDay(day: Day): Array<Day> {
-        var wk = [];        
+        var wk = [];
         var weekDay = day.mDate;
         var orgDate = weekDay.clone();
         weekDay.add('days', -orgDate.isoWeekday());
@@ -175,14 +175,14 @@ export class DayBrowser {
         for (var i = 0; i < 7; i++) {
             weekDay.add('days', 1);
             let isSame = weekDay.isSame(orgDate);
-            let dd = new Day(weekDay.toDate(), isSame);            
+            let dd = new Day(weekDay.toDate(), isSame);
             wk.push( isSame ? day : dd );
         }
         this.day = day;
         day.updated = true;
         this.numDayCounter = 1;
         this.emitRequestSums(wk[0].date, wk[wk.length - 1].date);
-        return wk; 
+        return wk;
     }
 
 }

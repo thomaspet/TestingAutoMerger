@@ -1,5 +1,5 @@
 import {PipeTransform, Pipe} from '@angular/core';
-import {ElsaProduct} from '@app/services/services';
+import {ElsaProduct} from '@app/services/elsa/elsaModels';
 @Pipe({
     name: 'onlyBundles'
 })

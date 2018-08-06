@@ -79,7 +79,7 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
     public modalConfig: ModalConfig;
     public type: Type<any> = SalaryWithholdingAndAGAReportFilterModalContent;
     private subscriptions: any[] = [];
-    private inActive: boolean;
+    public inActive: boolean;
 
     constructor(
         private reportDefinitionParameterService: ReportDefinitionParameterService,

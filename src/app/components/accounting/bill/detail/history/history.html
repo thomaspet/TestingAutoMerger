@@ -1,8 +1,8 @@
-<article [attr.aria-busy]="busy" >
+<article>
 
-    <uni-table [resource]="listOfInvoices"
-        [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)">
+    <uni-table
+        [resource]="listOfInvoices"
+        [config]="tableConfig">
     </uni-table>
 
     <div class="right total">

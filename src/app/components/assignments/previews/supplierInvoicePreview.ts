@@ -12,7 +12,7 @@ import {Task, SupplierInvoice} from '../../../unientities';
 })
 export class SupplierInvoicePreview {
     @Input()
-    private task: Task;
+    public task: Task;
 
     public invoice: SupplierInvoice;
     public settingsCurrency: string;
