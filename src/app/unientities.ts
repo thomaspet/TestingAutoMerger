@@ -5857,11 +5857,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -7075,10 +7075,6 @@ export class AltinnSigningTextResponse extends UniEntity {
 export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
     public Message: string;
     public Status: AltinnGetVatReportDataFromAltinnStatus;
-}
-
-
-export class IEnumerable`1 extends UniEntity {
 }
 
 
