@@ -19,6 +19,7 @@ export const salesRouteMap = {
     'customerorderitem': 'orders/:id',
     'customerinvoice': 'invoices/:id',
     'customerinvoiceitem': 'invoices/:id',
+    'customerinvoicereminder': 'reminders/debtcollect'
 };
 
 export const timetrackingRouteMap = {

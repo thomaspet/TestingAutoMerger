@@ -15,6 +15,7 @@ import {
     CompanySettings,
     CompanyType,
     CurrencyCode,
+    DebtCollectionAutomation,
     Email,
     FinancialYear,
     Municipal,
@@ -35,6 +36,7 @@ import {
     CompanyTypeService,
     CurrencyCodeService,
     CurrencyService,
+    DebtCollectionAutomationService,
     EHFService,
     EmailService,
     ErrorService,
@@ -105,6 +107,7 @@ export class CompanySettingsComponent implements OnInit {
     private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
+    private debtCollectionAutomations: Array<DebtCollectionAutomation> = [];
     private vatReportForms: Array<VatReportForm> = [];
     private currencyCodes: Array<CurrencyCode> = [];
     private accountYears: Array<FinancialYear> = [];
@@ -186,6 +189,7 @@ export class CompanySettingsComponent implements OnInit {
         private accountGroupSetService: AccountGroupSetService,
         private periodeSeriesService: PeriodSeriesService,
         private companyTypeService: CompanyTypeService,
+        private debtCollectionAutomationService: DebtCollectionAutomationService,
         private vatReportFormService: VatReportFormService,
         private vatTypeService: VatTypeService,
         private municipalService: MunicipalService,
@@ -265,6 +269,7 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+            this.debtCollectionAutomationService.GetAll(null),
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -298,6 +303,8 @@ export class CompanySettingsComponent implements OnInit {
                         EntityName: 'CustomerQuote',
                         Template: ''
                     };
+              
+                this.hasBoughtEHF = dataset[15];
 
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
@@ -306,9 +313,10 @@ export class CompanySettingsComponent implements OnInit {
                     quoteTemplate: this.quoteTemplate
                 });
 
-                this.quoteFormList = dataset[15];
-                this.orderFormList = dataset[16];
-                this.invoiceFormList = dataset[17];
+                this.quoteFormList = dataset[16];
+                this.orderFormList = dataset[17];
+                this.invoiceFormList = dataset[18];
+                this.debtCollectionAutomations = dataset[19];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -794,6 +802,15 @@ export class CompanySettingsComponent implements OnInit {
             source: this.companyTypes,
             valueProperty: 'ID',
             displayProperty: 'FullName',
+            debounceTime: 200
+        };
+
+        this.debtCollectionAutomations.unshift(null);
+        const debtCollectionAutomationID: UniFieldLayout = fields.find(x => x.Property === 'DebtCollectionAutomationID');
+        debtCollectionAutomationID.Options = {
+            source: this.debtCollectionAutomations,
+            valueProperty: 'ID',
+            displayProperty: 'Manual',
             debounceTime: 200
         };
 

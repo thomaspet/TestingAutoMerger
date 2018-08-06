@@ -1,0 +1,9 @@
+<fieldset>
+    <legend>Inkassoinstillinger</legend>
+    <uni-form
+        [config]="{}"
+        [fields]="fields$"
+        [model]="debtCollectionSettings$"
+        (changeEvent)="onChange($event)">
+    </uni-form>
+</fieldset>

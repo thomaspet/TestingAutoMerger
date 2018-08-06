@@ -230,6 +230,10 @@ export class UniNotifications {
                 + notification.EntityID;
         }
 
+        if (notification.EntityType === 'CustomerInvoiceReminder') {
+            return notification.Message;
+        }
+
         return `${notification.EntityType}/${notification.EntityID}`;
     }
 

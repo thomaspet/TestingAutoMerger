@@ -455,6 +455,27 @@ export class CampaignTemplate extends UniEntity {
 }
 
 
+export class DebtCollectionSettings extends UniEntity {
+    public static RelativeUrl = 'debtcollectionsettings';
+    public static EntityType = 'DebtCollectionSettings';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerInvoiceReminderSettingsID: number;
+    public DebtCollectionAutomationID: number;
+    public Deleted: boolean;
+    public ID: number;
+    public IntegrateWithDebtCollection: boolean;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
+    public CustomFields: any;
+}
+
+
 export class DistributionPlan extends UniEntity {
     public static RelativeUrl = 'distributions';
     public static EntityType = 'DistributionPlan';
@@ -703,6 +724,7 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public AcceptPaymentWithoutReminderFee: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DebtCollectionSettingsID: number;
     public Deleted: boolean;
     public ID: number;
     public MinimumAmountToRemind: number;
@@ -711,6 +733,7 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
+    public DebtCollectionSettings: DebtCollectionSettings;
     public CustomFields: any;
 }
 
@@ -2509,6 +2532,25 @@ export class Agreement extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ValidFrom: Date;
+    public CustomFields: any;
+}
+
+
+export class DebtCollectionAutomation extends UniEntity {
+    public static RelativeUrl = 'debtcollectionautomation';
+    public static EntityType = 'DebtCollectionAutomation';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public DebtCollectionSettingsID: number;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
+    public Name: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public DebtCollectionSettings: DebtCollectionSettings;
     public CustomFields: any;
 }
 
@@ -7681,7 +7723,7 @@ export enum ReportType{
 }
 
 
-export enum StatusCodeJournalEntryLine {
+export enum StatusCodeJournalEntryLine{
     Open = 31001,
     PartlyMarked = 31002,
     Marked = 31003,
@@ -7804,6 +7846,7 @@ export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
 }
+
 
 export enum StatusCodeJournalEntryLineDraft{
     Journaled = 34001,

@@ -9,3 +9,8 @@
     [settings]="settings$ | async"
     (change)="onChange($event)">
 </reminder-rules>
+
+<debt-collection-settings
+    [settings]="settings$ | async"
+    (change)="onChange($event)">
+</debt-collection-settings>
