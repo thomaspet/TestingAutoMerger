@@ -50,6 +50,10 @@ export class StatisticsService extends BizHttp<string> {
             });
     }
 
+    public GetHttp(): UniHttp {
+        return this.http;
+    }
+
     public GetAllUnwrapped(queryString: string): Observable<[any]> {
         return this.GetAll(queryString)
             .map(response => response.Data);

@@ -8,6 +8,8 @@ import { ErrorService, YearService, ReportDefinitionParameterService, Statistics
 import { ReportDefinitionParameter, ReportDefinition, LocalDate } from '@uni-entities';
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import { UniReportComments, ReportCommentConfig, ReportCommentSetup } from '@app/components/reports/modals/parameter/reportComments';
+import { UniModalService } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-report-params-modal',
@@ -32,17 +34,31 @@ import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-mod
             </article>
 
             <footer>
-                <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                    {{options.buttonLabels.accept}}
-                </button>
+                <table style="width: 100%"><tr>
 
-                <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
-                    {{options.buttonLabels.reject}}
-                </button>
+                <td style="text-align: left">
+                    <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
+                        Kommentarer ({{comments?.length}})
+                    </button>
+                </td>
 
-                <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                    {{options.buttonLabels.cancel}}
-                </button>
+                <td style="text-align:right">
+
+                    <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
+                        {{options.buttonLabels.accept}}
+                    </button>
+
+                    <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
+                        {{options.buttonLabels.reject}}
+                    </button>
+
+                    <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
+                        {{options.buttonLabels.cancel}}
+                    </button>
+
+                </td>
+
+                </tr></table>
             </footer>
         </section>
     `
@@ -55,6 +71,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     model$: BehaviorSubject<any> = new BehaviorSubject({});
+    commentConfig: ReportCommentConfig;
+    comments: any[];
 
     private hasParameterDependency: boolean = false;
     private report: ExtendedReportDefinition;
@@ -64,6 +82,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private yearService: YearService,
+        private uniModalService: UniModalService
     ) { }
 
     accept() {
@@ -134,8 +153,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     onChangeEvent(changes: SimpleChanges) {
+        const changedParamName: string = Object.keys(changes)[0];
         if (this.hasParameterDependency) {
-            const changedParamName: string = Object.keys(changes)[0];
             const changedParam = this.report.parameters.find(param => param.Name === changedParamName);
             changedParam.value = changes[changedParamName].currentValue;
 
@@ -153,6 +172,9 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     }
                     this.fields$.next(fields);
                 });
+        }
+        if (this.commentConfig && this.commentConfig.filter.indexOf(`{${changedParamName}}`) >= 0) {
+            this.loadComments();
         }
     }
 
@@ -176,7 +198,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 }
 
                 // This should be set as standard for reports?
-                if (parameter.Name === 'System_PeriodAccountYear' || parameter.Name === 'PeriodAccountYear') {
+                if (parameter.Name === 'System_PeriodAccountYear' || parameter.Name === 'PeriodAccountYear' || parameter.Name === 'yr') {
                     this.yearService.getActiveYear().subscribe(year => params[i].value = '' + year);
                 }
 
@@ -233,15 +255,15 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     private generateFields(param: ExtendedReportDefinitionParameter): UniFieldLayout {
-        switch (param.Type) {
-            case 'Number':
+        switch (param.Type ? param.Type.toLowerCase() : '') {
+            case 'number':
                 return <UniFieldLayout>{
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.NUMERIC,
                     Options: undefined,
                 };
-            case 'Boolean':
+            case 'boolean':
                 param.DefaultValue = <any>(param.DefaultValue === 'true' || param.DefaultValue === '1');
                 param.value = param.DefaultValue;
                 return <UniFieldLayout>{
@@ -250,7 +272,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     FieldType: FieldType.CHECKBOX,
                     Options: undefined,
                 };
-            case 'Dropdown':
+            case 'dropdown':
                 param.value = param.value || param.DefaultValue;
                 if (param.DefaultValueList.includes('/api/statistics')) {
                     return <UniFieldLayout>{
@@ -281,7 +303,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         },
                     };
                 }
-            case 'Date':
+            case 'date':
                 param.value = param.DefaultValue || new LocalDate();
                 return <UniFieldLayout>{
                     Property: param.Name,
@@ -289,6 +311,9 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Options: undefined,
                 };
+            case 'comment':
+                this.commentConfig = this.commentConfig || { filter: param.DefaultValueLookupType };
+                break;
             default:
                 return <UniFieldLayout>{
                     Property: param.Name,
@@ -312,9 +337,47 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         model[field.Name] = field.value;
                     });
                     this.model$.next(model);
+                    this.loadComments();
                     this.busy = false;
                 }, err => this.errorService.handle(err));
         }
+    }
+
+    private loadComments() {
+        if (!this.commentConfig) { return; }
+        let filter = this.commentConfig.filter;
+        let id: any = '0';
+        if (filter.indexOf('{') >= 0) {
+            filter = this.replaceParamWithValue(filter, this.report.parameters);
+        }
+        if (filter.indexOf('/') >= 0) {
+            const parts = filter.split('/');
+            if (parts.length === 2) {
+                id = parts[1];
+                filter = parts[0];
+            }
+        }
+        this.commentConfig.entity = filter;
+        this.commentConfig.id = id;
+        this.commentConfig.companyKey = this.report.companyKey;
+        const query = `model=comment&select=id as ID,text as Text&filter=entitytype eq '${filter}' and entityid eq '${id}'`;
+        this.statisticsService.GetAllForCompany(query, this.report.companyKey)
+            .subscribe( x => {
+                x.Data.map(cm => cm.Text = decodeURI(cm.Text));
+                this.comments = x.Data;
+            });
+    }
+
+    public editComments() {
+        this.uniModalService.open(UniReportComments,
+            {   data: <ReportCommentSetup>{ config: this.commentConfig, comments: this.comments },
+                header: `Rediger kommentarer` + (this.commentConfig.id ? ` for ${this.commentConfig.id}` : ''),
+                message: 'Kommentarer'
+            }).onClose.subscribe(modalResult => {
+                if (modalResult === ConfirmActions.ACCEPT) {
+
+                }
+            });
     }
 
     private loadParams(report: ExtendedReportDefinition): Observable<ExtendedReportDefinitionParameter[]> {
