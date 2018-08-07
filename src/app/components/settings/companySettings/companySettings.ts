@@ -304,8 +304,6 @@ export class CompanySettingsComponent implements OnInit {
                         Template: ''
                     };
               
-                this.hasBoughtEHF = dataset[15];
-
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
                     orderTemplate: this.orderTemplate,
@@ -313,9 +311,9 @@ export class CompanySettingsComponent implements OnInit {
                     quoteTemplate: this.quoteTemplate
                 });
 
-                this.quoteFormList = dataset[16];
-                this.orderFormList = dataset[17];
-                this.invoiceFormList = dataset[18];
+                this.quoteFormList = dataset[15];
+                this.orderFormList = dataset[16];
+                this.invoiceFormList = dataset[17];
                 this.debtCollectionAutomations = dataset[19];
 
                 // do this after getting emptyPhone/email/address

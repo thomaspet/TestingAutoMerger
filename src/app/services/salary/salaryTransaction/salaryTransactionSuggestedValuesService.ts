@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {EmploymentService} from '../employee/employmentService';
-import {PayrollrunService} from '../payrollRun/payrollrunService';
+import {PayrollrunService} from '../payrollrun/payrollrunService';
 import {SalaryTransaction, LocalDate, Account, VatType} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import * as moment from 'moment';

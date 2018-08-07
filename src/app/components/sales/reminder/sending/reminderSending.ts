@@ -54,10 +54,10 @@ export class ReminderSending implements OnInit {
     @Input() modalMode: boolean;
     @ViewChildren(UniTable) private tables: QueryList<UniTable>;
 
-    remindersEmail: CustomReminder[];
-    remindersPrint: CustomReminder[];
+    public remindersEmail: CustomReminder[];
+    public remindersPrint: CustomReminder[];
     private remindersAll: CustomReminder[];
-    reminderTable: UniTableConfig;
+    private reminderTable: UniTableConfig;
     private reminderQuery: string = 'model=CustomerInvoiceReminder&select=ID as ID,StatusCode as StatusCode,'
         + 'DueDate as DueDate,ReminderNumber as ReminderNumber,ReminderFeeCurrency as ReminderFeeCurrency,'
         + 'InterestFeeCurrency as InterestFeeCurrency,CustomerInvoice.ID as InvoiceID,CustomerInvoice.InvoiceNumber as InvoiceNumber,'
