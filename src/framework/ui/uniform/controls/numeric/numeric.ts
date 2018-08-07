@@ -83,8 +83,8 @@ export class UniNumericInput extends BaseControl implements OnChanges {
             const previousValue = _.get(this.model, this.field.Property);
             const newValue = this._parseValue(this.control.value);
 
-            this.emitChange(previousValue, newValue);
             _.set(this.model, this.field.Property, newValue);
+            this.emitChange(previousValue, newValue);
 
             this.control.setValue(this.format(newValue));
             this.control.markAsPristine();
