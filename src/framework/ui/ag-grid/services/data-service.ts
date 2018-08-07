@@ -488,10 +488,6 @@ export class TableDataService {
     }
 
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
-        if (filters) {
-            filters = filters.filter(f => !!f.searchValue);
-        }
-
         if (!filters || !filters.length) {
             return '';
         }
