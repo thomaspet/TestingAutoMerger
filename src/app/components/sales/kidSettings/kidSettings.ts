@@ -234,10 +234,9 @@ export class KIDSettings {
             <any> {
                 EntityType: 'PaymentInfoType',
                 Property: '_type',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.STATIC_TEXT,
                 Label: 'KID-type',
                 Section: 0,
-                ReadOnly: true,
             },
             <any> {
                 EntityType: 'PaymentInfoType',
