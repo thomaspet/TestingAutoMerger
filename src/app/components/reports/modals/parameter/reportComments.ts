@@ -1,7 +1,7 @@
-import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter } from '@angular/core';
+import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, ViewChild } from '@angular/core';
 import { ErrorService, StatisticsService } from '@app/services/services';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs/Observable';
 
 export interface ReportComment {
@@ -57,7 +57,7 @@ export interface ReportCommentSetup {
 export class UniReportComments implements IUniModal, OnInit {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
-
+    @ViewChild(UniTable) private uniTable: UniTable;
     busy: boolean = false;
     data: ReportCommentSetup;
     tableConfig: UniTableConfig;
@@ -89,6 +89,8 @@ export class UniReportComments implements IUniModal, OnInit {
     }
 
     commitChanges(): Promise<boolean> {
+
+        this.uniTable.blur();
 
         return new Promise( (resolve, reject) => {
             let todo = 0;
