@@ -35,6 +35,6 @@ export class EHFService extends BizHttp<EHFLog> {
 
     public isActivated(format: string): boolean {
         var settings = this.companySettings$.getValue();
-        return settings.APActivated && settings.APOutgoing.some(f => f.Name === format);
+        return settings.APActivated && settings.APOutgoing && settings.APOutgoing.some(f => f.Name === format);
     }
 }
