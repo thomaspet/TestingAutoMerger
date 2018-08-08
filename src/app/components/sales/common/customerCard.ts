@@ -196,6 +196,11 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                 this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
                 this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
             }
+
+            if (customer && customer.DefaultSellerID) {
+                this.entity.DefaultSellerID = customer.DefaultSellerID;
+                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller);
+            }
         }
     }
 
