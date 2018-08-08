@@ -13,6 +13,10 @@ export class DateUtil {
             day = split[0];
             month = +split[1] - 1;
             year = split[2] || currentYear || date.getFullYear();
+
+            if (split[2] && split[2].length === 2) {
+                year = parseInt(date.getFullYear().toString().substr(0, 2) + split[2], 10);
+            }
         } else {
             const input = inputValue.replace(/[^0-9]/g, '');
             switch (input.length) {
