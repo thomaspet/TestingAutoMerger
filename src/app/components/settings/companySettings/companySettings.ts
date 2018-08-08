@@ -15,7 +15,6 @@ import {
     CompanySettings,
     CompanyType,
     CurrencyCode,
-    DebtCollectionAutomation,
     Email,
     FinancialYear,
     Municipal,
@@ -36,7 +35,6 @@ import {
     CompanyTypeService,
     CurrencyCodeService,
     CurrencyService,
-    DebtCollectionAutomationService,
     EHFService,
     EmailService,
     ErrorService,
@@ -107,7 +105,6 @@ export class CompanySettingsComponent implements OnInit {
     private savedCompanyOrgValue: string;
 
     private companyTypes: Array<CompanyType> = [];
-    private debtCollectionAutomations: Array<DebtCollectionAutomation> = [];
     private vatReportForms: Array<VatReportForm> = [];
     private currencyCodes: Array<CurrencyCode> = [];
     private accountYears: Array<FinancialYear> = [];
@@ -189,7 +186,6 @@ export class CompanySettingsComponent implements OnInit {
         private accountGroupSetService: AccountGroupSetService,
         private periodeSeriesService: PeriodSeriesService,
         private companyTypeService: CompanyTypeService,
-        private debtCollectionAutomationService: DebtCollectionAutomationService,
         private vatReportFormService: VatReportFormService,
         private vatTypeService: VatTypeService,
         private municipalService: MunicipalService,
@@ -268,8 +264,7 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getQuoteTemplateText(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
-            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
-            this.debtCollectionAutomationService.GetAll(null),
+            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -314,7 +309,6 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[15];
                 this.orderFormList = dataset[16];
                 this.invoiceFormList = dataset[17];
-                this.debtCollectionAutomations = dataset[19];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -800,15 +794,6 @@ export class CompanySettingsComponent implements OnInit {
             source: this.companyTypes,
             valueProperty: 'ID',
             displayProperty: 'FullName',
-            debounceTime: 200
-        };
-
-        this.debtCollectionAutomations.unshift(null);
-        const debtCollectionAutomationID: UniFieldLayout = fields.find(x => x.Property === 'DebtCollectionAutomationID');
-        debtCollectionAutomationID.Options = {
-            source: this.debtCollectionAutomations,
-            valueProperty: 'ID',
-            displayProperty: 'Manual',
             debounceTime: 200
         };
 
@@ -1690,8 +1675,12 @@ export class CompanySettingsComponent implements OnInit {
     private isProductBought(name: string): Observable<boolean> {
         return this.elsaProductService.FindProductByName(name)
             .switchMap(product => {
-                return this.elsaPurchasesService.GetAll()
-                    .map(purchases => purchases.some(purchase => purchase.productID === product.id));
+                return !product
+                    ? Observable.of(false) 
+                    : this.elsaPurchasesService.GetAll()
+                        .map(purchases => {
+                            return purchases.some(purchase => purchase.productID === product.id);
+                        });
         });
     }
 
