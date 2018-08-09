@@ -91,17 +91,6 @@ export class AccountDetails implements OnInit {
         vattype.Options = {
             source: this.vattypes,
             valueProperty: 'ID',
-            displayProperty: 'VatCode',
-            debounceTime: 200,
-            search: (searchValue: string = '') => {
-                if (!searchValue) {
-                    return [this.vattypes];
-                } else {
-                    return [this.vattypes.filter((vt) => vt.VatCode === searchValue
-                        || vt.VatPercent.toString() === searchValue
-                        || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0)];
-                }
-            },
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
 
@@ -238,7 +227,7 @@ export class AccountDetails implements OnInit {
                     Legend: 'Konto',
                     EntityType: 'Account',
                     Property: 'VatTypeID',
-                    FieldType: FieldType.AUTOCOMPLETE,
+                    FieldType: FieldType.DROPDOWN,
                     Label: 'Mvakode',
                 },
                 {
