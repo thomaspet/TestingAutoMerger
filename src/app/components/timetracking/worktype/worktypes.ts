@@ -40,7 +40,7 @@ export class WorktypeListview {
                 .setWidth('25%')
                 .setFilterOperator('startswith'),
             new UniTableColumn('SystemType', 'Type', UniTableColumnType.Text)
-                .setFilterOperator('eq')
+                .setFilterable(false)
                 .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  )
                 .setWidth('15%'),
             new UniTableColumn('Product.PartName', 'Produktnr.', UniTableColumnType.Text)
