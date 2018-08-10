@@ -152,6 +152,34 @@ export class NumberSeries {
         });
     }
 
+    findAndSetNextNumberOnNumberSeries(done, seriesID: number) {
+        this.modalService.open(UniConfirmModalV2,
+        {
+            buttonLabels: { accept: 'Ja', reject: 'Nei' },
+            header: 'Resette neste nummer på denne nummerserien?',
+            message: 'Vil du sette neste ledige nummer på denne nummserien? ' +
+                'Nummerserien vil får neste nummer som er det neste etter det høyeste brukte nummer i serien'
+        }).onClose.subscribe(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                this.busy = true;
+                this.numberSeriesService.findAndSetNextNumber(seriesID).subscribe(
+                    () => {
+                        this.toastService.addToast('Neste nummer er oppdatert på nummerserien', ToastType.good, 5);
+                        done('Neste nummer er oppdatert på nummerserier');
+                        this.requestNumberSerie();
+                    },
+                    err => {
+                        this.errorService.handle(err);
+                        done('En feil oppstod ved oppdatering av neste nummer');
+                    },
+                    () => this.busy = false
+                );
+            } else {
+                done('');
+            }
+        });
+    }
+
     private setCurrent(t: any) {
         if (this.uniTables) {
             this.uniTables.last.blur();
@@ -535,6 +563,17 @@ export class NumberSeries {
                                 err => this.errorService.handle(err),
                         );
                     }
+                },
+                {
+                    label: 'Finn neste ledige nr',
+                    action: (serie) => {
+                        this.numberSeriesService.findAndSetNextNumber(serie.ID)
+                            .subscribe(() => {
+                                    this.toastService.addToast('Neste nr', ToastType.good, 7, 'Neste nummer satt på nummerserie.');
+                                    this.requestNumberSerie();
+                                }
+                            );
+                    }
                 }
             ])
             .setConditionalRowCls(
@@ -617,19 +656,14 @@ export class NumberSeries {
                     }
                 },
                 {
-                    label: 'Vis ledige numre i serien',
+                    label: 'Finn neste ledige nr',
                     action: (serie) => {
-                        this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
-                            .subscribe(
-                                numberIntervals =>
-                                    this.modalService.open(UniConfirmModalV2,
-                                        {
-                                            buttonLabels: { accept: 'OK' },
-                                            header: 'Ledige nummer i nummerserie',
-                                            message: numberIntervals.join(', '),
-                                        }),
-                                err => this.errorService.handle(err),
-                        );
+                        this.numberSeriesService.findAndSetNextNumber(serie.ID)
+                            .subscribe(() => {
+                                    this.toastService.addToast('Neste nr', ToastType.good, 7, 'Neste nummer satt på nummerserie.');
+                                    this.requestNumberSerie();
+                                }
+                            );
                     }
                 }
             ])
@@ -726,6 +760,17 @@ export class NumberSeries {
                                     err => this.errorService.handle(err),
                             );
                         }
+                    },
+                    {
+                        label: 'Finn neste ledige nr',
+                        action: (serie) => {
+                            this.numberSeriesService.findAndSetNextNumber(serie.ID)
+                            .subscribe(() => {
+                                    this.toastService.addToast('Neste nr', ToastType.good, 7, 'Neste nummer satt på nummerserie.');
+                                    this.requestNumberSerie();
+                                }
+                            );
+                        }
                     }
                 ])
             .setChangeCallback(event => this.onRowChanged(event))
@@ -781,6 +826,17 @@ export class NumberSeries {
                                             message: numberIntervals.join(', '),
                                         }),
                                 err => this.errorService.handle(err),
+                        );
+                    }
+                },
+                {
+                    label: 'Finn neste ledige nr',
+                    action: (serie) => {
+                        this.numberSeriesService.findAndSetNextNumber(serie.ID)
+                        .subscribe(() => {
+                                this.toastService.addToast('Neste nr', ToastType.good, 7, 'Neste nummer satt på nummerserie.');
+                                this.requestNumberSerie();
+                            }
                         );
                     }
                 }
