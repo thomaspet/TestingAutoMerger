@@ -672,14 +672,7 @@
         {
             "FieldSetColumn": 1,
             "Header": "Kundenr.",
-            "Field": "Customer.CustomerNumber",
-            "SubFields": [
-                {
-                    "Field": "CustomerID",
-                    "Alias": "CustomerID",
-                    "DefaultHidden": true
-                }
-            ]
+            "Field": "Customer.CustomerNumber"
         },
         {
             "FieldSetColumn": 1,
@@ -1245,14 +1238,7 @@
         {
             "FieldSetColumn": 1,
             "Header": "Kundenr.",
-            "Field": "Customer.CustomerNumber",
-            "SubFields": [
-                {
-                    "Field": "Customer.ID",
-                    "Alias": "CustomerID",
-                    "DefaultHidden": true
-                }
-            ]
+            "Field": "Customer.CustomerNumber"
         },
         {
             "FieldSetColumn": 1,
@@ -1799,14 +1785,7 @@
         {
             "FieldSetColumn": 1,
             "Header": "Kundenr.",
-            "Field": "Customer.CustomerNumber",
-            "SubFields": [
-                {
-                    "Field": "CustomerID",
-                    "Alias": "CustomerID",
-                    "DefaultHidden": true
-                }
-            ]
+            "Field": "Customer.CustomerNumber"
         },
         {
             "FieldSetColumn": 1,
