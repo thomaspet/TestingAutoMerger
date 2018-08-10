@@ -34,18 +34,34 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
     }
 
     getCustomerInvoicesReadyForReminding(includeInvoiceWithReminderStop: boolean): Observable<any> {
-        return this.GetAction(null, `get-customer-invoices-ready-for-reminding&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}` );
+        return this.GetAction
+            (null, `get-customer-invoices-ready-for-reminding&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}` );
     }
 
     getCustomerInvoicesReadyForDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
-        return this.GetAction(null, `get-customer-invoices-ready-for-debt-collection&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}`);
+        return this.GetAction
+            (null, `get-customer-invoices-ready-for-debt-collection&includeInvoiceWithReminderStop=${includeInvoiceWithReminderStop}`);
     }
 
     getCustomerInvoicesSentToDebtCollection(includeInvoiceWithReminderStop: boolean): Observable<any> {
         return this.GetAction(null, 'get-customer-invoices-sent-to-debt-collection');
     }
 
-    createInvoiceRemindersForInvoicelist(list: number[]): Observable<any> {
+    getCustomerInvoiceReminderList(id: number) {
+        return this.GetAll(`filter=CustomerInvoiceID eq '${id}'`);
+    }
+
+    checkCustomerInvoiceReminders(id: number) {
+        return this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint
+                (`?model=customerinvoicereminder&select=ID,CustomerInvoiceID,RunNumber as RunNumber,ReminderNumber as ReminderNumber,StatusCode&filter=CustomerInvoiceID eq '${id}'&top=1&orderby=ReminderNumber desc`)
+            .send()
+            .map(res => res.json());
+    }
+
+    createInvoiceRemindersForInvoicelist(list: number[]) {
         return this.ActionWithBody(null, list, `create-invoicereminders-for-invoicelist`, RequestMethod.Post);
     }
 
@@ -75,8 +91,8 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
             ToastType.warn,
             ToastTime.forever
         );
-     
-        var obs = this.ActionWithBody(null, list, `send-invoice-print`, RequestMethod.Put);
+
+        const obs = this.ActionWithBody(null, list, `send-invoice-print`, RequestMethod.Put);
         return obs.map(() => {
             this.toastService.removeToast(this.invoicePrintToast);
             this.toastService.addToast(
@@ -92,7 +108,7 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
     }
 
     getStatusText(statusCode: number): string {
-        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+        const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
 }

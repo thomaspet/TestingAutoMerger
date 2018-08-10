@@ -520,7 +520,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private sendEHFAction(doneHandler: (msg: string) => void = null) { 
+    private sendEHFAction(doneHandler: (msg: string) => void = null) {
         if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
             this.askSendEHF(doneHandler);
         } else {
@@ -1272,7 +1272,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
-                disabled: () => this.invoice.DontSendReminders || this.invoice.StatusCode === StatusCode.Completed
+                disabled: () =>
+                    this.invoice.DontSendReminders ||
+                    this.invoice.StatusCode === StatusCode.Completed ||
+                    this.invoice.StatusCode === 42004
             },
             {
                 label: 'Distribuer',
@@ -1712,12 +1715,65 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendReminderAction(): Observable<any> {
-        return this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist([this.invoice.ID])
-            .switchMap((reminders) => {
-                return this.modalService.open(UniReminderSendingModal, {
-                    data: reminders
-                }).onClose;
+        return Observable.create((obs) => {
+            this.customerInvoiceReminderService.checkCustomerInvoiceReminders(this.invoice.ID).subscribe((reminderList) => {
+                if (reminderList && reminderList.Data && reminderList.Data.length) {
+                    const options: IModalOptions = {
+                        buttonLabels: {
+                            accept: 'Kjør ny purring',
+                            reject: 'Åpne aktiv purring',
+                            cancel: 'Avbryt'
+                        },
+                        header: 'Faktura har aktiv purring',
+                        message: 'Denne faktura har en aktiv purring. Vil du åpne den og sende den på nytt, eller kjøre ny purrejobb?'
+                    };
+                    this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((result: ConfirmActions) => {
+                        if (result === ConfirmActions.CANCEL) {
+                            obs.complete();
+                        } else if (result === ConfirmActions.ACCEPT) {
+                            this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist
+                                ([this.invoice.ID]).subscribe((reminders) => {
+                                return this.modalService.open(UniReminderSendingModal, {
+                                        data: reminders
+                                    }).onClose.subscribe((res) => {
+                                    obs.complete();
+                                    this.updateRemindersOnInvoice();
+                                    });
+                                }, (err) => {
+                                    this.toastService.addToast(
+                                        'Purring ikke laget', ToastType.bad, 5, 'Kunne ikke lage purring. Er maks antall purringer nådd?');
+                                    obs.complete();
+                                });
+                        } else {
+                            return this.modalService.open(UniReminderSendingModal, {data: reminderList.Data}).onClose.subscribe((res) => {
+                               obs.complete();
+                            });
+                        }
+                    });
+                } else {
+                    this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist
+                    ([this.invoice.ID]).subscribe((reminders) => {
+                    return this.modalService.open(UniReminderSendingModal, {
+                            data: reminders
+                        }).onClose.subscribe((res) => {
+                        obs.complete();
+                        this.updateRemindersOnInvoice();
+                        });
+                    }, (err) => {
+                        this.toastService.addToast(
+                            'Purring ikke laget', ToastType.bad, 5, 'Kunne ikke lage purring. Er maks antall purringer nådd?');
+                        obs.complete();
+                    });
+                }
             });
+        });
+
+    }
+
+    private updateRemindersOnInvoice() {
+        this.customerInvoiceReminderService.getCustomerInvoiceReminderList(this.invoice.ID).subscribe((res) => {
+            this.invoice.CustomerInvoiceReminders = res;
+        });
     }
 
     private distribute() {
