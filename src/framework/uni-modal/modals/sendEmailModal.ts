@@ -96,7 +96,7 @@ export class UniSendEmailModal implements IUniModal {
                 const companySettings: CompanySettings = res[0] || {};
                 const user = res[1];
                 const customer = res[2];
-                this.formList = res[3];
+                this.formList = res[3] || [];
                 this.selectedReport = this.options.data.form
                     || this.formList.find(x => x.ID === companySettings[`Default${sendEmail.EntityType}ReportID`]);
                 this.parameterName = this.options.data.parameters[0].Name;
@@ -125,10 +125,14 @@ export class UniSendEmailModal implements IUniModal {
 
     public close(emitValue?: boolean) {
         if (emitValue) {
-            const value = this.parameterName === 'Id'
-                ? this.options.data.entity[this.parameterName.toUpperCase()]
-                : this.options.data.entity[this.parameterName];
-            const parameters = [{ Name: this.parameterName, value }];
+            let parameters = this.options.data.parameters;
+            if (this.options.data.entity) {
+                const value = this.parameterName === 'Id'
+                    ? this.options.data.entity[this.parameterName.toUpperCase()]
+                    : this.options.data.entity[this.parameterName];
+                parameters = [{ Name: this.parameterName, value }];
+            }
+
             const model = this.formModel$.getValue();
 
             if (model.selectedForm.parameters) {

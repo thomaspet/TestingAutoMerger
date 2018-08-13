@@ -49,6 +49,7 @@ import {
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {UniReportProgressComponent} from '@app/components/reports/modals/preview/uniReportProgress.component';
 import { UniReportComments } from '@app/components/reports/modals/parameter/reportComments';
+import { UniReportSendModal } from '@app/components/reports/modals/parameter/reportSendModal';
 
 @NgModule({
     imports: [
@@ -84,6 +85,7 @@ import { UniReportComments } from '@app/components/reports/modals/parameter/repo
         ReconciliationListParamsModalComponent,
         UniReportProgressComponent,
         UniReportComments,
+        UniReportSendModal,
     ],
     entryComponents: [
         BalanceReportFilterForm,
@@ -98,6 +100,7 @@ import { UniReportComments } from '@app/components/reports/modals/parameter/repo
         UniPrintModal,
         ReconciliationListParamsModalComponent,
         UniReportComments,
+        UniReportSendModal,
     ],
     exports: [
         UniReports,

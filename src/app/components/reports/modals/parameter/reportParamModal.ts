@@ -9,12 +9,15 @@ import { ReportDefinitionParameter, ReportDefinition, LocalDate } from '@uni-ent
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { UniReportComments, ReportCommentConfig, ReportCommentSetup } from '@app/components/reports/modals/parameter/reportComments';
+import { UniReportSendModal } from './reportSendModal';
 import { UniModalService } from '@uni-framework/uni-modal';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-report-params-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 33vw">
+        <section role="dialog" class="uni-modal" style="width: 36vw">
             <header>
                 <h1 class="new">{{options.header}}</h1>
             </header>
@@ -31,25 +34,25 @@ import { UniModalService } from '@uni-framework/uni-modal';
                     [config]="formConfig$"
                     (changeEvent)="onChangeEvent($event)">
                 </uni-form>
+
             </article>
 
             <footer>
                 <table style="width: 100%"><tr>
 
-                <td style="text-align: left">
+                <td class="nowrap left">
+
+                    <button class="good btn-left" (click)="openSendDialog()">Epost</button>
+
                     <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
                         Kommentarer ({{comments?.length}})
                     </button>
                 </td>
 
-                <td style="text-align:right">
+                <td class="nowrap right">
 
                     <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
                         {{options.buttonLabels.accept}}
-                    </button>
-
-                    <button *ngIf="options.buttonLabels.reject" class="bad" (click)="reject()">
-                        {{options.buttonLabels.reject}}
                     </button>
 
                     <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
@@ -82,10 +85,11 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private yearService: YearService,
-        private uniModalService: UniModalService
+        private uniModalService: UniModalService,
+        private toastService: ToastService,
     ) { }
 
-    accept() {
+    fetchEditetParameters() {
         const model = this.model$.getValue();
 
         this.report.parameters.map(param => {
@@ -127,7 +131,10 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 param.value = model[param.Name];
             }
         });
+    }
 
+    accept() {
+        this.fetchEditetParameters();
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
@@ -380,6 +387,112 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             });
     }
 
+    public openSendDialog() {
+        this.fetchEditetParameters();
+        const isForm = !!this.report.ReportType;
+        const formKey = this.report.parameters.length > 0 ? this.report.parameters[0].value : 0;
+        const formKeyLabel = isForm && this.report.parameters.length > 0 ? ` ${this.report.parameters[0].value}` : '';
+        const params = this.report.parameters.map( x => ({ Name: x.Name, value: x.value }));
+        const options = {
+            data: {
+                model: {
+                    Subject: `${this.report.Name}${formKeyLabel}`,
+                    Message: `Vedlagt finner du '${this.report.Name}${formKeyLabel}'`,
+                    ReportDefinition: this.report.Name
+                },
+                parameters: params,
+                form: { Name: this.report.Name },
+                company: this.report.company ? { CompanyName: this.report.company.Name } : undefined
+            }
+        };
+        this.uniModalService.open(UniReportSendModal, options)
+            .onClose.subscribe(email => {
+                if (email) {
+                    email.EntityType = this.getEntityTypeFromReport(this.report);
+                    email.EntityID = formKey;
+                    this.sendReport(
+                        this.report.Name,
+                        email,
+                        params
+                    );
+                }
+            });
+    }
+
+    private sendReport(name: string, details: any, parameters = null) {
+
+        const http = this.statisticsService.GetHttp();
+        const companyKey = this.report.companyKey;
+        const route = 'emails/?action=send';
+
+        const toast = this.toastService.addToast(
+            'Sender e-post til ' + details.EmailAddress,
+            ToastType.warn, 0,
+            details.Subject
+        );
+
+        if (!parameters) {
+            parameters = [];
+            parameters.push({ Name: 'Id', value: details.EntityID });
+        }
+
+        parameters.push({
+            Name: 'LogoUrl',
+            value: environment.BASE_URL_FILES
+                + 'api/image/?key='
+                + http.authService.getCompanyKey() + '&id=logo'
+        });
+
+        const email = {
+            ToAddresses: [details.EmailAddress],
+            CopyAddress: details.SendCopy ? details.CopyAddress : '',
+            Subject: details.Subject,
+            Message: details.Message,
+            ReportName: name,
+            Parameters: parameters,
+            EntityType: details.EntityType,
+            EntityID: details.EntityID
+        };
+
+        if (companyKey) { http.appendHeaders({ CompanyKey: companyKey}); }
+        return http
+            .usingBusinessDomain()
+            .asPOST()
+            .withEndPoint(route)
+            .withBody(email)
+            .send({}, undefined, !companyKey)
+            .map(response => response.json())
+            .subscribe((success) => {
+            this.toastService.removeToast(toast);
+            if (success) {
+                this.toastService.addToast('E-post sendt', ToastType.good, ToastTime.short);
+            } else {
+                this.toastService.addToast('E-post ikke sendt',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Feilet i oppretting av jobb'
+                );
+            }
+        }, err => {
+            this.errorService.handle(err);
+        });
+
+    }
+
+
+    private getEntityTypeFromReport(report: ExtendedReportDefinition) {
+        switch (report.ReportType) {
+            // case 1:
+            //     return 'CustomerInvoice';
+            // case 2:
+            //     return 'CustomerOrder';
+            // case 3:
+            //     return 'CustomerQuote';
+            default:
+                return report.Name;
+        }
+    }
+
     private loadParams(report: ExtendedReportDefinition): Observable<ExtendedReportDefinitionParameter[]> {
         return this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
             .map(params => {
@@ -462,4 +575,5 @@ interface ExtendedReportDefinitionParameter extends ReportDefinitionParameter {
 interface ExtendedReportDefinition extends ReportDefinition {
     parameters?: ExtendedReportDefinitionParameter[];
     companyKey?: string;
+    company?: any;
 }
