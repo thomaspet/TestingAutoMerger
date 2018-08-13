@@ -187,10 +187,11 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
         }
 
         report.companyKey = this.company.Key;
+        report.company = this.company;
         this.uniModalService.open(UniReportParamsModal,
             {   data: report,
                 header: `${this.company.Name} : ${report.Name}`,
-                message: report.Description
+                message: report.Description,
             }).onClose.subscribe(modalResult => {
                 if (modalResult === ConfirmActions.ACCEPT) {
                     this.uniModalService.open(UniPreviewModal, {
