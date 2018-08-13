@@ -210,9 +210,9 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                 const vatType = rowModel.VatType;
                 return `${vatType.VatCode}:${vatType.VatPercent}%`;
             });
-        let cols = [nameCol, accountCol, sumCol];
+        let cols = [nameCol, accountCol, vat, sumCol];
         if (hasGrouping) {
-            cols = [...cols, vat, department, project];
+            cols = [...cols, department, project];
         }
         this.accountTableConfig = new UniTableConfig('salary.payrollrun.postingSummaryModalContent', false, false)
             .setColumns(cols)
