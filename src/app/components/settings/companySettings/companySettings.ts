@@ -868,7 +868,7 @@ export class CompanySettingsComponent implements OnInit {
         apActivated.Options.class = this.ehfService.isActivated('EHF INVOICE 2.0') ? 'good' : '';
 
         const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
-        invoicePrint.Label = this.hasBoughtInvoicePrint ? (this.ehfService.isActivated("NETSPRINT") ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint') : 'Fakturaprint på markedsplas';
+        invoicePrint.Label = this.hasBoughtInvoicePrint ? (this.ehfService.isActivated("NETSPRINT") ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint') : 'Fakturaprint på markedsplassen';
         invoicePrint.Options.class = this.ehfService.isActivated("NETSPRINT") ? 'good' : '';
 
         this.fields$.next(fields);
