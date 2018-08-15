@@ -76,7 +76,7 @@ export class WageTypeSettings extends UniView {
         return Observable
             .forkJoin(this.getSources(wagetype))
             .map((response: any) => {
-                let [layout, limitTypes, used] = response;
+                const [layout, limitTypes, used] = response;
                 layout.Fields = this.wagetypeService.manageReadOnlyIfCalculated(layout.Fields, used);
                 if (layout.Fields) {
                     this.fields$.next(layout.Fields);
@@ -119,7 +119,7 @@ export class WageTypeSettings extends UniView {
 
 
     private getSources(wagetype: WageType): any {
-        let source =  [
+        const source =  [
             this.wagetypeService.specialSettingsLayout('wagetypeSettings', this.wagetypeService.GetAll(null)),
             this.wagetypeService.getLimitTypes()
         ];
@@ -149,6 +149,10 @@ export class WageTypeSettings extends UniView {
                     hideFromPaycheck.ReadOnly = !!(wagetype.Base_Payment ||
                         wagetype.taxtype === TaxType.Tax_Percent ||
                         wagetype.taxtype === TaxType.Tax_Table);
+                });
+
+                this.editField(fields, 'Systemtype', systype => {
+                    systype.ReadOnly = true;
                 });
 
                 return fields;

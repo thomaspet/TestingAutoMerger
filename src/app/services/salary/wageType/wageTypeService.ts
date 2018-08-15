@@ -193,16 +193,13 @@ export class WageTypeService extends BizHttp<WageType> {
                 {
                     EntityType: 'wagetype',
                     Property: 'WageTypeNumber',
-                    FieldType: FieldType.NUMERIC,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     Label: 'Nr',
                     FieldSet: 1,
                     Legend: 'Lønnsart',
                     Section: 0,
-                    Placeholder: 'La stå tom for neste ledige',
-                    Options: {
-                        format: 'none'
-                    }
+                    Placeholder: 'La stå tom for neste ledige'
                 },
                 {
                     EntityType: 'wagetype',
@@ -373,7 +370,8 @@ export class WageTypeService extends BizHttp<WageType> {
                         FieldType: FieldType.CHECKBOX,
                         Label: 'Trekk i fastlønn for ferie',
                         Tooltip: {
-                            Text: 'Kryss av dersom du ønsker trekk (negativ post) på lønnsarten når du på lønnsavregningen har krysset av for Trekk i fastlønn for ferie.',
+                            Text: `Kryss av dersom du ønsker trekk (negativ post)
+                             på lønnsarten når du har krysset av for 'Trekk i fastlønn for ferie' på lønnsavregningen.`,
                         },
                         FieldSet: 1,
                         Legend: 'Innstillinger',
@@ -396,7 +394,8 @@ export class WageTypeService extends BizHttp<WageType> {
                         FieldType: FieldType.DROPDOWN,
                         LookupField: 'Name',
                         Tooltip: {
-                            Text: 'Lønnsarter som brukes til spesielle ting, for eksempel skatt, ferie og lignende må settes opp med korrekt type her.',
+                            Text: `Lønnsarter som brukes til spesielle ting, for eksempel skatt,
+                             ferie og lignende må settes opp med korrekt type her.`,
                         },
                         Label: 'Systemets lønnsart',
                         FieldSet: 1,
@@ -407,6 +406,18 @@ export class WageTypeService extends BizHttp<WageType> {
                         Property: 'SpecialAgaRule',
                         FieldType: FieldType.DROPDOWN,
                         Label: 'Type lønnsart',
+                        FieldSet: 1,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'wagetype',
+                        Property: 'Systemtype',
+                        FieldType: FieldType.TEXT,
+                        Label: 'UE lønnsart',
+                        Tooltip: {
+                            Text: `Kobling mot Uni Economy standard lønnsartregister for
+                             automatisk vedlikehold av lønnsarten fra systemleverandør.`,
+                        },
                         FieldSet: 1,
                         Section: 0
                     },

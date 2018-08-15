@@ -84,7 +84,7 @@ export class WageTypeView extends UniView implements OnDestroy {
                 .subscribe((wageType: WageType) => {
                 this.wageType = wageType;
                 this.toolbarConfig = {
-                    title: this.wageType.ID ? this.wageType.WageTypeName : 'Ny lønnsart',
+                    title: this.wageType.ID ? this.wageType.WageTypeNumber + ' - ' + this.wageType.WageTypeName : 'Ny lønnsart',
                     subheads: [{
                         title: this.wageType.ID
                             ? (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
