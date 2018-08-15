@@ -546,8 +546,10 @@ export class UniTickerService { //extends BizHttp<UniQueryDefinition> {
 
         if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
             const model = this.modelService.getModel(data[column.Alias]);
-            const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
-            formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+            if (model) {
+                const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
+                formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+            }
         }
 
         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {

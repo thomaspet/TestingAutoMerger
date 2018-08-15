@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit, EventEmitter } from '@angular/core';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
-import { ErrorService, StatisticsService, EmailService, UserService, CompanySettingsService } from '@app/services/services';
+import { ErrorService, UserService, CompanySettingsService } from '@app/services/services';
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
@@ -11,6 +11,7 @@ export interface EmailFormData {
     Message?: string;
     SendCopy?: boolean;
     Format?: string;
+    CopyAddress?: string;
 }
 
 @Component({
@@ -47,7 +48,6 @@ export class UniReportSendModal implements IUniModal, OnInit {
     public invalidEmail: boolean;
 
     constructor(
-        private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private userService: UserService,
         private companySettingsService: CompanySettingsService
@@ -71,6 +71,7 @@ export class UniReportSendModal implements IUniModal, OnInit {
                 const user = res[0];
                 const company = res[1];
 
+                formData.CopyAddress = user.Email;
                 formData.Subject = `${company.CompanyName}: ${formData.Subject}`;
 
                 formData.Message += '\n\nMed vennlig hilsen\n'

@@ -42,7 +42,7 @@ import {environment} from 'src/environments/environment';
 
                 <td class="nowrap left">
 
-                    <button class="good btn-left" (click)="openSendDialog()">Epost</button>
+                    <button class="good btn-left" (click)="trySend()">Epost</button>
 
                     <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
                         Kommentarer ({{comments?.length}})
@@ -387,7 +387,28 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             });
     }
 
-    public openSendDialog() {
+    public trySend() {
+
+        // Should we get the contact-email from companysettings?
+        const reportSelfKeyword = 'accounting';
+        if (this.report && this.report.Category && this.report.Category.toLowerCase().indexOf(reportSelfKeyword) === 0) {
+            const route = 'model=companysettings&select=defaultemail.emailaddress as Email'
+                + '&join=&expand=defaultemail';
+            // Fetch contact-email from exact company:
+            this.statisticsService.GetAllForCompany(route, this.report.companyKey)
+                .subscribe( result => {
+                    let email;
+                    if (result.Success && result.Data && result.Data.length > 0) {
+                        email = result.Data[0].Email;
+                    }
+                    this.openAndSendReport(email);
+                 });
+            return;
+        }
+        this.openAndSendReport();
+    }
+
+    private openAndSendReport(receiver?: string) {
         this.fetchEditetParameters();
         const isForm = !!this.report.ReportType;
         const formKey = this.report.parameters.length > 0 ? this.report.parameters[0].value : 0;
@@ -396,6 +417,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         const options = {
             data: {
                 model: {
+                    EmailAddress: receiver,
                     Subject: `${this.report.Name}${formKeyLabel}`,
                     Message: `Vedlagt finner du '${this.report.Name}${formKeyLabel}'`,
                     ReportDefinition: this.report.Name
@@ -405,6 +427,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 company: this.report.company ? { CompanyName: this.report.company.Name } : undefined
             }
         };
+
         this.uniModalService.open(UniReportSendModal, options)
             .onClose.subscribe(email => {
                 if (email) {
