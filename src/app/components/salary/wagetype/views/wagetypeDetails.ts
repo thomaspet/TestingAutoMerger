@@ -11,31 +11,32 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../..
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
-type ValidValuesFilter = {
-    IncomeType?: string,
-    Benefit?: string,
-    Description?: string
-};
+interface IValidValuesFilter {
+    IncomeType?: string;
+    Benefit?: string;
+    Description?: string;
+}
 
-type IncomeType = {
-    text: string
-};
+interface IIncomeType {
+    text: string;
+}
 
-type Benefit = {
-    text: string
-};
+interface IBenefit {
+    text: string;
+}
 
-type Description = {
-    fordel?: string,
-    text: string
-};
+interface IDescription {
+    fordel?: string;
+    text: string;
+}
 
-type UniFormTabEvent = {
-    event: KeyboardEvent,
-    prev: UniFieldLayout,
-    next: UniFieldLayout
-};
+interface IUniFormTabEvent {
+    event: KeyboardEvent;
+    prev: UniFieldLayout;
+    next: UniFieldLayout;
+}
 
 
 @Component({
@@ -47,9 +48,9 @@ export class WagetypeDetail extends UniView {
         + '/index.html#!Documents/lnnsinntekterrapportering.htm';
     public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
-    private incomeTypeDatasource: IncomeType[] = [];
-    private benefitDatasource: Benefit[] = [];
-    private descriptionDatasource: Description[] = [];
+    private incomeTypeDatasource: IIncomeType[] = [];
+    private benefitDatasource: IBenefit[] = [];
+    private descriptionDatasource: IDescription[] = [];
     private validValuesTypes: any[] = [];
 
     private supplementPackages: code[] = [];
@@ -102,7 +103,8 @@ export class WagetypeDetail extends UniView {
         private accountService: AccountService,
         private inntektService: InntektService,
         public cacheService: UniCacheService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private toastService: ToastService
     ) {
 
         super(router.url, cacheService);
@@ -329,7 +331,7 @@ export class WagetypeDetail extends UniView {
     private handleSupplementPackages(
         wageType: WageType,
         fields?: any[]): WageType {
-        const filter: ValidValuesFilter = {
+        const filter: IValidValuesFilter = {
             IncomeType: (wageType && wageType.IncomeType) || '',
             Benefit: (wageType && wageType.Benefit) || '',
             Description: (wageType && wageType.Description) || ''
@@ -352,11 +354,11 @@ export class WagetypeDetail extends UniView {
         return wageType;
     }
 
-    private setBenefitAndDescriptionSource(supplementPackages: code[], filter: ValidValuesFilter) {
+    private setBenefitAndDescriptionSource(supplementPackages: code[], filter: IValidValuesFilter) {
         this.benefitDatasource = [];
         this.descriptionDatasource = [];
 
-        const _filter: ValidValuesFilter = {
+        const _filter: IValidValuesFilter = {
             IncomeType: filter.IncomeType,
             Benefit: filter.Benefit
         };
@@ -382,7 +384,7 @@ export class WagetypeDetail extends UniView {
         return supplementPackages;
     }
 
-    private getIncometypeChildObject(tp: code, filter: ValidValuesFilter) {
+    private getIncometypeChildObject(tp: code, filter: IValidValuesFilter) {
         const wageType = this.wageType$.getValue();
         filter = filter || {
             IncomeType: wageType.IncomeType,
@@ -443,7 +445,7 @@ export class WagetypeDetail extends UniView {
         return filtered;
     }
 
-    private setupTilleggsPakker(supplementPackages: code[], filter: ValidValuesFilter) {
+    private setupTilleggsPakker(supplementPackages: code[], filter: IValidValuesFilter) {
         let packs: any[] = [];
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
         supplementPackages = this.updateForSkatteOgAvgiftregel(supplementPackages);
@@ -467,7 +469,7 @@ export class WagetypeDetail extends UniView {
         return packs;
     }
 
-    private filterTilleggsPakker(supplementPackages: code[], filter: ValidValuesFilter) {
+    private filterTilleggsPakker(supplementPackages: code[], filter: IValidValuesFilter) {
         return supplementPackages.filter(tp => !!this.getIncometypeChildObject(tp, filter));
     }
 
@@ -659,6 +661,7 @@ export class WagetypeDetail extends UniView {
                 if (changes['_baseOptions']) {
                     const baseOptions = changes['_baseOptions'].currentValue;
                     this.setBaseOptionsOnWagetype(wageType, baseOptions);
+                    this.wagetypeMaintainanceNotify();
                 }
 
                 if (changes['IncomeType']) {
@@ -672,6 +675,17 @@ export class WagetypeDetail extends UniView {
 
                 if (changes['Description']) {
                     this.setFieldHidden(fields, 'SupplementPackage', this.supplementPackages.length);
+                }
+
+                if (changes['Base_Payment']
+                    || changes['Benefit']
+                    || changes['Description']
+                    || changes['IncomeType']
+                    || changes['SpecialAgaRule']
+                    || changes['taxtype']
+                    || changes['WageTypeNumber']
+                    || changes['SupplementPackage']) {
+                    this.wagetypeMaintainanceNotify();
                 }
 
                 return [wageType, fields];
@@ -703,6 +717,15 @@ export class WagetypeDetail extends UniView {
         return wageType;
     }
 
+    private wagetypeMaintainanceNotify() {
+        if (this.wageType$.getValue().Systemtype != null) {
+            this.toastService
+                .addToast(`Automatisk vedlikehold`,
+                    ToastType.warn, ToastTime.medium,
+                    `Dersom du lagrer lønnsarten med disse endringene vil ikke systemleverandør oppdatere lønnsarten lenger.`);
+        }
+    }
+
     private setReadOnlyOnBenefitAndDescription(fields: any[], value: string) {
         const benefitAndDescriptionReadOnly = !value;
         this.setReadOnlyOnField(fields, 'Benefit', benefitAndDescriptionReadOnly);
@@ -729,7 +752,7 @@ export class WagetypeDetail extends UniView {
         }
     }
 
-    public tabForward(event: UniFormTabEvent) {
+    public tabForward(event: IUniFormTabEvent) {
         this.fields$
             .take(1)
             .filter(fields => event.prev.Placement > event.next.Placement)
@@ -746,7 +769,7 @@ export class WagetypeDetail extends UniView {
             });
     }
 
-    public tabBackward(event: UniFormTabEvent) {
+    public tabBackward(event: IUniFormTabEvent) {
         this.fields$
             .take(1)
             .map(fields => {
