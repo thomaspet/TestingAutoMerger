@@ -6,7 +6,8 @@
 <section class="application bureau-splitview">
 
     <section class="uni-container bureau-company-list">
-        <uni-tabs [tabs]="allTags"></uni-tabs>
+        <uni-tabs [tabs]="allTags"
+                  (activeIndexChange)="tagChanged($event)"></uni-tabs>
 
         <input class="bureau-search-input"
             [formControl]="searchControl"

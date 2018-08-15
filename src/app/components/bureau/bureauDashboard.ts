@@ -156,6 +156,15 @@ export class BureauDashboard {
             );
     }
 
+    public tagChanged(index: number) {
+        if (index === 0) {
+            this.activeTag = undefined;
+        } else {
+            this.activeTag = this.allTags[index].name;
+        }
+        this.filterCompanies(this.searchControl.value || '');
+    }
+
     private loadSubCompanies(isRefresh = false) {
         this.uniHttp.asGET()
         .usingRootDomain()
@@ -285,6 +294,10 @@ export class BureauDashboard {
             });
         } else {
             this.filteredCompanies = this.companies;
+        }
+
+        if (this.activeTag) {
+            this.filteredCompanies = this.filteredCompanies.filter(comp => this.companyHasTag(comp, this.activeTag));
         }
 
         if (this.allTags && this.allTags[0]) {
@@ -448,9 +461,6 @@ export class BureauDashboard {
     }
 
     public companyHasTag(company: KpiCompany, tag: string): boolean {
-        if (!tag) {
-            return true; // show everything if there is no active tag
-        }
-        return (this.companyTags[company.ID] || []).some(t => t === this.activeTag);
+        return (this.companyTags[company.ID] || []).some(t => t === tag);
     }
 }
