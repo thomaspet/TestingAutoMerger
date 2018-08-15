@@ -178,6 +178,12 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         paramsIdx++;
                     }
                     this.fields$.next(fields);
+
+                    const model = this.model$.getValue();
+                    params.map(param => {
+                        model[param.Name] = param.value;
+                    });
+                    this.model$.next(model);
                 });
         }
         if (this.commentConfig && this.commentConfig.filter.indexOf(`{${changedParamName}}`) >= 0) {
@@ -340,8 +346,8 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     this.report.parameters = resolvedParams;
                     this.fields$.next(resolvedParams.map(param => this.generateFields(param)));
                     const model = this.model$.getValue();
-                    resolvedParams.map(field => {
-                        model[field.Name] = field.value;
+                    resolvedParams.map(param => {
+                        model[param.Name] = param.value;
                     });
                     this.model$.next(model);
                     this.loadComments();
