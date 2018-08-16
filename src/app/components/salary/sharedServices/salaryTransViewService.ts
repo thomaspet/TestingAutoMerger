@@ -25,6 +25,7 @@ export class SalaryTransViewService {
     public createVatTypeColumn(visible: boolean = false, fromDateField: string = 'FromDate'): UniTableColumn {
         return new UniTableColumn('VatType', 'Mva', UniTableColumnType.Lookup)
             .setVisible(visible)
+            .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel: any) => {
                 const vatType = rowModel.VatType;
                 if (vatType) {
