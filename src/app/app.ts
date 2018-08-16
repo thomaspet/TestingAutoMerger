@@ -17,6 +17,9 @@ import {
 } from '@uni-framework/uni-modal';
 
 import * as moment from 'moment';
+import {KeyCodes} from '@app/services/common/keyCodes';
+import {Observable} from 'rxjs';
+import {Router} from '@angular/router';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -35,7 +38,8 @@ export class App {
         private uniHttp: UniHttp,
         private errorService: ErrorService,
         public navbarService: NavbarLinkService,
-        private browserStorage: BrowserStorageService
+        private browserStorage: BrowserStorageService,
+        private router: Router,
     ) {
         // prohibit dropping of files unless otherwise specified
         document.addEventListener('dragover', function( event ) {
@@ -85,6 +89,14 @@ export class App {
                 this.checkForChangelog(authDetails.user);
             }
         } /* don't need error handling */);
+
+        Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
+            const keyCode = event.which || event.keyCode;
+            const character = String.fromCharCode(keyCode);
+            if (event.ctrlKey && event.altKey && character === "B") {
+                this.router.navigateByUrl('/bureau');
+            }
+        });
     }
 
     private hasAcceptedCustomerLicense(user: UserDto): boolean {
