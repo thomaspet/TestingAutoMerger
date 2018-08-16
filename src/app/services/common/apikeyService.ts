@@ -13,7 +13,7 @@ export class ApiKeyService extends BizHttp<ApiKey> {
     }
 
     private integrationtypes: {ID: TypeOfIntegration, Name: string}[] = [
-        {ID: TypeOfIntegration.TravelAndExpenses, Name: 'Reiserekning'}
+        {ID: TypeOfIntegration.TravelAndExpenses, Name: 'Reiseregning'}
     ];
 
     public getApiKeys(): Observable<ApiKey[]> {

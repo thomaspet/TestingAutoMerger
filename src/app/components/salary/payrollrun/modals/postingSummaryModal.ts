@@ -202,7 +202,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             .setWidth('6rem');
         const project = new UniTableColumn('_Project', 'Prosjekt', UniTableColumnType.Number)
             .setWidth('6rem');
-        const vat = new UniTableColumn('VatType', 'Moms', UniTableColumnType.Text)
+        const vat = new UniTableColumn('VatType', 'Mva', UniTableColumnType.Text)
             .setTemplate((rowModel: JournalEntryLine) => {
                 if (!rowModel.VatType) {
                     return '';

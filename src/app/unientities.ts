@@ -6862,10 +6862,6 @@ export class TeamPositionDto extends UniEntity {
 }
 
 
-export class IEnumerable extends UniEntity {
-}
-
-
 export class EHFActivate extends UniEntity {
     public contactemail: string;
     public contactname: string;
@@ -7255,6 +7251,7 @@ export enum SalBalType{
     Outlay = 3,
     Garnishment = 4,
     Other = 5,
+    Union = 6,
 }
 
 
@@ -7727,6 +7724,14 @@ export enum ReportType{
 }
 
 
+export enum StatusCodeJournalEntryLine{
+    Open = 31001,
+    PartlyMarked = 31002,
+    Marked = 31003,
+    Credited = 31004,
+}
+
+
 export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
@@ -7841,14 +7846,6 @@ export enum StatusCodeAltinnSigning{
 export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
-}
-
-
-export enum StatusCodeJournalEntryLine{
-    Open = 31001,
-    PartlyMarked = 31002,
-    Marked = 31003,
-    Credited = 31004,
 }
 
 

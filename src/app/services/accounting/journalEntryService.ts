@@ -1353,7 +1353,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public calculateJournalEntryData(
         account: Account, vattype: VatType, grossAmountCurrency: number, netAmountCurrency: number, journalEntryData: JournalEntryData
     ): JournalEntryLineCalculation {
-        // grossAmountCurrency == med moms, netAmout == uten moms
+        // grossAmountCurrency == med mva, netAmout == uten mva
         const res: JournalEntryLineCalculation = {
             amountGross: 0,
             amountGrossCurrency: 0,

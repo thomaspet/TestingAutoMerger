@@ -34,6 +34,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         {ID: SalBalType.Contribution, Name: 'Bidragstrekk'},
         {ID: SalBalType.Outlay, Name: 'Utleggstrekk'},
         {ID: SalBalType.Garnishment, Name: 'Påleggstrekk'},
+        {ID: SalBalType.Union, Name: 'Fagforeningstrekk'},
         {ID: SalBalType.Other, Name: 'Andre'}
     ];
 

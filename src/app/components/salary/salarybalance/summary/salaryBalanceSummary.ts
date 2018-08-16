@@ -7,7 +7,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {
     UniTableConfig, UniTableColumn, UniTableColumnType, UniTable, IRowChangeEvent
 } from '../../../../../framework/ui/unitable';
-import {SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun} from '../../../../unientities';
+import {SalaryBalance, Employee, SalaryBalanceLine, SalaryTransaction, PayrollRun, SalBalType} from '../../../../unientities';
 import {
     SalaryBalanceLineService, ErrorService, EmployeeService, SalaryTransactionService, PayrollrunService
 } from '../../../../services/services';
@@ -32,6 +32,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     public showDescriptionText: boolean = false;
     public showAllLines: boolean;
     public showAllLinesModel: {showAll: boolean} = {showAll: false};
+    private isUnionType: boolean;
 
     constructor(
         private salaryBalanceLineService: SalaryBalanceLineService,
@@ -93,6 +94,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
             this.description$.next('');
             return;
         }
+        this.isUnionType = salaryBalance.InstalmentType === SalBalType.Union ? true : false;
 
         const transObs = salaryBalance.Transactions && salaryBalance.Transactions.length
             ? Observable.of(salaryBalance.Transactions)
@@ -210,7 +212,7 @@ export class SalaryBalanceSummary implements OnInit, OnChanges {
     private emitChanges(event: IRowChangeEvent) {
         const tableData = [
             ...this.table.getTableData().filter(x => x['_originalIndex'] !== event.rowModel['_originalIndex']),
-            event.rowModel,];
+            event.rowModel];
 
         const lines = this.salarybalanceLinesModel$.getValue();
 
