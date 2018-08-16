@@ -1092,10 +1092,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
-            disabled: transitions
-                && !transitions['register']
-                || !this.currentCustomer
-                || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
+            disabled: transitions && !transitions['register'] || !this.currentCustomer,
             main: !transitions || transitions['register']
         });
 
