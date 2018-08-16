@@ -296,7 +296,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
-            .withBody(journalEntries)
+            .withBodyTrim(journalEntries)
             .withEndPoint(this.relativeURL + '?action=book-journal-entries')
             .send()
             .map(response => response.json());

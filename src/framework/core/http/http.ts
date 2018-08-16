@@ -179,6 +179,12 @@ export class UniHttp {
         return this;
     }
 
+    public withBodyTrim(body: any)
+    {
+        this.body = this.deleteObjectsWithID(body);
+        return this;
+    }
+
     public withEndPoint(endPoint: string) {
         this.endPoint = endPoint;
         return this;
@@ -285,5 +291,33 @@ export class UniHttp {
             }
         });
         return urlParams;
+    }
+
+    private deleteObjectsWithID(obj: any): any {
+        if (obj === null) { return null; }
+
+        // Array? Loop it.
+        if (Array.isArray(obj)) {
+            obj.forEach(o => {
+                o = this.deleteObjectsWithID(o);
+            });
+        }
+        // Object? Loop properties.
+        else
+        {
+            var propNames = Object.getOwnPropertyNames(obj);
+            propNames.forEach(name => {
+                // Property object and property object name + ID
+                if (typeof obj[name] === 'object' && propNames.indexOf(name + 'ID') > 0 && obj[name + 'ID'] > 0) {
+                    delete obj[name];
+                }
+                // If property is an array og object recurive delete
+                else if (Array.isArray(obj[name]) || typeof obj[name] === 'object') {
+                    obj[name] = this.deleteObjectsWithID(obj[name]);
+                }
+            });
+        }
+
+        return obj;
     }
 }
