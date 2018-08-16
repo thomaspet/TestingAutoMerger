@@ -1328,8 +1328,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.saveActions.push({
             label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer',
             action: done => this.transition(done),
-            disabled: id > 0 && !transitions['invoice'] && !transitions['credit']
-                || !this.currentCustomer || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
+            disabled: id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer,
             main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
         });
 

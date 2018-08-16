@@ -1064,10 +1064,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     });
                 }
             },
-            disabled: transitions
-                && !transitions['register']
-                || !this.currentCustomer
-                || (this.currentCustomer && !this.currentCustomer.CustomerNumber),
+            disabled: transitions && !transitions['register'] || !this.currentCustomer,
             main: (!transitions || transitions['register']) && !printStatus
         });
 
