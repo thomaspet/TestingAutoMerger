@@ -264,6 +264,24 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                 done('Avregning avbrutt');
             }
         }
+
+        for (let i = 0; i < transes.length; i++) {
+            const trans = transes[i];
+            if (trans.Account == null) {
+                this.toastService
+                    .addToast('Konto mangler',
+                        ToastType.bad,
+                        ToastTime.medium,
+                        `Ansatt nr ${trans.EmployeeNumber}:
+                        Lønnspost nr ${trans.ID},
+                        med lønnsart ${trans.WageTypeNumber},
+                        tekst '${trans.Text}' mangler konto`);
+                if (done) {
+                    done('Ikke avregnet');
+                }
+                return;
+            }
+        }
     }
 
     public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {

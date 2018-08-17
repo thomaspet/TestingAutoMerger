@@ -433,6 +433,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             });
     }
 
+    private accountOnTransesSet(): boolean {
+        for (let i = 0; i < this.salaryTransactions.length; i++) {
+            const trans = this.salaryTransactions[i];
+            if (trans.Account == null) {
+                this._toastService
+                    .addToast('Konto mangler',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        `Ansatt nr ${trans.EmployeeNumber}:
+                        Lønnspost nr ${trans.ID},
+                        med lønnsart ${trans.WageTypeNumber},
+                        tekst '${trans.Text}' mangler konto`);
+                return false;
+            }
+        }
+        return true;
+    }
+
     public toggleDetailsView(setValue?: boolean): void {
         const payrollRun = this.payrollrun$.getValue();
         if (this.detailsActive && (!payrollRun.Description || !payrollRun.ID)) {
@@ -453,6 +471,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 ToastType.bad, ToastTime.medium, `Du må ha ${messages.join(' og ')} før lønnspostene kan vises`);
             return;
         }
+
+        this.accountOnTransesSet();
 
         if (this.detailsActive && this.isDirty(PAYROLL_RUN_KEY)) {
             this.modalService.confirm({
