@@ -394,7 +394,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             {name: 'Faste poster', path: 'recurring-post'},
             {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
             {name: 'Permisjon', path: 'employee-leave'},
-            {name: 'Oversikt poster', path: 'employee-trans-ticker'},
+            {name: 'Historiske poster', path: 'employee-trans-ticker'},
         ];
     }
 

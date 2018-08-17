@@ -355,6 +355,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
+                    this.mapVatToTrans(row);
                     obs = this.suggestVatType(row);
                 }
 
@@ -531,6 +532,18 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
 
         rowModel.Dimensions.DepartmentID = department.ID;
+    }
+
+    private mapVatToTrans(rowModel: SalaryTransaction) {
+        const account: Account = rowModel['_Account'];
+
+        if (account != null && account.VatType != null) {
+            rowModel.VatType = account.VatType;
+            rowModel.VatTypeID = account.VatType.ID;
+        } else {
+            rowModel.VatType = null;
+            rowModel.VatTypeID = null;
+        }
     }
 
     private calcItem(rowModel) {
