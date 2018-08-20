@@ -125,7 +125,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
             <any>{
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Gruppering på lønnsart',
-                Property: 'Grouping',
+                Property: 'Grouped',
                 Tooltip: {
                     Text: 'Grupperer på lønnsart når lønnsart og sats er lik. Tekst på lønnsposten blir lik lønnsartnavn',
                     Alignment: 'bottom'
