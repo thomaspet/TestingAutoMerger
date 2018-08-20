@@ -7,11 +7,10 @@
 </uni-toolbar>
 
 <section class="application">
-    <uni-tabs
-        [tabs]="tabs"
-        (tabClick)="onFilterClick($event)">
-    </uni-tabs>
-
+        <uni-tabs
+            [tabs]="mainTabs"
+            (tabClick)="onCustomerFilterClick($event)">
+        </uni-tabs>
     <section class="splitview">
         <nav class="splitview_list">
             <label class="pointintime-filter">
@@ -30,7 +29,11 @@
         </nav>
 
         <main class="splitview_detail">
-            <div class="toolbar">
+            <uni-tabs
+                [tabs]="tabs"
+                (tabClick)="onFilterClick($event)">
+            </uni-tabs>
+            <div class="toolbar" style="margin-top: 10px;">
                 <button title="Ctrl + A"
                     class="good"
                     [disabled]="!(postpost?.canAutoMark)"

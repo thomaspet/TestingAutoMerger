@@ -74,6 +74,9 @@ export class PostPost {
         {name: 'Alle poster', value: 'ALL'}
     ];
 
+    public mainTabs: IUniTab[] = [];
+    public currentTab: IUniTab;
+
     // List table
     public accounts$: BehaviorSubject<any> = new BehaviorSubject(null);
     public accountsTableConfig: UniTableConfig;
@@ -104,6 +107,8 @@ export class PostPost {
     ) {
         this.setupFilter();
         this.setupAccountsTable();
+        this.setMainTabs('kunder');
+        this.checkForDiff();
         this.setupShareActions();
         this.setupSaveActions();
         this.setupToolbarConfig();
@@ -136,6 +141,19 @@ export class PostPost {
 
                 return result !== ConfirmActions.CANCEL;
             });
+    }
+
+    private setMainTabs(name: string, hidden: boolean = true) {
+        this.mainTabs = [
+            {name: 'Alle ' +  name, value: 'ALL'},
+            {
+                name: `${(name.substr(0, 1).toUpperCase()) + (name.substr(1, name.length - 1))} med differanse`,
+                value: 'DIFF',
+                hidden: hidden,
+                tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
+            }
+        ];
+        this.currentTab = this.mainTabs[0];
     }
 
     public focusRow(index?: number) {
@@ -354,8 +372,13 @@ export class PostPost {
 
     public onFilterClick(tab: IUniTab) {
         this.postpost.showHideEntries(tab.value);
-        this.currentFilter = tab.value;
         this.setupSaveActions();
+        //  this.reloadRegister();
+    }
+
+    public onCustomerFilterClick(tab: IUniTab) {
+        this.currentTab = tab;
+        this.accountsTableConfig.columns[3].setVisible(tab.value === 'DIFF');
         this.reloadRegister();
     }
 
@@ -381,27 +404,57 @@ export class PostPost {
         return '';
     }
 
+    private checkForDiff() {
+         if (this.register === 'account') {
+            this.setMainTabs('kontoer', true);
+        } else {
+            this.statisticsService.GetAll(
+                'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
+                'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,sum(RestAmount) as RestAmount' +
+                `&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
+                '&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
+                    this.setMainTabs((this.register === 'customer' ? 'kunder' : 'leverandører'),
+                    !(res && res.Data && res.Data.length));
+                }) ;
+        }
+    }
+
     private loadCustomers() {
-        this.statisticsService
-            .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
-                             `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
-                             `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                             `filter=SubAccount.CustomerID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
-                             `orderby=Customer.CustomerNumber`)
+
+        const query = this.currentTab.value !== 'DIFF'
+            ? `model=JournalEntryLine&` +
+                `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
+                `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
+                `filter=SubAccount.CustomerID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
+                `orderby=Customer.CustomerNumber`
+            : 'model=JournalEntryLine&' +
+                `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,sum(Amount) as Balance&` +
+                'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
+                'filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.customerid gt 0&' +
+                'having=sum(amount) ne sum(restamount)&expand=account,subaccount';
+        this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
             });
     }
 
     private loadSuppliers() {
-        this.statisticsService
-            .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
-                             `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
-                             `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                             `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
-                             `orderby=Supplier.SupplierNumber`)
+        const query = this.currentTab.value !== 'DIFF'
+            ? `model=JournalEntryLine&` +
+                `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount&` +
+                `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
+                `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}&` +
+                `orderby=Supplier.SupplierNumber`
+            :   `model=JournalEntryLine&` +
+                `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
+                `Info.Name as AccountName,sum(RestAmount) as SumAmount,sum(Amount) as Balance&` +
+                `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
+                `filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.supplierid gt 0&` +
+                'having=sum(amount) ne sum(restamount)&expand=account,subaccount';
+        this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
             });
@@ -454,6 +507,7 @@ export class PostPost {
                     this.loadAccounts();
                     break;
             }
+            this.checkForDiff();
     }
 
     public onFiltersChange(filter) {
@@ -481,11 +535,12 @@ export class PostPost {
         });
         const nameCol = new UniTableColumn('AccountName', 'Navn', UniTableColumnType.Text).setWidth('5em');
         const sumCol = new UniTableColumn('SumAmount', 'Sum åpne poster', UniTableColumnType.Money).setWidth('2.5em');
+        const balanceCol = new UniTableColumn('Balance', 'Saldo', UniTableColumnType.Money).setVisible(false).setWidth('2.5rem');
         this.accountsTableConfig = new UniTableConfig('accounting.postpost', false, true, 10)
             .setSearchable(true)
             .setColumnMenuVisible(false)
             .setMultiRowSelect(false)
             .setAutoAddNewRow(false)
-            .setColumns([accountCol, nameCol, sumCol]);
+            .setColumns([accountCol, nameCol, sumCol, balanceCol]);
     }
 }

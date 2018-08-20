@@ -88,6 +88,7 @@ export class LedgerAccountReconciliation {
 
     public summaryData: any = {
         SumOpen: 0,
+        SumBalance: 0,
         SumOpenDue: 0,
         SumChecked: 0
     };
@@ -142,6 +143,7 @@ export class LedgerAccountReconciliation {
         this.summaryData.SumChecked = 0;
         this.summaryData.SumOpenDue = 0;
         this.summaryData.SumOpen = 0;
+        this.summaryData.SumBalance = 0;
 
         setTimeout(() => {
             const posts = this.table.getTableData();
@@ -149,6 +151,7 @@ export class LedgerAccountReconciliation {
             posts.forEach(x => {
                 if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
                     this.summaryData.SumOpen += x.RestAmount;
+                    this.summaryData.SumBalance += x.Amount;
                     if (x.DueDate && moment(x.DueDate).isBefore(moment())) {
                         this.summaryData.SumOpenDue += x.RestAmount;
                     }
@@ -618,6 +621,12 @@ export class LedgerAccountReconciliation {
                 title: 'Differanse markerte poster',
             }
         ];
+        if (this.summaryData.SumOpen !== this.summaryData.SumBalance) {
+            this.summary.unshift({
+                value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumBalance) : null,
+                title: 'Saldo',
+            });
+        }
     }
 
     public canDiscardChanges(): Observable<boolean> {
