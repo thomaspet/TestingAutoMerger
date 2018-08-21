@@ -4,6 +4,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
+import {NavbarLinkService} from '../../../layout/navbar/navbar-link-service';
 import {
     ComponentLayout,
     Customer,
@@ -62,6 +63,7 @@ import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import { SelectLicenseForBulkAccess } from '@app/components/bureau/grant-access-modal/1.selectLicense';
 
 @Component({
     selector: 'customer-details',
@@ -221,6 +223,7 @@ export class CustomerDetails implements OnInit {
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
+        private navbarLinkService: NavbarLinkService
     ) {}
 
     public ngOnInit() {
@@ -248,20 +251,40 @@ export class CustomerDetails implements OnInit {
                 );
                 this.setup();
 
-                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                    links => {
-                        this.reportLinks = links;
-                        this.tabs = [
-                            {name: 'Detaljer'},
-                            {name: 'Åpne poster'},
-                            {name: 'Produkter solgt'},
-                            {name: 'Dokumenter'},
-                            {name: 'Selskap'},
-                            ...links
-                        ];
-                    },
-                    err => this.errorService.handle(err)
-                );
+                this.tabs = [
+                    {name: 'Detaljer'},
+                    {name: 'Åpne poster'},
+                    {name: 'Produkter solgt'},
+                    {name: 'Dokumenter'},
+                    {name: 'Selskap'}
+                ];
+
+                if (!!this.customerID) {
+                    // Add check to see if user has access to the TOF-modules before adding the tabs
+                    this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                        if (mySections.length) {
+                            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                                links => {
+                                    this.reportLinks = links;
+                                    const addLinks = [];
+                                    links.forEach((link) => {
+                                        mySections[0].linkGroups.forEach((group) => {
+                                            group.links.forEach( (li) => {
+                                                if (li.name === link.name) {
+                                                    addLinks.push(link);
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                    this.tabs = this.tabs.concat([], ...addLinks);
+                                },
+                                err => this.errorService.handle(err)
+                            );
+                        }
+                    });
+                }
             });
         }
     }
@@ -463,6 +486,7 @@ export class CustomerDetails implements OnInit {
         this.isDirty = false;
         this.setup();
         this.formIsInitialized = true;
+        this.showReportWithID = null;
     }
 
     public openInModalMode(id?: number) {
