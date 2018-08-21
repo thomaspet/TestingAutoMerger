@@ -337,6 +337,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
 
                 if (event.field === 'Wagetype') {
                     this.mapWagetypeToTrans(row);
+                    this.mapVatToTrans(row);
                 }
 
                 if (event.field === 'employment') {
