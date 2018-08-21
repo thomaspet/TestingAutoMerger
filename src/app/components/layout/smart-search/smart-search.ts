@@ -39,13 +39,25 @@ export class UniSmartSearch {
 
     loading$: Subject<boolean> = new Subject();
     componentDestroyed$: Subject<boolean> = new Subject();
+    searchValue: string = '';
+    lastTenSearches: any[] = [{
+        type: 'header',
+        value: '10 siste brukte søk',
+        url: '/',
+    }];
 
     constructor(
         @Inject(OverlayRef)
         private overlayRef: any,
         private dataService: SmartSearchDataService,
         private router: Router
-    ) {}
+    ) {
+        this.lastTenSearches = this.lastTenSearches.concat([], JSON.parse( localStorage.getItem('LastTenSearches')) || []);
+        if (this.lastTenSearches.length > 1) {
+            this.searchResults = this.lastTenSearches;
+            setTimeout(() => this.activeItemManager.setFirstItemActive());
+        }
+    }
 
     ngAfterViewInit() {
         this.scrollbar = new PerfectScrollbar('#results-container');
@@ -68,11 +80,14 @@ export class UniSmartSearch {
         this.searchControl.valueChanges
             .takeUntil(this.componentDestroyed$)
             .do(value => {
+                this.searchValue = value;
                 this.searchResults = this.dataService.syncLookup(value.toLowerCase());
                 setTimeout(() => this.activeItemManager.setFirstItemActive());
             })
             .debounceTime(300)
-            .do(() => this.loading$.next(true))
+            .do(() => {
+                this.loading$.next(true);
+            })
             .switchMap(value => this.dataService.asyncLookup(value.toLowerCase()))
             .subscribe(asyncResults => {
                 this.searchResults.push(...asyncResults);
@@ -94,6 +109,22 @@ export class UniSmartSearch {
     }
 
     onItemSelected(item) {
+        // Push search value to last 10 searches when result is used!
+        if (!!this.searchValue && this.searchValue !== ' ' && this.searchValue !== '*') {
+            this.lastTenSearches.unshift(this.lastTenSearches[0]);
+            this.lastTenSearches[1] = {
+                type: 'search',
+                value: this.searchValue,
+                url: '/',
+            };
+
+            if (this.lastTenSearches.length > 10) {
+                this.lastTenSearches.pop();
+            }
+            localStorage.setItem('LastTenSearches',
+                JSON.stringify(this.lastTenSearches.filter(search => search.type !== 'header')));
+        }
+
         if (item && item.type === 'link') {
             this.router.navigateByUrl(item.url);
             this.close();
@@ -107,6 +138,17 @@ export class UniSmartSearch {
             this.close();
         } else if (item && item.type === 'action') {
              // Predifined actions called here
+        } else if (item && item.type === 'search') {
+            // USer selected one of 10 last searches
+            this.loading$.next(true);
+            this.searchInput.nativeElement.value = item.value;
+            this.searchResults = this.dataService.syncLookup(item.value.toLowerCase());
+            this.dataService.asyncLookup(item.value.toLowerCase())
+            .subscribe(asyncResults => {
+                this.searchResults.push(...asyncResults);
+                this.loading$.next(false);
+                setTimeout(() => this.activeItemManager.setFirstItemActive());
+            });
         }
     }
 
