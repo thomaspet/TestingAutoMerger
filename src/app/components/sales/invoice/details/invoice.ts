@@ -521,7 +521,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
+        if (this.ehfService.isActivated('EHF INVOICE 2.0')) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
@@ -1265,11 +1265,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 disabled: () => false
             },
             {
-                label: 'Fakturaprint',
-                action: () => this.sendInvoicePrintAction(),
-                disabled: () => !this.ehfService.isActivated("NETSPRINT")
-            },
-            {
                 label: 'Send purring',
                 action: () => this.sendReminderAction(),
                 disabled: () =>
@@ -1280,7 +1275,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Distribuer',
                 action: () => this.distribute(),
-                disabled: () => !this.invoice['UseReportID'] || !this.invoice['DistributionPlanID'] || !this.invoice.ID
+                disabled: () => !this.invoice['DistributionPlanID'] || !this.invoice.ID
             }
         ];
     }
@@ -1701,16 +1696,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (res.action === 'email') {
                 this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
             }
-        });
-    }
-
-    private sendInvoicePrintAction(): Observable<any> {
-        const savedInvoice = this.isDirty
-        ? Observable.fromPromise(this.saveInvoice())
-        : Observable.of(this.invoice);
-
-        return savedInvoice.switchMap(invoice => {
-            return this.customerInvoiceService.sendInvoicePrint(invoice.ID);
         });
     }
 

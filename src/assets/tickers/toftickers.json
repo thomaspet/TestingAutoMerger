@@ -219,14 +219,6 @@
             }
         },
         {
-            "Name": "Fakturaprint",
-            "Code": "invoice_invoiceprint",
-            "Type": "action",
-            "DisplayInContextMenu": true,
-            "DisplayInActionBar": false,
-            "NeedsActionOverride": true
-        },
-        {
             "Name": "Registrer betaling",
             "Code": "invoice_registerpayment",
             "Type": "action",
@@ -252,15 +244,6 @@
             "Options": {
                 "Transition": "invoice"
             }
-        },
-        {
-            "Name": "Skriv ut",
-            "Code": "invoice_print",
-            "Type": "print",
-            "ExecuteWithMultipleSelections": false,
-            "DisplayInContextMenu": true,
-            "DisplayInActionBar": false,
-            "NeedsActionOverride": true
         },
         {
             "Name": "Send på e-post",
