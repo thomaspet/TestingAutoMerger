@@ -18,12 +18,18 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
-                <p class="warn">PS! Du kan lese inn filen flere ganger dersom det skulle oppstå problemer.</p>
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Ok</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <table class="full"><tr>
+                <td class="left">
+                    <div class="warn">Du kan lese inn filen flere ganger dersom det skulle oppstå problemer.</div>
+                </td>
+                <td class="right nowrap">
+                    <button class="good" (click)="close(true)">Ok</button>
+                    <button class="bad" (click)="close(false)">Avbryt</button>
+                </td>
+                </tr></table>
             </footer>
         </section>
     `
@@ -40,7 +46,7 @@ export class SaftImportModal implements IUniModal {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public ngOnInit() {
-        let value = this.options.data || {};
+        const value = this.options.data || {};
         this.formModel$.next(value);
         this.formFields$.next(this.getFormFields());
     }
@@ -73,6 +79,12 @@ export class SaftImportModal implements IUniModal {
                 Property: 'UpdateExistingData',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Oppdater eksisterende kunder/leverandører'
+            },
+            <any> {
+                EntityType: 'JobDetails',
+                Property: 'Automark',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Automatisk merking av reskontroposter'
             }
         ];
     }

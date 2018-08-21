@@ -79,7 +79,8 @@ export class SaftExportView implements OnInit {
                     CompanyKey: this.authService.getCompanyKey(),
                     IncludeStartingBalance: response.IncludeStartingBalance,
                     ReuseExistingNumbers: response.ReuseExistingNumbers,
-                    UpdateExistingData: response.UpdateExistingData
+                    UpdateExistingData: response.UpdateExistingData,
+                    Automark: !!response.Automark
                 };
 
                 this.jobService.startJob(JOBNAME, undefined, details)
