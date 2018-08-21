@@ -372,8 +372,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                     this.checkDates(row);
                 }
 
-                if ((event.field === 'Wagetype' || event.field === 'employment') && !row.Wagetype) {
-                    obs = obs.switchMap(this.fillIn);
+                if ((event.field === 'Wagetype' || event.field === 'employment')) {
+                    obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
                 }
 
                 if (event.field === '_Account' || event.field === 'Wagetype') {
@@ -381,10 +381,10 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
                 }
 
                 if (obs) {
-                    obs.take(1).subscribe(trans => {
-                        this.calcItem(row);
-                        this.updateSalaryChanged(row, true);
-                    });
+                    obs
+                        .take(1)
+                        .map(trans => this.calcItem(trans))
+                        .subscribe(trans => this.updateSalaryChanged(trans, true));
                 } else {
                     this.updateSalaryChanged(row);
                 }
@@ -459,11 +459,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             });
             rowModel['Supplements'] = supplements;
         }
-    }
-
-    private getRate(rowModel: SalaryTransaction) {
-        return this.wageTypeService
-            .getRate(rowModel['WageTypeID'], rowModel['EmploymentID'], rowModel['EmployeeID']);
     }
 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
@@ -547,7 +542,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         }
     }
 
-    private calcItem(rowModel) {
+    private calcItem(rowModel: SalaryTransaction): SalaryTransaction {
         let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
         const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
         decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
@@ -556,6 +551,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
             (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
             / (amountPrecision * ratePrecision);
         rowModel['Sum'] = sum;
+        return rowModel;
     }
 
     private checkDates(rowModel) {
