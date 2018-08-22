@@ -108,6 +108,7 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'Vår referanse',
                     Section: 0,
+                    MaxLength: 255,
                 },
                 <any> {
                     FieldSet: 1,
@@ -117,6 +118,7 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'Deres referanse',
                     Section: 0,
+                    MaxLength: 255,
                 },
                 <any> {
                     FieldSet: 1,

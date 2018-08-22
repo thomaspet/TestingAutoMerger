@@ -68,7 +68,6 @@ export class UniDimensionTOFView implements OnInit {
             } else {
                 fieldsetIndex = 1;
             }
-            console.log(dim);
             fields.push(
                 {
                     FieldSet: 1,

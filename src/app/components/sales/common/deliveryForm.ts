@@ -178,6 +178,7 @@ export class TofDeliveryForm implements OnInit {
                 FieldType: FieldType.TEXT,
                 Label: 'Rekvisisjon',
                 Section: 0,
+                MaxLength: 255,
             },
             <any> {
                 FieldSet: 1,
@@ -244,6 +245,7 @@ export class TofDeliveryForm implements OnInit {
                 FieldType: FieldType.TEXT,
                 Label: 'Mottaker',
                 Section: 0,
+                MaxLength: 255,
             },
             <any> {
                 FieldSet: 1,
@@ -253,6 +255,7 @@ export class TofDeliveryForm implements OnInit {
                 FieldType: FieldType.TEXT,
                 Label: 'Leveringsmåte',
                 Section: 0,
+                MaxLength: 100,
             }
         ];
 
@@ -295,7 +298,8 @@ export class TofDeliveryForm implements OnInit {
                 Label: 'KID',
                 Section: 0,
                 ReadOnly: true,
-                Hidden: this.entity.StatusCode < 42002 || this.entity.StatusCode === null
+                Hidden: this.entity.StatusCode < 42002 || this.entity.StatusCode === null,
+                MaxLength: 100,
             });
         }
 

@@ -373,6 +373,7 @@ export class TradeItemTable {
             });
 
         const itemTextCol = new UniTableColumn('ItemText', 'Tekst')
+            .setMaxLength(255)
             .setWidth('20%');
 
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
@@ -383,7 +384,8 @@ export class TradeItemTable {
                 postfix: undefined
             });
 
-        const unitCol = new UniTableColumn('Unit', 'Enhet');
+        const unitCol = new UniTableColumn('Unit', 'Enhet')
+            .setMaxLength(100);
 
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris eks. mva', UniTableColumnType.Money)
             .setNumberFormat({

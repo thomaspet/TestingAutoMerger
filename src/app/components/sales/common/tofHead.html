@@ -46,11 +46,19 @@
                 <input type="text"
                     [formControl]="commentControl"
                     [readonly]="isReadOnly()"
-                    (change)="onDataChange()"/>
+                    (change)="onDataChange()"
+                    [attr.maxLength]="500"
+                />
             </label>
             <label>
                 <span>Fritekst</span>
-                <textarea [formControl]="freeTextControl" [readonly]="isReadOnly()" (change)="onDataChange()"></textarea>
+                <textarea
+                    [formControl]="freeTextControl"
+                    [readonly]="isReadOnly()"
+                    (change)="onDataChange()"
+                    [attr.maxLength]="500"
+                >
+                </textarea>
             </label>
         </section>
 
