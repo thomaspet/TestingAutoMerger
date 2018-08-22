@@ -9,5 +9,6 @@
        (blur)="blurHandler()"
        (focus)="focusHandler()"
        [title]="control?.value || ''"
+       [attr.maxLength]="field?.MaxLength"
 />
 <ng-content></ng-content>

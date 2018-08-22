@@ -7,6 +7,7 @@ export class UniFieldLayout extends FieldLayoutDto {
     public SyncValidators: any;
     public Classes: string;
     public Required: boolean;
+    public MaxLength: number;
 
     constructor() {
         super();
