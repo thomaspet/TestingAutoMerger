@@ -2272,18 +2272,6 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
-            if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
-                line.Dimensions.Project = current.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = current.DefaultDimensions.ProjectID;
-                changes = true;
-            }
-
-            if (!line.Dimensions.Department && current.DefaultDimensions && current.DefaultDimensions.Department) {
-                line.Dimensions.Department = current.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = current.DefaultDimensions.DepartmentID;
-                changes = true;
-            }
-
             this.customDimensions.forEach((dimension) => {
                 if (!line.Dimensions['Dimension' + dimension.Dimension]
                     && current.DefaultDimensions
@@ -2686,8 +2674,21 @@ export class BillView implements OnInit {
                     draft.VatDeductionPercent = line.VatDeductionPercent;
                     draft.FinancialDate = line.FinancialDate;
 
-                    // Dimensions
-                    if (current.DefaultDimensions) {
+
+                    if (line.Dimensions && (line.Dimensions.ProjectID || line.Dimensions.DepartmentID)) {
+
+                        draft.Dimensions = line.Dimensions;
+
+                        if (line.Dimensions.ProjectID) {
+                            draft.Dimensions.ProjectID = line.Dimensions.ProjectID;
+                        }
+                        if (line.Dimensions.DepartmentID) {
+                            draft.Dimensions.DepartmentID = line.Dimensions.DepartmentID;
+                        }
+                        draft.Dimensions['_createguid'] = this.journalEntryService.getNewGuid();
+
+                    } else if (current.DefaultDimensions) {
+
                         draft.Dimensions = current.DefaultDimensions;
 
                         if (current.DefaultDimensions.ProjectID) {
@@ -2818,7 +2819,6 @@ export class BillView implements OnInit {
                     if (item.AmountCurrency !== current.TaxInclusiveAmountCurrency * -1) {
                         item.FinancialDate = item.FinancialDate || current.DeliveryDate || current.InvoiceDate;
                         item.AmountCurrency = current.TaxInclusiveAmountCurrency * -1;
-                        item.Dimensions = current.DefaultDimensions;
                         item.Description = item.Description
                             || (lang.headliner_invoice.toLowerCase() + ' ' + current.InvoiceNumber);
 
