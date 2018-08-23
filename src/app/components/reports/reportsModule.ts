@@ -4,6 +4,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpModule} from '@angular/http';
+import {MatCheckboxModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 
 // App imports
@@ -58,7 +59,7 @@ import { UniReportSendModal } from '@app/components/reports/modals/parameter/rep
         ReactiveFormsModule,
         HttpModule,
         RouterModule,
-
+        MatCheckboxModule,
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,

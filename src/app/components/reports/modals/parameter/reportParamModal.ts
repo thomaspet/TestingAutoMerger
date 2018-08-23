@@ -4,7 +4,13 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 
 import { StatisticsResponse } from '@app/models/StatisticsResponse';
-import { ErrorService, YearService, ReportDefinitionParameterService, StatisticsService } from '@app/services/services';
+import {
+    ErrorService,
+    YearService,
+    ReportDefinitionParameterService,
+    StatisticsService,
+    BrowserStorageService,
+} from '@app/services/services';
 import { ReportDefinitionParameter, ReportDefinition, LocalDate } from '@uni-entities';
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
@@ -24,6 +30,7 @@ import {environment} from 'src/environments/environment';
 
             <article [attr.aria-busy]="busy" class="modal-content">
                 <p [innerHtml]="options.message"></p>
+
                 <p class="warn" *ngIf="options.warning">
                     {{options.warning}}
                 </p>
@@ -34,33 +41,38 @@ import {environment} from 'src/environments/environment';
                     [config]="formConfig$"
                     (changeEvent)="onChangeEvent($event)">
                 </uni-form>
-
             </article>
+
+            <div class="rememberForm">
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="rememberSelection"
+                    (change)="onRememberChange()"
+                    [labelPosition]="'after'"
+                    [disableRipple]="true">
+                        Husk utvalg
+                </mat-checkbox>
+            </div>
 
             <footer>
                 <table style="width: 100%"><tr>
+                    <td class="nowrap left">
+                        <button class="good btn-left" (click)="trySend()">Epost</button>
 
-                <td class="nowrap left">
+                        <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
+                            Kommentarer ({{comments?.length}})
+                        </button>
+                    </td>
 
-                    <button class="good btn-left" (click)="trySend()">Epost</button>
+                    <td class="nowrap right">
+                        <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
+                            {{options.buttonLabels.accept}}
+                        </button>
 
-                    <button *ngIf="commentConfig" [class.bad]="comments?.length" class="good btn-left" (click)="editComments()">
-                        Kommentarer ({{comments?.length}})
-                    </button>
-                </td>
-
-                <td class="nowrap right">
-
-                    <button *ngIf="options.buttonLabels.accept" class="good" id="good_button_ok" (click)="accept()">
-                        {{options.buttonLabels.accept}}
-                    </button>
-
-                    <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
-                        {{options.buttonLabels.cancel}}
-                    </button>
-
-                </td>
-
+                        <button *ngIf="options.buttonLabels.cancel" class="cancel" (click)="cancel()">
+                            {{options.buttonLabels.cancel}}
+                        </button>
+                    </td>
                 </tr></table>
             </footer>
         </section>
@@ -76,11 +88,15 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     model$: BehaviorSubject<any> = new BehaviorSubject({});
     commentConfig: ReportCommentConfig;
     comments: any[];
+    rememberSelection: boolean = false;
 
+    private browserStorageItemKey: string;
+    private browserStorageReportParams: any;
     private hasParameterDependency: boolean = false;
     private report: ExtendedReportDefinition;
 
     constructor(
+        private browserStorageService: BrowserStorageService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
@@ -89,8 +105,11 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private toastService: ToastService,
     ) { }
 
-    fetchEditetParameters() {
+    fetchEditedParams() {
         const model = this.model$.getValue();
+         if (this.rememberSelection) {
+             this.browserStorageService.setItemOnCompany(this.browserStorageItemKey, model);
+         }
 
         this.report.parameters.map(param => {
             if (!model[param.Name] && param.Type === 'Number') {
@@ -134,7 +153,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     accept() {
-        this.fetchEditetParameters();
+        this.fetchEditedParams();
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
@@ -150,6 +169,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             };
         }
         this.report = this.options.data;
+        this.browserStorageItemKey = 'reportParamsForReportId:' + this.options.data.UniqueReportID;
         this.initForm();
     }
 
@@ -168,7 +188,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
             // find the changed param's idx in {this.report.parameters} to get which params to re-resolve
             const changedParamIdx = this.report.parameters.findIndex(param => param.Name === changedParamName);
             const paramsToBeResolved = this.report.parameters.slice(changedParamIdx + 1);
-            this.resolveParamValues(paramsToBeResolved)
+            this.resolveParamValues(paramsToBeResolved, false)
                 .then(params => {
                     // only fields that has been re-resolved should be re-generated
                     let paramsIdx = 0;
@@ -188,6 +208,13 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         }
         if (this.commentConfig && this.commentConfig.filter.indexOf(`{${changedParamName}}`) >= 0) {
             this.loadComments();
+        }
+    }
+
+    onRememberChange() {
+        if (!this.rememberSelection) {
+            this.browserStorageService.removeItemFromCompany(this.browserStorageItemKey);
+            this.initForm();
         }
     }
 
@@ -277,8 +304,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Options: undefined,
                 };
             case 'boolean':
-                param.DefaultValue = <any>(param.DefaultValue === 'true' || param.DefaultValue === '1');
-                param.value = param.DefaultValue;
+                param.value = param.value === true || param.value === false || param.DefaultValue === 'true' || param.DefaultValue === '1';
                 return <UniFieldLayout>{
                     Property: param.Name,
                     Label: param.Label,
@@ -302,7 +328,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     };
                 } else {
                     const source = JSON.parse(param.DefaultValueList);
-                    param.value = param.Name === 'OrderBy' ? source[0].Label : source[0].Value;
+                    param.value = param.value || (param.Name === 'OrderBy' ? source[0].Label : source[0].Value);
                     return <UniFieldLayout>{
                         Property: param.Name,
                         Label: param.Label,
@@ -317,7 +343,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     };
                 }
             case 'date':
-                param.value = param.DefaultValue || new LocalDate();
+                param.value = param.value || param.DefaultValue || new LocalDate();
                 return <UniFieldLayout>{
                     Property: param.Name,
                     Label: param.Label,
@@ -328,6 +354,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 this.commentConfig = this.commentConfig || { filter: param.DefaultValueLookupType };
                 break;
             default:
+                param.value = param.value ? param.value.toString() : undefined;
                 return <UniFieldLayout>{
                     Property: param.Name,
                     Label: param.Label,
@@ -341,7 +368,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         if (this.report) {
             this.busy = true;
             this.loadParams(this.report)
-                .switchMap(loadedParams => this.resolveParamValues(loadedParams))
+                .switchMap(loadedParams => this.resolveParamValues(loadedParams, true))
                 .subscribe(resolvedParams => {
                     this.report.parameters = resolvedParams;
                     this.fields$.next(resolvedParams.map(param => this.generateFields(param)));
@@ -361,7 +388,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         let filter = this.commentConfig.filter;
         let id: any = '0';
         if (filter.indexOf('{') >= 0) {
-            filter = this.replaceParamWithValue(filter, this.report.parameters);
+            filter = this.replaceQueryParamWithValue(filter, this.report.parameters);
         }
         if (filter.indexOf('/') >= 0) {
             const parts = filter.split('/');
@@ -415,7 +442,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     private openAndSendReport(receiver?: string) {
-        this.fetchEditetParameters();
+        this.fetchEditedParams();
         const isForm = !!this.report.ReportType;
         const formKey = this.report.parameters.length > 0 ? this.report.parameters[0].value : 0;
         const formKeyLabel = isForm && this.report.parameters.length > 0 ? ` ${this.report.parameters[0].value}` : '';
@@ -508,7 +535,6 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
     }
 
-
     private getEntityTypeFromReport(report: ExtendedReportDefinition) {
         switch (report.ReportType) {
             // case 1:
@@ -530,7 +556,18 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 }
                 return params;
             })
-            .switchMap(params => Observable.fromPromise(this.fetchDefaultValues(params)));
+            .switchMap(params => {
+                this.browserStorageReportParams = this.browserStorageService.getItemFromCompany(this.browserStorageItemKey);
+                if (this.browserStorageReportParams) {
+                    this.rememberSelection = true;
+                    return Observable.of(params.map(param => {
+                        param.value = this.browserStorageReportParams[param.Name];
+                        return param;
+                    }));
+                } else {
+                    return Observable.fromPromise(this.fetchDefaultValues(params));
+                }
+            });
     }
 
     private pickValueFromResult(param: ExtendedReportDefinitionParameter, result: any): any {
@@ -549,7 +586,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
     }
 
     // find the value of the parameter that is requested and return a query string that replaces {ParameterName} by the current value
-    private replaceParamWithValue(query: string, params: ExtendedReportDefinitionParameter[]): string {
+    private replaceQueryParamWithValue(query: string, params: ExtendedReportDefinitionParameter[]): string {
         this.hasParameterDependency = true;
         const paramName = query.substring(query.indexOf('{') + 1, query.indexOf('}'));
         const param = params.find(parameter => parameter.Name === paramName)
@@ -558,7 +595,10 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         return query.replace(`{${paramName}}`, paramValue.toString());
     }
 
-    private resolveParamValues(params: ExtendedReportDefinitionParameter[]): Promise<ExtendedReportDefinitionParameter[]> {
+    private resolveParamValues(
+        params: ExtendedReportDefinitionParameter[],
+        isOnInit: boolean
+    ): Promise<ExtendedReportDefinitionParameter[]> {
         return this.resolvePromisesSequentially(params.map(param => () => {
             // check if parameter has an API source to get the list for dropdown
             if (param.Type === 'Dropdown' && param.DefaultValueList.includes('/api/statistics')) {
@@ -567,16 +607,16 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 // check if the API source is dependent of another parameter, then written as {ParameterName} instead of the value
                 // example => {PeriodID} in '/api/statistics?model=VatReport&select=ID&filter=TerminPeriodID eq {PeriodID}'
                 if (query.includes('{')) {
-                    query = this.replaceParamWithValue(query, params);
+                    query = this.replaceQueryParamWithValue(query, params);
                 }
-                const valueProperty = JSON.parse(param.DefaultValueLookupType).ValueProperty;
-
                 return this.statisticsService.GetAllForCompany(`${query}`, this.report.companyKey)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                     .map((resp: StatisticsResponse) => resp.Data)
                     .map((data: any[]) => {
                         param.source = data;
-                        param.value = data[0] ? data[0][valueProperty] : undefined;
+                        if (data && data[0] && (!isOnInit || !this.browserStorageReportParams)) {
+                            param.value = data[0][JSON.parse(param.DefaultValueLookupType).ValueProperty];
+                        }
                         return param;
                     }).toPromise();
             }
