@@ -1489,6 +1489,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         invoice.Payment = null;
         invoice.PaymentID = null;
         invoice.DeliveryDate = null;
+        invoice.CreditedAmount = 0;
+        invoice.CreditedAmountCurrency = 0;
+        invoice.RestAmount = 0;
+        invoice.RestAmountCurrency = 0;
         if (invoice.PaymentTerms && invoice.PaymentTerms.CreditDays) {
             this.setPaymentDueDate(invoice);
         } else {
