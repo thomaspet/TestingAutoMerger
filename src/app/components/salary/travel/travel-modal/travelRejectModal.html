@@ -1,0 +1,20 @@
+<section role="dialog" class="uni-modal"
+        (clickOutside)="close(false)"
+        (keydown.esc)="close(false)">
+    <header>
+        <h1>Avvis reise</h1>
+    </header>
+    <article>
+        <span>Er du sikker på at du vil avvise reisen?</span>
+        <uni-form
+            [config]="formConfig$"
+            [fields]="fields$"
+            [model]="trvlModel$">
+        </uni-form>
+    </article>
+
+    <footer>
+        <button class="good" (click)="close(true)">Ja, avvis</button>
+        <button class="bad" (click)="close(false)">Nei, avbryt</button>
+    </footer>
+</section>

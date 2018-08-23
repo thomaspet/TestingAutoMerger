@@ -255,6 +255,13 @@ export class TravelService extends BizHttp<Travel> {
                         FieldType: FieldType.TEXTAREA,
                         Label: 'Formål',
                         ReadOnly: true,
+                    },
+                    {
+                        EntityType: 'Travel',
+                        Property: 'Comment',
+                        FieldType: FieldType.TEXTAREA,
+                        Label: 'Kommentar',
+                        ReadOnly: true,
                     }
                 ]
             }

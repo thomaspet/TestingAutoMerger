@@ -242,7 +242,9 @@ export class TravelComponent implements OnInit {
                 return Observable.forkJoin(obsList).map(() => travels);
             })
             .switchMap(travels => this.getTravelsObs())
-            .map(travels => this.mapSelected(travels))
+            .map(travels => {
+                return this.mapSelected(travels);
+            })
             .catch((err, obs) => {
                 done('Feil ved lagring');
                 return this.errorService.handleRxCatch(err, obs);
@@ -370,20 +372,32 @@ export class TravelComponent implements OnInit {
         this.checkFiles([travel]);
     }
 
+    private updateListObs(travels: Travel[]): Observable<Travel[]> {
+        return this.travels$
+                .take(1)
+                .map(trvls => {
+                    travels.forEach(travel => {
+                        const index = trvls.findIndex(trvl => trvl.ID === travel.ID);
+                        if (index < 0) {
+                            return;
+                        }
+                        trvls[index] = travel;
+                    });
+                    return trvls;
+                })
+                .do(trvls => this.travels$.next(trvls));
+    }
+
     public updatedList(travels: Travel[]) {
-        this.travels$
-            .take(1)
-            .map(trvls => {
-                travels.forEach(travel => {
-                    const index = trvls.findIndex(trvl => trvl.ID === travel.ID);
-                    if (index < 0) {
-                        return;
-                    }
-                    trvls[index] = travel;
-                });
-                return trvls;
-            })
+        this.updateListObs(travels)
             .subscribe(trvls => this.travels$.next(trvls));
+    }
+
+    public updateListAndSave(travels: Travel[]) {
+        this.updateListObs(travels)
+            .subscribe(trvls => {
+                this.saveTravels(t => {});
+            });
     }
 
     public travelChange(travel: Travel) {

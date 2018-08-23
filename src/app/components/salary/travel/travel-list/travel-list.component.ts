@@ -1,12 +1,16 @@
 import {Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit, OnChanges, SimpleChanges} from '@angular/core';
-import {Travel} from '@uni-entities';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {Travel, state} from '@uni-entities';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, IContextMenuItem} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TravelService} from '@app/services/services';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {TravelRejectModal} from '@app/components/salary/travel/travel-modal/travelRejectModal';
+
 const SELECTED_KEY = '_rowSelected';
+const DIRTY = '_isDirty';
 const PAGE_SIZE = 12;
+
 @Component({
     selector: 'uni-travel-list',
     templateUrl: './travel-list.component.html',
@@ -18,15 +22,19 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
     @Output() public selectedTravel: EventEmitter<Travel> = new EventEmitter();
     @Output() public updatedList: EventEmitter<Travel[]> = new EventEmitter();
     @Output() public selectionChange: EventEmitter<Travel[]> = new EventEmitter();
+    @Output() public updateListAndSave: EventEmitter<Travel[]> = new EventEmitter();
     @ViewChild(AgGridWrapper) public grid: AgGridWrapper;
     private grid$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
     public busy: boolean;
 
     public config: UniTableConfig;
-
+    public contextMenuItems: IContextMenuItem[] = [];
     private selected: Travel;
 
-    constructor(private travelService: TravelService) {}
+    constructor(
+        private travelService: TravelService,
+        private modalService: UniModalService
+    ) {}
 
     public ngOnInit() {
         this.createConfig();
@@ -49,10 +57,19 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
         const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text);
 
+        this.contextMenuItems = [
+            {
+                action: (item) => this.rejectTravel(item),
+                disabled: (item) => item.State >= state.Rejected,
+                label: 'Avvis reise'
+            }
+        ];
+
         this.config = new UniTableConfig('salary.travel.travellist', false)
             .setMultiRowSelect(true)
             .setColumns([typeCol, nameCol, descriptionCol])
             .setPageSize(PAGE_SIZE)
+            .setContextMenu(this.contextMenuItems)
             .setConditionalRowCls(row => {
                 if (row[SELECTED_KEY]) {
                     return 'selected-travel';
@@ -67,6 +84,22 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
 
     public selectionChanged(selection: Travel[]) {
         this.selectionChange.next(selection);
+    }
+
+    private rejectTravel(travel: Travel) {
+        this.modalService
+            .open(TravelRejectModal, {data: travel})
+            .onClose
+            .subscribe((result) => {
+                if (result.reject) {
+                    travel.State = state.Rejected;
+                    travel[DIRTY] = true;
+                    travel[SELECTED_KEY] = true;
+                    const indx = this.travels.findIndex(t => t.ID === travel.ID);
+                    this.travels[indx] = travel;
+                    this.updateListAndSave.next(this.travels);
+                }
+            });
     }
 
     private updateSelected(row: Travel) {

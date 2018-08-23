@@ -43,7 +43,7 @@ export class TravelFilterComponent implements OnInit, OnChanges {
     public ngOnChanges(changes: SimpleChanges) {
 
         const travelChange = changes['travels'];
-        if (travelChange && (!travelChange.previousValue || travelChange.previousValue.length !== travelChange.currentValue.length)) {
+        if (travelChange && (this.travels && this.travels.length > 0)) {
             this.createFilters(this.travels);
 
             this.payrollRunService
@@ -69,6 +69,7 @@ export class TravelFilterComponent implements OnInit, OnChanges {
         this.filters = [
             this.createFilter(1, travels),
             this.createFilter(2, travels),
+            this.createFilter(3, travels),
         ];
         this.tabs = this.filters.map(filter => {
             return {
@@ -96,6 +97,8 @@ export class TravelFilterComponent implements OnInit, OnChanges {
                 return (travel) => travel.State === state.Received || travel.State === state.PartlyProcessed;
             case 2:
                 return (travel) => travel.State === state.Processed;
+            case 3:
+                return (travel) => travel.State === state.Rejected;
             default:
                 return travel => true;
         }
@@ -107,6 +110,8 @@ export class TravelFilterComponent implements OnInit, OnChanges {
                 return 'Ubehandlet';
             case 2:
                 return 'Importert';
+            case 3:
+                return 'Avvist';
         }
     }
 

@@ -106,6 +106,7 @@ import {MatSlideToggleModule} from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
+import {TravelRejectModal} from './travel/travel-modal/travelRejectModal';
 
 @NgModule({
     imports: [
@@ -206,13 +207,13 @@ import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
 
         // Travel
         TraveltypeComponent,
-        // Travel
         TravelComponent,
         TravelListComponent,
         TravelDetailsComponent,
         TravelLinesComponent,
         TravelFilterComponent,
         EmployeeTransTickerComponent,
+        TravelRejectModal,
     ],
     entryComponents: [
         TaxCardModal,
@@ -229,6 +230,7 @@ import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
         ReconciliationModalComponent,
         ReconciliationResponseModalComponent,
         TimeTransferComponent,
+        TravelRejectModal,
     ],
     providers: [
         CanDeactivateGuard,
@@ -317,7 +319,8 @@ import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
         TravelComponent,
         TravelListComponent,
         TravelDetailsComponent,
-        TravelLinesComponent
+        TravelLinesComponent,
+        TravelRejectModal
     ]
 })
 export class SalaryModule {}
