@@ -122,7 +122,7 @@ export class TravelService extends BizHttp<Travel> {
                     .switchMap(travel => this.getSuppliers(x => x.ID === travel.SupplierID));
             },
             valueProperty: 'ID',
-            template: (supplier: Supplier) => supplier ? `${supplier.ID} - ${supplier.Info.Name}` : '',
+            template: (supplier: Supplier) => supplier ? `${supplier.SupplierNumber} - ${supplier.Info.Name}` : '',
             search: (query: string) => this.getSuppliers(supplier =>
                 supplier.ID.toString().startsWith(query)
                 || supplier.Info.Name.toLowerCase().includes(query))
