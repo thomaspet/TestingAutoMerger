@@ -2697,11 +2697,6 @@ export class BillView implements OnInit {
                         if (current.DefaultDimensions.DepartmentID) {
                             draft.Dimensions.DepartmentID = current.DefaultDimensions.DepartmentID;
                         }
-                   //     this.customDimensions.forEach((dim) => {
-                   //         if (line.Dimensions['Dimension' + dim.Dimension + 'ID']) {
-                   //             draft.Dimensions['Dimension' + dim.Dimension + 'ID'] = line.Dimensions['Dimension' + dim.Dimension + 'ID'];
-                   //         }
-                   //     });
 
                         // the dimension wont actually be saved, but we need this to bypass the validations
                         // in the put method - the JournalEntryLineDraftHandler will override the values
@@ -2709,6 +2704,12 @@ export class BillView implements OnInit {
                         // if that exists
                         draft.Dimensions['_createguid'] = this.journalEntryService.getNewGuid();
                     }
+
+                    this.customDimensions.forEach((dim) => {
+                        if (line.Dimensions['Dimension' + dim.Dimension + 'ID']) {
+                            draft.Dimensions['Dimension' + dim.Dimension + 'ID'] = line.Dimensions['Dimension' + dim.Dimension + 'ID'];
+                        }
+                    });
 
                     if (line.JournalEntryDataAccrual) {
                         draft.Accrual = line.JournalEntryDataAccrual;
