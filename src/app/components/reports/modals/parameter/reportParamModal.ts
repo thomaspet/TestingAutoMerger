@@ -576,12 +576,6 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 return result[param.DefaultValue];
             }
             return param.DefaultValue;
-        } else {
-            for (const key in result) {
-                if (result.hasOwnProperty(key)) {
-                    return result[key];
-                }
-            }
         }
     }
 
