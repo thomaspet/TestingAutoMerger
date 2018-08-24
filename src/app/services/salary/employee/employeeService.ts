@@ -205,7 +205,7 @@ export class EmployeeService extends BizHttp<Employee> {
                 {
                     EntityType: 'Employee',
                     Property: 'EmployeeNumber',
-                    FieldType: FieldType.NUMERIC,
+                    FieldType: FieldType.TEXT,
                     ReadOnly: true,
                     Label: 'Nr',
                     FieldSet: 1,
