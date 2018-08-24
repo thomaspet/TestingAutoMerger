@@ -43,7 +43,7 @@ import {environment} from 'src/environments/environment';
                 </uni-form>
             </article>
 
-            <div class="rememberForm">
+            <div *ngIf="options?.data?.parameters?.length > 0" class="rememberForm">
                 <mat-checkbox
                     tabindex="-1"
                     [(ngModel)]="rememberSelection"
@@ -552,7 +552,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         return this.reportDefinitionParameterService.GetAll('filter=ReportDefinitionId eq ' + report.ID)
             .map(params => {
                 if (!params || params.length === 0) {
-                    throw new Error('Did not find any report definition parameters!');
+                    return [];
                 }
                 return params;
             })
