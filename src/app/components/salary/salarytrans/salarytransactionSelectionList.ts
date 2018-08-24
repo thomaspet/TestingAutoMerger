@@ -217,27 +217,32 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
             .take(1)
             .map((run: PayrollRun) => this.taxCardService.getTaxCardPercentAndTable(taxCard, new Date(run.PayDate).getFullYear()))
             .subscribe(taxCardInfo => {
-                this.summary = [{
-                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
-                    title: `Prosenttrekk ` + taxCardInfo.percent,
-                    description: employeeTotals
-                        && employeeTotals.basePercentTax
-                        ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
-                }, {
+                this.summary = [
+                {
+                    title: 'Grunnlag AGA',
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.baseAGA)
+                },
+                {
+                    title: 'Gr.lag feriepenger',
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.baseVacation)
+                },
+                {
                     value: employeeTotals && this.numberFormat.asMoney(employeeTotals.tableTax),
                     title: 'Tabelltrekk ' + taxCardInfo.table,
                     description: employeeTotals
                         && employeeTotals.baseTableTax
                         ? `av ${this.numberFormat.asMoney(employeeTotals.baseTableTax)}` : null
-                }, {
+                },
+                {
+                    value: employeeTotals && this.numberFormat.asMoney(employeeTotals.percentTax),
+                    title: `Prosenttrekk ` + taxCardInfo.percent,
+                    description: employeeTotals
+                        && employeeTotals.basePercentTax
+                        ? `av ${this.numberFormat.asMoney(employeeTotals.basePercentTax)}` : null
+                },
+                {
                     title: 'Utbetalt beløp',
                     value: employeeTotals && this.numberFormat.asMoney(employeeTotals.netPayment)
-                }, {
-                    title: 'Beregnet AGA',
-                    value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.calculatedAGA) : null
-                }, {
-                    title: 'Gr.lag feriepenger',
-                    value: employeeTotals ? this.numberFormat.asMoney(employeeTotals.baseVacation) : null
                 }];
             });
     }
