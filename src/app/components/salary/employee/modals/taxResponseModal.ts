@@ -6,10 +6,10 @@ import {TaxCardReadStatus} from '../../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {Observable} from 'rxjs/Observable';
 
-type TaxInfo = {
-    receiptID: number,
-    auth: AltinnAuthenticationData
-};
+interface ITaxInfo {
+    receiptID: number;
+    auth: AltinnAuthenticationData;
+}
 
 @Component({
     selector: 'tax-response-modal',
@@ -35,18 +35,32 @@ export class TaxResponseModal implements OnInit, IUniModal {
             .subscribe(status => this.header = status.Title || 'Resultat');
 
         Observable
-            .of(<TaxInfo>this.options.data)
+            .of(<ITaxInfo>this.options.data)
             .do(() => this.busy = true)
             .switchMap(info => this.altinnService.readTaxCard(info.auth, info.receiptID))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .catch(err => Observable.of(
+                {
+                    mainStatus: this.getError(err),
+                    Text: '',
+                    Title: 'Feil fra Altinn',
+                    employeestatus: []
+                }))
             .do(() => {
-                let config = this.options.modalConfig;
+                const config = this.options.modalConfig;
                 if (config.update) {
                     config.update();
                 }
             })
             .finally(() => this.busy = false)
             .subscribe((responseMessage) => this.taxStatus$.next(responseMessage));
+    }
+
+    private getError(err: any) {
+        const msg = this.errorService.extractMessage(err);
+        if (msg.toLowerCase().includes('no reference found')) {
+            return 'Din skattekortforespørsel er ikke klar enda. Prøv igjen senere.';
+        }
+        return msg;
     }
 
     public close() {
