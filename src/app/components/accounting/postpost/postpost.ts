@@ -10,6 +10,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
+import {UniAutomarkModal} from './automarkModal';
 import {
     Customer,
     Supplier,
@@ -86,6 +87,7 @@ export class PostPost {
     public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
     public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
     public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    public current$: BehaviorSubject<any> = new BehaviorSubject(null);
 
     public toolbarconfig: IToolbarConfig;
     public accountSearch: IAutoCompleteConfig;
@@ -153,7 +155,9 @@ export class PostPost {
                 tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
             }
         ];
-        this.currentTab = this.mainTabs[0];
+        if (!this.currentTab) {
+            this.currentTab = this.mainTabs[0];
+        }
     }
 
     public focusRow(index?: number) {
@@ -201,7 +205,7 @@ export class PostPost {
                 label: 'Gjenåpne valgte',
                 main: this.currentFilter === 'MARKED' || this.allSelectedLocked
             }, {
-                action: this.automark.bind(this),
+                action: this.autoMark.bind(this),
                 disabled: false,
                 label: 'Automerk'
             }, {
@@ -216,12 +220,6 @@ export class PostPost {
         ];
     }
 
-    public autoMark() {
-        if (this.postpost.canAutoMark) {
-            this.automark(msg => {});
-        }
-    }
-
     private autolock(done: (message: string) => void) {
         this.autolocking = !this.autolocking;
         this.setupSaveActions();
@@ -233,9 +231,13 @@ export class PostPost {
         done('Lagret');
     }
 
-    private automark(done: (message: string) => void) {
-        this.postpost.autoMarkJournalEntries();
-        done('Merket');
+    public autoMark(done: (message: string) => void = msg => {}) {
+        this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((automark) => {
+            if (this.postpost.canAutoMark && automark) {
+                this.postpost.autoMarkJournalEntries(automark);
+                done('Merket');
+            }
+        });
     }
 
     private lock(done: (message: string) => void) {
@@ -347,6 +349,7 @@ export class PostPost {
             if (allowed) {
                 const account = event.rowModel;
                 this.selectedIndex = account._originalIndex;
+                this.current$.next(account);
                 switch (this.register) {
                     case 'customer':
                         this.customer$.next(account);
@@ -410,7 +413,8 @@ export class PostPost {
         } else {
             this.statisticsService.GetAll(
                 'model=journalentryline&select=Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,' +
-                'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,sum(RestAmount) as RestAmount' +
+                'SubAccount.AccountNumber,SubAccount.AccountName,sum(Amount) as Sum,' +
+                'sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as RestAmount' +
                 `&filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.${this.register}id gt 0&top=` +
                 '&having=sum(amount) ne sum(restamount)&expand=account,subaccount').subscribe((res) => {
                     this.setMainTabs((this.register === 'customer' ? 'kunder' : 'leverandører'),
@@ -420,7 +424,6 @@ export class PostPost {
     }
 
     private loadCustomers() {
-
         const query = this.currentTab.value !== 'DIFF'
             ? `model=JournalEntryLine&` +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
@@ -430,10 +433,11 @@ export class PostPost {
                 `orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
                 'expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&' +
-                'filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.customerid gt 0&' +
-                'having=sum(amount) ne sum(restamount)&expand=account,subaccount';
+                'filter=SubAccountid gt 0 and subaccount.customerid gt 0&' +
+                'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
+                '&expand=account,subaccount&orderby=Customer.CustomerNumber';
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);
@@ -450,10 +454,11 @@ export class PostPost {
                 `orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
-                `Info.Name as AccountName,sum(RestAmount) as SumAmount,sum(Amount) as Balance&` +
+                `Info.Name as AccountName,sum(casewhen(statuscode eq 31004\,0\,RestAmount)) as SumAmount,sum(Amount) as Balance&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccountid gt 0 and statuscode le 31003 and subaccount.supplierid gt 0&` +
-                'having=sum(amount) ne sum(restamount)&expand=account,subaccount';
+                `filter=SubAccountid gt 0 and subaccount.supplierid gt 0&` +
+                'having=sum(amount) ne sum(casewhen(statuscode eq 31004\,0\,RestAmount))' +
+                '&expand=account,subaccount&orderby=Supplier.SupplierNumber';
         this.statisticsService.GetAllUnwrapped(query)
             .subscribe(accounts => {
                 this.accounts$.next(accounts);

@@ -32,6 +32,7 @@
 
     <section *ngIf="activeTabIndex === 1" class="uni-container">
         <ledger-account-reconciliation
+            [accountNumber]="(supplier$|async)?.SupplierNumber"
             [supplierID]="(supplier$|async)?.ID">
         </ledger-account-reconciliation>
     </section>

@@ -50,6 +50,9 @@ export class LedgerAccountReconciliation {
     public customerID: number;
 
     @Input()
+    public accountNumber: number;
+
+    @Input()
     public accountID: number;
 
     @Input()
@@ -133,7 +136,16 @@ export class LedgerAccountReconciliation {
         this.canAutoMark = false;
         if (this.customerID || this.supplierID || this.accountID) {
             this.busy = true;
-            this.setupUniTable();
+            if (this.customerID || this.supplierID) {
+                this.journalEntryLineService.getBalance(this.accountNumber).subscribe((res) => {
+                    if (res && res.Data && res.Data[0]) {
+                        this.summaryData.SumBalance = res.Data[0].Saldo;
+                    }
+                    this.setupUniTable();
+                });
+            } else {
+                this.setupUniTable();
+            }
         } else {
             this.journalEntryLines = [];
         }
@@ -143,7 +155,6 @@ export class LedgerAccountReconciliation {
         this.summaryData.SumChecked = 0;
         this.summaryData.SumOpenDue = 0;
         this.summaryData.SumOpen = 0;
-        this.summaryData.SumBalance = 0;
 
         setTimeout(() => {
             const posts = this.table.getTableData();
@@ -151,7 +162,6 @@ export class LedgerAccountReconciliation {
             posts.forEach(x => {
                 if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
                     this.summaryData.SumOpen += x.RestAmount;
-                    this.summaryData.SumBalance += x.Amount;
                     if (x.DueDate && moment(x.DueDate).isBefore(moment())) {
                         this.summaryData.SumOpenDue += x.RestAmount;
                     }
@@ -365,7 +375,7 @@ export class LedgerAccountReconciliation {
         }
     }
 
-    public autoMarkJournalEntries() {
+    public autoMarkJournalEntries(criterias) {
 
         if (this.allMarkingSessions.length > 0) {
             this.toastService.addToast('Kan ikke kjøre automerking',
@@ -380,7 +390,7 @@ export class LedgerAccountReconciliation {
 
         this.canAutoMark = false;
 
-        this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID)
+        this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, criterias)
             .then( result => {
                 if (result.length > 0) {
                     this.allMarkingSessions = result;
@@ -391,7 +401,6 @@ export class LedgerAccountReconciliation {
                     this.isDirty = true;
                 }
         });
-
     }
 
     private addToCurrentMarkingSession(model) {
@@ -483,7 +492,7 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private closeMarkingSession(): boolean {
+    public closeMarkingSession(): boolean {
 
         if (this.currentMarkingSession.length === 1 && this.currentMarkingSession[0].RestAmount === 0) {
             // if only one item has been added, and that has 0 as RestAmount, just mark it against itself
@@ -621,7 +630,7 @@ export class LedgerAccountReconciliation {
                 title: 'Differanse markerte poster',
             }
         ];
-        if (this.summaryData.SumOpen !== this.summaryData.SumBalance) {
+        if (this.summaryData.SumOpen !== this.summaryData.SumBalance && (this.customerID || this.supplierID)) {
             this.summary.unshift({
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumBalance) : null,
                 title: 'Saldo',

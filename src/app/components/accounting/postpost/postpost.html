@@ -45,6 +45,7 @@
 
             <ledger-account-reconciliation
                 [customerID]="(customer$ | async)?.ID"
+                [accountNumber]="(current$ | async)?.AccountNumber"
                 [supplierID]="(supplier$ | async)?.ID"
                 [accountID]="(account$ | async)?.ID"
                 [pointInTime]="pointInTime$ | async"

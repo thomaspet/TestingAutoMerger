@@ -57,6 +57,7 @@
     <!-- Reconciliation tab -->
     <section *ngIf="activeTabIndex === 1" class="uni-container">
         <ledger-account-reconciliation
+            [accountNumber]="(customer$ | async)?.CustomerNumber"
             [customerID]="(customer$ | async)?.ID">
         </ledger-account-reconciliation>
     </section>

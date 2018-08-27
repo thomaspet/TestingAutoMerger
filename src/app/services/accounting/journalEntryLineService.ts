@@ -75,4 +75,15 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
         });
         return text;
     };
+
+    public getBalance(customerNumber: number) {
+        return this.http
+        .asGET()
+        .usingStatisticsDomain()
+        .withEndPoint(
+            `?model=journalentryline&select=sum(amount) as Saldo&filter=subaccount.accountnumber eq ${customerNumber}&expand=subaccount`
+        )
+        .send()
+        .map(res => res.json());
+    }
 }
