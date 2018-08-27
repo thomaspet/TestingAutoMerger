@@ -9,7 +9,7 @@ import {TravelRejectModal} from '@app/components/salary/travel/travel-modal/trav
 
 const SELECTED_KEY = '_rowSelected';
 const DIRTY = '_isDirty';
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 50;
 
 @Component({
     selector: 'uni-travel-list',
