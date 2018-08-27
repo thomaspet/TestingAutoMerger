@@ -298,6 +298,7 @@ export class TransqueryDetails implements OnInit {
         clearTimeout(this.searchTimeout);
 
         const form = this.searchParams$.getValue();
+        let urlRoute = '';
 
         if (input['JournalEntryNumber']) {
             form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
@@ -311,9 +312,22 @@ export class TransqueryDetails implements OnInit {
             form['Amount'] = input['Amount'].currentValue;
         }
 
+        if (form['JournalEntryNumber']) {
+            urlRoute += ';number=' + form['JournalEntryNumber'];
+        }
+        if (form['Amount']) {
+            urlRoute += ';totalamount=' + form['Amount'];
+        }
+        if (form['Account']) {
+            urlRoute += ';accountnumber=' + form['Account'];
+        }
+
         this.searchTimeout = setTimeout(() => {
             this.searchParams$.next(form);
-            this.onFormFilterChange(null);
+            let currentRoute = this.router.url.split(';')[0];
+            currentRoute += urlRoute;
+            this.tabService.currentActiveTab.url = currentRoute;
+            this.router.navigateByUrl(currentRoute);
         }, 300);
     }
 
@@ -489,6 +503,12 @@ export class TransqueryDetails implements OnInit {
             });
 
             this.allowManualSearch = false;
+        } else if (routeParams['number'] || routeParams['accountnumber'] || routeParams['totalamount'] ) {
+            const sp = this.searchParams$.value;
+            sp.JournalEntryNumber = routeParams['number'];
+            sp.Account = routeParams['accountnumber'];
+            sp.Amount = routeParams['totalamount'];
+            this.searchParams$.next(sp);
         } else {
             for (const field of Object.keys(routeParams)) {
                 filter.push({
