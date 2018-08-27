@@ -161,11 +161,11 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public runSettling(ID: number, done: (message: string) => void = null) {
         return this.salaryTransactionService
             .GetAll(`filter=PayrollRunID eq ${ID}`)
-            .do(transes => {
-                this.validateTransesOnRun(transes, done);
+            .map(transes => {
+                return this.validateTransesOnRun(transes, done);
             })
-            .filter((trans: SalaryTransaction[]) => !!trans.length)
-            .switchMap(transes => super.PutAction(ID, 'calculate'))
+            .filter((validates: boolean) => validates)
+            .switchMap(() => super.PutAction(ID, 'calculate'))
             .do(() => this.clearRelatedCaches());
     }
 
@@ -252,7 +252,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'payments-on-runs');
     }
 
-    public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null) {
+    public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null): boolean {
+        let validates: boolean = true;
         if (!transes.length) {
             this.toastService
                 .addToast(
@@ -263,25 +264,29 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
             if (done) {
                 done('Avregning avbrutt');
             }
+            validates = false;
         }
-
-        for (let i = 0; i < transes.length; i++) {
-            const trans = transes[i];
-            if (trans.Account == null) {
-                this.toastService
-                    .addToast('Konto mangler',
-                        ToastType.bad,
-                        ToastTime.medium,
-                        `Ansatt nr ${trans.EmployeeNumber}:
-                        Lønnspost nr ${trans.ID},
-                        med lønnsart ${trans.WageTypeNumber},
-                        tekst '${trans.Text}' mangler konto`);
-                if (done) {
-                    done('Ikke avregnet');
+        if (validates) {
+            for (let i = 0; i < transes.length; i++) {
+                const trans = transes[i];
+                if (trans.Account == null) {
+                    this.toastService
+                        .addToast('Konto mangler',
+                            ToastType.bad,
+                            ToastTime.medium,
+                            `Ansatt nr ${trans.EmployeeNumber}:
+                            Lønnspost nr ${trans.ID},
+                            med lønnsart ${trans.WageTypeNumber},
+                            tekst '${trans.Text}' mangler konto`);
+                    if (done) {
+                        done('Ikke avregnet');
+                    }
+                    validates = false;
+                    break;
                 }
-                return;
             }
         }
+        return validates;
     }
 
     public setPaymentStatusOnPayroll(payrollRun: PayrollRun): Observable<PayrollRun> {
