@@ -5,7 +5,7 @@ import {
     UniTable, UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../../framework/ui/unitable/index';
 import {
-    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService
+    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, YearService
 } from '../../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
@@ -18,7 +18,6 @@ import * as moment from 'moment';
     selector: 'vacation-pay-settings-modal',
     templateUrl: './vacationPaySettingsModal.html'
 })
-
 export class VacationPaySettingsModal implements OnInit, IUniModal {
     @ViewChild(UniTable) private table: UniTable;
     @Input() public options: IModalOptions;
@@ -36,29 +35,37 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
     private originalDeduction: number;
     public dueToHolidayChanged: boolean = false;
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
+    private activeYear: number;
+    private stdCompVacRate: CompanyVacationRate;
 
     constructor(
         private _companysalaryService: CompanySalaryService,
         private _companyvacationRateService: CompanyVacationRateService,
         private _accountService: AccountService,
         private errorService: ErrorService,
-        private vacationPayLineService: VacationpayLineService
+        private vacationPayLineService: VacationpayLineService,
+        private yearService: YearService
     ) { }
 
     public ngOnInit() {
         this.busy = true;
-        Observable
-            .forkJoin(
-                this._companysalaryService.getCompanySalary(),
-                this._companyvacationRateService.GetAll(''),
-                this._companyvacationRateService.getCurrentRates()
-            )
+        this.yearService
+            .getActiveYear()
+            .do(yr => this.activeYear = yr || null)
+            .switchMap(yr =>
+                Observable.forkJoin(
+                    this._companysalaryService.getCompanySalary(),
+                    this._companyvacationRateService.GetAll(''),
+                    this._companyvacationRateService.getCurrentRates(yr)
+                ))
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.busy = false)
             .subscribe((response: any) => {
                 const [compsal, rates, stdRate] = response;
                 this.setDefaultValues(compsal, stdRate);
                 this.companysalaryModel$.next(compsal);
                 this.originalDeduction = this.companysalaryModel$.getValue().WageDeductionDueToHoliday;
+                this.stdCompVacRate = stdRate;
                 this.vacationRates = rates;
                 this.formConfig$.next({
                     submitText: ''
@@ -66,7 +73,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                 this.setFormFields();
                 this.setTableConfig();
                 this.done('');
-            }, err => this.errorService.handle(err));
+            });
     }
 
     public saveSettings() {
@@ -219,17 +226,26 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpaySettingModalContent', true)
             .setColumns([rateCol, rate60Col, dateCol])
             .setPageable(this.vacationRates.length > 10)
+            .setCopyFromCellAbove(false)
             .setChangeCallback((event) => {
                 const row = event.rowModel;
                 if (event.field === 'FromDate') {
-                    row.FromDate = row.FromDate && new LocalDate(row.FromDate + '-01-01');
-                    return row;
+                    row.FromDate = row.FromDate
+                    ? new LocalDate(moment(row.FromDate).format('YYYY') + '-01-01')
+                    : new LocalDate(this.activeYear - 1 + '-01-01');
                 }
+                if (event.field === 'Rate60') {
+                    row.Rate60 = row.Rate60 ? row.Rate60 : this.stdCompVacRate.Rate60;
+                }
+                if (event.field === 'Rate') {
+                    row.Rate = row.Rate ? row.Rate : this.stdCompVacRate.Rate;
+                }
+                return row;
             });
     }
 
     private setDefaultValues(compSalary: CompanySalary, compVacRate: CompanyVacationRate) {
-        compSalary['_standardVacationRate'] = compVacRate ? compVacRate.Rate + '%' : '';
+        compSalary['_standardVacationRate'] = compVacRate !== undefined ? compVacRate.Rate + '%' : '';
     }
 
     public close() {
