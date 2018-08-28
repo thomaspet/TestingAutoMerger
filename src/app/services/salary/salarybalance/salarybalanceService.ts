@@ -123,6 +123,12 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             case 'createpayment':
                 helpText = 'Lag utbetalingspost til leverandør ved utbetaling av lønnsavregning.';
                 break;
+            case 'minamount':
+                helpText = 'Her legges inn et minimumstrekkbeløp dersom det er valgt prosent-trekk';
+                break;
+            case 'maxamount':
+                helpText = 'Her legges inn et maksimumstrekkbeløp dersom det er valgt prosent-trekk';
+                break;
             default:
                 break;
         }
@@ -270,7 +276,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     public isHiddenByInstalmentType(salaryBalance: SalaryBalance) {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
             && (salaryBalance.InstalmentType !== SalBalType.Outlay)
-            && (salaryBalance.InstalmentType !== SalBalType.Other);
+            && (salaryBalance.InstalmentType !== SalBalType.Other)
+            && (salaryBalance.InstalmentType !== SalBalType.Union);
     }
 
     public resetFields(salaryBalance: SalaryBalance): SalaryBalance {
@@ -292,6 +299,14 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             {
                 prop: 'InstalmentPercent',
                 func: percentField => percentField.ReadOnly = !!salaryBalance.Instalment
+            },
+            {
+                prop: 'MinAmount',
+                func: minamountField => minamountField.ReadOnly = !salaryBalance.InstalmentPercent
+            },
+            {
+                prop: 'MaxAmount',
+                func: maxamountField => maxamountField.ReadOnly = !salaryBalance.InstalmentPercent
             }
         ];
     }
@@ -464,7 +479,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placement: 6,
-                        Hidden: !!salaryBalance.ID || salaryBalance.InstalmentType === SalBalType.Contribution,
+                        Hidden: !!salaryBalance.ID || (salaryBalance.InstalmentType === SalBalType.Contribution
+                            || salaryBalance.InstalmentType === SalBalType.Union),
                         Options: {
                             format: 'money',
                             decimalLength: 2
@@ -474,7 +490,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         EntityType: 'salarybalance',
                         Property: 'Instalment',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Avdrag',
+                        Label: salaryBalance.InstalmentType === SalBalType.Union ? 'Trekk' : 'Avdrag',
                         Tooltip: {
                             Text: this.getHelpText('instalment')
                         },
@@ -491,7 +507,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         EntityType: 'salarybalance',
                         Property: 'InstalmentPercent',
                         FieldType: FieldType.NUMERIC,
-                        Label: 'Avdrag prosent',
+                        Label: salaryBalance.InstalmentType === SalBalType.Union ? 'Trekk prosent' : 'Avdrag prosent',
                         Tooltip: {
                             Text: this.getHelpText('instalmentpercent')
                         },
@@ -504,6 +520,42 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         },
                         ReadOnly: !!salaryBalance.Instalment,
                         Hidden: salaryBalance.InstalmentType === SalBalType.Advance
+                    },
+                    {
+                        EntityType: 'salarybalance',
+                        Property: 'MinAmount',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Minimumsbeløp',
+                        Tooltip: {
+                            Text: this.getHelpText('minamount')
+                        },
+                        FieldSet: 0,
+                        Section: 0,
+                        Placement: 8,
+                        Options: {
+                            format: 'money',
+                            decimalLength: 2
+                        },
+                        ReadOnly: !salaryBalance.InstalmentPercent,
+                        Hidden: salaryBalance.InstalmentType !== SalBalType.Union
+                    },
+                    {
+                        EntityType: 'salarybalance',
+                        Property: 'MaxAmount',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Maksimumsbeløp',
+                        Tooltip: {
+                            Text: this.getHelpText('maxamount')
+                        },
+                        FieldSet: 0,
+                        Section: 0,
+                        Placement: 8,
+                        Options: {
+                            format: 'money',
+                            decimalLength: 2
+                        },
+                        ReadOnly: !salaryBalance.InstalmentPercent,
+                        Hidden: salaryBalance.InstalmentType !== SalBalType.Union
                     },
                     {
                         EntityType: 'salarybalance',
@@ -523,7 +575,20 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                             template: (supplier: Supplier) => supplier
                                 ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
                                 : ''
-                        }
+                        },
+                        Validations: [
+                            (value: number, field: UniFieldLayout) => {
+                                if (!!value || salaryBalance.InstalmentType !== SalBalType.Union) {
+                                    return;
+                                }
+
+                                return {
+                                    field: field,
+                                    value: value,
+                                    errorMessage: 'Leverandør er påkrevd',
+                                    isWarning: false};
+                                }
+                        ]
                     },
                     {
                         EntityType: 'salarybalance',

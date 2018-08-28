@@ -476,27 +476,6 @@ export class DebtCollectionSettings extends UniEntity {
 }
 
 
-export class DistributionPlan extends UniEntity {
-    public static RelativeUrl = 'distributions';
-    public static EntityType = 'DistributionPlan';
-
-    public _createguid: string;
-    public CompanySettingsID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public CustomerID: number;
-    public Deleted: boolean;
-    public EntityType: string;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public Elements: Array<DistributionPlanElement>;
-    public CustomFields: any;
-}
-
-
 export class SubCompany extends UniEntity {
     public static RelativeUrl = 'subcompanies';
     public static EntityType = 'SubCompany';
@@ -775,60 +754,6 @@ export class CustomerInvoiceReminder extends UniEntity {
 }
 
 
-export class DistributionPlanElement extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'DistributionPlanElement';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public DistributionPlanElementTypeID: number;
-    public DistributionPlanID: number;
-    public ID: number;
-    public Priority: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public ElementType: DistributionPlanElementType;
-    public CustomFields: any;
-}
-
-
-export class DistributionPlanElementType extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'DistributionPlanElementType';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
-export class DistributionType extends UniEntity {
-    public static RelativeUrl = '';
-    public static EntityType = 'DistributionType';
-
-    public _createguid: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public ID: number;
-    public Name: string;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public CustomFields: any;
-}
-
-
 export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
@@ -846,11 +771,13 @@ export class Customer extends UniEntity {
     public DefaultCustomerInvoiceReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
+    public DefaultDistributionsID: number;
     public DefaultSellerID: number;
     public Deleted: boolean;
     public DeliveryTermsID: number;
     public DimensionsID: number;
     public DontSendReminders: boolean;
+    public EfakturaIdentifier: string;
     public GLN: string;
     public ID: number;
     public IsPrivate: boolean;
@@ -865,6 +792,7 @@ export class Customer extends UniEntity {
     public UpdatedBy: string;
     public WebUrl: string;
     public Info: BusinessRelation;
+    public Distributions: Distributions;
     public PaymentTerms: Terms;
     public DeliveryTerms: Terms;
     public Dimensions: Dimensions;
@@ -1932,6 +1860,8 @@ export class SalaryBalance extends UniEntity {
     public InstalmentPercent: number;
     public InstalmentType: SalBalType;
     public KID: string;
+    public MaxAmount: number;
+    public MinAmount: number;
     public Name: string;
     public SalaryBalanceTemplateID: number;
     public Source: SalBalSource;
@@ -3438,6 +3368,126 @@ export class PredefinedDescription extends UniEntity {
 }
 
 
+export class Distributions extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'Distributions';
+
+    public _createguid: string;
+    public AnnualStatementDistributionPlanID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerInvoiceDistributionPlanID: number;
+    public CustomerInvoiceReminderDistributionPlanID: number;
+    public CustomerOrderDistributionPlanID: number;
+    public CustomerQuoteDistributionPlanID: number;
+    public Deleted: boolean;
+    public ID: number;
+    public PayCheckDistributionPlanID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomerInvoiceDistributionPlan: DistributionPlan;
+    public CustomerOrderDistributionPlan: DistributionPlan;
+    public CustomerQuoteDistributionPlan: DistributionPlan;
+    public CustomerInvoiceReminderDistributionPlan: DistributionPlan;
+    public PayCheckDistributionPlan: DistributionPlan;
+    public AnnualStatementDistributionPlan: DistributionPlan;
+    public CustomFields: any;
+}
+
+
+export class DistributionPlan extends UniEntity {
+    public static RelativeUrl = 'distributions';
+    public static EntityType = 'DistributionPlan';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityType: string;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Elements: Array<DistributionPlanElement>;
+    public CustomFields: any;
+}
+
+
+export class DistributionPlanElement extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'DistributionPlanElement';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DistributionPlanElementTypeID: number;
+    public DistributionPlanID: number;
+    public ID: number;
+    public Priority: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ElementType: DistributionPlanElementType;
+    public CustomFields: any;
+}
+
+
+export class DistributionPlanElementType extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'DistributionPlanElementType';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public LegalEntities: Array<DistributionPlanElementTypeLegalEntity>;
+    public CustomFields: any;
+}
+
+
+export class DistributionPlanElementTypeLegalEntity extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'DistributionPlanElementTypeLegalEntity';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DistributionPlanElementTypeID: number;
+    public EntityType: string;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class DistributionType extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'DistributionType';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class Period extends UniEntity {
     public static RelativeUrl = 'periodes';
     public static EntityType = 'Period';
@@ -3497,6 +3547,7 @@ export class CompanySettings extends UniEntity {
     public DefaultCustomerInvoiceReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
+    public DefaultDistributionsID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
     public DefaultProductInvoiceReminderID: number;
@@ -3513,6 +3564,7 @@ export class CompanySettings extends UniEntity {
     public LogoAlign: number;
     public LogoFileID: number;
     public LogoHideField: number;
+    public NetsIntegrationActivated: boolean;
     public OfficeMunicipalityNo: string;
     public OrganizationNumber: string;
     public PaymentBankAgreementNumber: string;
@@ -3533,6 +3585,7 @@ export class CompanySettings extends UniEntity {
     public TwoStageAutobankEnabled: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UseNetsIntegration: boolean;
     public UseOcrInterpretation: boolean;
     public UsePaymentBankValues: boolean;
     public UseXtraPaymentOrgXmlTag: boolean;
@@ -3554,6 +3607,7 @@ export class CompanySettings extends UniEntity {
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
+    public Distributions: Distributions;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public DefaultProductInvoiceReminder: Product;
     public BaseCurrencyCode: CurrencyCode;
@@ -7517,12 +7571,15 @@ export enum PeriodSeriesType{
 
 
 export enum SharingType{
+    Unknown = 0,
     Print = 1,
     Email = 2,
     AP = 3,
     Vipps = 4,
     Export = 5,
     InvoicePrint = 6,
+    Efaktura = 7,
+    Avtalegiro = 8,
 }
 
 
@@ -7814,9 +7871,11 @@ export enum NotificationStatus{
 
 
 export enum StatusCodeSharing{
+    Pending = 70000,
     InProgress = 70001,
     Failed = 70002,
     Completed = 70003,
+    Cancelled = 70005,
 }
 
 
