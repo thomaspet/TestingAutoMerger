@@ -59,7 +59,7 @@ import {
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {GetPrintStatusText} from '../../../../models/printStatus';
@@ -1022,9 +1022,16 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
     private distribute() {
         return Observable.create((obs) => {
-            this.reportService.disptribute(this.order.ID, this.distributeEntityType).subscribe(() => {
+            this.reportService.distribute(this.order.ID, this.distributeEntityType).subscribe(() => {
+                this.toastService.addToast(
+                    'Ordre er lagt i kø for distribusjon',
+                    ToastType.good,
+                    ToastTime.short);
                 obs.complete();
-            }, err => obs.complete() );
+            }, err => {
+                this.errorService.handle(err);
+                obs.complete();
+            });
         });
     }
 
@@ -1038,7 +1045,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             {
                 label: 'Distribuer',
                 action: () => this.distribute(),
-                disabled: () => !this.order['UseReportID'] || !this.order['DistributionPlanID'] || !this.order.ID
+                disabled: () => !this.order.ID
             }
         ];
     }

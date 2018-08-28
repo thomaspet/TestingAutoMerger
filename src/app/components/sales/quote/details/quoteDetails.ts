@@ -1046,16 +1046,23 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             {
                 label: 'Distribuer',
                 action: () => this.distribute(),
-                disabled: () => !this.quote['UseReportID'] || !this.quote['DistributionPlanID'] || !this.quote.ID
+                disabled: () => !this.quote.ID
             }
         ];
     }
 
     private distribute() {
         return Observable.create((obs) => {
-            this.reportService.disptribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
+            this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
+                this.toastService.addToast(
+                    'Tilbud er lagt i kø for distribusjon',
+                    ToastType.good,
+                    ToastTime.short);
                 obs.complete();
-            }, err => obs.complete() );
+            }, err => {
+                this.errorService.handle(err);
+                obs.complete();
+            });
         });
     }
 

@@ -221,7 +221,7 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.json());
     }
 
-    public disptribute(id, type) {
+    public distribute(id, type) {
         return this.http
             .asPUT()
             .usingBusinessDomain()

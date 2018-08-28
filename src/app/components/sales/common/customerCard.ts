@@ -35,6 +35,7 @@ import * as moment from 'moment';
                     <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
                     <span [attr.title]="emailTitle" [ngClass]="emailClass">E-POST</span>
                     <span [attr.title]="ehfTitle" [ngClass]="ehfClass">EHF</span>
+                    <span [attr.title]="efakturaTitle" [ngClass]="efakturaClass">EFAKTURA</span>
                 </section>
                 <a href="#/sales/customer/{{entity?.Customer?.ID}}"><strong>{{entity?.Customer?.Info?.Name}}</strong></a>
                 <br><span *ngIf="entity?.InvoiceAddressLine1">
@@ -70,11 +71,13 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     @Output() private entityChange: EventEmitter<any> = new EventEmitter();
 
     public ehfClass: string = 'badge-unavailable';
+    public efakturaClass: string = 'badge-unavailable';
     public emailClass: string = 'badge-unavailable';
     public vippsClass: string = 'badge-unavailable';
     public printClass: string = 'badge-unavailable';
     public invoicePrintClass: string = 'badge-unavailable';
     public ehfTitle: string;
+    public efakturaTitle: string;
     public emailTitle: string;
     public vippsTitle: string;
     public printTitle: string = 'Sendt til utskrift';
@@ -173,6 +176,11 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                         }, err => this.errorService.handle(err));
                     }
                 }
+
+                if (customer.EfakturaIdentifier) {
+                    this.efakturaClass = 'badge-available';
+                    this.efakturaTitle = 'Kan sende efaktura til ' + customer.EfakturaIdentifier;
+                }
            }
 
             // Can customer receive email?
@@ -209,7 +217,14 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
             `model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}`
             + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`
         ).subscribe(sharings => {
-            [SharingType.AP, SharingType.Email, SharingType.Vipps, SharingType.Print, SharingType.InvoicePrint].forEach(type => {
+            [
+                SharingType.AP,
+                SharingType.Email,
+                SharingType.Vipps,
+                SharingType.Print,
+                SharingType.InvoicePrint,
+                SharingType.Efaktura
+            ].forEach(type => {
                 let cls = '';
                 let title = '';
                 const firstOfType = sharings.find(sharing => sharing.SharingType === type);
@@ -256,6 +271,10 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                         case SharingType.InvoicePrint:
                             this.invoicePrintClass = cls;
                             this.invoicePrintTitle = title;
+                            break;
+                        case SharingType.Efaktura:
+                            this.efakturaClass = cls;
+                            this.efakturaTitle = title;
                             break;
                     }
                 }
