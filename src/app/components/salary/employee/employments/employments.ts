@@ -11,6 +11,8 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import { UniConfirmModalV2, UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { doesNotThrow } from 'assert';
 
 @Component({
     selector: 'employments',
@@ -28,24 +30,28 @@ export class Employments extends UniView implements OnInit, OnDestroy {
     public departments: Department[];
     public employeeID: number;
     public selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
+    public busy: boolean;
 
     constructor(
         private employmentService: EmploymentService,
         protected cacheService: UniCacheService,
         private router: Router,
         private route: ActivatedRoute,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
         this.tableConfig = new UniTableConfig('salary.employee.employments', false)
             .setColumnMenuVisible(false)
+            .setDeleteButton(false)
             .setColumns([
                 new UniTableColumn('ID', 'Nr', UniTableColumnType.Number).setWidth('4rem'),
-                new UniTableColumn('JobName', 'Yrkestittel'),
+                new UniTableColumn('JobName', 'Yrkestittel').setWidth('25rem'),
                 new UniTableColumn('JobCode', 'Yrkeskode')
             ])
             .setSearchable(true);
     }
+
 
     public ngOnInit() {
         Observable.combineLatest(
@@ -131,6 +137,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
         }
     }
 
+
     public newEmployment() {
         this.employmentService
             .GetNewEntity()
@@ -147,13 +154,14 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 newEmployment.SubEntityID = this.employee.SubEntityID;
 
                 newEmployment['_createguid'] = this.employmentService.getNewGuid();
-
                 this.employments.push(newEmployment);
+                this.selectedEmployment$.next(newEmployment);
                 if (this.table) {
-                    this.table.addRow(newEmployment);
+                    if (this.table.rowCount !== this.employments.length) {
+                        this.table.addRow(newEmployment);
+                    }
                     this.table.focusRow(this.employments.length - 1);
                 }
-
             }, err => this.errorService.handle(err));
     }
 
@@ -180,6 +188,40 @@ export class Employments extends UniView implements OnInit, OnDestroy {
             this.selectedIndex = selectedIndex;
             this.selectedEmployment$.next(this.employments[this.selectedIndex]);
         }
+    }
+
+    public onDeleteEmployment() {
+        const modal = this.modalService.open(UniConfirmModalV2, {
+            header: `Slette ${this.employments[this.selectedIndex].ID}/${this.employments[this.selectedIndex].JobName}?`,
+            message: `Vil du slette arbeidsforhold nr ${this.employments[this.selectedIndex].ID}? <br>`
+                + `Det er bare mulig å slette arbeidsforhold som ikke er i bruk.`
+        });
+
+        modal.onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.employmentService.Remove(this.employments[this.selectedIndex].ID, this.employments[this.selectedIndex])
+                .subscribe(
+                    (res) => {
+                        this.employments.splice(this.selectedIndex, 1);
+                        this.table.removeRow(this.selectedIndex || 0);
+                        this.selectedEmployment$.next(this.employments[0]);
+                        if (this.selectedIndex && this.selectedIndex > 0) {
+                            this.table.focusRow(this.selectedIndex - 1);
+                        } else {
+                            if (this.employments.length === 0) {
+                                this.newEmployment();
+                            } else {
+                                this.table.focusRow(0);
+                            }
+                        }
+                    },
+                    error => this.errorService.handle(error)
+                );
+        }});
+    }
+
+    public deleteBtnDisabled(): boolean {
+        return (this.employments && this.employments.some(e => !e.ID)) || this.busy;
     }
 
     public btnDisabled(): boolean {

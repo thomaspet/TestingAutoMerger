@@ -21,5 +21,8 @@
             [employeeID]="employeeID"
             (employmentChange)="onEmploymentChange($event)">
         </employment-details>
+        <button class="delete" (click)="onDeleteEmployment()" [disabled]="deleteBtnDisabled()">
+            Slett arbeidsforhold
+        </button>
     </main>
 </section>
