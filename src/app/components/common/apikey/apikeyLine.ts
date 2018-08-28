@@ -1,9 +1,13 @@
-import {Component, OnInit, Output, EventEmitter} from '@angular/core';
-import {ApiKey} from '@uni-entities';
+import {Component, OnInit, Output, EventEmitter, SimpleChanges} from '@angular/core';
+import {ApiKey, TypeOfIntegration, LocalDate} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniComponentLayout, LayoutBuilder, FieldSize, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {ApiKeyService, ErrorService} from '@app/services/services';
 
+enum ExternalType {
+    none = 0,
+    Traveltext = 1
+}
 @Component({
     selector: 'apikeyline',
     templateUrl: './apikeyline.html'
@@ -18,8 +22,7 @@ export class ApikeyLine implements OnInit {
 
     constructor(
         private apikeyService: ApiKeyService,
-        private errorService: ErrorService,
-        private layoutBuilder: LayoutBuilder
+        private errorService: ErrorService
     ) { }
 
     public ngOnInit() {
@@ -43,6 +46,17 @@ export class ApikeyLine implements OnInit {
     }
 
     private createLayout() {
+
+        const templateField = new UniFieldLayout();
+        templateField.Property = '_ExternalSystem';
+        templateField.Label = 'Eksternt system';
+        templateField.FieldType = FieldType.DROPDOWN;
+        templateField.Options = {
+            source: [{ID: 0, Name: ''}, {ID: 1, Name: 'Traveltext'}],
+            displayProperty: 'Name',
+            valueProperty: 'ID',
+        };
+
         const descField = new UniFieldLayout();
         descField.Property = 'Description';
         descField.Label = 'Beskrivelse';
@@ -68,11 +82,42 @@ export class ApikeyLine implements OnInit {
             valueProperty: 'ID'
         };
 
+        const dateField = new UniFieldLayout();
+        dateField.Property = 'FilterDate';
+        dateField.Label = 'Godkjent fra og med';
+        dateField.FieldType = FieldType.LOCAL_DATE_PICKER;
+
         this.fields$.next([
+            templateField,
             descField,
             urlField,
             keyField,
-            typeField
+            typeField,
+            dateField,
         ]);
+    }
+
+    public formChange(event: SimpleChanges) {
+        if (event['_ExternalSystem']) {
+            this.apikeyLine$
+                .take(1)
+                .map(model => this.externalSystemDefaultData(model))
+                .subscribe(model => this.apikeyLine$.next(model));
+        }
+    }
+
+    private externalSystemDefaultData(model: ApiKey): ApiKey {
+        switch (model['_ExternalSystem']) {
+            case ExternalType.Traveltext:
+                return <any>{
+                    Description: 'TravelText reiseregning',
+                    Url: 'https://traveltext.no/api/v1',
+                    IntegrationKey: model.IntegrationKey,
+                    IntegrationType: TypeOfIntegration.TravelAndExpenses,
+                    FilterDate: new LocalDate(),
+                };
+            default:
+                return model;
+        }
     }
 }

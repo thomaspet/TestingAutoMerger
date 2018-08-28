@@ -4805,6 +4805,7 @@ export class ApiKey extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public Description: string;
+    public FilterDate: LocalDate;
     public ID: number;
     public IntegrationKey: string;
     public IntegrationType: TypeOfIntegration;
@@ -6993,6 +6994,7 @@ export class JournalEntryLinePostPostData extends UniEntity {
 
 
 export class CreatePaymentBatchDTO extends UniEntity {
+    public Code: string;
     public Password: string;
 }
 
