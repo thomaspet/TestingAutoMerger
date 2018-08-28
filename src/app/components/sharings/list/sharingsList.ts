@@ -26,7 +26,7 @@ export class SharingsList implements OnInit {
     public ngOnInit() {
         this.tabService.addTab({
             url: '/sharings',
-            name: 'Delinger',
+            name: 'Distribusjon',
             active: true,
             moduleID: UniModules.Sharings
         });

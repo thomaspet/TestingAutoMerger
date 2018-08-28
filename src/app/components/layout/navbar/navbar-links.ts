@@ -76,7 +76,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.AccountingReports
                     },
                     {
-                        name: 'Delinger',
+                        name: 'Distribusjon',
                         url: '/sharings',
                         moduleID: UniModules.Sharings
                     },

@@ -57,11 +57,11 @@
         ]
     },
     {
-        "Name": "Delinger",
+        "Name": "Distribusjon",
         "Code": "sharings_list",
         "Type": "Table",
         "IsTopLevelTicker": true,
-        "Group": "Delinger",
+        "Group": "Distribusjon",
         "Model": "Sharing",
         "Expand": "",
         "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
@@ -252,7 +252,7 @@
         ]
     },
     {
-        "Name": "Delinger",
+        "Name": "Distribusjon",
         "Code": "invoice_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,
@@ -327,7 +327,7 @@
         }
     },
     {
-        "Name": "Delinger",
+        "Name": "Distribusjon",
         "Code": "order_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,
@@ -397,7 +397,7 @@
         }
     },
     {
-        "Name": "Delinger",
+        "Name": "Distribusjon",
         "Code": "quote_sharing",
         "Type": "Table",
         "IsTopLevelTicker": false,

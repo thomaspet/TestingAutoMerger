@@ -175,7 +175,7 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Deling",
+            "Header": "Distribusjon",
             "Field": "sum(casewhen(isnull(Sharing.EntityType,'') eq 'CustomerInvoice',1,0))",
             "Alias": "SharingInvoiceCount",
             "width": "40px"
