@@ -109,7 +109,6 @@ export class Payments {
                 newJournalEntry.CustomerInvoice = invoice;
                 newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
                 newJournalEntry.CurrencyCode = invoice.CurrencyCode;
-                newJournalEntry.FinancialDate = new LocalDate(moment().toDate());
                 newJournalEntry.Description = 'Innbetaling';
 
                 if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
