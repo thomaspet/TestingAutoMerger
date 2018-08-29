@@ -72,15 +72,13 @@ export class App {
                 this.toastService.clear();
                 if (!this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
-                }
-                // TODO: re-enable this as soon as ELSA has stopped returning 500 errors
-                /* else if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
+                } else if (!this.hasAcceptedCustomerLicense(authDetails.user)) {
                     if (this.canAcceptCustomerLicense(authDetails.user)) {
                         this.showCustomerLicenseModal();
                     } else {
                         this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
                     }
-                }*/
+                }
 
                 this.checkForChangelog(authDetails.user);
             }
@@ -97,10 +95,8 @@ export class App {
     }
 
     private hasAcceptedUserLicense(user: UserDto): boolean {
-        return !!this.browserStorage.getItem(HAS_ACCEPTED_USER_AGREEMENT_KEY);
-        // TODO: re-enable this as soon as ELSA has stopped returning 500 errors
-        // return (user && user.License && user.License.UserLicenseAgreement) ?
-        //     (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
+        return (user && user.License && user.License.UserLicenseAgreement) ?
+            (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
     }
 
     private checkForChangelog(user: UserDto) {
@@ -178,21 +174,20 @@ export class App {
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                 this.browserStorage.setItem(HAS_ACCEPTED_USER_AGREEMENT_KEY, true);
-                // TODO: re-enable this as soon as ELSA has stopped returning 500 errors
-                // this.uniHttp.asPOST()
-                //     .usingBusinessDomain()
-                //     .withEndPoint('users?action=accept-UserLicenseAgreement')
-                //     .send()
-                //     .map(res => res.json())
-                //     .subscribe(
-                //         success => this.toastService.addToast(
-                //             'Suksess',
-                //             ToastType.good,
-                //             ToastTime.short,
-                //             'Brukerlisens godkjenning lagret',
-                //         ),
-                //         err => this.errorService.handle(err),
-                //     );
+                this.uniHttp.asPOST()
+                    .usingBusinessDomain()
+                    .withEndPoint('users?action=accept-UserLicenseAgreement')
+                    .send()
+                    .map(res => res.json())
+                    .subscribe(
+                        success => this.toastService.addToast(
+                            'Suksess',
+                            ToastType.good,
+                            ToastTime.short,
+                            'Brukerlisens godkjenning lagret',
+                        ),
+                        err => this.errorService.handle(err),
+                    );
             } else {
                 this.authService.clearAuthAndGotoLogin();
             }
