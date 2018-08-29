@@ -32,6 +32,7 @@ export class TravelService extends BizHttp<Travel> {
 
     public clear() {
         this.emps$.next(null);
+        this.suppliers$.next(null);
     }
 
     public ttImport(apiKey: ApiKey): Observable<Travel[]> {
