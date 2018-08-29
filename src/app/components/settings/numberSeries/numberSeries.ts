@@ -1022,9 +1022,6 @@ export class NumberSeries {
                 case 'Department number series':
                     x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Department');
                     break;
-                case 'Employee number series':
-                    x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Employee');
-                    break;
                 case 'Project number series':
                     x._Register = this.numberSeriesService.registers.find(a => a.EntityType === 'Project');
                     break;

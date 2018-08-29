@@ -9,6 +9,73 @@ const MAXNUMBER = 2147483647;
 @Injectable()
 export class NumberSeriesService extends BizHttp<NumberSeries> {
 
+    public suggestions: any[] = [
+        {
+            Name: 'JournalEntry supplierinvoice number series type',
+            DisplayName: 'Faktura bilag (innkjøp)',
+            _Task: 'SupplierInvoice',
+            _Register: 'Bilag',
+            NextNumber: null,
+            _FromNumber: 60000, _ToNumber: 69999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null
+        },
+        {
+            Name: 'JournalEntry salary number series type',
+            DisplayName: 'Lønnsbilag',
+            _Task: 'Salary',
+            _Register: 'Bilag',
+            NextNumber: null,
+            _FromNumber: 70000, _ToNumber: 79999, _NextNumber: 70000, UseNumbersFromNumberSeriesID: null
+        },
+        {
+            Name: 'JournalEntry bank number series type',
+            DisplayName: 'Bank',
+            _Task: 'Bank',
+            _Register: 'Bilag',
+            NextNumber: null,
+            _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null
+        },
+        {
+            Name: 'JournalEntry vatreport number series type',
+            DisplayName: 'MVA',
+            _Task: 'VatReport',
+            _Register: 'Bilag',
+            NextNumber: null,
+            _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null
+        },
+        {
+            Name: 'JournalEntry invoice number series type',
+            DisplayName: 'Faktura bilag (salg)',
+            _Task: 'CustomerInvoice',
+            _Register: 'Bilag',
+            NextNumber: null,
+            _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null
+        },
+    ];
+
+    public asinvoicenumber: any[] = [
+        {ID: false, DisplayName: 'Nei'},
+        {ID: true, DisplayName: 'Ja'}
+    ];
+
+    public series: any[] = [
+        {ID: 'JournalEntry', Name: 'Regnskap'},
+        {ID: 'Sale', Name: 'Salg'},
+        {ID: 'Accounts', Name: 'Kontoer'},
+        {ID: 'Others', Name: 'Andre serier'}
+    ];
+
+    public registers: any[] = [
+        {EntityType: 'JournalEntry', DisplayName: 'Bilag', Sale: false},
+        {EntityType: 'Customer', DisplayName: 'Kunde', Sale: false},
+        {EntityType: 'Supplier', DisplayName: 'Leverandør', Sale: false},
+        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura', Sale: true},
+        {EntityType: 'CustomerOrder', DisplayName: 'Ordre', Sale: true},
+        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud', Sale: true},
+        {EntityType: 'Reminder', DisplayName: 'Purring', Sale: true},
+        {EntityType: 'Project', DisplayName: 'Prosjekt', Sale: false},
+        {EntityType: 'Department', DisplayName: 'Avdeling', Sale: false},
+    ];
+
     constructor(http: UniHttp) {
         super(http);
 
@@ -70,10 +137,6 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         .map(response => response.json());
     }
 
-
-
-
-
     public getSelectConfig(ID: number, numberSeries: any[], numberSerieName: string): any {
         return numberSeries && numberSeries.length > 1 && ID === 0 ?
             {
@@ -84,50 +147,16 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
     }
 
     public save<T>(item: T): Observable<T> {
-        var itemX: any = item;
+        const itemX: any = item;
         if (itemX && itemX.ID) {
             return this.Put(itemX.ID, itemX);
         }
-        return this.Post(itemX)
+        return this.Post(itemX);
     }
-
-    public suggestions: any[] = [
-        {Name: 'JournalEntry supplierinvoice number series type', DisplayName: 'Faktura bilag (innkjøp)', _Task: 'SupplierInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 60000, _ToNumber: 69999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry salary number series type', DisplayName: 'Lønnsbilag', _Task: 'Salary', _Register: 'Bilag', NextNumber: null, _FromNumber: 70000, _ToNumber: 79999, _NextNumber: 70000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry bank number series type', DisplayName: 'Bank', _Task: 'Bank', _Register: 'Bilag', NextNumber: null, _FromNumber: 80000, _ToNumber: 89999, _NextNumber: 80000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry vatreport number series type', DisplayName: 'MVA', _Task: 'VatReport', _Register: 'Bilag', NextNumber: null, _FromNumber: 90000, _ToNumber: 99999, _NextNumber: 60000, UseNumbersFromNumberSeriesID: null},
-        {Name: 'JournalEntry invoice number series type', DisplayName: 'Faktura bilag (salg)', _Task: 'CustomerInvoice', _Register: 'Bilag', NextNumber: null, _FromNumber: 100000, _ToNumber: MAXNUMBER, _NextNumber: 100000, UseNumbersFromNumberSeriesID: null},
-    ];
-
-    public asinvoicenumber: any[] = [
-        {ID: false, DisplayName: 'Nei'},
-        {ID: true, DisplayName: 'Ja'}
-    ];
 
     public getNewGuid(): string {
         return(""+1e7+-1e3+-4e3+-8e3+-1e11).replace(/1|0/g,function(){return(0|Math.random()*16).toString(16)});
     }
-
-    public series: any[] = [
-        {ID: 'JournalEntry', Name: 'Regnskap'},
-        {ID: 'Sale', Name: 'Salg'},
-        {ID: 'Accounts', Name: 'Kontoer'},
-        {ID: 'Others', Name: 'Andre serier'}
-    ];
-
-    public registers: any[] = [
-        {EntityType: 'JournalEntry', DisplayName: 'Bilag', Sale: false},
-        {EntityType: 'Customer', DisplayName: 'Kunde', Sale: false},
-        {EntityType: 'Supplier', DisplayName: 'Leverandør', Sale: false},
-        {EntityType: 'CustomerInvoice', DisplayName: 'Faktura', Sale: true},
-        {EntityType: 'CustomerOrder', DisplayName: 'Ordre', Sale: true},
-        {EntityType: 'CustomerQuote', DisplayName: 'Tilbud', Sale: true},
-        {EntityType: 'Reminder', DisplayName: 'Purring', Sale: true},
-        {EntityType: 'Project', DisplayName: 'Prosjekt', Sale: false},
-        {EntityType: 'Department', DisplayName: 'Avdeling', Sale: false},
-        {EntityType: 'Employee', DisplayName: 'Ansatt', Sale: false},
-    ];
-
 
     public CreateAndSet_DisplayNameAttributeOnSerie(serie: NumberSeries) {
         serie['_DisplayName'] = serie.DisplayName;
