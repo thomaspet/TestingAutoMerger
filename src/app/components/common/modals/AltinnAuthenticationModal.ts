@@ -212,6 +212,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             || (loginTypes.find(type => type.text === 'SMSPin') || loginTypes[0]).text;
         if (this.userSubmittedUsernameAndPasswordAndPinType.observers.length === 0) {
             this.userSubmittedUsernameAndPasswordAndPinType
+                .debounceTime(100)
                 .subscribe(() => {
                     const authData: AltinnAuthRequest = new AltinnAuthRequest();
                     authData.UserID = userLoginData.userID;
@@ -249,6 +250,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
             }
 
             return this.userSubmittedPin
+                .debounceTime(100)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                 .subscribe(data => resolve(data));
         });
