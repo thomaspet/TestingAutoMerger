@@ -240,7 +240,18 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Fakturamottak',
                         url: '/accounting/bills',
-                        moduleID: UniModules.Bills
+                        moduleID: UniModules.Bills,
+                        isSuperSearchComponent: true,
+                        moduleName: 'SupplierInvoice',
+                        shortcutName: 'Nytt fakturamottak',
+                        prefix: ['fakturamottak'],
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'InvoiceNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
+                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id'],
+                        expands: ['Supplier']
                     },
                     {
                         name: 'Åpne poster',
