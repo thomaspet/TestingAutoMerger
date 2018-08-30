@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -462,6 +462,7 @@ export class DebtCollectionSettings extends UniEntity {
     public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public CreditorNumber: number;
     public CustomerInvoiceReminderSettingsID: number;
     public DebtCollectionAutomationID: number;
     public Deleted: boolean;
@@ -1339,6 +1340,7 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public DefaultEmail: Email;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
@@ -1348,7 +1350,6 @@ export class BusinessRelation extends UniEntity {
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
-    public DefaultEmail: Email;
     public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
@@ -5843,8 +5844,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6230,9 +6231,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7594,6 +7595,7 @@ export enum SharingType{
     Efaktura = 7,
     Avtalegiro = 8,
 }
+
 
 export enum EventplanType{
     Webhook = 0,

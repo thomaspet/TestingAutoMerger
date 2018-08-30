@@ -59,6 +59,11 @@ export class DebtCollectionSetting {
                         return item.Name + ': ' + item.Description;
                     }
                 }
+            },
+            <any> {
+                Property: 'CreditorNumber',
+                Label: 'Vårt kundenr hos inkassobyrå',
+                FieldType: FieldType.TEXT,
             }
         ]);
     }
