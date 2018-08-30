@@ -6,10 +6,7 @@ import {EHFService} from '@app/services/services';
 @Component({
     selector: 'uni-reminder-sending-modal',
     template: `
-        <section class="uni-modal medium"
-            (clickOutside)="close()"
-            (keydown.esc)="close()">
-
+        <section class="uni-modal medium">
             <header>
                 <h1>Utsendelse av purringer</h1>
             </header>
