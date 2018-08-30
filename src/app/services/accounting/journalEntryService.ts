@@ -525,7 +525,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         financialYears: Array<FinancialYear>,
         companySettings: CompanySettings,
         doValidateBalance: boolean,
-        mode: JournalEntryMode): Promise<ValidationResult> {
+        mode: JournalEntryMode
+    ): Promise<ValidationResult> {
         const result: ValidationResult = new ValidationResult();
         result.Messages = [];
 
@@ -660,7 +661,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             sortedJournalEntries.forEach(entry => {
                 if (doValidateBalance) {
                     if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                        const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+                        const diff = currentSumDebit - (currentSumCredit * -1);
                         if (diff !== 0) {
                             const message = new ValidationMessage();
                             message.Level = ValidationLevel.Error;
@@ -738,8 +739,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     }
                 }
 
-                if ((entry.DebitAccount && entry.CreditAccount)
-                    || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)) {
+                if (
+                    (entry.DebitAccount && entry.CreditAccount)
+                    || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)
+                ) {
                     currentSumDebit += entry.Amount;
                 }
 
@@ -782,12 +785,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
             if (doValidateBalance) {
-                const diff = UniMath.round(UniMath.round(currentSumDebit) - UniMath.round(currentSumCredit * -1));
+                const diff = currentSumDebit - (currentSumCredit * -1);
                 if (diff !== 0) {
                     const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo || ''}
-                    går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
+                    går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff.toFixed(2)})`;
                     result.Messages.push(message);
                 }
             }

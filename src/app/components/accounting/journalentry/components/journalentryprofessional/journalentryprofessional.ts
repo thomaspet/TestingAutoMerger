@@ -433,8 +433,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.NetAmountCurrency = null;
         }
 
+        rowModel.NetAmountCurrency = UniMath.round(rowModel.NetAmountCurrency, 2);
+
         if (rowModel.NetAmountCurrency) {
-            rowModel.NetAmount = rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate;
+            rowModel.NetAmount = UniMath.round(rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate);
         } else {
             rowModel.NetAmount = null;
         }
@@ -444,7 +446,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.NetAmountCurrency) {
-            rowModel.NetAmount = rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate;
+            rowModel.NetAmount = UniMath.round(rowModel.NetAmountCurrency * rowModel.CurrencyExchangeRate);
         } else {
             rowModel.NetAmount = null;
         }
@@ -454,7 +456,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency) {
-            rowModel.Amount = rowModel.AmountCurrency * rowModel.CurrencyExchangeRate;
+            rowModel.Amount = UniMath.round(rowModel.AmountCurrency * rowModel.CurrencyExchangeRate);
         } else {
             rowModel.Amount = null;
         }
@@ -517,6 +519,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             rowModel.Amount = null;
         }
 
+        rowModel.AmountCurrency = UniMath.round(rowModel.AmountCurrency, 2);
         return rowModel;
     }
 
@@ -1496,6 +1499,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 let rowOrPromise: Promise<any> | any;
                 if (event.field === 'AmountCurrency') {
+                    row.AmountCurrency = UniMath.round(row.AmountCurrency, 2);
                     row = this.calculateNetAmountAndNetAmountCurrency(row);
                     row = this.calculateAmount(row);
                 } else if (event.field === 'CurrencyCode') {
@@ -1508,6 +1512,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         row = this.calculateNetAmountAndNetAmountCurrency(row);
                     }
                 } else if (event.field === 'NetAmountCurrency') {
+                    row.NetAmountCurrency = UniMath.round(row.NetAmountCurrency, 2);
                     row = this.calculateNetAmount(row);
                     row = this.calculateGrossAmount(row);
                     row = this.calculateAmount(row);
