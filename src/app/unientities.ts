@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -704,6 +704,8 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public CreatedAt: Date;
     public CreatedBy: string;
     public DebtCollectionSettingsID: number;
+    public DefaultProductInterestFeeID: number;
+    public DefaultProductReminderFeeID: number;
     public Deleted: boolean;
     public ID: number;
     public MinimumAmountToRemind: number;
@@ -713,6 +715,8 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public UpdatedBy: string;
     public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
+    public DefaultProductReminderFee: Product;
+    public DefaultProductInterestFee: Product;
     public CustomFields: any;
 }
 
@@ -742,6 +746,8 @@ export class CustomerInvoiceReminder extends UniEntity {
     public ReminderFee: number;
     public ReminderFeeCurrency: number;
     public ReminderNumber: number;
+    public RestAmount: number;
+    public RestAmountCurrency: number;
     public RunNumber: number;
     public StatusCode: number;
     public Title: string;
@@ -3550,7 +3556,6 @@ export class CompanySettings extends UniEntity {
     public DefaultDistributionsID: number;
     public DefaultEmailID: number;
     public DefaultPhoneID: number;
-    public DefaultProductInvoiceReminderID: number;
     public DefaultSalesAccountID: number;
     public DefaultTOFCurrencySettingsID: number;
     public Deleted: boolean;
@@ -3609,7 +3614,6 @@ export class CompanySettings extends UniEntity {
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public DefaultProductInvoiceReminder: Product;
     public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
@@ -5913,11 +5917,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -6226,9 +6230,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7089,19 +7093,26 @@ export class VatReportSummaryPerPost extends UniEntity {
 
 
 export class VatReportSummaryPerPostPerAccount extends UniEntity {
+    public Amount: number;
+    public Description: string;
+    public FinancialDate: Date;
     public HasTaxAmount: boolean;
     public HasTaxBasis: boolean;
     public IsHistoricData: boolean;
+    public JournalEntryNumber: string;
     public NumberOfJournalEntryLines: number;
     public StdVatCode: string;
     public SumTaxBasisAmount: number;
     public SumVatAmount: number;
+    public TaxBasisAmount: number;
     public VatAccountID: number;
     public VatAccountName: string;
     public VatAccountNumber: number;
+    public VatCode: string;
     public VatCodeGroupID: number;
     public VatCodeGroupName: string;
     public VatCodeGroupNo: string;
+    public VatDate: Date;
     public VatJournalEntryPostAccountID: number;
     public VatJournalEntryPostAccountName: string;
     public VatJournalEntryPostAccountNumber: number;
@@ -7876,7 +7887,7 @@ export enum StatusCodeSharing{
     InProgress = 70001,
     Failed = 70002,
     Completed = 70003,
-    Cancelled = 70005
+    Cancelled = 70005,
 }
 
 

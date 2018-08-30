@@ -1802,8 +1802,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         reminders.forEach(reminder => {
             if (reminder.StatusCode < StatusCodeCustomerInvoiceReminder.Paid) {
-                amount += reminder.ReminderFee;
-                amountCurrency += reminder.ReminderFeeCurrency;
+                amount += reminder.RestAmount;
+                amountCurrency += reminder.RestAmountCurrency;
             }
         });
 
