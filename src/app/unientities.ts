@@ -462,7 +462,6 @@ export class DebtCollectionSettings extends UniEntity {
     public _createguid: string;
     public CreatedAt: Date;
     public CreatedBy: string;
-    public CreditorNumber: number;
     public CustomerInvoiceReminderSettingsID: number;
     public DebtCollectionAutomationID: number;
     public Deleted: boolean;
@@ -1406,7 +1405,6 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DefaultEmail: Email;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
@@ -1416,6 +1414,7 @@ export class BusinessRelation extends UniEntity {
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
@@ -5785,8 +5784,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
