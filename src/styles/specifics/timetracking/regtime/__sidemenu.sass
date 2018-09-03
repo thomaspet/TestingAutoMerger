@@ -14,6 +14,14 @@
     .minimized-sidebar-icons
         padding: 0 !important
 
+        i.material-icons
+            display: block
+            font-size: 30px
+            color: $uni-color-toolbar
+            cursor: pointer
+            text-align: center
+            padding-top: 1rem
+
 .sidemenu_calender_container
     width: 100%
     text-align: center
@@ -153,41 +161,11 @@
         margin: 1rem 0 0
         min-width: 8rem
 
-.sidemenu_minified_calender_icon
-    @extend %hideText
-    display: inline-block
-    height: 2rem
-    width: 2rem
-    margin: 10px 0 0 0
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    position: relative
-    top: .2rem
-    left: calc(40px - 1rem)
-    border-bottom-color: transparent
-    background-image: unicon-calendar(#628cb2)
-    cursor: pointer
-
-.sidemenu_minified_template_icon
-    @extend %hideText
-    display: inline-block
-    height: 2rem
-    width: 2rem
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    position: relative
-    top: .2rem
-    left: calc(40px - 1rem)
-    border-bottom-color: transparent
-    background-image: unicon-hourreg(#628cb2)
-    cursor: pointer
-
 .sidemenu_minified_to_from
     font-size: 0.7rem
     text-align: center
     cursor: pointer
+    margin: 0
 
 .uni_template_modal_content
     footer
