@@ -245,7 +245,7 @@ export class CompanySettingsComponent implements OnInit {
             hasBoughtInvoicePrint => this.hasBoughtInvoicePrint = hasBoughtInvoicePrint,
             err => console.log('Failed to check if InvoicePrint was bought: ', err.message)
         );
-            
+
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
             this.vatReportFormService.GetAll(null),
@@ -298,7 +298,7 @@ export class CompanySettingsComponent implements OnInit {
                         EntityName: 'CustomerQuote',
                         Template: ''
                     };
-              
+
                 this.reportModel$.next({
                     company: this.setupCompanySettingsData(dataset[5]),
                     orderTemplate: this.orderTemplate,
@@ -1421,6 +1421,16 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'TwoStageAutobankEnabled',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Autobank tofaktor autentisering',
+                FieldSet: 6,
+                Section: 1,
+                Sectionheader: 'Selskapsoppsett',
+                Hidden: true // Remove when autobank full rollout is ready
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'InvoicePrint',
                 FieldType: FieldType.BUTTON,
                 Label: 'Kjøp fakturaprint fra markedsplassen',
@@ -1676,7 +1686,7 @@ export class CompanySettingsComponent implements OnInit {
         return this.elsaProductService.FindProductByName(name)
             .switchMap(product => {
                 return !product
-                    ? Observable.of(false) 
+                    ? Observable.of(false)
                     : this.elsaPurchasesService.GetAll()
                         .map(purchases => {
                             return purchases.some(purchase => purchase.productID === product.id);

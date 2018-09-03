@@ -119,4 +119,14 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .send()
             .map(response => response.json());
     }
+
+    public sendPasswordToTwoFactor(body: any) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(body)
+            .withEndPoint('bank-agreements?action=auth-code')
+            .send()
+            .map(response => response.json());
+    }
 }
