@@ -12,11 +12,15 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
 @Component({
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal uni-send-payment-modal">
             <header>
                 <h1>{{options.header || 'Send med autobank'}}</h1>
             </header>
             <article>
+                <div *ngIf="options.data.hasTwoStage">
+                    <i class="material-icons">phone_android</i>
+                    <p> {{ fieldText }} </p>
+                </div>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
@@ -26,7 +30,7 @@ import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
             <footer>
                 <span class="warn" *ngIf="isEmpty">Passordet kan ikke være tomt</span>
-                <button class="good" (click)="onGoodClick()">Betale</button>
+                <button class="good" (click)="onGoodClick()">{{ okButtonText }}</button>
                 <button class="bad" (click)="onBadClick()">Avbryt</button>
             </footer>
         </section>
@@ -44,6 +48,9 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public isEmpty: boolean;
+    public isFirstStage: boolean = true;
+    public okButtonText: string = 'Betale';
+    public fieldText: string = 'Fyll inn passord.';
 
     constructor(
         private toastService: ToastService,
@@ -52,30 +59,71 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     ) {}
 
     public ngOnInit() {
+        if (this.options.data.hasTwoStage) {
+            this.options.header = 'Autentisering steg 1 - Passord';
+            this.okButtonText = 'Send passord';
+            this.fieldText = 'Du har slått på 2-faktor autentisering. Vennligst skriv inn ditt valgte passord, så sender vi deg en kode.';
+        }
         this.formFields$.next(this.getFormFields());
-        this.initFormModel();
-    }
 
-    public initFormModel() {
-        const model: Object = this.options.data || { Password: ''};
+        const model: Object = {
+            Password: '',
+            Code: '',
+            PaymentIds: this.options.data.PaymentIds || []
+        };
         this.formModel$.next(model);
     }
 
     public onGoodClick() {
         const model = this.formModel$.getValue();
         if (model['Password']) {
-
-            const body = {
-                Password : model['Password'],
-                PaymentIds: this.options.data.PaymentIds
-            };
-
-            this.paymentBatchService.sendAutobankPayment(body).subscribe((res) => {
-                this.onClose.emit('Sendingen er fullført');
-            }, err => {
-                this.errorService.handle(err);
-                this.onClose.emit('Mislykket sending');
-            });
+            if (this.isFirstStage) {
+                // Check if user has activated two stage authentification
+                if (this.options.data.hasTwoStage) {
+                    // Send password to the new action to start two stage authentification
+                    this.paymentBatchService.sendPasswordToTwoFactor(model['Password']).subscribe((result) => {
+                        // Code sent?
+                       if (result) {
+                           // Update modal to show stage 2 texts and form fields
+                            this.isFirstStage = false;
+                            this.options.header = 'Autentisering steg 2 - Kode på telefon';
+                            this.fieldText = 'Vi har nå sendt en kode til nummeret du oppga da du tegnet autobank avtalen.' +
+                                ' Vennligst skriv inn kode for å fortsette.';
+                            this.okButtonText = 'Send kode';
+                            this.formFields$.next(this.getFormFields(true));
+                       }
+                    }, () => {
+                        // Show error toast when password is incorrect or call failed
+                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
+                            'Kan ikke sende kode. Sjekk at passordet er korrekt, og prøv igjen.');
+                    });
+               } else {
+                   // Without two-stage authentification
+                   this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
+                       this.onClose.emit('Sendingen er fullført');
+                   }, err => {
+                       // Show error toast when password is incorrect or call failed
+                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
+                            'Kunne ikke fullføre betaling. Sjekk at passordet er korrekt, og prøv igjen.');
+                   });
+               }
+            } else {
+                // When user has written password and gotten code
+                // Check for code
+                if (model['Code']) {
+                    // Send PASSWORD, CODE and PAYMENTIDS as body
+                    this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
+                        this.onClose.emit('Sendingen er fullført');
+                    }, err => {
+                        // Show error toast when two-stage code is incorrect or call failed
+                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
+                            'Kunne ikke fullføre betaling. Sjekk at koden er korrekt, og prøv igjen.');
+                    });
+                } else {
+                    // If code field is empty, show toast...
+                    this.toastService.addToast('Vennligst fyll inn koden', ToastType.bad, 5);
+                }
+            }
         } else {
             this.isEmpty = true;
         }
@@ -85,13 +133,13 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
         this.onClose.emit('Sending avbrutt');
     }
 
-    private getFormFields(): UniFieldLayout[] {
+    private getFormFields(isStageTwo: boolean = false): UniFieldLayout[] {
         return [
             <any> {
                 EntityType: '',
-                Property: 'Password',
+                Property: isStageTwo ? 'Code' : 'Password',
                 FieldType: FieldType.PASSWORD,
-                Label: 'Password'
+                Label: isStageTwo ? 'Tilsendt kode' : 'Passord'
             }
         ];
     }

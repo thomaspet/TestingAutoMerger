@@ -751,7 +751,8 @@ export class BankComponent implements AfterViewInit {
         return new Promise((resolve, reject) => {
             this.modalService.open(UniSendPaymentModal, {
                 data: {
-                    PaymentBatchID: row[0].ID
+                    PaymentBatchID: row[0].ID,
+                    hasTwoStage: this.companySettings.TwoStageAutobankEnabled
                 }
             });
         });
@@ -896,7 +897,7 @@ export class BankComponent implements AfterViewInit {
         // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
         } else if (this.agreements.length) {
             this.modalService.open(UniSendPaymentModal, {
-                data: { PaymentIds: paymentIDs }
+                data: { PaymentIds: paymentIDs, hasTwoStage: this.companySettings.TwoStageAutobankEnabled }
             }).onClose.subscribe(
                 res => {
                 doneHandler(res);

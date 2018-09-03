@@ -218,7 +218,7 @@ export class SmartSearchDataService {
                     }
                 }
 
-                if (route.expand) {
+                if (route.expands) {
                     queryStringInit += '&expand=' + route.expands.join(',');
                 }
 
