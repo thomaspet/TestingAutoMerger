@@ -20,7 +20,6 @@ import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
-import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
@@ -70,12 +69,6 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniSummary,
         ImageModal,
         UniAttachments,
-        UniPoster,
-        TextWidget,
-        ContactWidget,
-        TableWidget,
-        AlertsWidget,
-        ImageWidget,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
@@ -131,12 +124,6 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniSummary,
         ImageModal,
         UniAttachments,
-        UniPoster,
-        TextWidget,
-        ContactWidget,
-        TableWidget,
-        AlertsWidget,
-        ImageWidget,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
