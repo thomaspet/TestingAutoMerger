@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -5399,8 +5399,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -5858,11 +5858,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -6171,9 +6171,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -6862,10 +6862,6 @@ export class TeamPositionDto extends UniEntity {
 }
 
 
-export class IEnumerable extends UniEntity {
-}
-
-
 export class EHFActivate extends UniEntity {
     public contactemail: string;
     public contactname: string;
@@ -7037,19 +7033,26 @@ export class VatReportSummaryPerPost extends UniEntity {
 
 
 export class VatReportSummaryPerPostPerAccount extends UniEntity {
+    public Amount: number;
+    public Description: string;
+    public FinancialDate: Date;
     public HasTaxAmount: boolean;
     public HasTaxBasis: boolean;
     public IsHistoricData: boolean;
+    public JournalEntryNumber: string;
     public NumberOfJournalEntryLines: number;
     public StdVatCode: string;
     public SumTaxBasisAmount: number;
     public SumVatAmount: number;
+    public TaxBasisAmount: number;
     public VatAccountID: number;
     public VatAccountName: string;
     public VatAccountNumber: number;
+    public VatCode: string;
     public VatCodeGroupID: number;
     public VatCodeGroupName: string;
     public VatCodeGroupNo: string;
+    public VatDate: Date;
     public VatJournalEntryPostAccountID: number;
     public VatJournalEntryPostAccountName: string;
     public VatJournalEntryPostAccountNumber: number;
@@ -7727,6 +7730,14 @@ export enum ReportType{
 }
 
 
+export enum StatusCodeJournalEntryLine{
+    Open = 31001,
+    PartlyMarked = 31002,
+    Marked = 31003,
+    Credited = 31004,
+}
+
+
 export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
@@ -7841,14 +7852,6 @@ export enum StatusCodeAltinnSigning{
 export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
-}
-
-
-export enum StatusCodeJournalEntryLine{
-    Open = 31001,
-    PartlyMarked = 31002,
-    Marked = 31003,
-    Credited = 31004,
 }
 
 
