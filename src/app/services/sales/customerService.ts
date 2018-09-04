@@ -46,37 +46,42 @@ export class CustomerService extends BizHttp<Customer> {
             .send();
     }
 
-    public getCustomerStatistics(customerID: number): Observable<CustomerStatisticsData> {
-        return Observable.forkJoin(
-           this.statisticsService
-                .GetAll('model=Customer' +
-                    '&expand=CustomerInvoices' +
-                    `&filter=Customer.ID eq ${customerID} and isnull(CustomerInvoices.Deleted\,'false') eq 'false'` +
-                    '&select=Customer.ID as CustomerID,' +
-                        `sum(casewhen(getdate() gt CustomerInvoices.PaymentDueDate and CustomerInvoices.StatusCode ne 42004\\,1\\,0)) as NumberOfDueInvoices,` +
-                        `sum(casewhen(getdate() gt CustomerInvoices.PaymentDueDate and CustomerInvoices.StatusCode ne 42004\\,CustomerInvoices.RestAmount\\,0)) as SumDueInvoicesRestAmount,` +
-                        `sum(casewhen(CustomerInvoices.StatusCode eq 42002 or CustomerInvoices.StatusCode eq 42003 or CustomerInvoices.StatusCode eq 42004\\,CustomerInvoices.TaxExclusiveAmount\\,0)) as SumInvoicedExVat`),
-            this.statisticsService
-                .GetAll('model=Customer' +
-                    '&expand=CustomerOrders' +
-                    `&filter=Customer.ID eq ${customerID} and isnull(CustomerOrders.Deleted\,'false') eq 'false'` +
-                    '&select=Customer.ID as CustomerID,' +
-                        `sum(casewhen(CustomerOrders.StatusCode eq 41002 or CustomerOrders.StatusCode eq 41003\\,CustomerOrders.TaxExclusiveAmount\\,0)) as SumOpenOrdersExVat`)
-            )
-            .map((responses: Array<any>) => {
-                let invoiceData = responses[0] && responses[0].Data ? responses[0].Data[0] : null;
-                let orderData = responses[1] && responses[1].Data ? responses[1].Data[0] : null;
+    public getCustomerOrderStatistics(customerID: number): Observable<CustomerStatisticsData> {
+        return this.statisticsService.GetAll('model=Customer&expand=CustomerOrders' +
+            `&filter=Customer.ID eq ${customerID} and isnull(CustomerOrders.Deleted\,'false') eq 'false'` +
+            '&select=Customer.ID as CustomerID,' +
+            `sum(casewhen(CustomerOrders.StatusCode eq 41002 or CustomerOrders.StatusCode` +
+            ` eq 41003\\,CustomerOrders.TaxExclusiveAmount\\,0)) as SumOpenOrdersExVat`)
+                .map((response: any) => {
+                        const orderData = response && response.Data ? response.Data[0] : null;
 
-                let customerStatistics = new CustomerStatisticsData();
+                        const customerStatistics = new CustomerStatisticsData();
+
+                        if (orderData) {
+                            customerStatistics.SumOpenOrdersExVat = orderData.SumOpenOrdersExVat;
+                        }
+
+                        return customerStatistics;
+                    });
+    }
+
+    public getCustomerInvoiceStatistics(customerID: number): Observable<CustomerStatisticsData> {
+        return this.statisticsService.GetAll('model=Customer&expand=CustomerInvoices' +
+            `&filter=Customer.ID eq ${customerID} and isnull(CustomerInvoices.Deleted\,'false') eq 'false'` +
+            '&select=Customer.ID as CustomerID,' +
+            `sum(casewhen(getdate() gt CustomerInvoices.PaymentDueDate and ` +
+            `CustomerInvoices.StatusCode ne 42004\\,1\\,0)) as NumberOfDueInvoices,` +
+            `sum(casewhen(getdate() gt CustomerInvoices.PaymentDueDate and CustomerInvoices.StatusCode ne 42004\\,` +
+            `CustomerInvoices.RestAmount\\,0)) as SumDueInvoicesRestAmount,` +
+            `sum(casewhen(CustomerInvoices.StatusCode eq 42002 or CustomerInvoices.StatusCode eq 42003 or ` +
+            `CustomerInvoices.StatusCode eq 42004\\,CustomerInvoices.TaxExclusiveAmount\\,0)) as SumInvoicedExVat`).map((response) => {
+                const invoiceData = response && response.Data ? response.Data[0] : null;
+                const customerStatistics = new CustomerStatisticsData();
 
                 if (invoiceData) {
                     customerStatistics.NumberOfDueInvoices = invoiceData.NumberOfDueInvoices;
                     customerStatistics.SumDueInvoicesRestAmount = invoiceData.SumDueInvoicesRestAmount;
                     customerStatistics.SumInvoicedExVat = invoiceData.SumInvoicedExVat;
-                }
-
-                if (orderData) {
-                    customerStatistics.SumOpenOrdersExVat = orderData.SumOpenOrdersExVat;
                 }
 
                 return customerStatistics;
