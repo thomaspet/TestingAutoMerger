@@ -137,15 +137,9 @@ export class Payments {
                     }
 
                     // calculate reminder fee
-                    if (invoice.CustomerInvoiceReminders && invoice.StatusCode === 42002) {
-                        let reminderFeeSum = 0;
-                        let reminderFeeSumCurrency = 0;
-                        invoice.CustomerInvoiceReminders.forEach(reminder => {
-                            reminderFeeSum += reminder.ReminderFee;
-                            reminderFeeSumCurrency += reminderFeeSumCurrency;
-                        });
-                        newJournalEntry.Amount += reminderFeeSum;
-                        newJournalEntry.AmountCurrency += reminderFeeSum;
+                    if (invoice.StatusCode === 42002) {
+                        newJournalEntry.Amount += invoice['_ReminderFee'] || 0;
+                        newJournalEntry.AmountCurrency += invoice['_ReminderFeeCurrency'] || 0;
                     }
                 }
 
