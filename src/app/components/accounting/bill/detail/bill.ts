@@ -1290,6 +1290,7 @@ export class BillView implements OnInit {
     public onFormChanged(change: SimpleChanges) {
 
         const model = this.current.getValue();
+        const lines = this.journalEntryManual.getJournalEntryData() || [];
 
         if (!model) { return; }
 
@@ -1297,6 +1298,54 @@ export class BillView implements OnInit {
             if (change['DefaultDimensions.Dimension' + dim.Dimension + 'ID']) {
                 model.DefaultDimensions['Dimension' + dim.Dimension] =
                     dim.Data.find(x => x.ID === model.DefaultDimensions['Dimension' + dim.Dimension + 'ID']);
+
+                if (!change['DefaultDimensions.Dimension' + dim.Dimension + 'ID'].currentValue) {
+                    this.modalService.open(UniConfirmModalV2, {
+                        buttonLabels: {
+                            accept: 'Fjern fra linjene',
+                            reject: 'La stå'
+                        },
+                        header: 'Dimensjon',
+                        message: 'Ønsker du å fjerne dimensjonen fra kontreringslinjene også?'
+                    }).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            lines.forEach((line: any) => {
+                                line.Dimensions['Dimension' + dim.Dimension] = null;
+                                line.Dimensions['Dimension' + dim.Dimension + 'ID'] = null;
+                            });
+                            this.journalEntryManual.setJournalEntryData(lines);
+                        }
+                    });
+                } else {
+                    if (lines.filter(line => line.Dimensions && line.Dimensions['Dimension' + dim.Dimension] &&
+                        line.Dimensions['Dimension' + dim.Dimension + 'ID'] !== model.DefaultDimensions['Dimension' + dim.Dimension + 'ID']
+                    ).length) {
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {
+                                accept: 'Oppdater alle linjer',
+                                reject: 'Ikke oppdater'
+                            },
+                            header: 'Dimensjon',
+                            message: 'Det finnes linjer med ulik dimensjon. Vil du oppdatere dimensjon på alle linjene?'
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                lines.forEach((line: any) => {
+                                    line.Dimensions['Dimension' + dim.Dimension]
+                                        = model.DefaultDimensions['Dimension' + dim.Dimension];
+                                    line.Dimensions['Dimension' + dim.Dimension + 'ID']
+                                        = model.DefaultDimensions['Dimension' + dim.Dimension].ID;
+                                });
+                                this.journalEntryManual.setJournalEntryData(lines);
+                            }
+                        });
+                    } else {
+                        lines.forEach((line: any) => {
+                            line.Dimensions['Dimension' + dim.Dimension] = model.DefaultDimensions['Dimension' + dim.Dimension];
+                            line.Dimensions['Dimension' + dim.Dimension + 'ID'] = model.DefaultDimensions['Dimension' + dim.Dimension].ID;
+                        });
+                        this.journalEntryManual.setJournalEntryData(lines);
+                    }
+                }
             }
         });
 
@@ -1444,12 +1493,74 @@ export class BillView implements OnInit {
             this.current.next(model);
         }
 
-        // need to add _createguid if missing making a new dimension
-        if (change['DefaultDimensions.ProjectID'] || change['DefaultDimensions.DepartmentID']) {
-            if (!model.DefaultDimensions.ID && !model.DefaultDimensions['_createguid']) {
-                model.DefaultDimensions['_createguid'] = this.projectService.getNewGuid();
+        if (change['DefaultDimensions.ProjectID']) {
+            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            this.projectService.Get(change['DefaultDimensions.ProjectID'].currentValue).subscribe((project) => {
+                model.DefaultDimensions.Project = project;
                 this.current.next(model);
-            }
+
+                // Check if the journalentrylines have a different project..
+                if (lines.filter(line => line.Dimensions && line.Dimensions.ProjectID &&
+                    line.Dimensions.ProjectID !== project.ID).length) {
+                    this.modalService.open(UniConfirmModalV2, {
+                        buttonLabels: {
+                            accept: 'Oppdater alle linjer',
+                            reject: 'Ikke oppdater'
+                        },
+                        header: 'Prosjekt',
+                        message: 'Det finnes linjer med ulikt prosjekt. Vil du oppdatere prosjekt på alle linjene?'
+                    }).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            lines.forEach((line: any) => {
+                                line.Dimensions.Project = project;
+                                line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                            });
+                            this.journalEntryManual.setJournalEntryData(lines);
+                        }
+                    });
+                } else {
+                    lines.forEach((line: any) => {
+                        line.Dimensions.Project = project;
+                        line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                    });
+                    this.journalEntryManual.setJournalEntryData(lines);
+                }
+            });
+        }
+
+        if (change['DefaultDimensions.DepartmentID']) {
+            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            this.departmentService.Get(change['DefaultDimensions.DepartmentID'].currentValue).subscribe((department) => {
+                model.DefaultDimensions.Department = department;
+                this.current.next(model);
+
+                // Check if the journalentrylines have a different department..
+                if (lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID &&
+                    line.Dimensions.DepartmentID !== department.ID).length) {
+                    this.modalService.open(UniConfirmModalV2, {
+                        buttonLabels: {
+                            accept: 'Oppdater alle linjer',
+                            reject: 'Ikke oppdater'
+                        },
+                        header: 'Avdeling',
+                        message: 'Det finnes linjer med ulik avdeling. Vil du oppdatere avdeling på alle linjene?'
+                    }).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            lines.forEach((line: any) => {
+                                line.Dimensions.Department = department;
+                                line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                            });
+                            this.journalEntryManual.setJournalEntryData(lines);
+                        }
+                    });
+                } else {
+                    lines.forEach((line: any) => {
+                        line.Dimensions.Department = department;
+                        line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                    });
+                    this.journalEntryManual.setJournalEntryData(lines);
+                }
+            });
         }
 
         this.flagUnsavedChanged();
@@ -2272,6 +2383,16 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
+            if (!line.Dimensions.Project && current.DefaultDimensions && current.DefaultDimensions.Project) {
+                line.Dimensions.Project = current.DefaultDimensions.Project;
+                line.Dimensions.ProjectID = current.DefaultDimensions.ProjectID;
+            }
+
+            if (!line.Dimensions.Department && !!current.DefaultDimensions && current.DefaultDimensions.Department) {
+                line.Dimensions.Department = current.DefaultDimensions.Department;
+                line.Dimensions.DepartmentID = current.DefaultDimensions.DepartmentID;
+            }
+
             this.customDimensions.forEach((dimension) => {
                 if (!line.Dimensions['Dimension' + dimension.Dimension]
                     && current.DefaultDimensions
@@ -2655,11 +2776,11 @@ export class BillView implements OnInit {
             // Update draftlines, but dont do anything if any draftlines is already
             // booked - because then we wont save any changes anyway (and the )
             if (this.journalEntryManual) {
-                const lines = this.journalEntryManual.getJournalEntryData();
+                const lines  = this.journalEntryManual.getJournalEntryData();
                 let draftlines = [];
 
                 // Add draft lines
-                lines.forEach(line => {
+                lines.forEach((line: any) => {
                     const draft = new JournalEntryLineDraft();
                     draft['_createguid'] = this.journalEntryService.getNewGuid();
 
@@ -2673,43 +2794,11 @@ export class BillView implements OnInit {
                     draft.VatPercent = line.DebitVatType ? line.DebitVatType.VatPercent : 0;
                     draft.VatDeductionPercent = line.VatDeductionPercent;
                     draft.FinancialDate = line.FinancialDate;
+                    draft.Dimensions = line.Dimensions;
 
-
-                    if (line.Dimensions && (line.Dimensions.ProjectID || line.Dimensions.DepartmentID)) {
-
-                        draft.Dimensions = line.Dimensions;
-
-                        if (line.Dimensions.ProjectID) {
-                            draft.Dimensions.ProjectID = line.Dimensions.ProjectID;
-                        }
-                        if (line.Dimensions.DepartmentID) {
-                            draft.Dimensions.DepartmentID = line.Dimensions.DepartmentID;
-                        }
-                        draft.Dimensions['_createguid'] = this.journalEntryService.getNewGuid();
-
-                    } else if (current.DefaultDimensions) {
-
-                        draft.Dimensions = current.DefaultDimensions;
-
-                        if (current.DefaultDimensions.ProjectID) {
-                            draft.Dimensions.ProjectID = current.DefaultDimensions.ProjectID;
-                        }
-                        if (current.DefaultDimensions.DepartmentID) {
-                            draft.Dimensions.DepartmentID = current.DefaultDimensions.DepartmentID;
-                        }
-
-                        // the dimension wont actually be saved, but we need this to bypass the validations
-                        // in the put method - the JournalEntryLineDraftHandler will override the values
-                        // here before saving, using an existing version of the combination of dimensions
-                        // if that exists
-                        draft.Dimensions['_createguid'] = this.journalEntryService.getNewGuid();
+                    if (draft.Dimensions && !draft.Dimensions.ID) {
+                        draft.Dimensions._createguid = draft.Dimensions._createguid || this.journalEntryService.getNewGuid();
                     }
-
-                    this.customDimensions.forEach((dim) => {
-                        if (line.Dimensions['Dimension' + dim.Dimension + 'ID']) {
-                            draft.Dimensions['Dimension' + dim.Dimension + 'ID'] = line.Dimensions['Dimension' + dim.Dimension + 'ID'];
-                        }
-                    });
 
                     if (line.JournalEntryDataAccrual) {
                         draft.Accrual = line.JournalEntryDataAccrual;
