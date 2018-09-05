@@ -138,6 +138,8 @@ export class UniSmartSearch {
             this.close();
         } else if (item && item.type === 'action') {
              // Predifined actions called here
+             item.onSelect();
+             this.close();
         } else if (item && item.type === 'search') {
             // USer selected one of 10 last searches
             this.loading$.next(true);

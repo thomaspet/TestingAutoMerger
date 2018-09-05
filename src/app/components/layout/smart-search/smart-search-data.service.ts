@@ -4,12 +4,11 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';
-import {
-    UniModalService,
-    ConfirmActions
-} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {CompanyService} from '@app/services/services';
 import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {AuthService} from '@app/authService';
 
 @Injectable()
 export class SmartSearchDataService {
@@ -24,8 +23,8 @@ export class SmartSearchDataService {
     public isNewTOFWithCustomerSearch: boolean = false;
     public newTOFWithCustomerURL;
     public prefixModule: any;
-    private predifinedPrefixes = [
-        'f', 'o', 't', 'a', 'l', 'p', 'k',
+    private predefinedPrefixes = [
+        'f', 'o', 't', 'a', 'l', 'p', 'k', 's',
         'faktura',
         'ordre',
         'tilbud',
@@ -37,7 +36,12 @@ export class SmartSearchDataService {
         'rapport'
     ];
 
-    constructor(private navbarLinkService: NavbarLinkService, private uniModalService: UniModalService) {
+    constructor(
+        private navbarLinkService: NavbarLinkService,
+        private uniModalService: UniModalService,
+        private companyService: CompanyService,
+        private authService: AuthService
+    ) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
@@ -68,7 +72,39 @@ export class SmartSearchDataService {
     }
 
     public asyncLookup(query: string): Observable<any[]> {
-        this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
+        const prefix = this.getPrefix(query);
+
+        // This is hacky, but spotlight is very hard to extend.
+        // Will probably neeed to rewrite most of the search logic to support
+        // commands and other advanced features we want down the road.
+        if (prefix === 's') {
+            return this.companyService.GetAll(null).map(companies => {
+                const searchResults: any[] = [{
+                    type: 'header',
+                    value: 'Bytt selskap'
+                }];
+
+                const searchValue = query.split('.')[1];
+                const filteredCompanies = companies.filter(c => {
+                    return c.Name.toLowerCase().includes(searchValue.toLowerCase());
+                });
+
+                filteredCompanies.forEach(company => {
+                    searchResults.push({
+                        type: 'action',
+                        value: company.Name,
+                        onSelect: () => {
+                            this.authService.setActiveCompany(company);
+                        }
+                    });
+                });
+
+                return searchResults.length > 1 ? searchResults : [];
+            });
+        }
+        // end of company selector hack
+
+        this.isPrefixSearch = !!prefix;
         this.isNewTOFWithCustomerSearch = this.checkPrefixForTOFWithNewCustomer(query);
         if ((query.startsWith('ny') || query.startsWith('nytt') || query === '' || (query.length < 3 && !this.isPrefixSearch))
             && !this.isNewTOFWithCustomerSearch ) {
@@ -141,15 +177,15 @@ export class SmartSearchDataService {
         return dataForViewRender;
     }
 
-    private checkPrefixForSpecificSearch(query: string) {
-        // Check first to see if the user has added a '.' in search to indicate prefix search
+    private getPrefix(query: string) {
         if (query.includes('.')) {
-            const firstWordSearched = query.split('.')[0];
-            if (this.predifinedPrefixes.indexOf(firstWordSearched.toLowerCase()) >= 0) {
-                return true;
+            const prefix = query.split('.')[0];
+            if (this.predefinedPrefixes.includes(prefix)) {
+                return prefix;
             }
         }
-        return false;
+
+        return;
     }
 
     private checkPrefixForTOFWithNewCustomer(query) {
