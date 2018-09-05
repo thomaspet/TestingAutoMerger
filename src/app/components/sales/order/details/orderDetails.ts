@@ -371,6 +371,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.distributionPlans = res[15];
                         this.reports = res[16];
 
+                        if (this.companySettings['Distributions']) {
+                            order.DistributionPlanID = this.companySettings['Distributions'].CustomerOrderDistributionPlanID;
+                        }
+
                         order.OrderDate = new LocalDate(Date());
 
                         if (!order.CurrencyCodeID) {
@@ -560,6 +564,37 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
 
         this.updateCurrency(order, shouldGetCurrencyRate);
+
+        if (
+            customerChanged && this.currentCustomer &&
+            this.currentCustomer['Distributions'] &&
+            this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
+                if (order.DistributionPlanID &&
+                    order.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
+                    this.modalService.open(UniConfirmModalV2,
+                        {
+                            header: 'Oppdatere distribusjonsplan?',
+                            buttonLabels: {
+                                accept: 'Oppdater',
+                                reject: 'Ikke oppdater'
+                            },
+                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                            'denne ordren. Ønsker du å oppdatere distribusjonsplanen for denne ordren til å matche kundens?'
+                        }
+                    ).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
+                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                            this.order = order;
+                        }
+                    });
+                } else {
+                    order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
+                    this.order = order;
+                }
+            } else {
+                this.order = order;
+            }
 
         this.currentOrderDate = order.OrderDate;
         this.updateSaveActions();

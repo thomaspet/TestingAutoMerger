@@ -47,6 +47,7 @@ import {
     BankAccountService,
     ModulusService,
     JournalEntryLineService,
+    DistributionPlanService
 } from '../../../../services/services';
 import {
     UniModalService,
@@ -102,6 +103,7 @@ export class CustomerDetails implements OnInit {
     public selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
+    private distributionPlans: any[];
 
     private isDirty: boolean = false;
 
@@ -173,7 +175,8 @@ export class CustomerDetails implements OnInit {
         'Info.Contacts.Info.DefaultPhone',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller'
+        'DefaultSeller',
+        'Distributions'
     ];
 
     private newEntityExpandOptions: string[] = [
@@ -184,7 +187,8 @@ export class CustomerDetails implements OnInit {
         'Info.Contacts',
         'Dimensions',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-        'Sellers'
+        'Sellers',
+        'Distributions'
     ];
 
     private formIsInitialized: boolean = false;
@@ -223,6 +227,7 @@ export class CustomerDetails implements OnInit {
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
+        private distributionPlanService: DistributionPlanService,
         private navbarLinkService: NavbarLinkService
     ) {}
 
@@ -530,7 +535,8 @@ export class CustomerDetails implements OnInit {
                     and Empty eq false and Disabled eq false`,
                     ['NumberSeriesType']
                 ),
-                this.sellerService.GetAll(null)
+                this.sellerService.GetAll(null),
+                this.distributionPlanService.GetAll(null)
             ).subscribe(response => {
                 this.dropdownData = [response[0], response[1]];
                 this.emptyPhone = response[3];
@@ -542,6 +548,7 @@ export class CustomerDetails implements OnInit {
                 this.deliveryTerms = response[9];
                 this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[10]);
                 this.sellers = response[11];
+                this.distributionPlans = response[12];
 
                 const customer: Customer = response[2];
 
@@ -822,6 +829,43 @@ export class CustomerDetails implements OnInit {
             }
         };
 
+        const invoiceDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerInvoiceDistributionPlanID');
+        invoiceDistributionPlan.Options = {
+            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoice'),
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            hideDeleteButton: true,
+            searchable: false,
+        };
+
+        const orderDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerOrderDistributionPlanID');
+        orderDistributionPlan.Options = {
+            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerOrder'),
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            hideDeleteButton: true,
+            searchable: false,
+        };
+
+        const quoteDistributionPlan: UniFieldLayout = fields.find(x => x.Property === 'Distributions.CustomerQuoteDistributionPlanID');
+        quoteDistributionPlan.Options = {
+            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerQuote'),
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            hideDeleteButton: true,
+            searchable: false,
+        };
+
+        const reminderDistributionPlan: UniFieldLayout =
+            fields.find(x => x.Property === 'Distributions.CustomerInvoiceReminderDistributionPlanID');
+        reminderDistributionPlan.Options = {
+            source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoiceReminder'),
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            hideDeleteButton: true,
+            searchable: false,
+        };
+
         this.fields$.next(fields);
     }
 
@@ -1097,6 +1141,20 @@ export class CustomerDetails implements OnInit {
             }
         }
 
+        if (changes['Distributions.CustomerInvoiceDistributionPlanID'] ||
+            changes['Distributions.CustomerOrderDistributionPlanID '] ||
+            changes['Distributions.CustomerQuoteDistributionPlanID '] ||
+            changes['Distributions.CustomerInvoiceReminderDistributionPlanID '] ||
+            changes['Distributions.PayCheckDistributionPlanID '] ||
+            changes['Distributions.AnnualStatementDistributionPlanID ']) {
+            // Add createguid if not present on distribuion object
+            const myCustomer: any = this.customer$.getValue();
+            if (!myCustomer.Distributions._createguid) {
+                myCustomer.Distributions._createguid = this.customerService.getNewGuid();
+                this.customer$.next(myCustomer);
+            }
+        }
+
         this.form.validateForm();
         this.setupSaveActions();
         this.customer$.next(customer);
@@ -1313,6 +1371,43 @@ export class CustomerDetails implements OnInit {
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Bankkonto'
                 },
+                {
+                    EntityType: 'Customer',
+                    Property: 'Distributions.CustomerInvoiceDistributionPlanID',
+                    FieldType: FieldType.DROPDOWN,
+                    Legend: 'Distribusjonsplan',
+                    Label: 'Faktura',
+                    FieldSet: 7,
+                    Section: 0,
+                    Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'Distributions.CustomerOrderDistributionPlanID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Ordre',
+                    FieldSet: 7,
+                    Section: 0,
+                    Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'Distributions.CustomerQuoteDistributionPlanID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Tilbud',
+                    FieldSet: 7,
+                    Section: 0,
+                    Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'Distributions.CustomerInvoiceReminderDistributionPlanID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Purring',
+                    FieldSet: 7,
+                    Section: 0,
+                    Hidden: false
+                }
             ]
         };
 

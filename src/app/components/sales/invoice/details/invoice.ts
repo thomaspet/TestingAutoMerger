@@ -330,6 +330,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.distributionPlans = res[15];
                     this.reports = res[16];
 
+                    if (this.companySettings['Distributions']) {
+                        invoice.DistributionPlanID = this.companySettings['Distributions'].CustomerInvoiceDistributionPlanID;
+                    }
                     invoice.InvoiceDate = new LocalDate(Date());
 
                     if (!invoice.CurrencyCodeID) {
@@ -677,7 +680,37 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.currentInvoiceDate = invoice.InvoiceDate;
 
-        this.invoice = invoice;
+        if (
+            customerChanged && this.currentCustomer &&
+            this.currentCustomer['Distributions'] &&
+            this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
+                if (invoice.DistributionPlanID &&
+                    invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
+                    this.modalService.open(UniConfirmModalV2,
+                        {
+                            header: 'Oppdatere distribusjonsplan?',
+                            buttonLabels: {
+                                accept: 'Oppdater',
+                                reject: 'Ikke oppdater'
+                            },
+                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                            'denne faktura. Ønsker du å oppdatere distribusjonsplanen for denne faktura til å matche kundens?'
+                        }
+                    ).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
+                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                            this.invoice = invoice;
+                        }
+                    });
+                } else {
+                    invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
+                    this.invoice = invoice;
+                }
+            } else {
+                this.invoice = invoice;
+            }
+
         this.updateSaveActions();
     }
 

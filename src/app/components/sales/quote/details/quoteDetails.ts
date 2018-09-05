@@ -356,6 +356,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.distributionPlans = res[14];
                         this.reports = res[15];
 
+                        if (this.companySettings['Distributions']) {
+                            quote.DistributionPlanID = this.companySettings['Distributions'].CustomerQuoteDistributionPlanID;
+                        }
+
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
 
@@ -477,8 +481,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     public onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
+        const customerChanged = this.didCustomerChange(quote);
 
-        if (this.didCustomerChange(quote)) {
+        if (customerChanged) {
             if (quote.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -549,6 +554,35 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         this.updateCurrency(quote, shouldGetCurrencyRate);
+
+        if (
+            customerChanged && this.currentCustomer &&
+            this.currentCustomer['Distributions'] &&
+            this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
+                if (quote.DistributionPlanID &&
+                    quote.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
+                    this.modalService.open(UniConfirmModalV2,
+                        {
+                            header: 'Oppdatere distribusjonsplan?',
+                            buttonLabels: {
+                                accept: 'Oppdater',
+                                reject: 'Ikke oppdater'
+                            },
+                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                            'dette tilbudet. Ønsker du å oppdatere distribusjonsplanen for dette tilbudet til å matche kundens?'
+                        }
+                    ).onClose.subscribe((res) => {
+                        if (res === ConfirmActions.ACCEPT) {
+                            quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
+                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                            this.quote = quote;
+                        }
+                    });
+                } else {
+                    quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
+                    this.quote = quote;
+                }
+            }
 
         this.currentQuoteDate = quote.QuoteDate;
         this.updateSaveActions();

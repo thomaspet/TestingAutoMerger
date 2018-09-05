@@ -52,6 +52,7 @@ import {
     SubEntityService,
     ReportService,
     ReportTypeService,
+    DistributionPlanService
 } from '@app/services/services';
 import {SubEntitySettingsService} from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {CompanySettingsViewService} from './services/companySettingsViewService';
@@ -87,19 +88,6 @@ export class CompanySettingsComponent implements OnInit {
 
     @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
-
-    public defaultExpands: any = [
-        'DefaultAddress',
-        'DefaultEmail',
-        'DefaultPhone',
-        'BankAccounts',
-        'BankAccounts.Bank',
-        'BankAccounts.Account',
-        'CompanyBankAccount',
-        'TaxBankAccount',
-        'SalaryBankAccount',
-        'DefaultSalesAccount'
-    ];
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
     private savedCompanyOrgValue: string;
@@ -176,6 +164,7 @@ export class CompanySettingsComponent implements OnInit {
     private hasBoughtInvoicePrint: boolean = false;
     private hideXtraPaymentOrgXmlTagValue: boolean;
     private hideBankValues: boolean;
+    private distributionPlans: any[];
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
 
@@ -215,6 +204,7 @@ export class CompanySettingsComponent implements OnInit {
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
         private reportTypeService: ReportTypeService,
+        private distributionPlanService: DistributionPlanService,
     ) {
         this.financialYearService.lastSelectedFinancialYear$.subscribe(
             res => this.currentYear = res.Year,
@@ -264,7 +254,8 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getQuoteTemplateText(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
-            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE)
+            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+            this.distributionPlanService.GetAll(null)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -309,6 +300,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[15];
                 this.orderFormList = dataset[16];
                 this.invoiceFormList = dataset[17];
+                this.distributionPlans = dataset[18];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -529,6 +521,20 @@ export class CompanySettingsComponent implements OnInit {
                 }));
             }
 
+        }
+
+        if (changes['Distributions.CustomerInvoiceDistributionPlanID'] ||
+            changes['Distributions.CustomerOrderDistributionPlanID '] ||
+            changes['Distributions.CustomerQuoteDistributionPlanID '] ||
+            changes['Distributions.CustomerInvoiceReminderDistributionPlanID '] ||
+            changes['Distributions.PayCheckDistributionPlanID '] ||
+            changes['Distributions.AnnualStatementDistributionPlanID ']) {
+            // Add createguid if not present on distribuion object
+            const cs: any = this.companySettings$.getValue();
+            if (!cs.Distributions._createguid) {
+                cs.Distributions._createguid = this.companySettingsService.getNewGuid();
+                this.companySettings$.next(cs);
+            }
         }
     }
 
@@ -864,12 +870,16 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.hasBoughtEHF ? (this.ehfService.isActivated('EHF INVOICE 2.0') ? 'Reaktiver EHF' : 'Aktiver EHF') : 'EHF på markesplassen';
+        apActivated.Label = this.hasBoughtEHF
+            ? (this.ehfService.isActivated('EHF INVOICE 2.0') ? 'Reaktiver EHF' : 'Aktiver EHF')
+            : 'EHF på markesplassen';
         apActivated.Options.class = this.ehfService.isActivated('EHF INVOICE 2.0') ? 'good' : '';
 
         const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
-        invoicePrint.Label = this.hasBoughtInvoicePrint ? (this.ehfService.isActivated("NETSPRINT") ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint') : 'Fakturaprint på markedsplassen';
-        invoicePrint.Options.class = this.ehfService.isActivated("NETSPRINT") ? 'good' : '';
+        invoicePrint.Label = this.hasBoughtInvoicePrint
+            ? (this.ehfService.isActivated('NETSPRINT') ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint')
+            : 'Fakturaprint på markedsplassen';
+        invoicePrint.Options.class = this.ehfService.isActivated('NETSPRINT') ? 'good' : '';
 
         this.fields$.next(fields);
     }
@@ -1532,6 +1542,71 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 7,
                 ReadOnly: true,
                 Hidden: !this.companySettings$.getValue()['_FileFlowEmail']
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'Distributions.CustomerInvoiceDistributionPlanID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Faktura',
+                Options: {
+                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoice'),
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 8,
+                Section: 1,
+                Legend: 'Distribusjonsplaner',
+                Hidden: false
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'Distributions.CustomerOrderDistributionPlanID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Ordre',
+                Options: {
+                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerOrder'),
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 8,
+                Section: 1,
+                Hidden: false
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'Distributions.CustomerQuoteDistributionPlanID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Tilbud',
+                Options: {
+                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerQuote'),
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 8,
+                Section: 1,
+                Hidden: false
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'Distributions.CustomerInvoiceReminderDistributionPlanID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Purring',
+                Options: {
+                    source: this.distributionPlans.filter(plan => plan.EntityType === 'Models.Sales.CustomerInvoiceReminder'),
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    hideDeleteButton: true,
+                    searchable: false,
+                },
+                FieldSet: 8,
+                Section: 1,
+                Hidden: false
             }
         ]);
 
