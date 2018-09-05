@@ -552,6 +552,7 @@ export class CustomerDetails implements OnInit {
                     customer.SubAccountNumberSeriesID = numberSerie.ID;
                 }
 
+                this.getDataAndUpdateToolbarSubheads();
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
@@ -560,10 +561,6 @@ export class CustomerDetails implements OnInit {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] =
                         this.customerInvoiceReminderSettingsService.getNewGuid();
-                }
-
-                if (this.customerID > 0) {
-                    this.getDataAndUpdateToolbarSubheads();
                 }
 
                 customer.DefaultSeller = customer.DefaultSeller;
@@ -592,9 +589,7 @@ export class CustomerDetails implements OnInit {
                 }
 
                 this.customer$.next(customer);
-                if (this.customerID > 0) {
-                    this.getDataAndUpdateToolbarSubheads();
-                }
+                this.getDataAndUpdateToolbarSubheads();
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.setCustomerStatusOnToolbar();
