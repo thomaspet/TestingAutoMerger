@@ -177,6 +177,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.PutAction(ID, 'recalculatetax');
     }
 
+    public recalulateOnEmp(empID: number, runID: number = null): Observable<boolean> {
+        return this.PutAction(runID, 'calculateonemp', `empID=${empID}`);
+    }
+
 
     public resetSettling(ID: number) {
         return super.PutAction(ID, 'resetrun').do(() => this.clearRelatedCaches());
