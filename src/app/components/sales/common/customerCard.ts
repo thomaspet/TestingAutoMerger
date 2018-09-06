@@ -129,12 +129,16 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
 
     private toBadgeClass(code: number): string {
         switch (code) {
+            case StatusCodeSharing.Pending:
+                return 'badge-pending';
             case StatusCodeSharing.InProgress:
                 return 'badge-in-progress';
             case StatusCodeSharing.Failed:
                 return 'badge-failed';
             case StatusCodeSharing.Completed:
                 return 'badge-completed';
+            case StatusCodeSharing.Cancelled:
+                return 'badge-cancelled';
             default:
                 return 'badge-unavailable';
         }

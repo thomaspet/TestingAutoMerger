@@ -7890,7 +7890,7 @@ export enum StatusCodeSharing{
     InProgress = 70001,
     Failed = 70002,
     Completed = 70003,
-    Cancelled = 70005,
+    Cancelled = 70004
 }
 
 

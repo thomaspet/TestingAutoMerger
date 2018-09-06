@@ -117,6 +117,10 @@ export class StatusService {
 
     public getSharingStatusText(statusCode: number): string {
         switch (statusCode) {
+            case StatusCodeSharing.Cancelled:
+                return 'Avbrutt';
+            case StatusCodeSharing.Pending:
+                return 'I kø';
             case StatusCodeSharing.Completed:
                 return 'Fullført';
             case StatusCodeSharing.Failed:

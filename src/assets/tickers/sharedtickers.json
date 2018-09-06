@@ -137,6 +137,16 @@
                 "Type": "export",
                 "ExecuteWithMultipleSelections": true,
                 "ExecuteWithoutSelection": true
+            },
+            {
+                "Name": "Avbryt",
+                "Code": "sharing_cancel",
+                "Type": "transition",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "Options": {
+                    "Transition": "Cancel"
+                }
             }
         ],
         "Filters": [

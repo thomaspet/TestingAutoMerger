@@ -23,6 +23,7 @@ import {
     User,
     ReportDefinition,
     StatusCodeCustomerInvoiceReminder,
+    StatusCodeSharing
 } from '../../../../unientities';
 
 import {
@@ -377,7 +378,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1')
-                ).subscribe((res) => {
+                    ).subscribe((res) => {
                     const invoice = res[0];
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
@@ -518,28 +519,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.dimensionTypes[index + 1].Data = res[index];
             });
         });
-    }
-
-    private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isActivated('EHF INVOICE 2.0')) {
-            this.askSendEHF(doneHandler);
-        } else {
-            this.modalService.confirm({
-                header: 'Markedsplassen',
-                message: 'Til markedsplassen for å kjøpe tilgang til å sende EHF?',
-                buttonLabels: {
-                    accept: 'Ja',
-                    cancel: 'Nei'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.elsaProductService.FindProductByName('EHF').subscribe(p => {
-                        this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
-                    });
-                }
-                doneHandler('');
-            });
-        }
     }
 
     private askAddressSettings(doneHandler: (msg?: string) => void) {
@@ -825,43 +804,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     public onSellerDelete(sellerLink: SellerLink) {
         this.deletables.push(sellerLink);
-    }
-
-    private askSendEHF(doneHandler: (msg: string) => void = null) {
-        if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
-            if (this.invoice.PrintStatus === 300) {
-                this.modalService.confirm({
-                    header: 'Bekreft EHF sending',
-                    message: 'Vil du sende EHF på nytt?',
-                    buttonLabels: {
-                        accept: 'Send',
-                        cancel: 'Avbryt'
-                    }
-                }).onClose.subscribe(response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.sendEHF(doneHandler);
-                    } else {
-                        doneHandler('');
-                    }
-                });
-            } else {
-                this.sendEHF(doneHandler);
-            }
-        } else {
-            this.askAddressSettings(doneHandler);
-        }
-    }
-
-    private sendEHF(doneHandler: (msg: string) => void = null) {
-        this.customerInvoiceService.PutAction(this.invoice.ID, 'send-ehf').subscribe(
-            () => {
-                this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
-                if (doneHandler) { doneHandler('EHF sendt'); }
-            },
-            (err) => {
-                if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
-                this.errorService.handle(err);
-            });
     }
 
     private didCustomerChange(invoice: CustomerInvoice): boolean {
@@ -1275,7 +1217,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Distribuer',
                 action: () => this.distribute(),
-                disabled: () => !this.invoice.ID
+                disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
             }
         ];
     }
@@ -1337,14 +1279,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             },
             disabled: false
-        });
-
-        this.saveActions.push({
-            label: 'Send EHF',
-            action: (done) => this.sendEHFAction(done),
-            disabled: status < StatusCodeCustomerInvoice.Invoiced,
-            main: printStatus !== 300 && this.ehfEnabled
-                && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1648,26 +1582,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedInvoice = this.isDirty
-            ? Observable.fromPromise(this.saveInvoice())
-            : Observable.of(this.invoice);
-
-        return savedInvoice.switchMap((invoice) => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerInvoiceService.setPrintStatus(
-                    this.invoice.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.invoice.PrintStatus = +this.printStatusPrinted;
-                    this.updateToolbar();
-                });
-            });
-        });
-    }
-
     private sendEmailAction(reportForm: ReportDefinition, entity: CustomerInvoice, entityTypeName: string, name: string): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
@@ -1690,10 +1604,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         ).onClose.map(res => {
             if (res === ConfirmActions.CANCEL || !res) {
                 return;
-            }
-
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
             }
 
             if (res.action === 'email') {
@@ -1766,16 +1676,50 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private distribute() {
         return Observable.create((obs) => {
-            this.reportService.distribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
-                this.toastService.addToast(
-                    'Faktura er lagt i kø for distribusjon',
-                    ToastType.good,
-                    ToastTime.short);
-                obs.complete();
-            }, err => {
-                this.errorService.handle(err);
-                obs.complete();
+            this.statisticsService.GetAllUnwrapped(
+                `model=Sharing&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoiceID}`
+                + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`)
+                .subscribe(existingSharings => {
+                    if ((this.invoice.PrintStatus && this.invoice.PrintStatus !== 0)
+                        || (existingSharings.find(x =>
+                            x.SharingStatusCode !== StatusCodeSharing.Failed
+                            && x.SharingStatusCode !== StatusCodeSharing.Cancelled))) {
+                        this.modalService.confirm({
+                            header: 'Allerede distribuert?',
+                            message: 'Det ser ut som fakturaen allerede er distribuert eller at ' +
+                                    'distribusjon er bestilt, vil du distribuere den på ny likevel?',
+                            buttonLabels: {
+                                accept: 'Ja',
+                                cancel: 'Nei'
+                            }
+                        }).onClose.subscribe(response => {
+                            if (response === ConfirmActions.ACCEPT) {
+                                this.doDistribute(obs);
+                            } else {
+                                obs.complete();
+                            }
+                        });
+                    } else {
+                        this.doDistribute(obs);
+                    }
+                },
+                err => {
+                    obs.complete();
+                    this.errorService.handle(err);
+                });
             });
+    }
+
+    private doDistribute(obs) {
+        this.reportService.distribute(this.invoice.ID, this.distributeEntityType).subscribe(() => {
+            this.toastService.addToast(
+                'Faktura er lagt i kø for distribusjon',
+                ToastType.good,
+                ToastTime.short);
+            obs.complete();
+        }, err => {
+            this.errorService.handle(err);
+            obs.complete();
         });
     }
 
