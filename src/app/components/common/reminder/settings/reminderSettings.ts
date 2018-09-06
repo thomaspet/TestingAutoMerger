@@ -60,7 +60,7 @@ export class ReminderSettings {
                     'CustomerInvoiceReminderSettings',
                     'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
                     'CustomerInvoiceReminderSettings.DebtCollectionSettings',
-                    'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
+                    // 'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
                 ]
             )
                 .subscribe((settings) => {

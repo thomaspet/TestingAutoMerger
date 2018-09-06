@@ -194,17 +194,6 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
             }
 
             if (customer && customer.customerID) {
-                if (customer.ID && customer.ID !== this.lastCheckedStatisticsCustomerID) {
-                    this.customerService.getCustomerStatistics(customer.ID)
-                        .subscribe(x => {
-                            this.lastCheckedStatisticsCustomerID = customer.ID;
-                            if (x) {
-                                this.customerDueInvoiceData = x;
-                            }
-                        }, err => this.errorService.handle(err)
-                    );
-                }
-
                 this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
                 this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
             }

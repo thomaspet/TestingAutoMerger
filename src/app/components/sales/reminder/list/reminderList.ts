@@ -184,6 +184,13 @@ export class ReminderList {
                 this.updateReminderTable();
             });
             */
+        }, (err) => {
+            this.toastService.addToast(
+                'Noe gikk galt',
+                ToastType.bad,
+                10,
+                'Obs. Kunne ikke kjøre purrejobb akkurat nå.'
+            );
         });
 
         done();

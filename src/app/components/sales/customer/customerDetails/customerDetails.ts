@@ -59,6 +59,7 @@ import {
     IModalOptions,
 } from '../../../../../framework/uni-modal';
 import {UniHttp} from '../../../../../framework/core/http/http';
+import {AuthService} from '@app/authService';
 import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -223,7 +224,8 @@ export class CustomerDetails implements OnInit {
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
-        private navbarLinkService: NavbarLinkService
+        private navbarLinkService: NavbarLinkService,
+        private authService: AuthService
     ) {}
 
     public ngOnInit() {
@@ -501,7 +503,6 @@ export class CustomerDetails implements OnInit {
 
     public setup() {
         this.showReportWithID = null;
-
         if (!this.formIsInitialized) {
             const layout: ComponentLayout = this.getComponentLayout(); // results
             this.fields$.next(layout.Fields);
@@ -517,11 +518,6 @@ export class CustomerDetails implements OnInit {
                 this.phoneService.GetNewEntity(),
                 this.emailService.GetNewEntity(),
                 this.addressService.GetNewEntity(null, 'Address'),
-                (
-                    this.customerID > 0 ?
-                        this.customerService.getCustomerStatistics(this.customerID) :
-                        Observable.of(null)
-                ),
                 this.currencyCodeService.GetAll(null),
                 this.termsService.GetAction(null, 'get-payment-terms'),
                 this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -536,12 +532,11 @@ export class CustomerDetails implements OnInit {
                 this.emptyPhone = response[3];
                 this.emptyEmail = response[4];
                 this.emptyAddress = response[5];
-                this.customerStatisticsData = response[6];
-                this.currencyCodes = response[7];
-                this.paymentTerms = response[8];
-                this.deliveryTerms = response[9];
-                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[10]);
-                this.sellers = response[11];
+                this.currencyCodes = response[6];
+                this.paymentTerms = response[7];
+                this.deliveryTerms = response[8];
+                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[9]);
+                this.sellers = response[10];
 
                 const customer: Customer = response[2];
 
@@ -560,13 +555,16 @@ export class CustomerDetails implements OnInit {
                         this.customerInvoiceReminderSettingsService.getNewGuid();
                 }
 
+                if (this.customerID > 0) {
+                    this.getDataAndUpdateToolbarSubheads();
+                }
+
                 customer.DefaultSeller = customer.DefaultSeller;
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
                 );
 
-                this.toolbarSubheads = this.getToolbarSubheads(this.customerStatisticsData);
                 this.setTabTitle();
                 this.extendFormConfig();
                 this.showHideNameProperties();
@@ -574,22 +572,11 @@ export class CustomerDetails implements OnInit {
                 this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
         } else {
-            Observable.forkJoin(
-                (
-                    this.customerID > 0 ?
-                        this.customerService.Get(this.customerID, this.expandOptions) :
-                        this.customerService.GetNewEntity(this.newEntityExpandOptions)
-                ),
-                (
-                    this.customerID > 0 ?
-                        this.customerService.getCustomerStatistics(this.customerID) :
-                        Observable.of(null)
-                )
-            ).subscribe(response => {
+            this.customerID > 0
+                ? this.customerService.Get(this.customerID, this.expandOptions)
+                : this.customerService.GetNewEntity(this.newEntityExpandOptions).subscribe(response => {
                 const customer = response[0];
                 this.setMainContact(customer);
-
-                this.customerStatisticsData = response[1];
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
@@ -598,12 +585,59 @@ export class CustomerDetails implements OnInit {
                 }
 
                 this.customer$.next(customer);
-                this.toolbarSubheads = this.getToolbarSubheads(this.customerStatisticsData);
+                if (this.customerID > 0) {
+                    this.getDataAndUpdateToolbarSubheads();
+                }
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.setCustomerStatusOnToolbar();
             }, err => this.errorService.handle(err));
         }
+    }
+
+    public getDataAndUpdateToolbarSubheads() {
+        this.authService.authentication$.take(1).subscribe(auth => {
+            const user = auth.user;
+
+            const invoiceRequest = this.authService.hasUIPermission(user, 'ui_sales_invoices')
+                ? this.customerService.getCustomerInvoiceStatistics(this.customerID)
+                : Observable.of(null);
+
+            const orderRequest = this.authService.hasUIPermission(user, 'ui_sales_orders')
+                ? this.customerService.getCustomerOrderStatistics(this.customerID)
+                : Observable.of(null);
+
+            Observable.forkJoin(orderRequest, invoiceRequest).subscribe(
+                res => {
+                    const subheads = [];
+
+                    if (res[0]) {
+                        subheads.push({
+                            label: 'Ordre',
+                            title: this.numberFormat.asMoney(res[0].SumOpenOrdersExVat)
+                        });
+                    }
+
+                    if (res[1]) {
+                        subheads.push({
+                            label: 'Fakturert',
+                            title: this.numberFormat.asMoney(res[1].SumInvoicedExVat)
+                        });
+                        subheads.push({
+                            label: 'Utestående',
+                            title: this.numberFormat.asMoney(res[1].SumDueInvoicesRestAmount),
+                            classname: res[1].SumDueInvoicesRestAmount > 0 ? 'bad' : ''
+                        });
+                    }
+
+                    this.toolbarSubheads = subheads;
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.toolbarSubheads = [];
+                }
+            );
+        });
     }
 
     public numberSeriesChange(selectedSerie) {
@@ -651,24 +685,6 @@ export class CustomerDetails implements OnInit {
                 type: type
             }];
         }
-    }
-
-    public getToolbarSubheads(statisticsData): IToolbarSubhead[] {
-        return statisticsData && [
-            {
-                label: 'Ordre',
-                title: this.numberFormat.asMoney(statisticsData.SumOpenOrdersExVat)
-            },
-            {
-                label: 'Fakturert',
-                title: this.numberFormat.asMoney(statisticsData.SumInvoicedExVat)
-            },
-            {
-                label: 'Utestående',
-                title: this.numberFormat.asMoney(statisticsData.SumDueInvoicesRestAmount),
-                classname: statisticsData.SumDueInvoicesRestAmount > 0 ? 'bad' : ''
-            }
-        ];
     }
 
     public extendFormConfig() {
