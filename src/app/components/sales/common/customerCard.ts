@@ -177,9 +177,9 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                     }
                 }
 
-                if (customer.EfakturaIdentifier) {
+                if (customer.EInvoiceAgreementReference) {
                     this.efakturaClass = 'badge-available';
-                    this.efakturaTitle = 'Kan sende efaktura til ' + customer.EfakturaIdentifier;
+                    this.efakturaTitle = 'Kan sende efaktura til ' + customer.EInvoiceAgreementReference;
                 }
            }
 
