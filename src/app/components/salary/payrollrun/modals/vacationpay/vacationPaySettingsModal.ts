@@ -107,6 +107,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
 
         // save unitable
         this.changedVacationRates = this.table.getTableData();
+        this.checkTableDataSetDefaults();
         this.changedVacationRates.forEach(vacationRate => {
             this.saveStatus.numberOfRequests++;
             if (vacationRate.ID > 0) {
@@ -134,6 +135,14 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
                         this.errorService.handle(err);
                     });
             }
+        });
+    }
+
+    private checkTableDataSetDefaults() {
+        this.changedVacationRates.forEach( vacationrate => {
+            vacationrate.Rate = vacationrate.Rate || this.stdCompVacRate.Rate;
+            vacationrate.Rate60 = vacationrate.Rate60 || this.stdCompVacRate.Rate60;
+            vacationrate.FromDate = vacationrate.FromDate || new Date(this.activeYear - 1 + '-01-01');
         });
     }
 
