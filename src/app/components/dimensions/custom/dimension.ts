@@ -363,7 +363,7 @@ export class UniDimensionView implements OnInit {
             case 1:  // Project
                 return [
                     <any>{
-                        FieldType: FieldType.NUMERIC,
+                        FieldType: FieldType.TEXT,
                         Label: 'Prosjektnummer',
                         Property: 'ProjectNumber',
                         Placeholder: 'Autogenerert hvis blank',

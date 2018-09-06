@@ -155,7 +155,7 @@ export class ProjectLiteDetails {
     private getComponentFields(): UniFieldLayout[] {
         return [
             <any>{
-                FieldType: FieldType.NUMERIC,
+                FieldType: FieldType.TEXT,
                 Label: 'Prosjektnummer',
                 Property: 'ProjectNumber',
                 Placeholder: 'Autogenerert hvis blank'

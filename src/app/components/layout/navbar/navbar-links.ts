@@ -489,7 +489,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     prefix: ['prosjekt'],
                     selects: [
                         {key: 'ID', isNumeric: true},
-                        {key: 'ProjectNumber', isNumeric: true},
+                        {key: 'ProjectNumber', isNumeric: false},
                         {key: 'Name', isNumeric: false}
                     ]
                 },
