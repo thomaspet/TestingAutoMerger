@@ -1,0 +1,19 @@
+uni-distibution
+    .users-splitview
+        display: flex
+        flex-flow: row wrap
+        width: 100%
+
+        .user-list
+            flex: 1
+            min-width: 25rem
+        .user-detail
+            flex: 1
+            min-width: 25rem
+            header
+                height: 3.5rem
+                line-height: 3.5rem
+                font-size: 20px
+
+            uni-form
+                @include labelLength(10rem)

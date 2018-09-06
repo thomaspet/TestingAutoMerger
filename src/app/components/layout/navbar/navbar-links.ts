@@ -514,6 +514,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {name: 'Firmaoppsett', url: '/settings/company'},
+                    {name: 'Distribusjon', url: '/settings/distribution'},
                     {name: 'Lønnsinnstillinger', url: '/settings/aga-and-subentities'},
                     {name: 'Integrasjon', url: '/settings/webhooks'},
                     {name: 'Brukere', url: '/settings/users'},

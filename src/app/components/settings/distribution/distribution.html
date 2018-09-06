@@ -1,0 +1,20 @@
+<section class="users-splitview">
+
+    <section class ="uni-container user-list">
+        <uni-table
+            [config]="unitableConfig"
+            [resource]="plans"
+            (rowSelected)="onRowSelected($event)">
+        </uni-table>
+    </section>
+
+    <section class= "uni-container user-detail">
+        <header>Plandetaljer</header>
+        <uni-form
+            [config]="config$"
+            [fields]="fields$"
+            [model]="plan"
+            (changeEvent)="onFormChange($event)">
+        </uni-form>
+    </section>
+</section>

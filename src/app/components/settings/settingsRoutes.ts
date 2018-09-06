@@ -10,6 +10,7 @@ import {Settings} from './settings';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
+import {UniDistributionSettings} from './distribution/distribution';
 import {UniDimensionSettings} from './dimension/dimension';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
 
@@ -25,6 +26,11 @@ export const settingsRoutes: Routes = [{
         {
             path: 'company',
             component: CompanySettingsComponent,
+            canDeactivate: [CanDeactivateGuard]
+        },
+        {
+            path: 'distribution',
+            component: UniDistributionSettings,
             canDeactivate: [CanDeactivateGuard]
         },
         {

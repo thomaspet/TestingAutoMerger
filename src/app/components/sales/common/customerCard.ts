@@ -104,7 +104,8 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         'Sellers',
         'Sellers.Seller',
         'PaymentTerms',
-        'DeliveryTerms'
+        'DeliveryTerms',
+        'Distributions'
     ];
 
     constructor(

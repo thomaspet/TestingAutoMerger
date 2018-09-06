@@ -25,6 +25,7 @@ import {UniChangePasswordModal} from './users/changePasswordModal';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {UniTerms} from './terms/terms';
 import {UniBankSettings} from './bank/bankSettings';
+import {UniDistributionSettings} from './distribution/distribution';
 import {UniDimensionSettings} from './dimension/dimension';
 import {UniDimensionModal} from './dimension/dimensionModal';
 
@@ -69,6 +70,7 @@ import {MatSlideToggleModule} from '@angular/material';
         NumberSeries,
         UniTerms,
         UniBankSettings,
+        UniDistributionSettings,
         UniDimensionSettings,
         GrantModal,
         FreeAmountModal,
