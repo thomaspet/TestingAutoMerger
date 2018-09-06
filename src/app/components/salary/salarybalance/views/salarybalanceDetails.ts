@@ -240,7 +240,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
                 const [wagetypes, employees, suppliers] = result;
                 return this.salarybalanceService
-                    .layout('SalarybalanceDetails', salaryBalance, wagetypes, employees, suppliers)
+                    .layout('SalarybalanceDetails', salaryBalance, 'salarybalance' , wagetypes, employees, suppliers)
                     .map(layout => {
                         layout.Fields = layout.Fields.filter(field => !this.ignoreFields.some(name => name === field.Property));
                         return layout;

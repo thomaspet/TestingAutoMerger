@@ -107,6 +107,15 @@ import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
 import {TravelRejectModal} from './travel/travel-modal/travelRejectModal';
+import {
+    SalarybalanceTemplateListComponent
+} from './salarybalance/template/salarybalance-template-list/salarybalance-template-list.component';
+import {
+    SalarybalanceTemplateDetailsComponent
+} from './salarybalance/template/salarybalance-template-details/salarybalance-template-details.component';
+import {
+    SalarybalanceTemplateView
+} from './salarybalance/template/salarybalanceTemplateView';
 
 @NgModule({
     imports: [
@@ -214,6 +223,9 @@ import {TravelRejectModal} from './travel/travel-modal/travelRejectModal';
         TravelFilterComponent,
         EmployeeTransTickerComponent,
         TravelRejectModal,
+        SalarybalanceTemplateListComponent,
+        SalarybalanceTemplateDetailsComponent,
+        SalarybalanceTemplateView,
     ],
     entryComponents: [
         TaxCardModal,
@@ -314,6 +326,9 @@ import {TravelRejectModal} from './travel/travel-modal/travelRejectModal';
         SalaryBalanceLineModal,
         AnnualStatementSenderComponent,
         EmployeeReportPickerListComponent,
+        SalarybalanceTemplateView,
+        SalarybalanceTemplateListComponent,
+        SalarybalanceTemplateDetailsComponent,
 
         // Travel
         TravelComponent,

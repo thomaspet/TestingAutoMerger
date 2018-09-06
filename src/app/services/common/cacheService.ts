@@ -40,7 +40,7 @@ export class UniCacheService {
             entry.updatedAt = new Date();
         }
 
-        let elements = entry.state;
+        const elements = entry.state;
         entry.isDirty = false;
         Object.keys(elements).forEach((key) => {
             if (elements[key].isDirty) {
