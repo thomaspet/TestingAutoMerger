@@ -54,6 +54,8 @@ import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
 import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 
+import {ReloadHelper} from './reload';
+
 // Set moment locale
 // TODO: Allow users to change this during runtime
 moment.locale('nb');
@@ -102,7 +104,8 @@ moment.locale('nb');
         AssignmentsModule
     ],
     declarations: [
-        App
+        App,
+        ReloadHelper
     ],
     bootstrap: [App],
     providers: [

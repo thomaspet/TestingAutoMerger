@@ -21,6 +21,7 @@ import {SharingsList} from './components/sharings/list/sharingsList';
 import {UniReports} from './components/reports/reports';
 import {ContactDetails} from './components/common/contact/contactDetails';
 import {PredefinedDescriptionList} from './components/common/predefinedDescriptions/predefinedDescriptionList';
+import {ReloadHelper} from './reload';
 
 const routes = [
     {
@@ -101,6 +102,11 @@ export const APP_ROUTES = RouterModule.forRoot([
         path: 'init',
         component: UniInit,
         children: initRoutes
+    },
+    {
+        // Dont remove this one! See description inside the component.
+        path: 'reload',
+        component: ReloadHelper
     },
 
     // everything else does
