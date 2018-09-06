@@ -785,6 +785,7 @@ export class Customer extends UniEntity {
     public DimensionsID: number;
     public DontSendReminders: boolean;
     public EfakturaIdentifier: string;
+    public EInvoiceAgreementReference: string;
     public GLN: string;
     public ID: number;
     public IsPrivate: boolean;
