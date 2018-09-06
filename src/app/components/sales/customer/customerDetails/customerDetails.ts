@@ -104,7 +104,7 @@ export class CustomerDetails implements OnInit {
     public selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
-    private distributionPlans: any[];
+    private distributionPlans: any[] = [];
 
     private isDirty: boolean = false;
 
@@ -385,7 +385,6 @@ export class CustomerDetails implements OnInit {
         this.formIsInitialized = false;
         this.activeTabIndex = 0;
         this.router.navigateByUrl('/sales/customer/0');
-        this.reset();
     }
 
     private deleteCustomer(id: number) {
@@ -543,7 +542,7 @@ export class CustomerDetails implements OnInit {
                 this.deliveryTerms = response[8];
                 this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[9]);
                 this.sellers = response[10];
-                this.distributionPlans = response[12];
+                this.distributionPlans = response[11];
 
                 const customer: Customer = response[2];
 
@@ -552,7 +551,9 @@ export class CustomerDetails implements OnInit {
                     customer.SubAccountNumberSeriesID = numberSerie.ID;
                 }
 
-                this.getDataAndUpdateToolbarSubheads();
+                if (this.customerID > 0) {
+                    this.getDataAndUpdateToolbarSubheads();
+                }
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
@@ -589,7 +590,9 @@ export class CustomerDetails implements OnInit {
                 }
 
                 this.customer$.next(customer);
-                this.getDataAndUpdateToolbarSubheads();
+                if (this.customerID > 0) {
+                    this.getDataAndUpdateToolbarSubheads();
+                }
                 this.setTabTitle();
                 this.showHideNameProperties();
                 this.setCustomerStatusOnToolbar();

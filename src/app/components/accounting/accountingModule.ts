@@ -63,7 +63,6 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
-import {UniAutomarkModal} from './postpost/automarkModal';
 import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
@@ -153,8 +152,7 @@ import {MatTabsModule} from '@angular/material';
         DrilldownBalanceReportPart,
 
         // PostPost
-        PostPost,
-        UniAutomarkModal
+        PostPost
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -168,8 +166,7 @@ import {MatTabsModule} from '@angular/material';
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
-        DraftLineDescriptionModal,
-        UniAutomarkModal
+        DraftLineDescriptionModal
     ],
     exports: [
         AccountSettings,
@@ -221,8 +218,7 @@ import {MatTabsModule} from '@angular/material';
         DrilldownBalanceReportPart,
 
         // PostPost
-        PostPost,
-        UniAutomarkModal
+        PostPost
     ],
     providers: [
         PeriodFilterHelper,

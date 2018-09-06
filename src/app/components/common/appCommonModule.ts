@@ -21,6 +21,7 @@ import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {UniAutomarkModal} from './reconciliation/ledgeraccounts/uniAutomarkModal';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
@@ -74,6 +75,7 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
+        UniAutomarkModal,
 
         ReminderSettings,
         UniReminderSettingsModal,
@@ -110,7 +112,8 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         ImageModal,
         BookPaymentManualModal,
         VacationPaySettingsModal,
-        ApikeyLineModal
+        ApikeyLineModal,
+        UniAutomarkModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -129,6 +132,7 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
+        UniAutomarkModal,
 
         ReminderSettings,
         DebtCollectionSetting,

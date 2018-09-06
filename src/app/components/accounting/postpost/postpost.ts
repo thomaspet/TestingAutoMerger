@@ -10,7 +10,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {Observable} from 'rxjs/Observable';
-import {UniAutomarkModal} from './automarkModal';
+import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {
     Customer,
     Supplier,

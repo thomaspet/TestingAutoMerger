@@ -1,13 +1,13 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {
     UniTable,
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
     UniTableColumnSortMode
-} from '../../../../framework/ui/unitable/index';
+} from '../../../../../framework/ui/unitable/index';
 
 @Component({
     selector: 'uni-automark-modal',
