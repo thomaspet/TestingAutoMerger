@@ -37,6 +37,9 @@ export class TofHelper {
             entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
         }
 
+        entity.DefaultSellerID = customer.DefaultSellerID || null;
+        entity.DefaultSeller = customer.DefaultSeller || null;
+
         if (customer.Dimensions && customer.Dimensions.ProjectID) {
             entity.DefaultDimensions.ProjectID = customer.Dimensions.ProjectID;
             entity.DefaultDimensions.Project = customer.Dimensions.Project;

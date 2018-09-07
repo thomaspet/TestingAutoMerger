@@ -198,11 +198,6 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                 this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
                 this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
             }
-
-            if (customer && customer.DefaultSellerID) {
-                this.entity.DefaultSellerID = customer.DefaultSellerID;
-                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller);
-            }
         }
     }
 
@@ -370,11 +365,14 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                 });
             });
             this.entity.Sellers = sellers;
+        }
 
-            // map main seller to entity
-            if (customer.DefaultSellerID) {
-                this.entity.DefaultSeller = Object.assign({}, customer.DefaultSeller);
-            }
+        if (customer.DefaultSellerID) {
+            this.entity.DefaultSellerID = customer.DefaultSellerID;
+            this.entity.DefaultSeller = customer.DefaultSeller || null;
+        } else {
+            this.entity.DefaultSellerID = null;
+            this.entity.DefaultSeller = null;
         }
 
         this.entity.Customer = customer;

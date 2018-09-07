@@ -81,6 +81,11 @@ export class TofHead implements OnChanges {
         }
     }
 
+    onCustomerChange(entity) {
+        this.dataChange.emit(entity);
+        setTimeout(() => this.data = _.cloneDeep(entity));
+    }
+
     public onDataChange(data?: any) {
         const updatedEntity = data || this.data;
 
@@ -88,7 +93,6 @@ export class TofHead implements OnChanges {
         updatedEntity.Comment = this.commentControl.value;
 
         this.dataChange.emit(updatedEntity);
-        // this.data = _.cloneDeep(updatedEntity);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {

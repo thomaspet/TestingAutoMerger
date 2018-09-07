@@ -526,6 +526,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             } else {
                 order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
             }
+
             shouldGetCurrencyRate = true;
         }
 
