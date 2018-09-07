@@ -228,7 +228,6 @@ export class CustomerDetails implements OnInit {
         private bankaccountService: BankAccountService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
-        private distributionPlanService: DistributionPlanService,
         private authService: AuthService,
         private distributionPlanService: DistributionPlanService,
         private navbarLinkService: NavbarLinkService
