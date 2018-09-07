@@ -15,6 +15,7 @@ export class SalarybalanceTemplateListComponent implements OnInit {
 
   public tableConfig: UniTableConfig;
   public templates$: Observable<SalaryBalanceTemplate>;
+  public busy: boolean;
 
   public toolbarActions = [{
     label: 'Ny trekkmal',
@@ -54,8 +55,10 @@ export class SalarybalanceTemplateListComponent implements OnInit {
   }
 
   private loadTemplates() {
+    this.busy = true;
     this.templates$ = this.templateService
       .GetAll('')
+      .finally(() => this.busy = false)
       .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
   }
 
