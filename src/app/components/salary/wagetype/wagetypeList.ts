@@ -45,7 +45,7 @@ export class WagetypeList implements OnInit {
                 action: () => {
                     this.syncWagetypes();
                 },
-                disabled: () => true
+                disabled: () => false
             }
         ];
     }
@@ -98,8 +98,10 @@ export class WagetypeList implements OnInit {
         this._wageTypeService.invalidateCache();
         this._wageTypeService.syncWagetypes()
             .do(() => this.getWagetypes())
+            .finally(() => this.busy = false)
             .subscribe((response) => {
                 this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
-            });
+            }
+        , err => this.errorService.handle(err));
     }
 }
