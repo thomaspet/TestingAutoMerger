@@ -722,23 +722,7 @@
                 "LinkNavigationProperty": "SourceInstanceID"
             }
         ],
-        "Filters": [
-            {
-                "Name": "tracelinkfilter",
-                "Code": "tracelink_table",
-                "UseAllCriterias": true,
-                "FilterGroups": [{
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "DestinationEntityName",
-                            "Operator": "eq",
-                            "Value": "'Payment'"
-                        }
-                    ]
-                }]
-            }
-        ]
+        "Filter": "DestinationEntityName eq 'Payment'"
     },
     {
         "Name": "Betalinger",

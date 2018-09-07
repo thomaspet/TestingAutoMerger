@@ -229,8 +229,9 @@ export class CustomerDetails implements OnInit {
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
         private distributionPlanService: DistributionPlanService,
-        private navbarLinkService: NavbarLinkService,
-        private authService: AuthService
+        private authService: AuthService,
+        private distributionPlanService: DistributionPlanService,
+        private navbarLinkService: NavbarLinkService
     ) {}
 
     public ngOnInit() {
