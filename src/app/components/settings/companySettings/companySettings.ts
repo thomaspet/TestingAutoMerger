@@ -1561,6 +1561,13 @@ export class CompanySettingsComponent implements OnInit {
                 Hidden: false
             },
             {
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Distribuer faktura automatisk',
+                Property: 'AutoDistributeInvoice',
+                Section: 1,
+                FieldSet: 8
+            },
+            {
                 EntityType: 'CompanySettings',
                 Property: 'Distributions.CustomerOrderDistributionPlanID',
                 FieldType: FieldType.DROPDOWN,

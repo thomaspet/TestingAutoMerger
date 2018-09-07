@@ -456,26 +456,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-
-    private ehfReadyUpdateSaveActions() {
-        if (!this.invoice || !!!this.invoice.Customer) {
-            this.ehfEnabled = false;
-            return;
-        }
-
-        // Possible to receive EHF for this customer?
-        const peppoladdress = this.invoice.Customer.PeppolAddress
-            ? this.invoice.Customer.PeppolAddress
-            : '9908:' + this.invoice.Customer.OrgNumber;
-        this.ehfService.GetAction(
-            null, 'is-ehf-receiver',
-            'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
-        ).subscribe(enabled => {
-            this.ehfEnabled = enabled;
-            this.updateSaveActions();
-        }, err => this.errorService.handle(err));
-    }
-
     public numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
@@ -1124,7 +1104,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.updateTabTitle();
         this.updateToolbar();
         this.updateSaveActions();
-        this.ehfReadyUpdateSaveActions();
     }
 
     private updateTabTitle() {
@@ -1502,7 +1481,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }).onClose.subscribe(
                 response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        this.saveInvoice(done).then((invoice) => {
+                        // send dummy function to saveInvoice to avoid setting done before the
+                        // invoicing is completed (so the button does not appear to be clickable)
+                        // before the invoicing is complete
+                        this.saveInvoice((s) => {}).then((invoice) => {
                             if (invoice) {
                                 this.isDirty = false;
 
@@ -1514,6 +1496,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                                 if (!isDraft) {
                                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                                    done(doneText);
                                     return;
                                 }
 
@@ -1539,7 +1522,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             );
         }
 
-        this.saveInvoice(done).then((invoice) => {
+        // send dummy function to saveInvoice to avoid setting done before the
+        // invoicing is completed (so the button does not appear to be clickable)
+        // before the invoicing is complete
+        this.saveInvoice((s) => {}).then((invoice) => {
             if (invoice) {
                 this.isDirty = false;
 
@@ -1551,6 +1537,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                 if (!isDraft) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                    done(doneText);
                     return;
                 }
 

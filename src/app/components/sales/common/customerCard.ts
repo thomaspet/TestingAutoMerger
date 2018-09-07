@@ -30,6 +30,7 @@ import * as moment from 'moment';
             <section class="addressCard" [attr.aria-readonly]="readonly">
                 <span *ngIf="!readonly" class="edit-btn" (click)="openAddressModal()"></span>
                 <section class="sharing-badges">
+                    <span [attr.title]="distributionPendingTitle" [ngClass]="distributionPendingClass">I DISTRIBUSJONSKØ</span>
                     <span [attr.title]="invoicePrintTitle" [ngClass]="invoicePrintClass">FAKTURAPRINT</span>
                     <span [attr.title]="printTitle" [ngClass]="printClass">UTSKRIFT</span>
                     <span [attr.title]="vippsTitle" [ngClass]="vippsClass">VIPPS</span>
@@ -76,12 +77,14 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     public vippsClass: string = 'badge-unavailable';
     public printClass: string = 'badge-unavailable';
     public invoicePrintClass: string = 'badge-unavailable';
+    public distributionPendingClass: string = 'badge-unavailable';
     public ehfTitle: string;
     public efakturaTitle: string;
     public emailTitle: string;
     public vippsTitle: string;
     public printTitle: string = 'Sendt til utskrift';
     public invoicePrintTitle: string = 'Sendt til fakturaprint';
+    public distributionPendingTitle: string;
 
     public uniSearchConfig: IUniSearchConfig;
     public customerDueInvoiceData: any;
@@ -148,7 +151,11 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     public ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
 
-            if (this.entity.ID) { this.setSharingBadges(); }
+            if (this.entity.ID) {
+                this.setSharingBadges();
+            } else {
+                this.clearSharingBadges();
+            }
 
             this.customerDueInvoiceData = null;
 
@@ -163,36 +170,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                 });
             }
 
-            if (customer && this.entityType === 'CustomerInvoice') {
-                // Can customer receive EHF?
-                if (customer.PeppolAddress || customer.OrgNumber) {
-                    const peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
-
-                    if (peppoladdress !== this.lastPeppolAddressChecked) {
-                        this.ehfService.GetAction(
-                            null, 'is-ehf-receiver',
-                            'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
-                        ).subscribe(enabled => {
-                            if (enabled && this.ehfClass === 'badge-unavailable') {
-                                this.ehfClass = 'badge-available';
-                                this.ehfTitle = 'Kan sende EHF til ' + peppoladdress;
-                            }
-                            this.lastPeppolAddressChecked = peppoladdress;
-                        }, err => this.errorService.handle(err));
-                    }
-                }
-
-                if (customer.EInvoiceAgreementReference) {
-                    this.efakturaClass = 'badge-available';
-                    this.efakturaTitle = 'Kan sende efaktura til ' + customer.EInvoiceAgreementReference;
-                }
-           }
-
-            // Can customer receive email?
-            if (customer && customer.Info && customer.Info.DefaultEmail) {
-                this.emailClass = 'badge-available';
-                this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
-            }
+            this.showDefaultBadgeForCustomer(customer);
 
             if (customer && customer.customerID) {
                 this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
@@ -206,12 +184,63 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         }
     }
 
+    private showDefaultBadgeForCustomer(customer: Customer) {
+        if (customer && this.entityType === 'CustomerInvoice') {
+            // Can customer receive EHF?
+            if (customer.PeppolAddress || customer.OrgNumber) {
+                const peppoladdress = customer.PeppolAddress ? customer.PeppolAddress : '9908:' + customer.OrgNumber;
+
+                if (peppoladdress !== this.lastPeppolAddressChecked) {
+                    this.ehfService.GetAction(
+                        null, 'is-ehf-receiver',
+                        'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
+                    ).subscribe(enabled => {
+                        if (enabled && this.ehfClass === 'badge-unavailable') {
+                            this.ehfClass = 'badge-available';
+                            this.ehfTitle = 'Kan sende EHF til ' + peppoladdress;
+                        }
+                        this.lastPeppolAddressChecked = peppoladdress;
+                    }, err => this.errorService.handle(err));
+                }
+            }
+
+            if (customer.EInvoiceAgreementReference) {
+                this.efakturaClass = 'badge-available';
+                this.efakturaTitle = 'Kan sende efaktura til ' + customer.EInvoiceAgreementReference;
+            }
+        }
+
+        // Can customer receive email?
+        if (customer && customer.Info && customer.Info.DefaultEmail) {
+            this.emailClass = 'badge-available';
+            this.emailTitle = 'Kan sende på e-post til ' + customer.Info.DefaultEmail.EmailAddress;
+        }
+    }
+
+    private clearSharingBadges() {
+        this.ehfClass = 'badge-unavailable';
+        this.efakturaClass = 'badge-unavailable';
+        this.emailClass = 'badge-unavailable';
+        this.vippsClass = 'badge-unavailable';
+        this.printClass = 'badge-unavailable';
+        this.invoicePrintClass = 'badge-unavailable';
+        this.distributionPendingClass = 'badge-unavailable';
+        this.ehfTitle = '';
+        this.efakturaTitle = '';
+        this.emailTitle = '';
+        this.vippsTitle = '';
+        this.printTitle = '';
+        this.invoicePrintTitle = '';
+        this.distributionPendingTitle = '';
+    }
+
     private setSharingBadges() {
         this.statisticsService.GetAllUnwrapped(
             `model=Sharing&filter=EntityType eq '${this.entityType}' and EntityID eq ${this.entity.ID}`
             + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To&orderby=ID desc`
         ).subscribe(sharings => {
             [
+                SharingType.Unknown,
                 SharingType.AP,
                 SharingType.Email,
                 SharingType.Vipps,
@@ -246,6 +275,11 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                     }
 
                     switch (type) {
+                        case SharingType.Unknown:
+                            this.distributionPendingClass = cls;
+                            this.distributionPendingTitle = firstOfType.SharingExternalMessage ? firstOfType.SharingExternalMessage :
+                                'I kø, type distribusjon velges basert på distribusjonsoppsettet når jobben startes';
+                            break;
                         case SharingType.AP:
                             this.ehfClass = cls;
                             this.ehfTitle = title;
@@ -378,6 +412,9 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         }
 
         this.entity.Customer = customer;
+
+        this.showDefaultBadgeForCustomer(customer);
+
         this.entityChange.emit(this.entity);
     }
 
