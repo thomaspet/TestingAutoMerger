@@ -1421,6 +1421,17 @@ export class CustomerDetails implements OnInit {
                     FieldSet: 7,
                     Section: 0,
                     Hidden: false
+                },
+                {
+                    EntityType: 'Customer',
+                    Property: 'FactoringNumber',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Factoring kundenr.',
+                    FieldSet: 8,
+                    Legend: 'Factoring',
+                    Sectionheader: 'Factoring',
+                    Section: 0,
+                    Hidden: false
                 }
             ]
         };

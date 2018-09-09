@@ -255,7 +255,8 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
-            this.distributionPlanService.GetAll(null)
+            this.distributionPlanService.GetAll(null),
+            this.emailService.GetNewEntity()
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -335,7 +336,9 @@ export class CompanySettingsComponent implements OnInit {
         companySettings['Phones'] = [companySettings.DefaultPhone];
         companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
         companySettings['Emails'] = [companySettings.DefaultEmail];
-
+        companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
+        companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
+        
         return companySettings;
     }
 
@@ -569,6 +572,10 @@ export class CompanySettingsComponent implements OnInit {
             company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
         }
 
+        if (company.FactoringEmail.ID === 0 && !company.FactoringEmail['_createguid']) {
+            company.FactoringEmail['_createguid'] = this.emailService.getNewGuid();
+        }
+
         if (company.DefaultEmail.ID === 0 && !company.DefaultEmail['_createguid']) {
             company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
         }
@@ -766,6 +773,27 @@ export class CompanySettingsComponent implements OnInit {
             linkProperty: 'ID',
             storeResultInProperty: 'DefaultEmail',
             storeIdInProperty: 'DefaultEmailID',
+            editor: (value) => {
+                const modal = this.modalService.open(UniEmailModal, {
+                    data: value || new Email(),
+                    closeOnClickOutside: false
+                });
+
+                return modal.onClose.take(1).toPromise();
+            },
+        };
+
+        const factoringemail: UniFieldLayout = fields.find(x => x.Property === 'FactoringEmail');
+        
+        factoringemail.Options = {
+            allowAddValue: false,
+            allowDeleteValue: true,
+            entity: Email,
+            listProperty: 'FactoringEmails',
+            displayValue: 'EmailAddress',
+            linkProperty: 'ID',
+            storeResultInProperty: 'FactoringEmail',
+            storeIdInProperty: 'FactoringEmailID',
             editor: (value) => {
                 const modal = this.modalService.open(UniEmailModal, {
                     data: value || new Email(),
@@ -1614,7 +1642,39 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 8,
                 Section: 1,
                 Hidden: false
-            }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'Factoring',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type',
+                Options: {
+                    source: [{ID: 0, Label: ''},{ID: 1, Label: 'SGFinans'}],
+                    displayProperty: 'Label',
+                    valueProperty: 'ID'
+                },
+                FieldSet: 9,
+                Section: 1,
+                Legend: 'Factoring',
+                Hidden: false
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'FactoringNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Factoring nr.',
+                FieldSet: 9,
+                Section: 1,
+                Hidden: false
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'FactoringEmail',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'E-post',
+                FieldSet: 9,
+                Section: 1
+            },
         ]);
 
         this.reportSetupFields$.next([
