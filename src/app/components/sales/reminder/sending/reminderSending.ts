@@ -427,10 +427,11 @@ export class ReminderSending implements OnInit {
 
             this.reportDefinitionService.getReportByName('Purring').subscribe((report: ReportDefinition) => {
                 if (report) {
-                    const invoiceIDParam = printReminders.map(reminder => reminder.InvoiceID).join(' or ');
-                    const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).join(' or ');
+                    const invoiceFilterParam = printReminders.map(reminder => 'CustomerInvoice.ID eq ' + reminder.InvoiceID).join(' or ');
+                    const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).reduce((a, b) => a > b ? a : b);
                     report['parameters'] = [
-                        {Name: 'CustomerInvoiceID', value: invoiceIDParam},
+                        {Name: 'CustomerInvoiceID', value: 0},
+                        {Name: 'ReminderFilter', value: invoiceFilterParam},
                         {Name: 'ReminderNumber', value: reminderNumberParam}
                     ];
 
