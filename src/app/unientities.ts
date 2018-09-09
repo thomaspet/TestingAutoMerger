@@ -786,6 +786,7 @@ export class Customer extends UniEntity {
     public DontSendReminders: boolean;
     public EfakturaIdentifier: string;
     public EInvoiceAgreementReference: string;
+    public FactoringNumber: number;
     public GLN: string;
     public ID: number;
     public IsPrivate: boolean;
@@ -1341,7 +1342,6 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public DefaultEmail: Email;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
@@ -1351,6 +1351,7 @@ export class BusinessRelation extends UniEntity {
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public DefaultBankAccount: BankAccount;
     public CustomFields: any;
 }
@@ -3537,6 +3538,7 @@ export class CompanySettings extends UniEntity {
     public APContactID: number;
     public APGuid: string;
     public APIncludeAttachment: boolean;
+    public AutoDistributeInvoice: boolean;
     public AutoJournalPayment: boolean;
     public BankChargeAccountID: number;
     public BaseCurrencyCodeID: number;
@@ -3561,6 +3563,9 @@ export class CompanySettings extends UniEntity {
     public DefaultSalesAccountID: number;
     public DefaultTOFCurrencySettingsID: number;
     public Deleted: boolean;
+    public Factoring: number;
+    public FactoringEmailID: number;
+    public FactoringNumber: number;
     public ForceSupplierInvoiceApproval: boolean;
     public GLN: string;
     public HasAutobank: boolean;
@@ -3622,6 +3627,7 @@ export class CompanySettings extends UniEntity {
     public BankChargeAccount: Account;
     public AcceptableDelta4CustomerPaymentAccount: Account;
     public DefaultTOFCurrencySettings: TOFCurrencySettings;
+    public FactoringEmail: Email;
     public CustomFields: any;
 }
 
@@ -4296,7 +4302,8 @@ export class Project extends UniEntity {
     public Price: number;
     public ProjectCustomerID: number;
     public ProjectLeadName: string;
-    public ProjectNumber: number;
+    public ProjectNumber: string;
+    public ProjectNumberNumeric: number;
     public ProjectNumberSeriesID: number;
     public StartDate: LocalDate;
     public StatusCode: number;
@@ -4732,7 +4739,8 @@ export class Department extends UniEntity {
     public CreatedBy: string;
     public Deleted: boolean;
     public DepartmentManagerName: string;
-    public DepartmentNumber: number;
+    public DepartmentNumber: string;
+    public DepartmentNumberNumeric: number;
     public DepartmentNumberSeriesID: number;
     public Description: string;
     public ID: number;
@@ -5460,8 +5468,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatReportReferences: Array<VatReportReference>;
     public VatCodeGroup: VatCodeGroup;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -5845,8 +5853,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -7595,6 +7603,7 @@ export enum SharingType{
     InvoicePrint = 6,
     Efaktura = 7,
     Avtalegiro = 8,
+    Factoring = 9,
 }
 
 
@@ -7890,7 +7899,7 @@ export enum StatusCodeSharing{
     InProgress = 70001,
     Failed = 70002,
     Completed = 70003,
-    Cancelled = 70004
+    Cancelled = 70004,
 }
 
 
