@@ -436,7 +436,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private accountOnTransesSet(): boolean {
         for (let i = 0; i < this.salaryTransactions.length; i++) {
             const trans = this.salaryTransactions[i];
-            if (trans.Account == null) {
+            if (!trans.Account) {
                 this._toastService
                     .addToast('Konto mangler',
                         ToastType.warn,

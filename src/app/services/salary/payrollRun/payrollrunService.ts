@@ -161,9 +161,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     public runSettling(ID: number, done: (message: string) => void = null) {
         return this.salaryTransactionService
             .GetAll(`filter=PayrollRunID eq ${ID}`)
-            .map(transes => {
-                return this.validateTransesOnRun(transes, done);
-            })
+            .map(transes => this.validateTransesOnRun(transes, done))
             .filter((validates: boolean) => validates)
             .switchMap(() => super.PutAction(ID, 'calculate'))
             .do(() => this.clearRelatedCaches());
@@ -269,7 +267,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (validates) {
             for (let i = 0; i < transes.length; i++) {
                 const trans = transes[i];
-                if (trans.Account == null) {
+                if (!trans.Account) {
                     this.toastService
                         .addToast('Konto mangler',
                             ToastType.bad,
