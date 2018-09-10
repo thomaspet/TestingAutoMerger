@@ -343,6 +343,12 @@ export class TableEditor {
                 this.close();
                 this.resetFocus();
             break;
+            case KeyCodes.SPACE:
+                // Close editor on ctrl + space (smart search combination)
+                if (event.ctrlKey) {
+                    this.close();
+                }
+            break;
         }
     }
 
