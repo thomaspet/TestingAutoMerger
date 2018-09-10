@@ -288,9 +288,17 @@ export class BureauDashboard {
 
     private filterCompanies(filterString: string): void {
         if (filterString && filterString.length) {
+            
             this.filteredCompanies = this.companies.filter(company => {
-                const companyName = (company.Name && company.Name.toLowerCase()) || '';
-                return companyName.includes((filterString || '').toLowerCase());
+                if(company.ClientNumber && this.isNumber(filterString) && company.ClientNumber == Number(filterString)){
+                    return true;
+                }
+                else if(company.Name.toLocaleLowerCase().includes(filterString) && !this.isNumber(filterString)){
+                    return true;
+                }
+                
+            //    const companyName = (company.Name && company.Name.toLowerCase()) || '';
+            //    return companyName.includes((filterString || '').toLowerCase());
             });
         } else {
             this.filteredCompanies = this.companies;
@@ -303,6 +311,10 @@ export class BureauDashboard {
         if (this.allTags && this.allTags[0]) {
             this.allTags[0].count = this.filteredCompanies.length;
         }
+    }
+    private isNumber(value: string | number): boolean
+    {
+        return !isNaN(Number(value.toString()));
     }
 
     public openInviteUsersModal(doneCallback) {
