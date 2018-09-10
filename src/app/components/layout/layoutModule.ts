@@ -22,6 +22,7 @@ import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
 
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
+import {UniCompanySearch} from './smart-search/company-search/company-search';
 import {UniSmartSearch} from './smart-search/smart-search';
 import {UniSmartSearchItem} from './smart-search/smart-search-item';
 import {SmartSearchService} from './smart-search/smart-search.service';
@@ -74,6 +75,7 @@ import {
         UserSettingsModal,
         YearModal,
         UniHelpText,
+        UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem
     ],
@@ -85,6 +87,7 @@ import {
     entryComponents: [
         YearModal,
         UserSettingsModal,
+        UniCompanySearch,
         UniSmartSearch
     ],
     exports: [

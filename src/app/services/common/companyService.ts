@@ -10,6 +10,9 @@ export class CompanyService extends BizHttp<Company> {
         this.relativeURL = Company.RelativeUrl;
         this.entityType = Company.EntityType;
         this.DefaultOrderBy = null;
+
+        // Tell BizHttp to only clear cache on logout (not company change)
+        this.cacheSettings.clearOnlyOnLogout = true;
     }
 
     public updateCompanyClientNumber(companyID: number, clientNumber: number, key) {
@@ -19,6 +22,7 @@ export class CompanyService extends BizHttp<Company> {
             .withEndPoint(`companies/${companyID}?action=clientnumber&clientnumber=${clientNumber}`)
             .withHeader('CompanyKey', key)
             .send({}, null, false)
+            .do(() => super.invalidateCache())
             .map(res => res.json());
     }
 }

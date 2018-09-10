@@ -16,6 +16,7 @@ interface IHttpCacheEntry<T> {
 interface IHttpCacheSettings {
     timeout?: number;
     maxEntries?: number;
+    clearOnlyOnLogout?: boolean;
 }
 
 @Injectable()
@@ -33,9 +34,15 @@ export class BizHttp<T> {
     protected entityType: string;
 
     constructor(protected http: UniHttp) {
-        this.http.authService
-            .authentication$
-            .subscribe(change => this.invalidateCache());
+        this.http.authService.authentication$.subscribe(auth => {
+            if (this.cacheSettings.clearOnlyOnLogout) {
+                if (!auth || !auth.user) {
+                    this.invalidateCache();
+                }
+            } else {
+                this.invalidateCache();
+            }
+        });
     }
 
     protected disableCache() {

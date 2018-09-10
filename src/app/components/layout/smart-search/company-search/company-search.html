@@ -1,0 +1,29 @@
+<section class="search-container">
+    <input type="search"
+        #searchInput
+        [formControl]="searchControl"
+        placeholder="Søk på selskapsnavn eller klientnummer"
+        spellcheck="false"
+        cdkTrapFocus
+    />
+
+    <section class="help-text">
+        <i class="material-icons">find_in_page</i>
+        <small>
+            Her kan du effektivt bytte mellom selskaper du har tilgang til.
+            Listen kan filtreres på enten selskapsnavn eller klientnummer.
+        </small>
+    </section>
+</section>
+
+<section #list id="results-container">
+    <smart-search-item
+        *ngFor="let item of searchResults"
+        [item]="item"
+        (click)="onItemSelected(item)">
+    </smart-search-item>
+</section>
+
+<section class="search-footer">
+    <small>Dette vinduet kan åpnes med tastatur <span>ctrl</span> + <span>shift</span> + <span>space</span></small>
+</section>
