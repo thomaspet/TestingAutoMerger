@@ -301,6 +301,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.NUMERIC,
+                    Hidden: !param.Visible,
                     Options: undefined,
                 };
             case 'boolean':
@@ -309,6 +310,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.CHECKBOX,
+                    Hidden: !param.Visible,
                     Options: undefined,
                 };
             case 'dropdown':
@@ -318,6 +320,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         Property: param.Name,
                         Label: param.Label,
                         FieldType: FieldType.DROPDOWN,
+                        Hidden: !param.Visible,
                         Options: {
                             source: param.source,
                             valueProperty: JSON.parse(param.DefaultValueLookupType).ValueProperty,
@@ -333,6 +336,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         Property: param.Name,
                         Label: param.Label,
                         FieldType: FieldType.DROPDOWN,
+                        Hidden: !param.Visible,
                         Options: {
                             source: source,
                             valueProperty: (param.Name === 'OrderBy') ? 'Label' : 'Value',
@@ -348,6 +352,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Hidden: !param.Visible,
                     Options: undefined,
                 };
             case 'comment':
@@ -359,6 +364,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.TEXT,
+                    Hidden: !param.Visible,
                     Options: undefined,
                 };
         }
