@@ -11,7 +11,7 @@ import { IUniSearchConfig } from '../../../../framework/ui/unisearch/index';
             <header>
                 <h1>Velg kunde manuelt</h1>
             </header>
-            <article>
+            <article style="min-height: 12rem;">
                 <p>Velg en kunde for betaling</p>
                 <uni-search
                     [config]="uniSearchConfig"
@@ -42,13 +42,13 @@ export class MatchCustomerManualModal implements IUniModal {
         'Info.ShippingAddress',
         'Info.InvoiceAddress',
         'Info.DefaultContact.Info',
-        'Info.DefaultEmail'
+        'Info.DefaultEmail',
     ];
 
     constructor( private uniSearchCustomerConfig: UniSearchCustomerConfig ) { }
 
     public ngOnInit() {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
+        this.uniSearchConfig = this.uniSearchCustomerConfig.generateForBank(this.customerExpands);
     }
 
     public customerSelected(customer) {
