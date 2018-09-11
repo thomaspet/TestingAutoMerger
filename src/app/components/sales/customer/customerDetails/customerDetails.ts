@@ -579,10 +579,12 @@ export class CustomerDetails implements OnInit {
                 this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
         } else {
-            this.customerID > 0
+            const query = this.customerID > 0
                 ? this.customerService.Get(this.customerID, this.expandOptions)
-                : this.customerService.GetNewEntity(this.newEntityExpandOptions).subscribe(response => {
-                const customer = response[0];
+                : this.customerService.GetNewEntity(this.newEntityExpandOptions);
+
+            query.subscribe(response => {
+                const customer = response;
                 this.setMainContact(customer);
 
                 if (customer.CustomerInvoiceReminderSettings === null) {
