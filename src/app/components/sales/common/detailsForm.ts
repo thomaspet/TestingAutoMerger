@@ -142,10 +142,6 @@ export class TofDetailsForm {
                         valueProperty: 'ID',
                         displayProperty: 'Name',
                         debounceTime: 200,
-                        events: {
-                            tab: (event) => this.tabbedPastLastField.emit(event),
-                            enter: (event) => this.tabbedPastLastField.emit(event)
-                        },
                         addEmptyValue: true
                     },
                 },
@@ -162,7 +158,11 @@ export class TofDetailsForm {
                         valueProperty: 'ID',
                         displayProperty: 'Name',
                         debounceTime: 200,
-                        addEmptyValue: true
+                        addEmptyValue: true,
+                        events: {
+                            tab: (event) => this.tabbedPastLastField.emit(event),
+                            enter: (event) => this.tabbedPastLastField.emit(event)
+                        },
                     },
                 },
             ];
