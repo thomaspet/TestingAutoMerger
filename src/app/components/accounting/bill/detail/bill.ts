@@ -1084,6 +1084,8 @@ export class BillView implements OnInit {
                     this.postSupplier(sup);
                 });
             }
+        } else {
+            this.postSupplier(sup);
         }
     }
 
