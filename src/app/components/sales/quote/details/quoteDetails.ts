@@ -356,7 +356,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.distributionPlans = res[14];
                         this.reports = res[15];
 
-                        if (this.companySettings['Distributions']) {
+                        if (!!customerID && res[6] && res[6]['Distributions'] && res[6]['Distributions'].CustomerQuoteDistributionPlanID) {
+                            quote.DistributionPlanID = res[6]['Distributions'].CustomerQuoteDistributionPlanID;
+                        } else if (this.companySettings['Distributions']) {
                             quote.DistributionPlanID = this.companySettings['Distributions'].CustomerQuoteDistributionPlanID;
                         }
 

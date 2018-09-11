@@ -179,7 +179,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller'
+        'DefaultSeller',
+        'Distributions'
     ];
 
     private invoiceExpands: Array<string> = [
@@ -331,9 +332,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.distributionPlans = res[15];
                     this.reports = res[16];
 
-                    if (this.companySettings['Distributions']) {
+                    if (!!customerID && res[2] && res[2]['Distributions'] && res[2]['Distributions'].CustomerInvoiceDistributionPlanID) {
+                        invoice.DistributionPlanID = res[2]['Distributions'].CustomerInvoiceDistributionPlanID;
+                    } else if (this.companySettings['Distributions']) {
                         invoice.DistributionPlanID = this.companySettings['Distributions'].CustomerInvoiceDistributionPlanID;
                     }
+
                     invoice.InvoiceDate = new LocalDate(Date());
 
                     if (!invoice.CurrencyCodeID) {

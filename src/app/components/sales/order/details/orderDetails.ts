@@ -159,7 +159,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller.Seller',
+        'Distributions'
     ];
 
     private orderExpands: Array<string> = [
@@ -371,7 +372,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.distributionPlans = res[15];
                         this.reports = res[16];
 
-                        if (this.companySettings['Distributions']) {
+                        if (!!customerID && res[6] && res[6]['Distributions']
+                        && res[6]['Distributions'].CustomerOrderDistributionPlanID) {
+                            order.DistributionPlanID = res[6]['Distributions'].CustomerOrderDistributionPlanID;
+                        } else if (this.companySettings['Distributions']) {
                             order.DistributionPlanID = this.companySettings['Distributions'].CustomerOrderDistributionPlanID;
                         }
 
