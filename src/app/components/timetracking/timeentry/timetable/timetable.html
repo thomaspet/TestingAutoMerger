@@ -35,6 +35,7 @@
             <th class="s1 center weekend">Lør</th>
             <th class="s1 center weekend">Søn</th>
             <th class="s1 center">Sum</th>
+            <th class="s1 center">Overtid</th>
             <th class="s1 center">Ukesaldo</th>
             <th class="s1 center">Prosjekt%</th>
             <th class="s1 center">Faktura%</th>
@@ -48,8 +49,8 @@
                 <td class="center actions" ><button [attr.aria-busy]="week.isBusy" [class.locked]="week.Sums.Workflow>8" [class.assign]="week.Sums.Workflow==1" [class.approve]="week.Sums.Workflow>=4 && week.Sums.Workflow<=8"
                     (click)="onRowActionClicked(week, $event)"></button></td>
                 <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend"
-                    *ngFor="let item of week?.Items">
-                    <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0" >
+                    *ngFor="let item of week?.Items" [class.hasOvertime]="item.Overtime > 0" title="{{ item.Overtime > 0 ? 'Dato har overtid' : '' }}">
+                    <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0">
                         <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
                         <span *ngIf="item.ValidTimeOff" class="timeoff" >F</span>
                         <span *ngIf="item.SickTime" class="timesick" >S</span>
@@ -58,6 +59,11 @@
                 <td class="s1 timecell">
                     <div [class.flexplus]="week.Sums.Flextime > 0" [class.flexminus]="week.Sums.Flextime < 0" >
                         <span >{{week.Sums.ValidTime | hours}}</span>
+                    </div>
+                </td>
+                <td class="s1 timecell">
+                    <div>
+                        <span >{{week.Sums.Overtime | hours}}</span>
                     </div>
                 </td>
                 <td class="s1 timecell">
@@ -77,6 +83,11 @@
                 <td class="s1 timecell">
                     <div [class.flexplus]="month.Sums.Flextime > 0" [class.flexminus]="month.Sums.Flextime < 0" >
                         <span >{{month.Sums.ValidTime | hours}}</span>
+                    </div>
+                </td>
+                <td class="s1 timecell">
+                    <div [class.flexplus]="month.Sums.Overtime > 0">
+                        <span >{{month.Sums.Overtime | hours}}</span>
                     </div>
                 </td>
                 <td class="s1 timecell">
