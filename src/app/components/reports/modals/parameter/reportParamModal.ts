@@ -305,7 +305,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                     Options: undefined,
                 };
             case 'boolean':
-                param.value = param.value === true || param.value === false || param.DefaultValue === 'true' || param.DefaultValue === '1';
+                param.value = param.value === true || param.DefaultValue === 'true' || param.DefaultValue === '1';
                 return <UniFieldLayout>{
                     Property: param.Name,
                     Label: param.Label,
