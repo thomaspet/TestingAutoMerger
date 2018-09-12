@@ -744,6 +744,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)
                 ) {
                     currentSumDebit += entry.Amount;
+                    currentSumDebit = parseFloat(currentSumDebit.toFixed(2)); // Because javascript is bad at math
                 }
 
                 if ((entry.DebitAccount && entry.CreditAccount)
