@@ -116,6 +116,9 @@ import {
 import {
     SalarybalanceTemplateView
 } from './salarybalance/template/salarybalanceTemplateView';
+import {
+    SalarybalanceTemplateEmployeeListComponent
+} from './salarybalance/template/salarybalance-template-employee-list/salarybalance-template-employee-list.component';
 
 @NgModule({
     imports: [
@@ -226,6 +229,7 @@ import {
         SalarybalanceTemplateListComponent,
         SalarybalanceTemplateDetailsComponent,
         SalarybalanceTemplateView,
+        SalarybalanceTemplateEmployeeListComponent,
     ],
     entryComponents: [
         TaxCardModal,

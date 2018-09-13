@@ -1,14 +1,15 @@
 import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from '../../../../../../../node_modules/rxjs';
-import {Observable} from 'rxjs/Observable';
 import {SalaryBalanceTemplate, SalBalType, WageType, StdWageType, SupplementInfo, Supplier, Employee} from '@uni-entities';
-import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
+import {UniForm} from '@uni-framework/ui/uniform';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   SalarybalanceService, ErrorService, UniCacheService, WageTypeService, SupplierService, EmployeeService
 } from '@app/services/services';
 import {UniView} from '@uni-framework/core/uniView';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+
+const SALBAL_TEMPLATE_KEY = 'salarybalancetemplate';
 
 @Component({
   selector: 'uni-salarybalance-template-details',
@@ -21,7 +22,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
   public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
   public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
   private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
-  private suppliers: Supplier[];
+  public employees: Employee[] = [];
   private ignoreFields: string[] = ['EmployeeID'];
 
   @ViewChild(UniForm) public uniform: UniForm;
@@ -38,7 +39,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
     this.route.parent.params
       .subscribe(params => {
         super.updateCacheKey(router.url);
-        super.getStateSubject('salarybalancetemplate')
+        super.getStateSubject(SALBAL_TEMPLATE_KEY)
           .switchMap(salarybalanceTemplate =>
             salarybalanceService.updateFields(
               salarybalanceTemplate,
@@ -108,8 +109,11 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
       .do(() => this.lastChanges$.next(change))
       .subscribe((model: SalaryBalanceTemplate) => {
         this.currentTemplate$.next(model);
-        super.updateState('salarybalancetemplate', model, true);
+        super.updateState(SALBAL_TEMPLATE_KEY, model, true);
       });
+  }
+
+  public onEmployeeChange(event) {
   }
 
   private setup(currTemplate: SalaryBalanceTemplate) {
@@ -152,5 +156,4 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
         .find(type => type.ID === salarybalanceTemplate.InstalmentType).Name;
       return salarybalanceTemplate;
   }
-
 }

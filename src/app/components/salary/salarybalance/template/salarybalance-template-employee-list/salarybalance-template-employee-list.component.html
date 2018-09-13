@@ -1,0 +1,8 @@
+<article>
+  <ag-grid-wrapper class="salarybalanceEmployeeTable"
+    [(resource)]="salarybalances" 
+    [config]="tableConfig"
+    (rowDelete)="onRowDelete($event)"
+    (rowChange)="onRowChange($event)"
+  ></ag-grid-wrapper>
+</article>

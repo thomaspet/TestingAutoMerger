@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryBalanceTemplate, SalBalType} from '../../../unientities';
+import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance} from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
 import {FieldType} from '@uni-framework/ui/uniform/index';
 
@@ -61,5 +61,11 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
             }
             return this.Get(id, this.defaultExpands);
         }
+    }
+
+    public saveTemplate(salbalTemplate: SalaryBalanceTemplate): Observable<SalaryBalanceTemplate> {
+        return salbalTemplate.ID
+            ? super.Put(salbalTemplate.ID, salbalTemplate)
+            : super.Post(salbalTemplate);
     }
 }

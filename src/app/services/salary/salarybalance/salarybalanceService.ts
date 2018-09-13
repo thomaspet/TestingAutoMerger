@@ -429,6 +429,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return salaryBalance;
     }
 
+    public getSalarybalancesOnTemplate(templateID: number): Observable<SalaryBalance[]> {
+        return super.GetAll(`filter=salaryBalanceTemplateID eq ${templateID}`, ['Employee', 'Employee.BusinessRelationInfo']);
+    }
+
     public layout(
         layoutID: string,
         salBal: SalaryBalance | SalaryBalanceTemplate,

@@ -1,6 +1,19 @@
-<uni-form
-  [config]="config$"
-  [fields]="fields$"
-  [model]="currentTemplate$"
-  (changeEvent)="change($event)">
-</uni-form>
+<fieldset class="small">
+  <legend>Detaljer</legend>
+  <aside>
+      <uni-form
+        [config]="config$"
+        [fields]="fields$"
+        [model]="currentTemplate$"
+        (changeEvent)="change($event)">
+      </uni-form>
+  </aside>
+</fieldset>
+
+<fieldset class="small">
+  <legend>Ansatte</legend>
+  <uni-salarybalance-template-employee-list
+    [currentTemplate]="currentTemplate$ | async"
+    (changeEvent)="onEmployeeChange($event)">
+  </uni-salarybalance-template-employee-list>
+</fieldset>
