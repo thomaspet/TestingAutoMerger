@@ -1,44 +1,53 @@
-import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges, OnInit, OnChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges} from '@angular/core';
+import {Router} from '@angular/router';
 import {
+    UniTable,
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
-} from '@uni-framework/ui/unitable/index';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {FieldType} from '@uni-framework/ui/uniform/index';
+    IContextMenuItem
+} from '../../../../../framework/ui/unitable/index';
+import {ToastService} from '../../../../../framework/uniToast/toastService';
+import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {CustomerInvoiceReminderRuleService} from '@app/services/services';
+import {ErrorService, CustomerInvoiceReminderRuleService} from '../../../../services/services';
 import {
     CustomerInvoiceReminderSettings,
     CustomerInvoiceReminderRule,
     FieldLayout
-} from '@uni-entities';
+} from '../../../../unientities';
+declare const _;
 
 @Component({
     selector: 'reminder-rules',
     templateUrl: './reminderRules.html',
 })
-export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
-    @Input() settings: CustomerInvoiceReminderSettings;
-    @Output() change: EventEmitter<any> = new EventEmitter();
+export class ReminderRules implements AfterViewInit {
+    @ViewChild(UniTable) private table: UniTable;
+    @Input() public settings: CustomerInvoiceReminderSettings;
+    @Output() public change: EventEmitter<any> = new EventEmitter();
 
-    rulesTableConfig: UniTableConfig;
+    private rulesTableConfig: UniTableConfig;
     private rule: CustomerInvoiceReminderRule;
     private selectedIndex: number;
 
-    rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
-    config$: BehaviorSubject<any> = new BehaviorSubject({});
-    fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
+    private rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
+    public config$: BehaviorSubject<any> = new BehaviorSubject({});
+    public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
 
-    constructor(private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService) {}
+    constructor(
+        private router: Router,
+        private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService,
+        private errorService: ErrorService,
+        private toastService: ToastService
+    ) {}
 
-    ngOnInit() {
+    public ngOnInit() {
         this.setupTable();
         this.setupDetailForm();
     }
 
-    ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges(changes: SimpleChanges) {
         if (changes['settings'] && changes['settings'].currentValue) {
             if (!this.settings.CustomerInvoiceReminderRules) {
                 this.settings.CustomerInvoiceReminderRules = [];
@@ -46,28 +55,28 @@ export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    ngAfterViewInit() {
+    public ngAfterViewInit() {
         this.focusRow(0);
     }
 
-    onRowSelected(event) {
-        this.selectedIndex = event['_originalIndex'];
+    public onRowSelected(event) {
+        this.selectedIndex = event.rowModel['_originalIndex'];
         this.rule = this.settings.CustomerInvoiceReminderRules[this.selectedIndex];
         this.rule$.next(this.rule);
     }
 
-    onRuleChange() {
+    public onRuleChange() {
         this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = this.rule$.getValue();
         this.change.emit(this.settings);
     }
 
-    focusRow(index?: number) {
+    public focusRow(index = undefined) {
         if (this.table) {
             this.table.focusRow(index === undefined ? this.selectedIndex : index);
         }
     }
 
-    onNewRule() {
+    public onNewRule() {
         this.customerInvoiceReminderRuleService.GetNewEntity(null, CustomerInvoiceReminderRule.EntityType)
             .subscribe((rule) => {
                 rule['_createguid'] = this.customerInvoiceReminderRuleService.getNewGuid();
@@ -114,14 +123,21 @@ export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
 
     private setupTable() {
         // Define columns to use in the table
-        const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
-            .setWidth(40);
-        const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text);
+        let reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
+            .setWidth('12%');
+        let titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text);
 
+        let contextMenuItems: IContextMenuItem[] = [];
+        contextMenuItems.push({
+            label: 'Slett',
+            action: (rule: CustomerInvoiceReminderRule) => {
+                rule.Deleted = true;
+            }
+        });
         // Setup table
         this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', false, true, 25)
-            .setDeleteButton(true)
             .setSearchable(false)
+            .setContextMenu(contextMenuItems)
             .setColumns([reminderNumberCol, titleCol]);
     }
 }
