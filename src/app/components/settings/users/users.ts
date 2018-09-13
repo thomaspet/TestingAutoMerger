@@ -277,7 +277,7 @@ export class Users {
         this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('users')
+            .withEndPoint("users?filter=username ne 'SystemUser'")
             .send()
             .map(response => response.json())
             .subscribe(
