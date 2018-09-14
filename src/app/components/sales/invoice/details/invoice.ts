@@ -179,7 +179,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller'
+        'DefaultSeller',
+        'Distributions'
     ];
 
     private invoiceExpands: Array<string> = [
@@ -331,9 +332,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.distributionPlans = res[15];
                     this.reports = res[16];
 
-                    if (this.companySettings['Distributions']) {
+                    if (!!customerID && res[2] && res[2]['Distributions'] && res[2]['Distributions'].CustomerInvoiceDistributionPlanID) {
+                        invoice.DistributionPlanID = res[2]['Distributions'].CustomerInvoiceDistributionPlanID;
+                    } else if (this.companySettings['Distributions']) {
                         invoice.DistributionPlanID = this.companySettings['Distributions'].CustomerInvoiceDistributionPlanID;
                     }
+
                     invoice.InvoiceDate = new LocalDate(Date());
 
                     if (!invoice.CurrencyCodeID) {
@@ -1602,6 +1606,26 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
+    private printAction(reportForm: ReportDefinition): Observable<any> {
+        const savedInvoice = this.isDirty
+            ? Observable.fromPromise(this.saveInvoice())
+            : Observable.of(this.invoice);
+
+        return savedInvoice.switchMap((invoice) => {
+            return this.modalService.open(UniPreviewModal, {
+                data: reportForm
+            }).onClose.switchMap(() => {
+                return this.customerInvoiceService.setPrintStatus(
+                    this.invoice.ID,
+                    this.printStatusPrinted
+                ).finally(() => {
+                    this.invoice.PrintStatus = +this.printStatusPrinted;
+                    this.updateToolbar();
+                });
+            });
+        });
+    }
+
     private sendEmailAction(reportForm: ReportDefinition, entity: CustomerInvoice, entityTypeName: string, name: string): Observable<any> {
         const savedInvoice = this.isDirty
             ? Observable.fromPromise(this.saveInvoice())
@@ -1624,6 +1648,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         ).onClose.map(res => {
             if (res === ConfirmActions.CANCEL || !res) {
                 return;
+            }
+
+            if (res.action === 'print') {
+                this.printAction(res.form).subscribe();
             }
 
             if (res.action === 'email') {

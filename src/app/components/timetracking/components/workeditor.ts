@@ -215,6 +215,7 @@ export class WorkEditor {
             this.createHourColumn('Minutes', 'Timer')
                 .setWidth('3rem')
                 .setAlignment('center')
+                .setEditable(false)
                 .setCls('ctoa'),
 
             new UniTableColumn('Description', 'Beskrivelse')

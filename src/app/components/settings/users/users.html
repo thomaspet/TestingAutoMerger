@@ -23,11 +23,11 @@
             </span>
         </section>
 
-        <uni-table *ngIf="users?.length"
-                [config]="userTableConfig"
-                [resource]="users"
-                (rowSelected)="onUserSelected($event)">
-        </uni-table>
+        <ag-grid-wrapper #usersTable
+            [config]="userTableConfig"
+            [resource]="users"
+            (rowSelectionChange)="onUserSelected($event)">
+        </ag-grid-wrapper>
     </section>
 
     <section class= "uni-container user-detail">

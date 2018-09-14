@@ -1,10 +1,11 @@
-﻿import {Component, QueryList, ViewChildren} from '@angular/core';
+﻿import {Component, ViewChild} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
-import {UniTable, UniTableConfig, UniTableColumn, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniTableConfig, UniTableColumn, IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {
     RoleService,
     ErrorService,
@@ -29,8 +30,7 @@ import {EmailService} from '@app/services/common/emailService';
     templateUrl: './users.html'
 })
 export class Users {
-    @ViewChildren(UniTable)
-    private tables: QueryList<UniTable>;
+    @ViewChild('usersTable') table: AgGridWrapper;
 
     private hasUnsavedChanges: boolean;
     private currentUser: User;
@@ -108,15 +108,15 @@ export class Users {
             );
     }
 
-    public onUserSelected(event) {
-        if (this.hasUnsavedChanges && event.rowModel['_originalIndex'] !== this.selectedIndex) {
+    public onUserSelected(selectedRow) {
+        if (this.hasUnsavedChanges && selectedRow['_originalIndex'] !== this.selectedIndex) {
             if (!confirm('Du har ulagrede endringer. Ønsker du å forkaste disse?')) {
-                this.tables.first.focusRow(this.selectedIndex);
+                this.table.focusRow(this.selectedIndex);
                 return;
             }
         } else {
-            this.selectedUser = event.rowModel;
-            this.selectedIndex = event.rowModel['_originalIndex'];
+            this.selectedUser = selectedRow;
+            this.selectedIndex = selectedRow['_originalIndex'];
             this.formModel$.next(this.selectedUser);
 
             this.getUserRoles();
@@ -288,12 +288,8 @@ export class Users {
                     });
 
                     setTimeout(() => {
-                        if (this.tables) {
-                            if (focusFirst) {
-                                this.tables.last.focusRow(0);
-                            } else {
-                                this.tables.last.focusRow(this.selectedIndex);
-                            }
+                        if (this.table) {
+                            this.table.focusRow(focusFirst ? 0 : this.selectedIndex);
                         }
                     });
                 },
