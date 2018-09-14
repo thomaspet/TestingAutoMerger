@@ -274,27 +274,21 @@ export class Users {
      }
 
     private getUsers(focusFirst?: boolean) {
-        this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint("users?filter=username ne 'SystemUser'")
-            .send()
-            .map(response => response.json())
-            .subscribe(
-                (response) => {
-                    this.users = response.map(user => {
-                        user._statusText = this.getStatusCodeText(user.StatusCode);
-                        return user;
-                    });
+        this.userService.GetAll(null).subscribe(
+            (response) => {
+                this.users = response.map(user => {
+                    user._statusText = this.getStatusCodeText(user.StatusCode);
+                    return user;
+                });
 
-                    setTimeout(() => {
-                        if (this.table) {
-                            this.table.focusRow(focusFirst ? 0 : this.selectedIndex);
-                        }
-                    });
-                },
-                err => this.errorService.handle(err)
-            );
+                setTimeout(() => {
+                    if (this.table) {
+                        this.table.focusRow(focusFirst ? 0 : this.selectedIndex);
+                    }
+                });
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     public sendInvite(user?) {
