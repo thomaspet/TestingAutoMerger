@@ -90,6 +90,8 @@ export class AgGridWrapper {
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
+    private autofocusPerformed: boolean;
+
     // Used for custom cell renderers
     public context: any;
     public cellRendererComponents: any;
@@ -202,14 +204,14 @@ export class AgGridWrapper {
             if (loaded) {
                 this.onDataLoaded(event.api);
                 this.dataLoaded.emit();
-                if (this.config.autofocus) {
+                if (this.config.autofocus && !this.autofocusPerformed) {
                     this.focusRow(0);
                 }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
             this.dataLoaded.emit();
-            if (this.config.autofocus) {
+            if (this.config.autofocus && !this.autofocusPerformed) {
                 this.focusRow(0);
             }
         }
@@ -761,6 +763,9 @@ export class AgGridWrapper {
 
     public addRow(row) {
         this.dataService.addRow(row);
+        setTimeout(() => {
+            this.focusRow(this.agGridApi.getDisplayedRowCount() - 1);
+        });
     }
 
     public removeRow(originalIndex: number) {
