@@ -714,41 +714,47 @@ export class AgGridWrapper {
     }
 
     public focusRow(index: number) {
-        if (!this.agGridApi) {
-            return;
-        }
-
-        if (this.config.multiRowSelect) {
-            try {
-                const col = this.agColDefs.find(colDef => !colDef.hide);
-                this.agGridApi.setFocusedCell(index, col.colId);
-            } catch (e) {
-                console.error('Error in ag-grid-wrapper focusRow()');
+        setTimeout(() => {
+            if (!this.agGridApi) {
+                return;
             }
 
-            return;
-        }
+            if (!index || index > (this.agGridApi.getDisplayedRowCount() - 1)) {
+                index = 0;
+            }
 
-        if (this.config.editable) {
-            const rowNode = this.agGridApi.getDisplayedRowAtIndex(index);
-            if (rowNode && rowNode.data) {
-                const visibleColumns = this.columns.filter(col => col.visible) || [];
-                const colIndex = visibleColumns.findIndex(col => {
-                    return (typeof col.editable === 'function')
-                        ? col.editable(rowNode.data)
-                        : col.editable;
-                });
+            if (this.config.multiRowSelect) {
+                try {
+                    const col = this.agColDefs.find(colDef => !colDef.hide);
+                    this.agGridApi.setFocusedCell(index, col.colId);
+                } catch (e) {
+                    console.error('Error in ag-grid-wrapper focusRow()');
+                }
 
-                if (colIndex >= 0) {
-                    this.editor.activate(index, colIndex);
+                return;
+            }
+
+            if (this.config.editable) {
+                const rowNode = this.agGridApi.getDisplayedRowAtIndex(index);
+                if (rowNode && rowNode.data) {
+                    const visibleColumns = this.columns.filter(col => col.visible) || [];
+                    const colIndex = visibleColumns.findIndex(col => {
+                        return (typeof col.editable === 'function')
+                            ? col.editable(rowNode.data)
+                            : col.editable;
+                    });
+
+                    if (colIndex >= 0) {
+                        this.editor.activate(index, colIndex);
+                    }
+                }
+            } else {
+                const rowNode = this.agGridApi.getDisplayedRowAtIndex(index || 0);
+                if (rowNode) {
+                    rowNode.setSelected(true);
                 }
             }
-        } else {
-            const rowNode = this.agGridApi.getDisplayedRowAtIndex(index || 0);
-            if (rowNode) {
-                rowNode.setSelected(true);
-            }
-        }
+        });
     }
 
     public updateRow(originalIndex: number, row) {
