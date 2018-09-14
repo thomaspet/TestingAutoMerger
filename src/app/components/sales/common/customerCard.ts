@@ -202,6 +202,9 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
             if (customer.EInvoiceAgreementReference) {
                 this.efakturaClass = 'badge-available';
                 this.efakturaTitle = 'Kan sende efaktura til ' + customer.EInvoiceAgreementReference;
+            } else if (customer.EfakturaIdentifier) {
+                this.efakturaClass = 'badge-available';
+                this.efakturaTitle = 'Kan sende efaktura til ' + customer.EfakturaIdentifier;
             }
         }
 
