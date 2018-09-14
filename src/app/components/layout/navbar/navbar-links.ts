@@ -78,7 +78,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Distribusjon',
                         url: '/sharings',
-                        moduleIDF: UniModules.Sharings
+                        moduleID: UniModules.Sharings
                     },
                     {
                         name: 'Uttrekk',
