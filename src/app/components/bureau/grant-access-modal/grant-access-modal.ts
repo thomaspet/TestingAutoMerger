@@ -51,7 +51,7 @@ export class GrantAccessModal implements IUniModal {
     ) {}
 
     ngOnInit() {
-        this.authService.authentication$
+        this.authService.authentication$.take(1)
             .switchMap((authentication: IAuthDetails) => {
                 const mainCompanyKey = authentication.user.License.Company.Agency.CompanyKey;
                 const mainCompanyName = authentication.user.License.Company.Agency.Name;
