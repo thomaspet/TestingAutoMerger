@@ -39,7 +39,7 @@ import {
             </article>
             <footer>
                 <button (click)="save()" class="good">Lagre endringer</button>
-                <button (click)="close(null)">Avbryt</button>
+                <button (click)="close()">Avbryt</button>
             </footer>
         </section>
     `
