@@ -39,7 +39,7 @@ export class UniToolbarShare {
     ) {}
 
     public onActionClick(shareAction: IShareAction) {
-        if (this.busy) {
+        if (this.busy || (!!shareAction.disabled && shareAction.disabled())) {
             return;
         }
 

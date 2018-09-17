@@ -1080,7 +1080,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             {
                 label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
-                disabled: () => false
+                disabled: () => !this.order.ID
             },
             {
                 label: 'Distribuer',
