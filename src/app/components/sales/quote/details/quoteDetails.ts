@@ -1077,7 +1077,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             {
                 label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
-                disabled: () => false
+                disabled: () => !this.quote.ID
             },
             {
                 label: 'Distribuer',

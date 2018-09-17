@@ -1241,7 +1241,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             {
                 label: 'Skriv ut / send e-post',
                 action: () => this.chooseForm(),
-                disabled: () => false
+                disabled: () => !this.invoice.ID
             },
             {
                 label: 'Send purring',
