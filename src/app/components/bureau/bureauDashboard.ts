@@ -17,18 +17,10 @@ import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
 import {Subscription} from 'rxjs/Subscription';
-import {
-    ErrorService,
-    UserService,
-    CompanyService,
-    TeamService,
-    ElsaProductService,
-    BrowserStorageService
-} from '@app/services/services';
+import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
 
 
 enum KPI_STATUS {
@@ -213,6 +205,16 @@ export class BureauDashboard {
             .setCls('bureau-link-col')
             .setAlignment('center');
 
+        const toBePayedCol = new UniTableColumn('_toBePayedCount', 'Leverandørfaktura i betalingsliste', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setVisible(false)
+            .setAlignment('center');
+
+        const toBeRemindedCol = new UniTableColumn('_toBeRemindedCount', 'Kundefaktura klar til purring', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setVisible(false)
+            .setAlignment('center');
+
         const subCompanyCol = new UniTableColumn('SubCompany.Name', 'Lokal kunde', UniTableColumnType.Link)
             .setVisible(false)
             .setCls('bureau-link-col');
@@ -225,7 +227,16 @@ export class BureauDashboard {
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
             .setColumnMenuVisible(true)
-            .setColumns([companyNameCol, orgnrCol, clientNrCol, inboxCol, approvalCol, subCompanyCol])
+            .setColumns([
+                companyNameCol,
+                orgnrCol,
+                clientNrCol,
+                inboxCol,
+                approvalCol,
+                toBePayedCol,
+                toBeRemindedCol,
+                subCompanyCol,
+            ])
             .setContextMenu([
                 {
                     label: 'Legg til i filter',
@@ -288,7 +299,7 @@ export class BureauDashboard {
 
     private filterCompanies(filterString: string): void {
         if (filterString && filterString.length) {
-            
+
             this.filteredCompanies = this.companies.filter(company => {
                 if(company.ClientNumber && this.isNumber(filterString) && company.ClientNumber == Number(filterString)){
                     return true;
@@ -296,7 +307,7 @@ export class BureauDashboard {
                 else if(company.Name.toLocaleLowerCase().includes(filterString) && !this.isNumber(filterString)){
                     return true;
                 }
-                
+
             //    const companyName = (company.Name && company.Name.toLowerCase()) || '';
             //    return companyName.includes((filterString || '').toLowerCase());
             });
@@ -329,6 +340,8 @@ export class BureauDashboard {
         return companies.map(company => {
             company['_inboxCount'] = this.getKpiCount(company, 'Inbox');
             company['_approvedCount'] = this.getKpiCount(company, 'Approved');
+            company['_toBePayedCount'] = this.getKpiCount(company, 'ToBePayed');
+            company['_toBeRemindedCount'] = this.getKpiCount(company, 'ToBeReminded');
             return company;
         });
     }
