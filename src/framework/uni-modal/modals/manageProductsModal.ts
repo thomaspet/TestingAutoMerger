@@ -105,7 +105,12 @@ export class ManageProductsModal implements IUniModal {
                     this.products = parts[1];
                     this.purchasesPerUser = this.mapPurchasesToUsers(licensePurchases, this.products);
                 },
-                err => this.errorService.handle(err),
+                err => {
+                    if (err.status === 0) {
+                        err.message = `The licensing server might be down, please try again later.`;
+                    }
+                    this.errorService.handle(err);
+                },
             );
     }
 
