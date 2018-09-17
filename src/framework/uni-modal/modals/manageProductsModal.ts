@@ -27,7 +27,7 @@ interface UserLine   {
             <article>
                 <main>
                     <p *ngIf="purchasesPerUser?.length === 0; else productTable">
-                        Dette selskapet er ikke synkronisert inn i lisens systemet enda, forsøk igjen senere!
+                        Du har ingen kjøp for dette selskapet, gå til <a href="#/marketplace">markedsplass</a> og kjøp et produkt først!
                     </p>
                     <ng-template #productTable>
                         <table *ngIf="!!products"
