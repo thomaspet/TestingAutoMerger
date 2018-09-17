@@ -1256,6 +1256,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 action: () => this.distribute(),
                 disabled: () => !this.invoice.ID || !this.invoice.InvoiceNumber
             }
+
         ];
     }
 
@@ -1316,6 +1317,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 });
             },
             disabled: false
+        });
+
+        this.saveActions.push({
+            label: 'Send EHF',
+            action: (done) => this.sendEHFAction(done),
+            disabled: status < StatusCodeCustomerInvoice.Invoiced,
+            main: printStatus !== 300 && this.ehfEnabled
+                && status === StatusCodeCustomerInvoice.Invoiced && !this.isDirty
         });
 
         this.saveActions.push({
@@ -1648,6 +1657,70 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name);
         });
     }
+
+    private sendEHFAction(doneHandler: (msg: string) => void = null) {
+        if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
+            this.askSendEHF(doneHandler);
+        } else {
+            this.modalService.confirm({
+                header: 'Markedsplassen',
+                message: 'Til markedsplassen for å kjøpe tilgang til å sende EHF?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    cancel: 'Nei'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.elsaProductService.FindProductByName('EHF').subscribe(p => {
+                        this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
+                    });
+                }
+                doneHandler('');
+            });
+        }
+    }
+    private sendEHF(doneHandler: (msg: string) => void = null) {
+        this.reportService.distributeWithType(this.invoice.ID,'Models.Sales.CustomerInvoice','EHF' ).subscribe(
+            () => {
+                this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
+                if (doneHandler) {
+                    doneHandler('EHF sendt');
+                    this.invoice.PrintStatus = 300;
+                    this.updateSaveActions();
+                }
+            },
+            (err) => {
+                if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
+                this.errorService.handle(err);
+            }); 
+    }
+
+    private askSendEHF(doneHandler: (msg: string) => void = null) {
+        if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
+            if (this.invoice.PrintStatus === 300) {
+                this.modalService.confirm({
+                    header: 'Bekreft EHF sending',
+                    message: 'Vil du sende EHF på nytt?',
+                    buttonLabels: {
+                        accept: 'Send',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.sendEHF(doneHandler);
+                    } else {
+                        doneHandler('');
+                    }
+                });
+            } else {
+                this.sendEHF(doneHandler);
+            }
+        } else {
+            this.askAddressSettings(doneHandler);
+        }
+    }
+    
+
 
     public chooseForm() {
         return this.modalService.open(
