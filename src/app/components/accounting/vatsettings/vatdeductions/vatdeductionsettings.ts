@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {VatDeduction} from '../../../../unientities';
-import {VatDeductionService, ErrorService} from '../../../../services/services';
+import {VatDeduction, VatDeductionGroup} from '../../../../unientities';
+import {VatDeductionService, ErrorService, VatDeductionGroupService} from '../../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {
     UniTable, UniTableColumn, UniTableConfig, UniTableColumnType
@@ -17,9 +17,13 @@ export class VatDeductionSettings {
     public uniTableConfig: UniTableConfig;
 
     public vatdeductions: VatDeduction[] = [];
+    public vatDeductionGroups: VatDeductionGroup[] = [];
+
+    public isDirty: boolean = false;
 
     constructor(
         private vatDeductionService: VatDeductionService,
+        private vatDeductionGroupService: VatDeductionGroupService,
         private errorService: ErrorService,
         private toastService: ToastService
     ) {
@@ -30,9 +34,16 @@ export class VatDeductionSettings {
     }
 
     private setup() {
-        this.vatDeductionService.GetAll('orderby=ValidFrom')
-            .subscribe(response => {
-                this.vatdeductions = response;
+        this.loadData();
+    }
+
+    public loadData() {
+        Observable.forkJoin(
+            this.vatDeductionService.GetAll('orderby=ValidFrom&expand=VatDeductionGroup'),
+            this.vatDeductionGroupService.GetAll(null)
+        ).subscribe(responses => {
+                this.vatdeductions = responses[0];
+                this.vatDeductionGroups = responses[1];
                 this.setupUniTable();
             },
             err => this.errorService.handle(err)
@@ -40,16 +51,16 @@ export class VatDeductionSettings {
     }
 
     public saveVatDeductions(completeEvent): void {
-        let data = this.unitable.getTableData();
+        const data = this.unitable.getTableData();
 
-        let dirtyRows = [];
+        const dirtyRows = [];
         data.forEach(x => {
             if (x._isDirty) {
                 dirtyRows.push(x);
             }
         });
 
-        let requests = [];
+        const requests = [];
 
         dirtyRows.forEach(row => {
             if (row.ID > 0) {
@@ -78,23 +89,40 @@ export class VatDeductionSettings {
     }
 
     private setupUniTable() {
+
+        const vatDeductionGroupColumn = new UniTableColumn('VatDeductionGroup', 'Gruppe', UniTableColumnType.Select)
+        .setTemplate(row => row && row.VatDeductionGroup && row.VatDeductionGroup.Name)
+        .setOptions({
+            itemTemplate: rowModel => rowModel.Name,
+            resource: this.vatDeductionGroups
+        });
+
         this.uniTableConfig = new UniTableConfig('accounting.vatsettings.vatdeductionSettings', true, false)
             .setColumnMenuVisible(false)
             .setDeleteButton(false)
             .setColumns([
+                vatDeductionGroupColumn,
                 new UniTableColumn('ValidFrom', 'Gyldig fra', UniTableColumnType.LocalDate),
                 new UniTableColumn('ValidTo', 'Gyldig til', UniTableColumnType.LocalDate),
                 new UniTableColumn('DeductionPercent', 'Fradrag prosent', UniTableColumnType.Number)
             ])
             .setDefaultRowData({
                 ID: 0,
+                VatDeductionGroup: this.vatDeductionGroups && this.vatDeductionGroups.length === 1 ? this.vatDeductionGroups[0] : null,
+                VatDeductionGroupID: this.vatDeductionGroups && this.vatDeductionGroups.length === 1 ? this.vatDeductionGroups[0].ID : null,
                 ValidFrom: null,
                 ValidTo: null,
                 DeductionPercent: 0
             })
             .setChangeCallback((row) => {
-                let item = row.rowModel;
+                const item = row.rowModel;
                 item._isDirty = true;
+                this.isDirty = true;
+
+                if (item.VatDeductionGroup) {
+                    item.VatDeductionGroupID = item.VatDeductionGroup.ID;
+                }
+
                 return item;
             });
     }

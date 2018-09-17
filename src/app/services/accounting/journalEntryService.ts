@@ -419,7 +419,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
-            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && debitAccount.UseDeductivePercent
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!debitAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent
                                     : 0;
 
@@ -465,7 +465,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
-            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && creditAccount.UseDeductivePercent
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!creditAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent
                                     : 0;
 
@@ -1272,7 +1272,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getVatDeductionPercent(vatdeductions: Array<VatDeduction>, account: Account, date: LocalDate): number {
-        if (!account || !account.UseDeductivePercent || !date) {
+        if (!account || !account.UseVatDeductionGroupID || !date) {
             return 0;
         }
 
@@ -1281,7 +1281,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         const validdeduction =
-            vatdeductions.find(x => moment(date).isSameOrAfter(moment(x.ValidFrom))
+            vatdeductions.find(x => x.VatDeductionGroupID === account.UseVatDeductionGroupID
+                && moment(date).isSameOrAfter(moment(x.ValidFrom))
                 && (!x.ValidTo || moment(date).isBefore(moment(x.ValidTo)))
             );
 
@@ -1379,7 +1380,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (vattype && !vattype.DirectJournalEntryOnly) {
                 let deductionpercent =
                     journalEntryData.VatDeductionPercent &&
-                    (journalEntryData.StatusCode || account.UseDeductivePercent)
+                    (journalEntryData.StatusCode || !!account.UseVatDeductionGroupID)
                     ? journalEntryData.VatDeductionPercent
                     : 0;
 

@@ -3,7 +3,7 @@ import {Observable} from 'rxjs/Observable';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Account, VatType, AccountGroup} from '../../../../unientities';
+import {Account, VatType, AccountGroup, VatDeductionGroup} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {
@@ -11,7 +11,8 @@ import {
     AccountGroupService,
     VatTypeService,
     CurrencyCodeService,
-    AccountService
+    AccountService,
+    VatDeductionGroupService
 } from '../../../../services/services';
 
 @Component({
@@ -27,6 +28,7 @@ export class AccountDetails implements OnInit {
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
+    private vatDeductionGroups: VatDeductionGroup[];
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.getComponentLayout().Fields);
 
@@ -36,7 +38,8 @@ export class AccountDetails implements OnInit {
         private vatTypeService: VatTypeService,
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private vatDeductionGroupService: VatDeductionGroupService
     ) {}
 
     public ngOnInit() {
@@ -48,7 +51,8 @@ export class AccountDetails implements OnInit {
         Observable.forkJoin(
             this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
-            this.accountGroupService.GetAll('orderby=GroupNumber')
+            this.accountGroupService.GetAll('orderby=GroupNumber'),
+            this.vatDeductionGroupService.GetAll(null)
         ).subscribe(
             (dataset) => {
                 this.currencyCodes = dataset[0];
@@ -56,6 +60,8 @@ export class AccountDetails implements OnInit {
                 this.accountGroups = dataset[2].filter(
                     x => x.GroupNumber !== null && x.GroupNumber.toString().length === 3
                 );
+                this.vatDeductionGroups = dataset[3];
+
                 this.extendFormConfig();
             },
             err => this.errorService.handle(err)
@@ -78,8 +84,8 @@ export class AccountDetails implements OnInit {
     }
 
     private extendFormConfig() {
-        let fields = this.fields$.getValue();
-        let currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        const fields = this.fields$.getValue();
+        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -87,39 +93,46 @@ export class AccountDetails implements OnInit {
             debounceTime: 200
         };
 
-        let vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
+        const vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
         vattype.Options = {
             source: this.vattypes,
             valueProperty: 'ID',
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : ''
         };
 
-        let accountGroup: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupID');
+        const vatDeductionGroup: UniFieldLayout = fields.find(x => x.Property === 'UseVatDeductionGroupID');
+        vatDeductionGroup.Options = {
+            source: this.vatDeductionGroups,
+            valueProperty: 'ID',
+            template: (vdg: VatDeductionGroup) => vdg ? vdg.Name : ''
+        };
+
+        const accountGroup: UniFieldLayout = fields.find(x => x.Property === 'AccountGroupID');
         accountGroup.Options = {
             source: this.accountGroups,
             template: (data: AccountGroup) => `${data.GroupNumber} - ${data.Name}`,
             valueProperty: 'ID'
         };
 
-        let accountNumber: UniFieldLayout = fields.find(x => x.Property === 'AccountNumber');
+        const accountNumber: UniFieldLayout = fields.find(x => x.Property === 'AccountNumber');
         accountNumber.Options = {
             events: {
                 blur: () => {
-                    let account = this.account$.getValue();
+                    const account = this.account$.getValue();
                     if (
                         (!account.ID || account.ID === 0 || !account.AccountGroupID)
                         && account.AccountNumber && account.AccountNumber.toString().length > 3
                     ) {
-                        let expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
+                        const expectedAccountGroupNo =  account.AccountNumber.toString().substring(0, 3);
 
-                        let defaultAccountGroup = this.accountGroups.find(
+                        const defaultAccountGroup = this.accountGroups.find(
                             x => x.GroupNumber === expectedAccountGroupNo
                         );
 
                         if (defaultAccountGroup) {
                             account.AccountGroupID = defaultAccountGroup.ID;
                         } else {
-                            let defAccountGroup =
+                            const defAccountGroup =
                                 this.accountGroups
                                     .concat()
                                     .sort((a, b) => b.GroupNumber.localeCompare(a.GroupNumber))
@@ -153,7 +166,7 @@ export class AccountDetails implements OnInit {
 
 
     public saveAccount(completeEvent: any): void {
-        let account = this.account$.getValue();
+        const account = this.account$.getValue();
         // Doing this to prevent "Foreignkey does not match parent ID" error:
         if (account.AccountGroup && account.AccountGroupID !== account.AccountGroup.ID) {
             account.AccountGroup = null;
@@ -246,7 +259,6 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Valuta',
                 },
-
                 // Fieldset 2 (details)
                 {
                     FieldSet: 2,
@@ -272,18 +284,18 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.CHECKBOX,
                     Label: 'PostPost',
                 },
-                {
-                    FieldSet: 2,
-                    Legend: 'Detaljer',
-                    EntityType: 'Account',
-                    Property: 'UseDeductivePercent',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Forholdsmessig mva',
-                },
-
-                // Fieldset 3 (valid)
+                // Fieldset 3 (vatdeduction)
                 {
                     FieldSet: 3,
+                    Legend: 'Forholdsmessig fradrag MVA',
+                    EntityType: 'Account',
+                    Property: 'UseVatDeductionGroupID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Bruk satsgruppe',
+                },
+                // Fieldset 4 (valid)
+                {
+                    FieldSet: 4,
                     Legend: 'Gyldig',
                     EntityType: 'Account',
                     Property: 'Visible',
@@ -291,7 +303,7 @@ export class AccountDetails implements OnInit {
                     Label: 'Synlig',
                 },
                 {
-                    FieldSet: 3,
+                    FieldSet: 4,
                     Legend: 'Gyldig',
                     EntityType: 'Account',
                     Property: 'Locked',
@@ -299,7 +311,7 @@ export class AccountDetails implements OnInit {
                     Label: 'Sperret',
                 },
                 {
-                    FieldSet: 3,
+                    FieldSet: 4,
                     Legend: 'Gyldig',
                     EntityType: 'Account',
                     Property: 'LockManualPosts',

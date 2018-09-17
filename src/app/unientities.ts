@@ -5743,7 +5743,7 @@ export class Account extends UniEntity {
     public TopLevelAccountGroupID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public UseDeductivePercent: boolean;
+    public UseVatDeductionGroupID: number;
     public UsePostPost: boolean;
     public VatTypeID: number;
     public Visible: boolean;
@@ -5895,9 +5895,26 @@ export class VatDeduction extends UniEntity {
     public UpdatedBy: string;
     public ValidFrom: LocalDate;
     public ValidTo: LocalDate;
+    public VatDeductionGroupID: number;
+    public VatDeductionGroup: VatDeductionGroup;
     public CustomFields: any;
 }
 
+export class VatDeductionGroup extends UniEntity {
+    public static RelativeUrl = 'vatdeductiongroups';
+    public static EntityType = 'VatDeductionGroup';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Name: string;
+    public Deleted: boolean;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
 
 export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';

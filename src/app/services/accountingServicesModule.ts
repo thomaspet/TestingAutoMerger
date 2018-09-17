@@ -13,6 +13,7 @@ import {SupplierInvoiceItemService} from './accounting/supplierInvoiceItemServic
 import {SupplierInvoiceService} from './accounting/supplierInvoiceService';
 import {SupplierService} from './accounting/supplierService';
 import {VatDeductionService} from './accounting/vatDeductionService';
+import {VatDeductionGroupService} from './accounting/vatDeductionGroupService';
 import {VatCodeGroupService} from './accounting/vatCodeGroupService';
 import {VatPostService} from './accounting/vatPostService';
 import {VatReportService} from './accounting/vatReportService';
@@ -39,6 +40,7 @@ export * from './accounting/supplierInvoiceItemService';
 export * from './accounting/supplierInvoiceService';
 export * from './accounting/supplierService';
 export * from './accounting/vatDeductionService';
+export * from './accounting/vatDeductionGroupService';
 export * from './accounting/vatCodeGroupService';
 export * from './accounting/vatPostService';
 export * from './accounting/vatReportService';
@@ -71,6 +73,7 @@ export class AccountingServicesModule {
                 SupplierInvoiceService,
                 SupplierService,
                 VatDeductionService,
+                VatDeductionGroupService,
                 VatCodeGroupService,
                 VatPostService,
                 VatReportService,

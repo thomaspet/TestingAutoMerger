@@ -1966,7 +1966,6 @@ export interface IAccount {
 	EmployeeID: number;
 	DimensionsID: number;
 	SubAccountNumberSeriesID: number;
-	UseDeductivePercent: boolean;
 	UsePostPost: boolean;
 	StatusID: number;
 	ID: number;

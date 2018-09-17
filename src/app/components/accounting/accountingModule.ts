@@ -46,6 +46,7 @@ import {DimensionsOverviewReportPart} from './accountingreports/reportparts/dime
 import {DrilldownBalanceReportPart} from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
+import {VatDeductionGroupSetupModal} from './vatsettings/modals/vatDeductionGroupSetupModal';
 import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
@@ -101,6 +102,7 @@ import {MatTabsModule} from '@angular/material';
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+        VatDeductionGroupSetupModal,
 
         NewAccountModal,
         SelectDraftLineModal,
@@ -156,6 +158,7 @@ import {MatTabsModule} from '@angular/material';
     ],
     entryComponents: [
         HistoricVatReportModal,
+        VatDeductionGroupSetupModal,
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineModal,
@@ -178,6 +181,7 @@ import {MatTabsModule} from '@angular/material';
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+        VatDeductionGroupSetupModal,
         SupplierList,
         SupplierDetails,
 
