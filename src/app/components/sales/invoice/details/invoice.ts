@@ -547,23 +547,28 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    public canDeactivate(): Observable<boolean> {
-        const saveButtonLabel = this.invoice && this.invoice.ID && this.invoice.StatusCode > 42001 ? 'Lagre' : 'Lagre som kladd';
-        return !this.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal(saveButtonLabel)
-                .onClose
-                .map(result => {
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (this.isDirty) {
+            return this.modalService.openUnsavedChangesModal().onClose
+                .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         if (!this.invoice.ID && !this.invoice.StatusCode) {
                             this.invoice.StatusCode = StatusCode.Draft;
                         }
-                        this.saveInvoice();
+
+                        return Observable.fromPromise(this.saveInvoice())
+                            .catch(err => {
+                                this.handleSaveError(err);
+                                return Observable.of(false);
+                            })
+                            .map(res => !!res);
                     }
 
-                    return result !== ConfirmActions.CANCEL;
+                    return Observable.of(result !== ConfirmActions.CANCEL);
                 });
+        }
+
+        return true;
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
@@ -1105,18 +1110,22 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.invoice = _.cloneDeep(invoice);
         this.updateCurrency(invoice, true);
         this.recalcDebouncer.next(invoice.Items);
-        this.updateTabTitle();
+        this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
     }
 
-    private updateTabTitle() {
-        const tabTitle = (this.invoice.InvoiceNumber)
-            ? 'Fakturanr. ' + this.invoice.InvoiceNumber
-            : (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
+    private updateTab(invoice?: CustomerInvoice) {
+        if (!invoice) {
+            invoice = this.invoice;
+        }
+
+        const tabTitle = !!invoice.InvoiceNumber
+            ? 'Fakturanr. ' + invoice.InvoiceNumber
+            : invoice.ID ? 'Faktura (kladd)' : 'Ny faktura';
 
         this.tabService.addTab({
-            url: '/sales/invoices/' + this.invoice.ID,
+            url: '/sales/invoices/' + invoice.ID,
             name: tabTitle,
             active: true,
             moduleID: UniModules.Invoices
@@ -1326,7 +1335,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private saveInvoice(done = (msg: string) => {}): Promise<any> {
+    private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
@@ -1348,7 +1357,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return new Promise((resolve, reject) => {
-            const request = (this.invoice.ID > 0)
+            const saveRequest = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
 
@@ -1360,53 +1369,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 return reject('Kan ikke lagre faktura, mvakode må velges på alle linjene med et beløp');
             }
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                const linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
+                if (canSave) {
+                    saveRequest.subscribe(
+                        res => {
+                            this.updateTab(res);
 
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(
-                                res => {
-                                    if (res.InvoiceNumber) { this.selectConfig = undefined; }
-                                    resolve(res);
-                                },
-                                err => reject(err)
-                            );
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
-
+                            if (res.InvoiceNumber) { this.selectConfig = undefined; }
+                            resolve(res);
+                            done('Lagring fullført');
+                        },
+                        err => reject(err));
                 } else {
-                    request.subscribe(res => {
-                        if (res.InvoiceNumber) { this.selectConfig = undefined; }
-                        resolve(res);
-                        done('Lagring fullført');
-                    }, err => reject(err));
+                    reject('Endre MVA kode og lagre på ny');
                 }
-            } else {
-                request.subscribe(res => {
-                    resolve(res);
-                    done('Lagring fullført');
-                }, err => reject(err));
-            }
-        }).catch(err => {
-            this.errorService.handle(err);
-            done('Lagring feilet');
+            });
         });
+    }
+
+    private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
+        if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+            const linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
+            if (linesWithVat.length > 0) {
+                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                    + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+
+                return this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, lagre med MVA',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.map(response => {
+                    return response === ConfirmActions.ACCEPT;
+                });
+            }
+        }
+
+        return Observable.of(true);
     }
 
     private newBasedOn(): Promise<any> {
@@ -1920,17 +1921,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private handleSaveError(error, donehandler) {
-        if (typeof (error) === 'string') {
-            if (donehandler) {
-                donehandler('Lagring avbrutt. ' + error);
-            }
-        } else {
-            if (donehandler) {
-                donehandler('Lagring feilet');
-            }
-            this.errorService.handle(error);
+    private handleSaveError(error, donehandler?) {
+        if (donehandler) {
+            donehandler('Lagring avbrutt');
         }
+
+        this.errorService.handle(error);
     }
 
     private deleteInvoice(done) {

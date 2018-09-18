@@ -440,32 +440,32 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.order.OrderNumberSeriesID = selectedSerie.ID;
     }
 
-    private handleSaveError(error, donehandler) {
-        if (typeof (error) === 'string') {
-            if (donehandler) {
-                donehandler('Lagring avbrutt. ' + error);
-            }
-        } else {
-            if (donehandler) {
-                donehandler('Lagring feilet');
-            }
-            this.errorService.handle(error);
+    private handleSaveError(error, donehandler?) {
+        if (donehandler) {
+            donehandler('Lagring avbrutt');
         }
+
+        this.errorService.handle(error);
     }
 
-    public canDeactivate(): Observable<boolean> {
-        return !this.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal()
-                .onClose
-                .map(result => {
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (this.isDirty) {
+            return this.modalService.openUnsavedChangesModal().onClose
+                .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
-                        this.saveOrder();
+                        return Observable.fromPromise(this.saveOrder())
+                            .catch(err => {
+                                this.handleSaveError(err);
+                                return Observable.of(false);
+                            })
+                            .map(res => !!res);
                     }
 
-                    return result !== ConfirmActions.CANCEL;
+                    return Observable.of(result !== ConfirmActions.CANCEL);
                 });
+        }
+
+        return true;
     }
 
     private setUpDims(dims) {
@@ -778,7 +778,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
                 this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
-                this.setTabTitle();
+                this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
                 this.recalcDebouncer.next(res.Items);
@@ -925,15 +925,19 @@ export class OrderDetails implements OnInit, AfterViewInit {
         );
     }
 
-    private setTabTitle() {
+    private updateTab(order?: CustomerOrder) {
+        if (!order) {
+            order = this.order;
+        }
+
         let tabTitle = '';
-        if (this.order.OrderNumber) {
-            tabTitle = 'Ordrenr. ' + this.order.OrderNumber;
+        if (order.OrderNumber) {
+            tabTitle = 'Ordrenr. ' + order.OrderNumber;
         } else {
-            tabTitle = (this.order.ID) ? 'Ordre (kladd)' : 'Ny ordre';
+            tabTitle = (order.ID) ? 'Ordre (kladd)' : 'Ny ordre';
         }
         this.tabService.addTab({
-            url: '/sales/orders/' + this.order.ID,
+            url: '/sales/orders/' + order.ID,
             name: tabTitle,
             active: true,
             moduleID: UniModules.Orders
@@ -1269,52 +1273,48 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
 
         return new Promise((resolve, reject) => {
-            // create observable but dont subscribe - resolve it in the promise
-            const request = ((this.order.ID > 0)
+            const saveRequest = ((this.order.ID > 0)
                 ? this.customerOrderService.Put(this.order.ID, this.order)
                 : this.customerOrderService.Post(this.order));
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                const linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.order.CurrencyCodeID)} som valuta?`;
-
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(
-                                res => resolve(res),
-                                err => reject(err)
-                            );
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
+            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
+                if (canSave) {
+                    saveRequest.subscribe(
+                        res => {
+                            if (res.OrderNumber) { this.selectConfig = undefined; }
+                            this.updateTab(res);
+                            resolve(res);
+                        },
+                        err => reject(err)
+                    );
                 } else {
-                    request.subscribe(res => {
-                        if (res.OrderNumber) { this.selectConfig = undefined; }
-                        resolve(res);
-                    }, err => reject(err));
+                    reject('Endre MVA kode og lagre på ny');
                 }
-            } else {
-                request.subscribe(res => {
-                    if (res.OrderNumber) { this.selectConfig = undefined; }
-                    resolve(res);
-                }, err => reject(err));
-            }
-
+            });
         });
+    }
+
+    private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
+        if (this.order.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+            const linesWithVat = this.order.Items.filter(x => x.SumVatCurrency > 0);
+            if (linesWithVat.length > 0) {
+                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                    + `${this.getCurrencyCode(this.order.CurrencyCodeID)} som valuta?`;
+
+                return this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, lagre med MVA',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.map(response => {
+                    return response === ConfirmActions.ACCEPT;
+                });
+            }
+        }
+
+        return Observable.of(true);
     }
 
     private saveAndTransferToInvoice(done: any) {
