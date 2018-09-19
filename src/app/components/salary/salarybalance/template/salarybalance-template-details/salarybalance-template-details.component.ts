@@ -23,7 +23,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
   public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
   private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
   public employees: Employee[] = [];
-  private ignoreFields: string[] = ['EmployeeID'];
+  private ignoreFields: string[] = ['EmployeeID', 'FromDate', 'ToDate'];
 
   @ViewChild(UniForm) public uniform: UniForm;
 
@@ -43,6 +43,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
           .switchMap(salarybalanceTemplate =>
             salarybalanceService.updateFields(
               salarybalanceTemplate,
+              'salarybalancetemplate',
               salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID,
               null,
               this.lastChanges$,
@@ -52,6 +53,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
           )
           .subscribe((salarybalanceTemplate: SalaryBalanceTemplate) => {
             if (salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID) {
+              this.salarybalanceService.clear();
               this.setup(salarybalanceTemplate);
             }
           }, err => this.errorService.handle(err));
@@ -118,7 +120,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
 
   private setup(currTemplate: SalaryBalanceTemplate) {
     this.salarybalanceService
-      .refreshLayout(currTemplate, this.ignoreFields)
+      .refreshLayout(currTemplate, this.ignoreFields, 'salarybalancetemplate')
       .map(response => this.setWagetype(currTemplate))
       .map(reponse => this.setText(currTemplate))
       .subscribe(response => {

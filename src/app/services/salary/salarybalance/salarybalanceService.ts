@@ -48,6 +48,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     ];
 
     private suppliers: Supplier[];
+    private employees: Employee[];
     private wagetypes: WageType[];
 
     constructor(
@@ -59,7 +60,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private wagetypeService: WageTypeService,
-        private supplierService: SupplierService
+        private supplierService: SupplierService,
+        private employeeService: EmployeeService
     ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
@@ -86,6 +88,9 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 break;
             case 'name':
                 helpText = 'Teksten i dette feltet vises på lønnsavregning, rapporter og lønnsslipp';
+                break;
+            case 'templatename':
+                helpText = 'Teksten her gir navn til malen, for å lettere finne igjen rett mal';
                 break;
             case 'wagetypenumber':
                 helpText = 'Henter automatisk lønnsart som samsvarer med type som er valgt. ' +
@@ -180,6 +185,12 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             : this.wagetypeService.GetAll('').do(wt => this.wagetypes = wt);
     }
 
+    private employeesObs(): Observable<Employee[]> {
+        return this.employees
+            ? Observable.of(this.employees)
+            : this.employeeService.GetAll('').do(emps => this.employees = emps);
+    }
+
     private suppliersObs(): Observable<Supplier[]> {
         return this.suppliers
             ? Observable.of(this.suppliers)
@@ -188,6 +199,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     public getWagetypes() {
         return this.wagetypes;
+    }
+
+    public getEmployees() {
+        return this.employees;
     }
 
     public getSuppliers() {
@@ -235,6 +250,12 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return this.Remove(id)
             .do(() => this.clearRelatedCaches())
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+    }
+
+    public clear() {
+        this.suppliers = [];
+        this.wagetypes = [];
+        this.employees = [];
     }
 
     private clearRelatedCaches(): void {
@@ -318,6 +339,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     public updateFields(
         entityObject: SalaryBalance | SalaryBalanceTemplate,
+        entity: string,
         updateLayout: boolean = false,
         changes: SimpleChanges = null,
         lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({}),
@@ -337,7 +359,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 if (!updateLayout && form && !changesKey.some(x => x === 'InstalmentType')) {
                     this.updateFormFields(entityObject, changes, form);
                 } else {
-                    this.refreshLayout(entityObject, ignoreFields)
+                    this.refreshLayout(entityObject, ignoreFields, entity)
                         .subscribe(layout => {
                             fields$.next(layout);
                         });
@@ -346,14 +368,19 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .map(() => entityObject);
     }
 
-    public refreshLayout(salbalTemplate: SalaryBalance | SalaryBalanceTemplate, ignoreFields: string[]): Observable<UniFieldLayout[]> {
+    public refreshLayout(
+        salbalTemplate: SalaryBalance | SalaryBalanceTemplate,
+        ignoreFields: string[],
+        entity: string,
+        entityStringID: string = 'SalarybalanceDetails'): Observable<UniFieldLayout[]> {
         return Observable
           .forkJoin(
           this.wageTypesObs(),
+          this.employeesObs(),
           this.suppliersObs())
-          .switchMap((result: [WageType[], Supplier[]]) => {
-              const [wagetypes, suppliers] = result;
-              return this.layout('salarybalanceTemplateDetails', salbalTemplate, 'salarybalancetemplate' , wagetypes, null, suppliers)
+          .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
+              const [wagetypes, employees, suppliers] = result;
+              return this.layout(entityStringID, salbalTemplate, entity, wagetypes, employees, suppliers)
                   .map(layout => {
                       layout.Fields = layout.Fields.filter(field => !ignoreFields.some(name => name === field.Property));
                       return layout;
@@ -481,6 +508,19 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     {
                         EntityType: entity,
                         Property: 'Name',
+                        FieldType: FieldType.TEXT,
+                        Label: entity === 'salarybalancetemplate' ? 'Navn på mal' : 'Tekst til lønnspost',
+                        Tooltip: {
+                            Text: this.getHelpText('templatename')
+                        },
+                        FieldSet: 0,
+                        Section: 0,
+                        Placement: 1,
+                        LineBreak: true,
+                    },
+                    {
+                        EntityType: entity,
+                        Property: 'SalarytransactionDescription',
                         FieldType: FieldType.TEXT,
                         Label: 'Tekst til lønnspost',
                         Tooltip: {

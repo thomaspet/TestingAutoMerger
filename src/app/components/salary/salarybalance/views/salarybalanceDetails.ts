@@ -29,9 +29,6 @@ const SAVING_KEY = 'viewSaving';
 })
 export class SalarybalanceDetail extends UniView implements OnChanges {
     private salarybalanceID: number;
-    private wagetypes: WageType[];
-    private employees: Employee[];
-    private suppliers: Supplier[];
     private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
     private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
     public salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
@@ -48,20 +45,16 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     @Input() public salarybalance: SalaryBalance;
     @Input() public useExternalChangeDetection: boolean = false;
-    @Input() public ignoreFields: string[] = [];
+    @Input() public ignoreFields: string[] = ['SalarytransactionDescription'];
     @Output() private salarybalanceChange: EventEmitter<SalaryBalance> = new EventEmitter<SalaryBalance>();
 
     constructor(
         private route: ActivatedRoute,
         private router: Router,
         private salarybalanceService: SalarybalanceService,
-        private wagetypeService: WageTypeService,
-        private employeeService: EmployeeService,
-        private supplierService: SupplierService,
         private toastService: ToastService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private modulusService: ModulusService,
         private modalService: UniModalService
     ) {
         super(router.url, cacheService);
@@ -104,7 +97,17 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                         }
                         return salarybalance;
                     })
-                    .switchMap(salarybalance => this.updateFields(salarybalance, this.salarybalanceID !== salarybalance.ID))
+                    .switchMap(salarybalance =>
+                        salarybalanceService.updateFields(
+                            salarybalance,
+                            'salarybalance',
+                            this.salarybalanceID !== salarybalance.ID,
+                            null,
+                            this.lastChanges$,
+                            this.form,
+                            this.fields$,
+                            this.ignoreFields)
+                        )
                     .do(salarybalance => this.salarybalanceID = salarybalance.ID)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             })
@@ -137,7 +140,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 }
 
                 if (changes['SupplierID']) {
-                    model.Supplier = this.suppliers.find(supp => supp.ID === model.SupplierID);
+                    model.Supplier = this.salarybalanceService.getSuppliers().find(supp => supp.ID === model.SupplierID);
                     if (!model.SupplierID) {
                         this.salarybalanceService.resetCreatePayment(model);
                     }
@@ -172,10 +175,12 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 this.updateSalaryBalance(model);
                 if (this.useExternalChangeDetection) {
                     if (changes['InstalmentType']) {
-                        this.refreshLayout(model)
+                        this.salarybalanceService.refreshLayout(
+                            model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails')
                             .subscribe();
                     } else {
-                        this.updateFormFields(model, changes);
+                        this.salarybalanceService.updateFields(
+                            model, 'salarybalance', false, changes, this.lastChanges$, this.form, this.fields$, this.ignoreFields);
                     }
                 }
             });
@@ -226,108 +231,15 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
-        return this.refreshLayout(salaryBalance)
-            .map(response => this.setWagetype(salaryBalance))
-            .map(response => this.setText(salaryBalance));
+        this.salarybalanceService.clear();
+        return this.salarybalanceService
+        .refreshLayout(salaryBalance, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails')
+        .do((layout) => this.fields$.next(layout))
+        .map(response => this.setWagetype(salaryBalance))
+        .map(response => this.setText(salaryBalance));
     }
 
-    private refreshLayout(salaryBalance: SalaryBalance): Observable<UniFieldLayout[]> {
-        return Observable
-            .forkJoin(
-            this.wageTypesObs(),
-            this.employeesObs(),
-            this.suppliersObs())
-            .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
-                const [wagetypes, employees, suppliers] = result;
-                return this.salarybalanceService
-                    .layout('SalarybalanceDetails', salaryBalance, 'salarybalance' , wagetypes, employees, suppliers)
-                    .map(layout => {
-                        layout.Fields = layout.Fields.filter(field => !this.ignoreFields.some(name => name === field.Property));
-                        return layout;
-                    });
-            })
-            .do(layout => {
-                if (layout.Fields) {
-                    this.fields$.next(layout.Fields);
-                }
-            })
-            .map(layout => <UniFieldLayout[]>layout.Fields)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
-
-    private wageTypesObs(): Observable<WageType[]> {
-        return this.wagetypes
-            ? Observable.of(this.wagetypes)
-            : this.wagetypeService.GetAll('').do(wt => this.wagetypes = wt);
-    }
-
-    private employeesObs(): Observable<Employee[]> {
-        return this.employees
-            ? Observable.of(this.employees)
-            : this.employeeService.GetAll('').do(emps => this.employees = emps);
-    }
-
-    private suppliersObs(): Observable<Supplier[]> {
-        return this.suppliers
-            ? Observable.of(this.suppliers)
-            : this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']).do(sup => this.suppliers = sup);
-    }
-
-    private updateFields(
-        salaryBalance: SalaryBalance,
-        updateLayout: boolean = false,
-        changes: SimpleChanges = null): Observable<SalaryBalance> {
-        const changesObs = changes ? Observable.of(changes) : null;
-        const obs = changesObs || this.lastChanges$.asObservable();
-
-        return obs
-            .take(1)
-            .map(change => {
-                const keys = Object.keys(change);
-                return keys;
-            })
-            .do((changesKey) => {
-                if (!updateLayout && this.form && !changesKey.some(x => x === 'InstalmentType')) {
-                    this.updateFormFields(salaryBalance);
-                } else {
-                    this.refreshLayout(salaryBalance)
-                        .subscribe();
-                }
-            })
-            .map(() => salaryBalance);
-    }
-
-    private updateFormFields(salaryBalance: SalaryBalance, changes: SimpleChanges = null) {
-        if (!this.form) {
-            return;
-        }
-        const fieldFuncs = this.salarybalanceService
-        .GetFieldFuncs(salaryBalance);
-
-        if (changes) {
-            const changesKeys = Object.keys(changes);
-            const update = changesKeys.some(change => fieldFuncs.some(func => func.prop === change));
-            if (!update) {
-                return;
-            }
-        }
-
-        fieldFuncs
-            .forEach(fieldfunc => this.editFormField(this.form, fieldfunc.prop, fieldfunc.func));
-    }
-
-    private editFormField(
-        form: UniForm,
-        prop: string,
-        edit: (field: UniFieldLayout) => UniFieldLayout): UniFieldLayout {
-        const field = form ? form.field(prop) : null;
-        if (field && field.field) {
-            return edit(field.field);
-        }
-        return null;
-    }
-
-    private setWagetype(salarybalance: SalaryBalance, wagetypes = this.wagetypes): SalaryBalance {
+    private setWagetype(salarybalance: SalaryBalance, wagetypes = this.salarybalanceService.getWagetypes()): SalaryBalance {
         let wagetype: WageType;
 
         if (!salarybalance.ID && wagetypes) {

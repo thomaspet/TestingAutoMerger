@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, ViewChild, SimpleChanges} from '@angular/core';
 import {Employee, SalaryBalanceTemplate, SalaryBalance} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {SalarybalanceTemplateService, EmployeeService, UniCacheService, ErrorService, SalarybalanceService} from '@app/services/services';
+import {EmployeeService, UniCacheService, ErrorService, SalarybalanceService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniView} from '@uni-framework/core/uniView';
 import {Router, ActivatedRoute} from '../../../../../../../node_modules/@angular/router';
@@ -25,7 +25,6 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     route: ActivatedRoute,
     cacheService: UniCacheService,
     private errorService: ErrorService,
-    private salarybalanceTemplateService: SalarybalanceTemplateService,
     private salarybalanceService: SalarybalanceService,
     private employeeService: EmployeeService
   ) {
@@ -60,7 +59,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
   }
 
   private createConfig() {
-    const empCol = new UniTableColumn('_Salarybalance', 'Ansatt', UniTableColumnType.Lookup)
+    const empCol = new UniTableColumn('Employee', 'Ansatt', UniTableColumnType.Lookup)
     .setTemplate((rowModel) => {
       const emp = rowModel['Employee'];
       return emp
@@ -94,7 +93,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
       .setChangeCallback(event => {
         const row = event.rowModel;
         row['_isDirty'] = true;
-        if (event.field === '_Salarybalance') {
+        if (event.field === 'Employee') {
           this.mapEmployeeToSalarybalance(row);
         }
         const updateIndex = this.salarybalances.findIndex(x => x['_originalIndex'] === row['_originalIndex']);
@@ -109,7 +108,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
   }
 
   private mapEmployeeToSalarybalance(rowModel) {
-    const emp = rowModel['_Salarybalance'];
+    const emp = rowModel['Employee'];
     rowModel['EmployeeID'] = emp.ID;
     rowModel['SalaryBalanceTemplateID'] = this.currentTemplate.ID;
     rowModel['InstalmentType'] = this.currentTemplate.InstalmentType;
