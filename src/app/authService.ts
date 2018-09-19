@@ -196,7 +196,7 @@ export class AuthService {
             redirect = this.getSafeRoute(this.router.url);
         }
 
-        this.router.navigateByUrl('/reload').then(navigationSuccess => {
+        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(navigationSuccess => {
             if (navigationSuccess) {
                 this.setLoadIndicatorVisibility(true);
                 this.storage.saveOnUser('activeCompany', activeCompany);
