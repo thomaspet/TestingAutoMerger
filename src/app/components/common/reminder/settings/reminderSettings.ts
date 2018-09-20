@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {CustomerInvoiceReminderSettings} from '@uni-entities';
+import {CustomerInvoiceReminderSettings, CompanySettings} from '@uni-entities';
 import {FieldType} from '@uni-framework/ui/uniform';
 import {
     CompanySettingsService,
@@ -15,32 +15,31 @@ import {DebtCollectionAutomations} from '@app/models/sales/reminders/debtCollect
     templateUrl: './reminderSettings.html'
 })
 export class ReminderSettings {
-    @Input() private settings: CustomerInvoiceReminderSettings;
+    @Input() private reminderSettings: CustomerInvoiceReminderSettings;
 
     public isDirty: boolean = false;
-    public settings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
+    public reminderSettings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(private companySettingsService: CompanySettingsService,
                 private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
                 private errorService: ErrorService,
-                private jobService: JobService,) {
+                private jobService: JobService) {
     }
 
     public ngOnInit() {
-        this.settings$.next(this.settings);
         this.setupForm();
     }
 
     public ngOnChanges() {
-        this.settings$.next(this.settings);
+        this.reminderSettings$.next(this.reminderSettings);
     }
 
     public save(): Promise<any> {
         this.toggleDebtCollectionAutomationCronJob();
         return new Promise((resolve, reject) => {
-            this.customerInvoiceReminderSettingsService.Put(this.settings.ID, this.settings).subscribe(() => {
+            this.customerInvoiceReminderSettingsService.Put(this.reminderSettings.ID, this.reminderSettings).subscribe(() => {
                 this.isDirty = false;
                 resolve();
             }, (err) => {
@@ -53,22 +52,19 @@ export class ReminderSettings {
         this.isDirty = true;
     }
 
-    private setupForm() {
-        if (!this.settings) {
-            this.companySettingsService.Get(
+    private async setupForm() {
+        if (!this.reminderSettings) {
+            const companySettings: CompanySettings = await this.companySettingsService.Get(
                 1, [
                     'CustomerInvoiceReminderSettings',
                     'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
                     'CustomerInvoiceReminderSettings.DebtCollectionSettings',
                     'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
                 ]
-            )
-                .subscribe((settings) => {
-                    this.settings = settings.CustomerInvoiceReminderSettings;
-                    this.settings$.next(this.settings);
-                });
+            ).toPromise();
+            this.reminderSettings = companySettings.CustomerInvoiceReminderSettings;
+            this.reminderSettings$.next(this.reminderSettings);
         }
-
 
         const fields = [
             {
@@ -93,6 +89,39 @@ export class ReminderSettings {
                 Section: 0,
                 FieldSet: 1
             },
+            {
+                Legend: 'Inkassoinnstillinger',
+                Property: 'DebtCollectionSettings.IntegrateWithDebtCollection',
+                Label: 'Integrasjon med inkasso',
+                FieldType: FieldType.CHECKBOX,
+                Section: 0,
+                FieldSet: 2,
+            },
+            {
+                Property: 'DebtCollectionSettings.DebtCollectionAutomationID',
+                Label: 'Automatisering',
+                FieldType: FieldType.DROPDOWN,
+                Section: 0,
+                FieldSet: 2,
+                Options: {
+                    source: this.reminderSettings.DebtCollectionSettings.DebtCollectionAutomation,
+                    valueProperty: 'ID',
+                    hideDeleteButton: true,
+                    searchable: false,
+                    template: (item) => {
+                        // TODO: Add a line break between name and description,
+                        //       or make things more readable in another way
+                        return item.Name + ': ' + item.Description;
+                    }
+                }
+            },
+            {
+                Property: 'DebtCollectionSettings.CreditorNumber',
+                Label: 'Vårt kundenr hos inkassobyrå',
+                FieldType: FieldType.TEXT,
+                Section: 0,
+                FieldSet: 2,
+            }
         ];
 
         this.fields$.next(fields);
@@ -102,17 +131,17 @@ export class ReminderSettings {
         // Remove old cron jobs
         this.jobService.getSchedules('DebtCollectionAutomationJob').subscribe(
             result => {
-                for (var key in result) {
+                Object.keys(result).forEach(key => {
                     this.jobService.deleteSchedule(key).subscribe(
-                        result =>
+                        () => {},
                         err => console.log(err)
                     );
-                }
+                });
             },
             err => console.log(err)
         );
 
-        var id = this.settings.DebtCollectionSettings.DebtCollectionAutomationID;
+        const id = this.reminderSettings.DebtCollectionSettings.DebtCollectionAutomationID;
 
         if ((id === DebtCollectionAutomations.SemiAuto) || (id === DebtCollectionAutomations.FullAuto)) {
             // Make new cron job

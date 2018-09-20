@@ -26,7 +26,6 @@ import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
-import {DebtCollectionSetting} from './reminder/settings/debtCollectionSettings';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
@@ -80,7 +79,6 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         ReminderSettings,
         UniReminderSettingsModal,
         ReminderRules,
-        DebtCollectionSetting,
 
         ContactDetails,
         Contacts,
@@ -106,7 +104,6 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         AltinnAuthenticationModal,
         UniReminderSettingsModal,
         ReminderSettings,
-        DebtCollectionSetting,
         AddPaymentModal,
         AccrualModal,
         ImageModal,
@@ -135,7 +132,6 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniAutomarkModal,
 
         ReminderSettings,
-        DebtCollectionSetting,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
 

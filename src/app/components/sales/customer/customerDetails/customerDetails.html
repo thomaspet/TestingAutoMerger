@@ -48,7 +48,7 @@
             <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
             <div class="collapsable-content">
                 <reminder-settings
-                    [settings]="(customer$ | async)?.CustomerInvoiceReminderSettings">
+                    [reminderSettings]="(customer$ | async)?.CustomerInvoiceReminderSettings">
                 </reminder-settings>
             </div>
         </article>
