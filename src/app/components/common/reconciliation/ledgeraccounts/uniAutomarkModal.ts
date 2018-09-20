@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
+import {IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
     UniTable,
     UniTableColumn,
@@ -8,23 +8,59 @@ import {
     UniTableColumnType,
     UniTableColumnSortMode
 } from '../../../../../framework/ui/unitable/index';
+import { PostPostService, IAutoMarkAllResponseObject } from '../../../../services/services';
+import {Subject} from 'rxjs/Subject';
+import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../../common/utils/utils';
 
 @Component({
     selector: 'uni-automark-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 40vw;">
-            <header><h1>Valg av merkekriterier</h1></header>
+        <section role="dialog" class="uni-modal uni-automark-modal" style="width: 40vw;" (keydown.esc)="reject()">
+            <header><h1>{{ header }}</h1></header>
 
-            <article>
+            <article *ngIf="!disabled">
                 <uni-table
                     [resource]="markChoices"
                     [config]="uniTableConfig">
                 </uni-table>
+
+                <div *ngIf="all">
+                    <h3 style="margin-bottom: 0;">Merk!</h3>
+                    <h4 style="margin-top: .3rem; font-weight: 400;">
+                        Du ønsker å automarke alle kontoer.
+                        Dette kan ta litt tid, og vil låse UniEconomy mens prossessen pågår,
+                        men du kan avbryte når som helst. Vil du fortsette?
+                    </h4>
+                </div>
             </article>
 
+            <article *ngIf="disabled">
+                <span class="automark-percent-progress">
+                    <h4 [class.bad]="response && response.finalized && response.errors > 0">
+                        <i class="material-icons"
+                            *ngIf="response && response.finalized && response.errors > 0"
+                            style="vertical-align: middle">error_outline</i>
+                        {{ response.message }}
+                    </h4>
+                    {{ response.percent }} %
+                    <span> {{ processMessage }}
+                        <span (click)="showLog()" *ngIf="showLogLink">Vis logg</span>
+                    </span>
+                </span>
+            </article>
+
+            <mat-progress-bar
+                *ngIf="loading$ | async"
+                class="uni-progress-bar"
+                mode="indeterminate">
+            </mat-progress-bar>
+
             <footer>
-                <button (click)="close('mark')" class="good">Automerk</button>
-                <button (click)="close('cancel')" class="bad">Avbryt</button>
+                <button (click)="close('completed')" class="good" *ngIf="onCompleteBoolean">Lukk</button>
+                <button (click)="close('mark')" class="good" [disabled]="disabled" *ngIf="!onCompleteBoolean">
+                    {{ buttonLabel }}
+                </button>
+                <button (click)="close('cancel')" class="bad" *ngIf="!onCompleteBoolean">Avbryt</button>
             </footer>
         </section>
 `
@@ -59,20 +95,46 @@ export class UniAutomarkModal implements IUniModal {
             _rowSelected: false
         }
     ];
+
+    public header: string = 'Valg av merkekriterier';
     public uniTableConfig: UniTableConfig;
+    public all: boolean = false;
+    public disabled: boolean = false;
+    public showLogLink: boolean = false;
+    public onCompleteBoolean: boolean = false;
+    public buttonLabel = 'Automerk';
+    public processMessage: string = 'Automerking pågår..';
+    public loading$: Subject<boolean> = new Subject();
+    public autoMarkSubject: Subject<IAutoMarkAllResponseObject>;
+    public response: IAutoMarkAllResponseObject = {
+        message: '',
+        percent: 0,
+        finalized: false,
+        errors: 0,
+        logMessages: []
+    };
 
     @Input()
     public options: IModalOptions = {};
 
     @Output()
-    public onClose: EventEmitter<boolean> = new EventEmitter();
+    public onClose: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(UniTable)
     private table: UniTable;
 
-    constructor(private toast: ToastService) { }
+    constructor(
+        private toast: ToastService,
+        private postpostService: PostPostService,
+        private modalService: UniModalService
+    ) { }
 
     public ngOnInit() {
+        if (this.options && this.options.data) {
+            this.all = this.options.data.all || false;
+            this.buttonLabel = this.all ? 'Automerk alle' : this.buttonLabel;
+            this.header = this.all ? 'Automerk alle kontoer' : this.header;
+        }
         const selects = JSON.parse(localStorage.getItem('Automarkmodalchoises')) || [true, true, true, false, false];
         this.markChoices.forEach((choise, index) => {
             choise._rowSelected = selects[index];
@@ -88,10 +150,91 @@ export class UniAutomarkModal implements IUniModal {
                 return;
             }
             localStorage.setItem('Automarkmodalchoises', JSON.stringify(this.table.getTableData().map(row => row._rowSelected)));
-            this.onClose.emit(selectedRows.length === 5 ? [10] : selectedRows.map(row => row.value));
+            if (this.all) {
+                this.disabled = true;
+                this.buttonLabel = 'Automerker...';
+                this.loading$.next(true);
+                this.autoMarkSubject = this.postpostService.automarkAllAccounts(
+                    0, 9999999, selectedRows.length === 5 ? [10] : selectedRows.map(row => row.value)
+                );
+                this.autoMarkSubject.subscribe((response: IAutoMarkAllResponseObject) => {
+                    this.response = response;
+                    if (response.finalized) {
+                        this.loading$.next(false);
+                        this.onCompleteBoolean = true;
+                        this.showLogLink = response.logMessages.length > 0;
+
+                        if (response.errors) {
+                            this.processMessage = `Fullført med ${response.errors} feilmeldinger.`;
+                        } else {
+                            this.processMessage = (response.logMessages.length > response.errors)
+                                ? `Fullført uten feil.`
+                                : 'Fant ingen kontoer å merke. Fullført uten endringer';
+                        }
+                        this.response.doneMessage = this.processMessage;
+                    }
+                });
+            } else {
+                this.onClose.emit(selectedRows.length === 5 ? [10] : selectedRows.map(row => row.value));
+            }
+        } else if (buttonClicked === 'completed') {
+            this.onClose.emit(this.response);
         } else {
+            if (!!this.autoMarkSubject) {
+                this.autoMarkSubject.complete();
+                this.postpostService.cancelAutomarkAll = true;
+            }
             this.onClose.emit(false);
         }
+    }
+
+    public showLog() {
+
+        // Create list element to show log in modal!
+        let logElement = '<ul class="automark-log-modal-view">';
+        this.response.logMessages.forEach((msg) => {
+            logElement += `<li class="${ msg.error ? 'bad' : '' }">${msg.message}`;
+            if (msg.error) {
+                logElement += `<h4 class="log-error-mgs"> ${msg.errorMsg} </h4>`;
+            }
+            logElement += '</li>';
+        });
+        logElement += '</ul>';
+
+        this.response.doneMessage = this.processMessage;
+
+        const options: IModalOptions = {
+            header: 'Automerking - Logg',
+            message: logElement,
+            buttonLabels: {
+                accept: 'Last ned som CSV',
+                cancel: 'Lukk'
+            }
+        };
+
+
+        this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((res) => {
+            if (res === ConfirmActions.ACCEPT) {
+                const list = [];
+                this.response.logMessages.forEach((msg) => {
+                    let account = msg.message.split( msg.error ? ':' : 'for');
+                    account.shift();
+                    account = account.join();
+                    const row = {
+                        Melding: msg.message,
+                        Konto: account,
+                        Feilmelding: msg.errorMsg || ''
+                    };
+                    list.push(row);
+                });
+
+                exportToFile(arrayToCsv(list), `AutomerkingLogg.csv`);
+            }
+        });
+    }
+
+    public reject() {
+        this.toast.addToast('Avbryt for å lukke modal', ToastType.warn, 5);
     }
 
     private setupUniTable() {

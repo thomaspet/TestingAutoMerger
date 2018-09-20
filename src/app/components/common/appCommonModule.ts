@@ -44,6 +44,9 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
+import {
+    MatProgressBarModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -53,6 +56,7 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         HttpModule,
         RouterModule,
         UniFrameworkModule,
+        MatProgressBarModule
     ],
     declarations: [
         PredefinedDescriptionList,

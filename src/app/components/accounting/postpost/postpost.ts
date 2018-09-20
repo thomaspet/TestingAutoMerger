@@ -209,6 +209,10 @@ export class PostPost {
                 disabled: false,
                 label: 'Automerk'
             }, {
+                action: this.autoMarkAll.bind(this),
+                disabled: false,
+                label: 'Automerk alle'
+            }, {
                 action: this.cancel.bind(this),
                 disabled: false,
                 label: 'Angre'
@@ -236,7 +240,25 @@ export class PostPost {
             if (this.postpost.canAutoMark && automark) {
                 this.postpost.autoMarkJournalEntries(automark);
                 done('Merket');
+            } else {
+                done('Automerking avbrutt');
             }
+        });
+    }
+
+    public autoMarkAll(done: (message: string) => void = msg => {}) {
+        this.modalService.open(UniAutomarkModal, {
+            data: {
+                all: true,
+                ctrl: this.postpost
+            }, hideCloseButton: true }).onClose.subscribe((response) => {
+            if (response) {
+                done(response.doneMessage || 'Automerking ferdig');
+            } else {
+                done('Automerking avbrutt');
+            }
+
+            this.reloadRegister();
         });
     }
 
