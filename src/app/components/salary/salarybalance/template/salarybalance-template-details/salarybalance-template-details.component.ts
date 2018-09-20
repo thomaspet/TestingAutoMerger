@@ -23,7 +23,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
   public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
   private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
   public employees: Employee[] = [];
-  private ignoreFields: string[] = ['EmployeeID', 'FromDate', 'ToDate'];
+  private ignoreFields: string[] = ['EmployeeID', 'FromDate', 'ToDate', 'SalaryBalanceTemplateID'];
 
   @ViewChild(UniForm) public uniform: UniForm;
 
@@ -53,7 +53,6 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
           )
           .subscribe((salarybalanceTemplate: SalaryBalanceTemplate) => {
             if (salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID) {
-              this.salarybalanceService.clear();
               this.setup(salarybalanceTemplate);
             }
           }, err => this.errorService.handle(err));

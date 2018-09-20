@@ -128,13 +128,15 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
   }
 
   private getEmployeesOnTemplate() {
-    this.salarybalanceService
-      .getSalarybalancesOnTemplate(this.currentTemplate ? this.currentTemplate.ID : null)
+    if (this.currentTemplate && this.currentTemplate.ID > 0) {
+      this.salarybalanceService
+      .getSalarybalancesOnTemplate(this.currentTemplate.ID)
       .subscribe((balances: SalaryBalance[]) => {
         if (balances && balances.length > 0) {
           this.salarybalances = balances;
         }
       });
+    }
   }
 
 }

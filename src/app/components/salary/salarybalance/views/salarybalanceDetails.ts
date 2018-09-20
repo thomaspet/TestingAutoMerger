@@ -1,16 +1,15 @@
-import {Component, SimpleChanges, ViewChild, Input, OnInit, Output, EventEmitter, OnChanges} from '@angular/core';
+import {Component, SimpleChanges, ViewChild, Input, Output, EventEmitter, OnChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniView} from '../../../../../framework/core/uniView';
 import {
-    UniCacheService, ErrorService, SalarybalanceService,
-    WageTypeService, EmployeeService, SupplierService, ModulusService
+    UniCacheService, ErrorService, SalarybalanceService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
-import {UniFieldLayout, UniForm} from '../../../../../framework/ui/uniform/index';
+import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {
-    SalaryBalance, SalBalType, WageType, Employee, Supplier, StdWageType, SalaryBalanceLine
+    SalaryBalance, SalBalType, WageType, StdWageType, SalaryBalanceLine
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
@@ -19,7 +18,6 @@ import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {Subscription} from 'rxjs/Subscription';
-import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 
 const SAVING_KEY = 'viewSaving';
 
@@ -97,8 +95,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                         }
                         return salarybalance;
                     })
-                    .switchMap(salarybalance =>
-                        salarybalanceService.updateFields(
+                    .switchMap(salarybalance => {
+                        return salarybalanceService.updateFields(
                             salarybalance,
                             'salarybalance',
                             this.salarybalanceID !== salarybalance.ID,
@@ -106,8 +104,15 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                             this.lastChanges$,
                             this.form,
                             this.fields$,
-                            this.ignoreFields)
-                        )
+                            this.ignoreFields);
+                        })
+                    .do((salarybalance) => {
+                        return this.lastChanges$.subscribe(change => {
+                            if (change['InstalmentType']) {
+                                this.toggleReadOnly(salarybalance, 'InstalmentType');
+                            }
+                        });
+                    })
                     .do(salarybalance => this.salarybalanceID = salarybalance.ID)
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             })
@@ -133,6 +138,10 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 .keys(changes)
                 .some(key => changes[key].currentValue !== changes[key].previousValue))
             .map(model => {
+                if (changes['SalaryBalanceTemplateID']) {
+                    this.mapTemplateToSalarybalance(changes['SalaryBalanceTemplateID'].currentValue, model);
+                }
+
                 if (changes['InstalmentType']) {
                     this.setWagetype(model);
                     this.setText(model);
@@ -173,6 +182,19 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .do(() => this.lastChanges$.next(changes))
             .subscribe((model: SalaryBalance) => {
                 this.updateSalaryBalance(model);
+                if (changes['SalaryBalanceTemplateID']) {
+                    this.salarybalanceService.updateFields(
+                        model, 'SalaryBalance',
+                        true,
+                        changes,
+                        this.lastChanges$,
+                        this.form,
+                        this.fields$,
+                        this.ignoreFields
+                    )
+                    .do(() => this.toggleReadOnly(model, 'SalaryBalanceTemplateID'))
+                    .subscribe();
+                }
                 if (this.useExternalChangeDetection) {
                     if (changes['InstalmentType']) {
                         this.salarybalanceService.refreshLayout(
@@ -231,12 +253,45 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
-        this.salarybalanceService.clear();
         return this.salarybalanceService
         .refreshLayout(salaryBalance, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails')
         .do((layout) => this.fields$.next(layout))
         .map(response => this.setWagetype(salaryBalance))
         .map(response => this.setText(salaryBalance));
+    }
+
+    private mapTemplateToSalarybalance(salarybalanceTemplateID: number, salarybalance: SalaryBalance): SalaryBalance {
+        const template = this.salarybalanceService.getTemplates().find(tmp => tmp.ID === salarybalanceTemplateID);
+        salarybalance.InstalmentType = !!template ? template.InstalmentType : null;
+        salarybalance.Name = !!template ? template.SalarytransactionDescription : null;
+        salarybalance.WageTypeNumber = !!template ? template.WageTypeNumber : null;
+        salarybalance.Instalment = !!template ? template.Instalment : null;
+        salarybalance.InstalmentPercent = !!template ? template.InstalmentPercent : null;
+        salarybalance.SupplierID = !!template ? template.SupplierID : null;
+        salarybalance.KID = !!template ? template.KID : null;
+        salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
+        return salarybalance;
+    }
+
+    private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
+        this.fields$.next(this.fields$.getValue().map(field => {
+            switch (changedField.toLowerCase()) {
+                case 'salarybalancetemplateid':
+                    if (field.Property !== 'SalaryBalanceTemplateID' && field.Property !== 'EmployeeID') {
+                        field.ReadOnly = salarybalance.SalaryBalanceTemplateID > 0 ? true : false;
+                    }
+                    break;
+                case 'instalmenttype':
+                    if (field.Property === 'SalaryBalanceTemplateID') {
+                        field.ReadOnly = salarybalance.InstalmentType !== null ? true : false;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            return field;
+        }));
+        return salarybalance;
     }
 
     private setWagetype(salarybalance: SalaryBalance, wagetypes = this.salarybalanceService.getWagetypes()): SalaryBalance {

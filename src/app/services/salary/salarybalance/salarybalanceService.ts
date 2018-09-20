@@ -22,6 +22,7 @@ import { BehaviorSubject } from '../../../../../node_modules/rxjs';
 import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
 import { SupplierService } from '@app/services/accounting/supplierService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
+import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
 
 interface IFieldFunc {
     prop: string;
@@ -50,6 +51,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     private suppliers: Supplier[];
     private employees: Employee[];
     private wagetypes: WageType[];
+    private templates: SalaryBalanceTemplate[];
 
     constructor(
         protected http: UniHttp,
@@ -61,7 +63,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private toastService: ToastService,
         private wagetypeService: WageTypeService,
         private supplierService: SupplierService,
-        private employeeService: EmployeeService
+        private employeeService: EmployeeService,
+        private salarybalanceTemplateService: SalarybalanceTemplateService
     ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
@@ -80,6 +83,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     private getHelpText(colname: string) {
         let helpText: string = '';
         switch (colname.toLowerCase()) {
+            case 'template':
+                helpText = 'Bruk dette feltet om du vil bruke en trekkmal. ' +
+                    'Alle innstillinger for trekket gjøres da via malen.';
+                break;
             case 'instalmenttype':
                 helpText = 'Velg hvilken type trekk du skal legge inn her. ' +
                     'Feltene under vil forandre seg for å tilpasse seg behov for det enkelte trekk. ' +
@@ -197,6 +204,12 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             : this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']).do(sup => this.suppliers = sup);
     }
 
+    private templatesObs(): Observable<SalaryBalanceTemplate[]> {
+        return this.templates
+            ? Observable.of(this.templates)
+            : this.salarybalanceTemplateService.GetAll('').do(templates => this.templates = templates);
+    }
+
     public getWagetypes() {
         return this.wagetypes;
     }
@@ -209,8 +222,16 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return this.suppliers;
     }
 
-    public getInstalmentTypes() {
-        return this.instalmentTypes;
+    public getInstalmentTypes(filter: string = '') {
+        if (filter === 'salarybalancetemplate') {
+            return this.instalmentTypes.filter(tp => tp.ID === SalBalType.Other || tp.ID === SalBalType.Union);
+        } else {
+            return this.instalmentTypes;
+        }
+    }
+
+    public getTemplates() {
+        return this.templates;
     }
 
     public save(salarybalance: SalaryBalance,
@@ -256,6 +277,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         this.suppliers = [];
         this.wagetypes = [];
         this.employees = [];
+        this.templates = [];
     }
 
     private clearRelatedCaches(): void {
@@ -377,10 +399,11 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
           .forkJoin(
           this.wageTypesObs(),
           this.employeesObs(),
-          this.suppliersObs())
-          .switchMap((result: [WageType[], Employee[], Supplier[]]) => {
-              const [wagetypes, employees, suppliers] = result;
-              return this.layout(entityStringID, salbalTemplate, entity, wagetypes, employees, suppliers)
+          this.suppliersObs(),
+          this.templatesObs())
+          .switchMap((result: [WageType[], Employee[], Supplier[], SalaryBalanceTemplate[]]) => {
+              const [wagetypes, employees, suppliers, templates] = result;
+              return this.layout(entityStringID, salbalTemplate, entity, wagetypes, employees, suppliers, templates)
                   .map(layout => {
                       layout.Fields = layout.Fields.filter(field => !ignoreFields.some(name => name === field.Property));
                       return layout;
@@ -466,13 +489,33 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         entity: string,
         wageTypes: WageType[],
         employees: Employee[],
-        suppliers: Supplier[]
+        suppliers: Supplier[],
+        templates: SalaryBalanceTemplate[]
     ) {
         return Observable.from([
             {
                 Name: layoutID,
                 BaseEntity: entity,
                 Fields: [
+                    {
+                        EntityType: entity,
+                        Property: 'SalaryBalanceTemplateID',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Trekkmal',
+                        Tooltip: {
+                            Text: this.getHelpText('template')
+                        },
+                        FieldSet: 0,
+                        Section: 0,
+                        Placement: 0,
+                        ReadOnly: !!salBal.ID,
+                        Options: {
+                            source: templates,
+                            displayProperty: 'Name',
+                            valueProperty: 'ID',
+                            debounceTime: 500
+                        }
+                    },
                     {
                         EntityType: entity,
                         Property: 'InstalmentType',
@@ -486,7 +529,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Placement: 0,
                         ReadOnly: !!salBal.ID,
                         Options: {
-                            source: this.getInstalmentTypes(),
+                            source: this.getInstalmentTypes(entity),
                             displayProperty: 'Name',
                             valueProperty: 'ID',
                             debounceTime: 500

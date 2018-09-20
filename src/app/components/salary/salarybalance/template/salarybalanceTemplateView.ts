@@ -5,7 +5,7 @@ import { IToolbarSearchConfig, IToolbarConfig } from '@app/components/common/too
 import { ActivatedRoute, Router, NavigationEnd } from '../../../../../../node_modules/@angular/router';
 import { UniCacheService, SalarybalanceTemplateService, ErrorService, SalarybalanceService } from '@app/services/services';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import { SalaryBalanceTemplate, SalaryBalance } from '@uni-entities';
+import { SalaryBalanceTemplate, SalaryBalance, SalBalDrawType } from '@uni-entities';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 
@@ -255,6 +255,8 @@ export class SalarybalanceTemplateView extends UniView {
         this.salarybalancesOnTemplate
             .forEach((salbal, index) => {
                 if (!salbal['_isEmpty']) {
+                    salbal.Type = SalBalDrawType.FixedAmount;
+                    salbal.SalaryBalanceTemplateID = salarybalanceTemplate.ID;
                     obsList.push(this.salarybalanceService.save(salbal));
                 }
             });
