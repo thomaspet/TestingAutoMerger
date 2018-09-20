@@ -140,8 +140,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
-    hoursOnOrder: number = 0;
-    notTransferedHoursOnOrder: number = 0;
+    hoursOnOrder: string = null;
+    notTransferedHoursOnOrder: string = null;
 
 
     readonly: boolean;
@@ -296,8 +296,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.distributionPlans = res[11];
                     this.reports = res[12];
                     if (res[13][0]) {
-                        this.hoursOnOrder = res[13][0].SumMinutes / 60;
-                        this.notTransferedHoursOnOrder = res[13][0]['SumNotTransfered'] / 60;
+                        this.hoursOnOrder = (res[13][0].SumMinutes / 60).toFixed(1);
+                        this.notTransferedHoursOnOrder = (res[13][0]['SumNotTransfered'] / 60).toFixed(1);
                     }
 
                     if (!order.CurrencyCodeID) {
