@@ -1,7 +1,7 @@
 <section class="splitview" *ngIf="settings">
     <nav class="splitview_list">
         <ag-grid-wrapper
-            [resource]="settings.CustomerInvoiceReminderRules"
+            [(resource)]="settings.CustomerInvoiceReminderRules"
             [config]="rulesTableConfig"
             (rowSelectionChange)="onRowSelected($event)">
         </ag-grid-wrapper>

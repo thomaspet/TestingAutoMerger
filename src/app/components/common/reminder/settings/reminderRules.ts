@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter, AfterViewInit, SimpleChanges, OnInit, OnChanges} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges, OnInit, OnChanges} from '@angular/core';
 import {
     UniTableColumn,
     UniTableColumnType,
@@ -18,13 +18,12 @@ import {
     selector: 'reminder-rules',
     templateUrl: './reminderRules.html',
 })
-export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
+export class ReminderRules implements OnInit, OnChanges {
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @Input() settings: CustomerInvoiceReminderSettings;
     @Output() change: EventEmitter<any> = new EventEmitter();
 
     rulesTableConfig: UniTableConfig;
-    private rule: CustomerInvoiceReminderRule;
     private selectedIndex: number;
 
     rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
@@ -46,25 +45,14 @@ export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
         }
     }
 
-    ngAfterViewInit() {
-        this.focusRow(0);
-    }
-
-    onRowSelected(event) {
-        this.selectedIndex = event['_originalIndex'];
-        this.rule = this.settings.CustomerInvoiceReminderRules[this.selectedIndex];
-        this.rule$.next(this.rule);
+    onRowSelected(currentCustomerInvoiceReminderRule: CustomerInvoiceReminderRule) {
+        this.selectedIndex = currentCustomerInvoiceReminderRule['_originalIndex'];
+        this.rule$.next(currentCustomerInvoiceReminderRule);
     }
 
     onRuleChange() {
         this.settings.CustomerInvoiceReminderRules[this.selectedIndex] = this.rule$.getValue();
         this.change.emit(this.settings);
-    }
-
-    focusRow(index?: number) {
-        if (this.table) {
-            this.table.focusRow(index === undefined ? this.selectedIndex : index);
-        }
     }
 
     onNewRule() {
@@ -74,6 +62,7 @@ export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
                 this.table.addRow(rule);
                 this.table.refreshTableData();
                 this.change.emit();
+                this.table.focusRow(this.settings.CustomerInvoiceReminderRules.length - 1);
             });
     }
 
@@ -113,13 +102,12 @@ export class ReminderRules implements OnInit, OnChanges, AfterViewInit {
     }
 
     private setupTable() {
-        // Define columns to use in the table
         const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
             .setWidth(40);
         const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text);
 
-        // Setup table
         this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', false, true, 25)
+            .setAutofocus(true)
             .setDeleteButton(true)
             .setSearchable(false)
             .setColumns([reminderNumberCol, titleCol]);
