@@ -8,7 +8,7 @@ import {
     JobService
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {DebtCollectionAutomations} from '@app/models/sales/reminders/debtCollectionAutomations';
+import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales/reminders/debtCollectionAutomations';
 
 @Component({
     selector: 'reminder-settings',
@@ -96,6 +96,20 @@ export class ReminderSettings {
                 FieldType: FieldType.CHECKBOX,
                 Section: 0,
                 FieldSet: 2,
+            },
+            {
+                Property: 'DebtCollectionSettings.DebtCollectionFormat',
+                Label: 'Inkassoformat',
+                FieldType: FieldType.DROPDOWN,
+                Section: 0,
+                FieldSet: 2,
+
+                Options: {
+                    source: [{ID: DebtCollectionFormat.Predator, Label: "Predator"},
+                             {ID: DebtCollectionFormat.Lindorff, Label: "Lindorff"}],
+                    valueProperty: 'ID',
+                    displayProperty: 'Label'
+                }
             },
             {
                 Property: 'DebtCollectionSettings.DebtCollectionAutomationID',
