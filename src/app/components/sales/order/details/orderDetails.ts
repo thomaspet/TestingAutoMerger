@@ -913,6 +913,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.customerOrderService.getNextID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
+                    this.hoursOnOrder = null;
+                    this.notTransferedHoursOnOrder = null;
                     this.router.navigateByUrl('/sales/orders/' + ID);
                 } else {
                     this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
@@ -926,6 +928,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.customerOrderService.getPreviousID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
+                    this.hoursOnOrder = null;
+                    this.notTransferedHoursOnOrder = null;
                     this.router.navigateByUrl('/sales/orders/' + ID);
                 } else {
                     this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
