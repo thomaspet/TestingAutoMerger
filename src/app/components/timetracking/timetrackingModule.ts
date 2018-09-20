@@ -43,6 +43,7 @@ import {WorkitemTransferWizardFilter} from './invoice-hours/transfer-wizard-filt
 import {WorkitemTransferWizardProducts} from './invoice-hours/transfer-wizard-products';
 import {WorkitemTransferWizardPreview} from './invoice-hours/transfer-wizard-preview';
 import {InvoiceHours} from './invoice-hours/invoice-hours';
+import {InvoiceHourService} from './invoice-hours/invoice-hours.service';
 
 import {MatSelectModule} from '@angular/material';
 
@@ -100,7 +101,8 @@ import {MatSelectModule} from '@angular/material';
     ],
     providers: [
         CanDeactivateGuard,
-        ReportWorkflow
+        ReportWorkflow,
+        InvoiceHourService,
     ],
     entryComponents: [
         TimeentryImportModal,

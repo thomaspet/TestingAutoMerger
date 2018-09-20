@@ -27,7 +27,14 @@
     </uni-tof-head>
 
     <section class="uni-container tradeitem-container">
-        <header>Varelinjer</header>
+        <header>Varelinjer
+            <i class="material-icons notification_important icon-orange" *ngIf="hoursOnOrder">notification_important</i>
+            <span class="orderHours" *ngIf="hoursOnOrder">
+                {{hoursOnOrder}}
+                <span class="notTransferredHours" *ngIf="notTransferedHoursOnOrder">({{notTransferedHoursOnOrder}} nye)</span>
+                timer på ordre
+            </span>
+        </header>
 
         <uni-tradeitem-table
             *ngIf="order"

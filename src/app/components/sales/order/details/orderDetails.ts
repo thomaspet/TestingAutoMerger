@@ -82,11 +82,13 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
 import * as moment from 'moment';
+import { InvoiceHourService } from '@app/components/timetracking/invoice-hours/invoice-hours.service';
 declare var _;
 
 @Component({
     selector: 'order-details',
-    templateUrl: './orderDetails.html'
+    templateUrl: './orderDetails.html',
+    styleUrls: ['./orderDetails.sass']
 })
 export class OrderDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
@@ -138,6 +140,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
+    hoursOnOrder: number = 0;
+    notTransferedHoursOnOrder: number = 0;
 
 
     readonly: boolean;
@@ -228,6 +232,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private customDimensionService: CustomDimensionService,
         private paymentInfoTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
+        private invoiceHoursService: InvoiceHourService,
    ) {}
 
     public ngOnInit() {
@@ -274,7 +279,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentInfoTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 2')
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 2'),
+                    this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID)
                 ).subscribe(res => {
                     const order = <CustomerOrder>res[0];
                     this.companySettings = res[1];
@@ -289,6 +295,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     this.paymentInfoTypes = res[10];
                     this.distributionPlans = res[11];
                     this.reports = res[12];
+                    if (res[13][0]) {
+                        this.hoursOnOrder = res[13][0].SumMinutes / 60;
+                        this.notTransferedHoursOnOrder = res[13][0]['SumNotTransfered'] / 60;
+                    }
 
                     if (!order.CurrencyCodeID) {
                         order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

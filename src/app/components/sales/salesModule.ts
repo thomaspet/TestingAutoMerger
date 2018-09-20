@@ -57,6 +57,7 @@ import {UniDimensionTOFView} from './common/dimensionForm';
 import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
+import {InvoiceHourService} from '../../components/timetracking/invoice-hours/invoice-hours.service';
 
 import {MatSlideToggleModule} from '@angular/material';
 
@@ -143,7 +144,8 @@ import {MatSlideToggleModule} from '@angular/material';
     providers: [
         TradeItemHelper,
         TofHelper,
-        CanDeactivateGuard
+        CanDeactivateGuard,
+        InvoiceHourService,
     ],
     exports: [
         UniSales,
