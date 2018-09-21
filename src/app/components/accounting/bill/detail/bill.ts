@@ -834,7 +834,7 @@ export class BillView implements OnInit {
         }
         return false;
     }
-
+    
 
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
@@ -2313,7 +2313,7 @@ export class BillView implements OnInit {
                     'CurrencyCode',
                     'BankAccount',
                     'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department'
-                ]).finally( () => {
+                ],true).finally( () => {
                 this.flagUnsavedChanged(true);
              })
             .subscribe((invoice: SupplierInvoice) => {
