@@ -52,6 +52,7 @@ export class BureauDashboard {
 
     filteredCompanies: KpiCompany[];
     highlightedCompany: KpiCompany;
+    detailsMinimized: boolean;
 
     searchControl: FormControl;
     busy: boolean = false;
@@ -86,6 +87,7 @@ export class BureauDashboard {
 
         this.toolbarConfig = {
             title: '',
+            hideBreadcrumbs: true
         };
 
         this.saveActions = [
@@ -98,6 +100,8 @@ export class BureauDashboard {
                 action: (doneCallback) => this.openInviteUsersModal(doneCallback)
             }
         ];
+
+        this.detailsMinimized = browserStorage.getItem('bureau_details_minimized') || false;
     }
 
     public ngOnInit() {
@@ -146,6 +150,11 @@ export class BureauDashboard {
                 },
                 err => this.errorService.handle(err)
             );
+    }
+
+    toggleDetailsView() {
+        this.detailsMinimized = !this.detailsMinimized;
+        this.browserStorage.setItem('bureau_details_minimized', this.detailsMinimized);
     }
 
     public tagChanged(index: number) {

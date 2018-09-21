@@ -22,11 +22,22 @@
         </ag-grid-wrapper>
     </section>
 
-    <section class="uni-container bureau-company-details">
-        <header>{{highlightedCompany?.Name}}</header>
-        <uni-tabs [tabs]="detailsTabs"></uni-tabs>
+    <section class="uni-container bureau-company-details" [ngClass]="{'minimized': detailsMinimized}">
+        <header>
+            <span *ngIf="!detailsMinimized">{{highlightedCompany?.Name}}</span>
 
-        <router-outlet></router-outlet>
+            <span class="details-toggle" role="button" (click)="toggleDetailsView()">
+                <i class="material-icons">
+                    {{detailsMinimized ? 'keyboard_arrow_left' : 'keyboard_arrow_right'}}
+                </i>
+                {{detailsMinimized ? 'Vis detaljer' : 'Skjul detaljer'}}
+            </span>
+        </header>
+
+        <section [hidden]="detailsMinimized">
+            <uni-tabs [tabs]="detailsTabs"></uni-tabs>
+            <router-outlet></router-outlet>
+        </section>
     </section>
 
 </section>
