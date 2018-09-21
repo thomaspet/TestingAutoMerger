@@ -205,12 +205,12 @@ export class BureauDashboard {
             .setCls('bureau-link-col')
             .setAlignment('center');
 
-        const toBePayedCol = new UniTableColumn('_toBePayedCount', 'Leverandørfaktura i betalingsliste', UniTableColumnType.Link)
+        const toBePayedCol = new UniTableColumn('_toBePayedCount', 'Til utbetaling', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setVisible(false)
             .setAlignment('center');
 
-        const toBeRemindedCol = new UniTableColumn('_toBeRemindedCount', 'Kundefaktura klar til purring', UniTableColumnType.Link)
+        const toBeRemindedCol = new UniTableColumn('_toBeRemindedCount', 'Klar til purring', UniTableColumnType.Link)
             .setCls('bureau-link-col')
             .setVisible(false)
             .setAlignment('center');
@@ -223,6 +223,8 @@ export class BureauDashboard {
         inboxCol.linkClick = row => this.onCompanyInboxClick(row);
         approvalCol.linkClick = row => this.onCompanyApprovalsClick(row);
         subCompanyCol.linkClick = row => this.router.navigateByUrl('/sales/customer/' + row.SubCompany.ID);
+        toBePayedCol.linkClick = row => this.redirectToCompanyUrl(row, '/bank?code=payment_list');
+        toBeRemindedCol.linkClick = row => this.redirectToCompanyUrl(row, '/sales/reminders/ready');
 
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
