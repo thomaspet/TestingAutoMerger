@@ -26,9 +26,6 @@ export class UniSalary {
     }
 
     private getLayout() {
-        if (environment.TRAVEL_DEACTIVATED) {
-            return this.getDefaultLayout().filter(x => x.widgetID !== 'counter_salary_travels');
-        }
         return this.getDefaultLayout();
     }
 
