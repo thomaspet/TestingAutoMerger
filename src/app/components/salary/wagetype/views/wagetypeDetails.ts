@@ -11,7 +11,6 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../..
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 interface IValidValuesFilter {
     IncomeType?: string;
@@ -104,7 +103,7 @@ export class WagetypeDetail extends UniView {
         private inntektService: InntektService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private wagetypeService: WageTypeService
     ) {
 
         super(router.url, cacheService);
@@ -661,7 +660,7 @@ export class WagetypeDetail extends UniView {
                 if (changes['_baseOptions']) {
                     const baseOptions = changes['_baseOptions'].currentValue;
                     this.setBaseOptionsOnWagetype(wageType, baseOptions);
-                    this.wagetypeMaintainanceNotify();
+                    this.wagetypeService.wagetypeMaintainanceNotify(wageType);
                 }
 
                 if (changes['IncomeType']) {
@@ -685,7 +684,7 @@ export class WagetypeDetail extends UniView {
                     || changes['taxtype']
                     || changes['WageTypeNumber']
                     || changes['SupplementPackage']) {
-                    this.wagetypeMaintainanceNotify();
+                    this.wagetypeService.wagetypeMaintainanceNotify(wageType);
                 }
 
                 return [wageType, fields];
@@ -715,15 +714,6 @@ export class WagetypeDetail extends UniView {
             wageType.taxtype === TaxType.Tax_Percent ||
             wageType.taxtype === TaxType.Tax_Table);
         return wageType;
-    }
-
-    private wagetypeMaintainanceNotify() {
-        if (this.wageType$.getValue().Systemtype != null) {
-            this.toastService
-                .addToast(`Automatisk vedlikehold`,
-                    ToastType.warn, ToastTime.medium,
-                    `Dersom du lagrer lønnsarten med disse endringene vil ikke systemleverandør oppdatere lønnsarten lenger.`);
-        }
     }
 
     private setReadOnlyOnBenefitAndDescription(fields: any[], value: string) {

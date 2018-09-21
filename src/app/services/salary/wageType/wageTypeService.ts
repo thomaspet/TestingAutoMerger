@@ -9,6 +9,7 @@ import {ErrorService} from '../../common/errorService';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/Observable';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -39,7 +40,8 @@ export class WageTypeService extends BizHttp<WageType> {
         protected http: UniHttp,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private salaryTransactionService: SalaryTransactionService
+        private salaryTransactionService: SalaryTransactionService,
+        private toastService: ToastService
     ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
@@ -183,6 +185,15 @@ export class WageTypeService extends BizHttp<WageType> {
         wt.Limit_WageTypeNumber = wt.Limit_WageTypeNumber || 0;
 
         return wt;
+    }
+
+    public wagetypeMaintainanceNotify(wt: WageType) {
+        if (wt.Systemtype != null) {
+            this.toastService
+                .addToast(`Automatisk vedlikehold`,
+                    ToastType.warn, ToastTime.medium,
+                    `Dersom du lagrer lønnsarten med disse endringene vil ikke systemleverandør oppdatere lønnsarten lenger.`);
+        }
     }
 
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {

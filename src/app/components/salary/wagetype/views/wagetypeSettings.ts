@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, SimpleChanges} from '@angular/core';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {ActivatedRoute, Router} from '@angular/router';
 import {WageType, LimitType, StdWageType, SpecialAgaRule, TaxType} from '../../../../unientities';
@@ -66,8 +66,11 @@ export class WageTypeSettings extends UniView {
         });
     }
 
-    public change(event) {
+    public change(changes: SimpleChanges) {
         const wagetype = this.wageType$.getValue();
+        if (changes['SpecialAgaRule']) {
+            this.wagetypeService.wagetypeMaintainanceNotify(wagetype);
+        }
         this.updateFields(wagetype);
         super.updateState('wagetype', wagetype, true);
     }
