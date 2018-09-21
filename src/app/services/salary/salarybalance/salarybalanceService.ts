@@ -3,17 +3,13 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     SalaryBalance, WageType, Employee, Supplier, SalBalType,
-    SalBalDrawType, SalaryBalanceLine, SalaryTransaction, SalaryBalanceTemplate
+    SalBalDrawType, SalaryBalanceTemplate
 } from '../../../unientities';
 import {Observable} from 'rxjs/Observable';
-import {FieldType, UniFieldLayout, UniFormError, UniForm} from '../../../../framework/ui/uniform/index';
-import {UniTableColumnType} from '../../../../framework/ui/unitable/index';
+import {FieldType, UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';
-import {URLSearchParams} from '@angular/http';
-import {WagetypeDetail} from '@app/components/salary/wagetype/views/wagetypeDetails';
 import {ModulusService} from '../../common/modulusService';
-import {SimpleChange} from '@angular/core/src/change_detection/change_detection_util';
 import {UniModalService} from '../../../../framework/uni-modal/modalService';
 import {ConfirmActions} from '../../../../framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
@@ -47,11 +43,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         {Type: SalBalType.Advance, Name: 'Forskudd'},
         {Type: SalBalType.Contribution, Name: 'Trekk i lønn'}
     ];
-
-    private suppliers: Supplier[];
-    private employees: Employee[];
-    private wagetypes: WageType[];
-    private templates: SalaryBalanceTemplate[];
 
     constructor(
         protected http: UniHttp,
@@ -187,39 +178,31 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     private wageTypesObs(): Observable<WageType[]> {
-        return this.wagetypes
-            ? Observable.of(this.wagetypes)
-            : this.wagetypeService.GetAll('').do(wt => this.wagetypes = wt);
+        return this.wagetypeService.GetAll('');
     }
 
     private employeesObs(): Observable<Employee[]> {
-        return this.employees
-            ? Observable.of(this.employees)
-            : this.employeeService.GetAll('').do(emps => this.employees = emps);
+        return this.employeeService.GetAll('');
     }
 
     private suppliersObs(): Observable<Supplier[]> {
-        return this.suppliers
-            ? Observable.of(this.suppliers)
-            : this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']).do(sup => this.suppliers = sup);
+        return this.supplierService.GetAll('', ['Info', 'Info.DefaultBankAccount']);
     }
 
     private templatesObs(): Observable<SalaryBalanceTemplate[]> {
-        return this.templates
-            ? Observable.of(this.templates)
-            : this.salarybalanceTemplateService.GetAll('').do(templates => this.templates = templates);
+        return this.salarybalanceTemplateService.GetAll('');
     }
 
     public getWagetypes() {
-        return this.wagetypes;
+        return this.wageTypesObs();
     }
 
     public getEmployees() {
-        return this.employees;
+        return this.employeesObs();
     }
 
     public getSuppliers() {
-        return this.suppliers;
+        return this.suppliersObs();
     }
 
     public getInstalmentTypes(filter: string = '') {
@@ -231,7 +214,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public getTemplates() {
-        return this.templates;
+        return this.templatesObs();
     }
 
     public save(salarybalance: SalaryBalance,
@@ -271,13 +254,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return this.Remove(id)
             .do(() => this.clearRelatedCaches())
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-    }
-
-    public clear() {
-        this.suppliers = [];
-        this.wagetypes = [];
-        this.employees = [];
-        this.templates = [];
     }
 
     private clearRelatedCaches(): void {

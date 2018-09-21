@@ -230,24 +230,21 @@ export class SalarybalanceTemplateView extends UniView {
                 this.currentTemplate = savedTemplate;
                 return this.getSalaryBalancesObs(savedTemplate);
             })
-            .finally(() => {
-                done('Lagring fullført');
-                this.saveActions[0].disabled = true;
+            .catch((err, obs) => {
+                done('Lagring feilet');
+                return this.errorService.handleRxCatch(err, obs);
             })
-            .subscribe((salarybalances: SalaryBalance[]) => {
-                if (salarybalances !== undefined) {
-                    super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, this.salarybalancesOnTemplate, false);
-                }
+            .finally(() => {
+                super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, this.salarybalancesOnTemplate, false);
                 if (updateView) {
                     super.updateState(SALBAL_TEMPLATE_KEY, this.currentTemplate, false);
                     const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(URL + this.currentTemplate.ID + '/' + childRoute);
                 }
-            },
-            err => {
-                done('Lagring feilet');
-                this.errorService.handle(err);
-            });
+                done('Lagring fullført');
+                this.saveActions[0].disabled = true;
+            })
+            .subscribe();
     }
 
     private getSalaryBalancesObs(salarybalanceTemplate: SalaryBalanceTemplate): Observable<SalaryBalance[]> {

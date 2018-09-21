@@ -9,7 +9,7 @@ import {ReplaySubject} from 'rxjs/ReplaySubject';
 import {Observable} from 'rxjs/Observable';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {
-    SalaryBalance, SalBalType, WageType, StdWageType, SalaryBalanceLine
+    SalaryBalance, SalBalType, WageType, StdWageType, SalaryBalanceLine, Supplier, SalaryBalanceTemplate
 } from '../../../../unientities';
 import {
     ToastService, ToastType, ToastTime
@@ -149,7 +149,10 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 }
 
                 if (changes['SupplierID']) {
-                    model.Supplier = this.salarybalanceService.getSuppliers().find(supp => supp.ID === model.SupplierID);
+                    this.salarybalanceService.getSuppliers()
+                    .subscribe((suppliers: Supplier[]) => {
+                        model.Supplier = suppliers.find(supp => supp.ID === model.SupplierID);
+                    });
                     if (!model.SupplierID) {
                         this.salarybalanceService.resetCreatePayment(model);
                     }
@@ -260,17 +263,19 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         .map(response => this.setText(salaryBalance));
     }
 
-    private mapTemplateToSalarybalance(salarybalanceTemplateID: number, salarybalance: SalaryBalance): SalaryBalance {
-        const template = this.salarybalanceService.getTemplates().find(tmp => tmp.ID === salarybalanceTemplateID);
-        salarybalance.InstalmentType = !!template ? template.InstalmentType : null;
-        salarybalance.Name = !!template ? template.SalarytransactionDescription : null;
-        salarybalance.WageTypeNumber = !!template ? template.WageTypeNumber : null;
-        salarybalance.Instalment = !!template ? template.Instalment : null;
-        salarybalance.InstalmentPercent = !!template ? template.InstalmentPercent : null;
-        salarybalance.SupplierID = !!template ? template.SupplierID : null;
-        salarybalance.KID = !!template ? template.KID : null;
-        salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
-        return salarybalance;
+    private mapTemplateToSalarybalance(salarybalanceTemplateID: number, salarybalance: SalaryBalance) {
+        this.salarybalanceService.getTemplates()
+        .subscribe((templates: SalaryBalanceTemplate[]) => {
+            const template = templates.find(tmp => tmp.ID === salarybalanceTemplateID);
+            salarybalance.InstalmentType = !!template ? template.InstalmentType : null;
+            salarybalance.Name = !!template ? template.SalarytransactionDescription : null;
+            salarybalance.WageTypeNumber = !!template ? template.WageTypeNumber : null;
+            salarybalance.Instalment = !!template ? template.Instalment : null;
+            salarybalance.InstalmentPercent = !!template ? template.InstalmentPercent : null;
+            salarybalance.SupplierID = !!template ? template.SupplierID : null;
+            salarybalance.KID = !!template ? template.KID : null;
+            salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
+        });
     }
 
     private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
@@ -294,28 +299,28 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         return salarybalance;
     }
 
-    private setWagetype(salarybalance: SalaryBalance, wagetypes = this.salarybalanceService.getWagetypes()): SalaryBalance {
-        let wagetype: WageType;
-
-        if (!salarybalance.ID && wagetypes) {
-            switch (salarybalance.InstalmentType) {
-                case SalBalType.Advance:
-                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
-                    break;
-                case SalBalType.Contribution:
-                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Contribution);
-                    break;
-                case SalBalType.Garnishment:
-                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Garnishment);
-                    break;
-                case SalBalType.Outlay:
-                    wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Outlay);
-                    break;
+    private setWagetype(salarybalance: SalaryBalance) {
+        this.salarybalanceService.getWagetypes()
+        .subscribe((wagetypes: WageType[]) => {
+            let wagetype: WageType;
+            if (!salarybalance.ID && wagetypes) {
+                switch (salarybalance.InstalmentType) {
+                    case SalBalType.Advance:
+                        wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.AdvancePayment);
+                        break;
+                    case SalBalType.Contribution:
+                        wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Contribution);
+                        break;
+                    case SalBalType.Garnishment:
+                        wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Garnishment);
+                        break;
+                    case SalBalType.Outlay:
+                        wagetype = wagetypes.find(wt => wt.StandardWageTypeFor === StdWageType.Outlay);
+                        break;
+                }
+                salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
             }
-            salarybalance.WageTypeNumber = wagetype ? wagetype.WageTypeNumber : 0;
-        }
-
-        return salarybalance;
+        });
     }
 
     private setText(salaryBalance: SalaryBalance): SalaryBalance {
