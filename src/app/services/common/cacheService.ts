@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {AuthService} from '@app/authService';
 
 export interface IUniPageCache {
     isDirty?: boolean;
@@ -20,6 +21,10 @@ interface ICacheStore {
 @Injectable()
 export class UniCacheService {
     private store: ICacheStore = {};
+
+    constructor(authService: AuthService) {
+        authService.authentication$.subscribe(() => this.store = {});
+    }
 
     private initPageCache(url): IUniPageCache {
         this.store[url] = {
