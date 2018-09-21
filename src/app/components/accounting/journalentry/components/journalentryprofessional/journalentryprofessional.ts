@@ -953,6 +953,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false)
             .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
+        const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
+
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
@@ -1308,6 +1310,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 invoiceNoCol,
                 vatDateCol,
                 financialDateCol,
+                kidCol,
                 debitAccountCol,
                 creditAccountCol,
                 currencyCodeCol,
@@ -1393,6 +1396,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 sameOrNewCol,
                 vatDateCol,
                 financialDateCol,
+                kidCol,
                 invoiceNoTextCol,
                 dueDateCol,
                 debitAccountCol,

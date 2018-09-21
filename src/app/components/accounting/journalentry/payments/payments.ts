@@ -110,6 +110,7 @@ export class Payments {
                 newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
                 newJournalEntry.CurrencyCode = invoice.CurrencyCode;
                 newJournalEntry.Description = 'Innbetaling';
+                newJournalEntry.PaymentID = invoice.PaymentID;
 
                 if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
                     for (let i = 0; i < invoice.JournalEntry.Lines.length; i++) {
