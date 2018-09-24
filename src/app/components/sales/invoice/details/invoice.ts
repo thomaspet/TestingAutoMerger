@@ -446,7 +446,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return Observable.forkJoin(
-            this.customerInvoiceService.Get(ID, this.invoiceExpands),
+            this.customerInvoiceService.Get(ID, this.invoiceExpands, true),
             this.customerInvoiceItemService.GetAll(
                 `filter=CustomerInvoiceID eq ${ID}&hateoas=false`,
                 this.invoiceItemExpands
