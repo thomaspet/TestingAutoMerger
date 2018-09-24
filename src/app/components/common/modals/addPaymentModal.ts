@@ -10,11 +10,9 @@ import {
     Payment,
     BankAccount,
     BusinessRelation,
-    LocalDate,
     CompanySettings
 } from '../../../unientities';
 import {
-    PaymentService,
     StatisticsService,
     ErrorService,
     BankAccountService
@@ -31,9 +29,6 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { PaymentCodeService } from '@app/services/accounting/paymentCodeService';
 
-declare const _; // lodash
-
-// address modal
 @Component({
     selector: 'add-payment-modal',
     template: `
@@ -78,7 +73,6 @@ export class AddPaymentModal implements IUniModal {
     private paymentCodes: any;
 
     constructor(
-        private paymentService: PaymentService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
@@ -131,7 +125,7 @@ export class AddPaymentModal implements IUniModal {
                 + `Supplier.BusinessRelationID Employee on BusinessRelation.ID eq Employee.BusinessRelationID`
             ).subscribe(
                 res => {
-                    let businessObject = res.find(x => x.ID === this.config.model.BusinessRelationID);
+                    const businessObject = res.find(x => x.ID === this.config.model.BusinessRelationID);
 
                     if (businessObject) {
                         this.accountType = businessObject
@@ -153,25 +147,17 @@ export class AddPaymentModal implements IUniModal {
         }
     }
 
-    private getDefaultFromBankAccountData() {
-        if (this.config.model && this.config.model.FromBankAccount ) {
-            return Observable.of([this.config.model.FromBankAccount]);
-        } else {
-            return Observable.of([]);
-        }
-    }
-
     public generate(
         expands: string[],
         createNewFn?: (inputValue?: string) => Observable<UniEntity>
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => {
-                let businessRelationFilter = this.model$.value.BusinessRelationID ?
+                const businessRelationFilter = this.model$.value.BusinessRelationID ?
                     ` and BusinessRelationID eq ${this.model$.value.BusinessRelationID}`
                     : ' and BusinessRelationID eq -1';
 
-                let searchFor = searchTerm ? searchTerm : '';
+                const searchFor = searchTerm ? searchTerm : '';
                 return this.statisticsService
                 .GetAllUnwrapped(
                     `model=BankAccount`
@@ -185,7 +171,7 @@ export class AddPaymentModal implements IUniModal {
 
             onSelect: (selectedItem: any) => {
                 if (selectedItem.ID) {
-                    let item = selectedItem.ID.ID ? selectedItem.ID : selectedItem;
+                    const item = selectedItem.ID.ID ? selectedItem.ID : selectedItem;
 
                     this.config.model.ToBankAccountID = item.ID;
 
@@ -205,11 +191,11 @@ export class AddPaymentModal implements IUniModal {
     }
 
     private refreshBankAccount() {
-        let fields = this.fields$.getValue();
+        const fields = this.fields$.getValue();
         const model = this.model$.getValue();
         this.bankAccountService.GetAll(`filter=BusinessRelationID eq ${model.BusinessRelationID}`).subscribe(bankAccounts => {
             const options = this.getBankAccountsOptions();
-            let toBankAccounts: UniFieldLayout = fields.find(x => x.Property === 'ToBankAccountID');
+            const toBankAccounts: UniFieldLayout = fields.find(x => x.Property === 'ToBankAccountID');
             this.config.model['ToBankAccountsList'] = bankAccounts;
             toBankAccounts.Options = options;
             this.fields$.next(fields);
@@ -418,7 +404,7 @@ export class AddPaymentModal implements IUniModal {
     public close(action: string) {
         if (action === 'ok') {
             const data = this.model$.getValue();
-            //validate
+            // validate
             if (!data['PaymentDate']) {
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler fra Betaligsdato!');
                 return false;
