@@ -1,25 +1,7 @@
-<h1>Velg seskapene hvor du vil legge til brukere:</h1>
-<button class="good" (click)="done()">Neste</button>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<ul class="list-of-companies">
-    <li>
-        <label>
-            <input type="checkbox" [checked]="isAllSelected()" (click)="toggleEverything($event.target)">
-            Velg alle
-        </label>
-    </li>
-    <hr />
-    <li *ngFor="let companyLicense of companyLicenses">
-        <label>
-            <input type="checkbox" [(ngModel)]="companyLicense['_selected']">
-            {{companyLicense.companyName}}
-        </label>
-    </li>
-    <li *ngIf="!companyLicenses">Laster...</li>
-</ul>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<button class="good" (click)="done()">Neste</button>
+<h1>Velg selskapene du vil invitere til</h1>
+
+<grant-access-selection-list
+    [labelProperty]="'companyName'"
+    [(items)]="companyLicenses"
+    (itemsChange)="onSelectionChange()"
+></grant-access-selection-list>

@@ -1,25 +1,7 @@
-<h1>Velg produkter du bil ha for brukerene:</h1>
-<button class="good" (click)="done()">Neste</button>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<ul class="list-of-companies">
-    <li>
-        <label>
-            <input type="checkbox" [checked]="isAllSelected()" (click)="toggleEverything($event.target)">
-            Velg alle
-        </label>
-    </li>
-    <hr />
-    <li *ngFor="let product of products">
-        <label>
-            <input type="checkbox" [(ngModel)]="product['_selected']">
-            {{product.name}}
-        </label>
-    </li>
-    <li *ngIf="!products">Laster...</li>
-</ul>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<button class="good" (click)="done()">Neste</button>
+<h1>Velg produktene du vil aktivere for brukerne</h1>
+
+<grant-access-selection-list
+    [labelProperty]="'name'"
+    [(items)]="products"
+    (itemsChange)="onSelectionChange()"
+></grant-access-selection-list>

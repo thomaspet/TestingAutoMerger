@@ -10,12 +10,9 @@ import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-a
     styleUrls: ['./grant-access-modal.sass']
 })
 export class SelectCompaniesForBulkAccess {
-    @Output()
-    public next: EventEmitter<void> = new EventEmitter<void>();
-    @Input()
-    data: GrantAccessData;
+    @Input() data: GrantAccessData;
+    @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    warning: string;
     companyLicenses: ElsaCompanyLicense[];
 
     constructor(
@@ -23,41 +20,31 @@ export class SelectCompaniesForBulkAccess {
         private errorService: ErrorService,
     ) {}
 
-    ngOnInit() {
-        this.elsaContractService.GetCompanyLicenses(this.data.contract.id)
-            .map(companyLicenses => this.reSelectCompanies(companyLicenses))
-            .subscribe(
-                companyLicenses => this.companyLicenses = companyLicenses,
-                err => this.errorService.handle(err),
-            )
-    }
-
-    isAllSelected() {
-        return this.companyLicenses && this.companyLicenses.every(c => !!c['_selected'])
-    }
-
-    toggleEverything(target: HTMLInputElement) {
-        this.companyLicenses.forEach(c => c['_selected'] = target.checked);
-    }
-
-    done() {
-        const selectedCompanies = this.companyLicenses.filter(c => !!c['_selected']);
-        if (selectedCompanies.length === 0) {
-            this.warning = 'Du må velge minst ett selskap!';
-            return;
+    ngOnChanges() {
+        if (this.data) {
+            this.initData();
         }
-        this.data.companies = selectedCompanies;
-        this.next.emit();
     }
 
-    private reSelectCompanies(newCompanies: ElsaCompanyLicense[]): ElsaCompanyLicense[] {
-        if (this.data.companies) {
-            newCompanies.forEach(newCompany => {
-                if (this.data.companies.some(selectedCompany => selectedCompany.id === newCompany.id)) {
-                    newCompany['_selected'] = true;
+    private initData() {
+        this.elsaContractService.GetCompanyLicenses(this.data.contract.id).subscribe(
+            companyLicenses => {
+                if (this.data.companies && this.data.companies.length) {
+                    companyLicenses.forEach(license => {
+                        if (this.data.companies.some(c => c.companyKey === license.companyKey)) {
+                            license['_selected'] = true;
+                        }
+                    });
                 }
-            });
-        }
-        return newCompanies;
+
+                this.companyLicenses = companyLicenses;
+            },
+            err => this.errorService.handle(err),
+        );
+    }
+
+    onSelectionChange() {
+        this.data.companies = this.companyLicenses.filter(c => !!c['_selected']);
+        this.stepComplete.emit(this.data.companies.length > 0);
     }
 }

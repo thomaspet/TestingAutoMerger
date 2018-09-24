@@ -340,11 +340,12 @@ export class BureauDashboard {
     }
 
     public openInviteUsersModal(doneCallback) {
-        return this.modalService.open(GrantAccessModal, {}).onClose
-            .subscribe(
-                res => doneCallback(''),
-                err => console.error(err)
-            );
+        return this.modalService.open(GrantAccessModal, {
+            hideCloseButton: true
+        }).onClose.subscribe(
+            res => doneCallback(''),
+            err => console.error(err)
+        );
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
