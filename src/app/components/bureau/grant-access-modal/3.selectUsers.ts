@@ -98,6 +98,9 @@ export class SelectUsersForBulkAccess {
     private addGuidToTeamPositions(teams: Team[], companyKey): Observable<Team[]> {
         const allUserIDs = [];
         teams.forEach(team => team.Positions.forEach(p => allUserIDs.push(p.UserID)));
+        if (allUserIDs.length === 0) {
+            return Observable.of([]);
+        }
         return this.bureauHttp.get(
             '/api/statistics'
             + '?model=User'
