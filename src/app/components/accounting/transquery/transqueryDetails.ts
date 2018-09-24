@@ -723,6 +723,9 @@ export class TransqueryDetails implements OnInit {
                 .setLinkResolver(row => `/accounting/transquery`
                     + `;JournalEntry_JournalEntryAccrualID=${row.JournalEntryJournalEntryAccrualID}`
                 ),
+            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text)
+                .setTemplate(line => line.JournalEntryLinePaymentID)
+                .setVisible(false),
             new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                 .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                 .setWidth('40px')

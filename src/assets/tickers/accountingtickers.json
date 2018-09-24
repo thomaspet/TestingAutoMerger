@@ -168,6 +168,11 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "KID",
+                "Field": "PaymentID",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "📎",
                 "Field": "sum(casewhen(FileEntityLink.EntityType eq 'JournalEntry'\\,1\\,0))",
                 "Alias": "Attachments",
@@ -343,6 +348,11 @@
             {
                 "Header": "Periode",
                 "Field": "Period.No",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "KID",
+                "Field": "PaymentID",
                 "DefaultHidden": true
             },
             {
