@@ -125,7 +125,6 @@ export class TableUtils {
             safeToSave.push({
                 field: col.field,
                 visible: col.visible,
-                header: col.header,
                 jumpToColumn: col.jumpToColumn,
                 _originalField: col['_originalField'],
                 sumFunction: col.sumFunction,

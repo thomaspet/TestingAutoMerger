@@ -179,6 +179,36 @@
                 "Type": "attachment",
                 "Width": "40px",
                 "ExternalModel": "JournalEntry"
+            },
+            {
+                "Header": "Dim5",
+                "Field": "Dimensions.Info.Dimension5Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim6",
+                "Field": "Dimensions.Info.Dimension6Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim7",
+                "Field": "Dimensions.Info.Dimension7Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim8",
+                "Field": "Dimensions.Info.Dimension8Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim9",
+                "Field": "Dimensions.Info.Dimension9Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim10",
+                "Field": "Dimensions.Info.Dimension10Name",
+                "DefaultHidden": true
             }
         ],
         "Actions": [
