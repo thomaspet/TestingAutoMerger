@@ -375,6 +375,14 @@ export class AddPaymentModal implements IUniModal {
             },
             {
                 EntityType: 'Payment',
+                Property: 'Description',
+                FieldType: FieldType.TEXTAREA,
+                Label: 'Betalingsinformasjon',
+                FieldSet: 0,
+                Section: 0
+            },
+            {
+                EntityType: 'Payment',
                 Property: 'AmountCurrency',
                 FieldType: FieldType.TEXT,
                 Label: 'Beløp',
