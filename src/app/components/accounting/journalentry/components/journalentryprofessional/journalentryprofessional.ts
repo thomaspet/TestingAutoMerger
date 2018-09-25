@@ -1322,7 +1322,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 addedPaymentCol,
                 fileCol
-            ];
+            ].map(col => {
+                col = _.cloneDeep(col);
+                if (col.field === invoiceNoCol.field ||
+                    col.field === vatDateCol.field ||
+                    col.field === amountCol.field ||
+                    col.field === amountCurrencyCol.field) {
+                    return col;
+                }
+                col.setEditable((row: JournalEntryData) => {
+                    return !row.CustomerInvoice;
+                });
+                return col;
+            });
+
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
             // SupplierInvoice == "Fakturamottak"
             tableName = 'accounting.journalEntry.supplierinvoice';

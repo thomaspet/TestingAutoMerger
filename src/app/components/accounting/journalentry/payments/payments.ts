@@ -110,6 +110,9 @@ export class Payments {
                 newJournalEntry.CurrencyID = invoice.CurrencyCodeID;
                 newJournalEntry.CurrencyCode = invoice.CurrencyCode;
                 newJournalEntry.Description = 'Innbetaling';
+                newJournalEntry.VatDate = new LocalDate();
+                newJournalEntry.DueDate = new LocalDate();
+                newJournalEntry.FinancialDate = new LocalDate();
                 newJournalEntry.PaymentID = invoice.PaymentID;
 
                 if (invoice && invoice.JournalEntry && invoice.JournalEntry.Lines) {
@@ -137,10 +140,10 @@ export class Payments {
                         }
                     }
 
-                    // calculate reminder fee
+                    // calculate reminder fee and interest
                     if (invoice.StatusCode === 42002) {
-                        newJournalEntry.Amount += invoice['_ReminderFee'] || 0;
-                        newJournalEntry.AmountCurrency += invoice['_ReminderFeeCurrency'] || 0;
+                        newJournalEntry.Amount += (invoice['_ReminderFee'] || 0) + (invoice['_InterestFee'] || 0);
+                        newJournalEntry.AmountCurrency += (invoice['_ReminderFeeCurrency'] || 0) + (invoice['_InterestFeeCurrency'] || 0);
                     }
                 }
 
@@ -164,18 +167,19 @@ export class Payments {
                 + `&filter=CustomerInvoice.RestAmount gt 0`
                 + `&select=CustomerInvoiceID,`
                 + `sum(ReminderFeeCurrency) as SumReminderFeeCurrency,`
-                + `sum(ReminderFee) as SumReminderFee`
+                + `sum(ReminderFee) as SumReminderFee,`
+                + `sum(InterestFeeCurrency) as SumInterestFeeCurrency,`
+                + `sum(InterestFee) as SumInterestFee`
             )
         ).subscribe((response: Array<any>) => {
             this.reminderFeeSumList = response[0];
-            console.log(this.reminderFeeSumList);
 
         this.lookupFunction = (urlParams: URLSearchParams) => {
             urlParams = urlParams || new URLSearchParams();
             urlParams.set(
                 'expand',
                 'Customer,JournalEntry,JournalEntry.Lines,JournalEntry.Lines.Account,'
-                    + 'JournalEntry.Lines.SubAccount,CurrencyCode'
+                    + 'JournalEntry.Lines.SubAccount,CurrencyCode,CustomerInvoiceReminders'
             );
 
             if (urlParams.get('orderby') === null) {
@@ -183,7 +187,7 @@ export class Payments {
             }
 
             if (urlParams.get('filter')) {
-                urlParams.set('filter', '( ' + urlParams.get('filter') + ' ) and RestAmount gt 0');
+                urlParams.set('filter', '( ' + urlParams.get('filter') + ' ) and (RestAmount gt 0 or CollectorStatusCode ne 42505)');
             } else {
                 urlParams.set('filter', 'RestAmount gt 0');
             }
@@ -237,6 +241,9 @@ export class Payments {
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setCls('column-align-right');
+        const interestFeeCurrencyCol = new UniTableColumn('_InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
+            .setFilterOperator('eq')
+            .setVisible(false);
 
         const restAmountCurrencyCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
             .setWidth('8%')
@@ -277,8 +284,10 @@ export class Payments {
                         if (sum) {
                             cInvoice['_ReminderFee'] = sum.SumReminderFee;
                             cInvoice['_ReminderFeeCurrency'] = sum.SumReminderFeeCurrency;
-                            cInvoice.RestAmountCurrency += sum.SumReminderFeeCurrency;
-                            cInvoice.RestAmount += sum.SumReminderFee;
+                            cInvoice['_InterestFee'] = sum.SumInterestFee;
+                            cInvoice['_InterestFeeCurrency'] = sum.SumInterestFeeCurrency;
+                            cInvoice.RestAmountCurrency += sum.SumReminderFeeCurrency + sum.SumInterestFeeCurrency;
+                            cInvoice.RestAmount += sum.SumReminderFee + sum.SumInterestFee;
                         }
                     }
 
@@ -287,7 +296,7 @@ export class Payments {
                 });
             })
             .setColumns([invoiceNumberCol, customerNumberCol, customerNameCol, invoiceDateCol, dueDateCol,
-                taxInclusiveAmountCurrencyCol, currencyFeeCurrencyCol, restAmountCurrencyCol, currencyCodeCol,
+                taxInclusiveAmountCurrencyCol, currencyFeeCurrencyCol, interestFeeCurrencyCol, restAmountCurrencyCol, currencyCodeCol,
                 creditedAmountCol, statusCol]);
 
             });
