@@ -104,7 +104,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                             this.lastChanges$,
                             this.form,
                             this.fields$,
-                            this.ignoreFields);
+                            this.ignoreFields,
+                            !!salarybalance.SalaryBalanceTemplateID);
                         })
                     .do((salarybalance) => {
                         return this.lastChanges$.subscribe(change => {
@@ -193,7 +194,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                         this.lastChanges$,
                         this.form,
                         this.fields$,
-                        this.ignoreFields
+                        this.ignoreFields,
+                        !!model.SalaryBalanceTemplateID
                     )
                     .do(() => this.toggleReadOnly(model, 'SalaryBalanceTemplateID'))
                     .subscribe();
@@ -201,11 +203,12 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                 if (this.useExternalChangeDetection) {
                     if (changes['InstalmentType']) {
                         this.salarybalanceService.refreshLayout(
-                            model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails')
+                            model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
                             .subscribe();
                     } else {
                         this.salarybalanceService.updateFields(
-                            model, 'salarybalance', false, changes, this.lastChanges$, this.form, this.fields$, this.ignoreFields);
+                            model, 'salarybalance', false, changes, this.lastChanges$,
+                            this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID);
                     }
                 }
             });
@@ -257,7 +260,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     private setup(salaryBalance: SalaryBalance): Observable<SalaryBalance> {
         return this.salarybalanceService
-        .refreshLayout(salaryBalance, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails')
+        .refreshLayout(salaryBalance, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!salaryBalance.SalaryBalanceTemplateID)
         .do((layout) => this.fields$.next(layout))
         .map(response => this.setWagetype(salaryBalance))
         .map(response => this.setText(salaryBalance));
@@ -275,6 +278,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             salarybalance.SupplierID = !!template ? template.SupplierID : null;
             salarybalance.KID = !!template ? template.KID : null;
             salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
+            salarybalance.MinAmount = !!template ? template.MinAmount : null;
+            salarybalance.MaxAmount = !!template ? template.MaxAmount : null;
         });
     }
 
@@ -282,7 +287,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         this.fields$.next(this.fields$.getValue().map(field => {
             switch (changedField.toLowerCase()) {
                 case 'salarybalancetemplateid':
-                    if (field.Property !== 'SalaryBalanceTemplateID' && field.Property !== 'EmployeeID') {
+                    if (field.Property !== 'SalaryBalanceTemplateID' && field.Property !== 'FromDate' && field.Property !== 'ToDate') {
                         field.ReadOnly = salarybalance.SalaryBalanceTemplateID > 0 ? true : false;
                     }
                     break;
@@ -324,6 +329,9 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     private setText(salaryBalance: SalaryBalance): SalaryBalance {
+        if (salaryBalance.ID > 0) {
+            return salaryBalance;
+        }
         if (!salaryBalance.InstalmentType) { return salaryBalance; }
         salaryBalance.Name = this.salarybalanceService.getInstalmentTypes().find(type => type.ID === salaryBalance.InstalmentType).Name;
         return salaryBalance;
