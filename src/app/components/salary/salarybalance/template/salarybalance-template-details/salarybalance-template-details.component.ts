@@ -101,7 +101,7 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
 
   private setup(currTemplate: SalaryBalanceTemplate) {
     this.salarybalanceService
-      .refreshLayout(currTemplate, this.ignoreFields, 'salarybalancetemplate')
+      .refreshLayout(currTemplate, this.ignoreFields, 'salarybalancetemplate', 'SalaryBalanceTemplateID', false)
       .map(reponse => this.setText(currTemplate))
       .subscribe(response => {
         this.currentTemplate$.next(response);
@@ -110,9 +110,12 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
   }
 
   private setText(salarybalanceTemplate: SalaryBalanceTemplate): SalaryBalanceTemplate {
-      if (!salarybalanceTemplate.InstalmentType) { return salarybalanceTemplate; }
-      salarybalanceTemplate.Name = this.salarybalanceService.getInstalmentTypes()
-        .find(type => type.ID === salarybalanceTemplate.InstalmentType).Name;
+    if (salarybalanceTemplate.ID > 0) {
       return salarybalanceTemplate;
+    }
+    if (!salarybalanceTemplate.InstalmentType) { return salarybalanceTemplate; }
+    salarybalanceTemplate.Name = this.salarybalanceService.getInstalmentTypes()
+      .find(type => type.ID === salarybalanceTemplate.InstalmentType).Name;
+    return salarybalanceTemplate;
   }
 }

@@ -112,10 +112,12 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     rowModel['EmployeeID'] = emp.ID;
     rowModel['SalaryBalanceTemplateID'] = this.currentTemplate.ID;
     rowModel['InstalmentType'] = this.currentTemplate.InstalmentType;
-    rowModel['Name'] = this.currentTemplate.Name;
+    rowModel['Name'] = this.currentTemplate.SalarytransactionDescription;
     rowModel['WageTypeNumber'] = this.currentTemplate.WageTypeNumber;
     rowModel['Instalment'] = this.currentTemplate.Instalment;
     rowModel['InstalmentPercent'] = this.currentTemplate.InstalmentPercent;
+    rowModel['MinAmount'] = this.currentTemplate.MinAmount;
+    rowModel['MaxAmount'] = this.currentTemplate.MaxAmount;
     rowModel['SupplierID'] = this.currentTemplate.SupplierID;
     rowModel['KID'] = this.currentTemplate.KID;
   }
