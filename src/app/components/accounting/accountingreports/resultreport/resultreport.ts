@@ -58,7 +58,7 @@ export class ResultReport implements OnInit {
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: true,
-        Decimals: 2,
+        Decimals: 0,
         ShowPercent: true
     });
     public config$: BehaviorSubject<any> = new BehaviorSubject({});

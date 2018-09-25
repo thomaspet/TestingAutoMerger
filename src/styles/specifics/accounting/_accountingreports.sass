@@ -60,7 +60,7 @@ accounting-reports, accounting-details-report
     .percentage::after
         content: '%'
 
-    .period-setup
+    .period-setup > uni-select
         margin-bottom: pxToRem(10)
 
         .uniSelect,
@@ -217,3 +217,58 @@ accounting-reports, accounting-details-report
     line-height: 2rem
     input
         width: 100%
+
+dimension-type-report
+
+    .accounting-report-drilldown, .dimension-result
+        margin-top: 0
+
+.iconbutton
+    color: $uni-color-c2a
+    padding: pxToRem(5) pxToRem(8) pxToRem(5) pxToRem(5)
+    cursor: pointer
+    border-radius: pxToRem(5)
+    border: 1px solid $uni-color-scale8
+
+    &:hover, &:focus
+        background-color: $uni-color-scale8
+
+.leftpadding
+    margin-left: 1em
+
+.vertical-middle
+    vertical-align: middle
+
+.link
+    font-weight: bold
+
+table        
+
+    td.negative
+        color: red
+
+    td.positive
+        color: blue   
+
+accounting-reports
+
+    ul
+        list-style: none
+        vertical-align: top
+
+    .report
+        border-radius: pxToRem(5)
+        border: 1px solid $uni-color-scale7
+        padding: pxToRem(10)
+        cursor: pointer
+        margin-bottom: pxToRem(10)
+        margin-right: pxToRem(15)
+        background-color: $uni-color-negative
+        box-shadow: 10px 10px 7px -7px $uni-color-scale7
+        height: 18rem
+        width: 12rem
+        display: inline-block
+        vertical-align: top
+
+        &:hover
+            background-color: $uni-color-scale8

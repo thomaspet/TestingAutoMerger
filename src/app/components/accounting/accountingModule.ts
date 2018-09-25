@@ -32,6 +32,8 @@ import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {ResultReport} from './accountingreports/resultreport/resultreport';
 import {DimensionResultReport} from './accountingreports/dimensionreport/dimensionresultreport';
+import {DimensionTypeReport} from './accountingreports/dimensionreport/dimensiontypereport';
+import {AccountingReportShortcuts} from './accountingreports/reportshortcuts';
 import {AccountingReports} from './accountingreports/accountingreports';
 import {BalanceReport} from './accountingreports/balancereport/balancereport';
 import {AccountDetailsReportModal} from './accountingreports/detailsmodal/accountDetailsReportModal';
@@ -71,12 +73,13 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
-
-import {MatTabsModule} from '@angular/material';
+import {MatTabsModule, MatSelectModule, MatIconModule} from '@angular/material';
 
 @NgModule({
     imports: [
         MatTabsModule,
+        MatSelectModule,
+        MatIconModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
@@ -152,6 +155,8 @@ import {MatTabsModule} from '@angular/material';
         DimensionsOverviewReportPart,
         DimensionResultReport,
         DrilldownBalanceReportPart,
+        DimensionTypeReport,
+        AccountingReportShortcuts,
 
         // PostPost
         PostPost

@@ -39,7 +39,7 @@ export class PeriodFilterHelper {
             const today = moment(new Date());
             filter.year = financialYear || today.year();
             filter.fromPeriodNo = 1;
-            filter.toPeriodNo = today.month() + 1;
+            filter.toPeriodNo = 12;
         }
 
         filter.name = this.getFilterName(filter);

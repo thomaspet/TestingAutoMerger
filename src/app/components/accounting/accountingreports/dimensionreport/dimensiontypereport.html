@@ -1,0 +1,17 @@
+<section class="header-right">
+    <mat-form-field>
+        <mat-select [value]="currentDimension" (valueChange)="onFilterClick($event)" placeholder="Type">
+            <mat-option *ngFor="let item of dimensionTypes" [value]="item">
+                {{ item.Label }}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</section>
+
+<dimensions-overview-report-part
+    [periodFilter1]="periodFilter1"
+    [periodFilter2]="periodFilter2"
+    [dimensionType]="currentDimension?.Dimension"
+    [dimensionTypes]="dimensionTypes"
+    [filter]="filter">
+</dimensions-overview-report-part>
