@@ -43,9 +43,9 @@ export class DrilldownBalanceReportPart implements OnChanges {
     private flattenedTreeSummaryList: BalanceSummaryData[] = [];
     private showPreviousAccountYear: boolean = true;
     private numberFormat: INumberOptions = {
-        thousandSeparator: '',
-        decimalSeparator: '.',
-        decimalLength: 2
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 0
     };
 
     constructor(

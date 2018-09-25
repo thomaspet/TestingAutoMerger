@@ -31,7 +31,7 @@ export class BalanceReport implements OnInit {
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: false,
-        Decimals: 2,
+        Decimals: 0,
         ShowPercent: true
     });
     public config$: BehaviorSubject<any> = new BehaviorSubject({});

@@ -7,7 +7,7 @@
         </uni-select>
 
         Viser perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
-        <button (click)="toggleFilter()">Filter</button>
+        <button (click)="toggleFilter()" class="leftpadding iconbutton"><i class="material-icons vertical-middle">settings</i> filter </button>
         <uni-form
             *ngIf="filterVisible"
             [config]="config$"
@@ -35,17 +35,4 @@
         [filter]="filter">
     </distribution-period-report-part>
 
-    <dimensions-overview-report-part
-        [periodFilter1]="periodFilter1"
-        [periodFilter2]="periodFilter2"
-        [dimensionType]="dimensionTypeProject"
-        [filter]="filter">
-    </dimensions-overview-report-part>
-
-    <dimensions-overview-report-part
-        [periodFilter1]="periodFilter1"
-        [periodFilter2]="periodFilter2"
-        [dimensionType]="dimensionTypeDepartment"
-        [filter]="filter">
-    </dimensions-overview-report-part>
 </section>

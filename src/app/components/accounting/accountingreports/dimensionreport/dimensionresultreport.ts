@@ -7,6 +7,7 @@ import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {
     StatisticsService,
     DimensionTypes,
+    PageStateService
 
 } from '../../../../services/services';
 
@@ -39,12 +40,14 @@ export class DimensionResultReport {
         private route: ActivatedRoute,
         private statisticsService: StatisticsService,
         private tabService: TabService,
+        private pageStateService: PageStateService,
         private periodFilterHelper: PeriodFilterHelper,
     ) {
         this.route.params.subscribe(params => {
+
             this.dimensionType = params['type'];
             this.filterDimensionID = +params['id'];
-            this.filterDimensionNumber = +params['number'];
+            this.filterDimensionNumber = params['number'];
             this.filterDimensionName = params['name'];
 
             if (this.dimensionType.toString() === DimensionTypes.Project.toString()) {
