@@ -152,7 +152,7 @@ export class UniRegisterPaymentModal implements IUniModal {
             this.companySettings.BaseCurrencyCodeID,
             currencyDate
         ).switchMap(res => {
-            paymentData.Amount = UniMath.round(paymentData.AmountCurrency * res.ExchangeRate, 4);
+            // paymentData.Amount = UniMath.round(paymentData.AmountCurrency * res.ExchangeRate, 4);
             return Observable.of(paymentData);
         });
     }
