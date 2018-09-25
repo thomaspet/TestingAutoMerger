@@ -42,7 +42,16 @@ export class ReminderRules implements OnInit, OnChanges {
             if (!this.settings.CustomerInvoiceReminderRules) {
                 this.settings.CustomerInvoiceReminderRules = [];
             }
+            this.settings.CustomerInvoiceReminderRules.sort((a, b) => a.ReminderNumber - b.ReminderNumber);
         }
+    }
+
+    setReminderNumber() {
+        this.settings.CustomerInvoiceReminderRules = this.settings.CustomerInvoiceReminderRules.map((rule, idx) => {
+            rule.ReminderNumber = idx + 1;
+            return rule;
+        });
+        this.change.emit(this.settings);
     }
 
     onRowSelected(currentCustomerInvoiceReminderRule: CustomerInvoiceReminderRule) {
@@ -60,19 +69,13 @@ export class ReminderRules implements OnInit, OnChanges {
             .subscribe((rule) => {
                 rule['_createguid'] = this.customerInvoiceReminderRuleService.getNewGuid();
                 this.table.addRow(rule);
-                this.table.refreshTableData();
-                this.change.emit();
+                this.setReminderNumber();
                 this.table.focusRow(this.settings.CustomerInvoiceReminderRules.length - 1);
             });
     }
 
     private setupDetailForm() {
         this.fields$.next([
-            <any> {
-                Property: 'ReminderNumber',
-                Label: 'Nr.',
-                FieldType: FieldType.NUMERIC,
-            },
             <any> {
                 Property: 'Title',
                 Label: 'Tittel',
@@ -103,13 +106,17 @@ export class ReminderRules implements OnInit, OnChanges {
 
     private setupTable() {
         const reminderNumberCol = new UniTableColumn('ReminderNumber', 'Nr.',  UniTableColumnType.Number)
-            .setWidth(40);
-        const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text);
+            .setEditable(false)
+            .setWidth(45);
+        const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text)
+            .setEditable(false);
 
-        this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', false, true, 25)
+        this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', true, true, 25)
             .setAutofocus(true)
             .setDeleteButton(true)
             .setSearchable(false)
+            .setRowDraggable(true)
+            .setAutoAddNewRow(false)
             .setColumns([reminderNumberCol, titleCol]);
     }
 }

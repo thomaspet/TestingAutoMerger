@@ -3,6 +3,7 @@
         <ag-grid-wrapper
             [(resource)]="settings.CustomerInvoiceReminderRules"
             [config]="rulesTableConfig"
+            (resourceChange)="setReminderNumber()"
             (rowSelectionChange)="onRowSelected($event)">
         </ag-grid-wrapper>
         <button class="add-rule" (click)="onNewRule()">Ny regel</button>
