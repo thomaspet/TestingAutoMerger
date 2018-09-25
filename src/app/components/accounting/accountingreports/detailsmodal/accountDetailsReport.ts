@@ -276,6 +276,7 @@ export class AccountDetailsReport {
             'ID as ID,' +
             'JournalEntryNumber as JournalEntryNumber,' +
             'FinancialDate,' +
+            'PaymentID as PaymentID,' +
             'AmountCurrency as AmountCurrency,' +
             'Description as Description,' +
             'VatType.VatCode,' +
@@ -338,6 +339,8 @@ export class AccountDetailsReport {
                 .setFilterOperator('contains')
                 .setFormat('DD.MM.YYYY')
                 .setTemplate(line => line.JournalEntryLineFinancialDate),
+            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text)
+                .setFilterOperator('contains'),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                 .setFilterOperator('contains'),
             new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
