@@ -112,7 +112,7 @@ export class BizHttp<T> {
         this.cacheStore = {};
     }
 
-    public Get<T>(ID: number|string, expand?: string[],hateoas:boolean=false): Observable<any> {
+    public Get<T>(ID: number|string, expand?: string[], hateoas: boolean = false): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
@@ -127,11 +127,11 @@ export class BizHttp<T> {
             request = this.http
                 .usingBusinessDomain()
                 .asGET()
-                .withEndPoint(this.relativeURL + '/' + ID +'?hateoas=' + hateoas) 
+                .withEndPoint(this.relativeURL + '/' + ID +'?hateoas=' + hateoas)
                 .send({expand: expandStr})
                 .publishReplay(1)
                 .refCount();
-                
+
 
             this.storeInCache(hash, request);
         }
