@@ -127,7 +127,7 @@ export class BizHttp<T> {
             request = this.http
                 .usingBusinessDomain()
                 .asGET()
-                .withEndPoint(this.relativeURL + '/' + ID +'?hateoas=' + hateoas) 
+                .withEndPoint(this.relativeURL + '/' + ID + (typeof ID == 'string' && ID.indexOf('?') == 0 ? '&' : '?') + 'hateoas=' + hateoas) 
                 .send({expand: expandStr})
                 .publishReplay(1)
                 .refCount();

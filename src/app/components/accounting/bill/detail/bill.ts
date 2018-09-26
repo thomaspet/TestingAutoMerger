@@ -650,7 +650,7 @@ export class BillView implements OnInit {
 
     private runEHF(file: any) {
         this.userMsg(lang.ehf_running, null, null, true);
-        this.ehfService.Get(`?action=parse&fileID=${file.ID}`)
+        this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`)
             .subscribe((invoice: SupplierInvoice) => {
                 this.updateSummary([]);
                 this.toast.clear();
