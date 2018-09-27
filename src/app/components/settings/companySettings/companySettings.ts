@@ -224,17 +224,6 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private getDataAndSetupForm() {
-        this.isProductBought('EHF')
-            .subscribe(
-                hasBoughtEHF => this.hasBoughtEHF = hasBoughtEHF,
-                err => console.log('Failed to check if EHF was bought: ', err.message)
-            );
-
-        this.isProductBought('INVOICEPRINT')
-        .subscribe(
-            hasBoughtInvoicePrint => this.hasBoughtInvoicePrint = hasBoughtInvoicePrint,
-            err => console.log('Failed to check if InvoicePrint was bought: ', err.message)
-        );
 
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
@@ -256,7 +245,9 @@ export class CompanySettingsComponent implements OnInit {
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
             this.distributionPlanService.GetAll(null),
-            this.emailService.GetNewEntity()
+            this.emailService.GetNewEntity(),
+            this.isProductBought('EHF').catch(this.logAndIgnoreError),
+            this.isProductBought('INVOICEPRINT').catch(this.logAndIgnoreError),
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -302,6 +293,8 @@ export class CompanySettingsComponent implements OnInit {
                 this.orderFormList = dataset[16];
                 this.invoiceFormList = dataset[17];
                 this.distributionPlans = dataset[18];
+                this.hasBoughtEHF = dataset[20];
+                this.hasBoughtInvoicePrint = dataset[21];
 
                 // do this after getting emptyPhone/email/address
                 this.companySettings$.next(this.setupCompanySettingsData(dataset[5]));
@@ -338,7 +331,7 @@ export class CompanySettingsComponent implements OnInit {
         companySettings['Emails'] = [companySettings.DefaultEmail];
         companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
         companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
-        
+
         return companySettings;
     }
 
@@ -784,7 +777,7 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         const factoringemail: UniFieldLayout = fields.find(x => x.Property === 'FactoringEmail');
-        
+
         factoringemail.Options = {
             allowAddValue: false,
             allowDeleteValue: true,
@@ -1910,6 +1903,11 @@ export class CompanySettingsComponent implements OnInit {
         } else {
             this.disableInvoiceEmail();
         }
+    }
+
+    private logAndIgnoreError(err: Error, obs: Observable<any>): Observable<boolean> {
+        console.log('Failed to run async call:', err);
+        return Observable.of(false);
     }
 
     //#region Test data

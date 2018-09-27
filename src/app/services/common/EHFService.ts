@@ -19,7 +19,7 @@ export class EHFService extends BizHttp<EHFLog> {
         this.entityType = EHFLog.EntityType;
         this.DefaultOrderBy = null;
 
-        this.updateActivated();
+        this.http.authService.authentication$.subscribe(() => this.updateActivated());
     }
 
     public activate(activate) {
