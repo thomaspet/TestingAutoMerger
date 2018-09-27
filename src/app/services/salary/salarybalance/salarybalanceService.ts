@@ -670,7 +670,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placement: 7,
-                        ReadOnly: !!salBal.InstalmentPercent,
+                        ReadOnly: basedOnTemplate || !!salBal.InstalmentPercent,
                         Options: {
                             format: 'money',
                             decimalLength: 2

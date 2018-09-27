@@ -262,6 +262,15 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         return this.salarybalanceService
         .refreshLayout(salaryBalance, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!salaryBalance.SalaryBalanceTemplateID)
         .do((layout) => this.fields$.next(layout))
+        .do(() => {
+            this.salarybalanceService.getTemplates()
+            .subscribe((templates: SalaryBalanceTemplate[]) => {
+                const template = templates.find(tmp => tmp.ID === salaryBalance.SalaryBalanceTemplateID);
+                if (!!template) {
+                    salaryBalance.Name = template.SalarytransactionDescription;
+                }
+            });
+        })
         .map(response => this.setWagetype(salaryBalance))
         .map(response => this.setText(salaryBalance));
     }
