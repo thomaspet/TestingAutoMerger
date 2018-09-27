@@ -87,7 +87,6 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
 
     const columnList = [empCol, fromDateCol, ToDateCol];
     this.tableConfig = new UniTableConfig('salary.salarybalancetemplate.salarybalancelist', true, true, 20)
-      .setDeleteButton(true)
       .setAutoAddNewRow(true)
       .setColumns(columnList)
       .setChangeCallback(event => {
@@ -120,6 +119,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     rowModel['MaxAmount'] = this.currentTemplate.MaxAmount;
     rowModel['SupplierID'] = this.currentTemplate.SupplierID;
     rowModel['KID'] = this.currentTemplate.KID;
+    rowModel['FromDate'] = new Date();
   }
 
   private getEmployees() {
