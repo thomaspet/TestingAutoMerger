@@ -1,6 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
-import {WorkerService} from '../../../services/timetracking/workerService';
-import {LocalDate, WorkRelation, FlexDetail} from '../../../unientities';
+import {WorkerService} from '@app/services/timetracking/workerService';
+import {LocalDate, WorkRelation, FlexDetail} from '@uni-entities';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {TimeApproveModal} from './popupapprove';
 
 // tslint:disable:max-line-length
@@ -66,14 +67,9 @@ import {TimeApproveModal} from './popupapprove';
             </section>
 
         </section>
-
-        <time-approve-modal></time-approve-modal>
-
     </article>`
 })
 export class TeamworkReport {
-    @ViewChild(TimeApproveModal) private approveModal: TimeApproveModal;
-
     public teams: Team[];
     public currentTeam: Team;
 
@@ -82,9 +78,10 @@ export class TeamworkReport {
     public busy: boolean = true;
     private currentRelation: WorkRelation;
 
-    constructor(private workerService: WorkerService) {
-
-    }
+    constructor(
+        private workerService: WorkerService,
+        private modalService: UniModalService
+    ) {}
 
     public get isInitialized() {
         return this.teams !== undefined;
@@ -111,7 +108,7 @@ export class TeamworkReport {
 
     public onRowClick(member: MemberDetails) {
         this.currentRelation = member.WorkRelation;
-        this.approveModal.open(this.currentRelation);
+        this.modalService.open(TimeApproveModal, {data: this.currentRelation});
     }
 
 }

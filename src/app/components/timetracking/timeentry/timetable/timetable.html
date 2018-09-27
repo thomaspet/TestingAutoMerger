@@ -39,7 +39,6 @@
             <th class="s1 center">Ukesaldo</th>
             <th class="s1 center">Prosjekt%</th>
             <th class="s1 center">Faktura%</th>
-            <th>&nbsp;</th>
         </tr></thead>
         <tbody>
             <tr *ngFor="let week of month.Weeks; let i=index" >
@@ -73,7 +72,6 @@
                 </td>
                 <td class="s1 timecell">{{week.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
                 <td class="s1 timecell">{{week.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
-                <td>&nbsp;</td>
             </tr>
 
             <tr class="sum">
@@ -97,7 +95,6 @@
                 </td>
                 <td class="s1 timecell">{{month.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
                 <td class="s1 timecell">{{month.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
-                <td>&nbsp;</td>
             </tr>
 
         </tbody>

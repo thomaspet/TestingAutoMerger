@@ -1,12 +1,29 @@
-import {Component, Input, HostListener} from '@angular/core';
-import {ErrorService} from '../../../services/services';
-import {WorkRelation} from '../../../unientities';
+import {Component, Input, Output, EventEmitter, HostListener} from '@angular/core';
+import {WorkRelation} from '@uni-entities';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
-// tslint:disable:max-line-length
 @Component({
     selector: 'time-approve-modal',
     template: `
-        <dialog class="uniModal" [attr.open]="isOpen">
+        <section role="dialog" class="uni-modal" style="width: 50vw;">
+            <header>
+                <h1>
+                    {{workrelation?.Worker?.Info?.Name}} - {{workrelation?.Description}}
+                    {{workrelation?.WorkPercentage}}%
+                </h1>
+            </header>
+
+            <article>
+                <div class="dialog-container">
+                    <timetracking-timetable [workrelation]="workrelation"></timetracking-timetable>
+                </div>
+            </article>
+
+            <footer>
+                <button (click)="onClose.emit()" class="good">Lukk</button>
+            </footer>
+
+            <!--
             <article class="uniModal_bounds">
                 <button (click)="close('cancel')" class="closeBtn"></button>
                 <article class="modal-content">
@@ -15,49 +32,30 @@ import {WorkRelation} from '../../../unientities';
                         <timetracking-timetable [workrelation]="workrelation"></timetracking-timetable>
                     </div>
                     <footer>
-                        <button (click)="close('ok')" class="good">Lukk</button>
+                        <button (click)="onClose.emit()" class="good">Lukk</button>
                     </footer>
                 </article>
             </article>
-        </dialog>
+            -->
+        </section>
     `
 })
-export class TimeApproveModal {
+export class TimeApproveModal implements IUniModal {
+    options: IModalOptions = {};
+    onClose: EventEmitter<any> = new EventEmitter();
 
-    @Input() public workrelation: WorkRelation;
-    public isOpen: boolean = false;
+    workrelation: WorkRelation;
 
-    constructor(private errorService: ErrorService) {
+    ngOnInit() {
+        this.workrelation = this.options.data;
     }
 
-    public close(src: 'ok' | 'cancel') {
-        this.isOpen = false;
-        this.onClose(false);
-    }
-
-    public onClose: (ok: boolean) => void = () => {};
-
-    @HostListener('keydown', ['$event'])
-    public keyHandler(event: KeyboardEvent) {
-        if (!this.isOpen) { return; }
-        switch (event.keyCode) {
-            case 27: // ESC
-                this.close('cancel');
-                break;
-            case 83: // S
-                if (event.ctrlKey) {
-                    this.close('ok');
-                }
-                break;
-        }
-    }
-
-    public open(relation: WorkRelation): Promise<boolean> {
+    public open(relation: WorkRelation) {
         this.workrelation = relation;
-        this.isOpen = true;
-        return new Promise((resolve, reject) => {
-            this.onClose = ok => resolve(ok);
-        });
+        // this.isOpen = true;
+        // return new Promise((resolve, reject) => {
+        //     this.onClose = ok => resolve(ok);
+        // });
     }
 
 
