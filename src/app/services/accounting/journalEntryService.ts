@@ -450,7 +450,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
-
+            draftLine.PaymentID = journalEntryData.PaymentID;
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
@@ -497,6 +497,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
+            draftLine.PaymentID = journalEntryData.PaymentID;
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
