@@ -110,7 +110,8 @@ import {MatSelectModule} from '@angular/material';
         UniTimeModal,
         TimetrackingDashboard,
         WorkitemTransferWizard,
-        TimeApproveModal
+        TimeApproveModal,
+        UniApproveTaskModal
     ],
     exports: [
         UniTimetracking,

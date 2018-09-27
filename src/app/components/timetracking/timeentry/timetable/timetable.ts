@@ -19,7 +19,7 @@ import {UniApproveTaskModal} from './approvetaskmodal';
 @Component({
     selector: 'timetracking-timetable',
     templateUrl: './timetable.html',
-    providers: [ReportWorkflow, WorkitemGroupService, PopupMenu, UniApproveTaskModal]
+    providers: [ReportWorkflow, WorkitemGroupService, PopupMenu]
 })
 export class TimeTableReport {
     @Input() public set workrelation(value: WorkRelation ) {
@@ -29,7 +29,6 @@ export class TimeTableReport {
     @Input() public eventcfg: IPreSaveConfig;
     @Input() public lazy: boolean;
     @ViewChild(PopupMenu) private popup: PopupMenu;
-    @ViewChild(UniApproveTaskModal) private approveTaskModal: UniApproveTaskModal;
     private currentRelation: WorkRelation;
     public config: {
         title: string,
@@ -222,9 +221,9 @@ export class TimeTableReport {
 
     private approveOrRejectWeek(week: Week, approve: boolean) {
 
-        var rel = this.report.Relation.ID;
-        var d1 = week.FirstDay;
-        var d2 = week.LastDay;
+        const rel = this.report.Relation.ID;
+        const d1 = week.FirstDay;
+        const d2 = week.LastDay;
 
         week.isBusy = true;
 
@@ -232,17 +231,24 @@ export class TimeTableReport {
             .subscribe( (list: Array<{ID, StatusCode, TaskID}>) => {
 
                 // Tasks (approve via dialog) ?
-                var tasks = list.filter( x => !!x.TaskID);
+                const tasks = list.filter( x => !!x.TaskID);
                 if (tasks && tasks.length > 0) {
-                    let details = tasks[0];
-                    this.approveTaskModal.open(details.TaskID, details.ID, 'workitemgroup', approve)
-                        .then( result => {
-                            if (result) {
-                                this.refreshReport(false).then( () => week.isBusy = false );
-                            } else {
-                                week.isBusy = false;
-                            }
-                        });
+                    const details = tasks[0];
+
+                    this.modalService.open(UniApproveTaskModal, {
+                        data: {
+                            taskID: details.TaskID,
+                            entityID: details.ID,
+                            modelName: 'workitemgroup',
+                            rejectMode: !approve
+                        }
+                    }).onClose.subscribe(approvedOrRejected => {
+                        if (approvedOrRejected) {
+                            this.refreshReport(false);
+                        }
+
+                        week.isBusy = false;
+                    });
                     return;
                 }
 
