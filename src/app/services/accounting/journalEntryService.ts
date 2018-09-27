@@ -240,7 +240,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         });
 
         const jeObs = Observable
-            .of(journalEntryDataNew.filter(x => !x.InvoiceNumber))
+            .of(journalEntryDataNew.filter(x => !x.CustomerInvoiceID))
             .switchMap(jeData => {
                 return existingJournalEntryIDs.length
                     ? Observable.forkJoin(Observable.of(jeData), this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq ')))
@@ -255,7 +255,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : Observable.of([]));
 
         const paymentObs = Observable
-            .of(journalEntryDataNew.filter(x => x.InvoiceNumber))
+            .of(journalEntryDataNew.filter(x => x.CustomerInvoiceID))
             .map(data => this.createInvoicePaymentDataObjects(data))
             .switchMap(data => this.invoiceService.payInvoices(data));
 
