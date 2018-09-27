@@ -432,7 +432,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
 
         return Observable.forkJoin(
-            this.customerOrderService.Get(ID, this.orderExpands),
+            this.customerOrderService.Get(ID, this.orderExpands, true),
             this.customerOrderItemService.GetAll(
                 `filter=CustomerOrderID eq ${ID}&hateoas=false`,
                 this.orderItemExpands

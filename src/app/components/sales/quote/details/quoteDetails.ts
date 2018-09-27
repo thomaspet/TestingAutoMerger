@@ -406,7 +406,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return Observable.forkJoin(
-            this.customerQuoteService.Get(ID, this.quoteExpands),
+            this.customerQuoteService.Get(ID, this.quoteExpands, true),
             this.customerQuoteItemService.GetAll(
                 `filter=CustomerQuoteID eq ${ID}&hateoas=false`,
                 this.quoteItemExpands
