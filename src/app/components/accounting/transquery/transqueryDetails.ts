@@ -135,7 +135,7 @@ export class TransqueryDetails implements OnInit {
 
             this.fields$.next(this.getLayout().Fields);
 
-            this.route.params.subscribe(params => {
+            this.route.queryParams.subscribe(params => {
                 const unitableFilter = this.generateUnitableFilters(params);
                 this.uniTableConfig = this.generateUniTableConfig(unitableFilter, params);
                 this.setupFunction();
@@ -298,7 +298,6 @@ export class TransqueryDetails implements OnInit {
         clearTimeout(this.searchTimeout);
 
         const form = this.searchParams$.getValue();
-        let urlRoute = '';
 
         if (input['JournalEntryNumber']) {
             form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
@@ -312,22 +311,26 @@ export class TransqueryDetails implements OnInit {
             form['Amount'] = input['Amount'].currentValue;
         }
 
+        const params = [];
         if (form['JournalEntryNumber']) {
-            urlRoute += ';number=' + form['JournalEntryNumber'];
+            params.push('number=' + form['JournalEntryNumber']);
         }
         if (form['Amount']) {
-            urlRoute += ';totalamount=' + form['Amount'];
+            params.push('totalamount=' + form['Amount']);
         }
         if (form['Account']) {
-            urlRoute += ';accountnumber=' + form['Account'];
+            params.push('accountnumber=' + form['Account']);
         }
 
         this.searchTimeout = setTimeout(() => {
             this.searchParams$.next(form);
-            let currentRoute = this.router.url.split(';')[0];
-            currentRoute += urlRoute;
-            this.tabService.currentActiveTab.url = currentRoute;
-            this.router.navigateByUrl(currentRoute);
+            let url = this.router.url.split('?')[0];
+            if (params.length) {
+                url += '?' + params.join('&');
+            }
+
+            this.tabService.currentActiveTab.url = url;
+            this.router.navigateByUrl(url);
         }, 300);
     }
 
@@ -590,24 +593,24 @@ export class TransqueryDetails implements OnInit {
         const columns = [
             new UniTableColumn('JournalEntryNumberNumeric', 'Bnr.', UniTableColumnType.Link)
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterable(false)
                 .setWidth('100px'),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
+                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterOperator('eq')
                 .setVisible(false),
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
                 .setTemplate(line => line.AccountAccountNumber)
-                .setLinkResolver(row => `/accounting/transquery;Account_AccountNumber=${row.AccountAccountNumber}`)
+                .setLinkResolver(row => `/accounting/transquery?Account_AccountNumber=${row.AccountAccountNumber}`)
                 .setWidth('85px')
                 .setFilterable(false),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                 .setTemplate(line => line.AccountAccountName),
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
-                .setLinkResolver(row => `/accounting/transquery;SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
+                .setLinkResolver(row => `/accounting/transquery?SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
                 .setVisible(false)
                 .setWidth('90px')
                 .setFilterable(false),

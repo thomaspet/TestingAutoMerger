@@ -28,7 +28,7 @@ export class VideoMappingService {
         }
     }
 
-    // input ex: https://dev.unieconomy.no/#/accounting/transquery;Account_AccountNumber=2710
+    // input ex: https://dev.unieconomy.no/#/accounting/transquery?Account_AccountNumber=2710
     // output ex: /accounting/transquery/
     private getPathFromUrl(url: string): string {
         const match = url.match(/#([^?;&]+)/);

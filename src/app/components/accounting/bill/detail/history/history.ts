@@ -108,7 +108,7 @@ export class BillHistoryView {
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.').setVisible(true)
                 .setFilterOperator('startswith')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
 
             new UniTableColumn('TaxInclusiveAmount', 'Beløp', UniTableColumnType.Money).setWidth('6em')
                 .setFilterOperator('contains')

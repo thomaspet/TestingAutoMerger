@@ -1207,7 +1207,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (this.invoice.JournalEntry) {
             subheads.push({
                 title: `Bilagsnr. ${this.invoice.JournalEntry.JournalEntryNumber}`,
-                link: `#/accounting/transquery;JournalEntryNumber=`
+                link: `#/accounting/transquery?JournalEntryNumber=`
                     + `${this.invoice.JournalEntry.JournalEntryNumber}`
             });
         }
@@ -1680,7 +1680,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             (err) => {
                 if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
                 this.errorService.handle(err);
-            }); 
+            });
     }
 
     private askSendEHF(doneHandler: (msg: string) => void = null) {
@@ -1707,7 +1707,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.askAddressSettings(doneHandler);
         }
     }
-    
+
 
 
     public chooseForm() {

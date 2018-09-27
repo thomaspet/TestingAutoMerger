@@ -894,7 +894,7 @@ export class BillsView implements OnInit {
                 .setWidth('8%')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
-                .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
+                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryJournalEntryNumber}`),
 
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setWidth('5%')
@@ -955,7 +955,7 @@ export class BillsView implements OnInit {
                             header: 'Bekreft fjerning fra innboks',
                             message: 'Det finnes fakturamottak på ' + row.Name + ", fjerne fra innboksen?"
                         });
-        
+
                         completedModal.onClose.subscribe(response => {
                             if (response === ConfirmActions.ACCEPT) {
                                 if (this.fileID && this.fileID[0] === fileId) {
@@ -965,10 +965,10 @@ export class BillsView implements OnInit {
                                 this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId).subscribe(
                                     tags => {
                                         this.fileService.tag(fileId, tags.Data[0].tagname, StatusCode.Completed).subscribe(() => {
-                                            this.toast.addToast('Filen er fjernet fra innboks', ToastType.good, 2);                                        
+                                            this.toast.addToast('Filen er fjernet fra innboks', ToastType.good, 2);
                                         }, err => {
                                             this.errorService.handle(err);
-                                            this.refreshList(this.currentFilter);   
+                                            this.refreshList(this.currentFilter);
                                         });
                                     }, err => {
                                         this.errorService.handle(err);
@@ -976,9 +976,9 @@ export class BillsView implements OnInit {
                                     }
                                 );
                             }
-                            else 
+                            else
                             {
-                                this.refreshList(this.currentFilter);                                
+                                this.refreshList(this.currentFilter);
                             }
                         });
                     } else {
@@ -986,7 +986,7 @@ export class BillsView implements OnInit {
                             header: 'Bekreft sletting',
                             message: 'Slett aktuell fil: ' + row.Name
                         });
-        
+
                         deleteModal.onClose.subscribe(response => {
                             if (response === ConfirmActions.ACCEPT) {
                                 if (this.fileID && this.fileID[0] === fileId) {
@@ -1001,11 +1001,11 @@ export class BillsView implements OnInit {
                                         this.errorService.handle(err);
                                         this.refreshList(this.currentFilter);
                                     }
-                                );        
+                                );
                             } else {
                                 this.refreshList(this.currentFilter);
                             }
-                        });                                     
+                        });
                     }
                 });
             }

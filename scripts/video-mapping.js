@@ -76,7 +76,7 @@ function splitWithTail(str,delim,count){
     return result;
 }
 
-// input ex: https://dev.unieconomy.no/#/accounting/transquery;Account_AccountNumber=2710
+// input ex: https://dev.unieconomy.no/#/accounting/transquery?Account_AccountNumber=2710
 // output ex: /accounting/transquery
 function extractPathFromUrl(uniEconomyURL) {
     const match = uniEconomyURL.match(/#([^?;&]+)/);
