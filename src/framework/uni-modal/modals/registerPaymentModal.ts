@@ -285,7 +285,8 @@ export class UniRegisterPaymentModal implements IUniModal {
     }
 
     private getFormFields(): UniFieldLayout[] {
-        let fields = [
+        const paymentLabel = this.config.entityName === 'CustomerInvoice' ? 'Innbetalt' : 'Betalt';
+        const fields = [
             <any> {
                 EntityType: 'InvoicePaymentData',
                 Property: 'PaymentDate',
@@ -297,8 +298,8 @@ export class UniRegisterPaymentModal implements IUniModal {
                 Property: 'Amount',
                 FieldType: FieldType.NUMERIC,
                 Label: this.isMainCurrency
-                    ? 'Innbetalt beløp'
-                    : 'Innbetalt beløp [' + this.companySettings.BaseCurrencyCode.Code + ']',
+                    ? paymentLabel
+                    : paymentLabel + ' [' + this.companySettings.BaseCurrencyCode.Code + '] inkl. gebyr',
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','
@@ -343,7 +344,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAmount',
                 Placement: 1,
-                Hidden: this.config.entityName === 'CustomerInvoice',
+                Hidden: this.isMainCurrency,
                 FieldType: FieldType.NUMERIC,
                 ReadOnly: false,
                 LookupField: false,
@@ -358,7 +359,7 @@ export class UniRegisterPaymentModal implements IUniModal {
             <any> {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAccountID',
-                Hidden: this.config.entityName === 'CustomerInvoice',
+                Hidden: this.isMainCurrency,
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Konto',
                 Placeholder: 'Konto for bilagsføring av gebyr',
