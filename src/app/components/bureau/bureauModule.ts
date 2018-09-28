@@ -15,7 +15,8 @@ import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {GrantAccessSelectionList} from './grant-access-modal/selection-list/selection-list';
 import {PAGES} from '@app/components/bureau/grant-access-modal/pages';
 
-import {MatStepperModule, MatCheckboxModule, MatButtonModule} from '@angular/material';
+import {CompanyGroupModal} from './company-group-modal/company-group-modal';
+import {MatStepperModule, MatCheckboxModule, MatButtonModule, MatListModule, MatSelectModule, MatMenuModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -30,15 +31,19 @@ import {MatStepperModule, MatCheckboxModule, MatButtonModule} from '@angular/mat
 
         MatStepperModule,
         MatCheckboxModule,
-        MatButtonModule
+        MatButtonModule,
+        MatListModule,
+        MatSelectModule,
+        MatMenuModule
     ],
     declarations: [
         GrantAccessSelectionList,
         GrantAccessModal,
         BureauDashboard,
         BureauDetails,
-        ...TABS,
+        CompanyGroupModal,
         UniNewCompanyModal,
+        ...TABS,
         ...PAGES,
     ],
     providers: [
@@ -48,6 +53,7 @@ import {MatStepperModule, MatCheckboxModule, MatButtonModule} from '@angular/mat
     entryComponents: [
         GrantAccessModal,
         UniNewCompanyModal,
+        CompanyGroupModal,
     ]
 })
 export class BureauModule {}

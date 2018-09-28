@@ -6,13 +6,36 @@
 <section class="application bureau-splitview">
 
     <section class="uni-container bureau-company-list">
-        <uni-tabs [tabs]="allTags"
-                  (activeIndexChange)="tagChanged($event)"></uni-tabs>
+        <section class="bureau-filters">
+
+            <button class="button-clean" style="padding-right: 0;" [matMenuTriggerFor]="groupMenu">
+                {{activeGroup?.name}}
+                <strong style="margin-left: 5px;">
+                    {{activeGroup.companyKeys ? activeGroup.companyKeys.length : companies?.length}}
+                </strong>
+                <i class="material-icons">arrow_drop_down</i>
+            </button>
+            <mat-menu #groupMenu="matMenu" [overlapTrigger]="false" yPosition="below" xPosition="before">
+                <button mat-menu-item *ngFor="let group of groups" (click)="activateGroup(group)">
+                    <section class="bureau-group-menu-item">
+                        <span>{{group.name}}</span>
+                        <strong>
+                            {{group.companyKeys ? group.companyKeys.length : companies?.length}}
+                        </strong>
+                    </section>
+
+                </button>
+            </mat-menu>
+
+            <button class="button-clean" (click)="editGroups()">
+                Rediger grupper
+            </button>
+        </section>
 
         <input class="bureau-search-input"
             [formControl]="searchControl"
             type="search"
-            placeholder="Filtrer selskaper"
+            placeholder="Søk etter selskaper"
         />
 
         <ag-grid-wrapper
@@ -26,7 +49,7 @@
         <header>
             <span *ngIf="!detailsMinimized">{{highlightedCompany?.Name}}</span>
 
-            <span class="details-toggle" role="button" (click)="toggleDetailsView()">
+            <span class="details-toggle" role="button" (click)="detailsMinimized = !detailsMinimized">
                 <i class="material-icons">
                     {{detailsMinimized ? 'keyboard_arrow_left' : 'keyboard_arrow_right'}}
                 </i>
