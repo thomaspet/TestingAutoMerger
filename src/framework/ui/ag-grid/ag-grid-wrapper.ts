@@ -12,7 +12,7 @@ import {URLSearchParams} from '@angular/http';
 import {Router} from '@angular/router';
 
 import {UniTableConfig} from '../unitable/config/unitableConfig';
-import {UniTableColumn, IUniTableColumn, UniTableColumnType} from '../unitable/config/unitableColumn';
+import {UniTableColumn} from '../unitable/config/unitableColumn';
 import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
@@ -28,10 +28,6 @@ import {
     ModelUpdatedEvent,
     CellClickedEvent,
     SelectionChangedEvent,
-    ICellRendererComp,
-    ICellRendererFunc,
-    IDatasource,
-    IGetRowsParams,
     GridSizeChangedEvent,
     ColumnResizedEvent,
     ColumnMovedEvent,
@@ -96,16 +92,12 @@ export class AgGridWrapper {
     public context: any;
     public cellRendererComponents: any;
 
-    // Used for keyboard navigation inside filter box
-    private focusIndex: number;
-
     constructor(
         public dataService: TableDataService,
         private tableUtils: TableUtils,
         private modalService: UniModalService,
         private router: Router,
         private cdr: ChangeDetectorRef,
-        private elementRef: ElementRef
     ) {}
 
     public ngOnInit() {
@@ -158,7 +150,7 @@ export class AgGridWrapper {
                 this.tableHeight = undefined;
                 this.rowModelType = 'inMemory';
                 this.cacheBlockSize = undefined;
-                this.usePagination = this.config.pageable && !this.config.editable;
+                this.usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
             } else {
                 this.domLayout = undefined;
                 this.rowModelType = 'infinite';
@@ -621,7 +613,7 @@ export class AgGridWrapper {
             colDefs.push(menuColumn);
         }
 
-        if (this.config.rowDraggable && this.config.editable) {
+        if (this.config.rowDraggable) {
             colDefs.unshift({
                 rowDrag: true,
                 width: 45,

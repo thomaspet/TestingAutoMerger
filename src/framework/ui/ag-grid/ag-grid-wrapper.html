@@ -34,7 +34,7 @@
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
-        [enableSorting]="!config?.editable"
+        [enableSorting]="!config?.editable && !config?.rowDraggable"
         [enableServerSideSorting]="rowModelType === 'infinite'"
 
         [suppressNoRowsOverlay]="true"
@@ -42,7 +42,7 @@
         [headerHeight]="35"
         [rowHeight]="35"
         [rowDragManaged]="true"
-        [suppressRowDrag]="!config?.rowDraggable || !config?.editable"
+        [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
 
         [pagination]="usePagination"

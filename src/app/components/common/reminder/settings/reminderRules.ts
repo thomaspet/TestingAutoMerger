@@ -111,7 +111,7 @@ export class ReminderRules implements OnInit, OnChanges {
         const titleCol = new UniTableColumn('Title', 'Tittel',  UniTableColumnType.Text)
             .setEditable(false);
 
-        this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', true, true, 25)
+        this.rulesTableConfig = new UniTableConfig('common.reminder.reminderRules', false, true, 25)
             .setAutofocus(true)
             .setDeleteButton(true)
             .setSearchable(false)
