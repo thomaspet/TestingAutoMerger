@@ -86,7 +86,7 @@ export class AgGridWrapper {
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
-    private autofocusPerformed: boolean;
+    private isInitialLoad: boolean = true;
 
     // Used for custom cell renderers
     public context: any;
@@ -196,16 +196,43 @@ export class AgGridWrapper {
             if (loaded) {
                 this.onDataLoaded(event.api);
                 this.dataLoaded.emit();
-                if (this.config.autofocus && !this.autofocusPerformed) {
-                    this.focusRow(0);
+
+                if (this.isInitialLoad) {
+                    if (this.config.autofocus) {
+                        this.focusRow(0);
+                    }
+
+                    if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
+                        event.api.selectAll();
+                    }
+
+                    this.isInitialLoad = false;
                 }
+                // if (this.config.autofocus && !this.autofocusPerformed) {
+                //     this.focusRow(0);
+                // }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
             this.dataLoaded.emit();
-            if (this.config.autofocus && !this.autofocusPerformed) {
-                this.focusRow(0);
+
+            if (this.isInitialLoad) {
+                if (this.config.autofocus) {
+                    this.focusRow(0);
+                }
+
+                if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
+                    event.api.selectAll();
+                }
+
+                this.isInitialLoad = false;
             }
+
+
+
+            // if (this.config.autofocus && !this.autofocusPerformed) {
+            //     this.focusRow(0);
+            // }
         }
     }
 
@@ -570,7 +597,7 @@ export class AgGridWrapper {
 
         if (this.config.multiRowSelect) {
             colDefs.unshift({
-                headerComponent: CellRenderer.getHeaderCheckbox(),
+                headerCheckboxSelection: true,
                 checkboxSelection: true,
                 width: 38,
                 suppressSizeToFit: true,

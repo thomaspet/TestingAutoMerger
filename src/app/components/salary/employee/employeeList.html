@@ -3,7 +3,8 @@
     [saveactions]="toolbarActions">
 </uni-toolbar>
 <section class="application">
-    <ag-grid-wrapper class="selection-list"
+    <!-- class="selection-list" -->
+    <ag-grid-wrapper
         [resource]="employees$ | async"
         [config]="employeeTableConfig"
         (rowSelectionChange)="employeeSelected($event)">
