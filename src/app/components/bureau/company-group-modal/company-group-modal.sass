@@ -1,0 +1,124 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+\:host
+    height: 95vh
+
+.uni-modal
+    font-family: 'Roboto', sans-serif
+    max-width: 60rem
+    width: 95vw
+    max-height: 95vh
+    border-radius: 0
+
+    article
+        margin: 0 1rem
+        min-height: 25rem
+
+    footer
+        height: 100px
+        padding: 0
+
+h1
+    font: 400 22px 'Roboto', sans-serif
+    margin: .5rem 0 2rem
+
+#group-list, #group-details
+    position: relative // required by PerfectScrollbar
+
+.bureau-group-split-view
+    display: flex
+    flex-flow: row nowrap
+    margin-top: 1rem
+    max-height: calc(95vh - 120px)
+
+    strong
+        display: block
+        margin: 1rem 0
+        font-weight: 500
+
+    .bureau-group-list
+        flex: 0 0 18rem
+
+        ul
+            list-style: none
+            margin: 0
+            border: 1px solid #e2e6f0
+            margin-bottom: 1rem
+            overflow: auto
+            max-height: calc(95vh - 15rem)
+
+            li
+                display: flex
+                height: 2.5rem
+                line-height: 2.5rem
+                cursor: pointer
+                padding: 0 10px
+                font-size: 14px
+
+                & + li
+                    border-top: 1px solid #e2e6f0
+
+                &:hover, &[aria-selected]:not([aria-selected=false])
+                    background: rgba(0,0,0,.04)
+
+                &.header
+                    font-size: 16px
+                    font-weight: 500
+                    &:hover
+                        background: #fff
+
+                i.material-icons
+                    margin: auto 0 auto auto
+                    font-size: 16px
+                    color: #d24d57
+                    user-select: none
+
+        button.button-clean
+            padding-left: 5px
+            i.material-icons
+                margin: -2px 2px 0 0
+
+    .bureau-group-details
+        flex: 1
+        border: 1px solid #e2e6f0
+        margin-left: 1rem
+        padding: 0 2rem
+
+        input
+            display: block
+            width: 100%
+            height: 2.5rem
+            border: 1px solid #E2E6F0
+            margin-bottom: .5rem
+            font-size: 15px
+
+        small
+            display: block
+            margin-bottom: 1rem
+
+mat-selection-list
+    max-height: calc(95vh - 26rem)
+    margin: 0 0 .5rem
+    padding: 0
+    border-radius: 3px
+
+// Can remove most of this when the modal/button redesign goes through
+footer
+    border-top: none
+    display: flex
+    justify-content: center
+
+    button
+        float: none
+        margin: auto 0
+
+        &.save-groups
+            width: 10rem
+            height: 50px
+            border-radius: 25px
+            margin-right: 10px
+            color: #fff
+            background-color: #1565c0
+
+            &:hover
+                background-color: lighten(#1565c0, 5%)
