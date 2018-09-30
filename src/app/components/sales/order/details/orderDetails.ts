@@ -4,7 +4,6 @@ import {Observable} from 'rxjs/Observable';
 
 import {
     UniModalService,
-    UniSendEmailModal,
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
@@ -30,8 +29,6 @@ import {
     ReportDefinition,
 } from '../../../../unientities';
 import {
-    AddressService,
-    BusinessRelationService,
     CompanySettingsService,
     CurrencyCodeService,
     CurrencyService,
@@ -49,7 +46,6 @@ import {
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService,
     VatTypeService,
     DimensionSettingsService,
     CustomDimensionService,
@@ -62,8 +58,6 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {GetPrintStatusText} from '../../../../models/printStatus';
-import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
@@ -200,8 +194,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     ];
 
     constructor(
-        private addressService: AddressService,
-        private businessRelationService: BusinessRelationService,
         private companySettingsService: CompanySettingsService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
@@ -226,7 +218,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
@@ -585,29 +576,29 @@ export class OrderDetails implements OnInit, AfterViewInit {
             this.currentCustomer['Distributions'] &&
             this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID
         ) {
-                if (order.DistributionPlanID &&
-                    order.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
-                    this.modalService.open(UniConfirmModalV2,
-                        {
-                            header: 'Oppdatere distribusjonsplan?',
-                            buttonLabels: {
-                                accept: 'Oppdater',
-                                reject: 'Ikke oppdater'
-                            },
-                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                            'denne ordren. Ønsker du å oppdatere distribusjonsplanen for denne ordren til å matche kundens?'
-                        }
-                    ).onClose.subscribe((res) => {
-                        if (res === ConfirmActions.ACCEPT) {
-                            order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
-                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
-                            this.order = order;
-                        }
-                    });
-                } else {
-                    order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
-                }
+            if (order.DistributionPlanID &&
+                order.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
+                this.modalService.open(UniConfirmModalV2,
+                    {
+                        header: 'Oppdatere distribusjonsplan?',
+                        buttonLabels: {
+                            accept: 'Oppdater',
+                            reject: 'Ikke oppdater'
+                        },
+                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                        'denne ordren. Ønsker du å oppdatere distribusjonsplanen for denne ordren til å matche kundens?'
+                    }
+                ).onClose.subscribe((res) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.order = order;
+                    }
+                });
+            } else {
+                order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
             }
+        }
         this.order = order;
         this.currentOrderDate = order.OrderDate;
         this.updateSaveActions();

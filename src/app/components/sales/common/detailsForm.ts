@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {CompanySettings, CurrencyCode, LocalDate, Project, Seller, StatusCodeCustomerInvoice} from '../../../unientities';
+import {CompanySettings, CurrencyCode, LocalDate, Project, Seller} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
 

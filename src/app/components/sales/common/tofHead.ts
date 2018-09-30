@@ -1,4 +1,4 @@
-import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, ViewChild, EventEmitter, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {
     CompanySettings,
@@ -7,17 +7,11 @@ import {
     Terms,
     Seller,
     SellerLink,
-    StatusCodeCustomerInvoice,
-    StatusCodeCustomerQuote,
     User,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
-import {UniDimensionTOFView} from './dimensionForm';
-import {UniDistibutionTOFView} from './distibutionForm';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-
-declare var _;
 
 @Component({
     selector: 'uni-tof-head',
@@ -77,9 +71,9 @@ export class TofHead implements OnChanges {
                 if (userSeller) {
                     this.data.DefaultSeller = userSeller;
                     this.data.DefaultSellerID = userSeller.ID;
+                }
             }
         }
-    }
     }
 
     public onDataChange(data?: any) {

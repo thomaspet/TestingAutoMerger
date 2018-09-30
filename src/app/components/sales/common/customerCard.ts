@@ -90,7 +90,6 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
     public uniSearchConfig: IUniSearchConfig;
     public customerDueInvoiceData: any;
     private lastPeppolAddressChecked: string;
-    private lastCheckedStatisticsCustomerID: number;
 
     private emailControl: FormControl = new FormControl('');
     private yourRefControl: FormControl = new FormControl('');

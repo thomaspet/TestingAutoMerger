@@ -37,11 +37,9 @@ import {
     ReportService,
     TermsService,
     UserService,
-    NumberSeriesTypeService,
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService,
     VatTypeService,
     DimensionSettingsService,
     CustomDimensionService,
@@ -51,7 +49,6 @@ import {
 
 import {
     UniModalService,
-    UniSendEmailModal,
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
@@ -61,9 +58,7 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
-import {GetPrintStatusText} from '../../../../models/printStatus';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {SendEmail} from '../../../../models/sendEmail';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
@@ -206,11 +201,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private projectService: ProjectService,
         private modalService: UniModalService,
         private termsService: TermsService,
-        private numberSeriesTypeService: NumberSeriesTypeService,
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
@@ -567,29 +560,29 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             this.currentCustomer['Distributions'] &&
             this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID
         ) {
-                if (quote.DistributionPlanID &&
-                    quote.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
-                    this.modalService.open(UniConfirmModalV2,
-                        {
-                            header: 'Oppdatere distribusjonsplan?',
-                            buttonLabels: {
-                                accept: 'Oppdater',
-                                reject: 'Ikke oppdater'
-                            },
-                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                            'dette tilbudet. Ønsker du å oppdatere distribusjonsplanen for dette tilbudet til å matche kundens?'
-                        }
-                    ).onClose.subscribe((res) => {
-                        if (res === ConfirmActions.ACCEPT) {
-                            quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
-                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
-                            this.quote = quote;
-                        }
-                    });
-                } else {
-                    quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
-                }
+            if (quote.DistributionPlanID &&
+                quote.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
+                this.modalService.open(UniConfirmModalV2,
+                    {
+                        header: 'Oppdatere distribusjonsplan?',
+                        buttonLabels: {
+                            accept: 'Oppdater',
+                            reject: 'Ikke oppdater'
+                        },
+                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                        'dette tilbudet. Ønsker du å oppdatere distribusjonsplanen for dette tilbudet til å matche kundens?'
+                    }
+                ).onClose.subscribe((res) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.quote = quote;
+                    }
+                });
+            } else {
+                quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
             }
+        }
         this.quote = quote;
         this.currentQuoteDate = quote.QuoteDate;
         this.updateSaveActions();

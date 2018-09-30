@@ -27,7 +27,6 @@ import {
 } from '../../../../unientities';
 
 import {
-    BusinessRelationService,
     CompanySettingsService,
     CurrencyCodeService,
     CurrencyService,
@@ -35,7 +34,6 @@ import {
     CustomerInvoiceReminderService,
     CustomerInvoiceService,
     CustomerService,
-    DimensionService,
     EHFService,
     ErrorService,
     NumberFormat,
@@ -48,7 +46,6 @@ import {
     NumberSeriesService,
     EmailService,
     SellerService,
-    SellerLinkService,
     VatTypeService,
     ElsaProductService,
     DimensionSettingsService,
@@ -61,9 +58,6 @@ import {
 import {
     UniModalService,
     UniRegisterPaymentModal,
-    UniActivateAPModal,
-    UniSendEmailModal,
-    UniSendVippsInvoiceModal,
     ConfirmActions,
     UniConfirmModalV2,
     IModalOptions,
@@ -74,15 +68,11 @@ import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
-import {ActivationEnum} from '../../../../models/activationEnum';
-import {GetPrintStatusText} from '../../../../models/printStatus';
-import {SendEmail} from '../../../../models/sendEmail';
 import {InvoiceTypes} from '../../../../models/sales/invoiceTypes';
 import {TradeHeaderCalculationSummary} from '../../../../models/sales/TradeHeaderCalculationSummary';
 
 import {IToolbarConfig, ICommentsConfig, IShareAction, IToolbarSubhead} from '../../../common/toolbar/toolbar';
 import {StatusTrack, IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
-import {roundTo} from '../../../common/utils/utils';
 
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -212,7 +202,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     ];
 
     constructor(
-        private businessRelationService: BusinessRelationService,
         private companySettingsService: CompanySettingsService,
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
@@ -220,7 +209,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private customerInvoiceReminderService: CustomerInvoiceReminderService,
         private customerInvoiceService: CustomerInvoiceService,
         private customerService: CustomerService,
-        private dimensionService: DimensionService,
         private ehfService: EHFService,
         private errorService: ErrorService,
         private modalService: UniModalService,
@@ -240,7 +228,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private numberSeriesService: NumberSeriesService,
         private emailService: EmailService,
         private sellerService: SellerService,
-        private sellerLinkService: SellerLinkService,
         private vatTypeService: VatTypeService,
         private elsaProductService: ElsaProductService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -526,14 +513,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private sendToVipps(id, doneHandler: (msg?: string) => void = null) {
-        this.modalService.open(UniSendVippsInvoiceModal, {
-            data: new Object({InvoiceID: id})
-        }).onClose.subscribe(text => {
-            doneHandler();
-        });
-     }
-
     @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -653,29 +632,29 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.currentCustomer['Distributions'] &&
             this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID
         ) {
-                if (invoice.DistributionPlanID &&
-                    invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
-                    this.modalService.open(UniConfirmModalV2,
-                        {
-                            header: 'Oppdatere distribusjonsplan?',
-                            buttonLabels: {
-                                accept: 'Oppdater',
-                                reject: 'Ikke oppdater'
-                            },
-                            message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
-                            'denne faktura. Ønsker du å oppdatere distribusjonsplanen for denne faktura til å matche kundens?'
-                        }
-                    ).onClose.subscribe((res) => {
-                        if (res === ConfirmActions.ACCEPT) {
-                            invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
-                            this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
-                            this.invoice = invoice;
-                        }
-                    });
-                } else {
-                    invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
-                }
+            if (invoice.DistributionPlanID &&
+                invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
+                this.modalService.open(UniConfirmModalV2,
+                    {
+                        header: 'Oppdatere distribusjonsplan?',
+                        buttonLabels: {
+                            accept: 'Oppdater',
+                            reject: 'Ikke oppdater'
+                        },
+                        message: 'Kunden du har valgt har en annen distribusjonsplan enn den som allerede er valgt for ' +
+                        'denne faktura. Ønsker du å oppdatere distribusjonsplanen for denne faktura til å matche kundens?'
+                    }
+                ).onClose.subscribe((res) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
+                        this.toastService.addToast('Oppdatert', ToastType.good, 5, 'Distribusjonsplan oppdatert');
+                        this.invoice = invoice;
+                    }
+                });
+            } else {
+                invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
             }
+        }
         this.invoice = invoice;
         this.updateSaveActions();
     }
@@ -1645,7 +1624,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isActivated("EHF INVOICE 2.0")) {
+        if (this.ehfService.isActivated('EHF INVOICE 2.0')) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
@@ -1666,7 +1645,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
     private sendEHF(doneHandler: (msg: string) => void = null) {
-        this.reportService.distributeWithType(this.invoice.ID,'Models.Sales.CustomerInvoice','EHF' ).subscribe(
+        this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF' ).subscribe(
             () => {
                 this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
                 if (doneHandler) {
