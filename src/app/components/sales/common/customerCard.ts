@@ -15,6 +15,7 @@ import {
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
 import * as moment from 'moment';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'tof-customer-card',
@@ -416,6 +417,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
 
         this.showDefaultBadgeForCustomer(customer);
 
+        this.entity = _.cloneDeep(this.entity);
         this.entityChange.emit(this.entity);
     }
 

@@ -565,7 +565,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         if (
             customerChanged && this.currentCustomer &&
             this.currentCustomer['Distributions'] &&
-            this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
+            this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID
+        ) {
                 if (quote.DistributionPlanID &&
                     quote.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID) {
                     this.modalService.open(UniConfirmModalV2,
@@ -587,10 +588,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     });
                 } else {
                     quote.DistributionPlanID = this.currentCustomer['Distributions'].CustomerQuoteDistributionPlanID;
-                    this.quote = quote;
                 }
             }
-
+        this.quote = quote;
         this.currentQuoteDate = quote.QuoteDate;
         this.updateSaveActions();
     }
@@ -1139,7 +1139,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
-            disabled: transitions && !transitions['register'] || !this.currentCustomer,
+            disabled: transitions && !transitions['register'] || !this.currentCustomer,
             main: !transitions || transitions['register']
         });
 

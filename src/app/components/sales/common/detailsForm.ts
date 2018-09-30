@@ -149,7 +149,7 @@ export class TofDetailsForm {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
-                    Property: 'DefaultSeller.ID',
+                    Property: 'DefaultSellerID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Hovedselger',
                     Section: 0,

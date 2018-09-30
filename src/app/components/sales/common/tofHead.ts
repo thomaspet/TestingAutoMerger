@@ -67,23 +67,19 @@ export class TofHead implements OnChanges {
         }
     }
 
-    public ngOnChanges(changes: SimpleChanges) {
+    public ngOnChanges() {
         if (this.data) {
             this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
             this.commentControl.setValue(this.data.Comment, {emitEvent: false});
 
             if (this.sellers && this.data.ID === 0 && this.currentUser) {
-                const userIsSeller = this.sellers.find(seller => seller.UserID === this.currentUser.ID);
-                if (userIsSeller) {
-                    this.data.DefaultSeller = userIsSeller;
-                }
+                const userSeller = this.sellers.find(seller => seller.UserID === this.currentUser.ID);
+                if (userSeller) {
+                    this.data.DefaultSeller = userSeller;
+                    this.data.DefaultSellerID = userSeller.ID;
             }
         }
     }
-
-    onCustomerChange(entity) {
-        this.dataChange.emit(entity);
-        setTimeout(() => this.data = _.cloneDeep(entity));
     }
 
     public onDataChange(data?: any) {
@@ -91,8 +87,8 @@ export class TofHead implements OnChanges {
 
         updatedEntity.FreeTxt = this.freeTextControl.value;
         updatedEntity.Comment = this.commentControl.value;
-
-        this.dataChange.emit(updatedEntity);
+        this.data = updatedEntity;
+        this.dataChange.emit(this.data);
     }
 
     public onSellerLinkDeleted(sellerLink: SellerLink) {
@@ -109,7 +105,7 @@ export class TofHead implements OnChanges {
         }
     }
 
-    private isReadOnly(): boolean {
+    isReadOnly(): boolean {
         return this.entityName !== 'CustomerInvoice' ? this.readonly : false;
     }
 }
