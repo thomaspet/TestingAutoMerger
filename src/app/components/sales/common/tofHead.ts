@@ -19,33 +19,33 @@ import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 })
 export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard) private customerCard: TofCustomerCard;
-    @ViewChild(TofDetailsForm) public detailsForm: TofDetailsForm;
+    @ViewChild(TofDetailsForm) detailsForm: TofDetailsForm;
 
-    @Input() public entityName: string;
-    @Input() public readonly: boolean;
-    @Input() public data: any;
-    @Input() public currencyCodes: Array<CurrencyCode>;
-    @Input() public projects: Project;
-    @Input() public paymentTerms: Terms[];
-    @Input() public deliveryTerms: Terms[];
-    @Input() public sellers: Seller[];
-    @Input() public companySettings: CompanySettings;
-    @Input() public dimensionTypes: any[];
-    @Input() public reports: any[];
-    @Input() public distributionPlans: any[];
-    @Input() public paymentInfoTypes: any[];
-    @Input() public currentUser: User;
+    @Input() entityName: string;
+    @Input() readonly: boolean;
+    @Input() data: any;
+    @Input() currencyCodes: Array<CurrencyCode>;
+    @Input() projects: Project;
+    @Input() paymentTerms: Terms[];
+    @Input() deliveryTerms: Terms[];
+    @Input() sellers: Seller[];
+    @Input() companySettings: CompanySettings;
+    @Input() dimensionTypes: any[];
+    @Input() reports: any[];
+    @Input() distributionPlans: any[];
+    @Input() paymentInfoTypes: any[];
+    @Input() currentUser: User;
 
-    @Output() public dataChange: EventEmitter<any> = new EventEmitter();
-    @Output() public sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
+    @Output() dataChange: EventEmitter<any> = new EventEmitter();
+    @Output() sellerDelete: EventEmitter<SellerLink> = new EventEmitter<SellerLink>();
 
-    public tabs: IUniTab[];
-    public activeTabIndex: number = 0;
+    tabs: IUniTab[];
+    activeTabIndex: number = 0;
 
-    private freeTextControl: FormControl = new FormControl('');
-    private commentControl: FormControl = new FormControl('');
+    freeTextControl: FormControl = new FormControl('');
+    commentControl: FormControl = new FormControl('');
 
-    public ngOnInit() {
+    ngOnInit() {
         this.tabs = [
             {name: 'Detaljer'},
             {name: 'Betingelser og levering'},
@@ -61,7 +61,7 @@ export class TofHead implements OnChanges {
         }
     }
 
-    public ngOnChanges() {
+    ngOnChanges() {
         if (this.data) {
             this.freeTextControl.setValue(this.data.FreeTxt, {emitEvent: false});
             this.commentControl.setValue(this.data.Comment, {emitEvent: false});
@@ -76,7 +76,7 @@ export class TofHead implements OnChanges {
         }
     }
 
-    public onDataChange(data?: any) {
+    onDataChange(data?: any) {
         const updatedEntity = data || this.data;
 
         updatedEntity.FreeTxt = this.freeTextControl.value;
@@ -85,7 +85,7 @@ export class TofHead implements OnChanges {
         this.dataChange.emit(this.data);
     }
 
-    public onSellerLinkDeleted(sellerLink: SellerLink) {
+    onSellerLinkDeleted(sellerLink: SellerLink) {
         if (this.data.DefaultSeller && sellerLink.SellerID === this.data.DefaultSeller.SellerID) {
             this.data.DefaultSeller = new Seller();
         }
@@ -93,7 +93,7 @@ export class TofHead implements OnChanges {
         this.dataChange.emit(this.data);
     }
 
-    public focus() {
+    focus() {
         if (this.customerCard) {
             this.customerCard.focus();
         }

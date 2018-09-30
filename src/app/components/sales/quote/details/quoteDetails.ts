@@ -85,7 +85,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
-    @Input() public quoteID: number;
+    @Input() quoteID: number;
 
     private companySettings: CompanySettings;
     private isDirty: boolean;
@@ -109,21 +109,19 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     currencyCodeID: number;
     currencyCodes: Array<CurrencyCode>;
     currencyExchangeRate: number;
-    currentCustomer: Customer;
-    currentDeliveryTerm: Terms;
+    private currentCustomer: Customer;
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
     projects: Project[];
     departments: Department[];
-    currentDefaultProjectID: number;
     sellers: Seller[];
 
-    currentQuoteDate: LocalDate;
+    private currentQuoteDate: LocalDate;
     vatTypes: VatType[];
     commentsConfig: ICommentsConfig;
     toolbarconfig: IToolbarConfig;
-    contextMenuItems: IContextMenuItem[] = [];
+    private contextMenuItems: IContextMenuItem[] = [];
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
@@ -211,7 +209,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private modulusService: ModulusService,
     ) { }
 
-    public ngOnInit() {
+    ngOnInit() {
         // Subscribe and debounce recalc on table changes
         this.recalcDebouncer.debounceTime(500).subscribe((quoteitems) => {
             if (quoteitems.length) {
@@ -373,12 +371,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
+    onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
         if (key === 34) {
             event.preventDefault();
@@ -413,7 +411,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
+    canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
             return this.modalService.openUnsavedChangesModal().onClose
                 .switchMap(result => {
@@ -433,7 +431,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         return true;
     }
 
-    public numberSeriesChange(selectedSerie) {
+    numberSeriesChange(selectedSerie) {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
@@ -459,10 +457,8 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 );
 
                 this.currentCustomer = quote.Customer;
-                this.currentDeliveryTerm = quote.DeliveryTerms;
 
                 quote.DefaultSeller = quote.DefaultSeller;
-                this.currentDefaultProjectID = quote.DefaultDimensions.ProjectID;
 
                 this.currentQuoteDate = quote.QuoteDate;
 
@@ -478,7 +474,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public onQuoteChange(quote: CustomerQuote) {
+    onQuoteChange(quote: CustomerQuote) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
         const customerChanged = this.didCustomerChange(quote);
@@ -735,7 +731,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
     }
 
-    public onSellerDelete(sellerLink: SellerLink) {
+    onSellerDelete(sellerLink: SellerLink) {
         this.deletables.push(sellerLink);
     }
 
@@ -918,7 +914,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         return statustrack;
     }
 
-    public nextQuote() {
+    private nextQuote() {
         this.customerQuoteService.getNextID(this.quote.ID).subscribe(
             id => {
                 if (id) {
@@ -931,7 +927,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         );
     }
 
-    public previousQuote() {
+    private previousQuote() {
         this.customerQuoteService.getPreviousID(this.quote.ID).subscribe(
             id => {
                 if (id) {
@@ -1011,7 +1007,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.updateShareActions();
     }
 
-    public recalcItemSums(quoteItems: CustomerQuoteItem[]) {
+    recalcItemSums(quoteItems: CustomerQuoteItem[]) {
         const items = quoteItems && quoteItems.filter(item => !item.Deleted);
         const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
 
@@ -1099,7 +1095,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public chooseForm() {
+    private chooseForm() {
         return this.modalService.open(
             UniChooseReportModal,
             { data: {
@@ -1375,43 +1371,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }).catch(error => {
             this.handleSaveError(error, done);
         });
-    }
-
-    public saveAndPrint(doneHandler: (msg: string) => void = null) {
-        if (this.isDirty) {
-            this.saveQuote().then(quote => {
-                this.isDirty = false;
-                this.print(quote.ID, doneHandler);
-            }).catch(error => {
-                if (doneHandler) { doneHandler('En feil oppstod ved utskrift av tilbud!'); }
-                this.errorService.handle(error);
-            });
-        } else {
-            this.print(this.quote.ID, doneHandler);
-        }
-    }
-
-    private print(id, doneHandler: (msg?: string) => void = () => { }) {
-        this.reportDefinitionService.getReportByName('Tilbud id').subscribe((report) => {
-            report.parameters = [{ Name: 'Id', value: id }];
-
-            this.modalService.open(UniPreviewModal, {
-                data: report
-            }).onClose.subscribe(() => {
-                doneHandler();
-
-                this.customerQuoteService.setPrintStatus(this.quoteID, this.printStatusPrinted).subscribe(
-                    (printStatus) => {
-                        this.quote.PrintStatus = +this.printStatusPrinted;
-                        this.updateToolbar();
-                    },
-                    err => this.errorService.handle(err)
-                );
-            });
-        },
-            (err) => {
-                doneHandler('En feil oppstod ved utskrift av tilbud');
-            });
     }
 
     private deleteQuote(done) {

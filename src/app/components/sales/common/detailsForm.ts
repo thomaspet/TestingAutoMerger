@@ -17,34 +17,34 @@ declare const _;
     `
 })
 export class TofDetailsForm {
-    @Input() public readonly: boolean;
-    @Input() public entityType: string;
-    @Input() public entity: any;
-    @Input() public currencyCodes: Array<CurrencyCode>;
-    @Input() public projects: Project;
-    @Input() public sellers: Seller[];
-    @Input() public companySettings: CompanySettings;
+    @Input() readonly: boolean;
+    @Input() entityType: string;
+    @Input() entity: any;
+    @Input() currencyCodes: Array<CurrencyCode>;
+    @Input() projects: Project;
+    @Input() sellers: Seller[];
+    @Input() companySettings: CompanySettings;
 
-    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() entityChange: EventEmitter<any> = new EventEmitter();
 
-    public tabbedPastLastField: EventEmitter<any> = new EventEmitter();
-    public entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    tabbedPastLastField: EventEmitter<any> = new EventEmitter();
+    entity$: BehaviorSubject<any> = new BehaviorSubject({});
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    public ngOnInit() {
+    ngOnInit() {
         this.entity$.next(this.entity);
         this.initFormFields();
     }
 
-    public ngOnChanges(changes) {
+    ngOnChanges(changes) {
         this.entity$.next(this.entity);
         if ((this.projects && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
         }
     }
 
-    public onFormChange(changes: SimpleChanges) {
+    onFormChange(changes: SimpleChanges) {
         const keys = Object.keys(changes);
         keys.forEach(key => {
             _.set(this.entity, key, changes[key].currentValue);

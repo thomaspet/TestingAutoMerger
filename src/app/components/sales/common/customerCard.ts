@@ -66,29 +66,29 @@ import * as _ from 'lodash';
 export class TofCustomerCard implements AfterViewInit, OnChanges {
     private searchInput: HTMLElement;
 
-    @Input() public readonly: boolean;
-    @Input() public entity: any;
-    @Input() private entityType: string;
+    @Input() readonly: boolean;
+    @Input() entity: any;
+    @Input() entityType: string;
 
-    @Output() private entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() entityChange: EventEmitter<any> = new EventEmitter();
 
-    public ehfClass: string = 'badge-unavailable';
-    public efakturaClass: string = 'badge-unavailable';
-    public emailClass: string = 'badge-unavailable';
-    public vippsClass: string = 'badge-unavailable';
-    public printClass: string = 'badge-unavailable';
-    public invoicePrintClass: string = 'badge-unavailable';
-    public distributionPendingClass: string = 'badge-unavailable';
-    public ehfTitle: string;
-    public efakturaTitle: string;
-    public emailTitle: string;
-    public vippsTitle: string;
-    public printTitle: string = 'Sendt til utskrift';
-    public invoicePrintTitle: string = 'Sendt til fakturaprint';
-    public distributionPendingTitle: string;
+    ehfClass: string = 'badge-unavailable';
+    efakturaClass: string = 'badge-unavailable';
+    emailClass: string = 'badge-unavailable';
+    vippsClass: string = 'badge-unavailable';
+    printClass: string = 'badge-unavailable';
+    invoicePrintClass: string = 'badge-unavailable';
+    distributionPendingClass: string = 'badge-unavailable';
+    ehfTitle: string;
+    efakturaTitle: string;
+    emailTitle: string;
+    vippsTitle: string;
+    printTitle: string = 'Sendt til utskrift';
+    invoicePrintTitle: string = 'Sendt til fakturaprint';
+    distributionPendingTitle: string;
 
-    public uniSearchConfig: IUniSearchConfig;
-    public customerDueInvoiceData: any;
+    uniSearchConfig: IUniSearchConfig;
+    customerDueInvoiceData: any;
     private lastPeppolAddressChecked: string;
 
     private emailControl: FormControl = new FormControl('');
@@ -126,7 +126,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         this.searchInput = this.elementRef.nativeElement.querySelector('input');
         this.focus();
     }
@@ -148,7 +148,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         }
     }
 
-    public ngOnChanges(changes) {
+    ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
 
             if (this.entity.ID) {
@@ -308,13 +308,13 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         });
     }
 
-    public focus() {
+    focus() {
         if (this.searchInput) {
             this.searchInput.focus();
         }
     }
 
-    public openAddressModal() {
+    openAddressModal() {
         const invoiceAddress = <Address>{
             AddressLine1: this.entity.InvoiceAddressLine1,
             AddressLine2: this.entity.InvoiceAddressLine2,
@@ -365,13 +365,7 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         });
     }
 
-    public formFieldChange() {
-        this.entity.EmailAddress = this.emailControl.value;
-        this.entity.YourReference = this.yourRefControl.value;
-        this.entityChange.emit(this.entity);
-    }
-
-    public customerSelected(customer: Customer) {
+    customerSelected(customer: Customer) {
         if (customer) {
             this.entity.CustomerID = customer.ID || null;
             if (customer.Info) {

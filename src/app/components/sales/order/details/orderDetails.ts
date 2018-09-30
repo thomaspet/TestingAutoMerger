@@ -88,7 +88,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
-    @Input() public orderID: any;
+    @Input() orderID: any;
 
     private companySettings: CompanySettings;
     private itemsSummaryData: TradeHeaderCalculationSummary;
@@ -103,7 +103,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     order: CustomerOrder;
     orderItems: CustomerOrderItem[];
 
-    contextMenuItems: IContextMenuItem[] = [];
+    private contextMenuItems: IContextMenuItem[] = [];
     shareActions: IShareAction[];
     saveActions: IUniSaveAction[] = [];
 
@@ -116,20 +116,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
     currencyCodes: Array<CurrencyCode>;
     currencyCodeID: number;
     currencyExchangeRate: number;
-    currentCustomer: Customer;
-    currentDeliveryTerm: Terms;
+    private currentCustomer: Customer;
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
 
     projects: Project[];
     departments: Department[];
-    currentDefaultProjectID: number;
     selectConfig: any;
 
     sellers: Seller[];
 
-    currentOrderDate: LocalDate;
+    private currentOrderDate: LocalDate;
     dimensionTypes: any[];
     paymentInfoTypes: any[];
     distributionPlans: any[];
@@ -226,7 +224,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private invoiceHoursService: InvoiceHourService,
    ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         // this.setSums();
 
         // Subscribe and debounce recalc on table changes
@@ -397,12 +395,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
         this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
+    onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
         if (key === 34) {
             event.preventDefault();
@@ -437,7 +435,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public numberSeriesChange(selectedSerie) {
+    numberSeriesChange(selectedSerie) {
         this.order.OrderNumberSeriesID = selectedSerie.ID;
     }
 
@@ -449,7 +447,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.errorService.handle(error);
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
+    canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
             return this.modalService.openUnsavedChangesModal().onClose
                 .switchMap(result => {
@@ -498,7 +496,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public onOrderChange(order) {
+    onOrderChange(order) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
 
@@ -747,7 +745,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
     }
 
-    public onSellerDelete(sellerLink: SellerLink) {
+    onSellerDelete(sellerLink: SellerLink) {
         this.deletables.push(sellerLink);
     }
 
@@ -768,10 +766,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 this.isDirty = false;
 
                 this.currentCustomer = res.Customer;
-                this.currentDeliveryTerm = res.DeliveryTerms;
 
                 order.DefaultSeller = order.DefaultSeller;
-                this.currentDefaultProjectID = order.DefaultDimensions.ProjectID;
 
                 this.currentOrderDate = order.OrderDate;
 
@@ -898,7 +894,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         return statustrack;
     }
 
-    public nextOrder() {
+    private nextOrder() {
         this.customerOrderService.getNextID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
@@ -913,7 +909,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         );
     }
 
-    public previousOrder() {
+    private previousOrder() {
         this.customerOrderService.getPreviousID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
@@ -1043,7 +1039,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public chooseForm() {
+    private chooseForm() {
         return this.modalService.open(
             UniChooseReportModal,
             {data: {

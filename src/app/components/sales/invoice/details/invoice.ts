@@ -105,7 +105,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
-    @Input() public invoiceID: any;
+    @Input() invoiceID: any;
 
     private printStatusPrinted: string = '200';
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
@@ -123,34 +123,30 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     projects: Project[];
     departments: Department[];
-    currentDefaultProjectID: number;
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
 
-    contextMenuItems: IContextMenuItem[] = [];
+    private contextMenuItems: IContextMenuItem[] = [];
     companySettings: CompanySettings;
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     saveActions: IUniSaveAction[] = [];
     shareActions: IShareAction[];
     toolbarconfig: IToolbarConfig;
-    toolbarSubheads: IToolbarSubhead[];
     commentsConfig: ICommentsConfig;
 
     vatTypes: VatType[];
     currencyCodes: Array<CurrencyCode>;
     currencyCodeID: number;
     currencyExchangeRate: number;
-    currentCustomer: Customer;
-    currentPaymentTerm: Terms;
-    currentDeliveryTerm: Terms;
+    private currentCustomer: Customer;
     currentUser: User;
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
     selectConfig: any;
 
     sellers: Seller[];
-    currentInvoiceDate: LocalDate;
+    private currentInvoiceDate: LocalDate;
     dimensionTypes: any[];
     paymentInfoTypes: any[];
     distributionPlans: any[];
@@ -245,7 +241,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public ngOnInit() {
+    ngOnInit() {
         this.recalcItemSums(null);
 
         // Subscribe and debounce recalc on table changes
@@ -420,7 +416,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }, err => this.errorService.handle(err));
     }
 
-    public ngAfterViewInit() {
+    ngAfterViewInit() {
          this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
@@ -447,7 +443,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public numberSeriesChange(selectedSerie) {
+    numberSeriesChange(selectedSerie) {
         this.invoice.InvoiceNumberSeriesID = selectedSerie.ID;
     }
 
@@ -514,7 +510,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
+    onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
         if (key === 34) {
             event.preventDefault();
@@ -526,7 +522,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
+    canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
             return this.modalService.openUnsavedChangesModal().onClose
                 .switchMap(result => {
@@ -550,7 +546,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         return true;
     }
 
-    public onInvoiceChange(invoice: CustomerInvoice) {
+    onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
 
@@ -801,7 +797,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         err => this.errorService.handle(err));
     }
 
-    public onSellerDelete(sellerLink: SellerLink) {
+    onSellerDelete(sellerLink: SellerLink) {
         this.deletables.push(sellerLink);
     }
 
@@ -1076,11 +1072,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         );
 
         this.currentCustomer = invoice.Customer;
-        this.currentPaymentTerm = invoice.PaymentTerms;
-        this.currentDeliveryTerm = invoice.DeliveryTerms;
 
         invoice.DefaultSeller = invoice.DefaultSeller;
-        this.currentDefaultProjectID = invoice.DefaultDimensions.ProjectID;
 
         this.currentInvoiceDate = invoice.InvoiceDate;
 
@@ -1644,6 +1637,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         }
     }
+
     private sendEHF(doneHandler: (msg: string) => void = null) {
         this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF' ).subscribe(
             () => {
@@ -1685,9 +1679,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-
-
-    public chooseForm() {
+    private chooseForm() {
         return this.modalService.open(
             UniChooseReportModal,
             {data: {
@@ -1919,7 +1911,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         );
     }
 
-    public nextInvoice() {
+    private nextInvoice() {
         this.customerInvoiceService.getNextID(this.invoice.ID).subscribe(
             id => {
                 if (id) {
@@ -1932,7 +1924,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         );
     }
 
-    public previousInvoice() {
+    private previousInvoice() {
         this.customerInvoiceService.getPreviousID(this.invoice.ID).subscribe(
             id => {
                 if (id) {
@@ -1960,7 +1952,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     // Summary
-    public recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
+    private recalcItemSums(invoiceItems: CustomerInvoiceItem[] = null) {
         const items = invoiceItems && invoiceItems.filter(line => !line.Deleted);
         const decimals = this.companySettings && this.companySettings.RoundingNumberOfDecimals;
 
