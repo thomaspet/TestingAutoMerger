@@ -720,12 +720,20 @@ export class BankComponent implements AfterViewInit {
     public fileUploaded(file: File) {
         this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 10,
             'Dette kan ta litt tid, vennligst vent...');
-
-        this.paymentBatchService.registerAndCompleteCustomerPayment(file.ID)
+        this.paymentBatchService.registerAndCompleteCustomerPaymentAutoSelectWebjob(file.ID)
             .subscribe(res => {
-                this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                this.tickerContainer.getFilterCounts();
-                this.tickerContainer.mainTicker.reloadData();
+                if (res) {
+                    if (res.processedAs === 'webjob') {
+                        // in the future do something fancy with push notification when the job is done.
+                        this.toastService.addToast('Innbetaling job kjører, vennligst sjekk om en stund', ToastType.good, 5);
+                        this.tickerContainer.getFilterCounts();
+                        this.tickerContainer.mainTicker.reloadData();
+                    } else {
+                        this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
+                        this.tickerContainer.getFilterCounts();
+                        this.tickerContainer.mainTicker.reloadData();
+                    }
+                }
             },
             err => this.errorService.handle(err)
         );

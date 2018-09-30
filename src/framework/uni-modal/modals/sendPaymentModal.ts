@@ -92,20 +92,12 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                             this.okButtonText = 'Send kode';
                             this.formFields$.next(this.getFormFields(true));
                        }
-                    }, () => {
-                        // Show error toast when password is incorrect or call failed
-                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
-                            'Kan ikke sende kode. Sjekk at passordet er korrekt, og prøv igjen.');
-                    });
+                    }, err => this.errorService.handle(err));
                } else {
                    // Without two-stage authentification
                    this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
                        this.onClose.emit('Sendingen er fullført');
-                   }, err => {
-                       // Show error toast when password is incorrect or call failed
-                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
-                            'Kunne ikke fullføre betaling. Sjekk at passordet er korrekt, og prøv igjen.');
-                   });
+                   }, err => this.errorService.handle(err));
                }
             } else {
                 // When user has written password and gotten code
@@ -114,11 +106,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                     // Send PASSWORD, CODE and PAYMENTIDS as body
                     this.paymentBatchService.sendAutobankPayment(model).subscribe((res) => {
                         this.onClose.emit('Sendingen er fullført');
-                    }, err => {
-                        // Show error toast when two-stage code is incorrect or call failed
-                        this.toastService.addToast('Noe gikk galt', ToastType.bad, 5,
-                            'Kunne ikke fullføre betaling. Sjekk at koden er korrekt, og prøv igjen.');
-                    });
+                    }, err => this.errorService.handle(err));
                 } else {
                     // If code field is empty, show toast...
                     this.toastService.addToast('Vennligst fyll inn koden', ToastType.bad, 5);

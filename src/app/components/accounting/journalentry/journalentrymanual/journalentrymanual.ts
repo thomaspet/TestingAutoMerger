@@ -925,25 +925,34 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private setupOpenPostUniTable() {
         const columns = [
-            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text),
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text)
+                .setWidth('6rem'),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
                 .setVisible(false),
-            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
-            new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
-            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
-            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
+            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate)
+                .setWidth('6rem'),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text)
+                .setWidth('6rem'),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime)
+                .setWidth('6rem'),
+            new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
+                .setWidth('8rem'),
             new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
+                .setWidth('8rem')
                 .setVisible(false),
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setVisible(false),
             new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
                 .setVisible(false),
-            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money),
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                .setWidth('8rem'),
             new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
+                .setWidth('8rem')
                 .setVisible(false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setWidth('8rem')
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode))
         ];
 
