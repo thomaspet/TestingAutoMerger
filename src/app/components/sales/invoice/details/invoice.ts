@@ -666,7 +666,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         if (
             customerChanged && this.currentCustomer &&
             this.currentCustomer['Distributions'] &&
-            this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
+            this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID
+        ) {
                 if (invoice.DistributionPlanID &&
                     invoice.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID) {
                     this.modalService.open(UniConfirmModalV2,
@@ -688,12 +689,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     });
                 } else {
                     invoice.DistributionPlanID = this.currentCustomer['Distributions'].CustomerInvoiceDistributionPlanID;
-                    this.invoice = invoice;
                 }
-            } else {
-                this.invoice = invoice;
             }
-
+        this.invoice = invoice;
         this.updateSaveActions();
     }
 

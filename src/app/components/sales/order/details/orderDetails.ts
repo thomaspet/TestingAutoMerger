@@ -573,7 +573,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         if (
             customerChanged && this.currentCustomer &&
             this.currentCustomer['Distributions'] &&
-            this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
+            this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID
+        ) {
                 if (order.DistributionPlanID &&
                     order.DistributionPlanID !== this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID) {
                     this.modalService.open(UniConfirmModalV2,
@@ -595,12 +596,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
                     });
                 } else {
                     order.DistributionPlanID = this.currentCustomer['Distributions'].CustomerOrderDistributionPlanID;
-                    this.order = order;
                 }
-            } else {
-                this.order = order;
             }
-
+        this.order = order;
         this.currentOrderDate = order.OrderDate;
         this.updateSaveActions();
     }
