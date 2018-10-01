@@ -18,7 +18,7 @@ import {IUniWidget} from '../uniWidget';
                         <th class="thirtyfive-width-start"></th>
                         <th class="twenty-width-right">Salg {{ currentYear }}</th>
                         <th class="previous-year twenty-width-right">Salg {{ previousYear }}</th>
-                        <th class="twenty-width-right">Forfalt</th>
+                        <th class="twenty-width-right">Utestående </th>
                         <th class="five-width-end"></th>
                     </tr>
                 </thead>
