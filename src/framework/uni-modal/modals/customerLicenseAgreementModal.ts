@@ -9,7 +9,7 @@ import {IUniModal, ConfirmActions} from '../interfaces';
                 (clickOutside)="reject()"
                 (keydown.esc)="reject()">
             <header>
-                <h1>Selskaps Lisens</h1>
+                <h1>Selskapslisens</h1>
                 <button class="modal-close-button" (click)="reject()"></button>
             </header>
             <article>
@@ -43,7 +43,7 @@ export class CustomerLicenseAgreementModal implements IUniModal {
     }
 
     public reject() {
-        const confirmed = confirm('Hvis du ikke godtar lisensen blir du logget ut av applikasjonen.');
+        const confirmed = confirm('Dersom du ikke godtar lisensen vil du bli logget ut. Klikk OK for å logge ut.');
         if (confirmed) {
             this.onClose.emit(ConfirmActions.REJECT);
         }
