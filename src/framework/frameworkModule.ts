@@ -39,7 +39,8 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 import {
     MatCheckboxModule,
     MatRadioModule,
-    MatInputModule
+    MatInputModule,
+    MatMenuModule
 } from '@angular/material';
 
 @NgModule({
@@ -50,6 +51,7 @@ import {
         MatCheckboxModule,
         MatRadioModule,
         MatInputModule,
+        MatMenuModule,
 
         AppPipesModule,
         UniPipesModule,
