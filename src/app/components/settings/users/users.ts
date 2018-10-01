@@ -73,23 +73,25 @@ export class Users {
         });
         this.errorMessage = '';
 
-        this.userService.getCurrentUser().subscribe((user) => {
-            this.currentUser = user;
-            this.initTableConfigs();
-            this.initFormConfigs();
-            this.checkAutobankAccess();
+        Observable.forkJoin(
+            this.userService.getCurrentUser(),
+            this.roleService.GetAll(),
+        )
+            .subscribe(
+                parts => {
+                    this.currentUser = parts[0];
+                    this.initTableConfigs();
+                    this.initFormConfigs();
+                    this.checkAutobankAccess();
 
-            this.roleService.GetAll(null).subscribe(
-                (res) => {
-                    this.roles = res || [];
+                    this.roles = parts[1] || [];
+
+                    this.getUsers(true);
+                    this.initTableConfigs();
+                    this.initFormConfigs();
                 },
                 err => this.errorService.handle(err)
             );
-
-            this.getUsers(true);
-            this.initTableConfigs();
-            this.initFormConfigs();
-        });
     }
 
     private saveUserRole(userRole): Observable<any> {
