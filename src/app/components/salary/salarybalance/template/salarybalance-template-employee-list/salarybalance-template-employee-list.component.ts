@@ -5,6 +5,7 @@ import {EmployeeService, UniCacheService, ErrorService, SalarybalanceService} fr
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniView} from '@uni-framework/core/uniView';
 import {Router, ActivatedRoute} from '../../../../../../../node_modules/@angular/router';
+import {Observable} from '../../../../../../../node_modules/rxjs';
 
 const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';
 
@@ -20,6 +21,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
   public tableConfig: UniTableConfig;
   public salarybalances: SalaryBalance[] = [];
 
+
   constructor(
     router: Router,
     route: ActivatedRoute,
@@ -32,24 +34,23 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
 
     route.parent.params.subscribe(paramsChange => {
       super.updateCacheKey(router.url);
-      super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY)
-        .subscribe(salarybalances => {
-          this.salarybalances = salarybalances;
-        },
-        err => this.errorService.handle(err));
     });
 
-   }
-
-  public ngOnInit() {
-    this.createConfig();
   }
 
   public ngOnChanges(change: SimpleChanges) {
-    if (!change.currentTemplate.firstChange) {
-      this.getEmployees();
-      this.getEmployeesOnTemplate();
-    }
+    Observable.forkJoin(
+      this.getSalarybalancesOnTemplate(),
+      this.getEmployees()
+    ).subscribe((response: [SalaryBalance[], Employee[]]) => {
+      const[balances, emps] = response;
+      this.employees = emps;
+      this.salarybalances = balances;
+      this.createConfig();
+    });
+  }
+
+  public ngOnInit() {
   }
 
   public onRowDelete(event) {
@@ -73,13 +74,13 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
         return (selectedItem.EmployeeNumber + ' - ' + selectedItem.BusinessRelationInfo.Name);
       },
       lookupFunction: (searchValue) => {
-        return this.employees.filter((employee) => {
-          if (isNaN(searchValue)) {
-            return (employee.BusinessRelationInfo.Name.toLowerCase().indexOf(searchValue) > -1);
-          } else {
-            return employee.EmployeeNumber.toString().startsWith(searchValue.toString());
-          }
-        });
+          return this.employees.filter((employee: Employee) => {
+            if (isNaN(searchValue)) {
+              return (employee.BusinessRelationInfo.Name.toLowerCase().indexOf(searchValue)) > -1;
+            } else {
+              return employee.EmployeeNumber.toString().startsWith(searchValue.toString());
+            }
+          });
       }
     });
     const fromDateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate, true);
@@ -87,7 +88,6 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
 
     const columnList = [empCol, fromDateCol, ToDateCol];
     this.tableConfig = new UniTableConfig('salary.salarybalancetemplate.salarybalancelist', true, true, 20)
-      .setDeleteButton(true)
       .setAutoAddNewRow(true)
       .setColumns(columnList)
       .setChangeCallback(event => {
@@ -109,7 +109,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
 
   private mapEmployeeToSalarybalance(rowModel) {
     const emp = rowModel['Employee'];
-    rowModel['EmployeeID'] = emp.ID;
+    rowModel['EmployeeID'] = emp != null ? emp.ID : 0;
     rowModel['SalaryBalanceTemplateID'] = this.currentTemplate.ID;
     rowModel['InstalmentType'] = this.currentTemplate.InstalmentType;
     rowModel['Name'] = this.currentTemplate.SalarytransactionDescription;
@@ -122,23 +122,13 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     rowModel['KID'] = this.currentTemplate.KID;
   }
 
-  private getEmployees() {
-    this.employeeService.GetAll('', ['BusinessRelationInfo'])
-      .subscribe((emps: Employee[]) => {
-        this.employees = emps;
-      });
+  private getEmployees(): Observable<Employee[]> {
+    return this.employeeService.GetAll('', ['BusinessRelationInfo']);
   }
 
-  private getEmployeesOnTemplate() {
-    if (this.currentTemplate && this.currentTemplate.ID > 0) {
-      this.salarybalanceService
-      .getSalarybalancesOnTemplate(this.currentTemplate.ID)
-      .subscribe((balances: SalaryBalance[]) => {
-        if (balances && balances.length > 0) {
-          this.salarybalances = balances;
-        }
-      });
-    }
+  private getSalarybalancesOnTemplate(): Observable<SalaryBalance[]> {
+    return this.currentTemplate && this.currentTemplate.ID
+      ? this.salarybalanceService.getSalarybalancesOnTemplate(this.currentTemplate.ID)
+      : Observable.of([]);
   }
-
 }
