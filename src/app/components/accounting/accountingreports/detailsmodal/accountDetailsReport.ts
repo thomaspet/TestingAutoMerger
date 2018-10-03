@@ -45,7 +45,9 @@ export class AccountDetailsReport {
         accountName: string,
         dimensionType: number,
         dimensionId: number,
-        isSubAccount: boolean
+        isSubAccount: boolean,
+        periodFilter1: PeriodFilter,
+        periodFilter2: PeriodFilter
     };
 
     toolbarconfig: IToolbarConfig;
@@ -86,7 +88,9 @@ export class AccountDetailsReport {
             accountNumber: 0,
             accountName: '',
             dimensionId: 0,
-            dimensionType: 0
+            dimensionType: 0,
+            periodFilter1: null,
+            periodFilter2: null
         };
 
         this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null));
@@ -231,12 +235,18 @@ export class AccountDetailsReport {
     // modal is reused if multiple accounts are viewed, and the
     // loadData will be called from the accountDetailsReportModal when opening the modal
     public loadData() {
-        let financialYear;
-        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
-        // get default period filters
-        this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
-        this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-        this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
+        if (this.config.periodFilter1 !== null && this.config.periodFilter2 !== null) {
+            this.periodFilter1$.next(this.config.periodFilter1);
+            this.periodFilter2$.next(this.config.periodFilter2);
+            this.periodFilter3$.next(this.config.periodFilter1);
+        }
+        else {
+            let financialYear = null;
+            // get default period filters
+            this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
+            this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
+            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));            
+        }
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];
         this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;

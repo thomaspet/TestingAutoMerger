@@ -1,8 +1,11 @@
 import {Component, Type, Output, EventEmitter, Input} from '@angular/core';
 import {AccountDetailsReport} from './accountDetailsReport';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
+import {PeriodFilter} from '../periodFilter/periodFilter';
 
 export interface IDetailsModalInput {
+    periodFilter1: PeriodFilter;
+    periodFilter2: PeriodFilter;
     modalMode: boolean;
     accountID: number;
     accountNumber: number;
@@ -37,7 +40,19 @@ export class AccountDetailsReportModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
+    public ngAfterViewInit() {
+        this.setConfig();
+    }
+
     public ngOnInit() {
+        this.setConfig();
+    }
+
+    public close() {
+        this.onClose.emit(true);
+    }
+
+    private setConfig() {
         this.config = {
             close: () => {
                 this.close();
@@ -49,10 +64,8 @@ export class AccountDetailsReportModal implements IUniModal {
             accountName: this.options.data.accountName,
             dimensionId: this.options.data.dimensionId,
             dimensionType: this.options.data.dimensionType,
+            periodFilter1: this.options.data.periodFilter1,
+            periodFilter2: this.options.data.periodFilter2,
         };
-    }
-
-    public close() {
-        this.onClose.emit(true);
     }
 }

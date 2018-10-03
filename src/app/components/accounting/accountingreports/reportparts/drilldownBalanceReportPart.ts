@@ -79,9 +79,10 @@ export class DrilldownBalanceReportPart implements OnChanges {
                 accountNumber: summaryData.number,
                 dimensionType: null,
                 dimensionId: null,
+                periodFilter1: this.periodFilter1,
+                periodFilter2: this.periodFilter2,
                 close: null
             };
-
             this.modalService.open(AccountDetailsReportModal, { data: data });
 
         } else {
