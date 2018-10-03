@@ -64,8 +64,7 @@ export class ReminderSending implements OnInit {
         + 'CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,'
         + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
         + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
-        + 'CustomerInvoice.RestAmountCurrency as RestAmountCurrency,'
-        + 'CustomerInvoiceReminder.RestAmountCurrency as ReminderRestAmountCurrency,'
+        + 'CustomerInvoiceReminder.RestAmountCurrency as RestAmountCurrency,'
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
         + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
@@ -518,11 +517,8 @@ export class ReminderSending implements OnInit {
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
             .setEditable(false)
-            .setTemplate((item) => {
-                return item.RestAmountCurrency + item.ReminderRestAmountCurrency;
-            })
             .setConditionalCls((item) => {
-                return (item.RestAmountCurrency + item.ReminderRestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
+                return (item.RestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
             });
 
         const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
@@ -532,7 +528,7 @@ export class ReminderSending implements OnInit {
             .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
-                return (+item.ReminderRestAmountCurrency <= item.InterestFeeCurrency) || (+item.ReminderRestAmountCurrency === 0) ? 'number-good' : 'number-bad';
+                return (+item.RestAmountCurrency <= item.InterestFeeCurrency) || (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
             });
 
         const interestAmountCol = new UniTableColumn('InterestFeeCurrency', 'Renter', UniTableColumnType.Number)
@@ -543,7 +539,7 @@ export class ReminderSending implements OnInit {
             .setEditable((item) => item.StatusCode != StatusCodeCustomerInvoiceReminder.Completed)
             .setVisible(false)
             .setConditionalCls((item) => {
-                return (+item.ReminderRestAmountCurrency === 0) ? 'number-good' : 'number-bad';
+                return (+item.RestAmountCurrency === 0) ? 'number-good' : 'number-bad';
             });
 
         if (!this.modalMode) {
