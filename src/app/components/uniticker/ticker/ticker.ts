@@ -1256,12 +1256,9 @@ export class UniTicker {
         const stringSelect = [];
         const headers = [];
 
-        // Get configs from local storage
-        const configs = JSON.parse(localStorage.getItem('uniTable_column_configs'));
-
-        // See if user has changed the setup of the visible fields. If not, use default config object
-        if (!!configs['uniTicker.' + this.ticker.Code]) {
-            configs['uniTicker.' + this.ticker.Code].forEach((col)  => {
+        const tableColumns = this.table && this.table.columns;
+        if (tableColumns && tableColumns.length) {
+            tableColumns.forEach(col => {
                 if (col.visible) {
                     stringSelect.push(col.field + ' as ' + col.alias);
                     headers.push(col.header);

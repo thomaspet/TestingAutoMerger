@@ -82,7 +82,7 @@ export class AgGridWrapper {
     public selectionMode: string = 'single';
     public paginationInfo: any;
 
-    private columns: UniTableColumn[];
+    public columns: UniTableColumn[];
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
