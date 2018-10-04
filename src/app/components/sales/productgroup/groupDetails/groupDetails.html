@@ -31,9 +31,10 @@
             </uni-search>
         </section>
 
-        <uni-table
-            [resource]="products$ | async"
-            [config]="tableConfig">
-        </uni-table>
+        <ag-grid-wrapper
+            [config]="tableConfig"
+            [(resource)]="productsInCategory"
+            (rowDelete)="onRowDeleted($event)">
+        </ag-grid-wrapper>
     </section>
 </section>

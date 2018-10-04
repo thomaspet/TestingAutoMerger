@@ -44,7 +44,7 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
         return Observable.of(null);
     }
 
-    private deleteCategoryLink(linkID: number) {
+    public deleteCategoryLink(linkID: number) {
         return this.http.asDELETE()
             .usingBusinessDomain()
             .withEndPoint(ProductCategoryLink.RelativeUrl + '/' + linkID)
@@ -59,5 +59,13 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
 
     public getProductCategories(currentID: number): Observable<ProductCategory[]> {
         return this.statisticsService.GetAllUnwrapped(`model=ProductCategory&select=Name,ProductCategoryLink.ID&join=ProductCategory.ID%20eq%20productcategorylink.ProductCategoryID&filter=ProductCategoryLink.ProductID%20eq%20${currentID}`);
+    }
+
+    getCategoryLinks(categoryID: number) {
+        return this.http.asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`productcategorylinks?filter=ProductCategoryID eq ${categoryID}&expand=Product`)
+            .send()
+            .map(res => res.json())
     }
 }

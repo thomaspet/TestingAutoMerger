@@ -1,12 +1,12 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {ProductCategory} from '../../../../unientities';
 import {ProductCategoryService, ErrorService, StatisticsService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {UniSearchProductConfig} from '@app/services/common/uniSearchConfig/uniSearchProductConfig';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable, BehaviorSubject} from 'rxjs';
 import * as _ from 'lodash';
 
 class ExtendedProductCategory extends ProductCategory {
@@ -33,11 +33,13 @@ export class GroupDetails implements OnInit {
 
     public uniSearchConfig: IUniSearchConfig;
 
+    productsInCategory: any[] = [];
+
     constructor(
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
-        private uniSearchProductConfig: UniSearchProductConfig,
+        private uniSearchProductConfig: UniSearchProductConfig
     ) {
         this.uniSearchConfig = this.uniSearchProductConfig.generateProductsConfig();
     }
@@ -65,13 +67,33 @@ export class GroupDetails implements OnInit {
             return;
         }
 
-        this.statisticsService.GetAllUnwrapped(
-            `model=Product&select=PartName,Name,CostPrice,PriceExVat,`
-            + `Unit&join=Product.ID eq ProductCategoryLink.ProductID&filter=`
-            + `ProductCategoryLink.ProductCategoryID eq ${group.ID}`
-        ).subscribe(products => {
-            this.products$.next(products);
-        });
+        Observable.forkJoin(
+            this.productCategoryService.getCategoryLinks(group.ID),
+            this.statisticsService.GetAllUnwrapped(
+                `model=Product&select=ID,PartName,Name,CostPrice,PriceExVat,`
+                + `Unit&join=Product.ID eq ProductCategoryLink.ProductID&filter=`
+                + `ProductCategoryLink.ProductCategoryID eq ${group.ID}`
+            )
+        ).subscribe(
+            res => {
+                const categoryLinks = res[0];
+                const productsInCategory = res[1];
+
+                this.productsInCategory = productsInCategory.map(product => {
+                    const categoryLink = categoryLinks.find(link => link.ProductID === product.ProductID);
+                    product['_categoryLinkID'] = categoryLink && categoryLink.ID;
+                    return product;
+                });
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    onRowDeleted(rowModel) {
+        this.productCategoryService.deleteCategoryLink(rowModel['_categoryLinkID']).subscribe(
+            () => {},
+            (err) => this.errorService.handle(err)
+        );
     }
 
     public onProductAdded(event: any) {
@@ -107,8 +129,9 @@ export class GroupDetails implements OnInit {
         const priceexvatCol = new UniTableColumn('ProductPriceExVat', 'Utpris eks.mva', UniTableColumnType.Money);
 
         const tableName = 'sales.productgroups.products';
-        return new UniTableConfig(tableName, false, false, 15)
+        return new UniTableConfig(tableName, false, true, 15)
             .setColumns([numberCol, nameCol, unitCol, costpriceCol, priceexvatCol])
+            .setDeleteButton(true)
             .setSearchable(false);
     }
 }
