@@ -65,20 +65,15 @@ export class EmployeeList {
 
         this.employeeTableConfig = new UniTableConfig('salary.employee.employeeList', false)
             .setColumns([idCol, nameCol, emailCol, birthDateCol, subEntityCol])
-            .setSearchable(true)
-            .setMultiRowSelect(true, true);
+            .setSearchable(true);
 
         this.tabService.addTab(
             { name: 'Ansatte', url: '/salary/employees', moduleID: UniModules.Employees, active: true }
         );
     }
 
-    // public employeeSelected(employee: Employee) {
-    //     this.router.navigate(['/salary/employees/', employee.ID]);
-    // }
-
-    public employeeSelected(selectedRows) {
-        console.log('Selected rows: ' + selectedRows.length);
+    public employeeSelected(employee: Employee) {
+        this.router.navigate(['/salary/employees/', employee.ID]);
     }
 
     public newEmployee() {
