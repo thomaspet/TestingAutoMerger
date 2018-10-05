@@ -962,6 +962,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
+            .setVisible(false)
             .setOptions({
                 itemTemplate: (selectedItem: CustomerInvoice) => {
                     return selectedItem
