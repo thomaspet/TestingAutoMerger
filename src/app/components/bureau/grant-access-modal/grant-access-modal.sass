@@ -1,7 +1,74 @@
 @import '~src/styles/unibase/colors/__colors.sass'
+\:host
+    margin: 0 auto !important
+    height: 90vh !important
 
-button.warn
-    color: #fff
+    .uni-modal
+        width: 60rem
+
+    h1
+        font: 400 20px 'Roboto', sans-serif
+        margin-bottom: 2rem
+
+.license-container
+    display: flex
+    flex-flow: row wrap
+
+    .license
+        flex: 0 0 auto
+        padding: 1rem
+        cursor: pointer
+        border: 1px dashed $uni-color-scale8
+        border-radius: 5px
+        user-select: none
+
+        strong
+            display: block
+
+        &.selected
+            background: #f5f5f5
+
+.grant-access-review-section
+    display: flex
+
+    > section
+        flex: 1
+        margin-right: 4rem
+        ul
+            list-style: none
+            max-height: calc(100vh - 30rem)
+            min-height: 10rem
+            overflow: auto
+
+            small
+                font-size: 14px
+
+footer
+    border-top: none
+    display: flex
+
+    // The button styling below wont be needed when the
+    // modal/button/colors redesign goes live
+    button
+        font: 500 14px 'Roboto', sans-serif
+        height: 2.25rem
+        text-shadow: none
+
+    button.c2a
+        background: $uni-color-c2a // #1565c0
+        &:hover
+            background: lighten($uni-color-c2a, 5%)
+
+    button.back, button.cancel
+        color: rgba(0, 0, 0, 0.87)
+        background: 0 0
+        &:hover
+            background-color: rgba(0,0,0,.12)
+            transition: background-color .25s ease
+
+    button.cancel
+        margin-left: auto
+
 
 .selection-list
     margin: -30px 2px
@@ -50,9 +117,9 @@ article h1
     display: block
     color: $uni-color-scale5
 
-button.good
-    margin-left: 0
-    width: 15rem
+// button.good
+//     margin-left: 0
+//     width: 15rem
 
 button.refresh
     display: inline-flex

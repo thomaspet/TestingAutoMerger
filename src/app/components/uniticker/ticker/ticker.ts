@@ -35,6 +35,7 @@ import {
     YearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
+    CustomDimensionService
 } from '../../../services/services';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -129,6 +130,7 @@ export class UniTicker {
         private yearService: YearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
+        private customDimensionService: CustomDimensionService
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
             const params = this.getSearchParams(urlParams);
@@ -706,13 +708,10 @@ export class UniTicker {
     }
 
     private setupTableConfig(): Promise<any> {
-        return this.modelService
-            .loadModelCache()
-            .then(() => {
+        return new Promise(resolve => {
+            this.modelService.loadModelCache().then(() => {
                 if (!this.ticker.Columns) {
-                    // TODO: if no columns are defined, we should get defaults based on the model
-                    this.ticker.Columns = [];
-                    this.ticker.Columns.push({
+                    this.ticker.Columns = [{
                         Field: 'ID',
                         SelectableFieldName: 'ID',
                         Alias: 'ID',
@@ -724,405 +723,432 @@ export class UniTicker {
                         Width: null,
                         ExternalModel: null,
                         SubFields: null
-                    });
+                    }];
                 }
 
-                // Define configStoreKey
-                const configStoreKey = `uniTicker.${this.ticker.Code}`;
+                /*
+                    Hacky solution to getting custom dimensions on journalentry ticker.
+                    We're going to want to do this in a more robust way, and probably add it to
+                    more tickers, but I don't really have time for that before the exedra deadline..
+                */
+                const getDimensionColumns = this.ticker.Code === 'journalentryline_list'
+                    ? this.customDimensionService.getMetadata()
+                    : Observable.of([]);
 
-                // Define columns to use in the table
-                const columns: UniTableColumn[] = [];
-                let selects: string[] = [];
-                const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
-                this.headers = '';
-
-                for (let i = 0; i < this.ticker.Columns.length; i++) {
-                    const column = this.ticker.Columns[i];
-
-                    // If field/column is hidden in the table, don't expand it
-                    const tableColumn = customColumnSetup.find(customField => {
-                        return customField.field === column.SelectableFieldName;
-                    });
-                    if (this.shouldAddColumnToQuery(column, tableColumn)) {
-                        // Set the expand needed for selected columns
-                        this.setExpand(column);
-
-                        selects.push(column.SelectableFieldName + ' as ' + column.Alias);
-
-                        if (column.SubFields) {
-                            column.SubFields.forEach(subColumn => {
-                                if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
-                                    this.setExpand(subColumn);
-                                    selects.push(subColumn.SelectableFieldName + ' as ' + subColumn.Alias);
-                                }
-                            });
-                        }
-
-                        if (!this.headers || this.headers === '') {
-                            this.headers = column.Header;
-                        } else {
-                            this.headers = this.headers.concat(',', column.Header);
-                        }
-                    }
-
-                    if (column.Type !== 'dontdisplay') {
-                        let colType = UniTableColumnType.Text;
-
-                        if (column.Type !== '') {
-                            switch (column.Type) {
-                                case 'number':
-                                    colType = UniTableColumnType.Number;
-                                    break;
-                                case 'money':
-                                    colType = UniTableColumnType.Money;
-                                    break;
-                                case 'percent':
-                                    colType = UniTableColumnType.Percent;
-                                    break;
-                                case 'boolean':
-                                    colType = UniTableColumnType.Boolean;
-                                    break;
-                                case 'date':
-                                case 'datetime':
-                                case 'localdate':
-                                    colType = UniTableColumnType.DateTime;
-                                    break;
-                                case 'attachment':
-                                    colType = UniTableColumnType.Text;
+                getDimensionColumns.subscribe(res => {
+                    if (res && res.length) {
+                        res.forEach(customDimension => {
+                            const dimField = `Dimension${customDimension.Dimension}`;
+                            const colIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimField));
+                            if (colIndex >= 0) {
+                                this.ticker.Columns[colIndex].Header = customDimension.Label;
                             }
-                        }
-
-                        const col = new UniTableColumn(column.SelectableFieldName, column.Header, colType);
-                        col.alias = column.Alias;
-                        col.width = column.Width;
-                        col.isSumColumn = column.SumColumn;
-                        col.sumFunction = column.SumFunction;
-
-                        if (column.Resizeable === false) {
-                            col.resizeable = false;
-                        }
-
-                        if (column.CssClass) {
-                            col.cls = column.CssClass;
-                        }
-
-                        if (column.Type === 'link') {
-                            col.headerCls = 'ticker-link-col';
-                            col.cls = 'ticker-link-col';
-                        }
-
-                        if (column.DisplayField) {
-                            col.displayField = column.DisplayField;
-                        }
-
-                        const columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
-                        if (columnOverride) {
-                            col.setTemplate(row => {
-                                // use the tickerservice to get and format value based on override template
-                                return this.uniTickerService
-                                    .getFieldValue(column, row, this.ticker, this.columnOverrides);
-                            });
-                        } else {
-                            // set up templates based on rules for e.g. fieldname
-                            if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
-                                || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
-                                || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
-                                col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
-                                col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
-                                col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.typeofemployment')) {
-                                col.template = (rowModel) => EmploymentStatuses.employmentTypeToText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.remunerationtype')) {
-                                col.template = (rowModel) => EmploymentStatuses.remunerationTypeToText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.workinghoursscheme')) {
-                                col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
-                            }
-
-                            if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employeeleave.leavetype')) {
-                                col.template = (rowModel) => this.employeeLeaveService.leaveTypeToText(rowModel[column.Alias]);
-                            }
-                        }
-
-                        if (column.Type === 'attachment') {
-                            col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
-                            col.setOnCellClick(row => {
-                                if (row.Attachments) {
-                                    const entity = column.ExternalModel ? column.ExternalModel : this.ticker.Model;
-                                    this.modalService.open(ImageModal, { data: {
-                                        entity: entity,
-                                        entityID: row.JournalEntryID
-                                    }});
-                                }
-                            });
-                        } else if (column.Type === 'link' || column.Type === 'external-link' || column.Type === 'mailto') {
-                            col.setType(13);
-                            col.setLinkResolver(row => this.uniTickerService.linkColUrlResolver(column, row, this.ticker));
-                            col.setTemplate(row => this.uniTickerService.getFieldValue(column, row, this.ticker, this.columnOverrides));
-
-                            if (column.Type === 'mailto') {
-                                col.cls = (col.cls || '') + ' ticker-mailto-col';
-                            }
-
-                        } else if (column.SubFields && column.SubFields.length > 0) {
-                            col.setTemplate(row => {
-                                return this.uniTickerService.getFieldValue(
-                                    column, row, this.ticker, this.columnOverrides
-                                );
-                            });
-                        }
-
-                        if (column.Format && column.Format !== '') {
-                            // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative" etc
-                            switch (column.Format) {
-                                case 'DateWithTime':
-                                    col.setType(UniTableColumnType.Text);
-                                    col.setTemplate(row => row[col.alias] ? moment(row[col.alias]).format('DD.MM.YYYY HH:mm') : '');
-                                    break;
-                                case 'DateMonth':
-                                    col.setType(UniTableColumnType.Text);
-                                    col.setTemplate(row =>  {
-                                        const month = row[col.alias] ? moment(row[col.alias]).format('MM') : '';
-                                        return month.startsWith('0') ? month.slice(1, 2) : month;
-                                    });
-                                    col.setAlignment('right');
-                                    break;
-                                case 'NumberPositiveNegative':
-                                    col.setConditionalCls(row => +row[column.Alias || column.Field] >= 0 ?
-                                        'number-good'
-                                        : 'number-bad'
-                                    );
-                                    break;
-                                case 'DatePassed':
-                                    col.setConditionalCls(row => {
-                                        return moment(row[column.Alias || column.Field]).isBefore(moment())
-                                            ? 'date-bad'
-                                            : 'date-good';
-                                    });
-                                    break;
-                                case 'SharingStatus':
-                                    col.setConditionalCls(row => {
-                                        switch (row[column.Alias]) {
-                                            case StatusCodeSharing.Completed:
-                                                return 'status-good';
-                                            case StatusCodeSharing.Failed:
-                                                return 'status-bad';
-                                            case StatusCodeSharing.InProgress:
-                                                return 'status-waiting';
-                                        }
-                                    });
-                                    break;
-                                case 'json':
-                                    col.setTemplate(row => JSON.stringify(row));
-                                    break;
-                            }
-                        }
-
-                        if (column.Alignment) {
-                            col.setAlignment(column.Alignment);
-                        }
-
-                        if (column.DefaultHidden) {
-                            col.setVisible(false);
-                        }
-
-                        if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq'
-                            || column.FilterOperator === 'contains') {
-                                col.setFilterOperator(column.FilterOperator);
-                        } else {
-                            col.filterable = false;
-                        }
-
-                        if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-                            const statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
-                            if (statusCodes && statusCodes.length > 0) {
-                                col.selectConfig = {
-                                    options: statusCodes,
-                                    displayField: 'name',
-                                    valueField: 'statusCode'
-                                };
-                            }
-                        }
-
-                        // Add functionality to only show fields on given Filters
-                        // Dont add columns that have filter lock and is not visible (filter is not correct)
-                        if (!column.ShowOnlyOnThisFilter || (column.ShowOnlyOnThisFilter &&
-                            this.ticker.Filters.length > column.ShowOnlyOnThisFilter
-                            && this.ticker.Filters[column.ShowOnlyOnThisFilter].IsActive)) {
-                            columns.push(col);
-                        }
-
-                    }
-                }
-
-                // if any subtickers exists, and any of them need info from the parent (i.e. this component),
-                // make sure we have this data available in the query. This means that we e.g. add a select
-                // for ID, even though that does not exist in the ticker
-                const subTickersWithParentFilter =
-                    !this.ticker.SubTickers ?
-                        []
-                        : this.ticker.SubTickers.filter(st => st.ParentFilter && st.ParentFilter.Value);
-
-                subTickersWithParentFilter.forEach(st => {
-                    const paramAlias = st.ParentFilter.Value.replace('.', '');
-                    const paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
-
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
-                });
-
-                let actionsWithDetailNavigation: Array<TickerAction> = [];
-                actionsWithDetailNavigation =
-                    this.getTickerActions().filter(st =>
-                        st.Type === 'details'
-                        || st.Type === 'action'
-                        || st.Type === 'transition'
-                        || st.Type === 'print'
-                    );
-
-                actionsWithDetailNavigation.forEach(st => {
-                    let paramSelects = ['ID as ID'];
-                    if (st.Options.ParameterProperty !== '') {
-                        paramSelects =
-                            [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
-                    } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
-                        paramSelects = st.Options.ParameterProperties.map(prop => {
-                            return `${prop} as ${prop.replace('.', '')}`;
                         });
                     }
 
-                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
+                    this.tableConfig = this.buildTableConfig();
+                    this.cdr.markForCheck();
+                    resolve();
                 });
+            });
+        });
+    }
 
-                const linkFieldsWithNavigationProperty =
-                    this.ticker.Columns.filter(x => x.Type === 'link' && x.LinkNavigationProperty);
+    private buildTableConfig() {
+        // Define configStoreKey
+        const configStoreKey = `uniTicker.${this.ticker.Code}`;
 
-                linkFieldsWithNavigationProperty.forEach(field => {
-                    const paramSelect = `${field.LinkNavigationProperty} as ${field.LinkNavigationProperty.replace('.', '')}`;
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
-                });
+        // Define columns to use in the table
+        const columns: UniTableColumn[] = [];
+        let selects: string[] = [];
+        const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
+        this.headers = '';
 
-                const linkFieldWithNavigationProprties = this.ticker.Columns
-                    .filter(x => x.Type === 'link'
-                        && x.LinkNavigationProperties
-                        && x.LinkNavigationProperties.length);
+        for (let i = 0; i < this.ticker.Columns.length; i++) {
+            const column = this.ticker.Columns[i];
 
-                linkFieldWithNavigationProprties.forEach(field => {
-                    const paramSelects = field.LinkNavigationProperties.map(prop => {
-                        return `${prop} as ${prop.replace('.', '')}`;
-                    });
-                    selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
-                });
+            // If field/column is hidden in the table, don't expand it
+            const tableColumn = customColumnSetup.find(customField => {
+                return customField.field === column.SelectableFieldName;
+            });
+            if (this.shouldAddColumnToQuery(column, tableColumn)) {
+                // Set the expand needed for selected columns
+                this.setExpand(column);
 
-                const linkFieldsWithoutNavigationProperty =
-                    this.ticker.Columns.filter(x => x.Type === 'link' && !x.LinkNavigationProperty);
+                selects.push(column.SelectableFieldName + ' as ' + column.Alias);
 
-                linkFieldsWithoutNavigationProperty.forEach(field => {
-                    const paramSelect = 'ID as ID';
-                    if (!selects.find(x => x === paramSelect)) {
-                        selects.push(paramSelect);
-                    }
-                });
-
-                this.selects = selects.join(',');
-
-                const contextMenuItems: IContextMenuItem[] = [];
-                if (this.ticker.Actions) {
-                    this.ticker.Actions.forEach(action => {
-                        if (action.DisplayInContextMenu) {
-                            if (action.Type === 'transition' && !action.Options.Transition) {
-                                throw Error(
-                                    `Cannot add action with Type = transition without` +
-                                    ` specifying which Transition to execute, action: ${action.Code}`
-                                );
-                            }
-
-                            const actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
-                            if (action.NeedsActionOverride && !actionOverride) {
-                                // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
-                            } else if (action.Type === 'action' && !actionOverride) {
-                                // console.log(`Action ${action.Code} not available because of missing action override`);
-                            } else {
-                                contextMenuItems.push({
-                                    label: action.Name,
-                                    action: (rowModel) => {
-                                        this.startExecuteAction(action, [rowModel]);
-                                    },
-                                    disabled: (rowModel) => {
-
-                                        if (actionOverride && actionOverride.CheckActionIsDisabled) {
-                                            return actionOverride.CheckActionIsDisabled(rowModel);
-                                        }
-
-                                        if (action.Type === 'transition') {
-                                            if (!rowModel._links) {
-                                                throw Error('Cannot setup transition action, hateoas is not retrieved');
-                                            } else {
-                                                if (!rowModel._links.transitions[action.Options.Transition]) {
-                                                    return true;
-                                                }
-                                            }
-                                        }
-
-                                        return false;
-                                    }
-                                });
-                            }
+                if (column.SubFields) {
+                    column.SubFields.forEach(subColumn => {
+                        if (this.shouldAddColumnToQuery(subColumn, tableColumn)) {
+                            this.setExpand(subColumn);
+                            selects.push(subColumn.SelectableFieldName + ' as ' + subColumn.Alias);
                         }
                     });
                 }
 
-                // Setup table
-                this.tableConfig = new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 19)
-                    .setColumns(columns)
-                    .setEntityType(this.ticker.Model)
-                    .setAllowGroupFilter(true)
-                    .setColumnMenuVisible(true)
-                    .setSearchable(this.unitableSearchVisible)
-                    .setMultiRowSelect(this.isMultiRowSelect())
-                    .setSearchListVisible(true)
-                    .setAllowEditToggle(this.ticker.EditToggle)
-                    .setContextMenu(contextMenuItems, true, false)
-                    .setDataMapper((data) => {
-                        if (this.ticker.Model) {
-                            const tmp = data !== null ? data.Data : [];
+                if (!this.headers || this.headers === '') {
+                    this.headers = column.Header;
+                } else {
+                    this.headers = this.headers.concat(',', column.Header);
+                }
+            }
 
-                            if (data !== null && data.Message !== null && data.Message !== '') {
-                                this.toastService.addToast('Feil ved henting av data, ' + data.Message,
-                                    ToastType.bad);
-                            }
+            if (column.Type !== 'dontdisplay') {
+                let colType = UniTableColumnType.Text;
 
-                            return tmp;
-                        } else {
-                            if (this.ticker.ListObject && this.ticker.ListObject !== '') {
-                                return data[this.ticker.ListObject];
-                            }
+                if (column.Type !== '') {
+                    switch (column.Type) {
+                        case 'number':
+                            colType = UniTableColumnType.Number;
+                            break;
+                        case 'money':
+                            colType = UniTableColumnType.Money;
+                            break;
+                        case 'percent':
+                            colType = UniTableColumnType.Percent;
+                            break;
+                        case 'boolean':
+                            colType = UniTableColumnType.Boolean;
+                            break;
+                        case 'date':
+                        case 'datetime':
+                        case 'localdate':
+                            colType = UniTableColumnType.DateTime;
+                            break;
+                        case 'attachment':
+                            colType = UniTableColumnType.Text;
+                    }
+                }
 
-                            return data;
-                        }
-                    })
-                    .setIsRowReadOnly(row => {
-                        if (!this.ticker.ReadOnlyCases) {
-                            return false;
-                        }
-                        return this.ticker.ReadOnlyCases
-                            .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
+                const col = new UniTableColumn(column.SelectableFieldName, column.Header, colType);
+                col.alias = column.Alias;
+                col.width = column.Width;
+                col.isSumColumn = column.SumColumn;
+                col.sumFunction = column.SumFunction;
+
+                if (column.Resizeable === false) {
+                    col.resizeable = false;
+                }
+
+                if (column.CssClass) {
+                    col.cls = column.CssClass;
+                }
+
+                if (column.Type === 'link') {
+                    col.headerCls = 'ticker-link-col';
+                    col.cls = 'ticker-link-col';
+                }
+
+                if (column.DisplayField) {
+                    col.displayField = column.DisplayField;
+                }
+
+                const columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
+                if (columnOverride) {
+                    col.setTemplate(row => {
+                        // use the tickerservice to get and format value based on override template
+                        return this.uniTickerService
+                            .getFieldValue(column, row, this.ticker, this.columnOverrides);
                     });
+                } else {
+                    // set up templates based on rules for e.g. fieldname
+                    if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
+                        || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
+                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
+                        col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLowerCase().endsWith('printstatus')) {
+                        col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                        col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.typeofemployment')) {
+                        col.template = (rowModel) => EmploymentStatuses.employmentTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.remunerationtype')) {
+                        col.template = (rowModel) => EmploymentStatuses.remunerationTypeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.workinghoursscheme')) {
+                        col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
+                    }
+
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employeeleave.leavetype')) {
+                        col.template = (rowModel) => this.employeeLeaveService.leaveTypeToText(rowModel[column.Alias]);
+                    }
+                }
+
+                if (column.Type === 'attachment') {
+                    col.setTemplate(line => line.Attachments ? PAPERCLIP : '');
+                    col.setOnCellClick(row => {
+                        if (row.Attachments) {
+                            const entity = column.ExternalModel ? column.ExternalModel : this.ticker.Model;
+                            this.modalService.open(ImageModal, { data: {
+                                entity: entity,
+                                entityID: row.JournalEntryID
+                            }});
+                        }
+                    });
+                } else if (column.Type === 'link' || column.Type === 'external-link' || column.Type === 'mailto') {
+                    col.setType(13);
+                    col.setLinkResolver(row => this.uniTickerService.linkColUrlResolver(column, row, this.ticker));
+                    col.setTemplate(row => this.uniTickerService.getFieldValue(column, row, this.ticker, this.columnOverrides));
+
+                    if (column.Type === 'mailto') {
+                        col.cls = (col.cls || '') + ' ticker-mailto-col';
+                    }
+
+                } else if (column.SubFields && column.SubFields.length > 0) {
+                    col.setTemplate(row => {
+                        return this.uniTickerService.getFieldValue(
+                            column, row, this.ticker, this.columnOverrides
+                        );
+                    });
+                }
+
+                if (column.Format && column.Format !== '') {
+                    // TODO Sett opp flere fornuftige ferdigformater her - f.eks. "NumberPositiveNegative" etc
+                    switch (column.Format) {
+                        case 'DateWithTime':
+                            col.setType(UniTableColumnType.Text);
+                            col.setTemplate(row => row[col.alias] ? moment(row[col.alias]).format('DD.MM.YYYY HH:mm') : '');
+                            break;
+                        case 'DateMonth':
+                            col.setType(UniTableColumnType.Text);
+                            col.setTemplate(row =>  {
+                                const month = row[col.alias] ? moment(row[col.alias]).format('MM') : '';
+                                return month.startsWith('0') ? month.slice(1, 2) : month;
+                            });
+                            col.setAlignment('right');
+                            break;
+                        case 'NumberPositiveNegative':
+                            col.setConditionalCls(row => +row[column.Alias || column.Field] >= 0 ?
+                                'number-good'
+                                : 'number-bad'
+                            );
+                            break;
+                        case 'DatePassed':
+                            col.setConditionalCls(row => {
+                                return moment(row[column.Alias || column.Field]).isBefore(moment())
+                                    ? 'date-bad'
+                                    : 'date-good';
+                            });
+                            break;
+                        case 'SharingStatus':
+                            col.setConditionalCls(row => {
+                                switch (row[column.Alias]) {
+                                    case StatusCodeSharing.Completed:
+                                        return 'status-good';
+                                    case StatusCodeSharing.Failed:
+                                        return 'status-bad';
+                                    case StatusCodeSharing.InProgress:
+                                        return 'status-waiting';
+                                }
+                            });
+                            break;
+                        case 'json':
+                            col.setTemplate(row => JSON.stringify(row));
+                            break;
+                    }
+                }
+
+                if (column.Alignment) {
+                    col.setAlignment(column.Alignment);
+                }
+
+                if (column.DefaultHidden) {
+                    col.setVisible(false);
+                }
+
+                if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq'
+                    || column.FilterOperator === 'contains') {
+                        col.setFilterOperator(column.FilterOperator);
+                } else {
+                    col.filterable = false;
+                }
+
+                if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
+                    const statusCodes = this.statusService.getStatusCodesForEntity(this.ticker.Model);
+                    if (statusCodes && statusCodes.length > 0) {
+                        col.selectConfig = {
+                            options: statusCodes,
+                            displayField: 'name',
+                            valueField: 'statusCode'
+                        };
+                    }
+                }
+
+                // Add functionality to only show fields on given Filters
+                // Dont add columns that have filter lock and is not visible (filter is not correct)
+                if (!column.ShowOnlyOnThisFilter || (column.ShowOnlyOnThisFilter &&
+                    this.ticker.Filters.length > column.ShowOnlyOnThisFilter
+                    && this.ticker.Filters[column.ShowOnlyOnThisFilter].IsActive)) {
+                    columns.push(col);
+                }
+
+            }
+        }
+
+        // if any subtickers exists, and any of them need info from the parent (i.e. this component),
+        // make sure we have this data available in the query. This means that we e.g. add a select
+        // for ID, even though that does not exist in the ticker
+        const subTickersWithParentFilter =
+            !this.ticker.SubTickers ?
+                []
+                : this.ticker.SubTickers.filter(st => st.ParentFilter && st.ParentFilter.Value);
+
+        subTickersWithParentFilter.forEach(st => {
+            const paramAlias = st.ParentFilter.Value.replace('.', '');
+            const paramSelect = st.ParentFilter.Value + ' as ' + paramAlias;
+
+            if (!selects.find(x => x === paramSelect)) {
+                selects.push(paramSelect);
+            }
         });
+
+        let actionsWithDetailNavigation: Array<TickerAction> = [];
+        actionsWithDetailNavigation =
+            this.getTickerActions().filter(st =>
+                st.Type === 'details'
+                || st.Type === 'action'
+                || st.Type === 'transition'
+                || st.Type === 'print'
+            );
+
+        actionsWithDetailNavigation.forEach(st => {
+            let paramSelects = ['ID as ID'];
+            if (st.Options.ParameterProperty !== '') {
+                paramSelects =
+                    [`${st.Options.ParameterProperty} as ${st.Options.ParameterProperty.replace('.', '')}`];
+            } else if (st.Options.ParameterProperties && st.Options.ParameterProperties.length) {
+                paramSelects = st.Options.ParameterProperties.map(prop => {
+                    return `${prop} as ${prop.replace('.', '')}`;
+                });
+            }
+
+            selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
+        });
+
+        const linkFieldsWithNavigationProperty =
+            this.ticker.Columns.filter(x => x.Type === 'link' && x.LinkNavigationProperty);
+
+        linkFieldsWithNavigationProperty.forEach(field => {
+            const paramSelect = `${field.LinkNavigationProperty} as ${field.LinkNavigationProperty.replace('.', '')}`;
+            if (!selects.find(x => x === paramSelect)) {
+                selects.push(paramSelect);
+            }
+        });
+
+        const linkFieldWithNavigationProprties = this.ticker.Columns
+            .filter(x => x.Type === 'link'
+                && x.LinkNavigationProperties
+                && x.LinkNavigationProperties.length);
+
+        linkFieldWithNavigationProprties.forEach(field => {
+            const paramSelects = field.LinkNavigationProperties.map(prop => {
+                return `${prop} as ${prop.replace('.', '')}`;
+            });
+            selects = [...selects, ...paramSelects.filter(param => !selects.some(x => x === param))];
+        });
+
+        const linkFieldsWithoutNavigationProperty =
+            this.ticker.Columns.filter(x => x.Type === 'link' && !x.LinkNavigationProperty);
+
+        linkFieldsWithoutNavigationProperty.forEach(field => {
+            const paramSelect = 'ID as ID';
+            if (!selects.find(x => x === paramSelect)) {
+                selects.push(paramSelect);
+            }
+        });
+
+        this.selects = selects.join(',');
+
+        const contextMenuItems: IContextMenuItem[] = [];
+        if (this.ticker.Actions) {
+            this.ticker.Actions.forEach(action => {
+                if (action.DisplayInContextMenu) {
+                    if (action.Type === 'transition' && !action.Options.Transition) {
+                        throw Error(
+                            `Cannot add action with Type = transition without` +
+                            ` specifying which Transition to execute, action: ${action.Code}`
+                        );
+                    }
+
+                    const actionOverride = this.actionOverrides && this.actionOverrides.find(x => action.Code === x.Code);
+                    if (action.NeedsActionOverride && !actionOverride) {
+                        // console.log(`Action ${action.Code} needs an ActionOverride to function correctly, and that is not specified`);
+                    } else if (action.Type === 'action' && !actionOverride) {
+                        // console.log(`Action ${action.Code} not available because of missing action override`);
+                    } else {
+                        contextMenuItems.push({
+                            label: action.Name,
+                            action: (rowModel) => {
+                                this.startExecuteAction(action, [rowModel]);
+                            },
+                            disabled: (rowModel) => {
+
+                                if (actionOverride && actionOverride.CheckActionIsDisabled) {
+                                    return actionOverride.CheckActionIsDisabled(rowModel);
+                                }
+
+                                if (action.Type === 'transition') {
+                                    if (!rowModel._links) {
+                                        throw Error('Cannot setup transition action, hateoas is not retrieved');
+                                    } else {
+                                        if (!rowModel._links.transitions[action.Options.Transition]) {
+                                            return true;
+                                        }
+                                    }
+                                }
+
+                                return false;
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        return new UniTableConfig(configStoreKey, false, true, this.ticker.Pagesize || 19)
+            .setColumns(columns)
+            .setEntityType(this.ticker.Model)
+            .setAllowGroupFilter(true)
+            .setColumnMenuVisible(true)
+            .setSearchable(this.unitableSearchVisible)
+            .setMultiRowSelect(this.isMultiRowSelect())
+            .setSearchListVisible(true)
+            .setAllowEditToggle(this.ticker.EditToggle)
+            .setContextMenu(contextMenuItems, true, false)
+            .setDataMapper((data) => {
+                if (this.ticker.Model) {
+                    const tmp = data !== null ? data.Data : [];
+
+                    if (data !== null && data.Message !== null && data.Message !== '') {
+                        this.toastService.addToast('Feil ved henting av data, ' + data.Message,
+                            ToastType.bad);
+                    }
+
+                    return tmp;
+                } else {
+                    if (this.ticker.ListObject && this.ticker.ListObject !== '') {
+                        return data[this.ticker.ListObject];
+                    }
+
+                    return data;
+                }
+            })
+            .setIsRowReadOnly(row => {
+                if (!this.ticker.ReadOnlyCases) {
+                    return false;
+                }
+                return this.ticker.ReadOnlyCases
+                    .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
+            });
     }
 
     private isMultiRowSelect(): boolean {
@@ -1230,12 +1256,9 @@ export class UniTicker {
         const stringSelect = [];
         const headers = [];
 
-        // Get configs from local storage
-        const configs = JSON.parse(localStorage.getItem('uniTable_column_configs'));
-
-        // See if user has changed the setup of the visible fields. If not, use default config object
-        if (!!configs['uniTicker.' + this.ticker.Code]) {
-            configs['uniTicker.' + this.ticker.Code].forEach((col)  => {
+        const tableColumns = this.table && this.table.columns;
+        if (tableColumns && tableColumns.length) {
+            tableColumns.forEach(col => {
                 if (col.visible) {
                     stringSelect.push(col.field + ' as ' + col.alias);
                     headers.push(col.header);

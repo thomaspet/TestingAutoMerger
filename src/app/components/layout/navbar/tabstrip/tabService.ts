@@ -72,6 +72,7 @@ export enum UniModules {
     AltinnOverview = 509,
     Travel = 510,
     TravelType = 511,
+    SalarybalanceTemplates = 512,
 
     WorkProfiles    = 600,
     Workers         = 601,
@@ -129,8 +130,8 @@ export class TabService {
      * https://unimicro.atlassian.net/wiki/pages/viewpage.action?spaceKey=AD&title=TabService
      */
     public addTab(newTab: IUniTab) {
-        var duplicate = false;
-        var moduleCheck = { index: 0, exists: false };
+        let duplicate = false;
+        const moduleCheck = { index: 0, exists: false };
         this.tabs.forEach((tab, i) => {
             tab.active = false;
             if (tab.name === newTab.name) {
@@ -308,7 +309,7 @@ export class TabService {
     }
 
     private getMemStore(): IUniTab[] {
-        let tabs: IUniTab[] = this.browserStorage.getItem(this.storageKey);
+        const tabs: IUniTab[] = this.browserStorage.getItem(this.storageKey);
 
         // TODO: this can be removed after some time (added 04.09.17)
         // It's only here to remove old tab store entries that includes Dashboard

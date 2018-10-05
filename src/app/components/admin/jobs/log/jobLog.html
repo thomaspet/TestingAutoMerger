@@ -34,4 +34,15 @@
             </td>
         </tr>
     </table>
+    <br />
+    <table *ngIf="(errorMessage$ | async)" class="jobLog">
+        <tr >
+            <td>Error</td>
+        </tr>
+        <tr>
+            <td class="bad">
+                {{errorMessage$ | async}}                
+            </td>
+        </tr>
+    </table>
 </section>

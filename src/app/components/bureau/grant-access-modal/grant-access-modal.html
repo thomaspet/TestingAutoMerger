@@ -1,67 +1,82 @@
-<section role="dialog" class="uni-modal medium">
-    <header>
+<section role="dialog" class="uni-modal">
+    <!-- <header>
         <h1>Gi tilgang</h1>
-    </header>
-
-    <section class="uni-statustrack" *ngIf="showProgressBar">
-        <ol>
-            <li (click)="currentPage = PageType.selectLicense"
-                [ngClass]="classToShow(PageType.selectLicense)">
-                <span class="statustrack_title">Velg lisens</span>
-            </li>
-            <li (click)="switchToPage(PageType.selectCompanies)"
-                [ngClass]="classToShow(PageType.selectCompanies)">
-                <span class="statustrack_title">Velg selskaper</span>
-            </li>
-            <li (click)="switchToPage(PageType.selectUsers)"
-                [ngClass]="classToShow(PageType.selectUsers)">
-                <span class="statustrack_title">Velg brukere</span>
-            </li>
-            <li (click)="switchToPage(PageType.selectProducts)"
-                [ngClass]="classToShow(PageType.selectProducts)">
-                <span class="statustrack_title">Velg produkter</span>
-            </li>
-            <li (click)="switchToPage(PageType.execute)"
-                [ngClass]="classToShow(PageType.execute)">
-                <span class="statustrack_title">Send inn</span>
-            </li>
-        </ol>
-    </section>
+    </header> -->
 
     <article>
-        <select-license-for-bulk-access
-            *ngIf="currentPage === PageType.selectLicense"
-            [data]="grantAccessData"
-            (next)="goToNextPage()"
-        ></select-license-for-bulk-access>
-        <select-companies-for-bulk-access
-            *ngIf="currentPage === PageType.selectCompanies"
-            [data]="grantAccessData"
-            (next)="goToNextPage()"
-        ></select-companies-for-bulk-access>
-        <select-users-for-bulk-access
-            *ngIf="currentPage === PageType.selectUsers"
-            [data]="grantAccessData"
-            (next)="goToNextPage()"
-        ></select-users-for-bulk-access>
-        <select-products-for-bulk-access
-            *ngIf="currentPage === PageType.selectProducts"
-            [data]="grantAccessData"
-            (next)="goToNextPage()"
-        ></select-products-for-bulk-access>
-        <execute-for-bulk-access
-            *ngIf="currentPage === PageType.execute"
-            [data]="grantAccessData"
-            (next)="goToNextPage() && hideProgressBar()"
-        ></execute-for-bulk-access>
+        <mat-horizontal-stepper *ngIf="!showReceipt" [linear]="true" (selectionChange)="onStepChange($event)" #stepper [@.disabled]="true">
+            <mat-step label="Lisens" [completed]="licenseSelected">
+                <select-license-for-bulk-access
+                    *ngIf="currentPage === PageType.selectLicense"
+                    [data]="grantAccessData"
+                    (stepComplete)="licenseSelected = true"
+                ></select-license-for-bulk-access>
+            </mat-step>
+
+            <mat-step label="Selskaper" [completed]="companiesSelected">
+                <select-companies-for-bulk-access
+                    *ngIf="currentPage === PageType.selectCompanies"
+                    [data]="grantAccessData"
+                    (stepComplete)="companiesSelected = $event"
+                ></select-companies-for-bulk-access>
+
+            </mat-step>
+
+            <mat-step label="Brukere" [completed]="usersSelected">
+                <select-users-for-bulk-access
+                    *ngIf="currentPage === PageType.selectUsers"
+                    [data]="grantAccessData"
+                    (stepComplete)="usersSelected = $event"
+                ></select-users-for-bulk-access>
+            </mat-step>
+
+            <mat-step label="Produkter" [completed]="productsSelected">
+                <select-products-for-bulk-access
+                    *ngIf="currentPage === PageType.selectProducts"
+                    [data]="grantAccessData"
+                    (stepComplete)="productsSelected = $event"
+                ></select-products-for-bulk-access>
+            </mat-step>
+
+            <mat-step label="Bekreft">
+                <execute-for-bulk-access
+                    *ngIf="currentPage === PageType.execute"
+                    [data]="grantAccessData"
+                ></execute-for-bulk-access>
+            </mat-step>
+        </mat-horizontal-stepper>
+
+        <!-- Receipt -->
         <receipt-for-bulk-access
-            *ngIf="currentPage === PageType.receipt"
-            [data]="grantAccessData"
-            (next)="close()"
+            *ngIf="showReceipt"
+            [hangfireID]="hangfireID"
         ></receipt-for-bulk-access>
     </article>
 
     <footer>
-        <button class="warn" (click)="close()">Lukk</button>
+        <button class="back"
+            *ngIf="!showReceipt"
+            (click)="stepper.previous()"
+            [disabled]="currentPage === 0">
+
+            Tilbake
+        </button>
+
+        <button class="c2a"
+            *ngIf="!showReceipt && currentPage < 4"
+            (click)="stepper.next()">
+
+            Neste
+        </button>
+
+        <button class="good"
+            *ngIf="!showReceipt && currentPage >= 4"
+            (click)="sendInvites()">
+
+            Gi tilganger
+        </button>
+
+
+        <button class="cancel" (click)="close()">Avbryt</button>
     </footer>
 </section>

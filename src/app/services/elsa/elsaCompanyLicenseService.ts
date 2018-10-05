@@ -47,7 +47,7 @@ export class ElsaCompanyLicenseService {
             .send()
             .map(req => req.json());
     }
-j
+
     public PurchasesForUserLicense(companyKey: string): Observable<ElsaPurchasesForUserLicenseByCompany[]> {
         return this.uniHttp
             .asGET()

@@ -89,24 +89,23 @@
                     class="image-word"
                     title="{{word.text}}"
                     [ngStyle]="word._style"
-                    (click)="onWordClicked(word, $event)">
+                    (click)="onOCRWordClick(word, $event)"
+                    [matMenuTriggerFor]="ocrMenu">
                 </span>
 
-                <div *ngIf="wordPickerAreaVisible"
-                    class="word-picker-area"
-                    [ngStyle]="currentClickedWordStyle"
-                    (click)="$event.stopPropagation()"
-                    (clickOutside)="abortUseWord()">
+                <mat-menu #ocrMenu="matMenu" [overlapTrigger]="false">
+                    <section class="ocr-value-picker" (click)="$event.stopPropagation()">
+                        <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
+                        <strong>Bruk verdi som</strong>
 
-                    <p>Valgt verdi: {{currentClickedWord.text}}</p>
-                    <h3>Bruk verdi som:</h3>
-                    <button (click)="selectWordUsage(7, $event)">Fakturadato</button>
-                    <button (click)="selectWordUsage(8, $event)">Forfallsdato</button>
-                    <button (click)="selectWordUsage(5, $event)">Fakturanummer</button>
-                    <button (click)="selectWordUsage(3, $event)">Bankkonto</button>
-                    <button (click)="selectWordUsage(4, $event)">KID</button>
-                    <button (click)="selectWordUsage(6, $event)">Fakturabeløp</button>
-                </div>
+                        <button mat-menu-item (click)="selectOCRWord(7, $event)">Fakturadato</button>
+                        <button mat-menu-item (click)="selectOCRWord(8, $event)">Forfallsdato</button>
+                        <button mat-menu-item (click)="selectOCRWord(5, $event)">Fakturanummer</button>
+                        <button mat-menu-item (click)="selectOCRWord(3, $event)">Bankkonto</button>
+                        <button mat-menu-item (click)="selectOCRWord(4, $event)">KID</button>
+                        <button mat-menu-item (click)="selectOCRWord(6, $event)">Fakturabeløp</button>
+                    </section>
+                </mat-menu>
 
                 <span id="span-area-highlighter" class="span-area-highlight-class" [ngStyle]="highlightStyle"></span>
             </span>

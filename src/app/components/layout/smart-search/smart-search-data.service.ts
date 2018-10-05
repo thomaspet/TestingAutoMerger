@@ -4,12 +4,10 @@ import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';
-import {
-    UniModalService,
-    ConfirmActions
-} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {AuthService} from '@app/authService';
 
 @Injectable()
 export class SmartSearchDataService {
@@ -24,7 +22,7 @@ export class SmartSearchDataService {
     public isNewTOFWithCustomerSearch: boolean = false;
     public newTOFWithCustomerURL;
     public prefixModule: any;
-    private predifinedPrefixes = [
+    private predefinedPrefixes = [
         'f', 'o', 't', 'a', 'l', 'p', 'k',
         'faktura',
         'ordre',
@@ -37,7 +35,11 @@ export class SmartSearchDataService {
         'rapport'
     ];
 
-    constructor(private navbarLinkService: NavbarLinkService, private uniModalService: UniModalService) {
+    constructor(
+        private navbarLinkService: NavbarLinkService,
+        private uniModalService: UniModalService,
+        private authService: AuthService
+    ) {
         this.navbarLinkService.linkSections$.subscribe(linkSections => {
             this.componentLookupSource = [];
             this.confirmedSuperSearchRoutes = [];
@@ -68,7 +70,9 @@ export class SmartSearchDataService {
     }
 
     public asyncLookup(query: string): Observable<any[]> {
-        this.isPrefixSearch = this.checkPrefixForSpecificSearch(query);
+        const prefix = this.getPrefix(query);
+
+        this.isPrefixSearch = !!prefix;
         this.isNewTOFWithCustomerSearch = this.checkPrefixForTOFWithNewCustomer(query);
         if ((query.startsWith('ny') || query.startsWith('nytt') || query === '' || (query.length < 3 && !this.isPrefixSearch))
             && !this.isNewTOFWithCustomerSearch ) {
@@ -141,15 +145,15 @@ export class SmartSearchDataService {
         return dataForViewRender;
     }
 
-    private checkPrefixForSpecificSearch(query: string) {
-        // Check first to see if the user has added a '.' in search to indicate prefix search
+    private getPrefix(query: string) {
         if (query.includes('.')) {
-            const firstWordSearched = query.split('.')[0];
-            if (this.predifinedPrefixes.indexOf(firstWordSearched.toLowerCase()) >= 0) {
-                return true;
+            const prefix = query.split('.')[0];
+            if (this.predefinedPrefixes.includes(prefix)) {
+                return prefix;
             }
         }
-        return false;
+
+        return;
     }
 
     private checkPrefixForTOFWithNewCustomer(query) {

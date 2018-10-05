@@ -33,56 +33,37 @@ export interface ITagAutoComplete {
 @Component({
     selector: 'uni-tags',
     template: `
-    <div (clickOutside)="isOpen = false">
-        <button type="button"
-            class="tags_toggle"
-            (click)="isOpen = !isOpen">
-            {{config?.description || ''}}
-            {{tagsSummary()}}
-        </button>
-
-        <article class="tags_control"
-            [attr.aria-expanded]="isOpen"
-            [title]="config?.toolTip || ''">
-
-            <small *ngIf="config?.helpText">{{helpText}}</small>
-
-            <ul class="tags_list"
-                [attr.aria-readonly]="config?.readOnly"
-                [attr.aria-busy]="listBusy">
-                <li class="tags_tag"
-                    *ngFor="let tag of tags">
-                    {{tag.title}}
-                    <button type="button"
-                        class="tags_tag_removeBtn"
-                        (click)="remove(tag)">
-                        Delete {{tag.title}}
-                    </button>
-                </li>
-            </ul>
-            <section class="tags_lookup" *ngIf="config && !config.readOnly">
-                <label>
-                    {{config?.lookupLabel || 'Søk opp kategori'}}
-
-                    <input *ngIf="!autoCompleteField" [(ngModel)]="newTag" (keydown.enter)="add(newTag)"/>
-                    <button class="good"
-                        *ngIf="!autoCompleteField"
-                        type="button"
-                        (click)="add(newTag)">
-                        Legg til
-                    </button>
-                    <uni-autocomplete-input *ngIf="autoCompleteField"
-                        [attr.aria-busy]="searchBusy"
-                        [field]="autoCompleteField"
-                        [model]="autoCompleteModel">
-                    </uni-autocomplete-input>
-                </label>
+        <section (clickOutside)="isOpen = false">
+            <span class="tags-toggle" (click)="isOpen = !isOpen">
+                <i class="material-icons">
+                    {{isOpen ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
+                </i>
+                {{config?.description || ''}} {{tagsSummary()}}
+            </span>
+            <section class="tags-dropdown" *ngIf="isOpen">
+                <p *ngIf="config?.helpText" style="margin-top: 0;">
+                    {{config.helpText}}
+                </p>
+                <ul class="tag-list">
+                    <li *ngFor="let tag of tags">
+                        {{tag.title}}
+                        <i class="material-icons" *ngIf="config && !config.readOnly" (click)="remove(tag)">
+                            close
+                        </i>
+                    </li>
+                </ul>
+                <section class="tags_lookup" *ngIf="config && !config.readOnly">
+                    <label>
+                        {{config?.lookupLabel || 'Legg til'}}
+                        <uni-autocomplete-input *ngIf="autoCompleteField"
+                            [attr.aria-busy]="searchBusy"
+                            [field]="autoCompleteField"
+                            [model]="autoCompleteModel">
+                        </uni-autocomplete-input>
+                    </label>
+                </section>
             </section>
-            <section class="tags_lookup" *ngIf="config && config.readOnly">
-                {{config?.readOnlyMessage}}
-            </section>
-        </article>
-    </div>
+        </section>
     `
 })
 export class UniTags implements OnChanges {
@@ -93,21 +74,18 @@ export class UniTags implements OnChanges {
 
     public isOpen: boolean = false;
     public helpText: string;
-    private newTag: string = '';
     public autoCompleteModel: any = null;
     private autoCompleteField: UniFieldLayout;
     private searchBusy: boolean;
-    public listBusy: boolean;
     private ignoreFilter: string;
 
-    constructor(
-        private errorService: ErrorService
-    ) {}
+    constructor(private errorService: ErrorService) {}
 
     public ngOnChanges(change) {
         if (change['config']
             && this.config.autoCompleteConfig
-            && this.config.autoCompleteConfig.search) {
+            && this.config.autoCompleteConfig.search
+        ) {
             this.autoCompleteField = new UniFieldLayout();
             this.autoCompleteField.Property = '';
             this.autoCompleteField.FieldType = FieldType.AUTOCOMPLETE;
@@ -133,47 +111,34 @@ export class UniTags implements OnChanges {
     }
 
     public remove(tag: ITag): void {
-        if (!this.config.readOnly) {
-            Observable
-                .of(true)
-                .do(() => this.listBusy = true)
-                .switchMap(isDeleted => {
-                    let autoCompConfig = this.config.autoCompleteConfig;
-                    return (autoCompConfig && autoCompConfig.deleteCallback)
-                        ? autoCompConfig.deleteCallback(tag)
-                        : Observable.of(isDeleted);
-                })
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .filter(isDeleted => isDeleted)
-                .finally(() => this.listBusy = false)
-                .subscribe(isDeleted => {
+        const config = this.config.autoCompleteConfig;
+        if (config && config.deleteCallback) {
+            config.deleteCallback(tag).subscribe(
+                () => {
                     this.tags.splice(
                         this.tags.findIndex(tg => tg.linkID ? tg.linkID === tag.linkID : tg.title === tag.title), 1
                     );
                     this.tagsChange.emit(this.tags);
                     this.buildNewIgnoreFilter(this.tags);
-                });
+                },
+                err => this.errorService.handle(err)
+            );
         }
     }
 
     public add(tag: any) {
-        Observable
-            .of(tag)
-            .do(() => this.clearAutoComplete())
-            .filter(newTag => !!newTag)
-            .map(newTag => typeof newTag === 'string'
-                ? {title: newTag}
-                : newTag)
-            .do(() => this.searchBusy = true)
-            .switchMap(newTag => {
-                let autoCompConfig = this.config.autoCompleteConfig;
-                return (autoCompConfig && autoCompConfig.saveCallback)
-                    ? autoCompConfig.saveCallback(newTag)
-                    : Observable.of(newTag);
-            })
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .finally(() => this.searchBusy = false)
-            .subscribe((newTag) => this.handleNewTags(newTag));
+        const config = this.config.autoCompleteConfig;
+        this.searchBusy = true;
+
+        const saveObservable = config && config.saveCallback
+            ? config.saveCallback(tag)
+            : Observable.of(tag);
+
+        saveObservable.subscribe(
+            res => this.handleNewTags(res),
+            err => this.errorService.handle(err),
+            () => this.searchBusy = false
+        );
     }
 
     private getHelpText(config: IUniTagsConfig, tag: ITag[]): string {
@@ -192,7 +157,6 @@ export class UniTags implements OnChanges {
     private handleNewTags(tag: ITag) {
         if (!this.tags.some(tg => this.tagsEqual(tag, tg))) {
             this.tags.push(tag);
-            this.newTag = '';
             this.tagsChange.emit(this.tags);
             this.buildNewIgnoreFilter(this.tags);
         }
@@ -210,14 +174,7 @@ export class UniTags implements OnChanges {
         return tag1.title === tag2.title;
     }
 
-    private clearAutoComplete(): void {
-        if (this.autoCompleteField) {
-            this.autoCompleteField = _.cloneDeep(this.autoCompleteField);
-        }
-    }
-
     private buildNewIgnoreFilter(tags: ITag[]) {
         this.ignoreFilter = tags.map(x => 'ID ne ' +  x.linkID).join(' and ');
     }
-
 }

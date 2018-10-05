@@ -80,7 +80,7 @@ export class EventPlanDetails {
         if (field) {
             const oldValue = field.Hidden;
             field.Hidden = !value.PlanType;
-            change = field.Hidden !== oldValue ? true : false;
+            change = (field.Hidden !== oldValue && oldValue !== undefined) ? true : false;
         }
         return change ? [].concat(fields) : fields;
     }

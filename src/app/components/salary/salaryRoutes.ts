@@ -26,6 +26,14 @@ import {AltinnOverviewComponent} from './altinnOverview/altinn-overview/altinn-o
 import {EmpCanActivateGuard} from '@app/components/salary/employee/empGuard';
 import { TraveltypeComponent } from '@app/components/salary/travel/travel-type/traveltype.component';
 import {TravelComponent} from '@app/components/salary/travel/travel.component';
+import {
+    SalarybalanceTemplateListComponent
+} from '@app/components/salary/salarybalance/template/salarybalance-template-list/salarybalance-template-list.component';
+// import {
+//     SalarybalanceTemplateDetailsComponent
+// } from '@app/components/salary/salarybalance/template/salarybalance-template-details/salarybalance-template-details.component';
+import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
+import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
 
 export const salaryRoutes: Routes = [
     {
@@ -108,5 +116,15 @@ export const salaryRoutes: Routes = [
     {
         path: 'travels',
         component: TravelComponent
+    },
+    {
+        path: 'salarybalancetemplates',
+        component: SalarybalanceTemplateListComponent
+    },
+    {
+        path: 'salarybalancetemplates/:id',
+        component: SalarybalanceTemplateView,
+        children: SalarybalanceTemplateRoutes,
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

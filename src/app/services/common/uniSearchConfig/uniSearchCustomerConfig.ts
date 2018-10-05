@@ -85,6 +85,52 @@ export class UniSearchCustomerConfig {
         };
     }
 
+    public generateForBank(
+        expands: string[] = ['Info.Addresses'],
+        createNewFn?: (supplierName?: string) => Observable<UniEntity>
+    ): IUniSearchConfig {
+        return <IUniSearchConfig>{
+            lookupFn: searchTerm => this
+                .statisticsService
+                .GetAllUnwrapped(this.generateCustomerStatisticsQuery(searchTerm))
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (!selectedItem) {
+                    return Observable.empty();
+                }
+
+                if (selectedItem.ID) {
+                    return this.customerService.Get(selectedItem.ID, expands)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                } else {
+                    return this.customerService.Post(this.customStatisticsObjToCustomer(selectedItem))
+                        .switchMap(item => this.customerService.Get(item.ID, expands))
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            },
+            initialItem$: new BehaviorSubject(null),
+            tableHeader: ['Kundenr', 'Navn', 'Kontonr', 'Poststed', 'Org.Nr'],
+            rowTemplateFn: item => [
+                item.CustomerNumber,
+                item.Name,
+                item.AccountNumber,
+                `${item.PostalCode || ''} ${item.City || ''}`,
+                item.OrgNumber
+            ],
+            inputTemplateFn: item => `${item.Info && item.Info.Name ? item.Info.Name : ''}`,
+            createNewFn: createNewFn,
+            externalLookupFn: (query, searchCompanies, searchPersons) =>
+                this.integrationServerCaller
+                    .businessRelationSearch(query, MAX_RESULTS, searchCompanies, searchPersons)
+                    .map(results =>
+                        results.map(result =>
+                            this.mapExternalSearchToCustomStatisticsObj(result)
+                        )
+                    ),
+            maxResultsLength: MAX_RESULTS
+        };
+    }
+
     public generateDoNotCreate(
         expands: string[] = ['Info.Addresses'],
         createNewFn?: (supplierName?: string) => Observable<UniEntity>
@@ -144,14 +190,16 @@ export class UniSearchCustomerConfig {
 
     private generateCustomerStatisticsQuery(searchTerm: string): string {
         const model = 'Customer';
-        const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones';
+        const expand = 'Info.DefaultPhone,Info.InvoiceAddress,Info.DefaultEmail,Info.Phones,Info.DefaultBankAccount';
         const startNumber = this.getNumberFromStartOfString(searchTerm);
         let filter = `contains(Info.Name,'${searchTerm}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (Info.Name eq '${searchTerm}' and Customer.Statuscode ne ${StatusCode.Deleted}) or (InvoiceAddress.AddressLine1 eq '${searchTerm}' and Customer.Statuscode ne ${StatusCode.Deleted})`;
         let orderBy = 'Info.Name';
-        if (startNumber) {
-            filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number', 'Info.Name']
+        if (startNumber && startNumber < 999999999) {
+            filter = ['Customer.OrgNumber', 'Customer.CustomerNumber', 'Phones.Number', 'Info.Name', 'DefaultBankAccount.AccountNumber']
                 .map(x => `startswith(${x},'${startNumber}') and (Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) or (${x} eq ${startNumber} and Customer.Statuscode ne ${StatusCode.Deleted})`).join(' or ');
             orderBy = 'Customer.CustomerNumber';
+        } else if (startNumber) {
+            filter = `DefaultBankAccount.AccountNumber eq '${startNumber}'`;
         }
         const select = [
             'Customer.ID as ID',
@@ -165,7 +213,8 @@ export class UniSearchCustomerConfig {
             'DefaultEmail.EmailAddress as EmailAddress',
             'Customer.WebUrl as WebUrl',
             'Customer.CustomerNumber as CustomerNumber',
-            'Customer.StatusCode as StatusCode'
+            'Customer.StatusCode as StatusCode',
+            'DefaultBankAccount.AccountNumber as AccountNumber'
         ].join(',');
         const skip = 0;
         const top = MAX_RESULTS;

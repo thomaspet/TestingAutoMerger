@@ -3,3 +3,8 @@ export enum DebtCollectionAutomations {
     SemiAuto = 2,
     FullAuto = 3
 }
+
+export enum DebtCollectionFormat {
+    Predator = 1,
+    Lindorff = 2
+}

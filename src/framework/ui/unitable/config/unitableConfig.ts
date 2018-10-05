@@ -141,6 +141,25 @@ export class UniTableConfig implements IUniTableConfig {
         this.headerVisible = true;
     }
 
+    public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
+        const config = new UniTableConfig(configStoreKey);
+
+        Object.keys(obj).forEach((key) => {
+            if (key  === 'columns') {
+                const columns = [];
+                obj[key].forEach((col) => {
+                    columns.push(UniTableColumn.fromObject(col));
+                });
+
+                config[key] = columns;
+            } else {
+                config[key] = obj[key];
+            }
+        });
+
+        return config;
+    }
+
     public setAutofocus(autofocus: boolean) {
         this.autofocus = autofocus;
         return this;
@@ -294,7 +313,7 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setCopyFromCellAbove(copyFromCellAbove: boolean){
+    public setCopyFromCellAbove(copyFromCellAbove: boolean) {
         this.copyFromCellAbove = copyFromCellAbove;
         return this;
     }
@@ -307,24 +326,5 @@ export class UniTableConfig implements IUniTableConfig {
     public setSearchListVisible(visible: boolean) {
         this.searchListVisible = visible;
         return this;
-    }
-
-    public static fromObject(obj: IUniTableConfig, configStoreKey: string) {
-        let config = new UniTableConfig(configStoreKey);
-
-        Object.keys(obj).forEach((key) => {
-            if (key  === 'columns') {
-                let columns = [];
-                obj[key].forEach((col) => {
-                    columns.push(UniTableColumn.fromObject(col));
-                });
-
-                config[key] = columns;
-            } else {
-                config[key] = obj[key];
-            }
-        });
-
-        return config;
     }
 }

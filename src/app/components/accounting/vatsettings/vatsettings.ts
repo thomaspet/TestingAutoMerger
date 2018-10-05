@@ -8,6 +8,9 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {VatDeductionSettings} from './vatdeductions/vatdeductionsettings';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {VatDeductionGroupSetupModal} from './modals/vatDeductionGroupSetupModal';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
+import { UniModalService } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'vat-settings',
@@ -30,7 +33,7 @@ export class VatSettings {
         {name: 'Forholdsmessig MVA / fradrag'}
     ];
 
-    constructor(private tabService: TabService) {
+    constructor(private tabService: TabService, private modalService: UniModalService, private toastService: ToastService) {
         this.tabService.addTab({
             name: 'MVA-innstillinger',
             url: '/accounting/vatsettings',
@@ -62,13 +65,40 @@ export class VatSettings {
                 action: (completeEvent) => this.saveSettings(completeEvent),
                 main: true,
                 disabled: false
+            },
+            {
+                label: 'Administrer grupper',
+                action: (completeEvent) => this.showVatDeductionGroups(completeEvent),
+                main: false,
+                disabled: false
             }];
 
             this.toolbarconfig = {
-                title: 'Forholdsvis MVA-innstillinger',
+                title: 'Forholdsmessig MVA-innstillinger',
                 omitFinalCrumb: true
             };
         }
+    }
+
+    public showVatDeductionGroups(completeEvent) {
+        completeEvent();
+
+        this.modalService.open(VatDeductionGroupSetupModal, {}).onClose
+            .subscribe(result => {
+                if (result.didSave) {
+                    if (this.vatDeductionSettings.isDirty) {
+                        this.toastService.addToast(
+                            'Ulagrede endringer',
+                            ToastType.warn,
+                            ToastTime.long,
+                            'Du har endringer i tabellen under som ikke er lagret. ' +
+                            'Lagre disse endringene for å få inn oppdaterte/nye grupper i "Gruppe" kolonnen'
+                        );
+                    } else {
+                        this.vatDeductionSettings.loadData();
+                    }
+                }
+            });
     }
 
     public changeVatType(vatType) {

@@ -32,6 +32,8 @@ import {VatReportView} from './vatreport/vatreportview';
 import {JournalEntry} from './journalentry/journalentry';
 import {ResultReport} from './accountingreports/resultreport/resultreport';
 import {DimensionResultReport} from './accountingreports/dimensionreport/dimensionresultreport';
+import {DimensionTypeReport} from './accountingreports/dimensionreport/dimensiontypereport';
+import {AccountingReportShortcuts} from './accountingreports/reportshortcuts';
 import {AccountingReports} from './accountingreports/accountingreports';
 import {BalanceReport} from './accountingreports/balancereport/balancereport';
 import {AccountDetailsReportModal} from './accountingreports/detailsmodal/accountDetailsReportModal';
@@ -46,6 +48,7 @@ import {DimensionsOverviewReportPart} from './accountingreports/reportparts/dime
 import {DrilldownBalanceReportPart} from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
+import {VatDeductionGroupSetupModal} from './vatsettings/modals/vatDeductionGroupSetupModal';
 import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
@@ -63,7 +66,6 @@ import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
 import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
 import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
-import {UniAutomarkModal} from './postpost/automarkModal';
 import {UniNewSupplierModal} from './supplier/details/newSupplierModal';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
@@ -71,12 +73,13 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
-
-import {MatTabsModule} from '@angular/material';
+import {MatTabsModule, MatSelectModule, MatIconModule} from '@angular/material';
 
 @NgModule({
     imports: [
         MatTabsModule,
+        MatSelectModule,
+        MatIconModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
@@ -102,6 +105,7 @@ import {MatTabsModule} from '@angular/material';
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+        VatDeductionGroupSetupModal,
 
         NewAccountModal,
         SelectDraftLineModal,
@@ -151,13 +155,15 @@ import {MatTabsModule} from '@angular/material';
         DimensionsOverviewReportPart,
         DimensionResultReport,
         DrilldownBalanceReportPart,
+        DimensionTypeReport,
+        AccountingReportShortcuts,
 
         // PostPost
-        PostPost,
-        UniAutomarkModal
+        PostPost
     ],
     entryComponents: [
         HistoricVatReportModal,
+        VatDeductionGroupSetupModal,
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineModal,
@@ -168,8 +174,7 @@ import {MatTabsModule} from '@angular/material';
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
-        DraftLineDescriptionModal,
-        UniAutomarkModal
+        DraftLineDescriptionModal
     ],
     exports: [
         AccountSettings,
@@ -181,6 +186,7 @@ import {MatTabsModule} from '@angular/material';
         VatTypeDetails,
         VatTypeList,
         VatDeductionSettings,
+        VatDeductionGroupSetupModal,
         SupplierList,
         SupplierDetails,
 
@@ -221,8 +227,7 @@ import {MatTabsModule} from '@angular/material';
         DrilldownBalanceReportPart,
 
         // PostPost
-        PostPost,
-        UniAutomarkModal
+        PostPost
     ],
     providers: [
         PeriodFilterHelper,

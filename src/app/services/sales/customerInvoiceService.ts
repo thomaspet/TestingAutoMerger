@@ -8,7 +8,8 @@ import {
     LocalDate,
     InvoicePaymentData,
     ReportDefinition,
-    StatusCodeCustomerInvoiceReminder
+    StatusCodeCustomerInvoiceReminder,
+    JournalEntry,
 } from '../../unientities';
 import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
@@ -201,6 +202,16 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                 });
             });
         });
+    }
+
+    public payInvoice(id: number, payment: InvoicePaymentData): Observable<JournalEntry> {
+        return this.ActionWithBody(id, payment, 'payInvoice');
+    }
+
+    public payInvoices(data: {id: number, payment: InvoicePaymentData}[]): Observable<JournalEntry[]> {
+        if (!data.length) {return Observable.of([]);}
+
+        return Observable.forkJoin(data.map(d => this.payInvoice(d.id, d.payment)));
     }
 
     public onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {

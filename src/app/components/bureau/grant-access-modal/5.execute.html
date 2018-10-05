@@ -1,29 +1,34 @@
-<h1>Se gjennom valgene dine:</h1>
 
-<h2>Selskaper</h2>
-<section class="selection-list">
-    <span class="selection-item" *ngFor="let company of data.companies">
-        {{company.companyName}}
-        <span class="remove" *ngIf="data.companies.length > 1" (click)="deselectCompany(company)">&times;</span>
-    </span>
+<h1>Bekreft tilgangsendring</h1>
+
+<section class="grant-access-review-section">
+    <section>
+        <strong>Inviter brukere ({{data.users.length}})</strong>
+
+        <ul>
+            <li *ngFor="let user of data.users">
+                <small>{{user.userName}}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <strong>Til selskaper ({{data.companies.length}})</strong>
+
+        <ul>
+            <li *ngFor="let company of data.companies">
+                <small>{{company.companyName}}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <strong>Med produkttilganger ({{data.products.length}})</strong>
+
+        <ul>
+            <li *ngFor="let product of data.products">
+                <small>{{product.name}}</small>
+            </li>
+        </ul>
+    </section>
 </section>
-
-<h2>Brukere</h2>
-<section class="selection-list">
-    <span class="selection-item" *ngFor="let user of data.users">
-        {{user.userName}}
-        <span class="remove"*ngIf="data.users.length > 1" (click)="deselectUser(user)">&times;</span>
-    </span>
-</section>
-
-<h2>Produkter</h2>
-<section class="selection-list">
-    <span class="selection-item" *ngFor="let product of data.products">
-        {{product.name}}
-        <span class="remove" *ngIf="data.products.length > 1" (click)="deselectProduct(product)">&times;</span>
-    </span>
-</section>
-<br />
-<br />
-<button class="good" (click)="done()">Send inn</button>
-

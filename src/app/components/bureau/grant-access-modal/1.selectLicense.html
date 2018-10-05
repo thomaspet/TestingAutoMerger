@@ -1,10 +1,12 @@
 <h1>Velg lisensen du vil legge til brukere i</h1>
-<table class="list-of-contracts">
-    <tr *ngFor="let customer of customers">
-        <ng-container *ngFor="let contract of customer.contracts">
-            <td>{{customer.name}}<span class="license-tag">Lisens: {{contractTypeToText(contract.contractType)}}</span></td>
-            <td><button (click)="selectContract(contract)">Velg denne ▶</button></td>
-        </ng-container>
-    </tr>
-    <tr *ngIf="!customers"><td>Laster...</td></tr>
-</table>
+
+<section class="license-container" *ngFor="let customer of customers">
+    <section class="license"
+        *ngFor="let contract of customer.contracts"
+        [ngClass]="{'selected': selectedContractID === contract.id}"
+        (click)="selectContract(contract)">
+
+        <strong>{{customer.name}}</strong>
+        <span>Lisens: {{contractTypeToText(contract.contractType)}}</span>
+    </section>
+</section>

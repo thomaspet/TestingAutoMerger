@@ -9,9 +9,59 @@
     &:hover, &:focus
         background: none
 
+.mat-step-header .mat-step-icon
+    background-color: $uni-color-c2a !important
+
 .uni-progress-bar
     .mat-progress-bar-buffer
         background-color: #f7f7f7 !important
 
     .mat-progress-bar-fill::after
         background-color: $uni-color-toolbar !important
+
+
+mat-selection-list
+    .mat-list-text
+        font-weight: 400
+
+    .mat-list-option
+        font-size: 14px !important
+        color: #485460 !important
+        font-weight: 500
+        user-select: none
+
+    .mat-pseudo-checkbox
+        border-radius: 50% !important
+        border: 1px solid !important
+
+    .mat-pseudo-checkbox-checked
+        background: #1565c0
+        border: none !important
+
+        &:after
+            top: 6px !important
+            left: 4px !important
+
+        &.mat-pseudo-checkbox-disabled
+            background: #d3dbe3
+
+
+    .mat-list-item-disabled
+        background-color: unset
+        &:hover
+            background-color: unset
+
+        .mat-list-text
+            color: #d3dbe3
+
+        .mat-pseudo-checkbox
+            color: #d3dbe3
+
+
+.mat-menu-item
+    margin: 0
+    padding: 0
+    text-shadow: none
+    background-color: #fff
+    &:focus
+        background-color: #fff

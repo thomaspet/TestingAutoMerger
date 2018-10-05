@@ -17,18 +17,11 @@ import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
 import {Subscription} from 'rxjs/Subscription';
-import {
-    ErrorService,
-    UserService,
-    CompanyService,
-    TeamService,
-    ElsaProductService,
-    BrowserStorageService
-} from '@app/services/services';
+import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
+import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
 
 
 enum KPI_STATUS {
@@ -43,6 +36,15 @@ interface AllTagsType {
     count: number;
 }
 
+export interface IBureauPreferences {
+    filterString: string;
+    sortIsDesc: boolean;
+    sortField: string;
+    detailsMinimized?: boolean;
+    filters?: ICompanyGroup[];
+    activeFilterIndex?: number;
+}
+
 @Component({
     selector: 'uni-bureau-dashboard',
     templateUrl: './bureauDashboard.html'
@@ -51,7 +53,7 @@ export class BureauDashboard {
     @ViewChild('contextMenu') private contextMenu: ElementRef;
     @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
-    private companies: KpiCompany[];
+    companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];
     private subscription: Subscription;
 
@@ -60,6 +62,7 @@ export class BureauDashboard {
 
     filteredCompanies: KpiCompany[];
     highlightedCompany: KpiCompany;
+    detailsMinimized: boolean;
 
     searchControl: FormControl;
     busy: boolean = false;
@@ -69,6 +72,10 @@ export class BureauDashboard {
 
     allTags: AllTagsType[];
     activeTag: string;
+
+    groups: ICompanyGroup[] = [];
+    activeGroup: ICompanyGroup;
+    activeGroupIndex: number = -1;
 
     tableConfig: UniTableConfig = this.getTableConfig();
     detailsTabs: IUniTab[] = [
@@ -94,6 +101,7 @@ export class BureauDashboard {
 
         this.toolbarConfig = {
             title: '',
+            hideBreadcrumbs: true
         };
 
         this.saveActions = [
@@ -109,12 +117,23 @@ export class BureauDashboard {
     }
 
     public ngOnInit() {
-        const userPreferences = this.getUserPreferences();
+        const userPreferences = this.browserStorage.getItem('bureau_user_preferences') || {};
+
         this.searchControl = new FormControl(userPreferences.filterString || '');
         this.sortIsDesc = userPreferences.sortIsDesc || true;
         this.currentSortField = userPreferences.sortField;
-        this.companyTags = userPreferences.tagsForCompany || {};
-        this.allTags = this.generateAllTags(this.companyTags);
+        this.detailsMinimized = userPreferences.detailsMinimized;
+
+        const groups = userPreferences.filters || [];
+        if (!groups.some(g => g.name === 'Alle selskaper')) {
+            groups.unshift({
+                name: 'Alle selskaper',
+                static: true
+            });
+        }
+
+        this.groups = groups;
+        this.activeGroup = this.groups.find(g => g.active) || this.groups[0];
 
         this.authService.authentication$
             .asObservable()
@@ -122,8 +141,8 @@ export class BureauDashboard {
             .map(auth => auth.user.License.Company.Agency.Name)
             .subscribe(name => this.toolbarConfig.title = 'Mine selskaper' + (name ? ` - ${name}` : '') );
 
-        this.searchControl.valueChanges.subscribe((searchValue: string) => {
-            this.filterCompanies(searchValue);
+        this.searchControl.valueChanges.subscribe(() => {
+            this.filterCompanies();
         });
 
         this.busy = true;
@@ -150,19 +169,39 @@ export class BureauDashboard {
                     if (this.companies.length > 0) {
                         this.setCurrentCompany(this.companies[0]);
                     }
-                    this.filterCompanies(this.searchControl.value || '');
+                    this.filterCompanies();
+
+                    // this.editGroups();
                 },
                 err => this.errorService.handle(err)
             );
     }
 
-    public tagChanged(index: number) {
-        if (index === 0) {
-            this.activeTag = undefined;
-        } else {
-            this.activeTag = this.allTags[index].name;
-        }
-        this.filterCompanies(this.searchControl.value || '');
+    activateGroup(group?: ICompanyGroup) {
+        this.groups.forEach(g => {
+            g.active = g === group;
+        });
+
+        this.activeGroup = group;
+        this.filterCompanies();
+    }
+
+    editGroups() {
+        // const activeIndex = this.activeGroupIndex >= 0 ? this.activeGroupIndex : 0;
+        const activeIndex = this.groups.findIndex(g => g.active);
+        this.modalService.open(CompanyGroupModal, {
+            data: {
+                groups: this.groups,
+                activeGroupIndex: activeIndex,
+                companies: this.companies
+            }
+        }).onClose.subscribe(updatedGroups => {
+            if (updatedGroups) {
+                this.groups = updatedGroups;
+                this.activeGroup = this.groups[activeIndex] || this.groups[0];
+                this.filterCompanies();
+            }
+        });
     }
 
     private loadSubCompanies(isRefresh = false) {
@@ -182,7 +221,7 @@ export class BureauDashboard {
                 }
                 if (isRefresh) {
                     this.companies = [...this.companies];
-                    this.filterCompanies(this.searchControl.value || '');
+                    this.filterCompanies();
                 }
             },
             err => this.errorService.handle(err)
@@ -213,6 +252,16 @@ export class BureauDashboard {
             .setCls('bureau-link-col')
             .setAlignment('center');
 
+        const toBePayedCol = new UniTableColumn('_toBePayedCount', 'Til utbetaling', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setVisible(false)
+            .setAlignment('center');
+
+        const toBeRemindedCol = new UniTableColumn('_toBeRemindedCount', 'Klar til purring', UniTableColumnType.Link)
+            .setCls('bureau-link-col')
+            .setVisible(false)
+            .setAlignment('center');
+
         const subCompanyCol = new UniTableColumn('SubCompany.Name', 'Lokal kunde', UniTableColumnType.Link)
             .setVisible(false)
             .setCls('bureau-link-col');
@@ -221,16 +270,23 @@ export class BureauDashboard {
         inboxCol.linkClick = row => this.onCompanyInboxClick(row);
         approvalCol.linkClick = row => this.onCompanyApprovalsClick(row);
         subCompanyCol.linkClick = row => this.router.navigateByUrl('/sales/customer/' + row.SubCompany.ID);
+        toBePayedCol.linkClick = row => this.redirectToCompanyUrl(row, '/bank?code=payment_list');
+        toBeRemindedCol.linkClick = row => this.redirectToCompanyUrl(row, '/sales/reminders/ready');
 
         return new UniTableConfig('bureau_company_list', false, true, 15)
             .setAutofocus(true)
             .setColumnMenuVisible(true)
-            .setColumns([companyNameCol, orgnrCol, clientNrCol, inboxCol, approvalCol, subCompanyCol])
+            .setColumns([
+                companyNameCol,
+                orgnrCol,
+                clientNrCol,
+                inboxCol,
+                approvalCol,
+                toBePayedCol,
+                toBeRemindedCol,
+                subCompanyCol,
+            ])
             .setContextMenu([
-                {
-                    label: 'Legg til i filter',
-                    action: item => this.addLabel(item)
-                },
                 {
                     label: 'Administrer produkter',
                     action: item => this.editPurchases(item)
@@ -246,77 +302,77 @@ export class BureauDashboard {
             ]);
     }
 
-    public generateAllTags(companyTags: BureauTagsDictionary): AllTagsType[] {
-        const tags = Object.keys(companyTags)
-            .map(key => this.companyTags[key])
-            .reduce((allTags, ntags) => {
-                for (const tag of ntags) {
-                    allTags[tag] = (allTags[tag] || []);
-                    allTags[tag].push(tag);
-                }
-                return allTags;
-            }, {});
-
-        const tagList =  Object.keys(tags).map(key => <AllTagsType>{
-            name: key,
-            count: tags[key].length,
-        });
-
-        tagList.unshift({
-            name: 'Alle',
-            count: this.filteredCompanies && this.filteredCompanies.length
-        });
-
-        return tagList;
-    }
-
     public ngOnDestroy() {
         if (this.subscription) {
             this.subscription.unsubscribe();
         }
+
         // Store filter string and sort info
         try {
-            const preferences: BureauPreferences = {
+            const preferences: IBureauPreferences = {
                 filterString: <string>(this.searchControl.value || ''),
                 sortIsDesc: this.sortIsDesc,
                 sortField: this.currentSortField,
-                tagsForCompany: this.companyTags
+                detailsMinimized: this.detailsMinimized || false,
+                filters: this.groups,
+                activeFilterIndex: this.activeGroupIndex
             };
-            this.browserStorage.setItem('bureau_list_user_preferences', preferences);
+
+            this.browserStorage.setItem('bureau_user_preferences', preferences);
         } catch (e) {}
     }
 
-    private filterCompanies(filterString: string): void {
-        if (filterString && filterString.length) {
-            this.filteredCompanies = this.companies.filter(company => {
-                const companyName = (company.Name && company.Name.toLowerCase()) || '';
-                return companyName.includes((filterString || '').toLowerCase());
-            });
+    filterCompanies(): void {
+        const filterString = this.searchControl.value || '';
+
+        let filteredCompanies = [];
+
+        if (this.activeGroup && this.activeGroup.companyKeys) {
+            const companyKeys = this.activeGroup.companyKeys || [];
+            filteredCompanies = this.companies.filter(company => companyKeys.some(key => key === company.Key));
         } else {
-            this.filteredCompanies = this.companies;
+            filteredCompanies = this.companies;
         }
 
-        if (this.activeTag) {
-            this.filteredCompanies = this.filteredCompanies.filter(comp => this.companyHasTag(comp, this.activeTag));
+        // if (this.activeGroupIndex >= 0 && this.groups[this.activeGroupIndex]) {
+        //     const companyKeys = this.groups[this.activeGroupIndex].companyKeys || [];
+        //     filteredCompanies = this.companies.filter(company => companyKeys.some(key => key === company.Key));
+        // } else {
+        //     filteredCompanies = this.companies;
+        // }
+
+        if (filteredCompanies && filterString) {
+            filteredCompanies = filteredCompanies.filter(company => {
+                if (this.isNumber(filterString)) {
+                    return company.ClientNumber === +filterString;
+                } else {
+                    return company.Name.toLowerCase().includes(filterString.toLowerCase());
+                }
+            });
         }
 
-        if (this.allTags && this.allTags[0]) {
-            this.allTags[0].count = this.filteredCompanies.length;
-        }
+        this.filteredCompanies = filteredCompanies;
+    }
+
+    private isNumber(value: string | number): boolean {
+        return !isNaN(Number(value.toString()));
     }
 
     public openInviteUsersModal(doneCallback) {
-        return this.modalService.open(GrantAccessModal, {}).onClose
-            .subscribe(
-                res => doneCallback(''),
-                err => console.error(err)
-            );
+        return this.modalService.open(GrantAccessModal, {
+            hideCloseButton: true
+        }).onClose.subscribe(
+            res => doneCallback(''),
+            err => console.error(err)
+        );
     }
 
     private mapKpiCounts(companies: KpiCompany[]): KpiCompany[] {
         return companies.map(company => {
             company['_inboxCount'] = this.getKpiCount(company, 'Inbox');
             company['_approvedCount'] = this.getKpiCount(company, 'Approved');
+            company['_toBePayedCount'] = this.getKpiCount(company, 'ToBePayed');
+            company['_toBeRemindedCount'] = this.getKpiCount(company, 'ToBeReminded');
             return company;
         });
     }
@@ -346,7 +402,7 @@ export class BureauDashboard {
                 } else {
                     this.companies.unshift(company);
                     this.companies = [...this.companies];
-                    this.filterCompanies(this.searchControl.value || '');
+                    this.filterCompanies();
                     doneCallback(`Selskap ${company.Name} opprettet`);
                 }
             });
@@ -385,36 +441,6 @@ export class BureauDashboard {
         this.currentCompanyService.setCurrentCompany(company);
     }
 
-    private getUserPreferences(): BureauPreferences {
-        let preferences: BureauPreferences;
-        try {
-            preferences = this.browserStorage.getItem('bureau_list_user_preferences');
-        } catch (e) {}
-
-        return preferences || <BureauPreferences>{};
-    }
-
-    public addLabel(company: KpiCompany) {
-        const tags = this.companyTags[company.ID] || [];
-        this.modalService
-            .open(SingleTextFieldModal, {
-                header: `Legg til filter som ${company.Name} skal vises i`,
-                data: tags.join(', '),
-                modalConfig: {label: 'Filter (kommaseparert)'},
-            })
-            .onClose
-            .subscribe(
-                newTagString => {
-                    if (!isNullOrUndefined(newTagString)) {
-                        const newLabels = newTagString.split(',')
-                            .map(tag => tag.trim())
-                            .filter(tag => !!tag);
-                        this.companyTags[company.ID] = newLabels || undefined;
-                        this.allTags = this.generateAllTags(this.companyTags);
-                    }
-                }
-            );
-    }
 
     public editPurchases(company: KpiCompany) {
         this.modalService.open(ManageProductsModal, {
@@ -458,9 +484,5 @@ export class BureauDashboard {
             }
         });
 
-    }
-
-    public companyHasTag(company: KpiCompany, tag: string): boolean {
-        return (this.companyTags[company.ID] || []).some(t => t === tag);
     }
 }

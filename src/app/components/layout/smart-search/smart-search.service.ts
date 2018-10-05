@@ -3,6 +3,7 @@ import {Overlay, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal, PortalInjector} from '@angular/cdk/portal';
 import {Observable} from 'rxjs/Observable';
 import {UniSmartSearch} from './smart-search';
+import {UniCompanySearch} from './company-search/company-search';
 import {KeyCodes} from '@app/services/common/keyCodes';
 
 @Injectable()
@@ -17,13 +18,14 @@ export class SmartSearchService {
             const key = event.which || event.keyCode;
             if (event.ctrlKey && key === KeyCodes.SPACE) {
                 if (!this.overlayRef || !this.overlayRef.overlayElement) {
-                    this.open();
+                    const showCompanySearch = event.shiftKey;
+                    this.open(showCompanySearch);
                 }
             }
         });
     }
 
-    open() {
+    open(showCompanySearch?: boolean) {
         const position = this.overlay
             .position()
             .global()
@@ -36,8 +38,9 @@ export class SmartSearchService {
             scrollStrategy: this.overlay.scrollStrategies.block()
         });
 
+        const component: any = showCompanySearch ? UniCompanySearch : UniSmartSearch;
         const smartSearch = new ComponentPortal(
-            UniSmartSearch,
+            component,
             null,
             this.createInjector(overlayRef)
         );

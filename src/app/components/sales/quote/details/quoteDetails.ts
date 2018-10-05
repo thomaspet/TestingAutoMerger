@@ -406,7 +406,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         return Observable.forkJoin(
-            this.customerQuoteService.Get(ID, this.quoteExpands),
+            this.customerQuoteService.Get(ID, this.quoteExpands, true),
             this.customerQuoteItemService.GetAll(
                 `filter=CustomerQuoteID eq ${ID}&hateoas=false`,
                 this.quoteItemExpands
@@ -420,19 +420,24 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    public canDeactivate(): Observable<boolean> {
-        return !this.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal()
-                .onClose
-                .map(result => {
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (this.isDirty) {
+            return this.modalService.openUnsavedChangesModal().onClose
+                .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
-                        this.saveQuote();
+                        return Observable.fromPromise(this.saveQuote())
+                            .catch(err => {
+                                this.handleSaveError(err);
+                                return Observable.of(false);
+                            })
+                            .map(res => !!res);
                     }
 
-                    return result !== ConfirmActions.CANCEL;
+                    return Observable.of(result !== ConfirmActions.CANCEL);
                 });
+        }
+
+        return true;
     }
 
     public numberSeriesChange(selectedSerie) {
@@ -471,7 +476,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 this.quote = _.cloneDeep(quote);
                 this.updateCurrency(quote, true);
                 this.recalcItemSums(quote.Items);
-                this.setTabTitle();
+                this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
 
@@ -946,15 +951,19 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         );
     }
 
-    private setTabTitle() {
+    private updateTab(quote?: CustomerQuote) {
+        if (!quote) {
+            quote = this.quote;
+        }
+
         let tabTitle = '';
-        if (this.quote.QuoteNumber) {
-            tabTitle = 'Tilbudsnr. ' + this.quote.QuoteNumber;
+        if (quote.QuoteNumber) {
+            tabTitle = 'Tilbudsnr. ' + quote.QuoteNumber;
         } else {
-            tabTitle = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
+            tabTitle = (quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
         }
         this.tabService.addTab({
-            url: '/sales/quotes/' + this.quote.ID,
+            url: '/sales/quotes/' + quote.ID,
             name: tabTitle,
             active: true,
             moduleID: UniModules.Quotes
@@ -1029,17 +1038,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.updateToolbar();
     }
 
-    private handleSaveError(error, donehandler) {
-        if (typeof (error) === 'string') {
-            if (donehandler) {
-                donehandler('Lagring avbrutt. ' + error);
-            }
-        } else {
-            if (donehandler) {
-                donehandler('Lagring feilet');
-            }
-            this.errorService.handle(error);
+    private handleSaveError(error, donehandler?) {
+        if (donehandler) {
+            donehandler('Lagring avbrutt');
         }
+
+        this.errorService.handle(error);
     }
 
     private printAction(reportForm: ReportDefinition): Observable<any> {
@@ -1233,49 +1237,49 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         return new Promise((resolve, reject) => {
             // create observable but dont subscribe - resolve it in the promise
-            const request = ((this.quote.ID > 0)
+            const saveRequest = ((this.quote.ID > 0)
                 ? this.customerQuoteService.Put(this.quote.ID, this.quote)
                 : this.customerQuoteService.Post(this.quote));
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                const linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;
+            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
+                if (canSave) {
+                    saveRequest.subscribe(
+                        res => {
+                            if (res.QuoteNumber) { this.selectConfig = undefined; }
 
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(res => {
-                                if (res.QuoteNumber) { this.selectConfig = undefined; }
-                                resolve(res);
-                            }, err => reject(err));
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
+                            this.updateTab(res);
+                            resolve(res);
+                        },
+                        err => reject(err)
+                    );
                 } else {
-                    request.subscribe(res => {
-                        if (res.QuoteNumber) { this.selectConfig = undefined; }
-                        resolve(res);
-                    }, err => reject(err));
+                    reject('Endre MVA kode og lagre på ny');
                 }
-            } else {
-                request.subscribe(res => {
-                    if (res.QuoteNumber) { this.selectConfig = undefined; }
-                    resolve(res);
-                }, err => reject(err));
-            }
+            });
         });
+    }
+
+    private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
+        if (this.quote.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+            const linesWithVat = this.quote.Items.filter(x => x.SumVatCurrency > 0);
+            if (linesWithVat.length > 0) {
+                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                    + `${this.getCurrencyCode(this.quote.CurrencyCodeID)} som valuta?`;
+
+                return this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, lagre med MVA',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.map(response => {
+                    return response === ConfirmActions.ACCEPT;
+                });
+            }
+        }
+
+        return Observable.of(true);
     }
 
     private saveQuoteAsRegistered(done: any) {

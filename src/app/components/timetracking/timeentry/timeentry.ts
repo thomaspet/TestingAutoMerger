@@ -20,10 +20,11 @@ import {UniHttp} from '@uni-framework/core/http/http';
 
 import {WorkerService, IFilter, IFilterInterval} from '@app/services/timetracking/workerService';
 import {TimesheetService, TimeSheet, ValueItem} from '@app/services/timetracking/timesheetService';
-import {ProjectService, ErrorService} from '@app/services/services';
+import {ProjectService, ErrorService, PageStateService} from '@app/services/services';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 import * as moment from 'moment';
+import { PARAMETERS } from '@angular/core/src/util/decorators';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
@@ -48,6 +49,7 @@ export class TimeEntry {
     private workedToday: string = '';
     private customDateSelected: Date = null;
     private currentDate: Date = new Date();
+    private getTotalsFromQueryParams: boolean = false;
 
     @ViewChild(RegtimeTotals) private regtimeTotals: RegtimeTotals;
     @ViewChild(TimeTableReport) private timeTable: TimeTableReport;
@@ -81,18 +83,37 @@ export class TimeEntry {
     public tabs: IUniTab[] = [
         {
             name: 'Registrering',
-            onClick: () => this.registrationViewActive = true
+            onClick: () => {
+                this.registrationViewActive = true;
+                this.updateTabUrl('Registrering');
+            }
         },
         {
             name: 'Timeliste',
-            onClick: () => this.timeTable.activate()
+            onClick: () => {
+                this.updateTabUrl('Timeliste');
+            }
         },
         {
             name: 'Totaler',
-            onClick: () => this.regtimeTotals.activate(this.timeSheet, this.currentFilter)
+            onClick: () => {
+                this.regtimeTotals.activate(this.timeSheet, this.currentFilter);
+                this.updateTabUrl('Totaler');
+            }
         },
-        {name: 'Timesaldo', count: 0},
-        {name: 'Ferie'},
+        {
+            name: 'Timesaldo',
+            count: 0,
+            onClick: () => {
+                this.updateTabUrl('Timesaldo');
+            }
+        },
+        {
+            name: 'Ferie',
+            onClick: () => {
+                this.updateTabUrl('Ferie');
+            }
+        },
     ];
 
     public currentFilter: IFilter;
@@ -111,13 +132,15 @@ export class TimeEntry {
         private changeDetectorRef: ChangeDetectorRef,
         private http: UniHttp,
         private modalService: UniModalService,
-        private projectService: ProjectService
+        private projectService: ProjectService,
+        private pageStateService: PageStateService
     ) {
 
         this.filters = service.getFilterIntervalItems();
         this.initApplicationTab();
 
-        route.queryParamMap.subscribe(paramMap => {
+
+        this.route.queryParamMap.subscribe(paramMap => {
             if (paramMap.has('workerId')) {
                 this.init(+paramMap.get('workerId'));
             } else {
@@ -131,13 +154,33 @@ export class TimeEntry {
                 });
                 this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
             }
+            if (paramMap.has('mode')) {
+                if (paramMap.get('mode') === 'Totaler') {
+                    this.getTotalsFromQueryParams = true;
+                } else {
+                    const tempIndex = this.tabs.findIndex((tab) => {
+                        return tab.name === paramMap.get('mode');
+                    });
+                    this.activeTabIndex = tempIndex > 0 ? tempIndex : this.activeTabIndex;
+                }
+            }
         });
 
         this.approvalCheck();
     }
 
+    private updateTabUrl(mode: string) {
+        this.tabService.currentActiveTab.url = `/timetracking/timeentry?mode=${mode}`;
+        this.pageStateService.setPageState('mode', mode);
+    }
+
     private initApplicationTab() {
-        this.tabService.addTab({ name: view.label, url: view.url, moduleID: UniModules.Timesheets });
+        this.tabService.addTab({
+            name: view.label,
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.Timesheets,
+            active: true
+        });
     }
 
     private init(workerId?: number) {
@@ -315,6 +358,12 @@ export class TimeEntry {
 
             this.timeSheet = ts;
             this.loadItems();
+
+            // Wait to navigate to totals because this needs to Timesheet to work
+            if (this.getTotalsFromQueryParams) {
+                this.activeTabIndex = 2;
+            }
+
             this.updateToolbar(!workerid ? this.service.user.name : '', this.workRelations);
             this.showProgress();
         }, err => {
@@ -461,7 +510,9 @@ export class TimeEntry {
             flexWeeks.push(flexDays.splice(0, 7));
         }
 
-        this.sideMenu.calendarConfig.dailyProgress = flexWeeks;
+        if (this.sideMenu  && this.sideMenu.calendarConfig) {
+            this.sideMenu.calendarConfig.dailyProgress = flexWeeks;
+        }
     }
 
     private save(done?: any): Promise<boolean> {

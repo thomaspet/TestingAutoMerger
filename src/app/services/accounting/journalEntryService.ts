@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, Dimensions, FinancialYear, VatDeduction, JournalEntryPaymentData, Payment} from '../../unientities';
+import {Account, VatType, Dimensions, FinancialYear, VatDeduction,
+    JournalEntryPaymentData, Payment, CustomerInvoice, InvoicePaymentData} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '../../models/models';
 import {Observable} from 'rxjs/Observable';
 import 'rxjs/add/observable/from';
@@ -43,6 +44,7 @@ import {UniMath} from '../../../framework/core/uniMath';
 import {AuthService, IAuthDetails} from '../../authService';
 import { JournalEntries } from '@app/components/accounting/journalentry/journalentries/journalentries';
 import { IJournalEntryLineDraft } from '@uni-framework/interfaces/interfaces';
+import {CustomerInvoiceService} from '@app/services/sales/customerInvoiceService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
@@ -57,7 +59,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         private journalEntryLineDraftService: JournalEntryLineDraftService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        public authService: AuthService
+        public authService: AuthService,
+        private invoiceService: CustomerInvoiceService,
     ) {
         super(http);
         // Anders 25.09
@@ -222,7 +225,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
     }
 
-    public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<any> {
+    public postJournalEntryData(journalEntryData: Array<JournalEntryData>): Observable<JournalEntry[]> {
         // TODO: User should also be able to change dimensions for existing entries
         // so consider changing to filtering for dirty rows (and only allow the
         // unitable to edit the dimension fields for existing rows)
@@ -236,16 +239,32 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
         });
 
-        if (existingJournalEntryIDs.length) {
-            return this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq '))
-                .flatMap(existingJournalEntries => {
-                    const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
-                    return this.bookJournalEntries(journalEntries);
-                });
-        } else {
-            const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
-            return this.bookJournalEntries(journalEntries);
-        }
+        const jeObs = Observable
+            .of(journalEntryDataNew.filter(x => !x.CustomerInvoiceID))
+            .switchMap(jeData => {
+                return existingJournalEntryIDs.length
+                    ? Observable.forkJoin(Observable.of(jeData), this.GetAll('filter=ID eq ' + existingJournalEntryIDs.join(' or ID eq ')))
+                    : Observable.forkJoin(Observable.of(jeData), Observable.of([]));
+            })
+            .map((data: [JournalEntryData[], JournalEntry[]]) => {
+                const [jeData, jeList] = data;
+                return this.createJournalEntryObjects(jeData, jeList);
+            })
+            .switchMap(data => data.length
+                ? this.bookJournalEntries(data)
+                : Observable.of([]));
+
+        const paymentObs = Observable
+            .of(journalEntryDataNew.filter(x => x.CustomerInvoiceID))
+            .map(data => this.createInvoicePaymentDataObjects(data))
+            .switchMap(data => this.invoiceService.payInvoices(data));
+
+        return Observable
+            .forkJoin(jeObs, paymentObs)
+            .map((data: [JournalEntry[], JournalEntry[]]) => {
+                const [je, jePayments] = data;
+                return [...je, ...jePayments];
+            });
     }
 
     public creditAndPostCorrectedJournalEntryData(journalEntryData: Array<JournalEntryData>, journalEntryID: number, creditDate?: LocalDate)
@@ -292,7 +311,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send();
     }
 
-    private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<any> {
+    private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<JournalEntry[]> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -313,6 +332,23 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 (creditDate ? '&creditDate=' + creditDate : ''))
             .send()
             .map(response => response.json());
+    }
+
+    public createInvoicePaymentDataObjects(data: JournalEntryData[] ): {id: number, payment: InvoicePaymentData}[] {
+        const dataToConvert = data.filter(line => !!line.InvoiceNumber);
+
+        return dataToConvert.map(line => {
+            return {
+                id: line.CustomerInvoiceID,
+                payment: <InvoicePaymentData>{
+                    Amount: line.Amount,
+                    AmountCurrency: line.AmountCurrency,
+                    PaymentDate: line.FinancialDate,
+                    CurrencyCodeID: line.CurrencyID,
+                    CurrencyExchangeRate: line.CurrencyExchangeRate,
+                }
+            };
+        });
     }
 
     public createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
@@ -414,12 +450,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
-
+            draftLine.PaymentID = journalEntryData.PaymentID;
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.DebitVatTypeID;
             draftLine.VatType = debitVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
-            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && debitAccount.UseDeductivePercent
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!debitAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent
                                     : 0;
 
@@ -461,11 +497,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : journalEntryData.VatDate;
             draftLine.InvoiceNumber = journalEntryData.InvoiceNumber;
             draftLine.RegisteredDate = new LocalDate(Date());
+            draftLine.PaymentID = journalEntryData.PaymentID;
             draftLine.VatDate = journalEntryData.VatDate;
             draftLine.VatTypeID = journalEntryData.CreditVatTypeID;
             draftLine.VatType = creditVatType;
             draftLine.CustomerOrderID = journalEntryData.CustomerOrderID;
-            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && creditAccount.UseDeductivePercent
+            draftLine.VatDeductionPercent = journalEntryData.VatDeductionPercent && !!creditAccount.UseVatDeductionGroupID
                                     ? journalEntryData.VatDeductionPercent
                                     : 0;
 
@@ -1272,7 +1309,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public getVatDeductionPercent(vatdeductions: Array<VatDeduction>, account: Account, date: LocalDate): number {
-        if (!account || !account.UseDeductivePercent || !date) {
+        if (!account || !account.UseVatDeductionGroupID || !date) {
             return 0;
         }
 
@@ -1281,7 +1318,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
 
         const validdeduction =
-            vatdeductions.find(x => moment(date).isSameOrAfter(moment(x.ValidFrom))
+            vatdeductions.find(x => x.VatDeductionGroupID === account.UseVatDeductionGroupID
+                && moment(date).isSameOrAfter(moment(x.ValidFrom))
                 && (!x.ValidTo || moment(date).isBefore(moment(x.ValidTo)))
             );
 
@@ -1379,7 +1417,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             if (vattype && !vattype.DirectJournalEntryOnly) {
                 let deductionpercent =
                     journalEntryData.VatDeductionPercent &&
-                    (journalEntryData.StatusCode || account.UseDeductivePercent)
+                    (journalEntryData.StatusCode || !!account.UseVatDeductionGroupID)
                     ? journalEntryData.VatDeductionPercent
                     : 0;
 

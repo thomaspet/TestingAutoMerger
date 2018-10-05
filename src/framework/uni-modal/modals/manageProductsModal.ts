@@ -27,7 +27,7 @@ interface UserLine   {
             <article>
                 <main>
                     <p *ngIf="purchasesPerUser?.length === 0; else productTable">
-                        Dette selskapet er ikke synkronisert inn i lisens systemet enda, forsøk igjen senere!
+                        Du har ingen kjøp for dette selskapet, gå til <a href="#/marketplace">markedsplass</a> og kjøp et produkt først!
                     </p>
                     <ng-template #productTable>
                         <table *ngIf="!!products"
@@ -105,7 +105,12 @@ export class ManageProductsModal implements IUniModal {
                     this.products = parts[1];
                     this.purchasesPerUser = this.mapPurchasesToUsers(licensePurchases, this.products);
                 },
-                err => this.errorService.handle(err),
+                err => {
+                    if (err.status === 0) {
+                        err.message = `The licensing server might be down, please try again later.`;
+                    }
+                    this.errorService.handle(err);
+                },
             );
     }
 

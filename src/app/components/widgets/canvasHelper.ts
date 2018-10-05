@@ -126,7 +126,7 @@ export class CanvasHelper {
             return;
         }
 
-        let layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
+        let layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
         if (!layoutStore) {
             layoutStore = {};
         }
@@ -137,7 +137,7 @@ export class CanvasHelper {
             large: this.getReferencesFromWidgets(layout.large)
         };
 
-        this.browserStorage.setItemOnCompany('uni_widget_layouts', layoutStore);
+        this.browserStorage.setItemOnCompany('widget_layouts', layoutStore);
     }
 
     public removeLayout(name: string) {
@@ -146,9 +146,9 @@ export class CanvasHelper {
         }
 
         try {
-            const layoutStore = this.browserStorage.getItemFromCompany('uni_widget_layouts');
+            const layoutStore = this.browserStorage.getItemFromCompany('widget_layouts');
             delete layoutStore[name];
-            this.browserStorage.setItemOnCompany('uni_widget_layouts', layoutStore);
+            this.browserStorage.setItemOnCompany('widget_layouts', layoutStore);
         } catch (e) {}
     }
 

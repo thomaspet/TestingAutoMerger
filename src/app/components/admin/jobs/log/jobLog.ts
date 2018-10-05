@@ -4,6 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ErrorService, JobService} from '../../../../services/services';
+import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
 
 @Component({
     selector: 'job-log',
@@ -17,6 +18,7 @@ export class JobLog {
 
     public log: any = [];
     public progress: any = [];
+    public errorMessage$: BehaviorSubject<string> = new BehaviorSubject('');
 
     constructor(
         private tabService: TabService,
@@ -75,7 +77,7 @@ export class JobLog {
                         this.updateTabTitle();
                         this.updateToolBar();
                     },
-                    err => this.errorService.handle(err)
+                    err => this.errorMessage$.next(err)
                 );
 
         });

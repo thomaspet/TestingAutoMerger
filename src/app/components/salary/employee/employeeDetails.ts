@@ -29,8 +29,8 @@ import {
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    NumberFormat, WageTypeService, SalarySumsService, YearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, SupplementService
+    WageTypeService, YearService, BankAccountService, EmployeeCategoryService,
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs/Subscription';
@@ -164,9 +164,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         cacheService: UniCacheService,
         private errorService: ErrorService,
         private http: UniHttp,
-        private numberformat: NumberFormat,
         private employeeTaxCardService: EmployeeTaxCardService,
-        private salarySumsService: SalarySumsService,
         private wageTypeService: WageTypeService,
         private yearService: YearService,
         private bankaccountService: BankAccountService,
@@ -177,7 +175,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private salarybalanceService: SalarybalanceService,
         private salaryBalanceViewService: SalaryBalanceViewService,
         private salaryBalanceLineService: SalaryBalanceLineService,
-        private supplementService: SupplementService
+        private payrollRunService: PayrollrunService,
     ) {
         super(router.url, cacheService);
 
@@ -1331,7 +1329,9 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         obsList.push(newObs);
                     }
                 });
-                return Observable.forkJoin(obsList);
+                return Observable
+                    .forkJoin(obsList)
+                    .do(() => this.payrollRunService.recalulateOnEmp(this.employeeID).subscribe());
             });
     }
 

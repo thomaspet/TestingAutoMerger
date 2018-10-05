@@ -245,8 +245,11 @@ export class UniDistributionSettings {
     private filterElementTypes(type: string, elements: any[]) {
         if (type === 'Models.Sales.CustomerInvoice') {
             return elements;
+        } 
+        else if (type === 'Models.Sales.CustomerInvoiceReminder') {
+            return elements.filter(res => res.ID === 2 || res.ID === 3);
         } else {
-            return elements.filter(res => res.ID  === 2);
+            return elements.filter(res => res.ID === 2);
         }
     }
 

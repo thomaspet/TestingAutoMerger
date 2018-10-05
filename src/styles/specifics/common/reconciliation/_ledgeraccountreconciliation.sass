@@ -28,3 +28,48 @@ ledger-account-reconciliation
     .reconciliation-likely-match
         background-color: transparentize($uni-color-good, .7)
         opacity: 0.6
+
+.automark-percent-progress
+    display: block
+    width: 40vw
+    text-align: center
+    font-size: 2rem
+    margin-top: 1rem
+
+    h4
+        font-size: 1rem
+        font-weight: 400
+
+    span
+        font-size: .7rem
+        display: block
+        margin-top: 1rem
+
+        span
+            cursor: pointer
+            font-weight: bold
+            color: $uni-color-c2a
+
+            &:hover
+                text-decoration: underline
+
+
+.faded
+    opacity: .5
+    cursor: wait
+
+.automark-log-modal-view
+    list-style-type: circle
+    min-height: 12rem
+    max-height: 12rem
+    overflow-y: auto
+
+    li
+        overflow-x: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+        margin-top: .8rem
+
+.log-error-mgs
+    font-size: .8rem
+    margin: .2rem 2rem

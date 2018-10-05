@@ -1,0 +1,18 @@
+<input type="search" [formControl]="filterControl" placeholder="Filtrer">
+
+<mat-checkbox
+    *ngIf="filteredItems"
+    class="check-all"
+    [(ngModel)]="checkAll"
+    (change)="onCheckAllChange()">
+
+    Velg alle
+</mat-checkbox>
+
+<ul>
+    <li *ngFor="let item of filteredItems">
+        <mat-checkbox [(ngModel)]="item['_selected']" (change)="onItemSelectionChange(item)">
+            {{item[labelProperty]}}
+        </mat-checkbox>
+    </li>
+</ul>

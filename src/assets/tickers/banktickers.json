@@ -223,6 +223,14 @@
                 "DisplayField": "PaymentID"
             },
             {
+                "Header": "Betalingsinformasjon",
+                "Field": "Description",
+                "FilterOperator": "contains",
+                "Alias": "Description",
+                "DisplayField": "Description",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Kode",
                 "Field": "PaymentCode.Code",
                 "DefaultHidden": true,

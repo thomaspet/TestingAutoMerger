@@ -82,13 +82,15 @@ export class AgGridWrapper {
     public selectionMode: string = 'single';
     public paginationInfo: any;
 
-    private columns: UniTableColumn[];
+    public columns: UniTableColumn[];
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
+
+    private autofocusPerformed: boolean;
 
     // Used for custom cell renderers
     public context: any;
@@ -202,14 +204,14 @@ export class AgGridWrapper {
             if (loaded) {
                 this.onDataLoaded(event.api);
                 this.dataLoaded.emit();
-                if (this.config.autofocus) {
+                if (this.config.autofocus && !this.autofocusPerformed) {
                     this.focusRow(0);
                 }
             }
         } else if (event.newData) {
             event.api.sizeColumnsToFit();
             this.dataLoaded.emit();
-            if (this.config.autofocus) {
+            if (this.config.autofocus && !this.autofocusPerformed) {
                 this.focusRow(0);
             }
         }
@@ -532,11 +534,23 @@ export class AgGridWrapper {
         this.cellRendererComponents = {};
 
         const colDefs = columns.map(col => {
+
+            let cellClass: any = col.cls;
+            if (col.conditionalCls) {
+                cellClass = (params) => {
+                    let cls = col.conditionalCls(params.data);
+                    if (col.cls) {
+                        cls += ' ' + col.cls;
+                    }
+                    return cls;
+                };
+            }
+
             const agCol: ColDef = {
                 headerName: col.header,
                 hide: !col.visible,
                 headerClass: col.headerCls,
-                cellClass: col.conditionalCls || col.cls,
+                cellClass: cellClass,
                 headerTooltip: col.header,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)
@@ -767,6 +781,9 @@ export class AgGridWrapper {
 
     public addRow(row) {
         this.dataService.addRow(row);
+        setTimeout(() => {
+            this.focusRow(this.agGridApi.getDisplayedRowCount() - 1);
+        });
     }
 
     public removeRow(originalIndex: number) {

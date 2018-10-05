@@ -1,5 +1,5 @@
 import {Injectable, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
 import {environment} from 'src/environments/environment';
@@ -18,6 +18,7 @@ export interface IAuthDetails {
 }
 
 const PUBLIC_ROOT_ROUTES = [
+    'reload',
     'init',
     'bureau',
     'about',
@@ -72,7 +73,8 @@ export class AuthService {
 
     constructor(
         private router: Router,
-        private http: Http,
+        private route: ActivatedRoute,
+        private http: Http
     ) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
@@ -123,7 +125,7 @@ export class AuthService {
         }, 60000);
     }
 
-    private setLoadIndicatorVisibility(visible: boolean) {
+    setLoadIndicatorVisibility(visible: boolean) {
         if (visible) {
             $('#data-loading-spinner').fadeIn(250);
         } else {
@@ -188,35 +190,45 @@ export class AuthService {
      * Sets the current active company
      * @param {Object} activeCompany
      */
-    public setActiveCompany(activeCompany: Company, redirectUrl?: string): Subject<IAuthDetails> {
-        this.storage.saveOnUser('activeCompany', activeCompany);
-        this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
+    public setActiveCompany(activeCompany: Company, redirectUrl?: string): void {
+        let redirect = redirectUrl;
+        if (!redirect) {
+            redirect = this.getSafeRoute(this.router.url);
+        }
 
-        this.activeCompany = activeCompany;
-        this.companyChange.emit(activeCompany);
-        this.setLoadIndicatorVisibility(true);
+        this.router.navigateByUrl('/reload', {skipLocationChange: true}).then(navigationSuccess => {
+            if (navigationSuccess) {
+                this.setLoadIndicatorVisibility(true);
+                this.storage.saveOnUser('activeCompany', activeCompany);
+                this.storage.saveOnUser('lastActiveCompanyKey', activeCompany.Key);
 
-        // Return a subject so other components can subscribe to know when everything is ready.
-        // Subject instead of just returning the Observable from user GET because observables
-        // are cold, and would require a subscribe to run.
-        // By returning a subject instead we have the option to not subscribe,
-        // without screwing up something in the authentication flow
-        const authSubject = new Subject<IAuthDetails>();
+                this.activeCompany = activeCompany;
+                this.companyChange.emit(activeCompany);
 
-        this.verifyAuthentication().take(1).subscribe(authDetails => {
-            this.authentication$.next(authDetails);
-            setTimeout(() => {
-                this.router.navigateByUrl(redirectUrl || '').then((res) => {
-                    // TODO: Navigation removes spinner..
-                    // REVISIT: Does it make a difference if we do this after or just before?
-                    this.setLoadIndicatorVisibility(false);
-                    authSubject.next(authDetails);
+                this.verifyAuthentication().take(1).subscribe(authDetails => {
+                    this.authentication$.next(authDetails);
+                    setTimeout(() => {
+                        this.router.navigateByUrl(redirect || '');
+                        this.setLoadIndicatorVisibility(false);
+                    });
                 });
-
-            });
+            }
         });
+    }
 
-        return authSubject;
+    private getSafeRoute(url: string): string {
+        let safeUrl = url.split('?')[0];
+        safeUrl = safeUrl.split(';')[0];
+
+        const split = safeUrl.split('/').filter(part => !!part);
+        if (split.length) {
+            const paramIndex = split.findIndex(part => !isNaN(parseInt(part, 0)));
+            if (paramIndex > 0) {
+                safeUrl = split.slice(0, paramIndex).join('/');
+            }
+        }
+
+        return safeUrl || '';
     }
 
     private verifyAuthentication(): Observable<IAuthDetails> {
@@ -400,7 +412,8 @@ export class AuthService {
     }
 
     private getRootRoute(url): string {
-        let routeParts = url.split('/');
+        const noParams = url.split('?')[0];
+        let routeParts = noParams.split('/');
         routeParts = routeParts.filter(part => part !== '');
 
         return routeParts[0];

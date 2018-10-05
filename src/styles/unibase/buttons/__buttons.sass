@@ -40,7 +40,7 @@ $all-buttons: assign-inputs($buttons-list)
         transform: scale(.98)
 
     &[disabled],
-    &[aria-disabled]
+    &[aria-disabled]:not([aria-disabled=false])
         background-color: desaturate(mix($color, $uni-color-negative, 50%), 10%)
         text-shadow: none
         cursor: not-allowed
@@ -88,3 +88,22 @@ $all-buttons: assign-inputs($buttons-list)
 
 button[type=submit]
     @extend button.c2a
+
+
+// This will be removed once the button redesign is done
+button.button-clean
+    height: 2.25rem
+    // font: 500 14px 'Roboto', sans-serif
+    font: 400 15px 'Roboto', sans-serif
+    color: rgba(0, 0, 0, 0.87)
+    background: 0 0
+    text-shadow: none
+    padding: 0 10px
+    margin: 0
+
+    &:hover
+        background-color: rgba(0,0,0,.12)
+        transition: background-color .25s ease
+
+    i.material-icons
+        vertical-align: middle

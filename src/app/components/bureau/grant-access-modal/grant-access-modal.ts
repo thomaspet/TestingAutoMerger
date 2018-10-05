@@ -1,9 +1,14 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniConfirmModalV2} from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaUserLicense} from '@app/services/elsa/elsaModels';
+import {MatStepper} from '@angular/material';
 import {BureauCustomHttpService} from '@app/components/bureau/bureauCustomHttpService';
 import {IAuthDetails, AuthService} from '@app/authService';
-import {ErrorService} from '@app/services/common/errorService';
+
+import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
+
+import {ExecuteForBulkAccess} from './5.execute';
+import { Observable } from 'rxjs';
 
 export enum PAGE_TYPE {
     selectLicense = 0,
@@ -27,6 +32,8 @@ export interface GrantAccessData {
     styleUrls: ['./grant-access-modal.sass']
 })
 export class GrantAccessModal implements IUniModal {
+    @ViewChild(MatStepper) stepper: MatStepper;
+    @ViewChild(ExecuteForBulkAccess) confirmAndExecuteView: ExecuteForBulkAccess;
 
     PageType = PAGE_TYPE;
 
@@ -43,64 +50,67 @@ export class GrantAccessModal implements IUniModal {
 
     showProgressBar = true;
 
+    // Stepper
+    licenseSelected: boolean;
+    companiesSelected: boolean;
+    usersSelected: boolean;
+    productsSelected: boolean;
+
+    showReceipt: boolean;
+    hangfireID: number;
+
     constructor(
         private bureauHttp: BureauCustomHttpService,
         private modalService: UniModalService,
         private authService: AuthService,
-        private errorService: ErrorService,
+        private jobService: JobService,
+        private errorService: ErrorService
     ) {}
 
     ngOnInit() {
-        this.authService.authentication$
-            .switchMap((authentication: IAuthDetails) => {
-                const mainCompanyKey = authentication.user.License.Company.Agency.CompanyKey;
-                const mainCompanyName = authentication.user.License.Company.Agency.Name;
-                return this.bureauHttp.hasAccessToCompany(mainCompanyKey).do(hasAccess => {
+        this.authService.authentication$.take(1).subscribe((auth: IAuthDetails) => {
+            const mainCompanyKey = auth.user.License.Company.Agency.CompanyKey;
+            const mainCompanyName = auth.user.License.Company.Agency.Name;
+
+            this.bureauHttp.hasAccessToCompany(mainCompanyKey)
+                .catch(err => {
+                    this.errorService.handle(err);
+                    return Observable.of(false);
+                })
+                .subscribe(hasAccess => {
                     if (!hasAccess) {
-                        this.modalService.open(UniConfirmModalV2,
-                            {
-                                buttonLabels: {accept: 'OK'},
-                                header: 'Ikke tilgang',
-                                message: `Du må ha administartor tilgang i hoved selskapet "${mainCompanyName}" for å bruke bulk invitasjoner`,
-                            })
-                            .onClose
-                            .subscribe(() => this.close());
+                        this.close();
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {accept: 'OK'},
+                            header: 'Ikke tilgang',
+                            message: `Du må ha administrator tilgang i hovedselskapet "${mainCompanyName}" for å bruke bulk invitasjoner`,
+                        }).onClose.subscribe(() => {});
                     }
                 });
-            })
-            .subscribe(null, err => this.errorService.handle(err));
+        });
+    }
+
+    onStepChange(event) {
+        this.currentPage = event.selectedIndex;
+    }
+
+    sendInvites() {
+        const massInvite = <JobServerMassInviteInput>{};
+        massInvite.Contract = this.grantAccessData.contract;
+        massInvite.CompanyLicenses = this.grantAccessData.companies;
+        massInvite.UserLicenses = this.grantAccessData.users;
+        massInvite.Products = this.grantAccessData.products;
+
+        this.jobService.startJob('MassInviteBureau', 0, massInvite).subscribe(
+            res => {
+                this.hangfireID = res;
+                this.showReceipt = true;
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     close() {
         this.onClose.emit();
-    }
-
-    classToShow(statusToFindClassFor: PAGE_TYPE): string {
-        const classes = <string[]>[];
-        if (this.lastCompletedPage < statusToFindClassFor) {
-            classes.push('future');
-        }
-        if (this.lastCompletedPage >= statusToFindClassFor) {
-            classes.push('completed');
-        }
-        if (this.currentPage === statusToFindClassFor) {
-            classes.push('active');
-        }
-        return classes.join(' ');
-    }
-
-    switchToPage(page: PAGE_TYPE) {
-        if (page <= this.lastCompletedPage) {
-            this.currentPage = page;
-        }
-    }
-
-    goToNextPage() {
-        this.currentPage += 1;
-        this.lastCompletedPage = this.currentPage;
-    }
-
-    hideProgressBar() {
-        this.showProgressBar = false;
     }
 }

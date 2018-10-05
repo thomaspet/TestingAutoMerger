@@ -1,16 +1,11 @@
 <uni-form class="main-form"
     [config]="config$"
     [fields]="fields$"
-    [model]="settings$"
+    [model]="reminderSettings$"
     (changeEvent)="onChange($event)">
 </uni-form>
 
 <reminder-rules
-    [settings]="settings$ | async"
+    [settings]="reminderSettings$ | async"
     (change)="onChange($event)">
 </reminder-rules>
-
-<!-- <debt-collection-settings
-    [settings]="settings$ | async"
-    (change)="onChange($event)">
-</debt-collection-settings> -->

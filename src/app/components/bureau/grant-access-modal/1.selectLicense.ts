@@ -10,12 +10,11 @@ import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-a
     styleUrls: ['./grant-access-modal.sass']
 })
 export class SelectLicenseForBulkAccess {
-    @Output()
-    next: EventEmitter<void> = new EventEmitter<void>();
-    @Input()
-    data: GrantAccessData;
+    @Input() data: GrantAccessData;
+    @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
     customers: ElsaCustomer[];
+    selectedContractID: number;
 
     constructor(
         private errorService: ErrorService,
@@ -23,18 +22,22 @@ export class SelectLicenseForBulkAccess {
     ) {}
 
     ngOnInit() {
-        this.elsaCustomersService.GetAll()
-            .subscribe(
-                (customers: ElsaCustomer[]) => this.customers = customers,
-                err => this.errorService.handle(err),
-            )
+        this.elsaCustomersService.GetAll().subscribe(
+            (customers: ElsaCustomer[]) => {
+                this.customers = customers;
+            },
+            err => this.errorService.handle(err),
+        );
     }
 
     selectContract(contract: ElsaContract) {
+        this.selectedContractID = contract.id;
+
         this.data.contract = contract;
         this.data.companies = undefined;
         this.data.products = undefined;
-        this.next.emit();
+
+        this.stepComplete.emit(true);
     }
 
     contractTypeToText(contractType: ElsaContractType): string {

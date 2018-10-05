@@ -16,8 +16,8 @@
                     class="account_query_table_rows"
                     [attr.aria-selected]="row._isSelected">
                     <td (click)="onCellClick(row, accountYear2, i)"> {{ row.periodName}} </td>
-                    <td (click)="onCellClick(row, accountYear2, i)"> {{ row.amountPeriodYear2 | numberAsMoney:numberFormat }} </td>
-                    <td (click)="onCellClick(row, accountYear1, i)"> {{ row.amountPeriodYear1 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear2, i)" [className]="(row.amountPeriodYear2 < 0 ? 'negative' : 'positive')" >{{ row.amountPeriodYear2 | numberAsMoney:numberFormat }} </td>
+                    <td (click)="onCellClick(row, accountYear1, i)" [className]="(row.amountPeriodYear1 < 0 ? 'negative' : 'positive')"> {{ row.amountPeriodYear1 | numberAsMoney:numberFormat }} </td>
                 </tr>
             </tbody>
         </table>

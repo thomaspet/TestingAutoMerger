@@ -42,10 +42,10 @@
                         <td>{{ itemAccountInfoData.debitAccount ? itemAccountInfoData.debitAccount.AccountName : '(Ikke valgt)' }}</td>
                         <td>{{ itemAccountInfoData.creditAccount? itemAccountInfoData.creditAccount.AccountName : '(Ikke valgt)' }}</td>
                     </tr>
-                    <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent) || (itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent))">
+                    <tr *ngIf="itemAccountInfoData.deductionPercent && ((itemAccountInfoData.debitAccount && !!itemAccountInfoData.debitAccount.UseVatDeductionGroupID) || (itemAccountInfoData.creditAccount && !!itemAccountInfoData.creditAccount.UseVatDeductionGroupID))">
                         <td>Fradragsprosent MVA</td>
-                        <td>{{ itemAccountInfoData.debitAccount && itemAccountInfoData.debitAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
-                        <td>{{ itemAccountInfoData.creditAccount && itemAccountInfoData.creditAccount.UseDeductivePercent ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                        <td>{{ itemAccountInfoData.debitAccount && !!itemAccountInfoData.debitAccount.UseVatDeductionGroupID ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
+                        <td>{{ itemAccountInfoData.creditAccount && !!itemAccountInfoData.creditAccount.UseVatDeductionGroupID ? itemAccountInfoData.deductionPercent + '%' : '' }}</td>
                     </tr>
                     <tr>
                         <td>Saldo ({{currentFinancialYear.Year}})</td>

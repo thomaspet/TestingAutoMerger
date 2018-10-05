@@ -19,7 +19,6 @@ import { LocalDate } from '@uni-entities';
 @Component({
     selector: 'workitem-transfer-wizard',
     templateUrl: './transfer-wizard.html',
-    providers: [ InvoiceHourService ]
 })
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
     @Input() public options: IModalOptions = {};

@@ -1,45 +1,7 @@
-<h1>Velg brukerene du bil ha i selskapene:</h1>
-<button class="good" (click)="done()">Neste</button>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<section class="uni-split-view-container">
-    <section class="left-side">
-        <h3>Velg brukere:</h3>
-        <ul class="list-of-users">
-            <li>
-                <label>
-                    <input type="checkbox" [checked]="isAllUsersSelected()" (click)="toggleUsers($event.target)">
-                    Velg alle
-                </label>
-            </li>
-            <hr />
-            <li *ngFor="let user of users">
-                <label>
-                    <input type="checkbox" [(ngModel)]="user['_selected']">
-                    {{user.userName}}
-                </label>
-            </li>
-            <li *ngIf="!users">Laster...</li>
-        </ul>
-    </section>
-    <section class="right-side">
-        <h3>Velg team:</h3>
-        <ul class="list-of-teams" *ngIf="teams?.length !== 0">
-            <li>
-                &nbsp;
-            </li>
-            <hr />
-            <li *ngFor="let team of teams">
-                <label>
-                    <input type="checkbox" (change)="selectTeam($event.target, team)" [ngModel]="isTeamSelected(team)">
-                    {{team.Name}}
-                </label>
-            </li>
-        </ul>
-    </section>
-</section>
-<p class="warn" *ngIf="warning">
-    {{warning}}
-</p>
-<button class="good" (click)="done()">Neste</button>
+<h1>Velg brukerne du vil invitere</h1>
+
+<grant-access-selection-list
+    [labelProperty]="'userName'"
+    [(items)]="users"
+    (itemsChange)="onSelectionChange()"
+></grant-access-selection-list>

@@ -465,6 +465,7 @@ export class DebtCollectionSettings extends UniEntity {
     public CreditorNumber: number;
     public CustomerInvoiceReminderSettingsID: number;
     public DebtCollectionAutomationID: number;
+    public DebtCollectionFormat: number;
     public Deleted: boolean;
     public ID: number;
     public IntegrateWithDebtCollection: boolean;
@@ -1695,8 +1696,22 @@ export class TaxCard extends UniEntity {
 }
 
 
-export class SalaryBalanceTemplate extends UniEntity {
+export class PostingSummaryDraft extends UniEntity {
     public static RelativeUrl = '';
+    public static EntityType = 'PostingSummaryDraft';
+
+    public draftBasic: string;
+    public draftWithDims: string;
+    public ID: number;
+    public PayrollID: number;
+    public status: number;
+    public statusTime: Date;
+    public CustomFields: any;
+}
+
+
+export class SalaryBalanceTemplate extends UniEntity {
+    public static RelativeUrl = 'salarybalancetemplates';
     public static EntityType = 'SalaryBalanceTemplate';
 
     public _createguid: string;
@@ -4787,7 +4802,35 @@ export class Dimensions extends UniEntity {
     public Dimension8: Dimension8;
     public Dimension9: Dimension9;
     public Dimension10: Dimension10;
+    public Info: Array<DimensionsInfo>;
     public CustomFields: any;
+}
+
+
+export class DimensionsInfo extends UniEntity {
+    public DepartmentName: string;
+    public DepartmentNumber: string;
+    public Dimension10Name: string;
+    public Dimension10Number: string;
+    public Dimension5Name: string;
+    public Dimension5Number: string;
+    public Dimension6Name: string;
+    public Dimension6Number: string;
+    public Dimension7Name: string;
+    public Dimension7Number: string;
+    public Dimension8Name: string;
+    public Dimension8Number: string;
+    public Dimension9Name: string;
+    public Dimension9Number: string;
+    public DimensionsID: number;
+    public ID: number;
+    public ProjectName: string;
+    public ProjectNumber: string;
+    public ProjectTaskName: string;
+    public ProjectTaskNumber: string;
+    public RegionCode: string;
+    public RegionName: string;
+    public ResponsibleName: string;
 }
 
 
@@ -5377,6 +5420,23 @@ export class VatCodeGroup extends UniEntity {
 }
 
 
+export class VatDeductionGroup extends UniEntity {
+    public static RelativeUrl = 'vatdeductiongroups';
+    public static EntityType = 'VatDeductionGroup';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class VatReportArchivedSummary extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportArchivedSummary';
@@ -5743,8 +5803,8 @@ export class Account extends UniEntity {
     public TopLevelAccountGroupID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public UseDeductivePercent: boolean;
     public UsePostPost: boolean;
+    public UseVatDeductionGroupID: number;
     public VatTypeID: number;
     public Visible: boolean;
     public AccountGroup: AccountGroup;
@@ -5758,6 +5818,7 @@ export class Account extends UniEntity {
     public Alias: Array<AccountAlias>;
     public CompatibleAccountGroups: Array<AccountGroup>;
     public SubAccounts: Array<Account>;
+    public UseVatDeductionGroup: VatDeductionGroup;
     public CurrencyCode: CurrencyCode;
     public CustomFields: any;
 }
@@ -5895,6 +5956,8 @@ export class VatDeduction extends UniEntity {
     public UpdatedBy: string;
     public ValidFrom: LocalDate;
     public ValidTo: LocalDate;
+    public VatDeductionGroupID: number;
+    public VatDeductionGroup: VatDeductionGroup;
     public CustomFields: any;
 }
 
@@ -6514,6 +6577,30 @@ export class ReconciliationLine extends UniEntity {
     public Sum: number;
     public WageTypeName: string;
     public WageTypeNumber: number;
+}
+
+
+export class UnionReport extends UniEntity {
+    public FromDate: LocalDate;
+    public ToDate: LocalDate;
+    public Year: number;
+    public Summaries: Array<UnionSummary>;
+}
+
+
+export class UnionSummary extends UniEntity {
+    public SupplierID: number;
+    public Supplier: Supplier;
+    public Members: Array<UnionMember>;
+}
+
+
+export class UnionMember extends UniEntity {
+    public Ensurance: number;
+    public MemberNumber: string;
+    public Name: string;
+    public OUO: number;
+    public UnionDraw: number;
 }
 
 
@@ -7707,6 +7794,7 @@ export enum KpiSourceType{
     SourceStatistics = 0,
     SourceCountRecords = 1,
     SourceRecordValue = 2,
+    SourceController = 3,
 }
 
 

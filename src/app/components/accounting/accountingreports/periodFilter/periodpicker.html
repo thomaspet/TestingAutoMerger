@@ -1,4 +1,4 @@
-<button (click)="togglePicker()">{{periodFilter.name}}</button>
+<button class="link" (click)="togglePicker()">{{periodFilter.name}}</button>
 <div *ngIf="pickerAreaVisible" class="picker-area">
     År:
     <input [(ngModel)]="periodFilterData.year" />

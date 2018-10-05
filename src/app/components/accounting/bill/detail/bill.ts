@@ -19,7 +19,8 @@ import {
     UserRole,
     TaskStatus,
     Dimensions,
-    BankData
+    BankData,
+    VatDeduction
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -78,7 +79,8 @@ import {
     BankService,
     CustomDimensionService,
     SupplierInvoiceItemService,
-    FileService
+    FileService,
+    VatDeductionService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import * as moment from 'moment';
@@ -152,6 +154,7 @@ export class BillView implements OnInit {
     private supplierIsReadOnly: boolean = false;
     public commentsConfig: ICommentsConfig;
     private formReady: boolean;
+    private vatDeductions: Array<VatDeduction>;
 
     private currencyCodes: Array<CurrencyCode>;
     private companySettings: CompanySettings;
@@ -243,6 +246,7 @@ export class BillView implements OnInit {
         private uniFilesService: UniFilesService,
         private bankService: BankService,
         private customDimensionService: CustomDimensionService,
+        private vatDeductionService: VatDeductionService,
         private fileService: FileService
     ) {
         this.actions = this.rootActions;
@@ -287,7 +291,8 @@ export class BillView implements OnInit {
                 this.companySettingsService.Get(1),
                 this.currencyCodeService.GetAll(null),
                 this.customDimensionService.getMetadata(),
-                this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid)
+                this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid),
+                this.vatDeductionService.GetAll(null)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
@@ -306,6 +311,8 @@ export class BillView implements OnInit {
                     this.newInvoice(true);
                     this.checkPath();
                 }
+
+                this.vatDeductions = res[4];
 
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
@@ -827,7 +834,7 @@ export class BillView implements OnInit {
         }
         return false;
     }
-
+    
 
     public onFileListReady(files: Array<any>) {
         const current = this.current.value;
@@ -2306,7 +2313,7 @@ export class BillView implements OnInit {
                     'CurrencyCode',
                     'BankAccount',
                     'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department'
-                ]).finally( () => {
+                ],true).finally( () => {
                 this.flagUnsavedChanged(true);
              })
             .subscribe((invoice: SupplierInvoice) => {
@@ -2366,6 +2373,8 @@ export class BillView implements OnInit {
 
             if (!line.VatDate) {
                 line.VatDate = current.InvoiceDate;
+
+                line = this.setVatDeductionPercent(line);
             }
 
             if (!line.FinancialDate) {
@@ -2428,6 +2437,23 @@ export class BillView implements OnInit {
 
         // flag unsaved changes so the save button is activated
         this.flagUnsavedChanged();
+    }
+
+    private setVatDeductionPercent(rowModel: JournalEntryData): JournalEntryData {
+        let deductivePercent: number = 0;
+        rowModel.VatDeductionPercent = null;
+
+        if (rowModel.DebitAccount && rowModel.DebitAccount.UseVatDeductionGroupID) {
+            deductivePercent = this.journalEntryService.getVatDeductionPercent(
+                this.vatDeductions, rowModel.DebitAccount, (rowModel.VatDate ? rowModel.VatDate : rowModel.FinancialDate)
+            );
+        }
+
+        if (deductivePercent !== 0) {
+            rowModel.VatDeductionPercent = deductivePercent;
+        }
+
+        return rowModel;
     }
 
     public onFormReady() {

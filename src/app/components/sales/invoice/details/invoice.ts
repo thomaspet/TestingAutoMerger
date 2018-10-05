@@ -446,7 +446,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return Observable.forkJoin(
-            this.customerInvoiceService.Get(ID, this.invoiceExpands),
+            this.customerInvoiceService.Get(ID, this.invoiceExpands, true),
             this.customerInvoiceItemService.GetAll(
                 `filter=CustomerInvoiceID eq ${ID}&hateoas=false`,
                 this.invoiceItemExpands
@@ -458,26 +458,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             invoice.Items = invoiceItems;
             return invoice;
         });
-    }
-
-
-    private ehfReadyUpdateSaveActions() {
-        if (!this.invoice || !!!this.invoice.Customer) {
-            this.ehfEnabled = false;
-            return;
-        }
-
-        // Possible to receive EHF for this customer?
-        const peppoladdress = this.invoice.Customer.PeppolAddress
-            ? this.invoice.Customer.PeppolAddress
-            : '9908:' + this.invoice.Customer.OrgNumber;
-        this.ehfService.GetAction(
-            null, 'is-ehf-receiver',
-            'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
-        ).subscribe(enabled => {
-            this.ehfEnabled = enabled;
-            this.updateSaveActions();
-        }, err => this.errorService.handle(err));
     }
 
     public numberSeriesChange(selectedSerie) {
@@ -567,23 +547,28 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    public canDeactivate(): Observable<boolean> {
-        const saveButtonLabel = this.invoice && this.invoice.ID && this.invoice.StatusCode > 42001 ? 'Lagre' : 'Lagre som kladd';
-        return !this.isDirty
-            ? Observable.of(true)
-            : this.modalService
-                .openUnsavedChangesModal(saveButtonLabel)
-                .onClose
-                .map(result => {
+    public canDeactivate(): boolean | Observable<boolean> {
+        if (this.isDirty) {
+            return this.modalService.openUnsavedChangesModal().onClose
+                .switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         if (!this.invoice.ID && !this.invoice.StatusCode) {
                             this.invoice.StatusCode = StatusCode.Draft;
                         }
-                        this.saveInvoice();
+
+                        return Observable.fromPromise(this.saveInvoice())
+                            .catch(err => {
+                                this.handleSaveError(err);
+                                return Observable.of(false);
+                            })
+                            .map(res => !!res);
                     }
 
-                    return result !== ConfirmActions.CANCEL;
+                    return Observable.of(result !== ConfirmActions.CANCEL);
                 });
+        }
+
+        return true;
     }
 
     public onInvoiceChange(invoice: CustomerInvoice) {
@@ -1123,19 +1108,22 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.invoice = _.cloneDeep(invoice);
         this.updateCurrency(invoice, true);
         this.recalcDebouncer.next(invoice.Items);
-        this.updateTabTitle();
+        this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
-        this.ehfReadyUpdateSaveActions();
     }
 
-    private updateTabTitle() {
-        const tabTitle = (this.invoice.InvoiceNumber)
-            ? 'Fakturanr. ' + this.invoice.InvoiceNumber
-            : (this.invoice.ID) ? 'Faktura (kladd)' : 'Ny faktura';
+    private updateTab(invoice?: CustomerInvoice) {
+        if (!invoice) {
+            invoice = this.invoice;
+        }
+
+        const tabTitle = !!invoice.InvoiceNumber
+            ? 'Fakturanr. ' + invoice.InvoiceNumber
+            : invoice.ID ? 'Faktura (kladd)' : 'Ny faktura';
 
         this.tabService.addTab({
-            url: '/sales/invoices/' + this.invoice.ID,
+            url: '/sales/invoices/' + invoice.ID,
             name: tabTitle,
             active: true,
             moduleID: UniModules.Invoices
@@ -1345,7 +1333,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private saveInvoice(done = (msg: string) => {}): Promise<any> {
+    private saveInvoice(done = (msg: string) => {}): Promise<CustomerInvoice> {
         this.invoice.Items = this.tradeItemHelper.prepareItemsForSave(this.invoiceItems);
 
         if (this.invoice.DefaultSeller && this.invoice.DefaultSeller.ID > 0) {
@@ -1367,7 +1355,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         return new Promise((resolve, reject) => {
-            const request = (this.invoice.ID > 0)
+            const saveRequest = (this.invoice.ID > 0)
                 ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
                 : this.customerInvoiceService.Post(this.invoice);
 
@@ -1379,53 +1367,45 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 return reject('Kan ikke lagre faktura, mvakode må velges på alle linjene med et beløp');
             }
 
-            // If a currency other than basecurrency is used, and any lines contains VAT,
-            // validate that this is correct before resolving the promise
-            if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
-                const linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
-                if (linesWithVat.length > 0) {
-                    const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
-                        + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
+                if (canSave) {
+                    saveRequest.subscribe(
+                        res => {
+                            this.updateTab(res);
 
-                    this.modalService.confirm({
-                        header: 'Vennligst bekreft',
-                        message: modalMessage,
-                        buttonLabels: {
-                            accept: 'Ja, lagre med MVA',
-                            cancel: 'Avbryt'
-                        }
-                    }).onClose.subscribe(response => {
-                        if (response === ConfirmActions.ACCEPT) {
-                            request.subscribe(
-                                res => {
-                                    if (res.InvoiceNumber) { this.selectConfig = undefined; }
-                                    resolve(res);
-                                },
-                                err => reject(err)
-                            );
-                        } else {
-                            const message = 'Endre MVA kode og lagre på ny';
-                            reject(message);
-                        }
-                    });
-
+                            if (res.InvoiceNumber) { this.selectConfig = undefined; }
+                            resolve(res);
+                            done('Lagring fullført');
+                        },
+                        err => reject(err));
                 } else {
-                    request.subscribe(res => {
-                        if (res.InvoiceNumber) { this.selectConfig = undefined; }
-                        resolve(res);
-                        done('Lagring fullført');
-                    }, err => reject(err));
+                    reject('Endre MVA kode og lagre på ny');
                 }
-            } else {
-                request.subscribe(res => {
-                    resolve(res);
-                    done('Lagring fullført');
-                }, err => reject(err));
-            }
-        }).catch(err => {
-            this.errorService.handle(err);
-            done('Lagring feilet');
+            });
         });
+    }
+
+    private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
+        if (this.invoice.CurrencyCodeID !== this.companySettings.BaseCurrencyCodeID) {
+            const linesWithVat = this.invoice.Items.filter(x => x.SumVatCurrency > 0);
+            if (linesWithVat.length > 0) {
+                const modalMessage = 'Er du sikker på at du vil registrere linjer med MVA når det er brukt '
+                    + `${this.getCurrencyCode(this.invoice.CurrencyCodeID)} som valuta?`;
+
+                return this.modalService.confirm({
+                    header: 'Vennligst bekreft',
+                    message: modalMessage,
+                    buttonLabels: {
+                        accept: 'Ja, lagre med MVA',
+                        cancel: 'Avbryt'
+                    }
+                }).onClose.map(response => {
+                    return response === ConfirmActions.ACCEPT;
+                });
+            }
+        }
+
+        return Observable.of(true);
     }
 
     private newBasedOn(): Promise<any> {
@@ -1513,7 +1493,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }).onClose.subscribe(
                 response => {
                     if (response === ConfirmActions.ACCEPT) {
-                        this.saveInvoice(done).then((invoice) => {
+                        // send dummy function to saveInvoice to avoid setting done before the
+                        // invoicing is completed (so the button does not appear to be clickable)
+                        // before the invoicing is complete
+                        this.saveInvoice((s) => {}).then((invoice) => {
                             if (invoice) {
                                 this.isDirty = false;
 
@@ -1525,6 +1508,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                                 if (!isDraft) {
                                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                                    done(doneText);
                                     return;
                                 }
 
@@ -1550,7 +1534,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             );
         }
 
-        this.saveInvoice(done).then((invoice) => {
+        // send dummy function to saveInvoice to avoid setting done before the
+        // invoicing is completed (so the button does not appear to be clickable)
+        // before the invoicing is complete
+        this.saveInvoice((s) => {}).then((invoice) => {
             if (invoice) {
                 this.isDirty = false;
 
@@ -1562,6 +1549,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                 if (!isDraft) {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                    done(doneText);
                     return;
                 }
 
@@ -1931,17 +1919,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private handleSaveError(error, donehandler) {
-        if (typeof (error) === 'string') {
-            if (donehandler) {
-                donehandler('Lagring avbrutt. ' + error);
-            }
-        } else {
-            if (donehandler) {
-                donehandler('Lagring feilet');
-            }
-            this.errorService.handle(error);
+    private handleSaveError(error, donehandler?) {
+        if (donehandler) {
+            donehandler('Lagring avbrutt');
         }
+
+        this.errorService.handle(error);
     }
 
     private deleteInvoice(done) {

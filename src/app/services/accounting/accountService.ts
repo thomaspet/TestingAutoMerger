@@ -26,7 +26,7 @@ export class AccountService extends BizHttp<Account> {
             `Account.AccountName as AccountAccountName,Account.UsePostPost as AccountUsePostPost,Account.Locked as AccountLocked,` +
             `Account.LockManualPosts as AccountLockManualPosts,VatTypeID as VatTypeID,TopLevelAccountGroup.GroupNumber,` +
             `Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,` +
-            `Account.UseDeductivePercent as AccountUseDeductivePercent,Supplier.StatusCode as SupplierStatusCode,` +
+            `Account.UseVatDeductionGroupID as AccountUseVatDeductionGroupID,Supplier.StatusCode as SupplierStatusCode,` +
             `Customer.StatusCode as CustomerStatusCode`)
             .map(x => x.Data ? x.Data : [])
             .map(x => this.mapStatisticsToAccountObjects(x));
@@ -44,7 +44,7 @@ export class AccountService extends BizHttp<Account> {
             account.VatTypeID = data.VatTypeID;
             account.CustomerID = data.AccountCustomerID;
             account.SupplierID = data.AccountSupplierID;
-            account.UseDeductivePercent = data.AccountUseDeductivePercent;
+            account.UseVatDeductionGroupID = data.AccountUseVatDeductionGroupID;
             account.UsePostPost = data.AccountUsePostPost;
             account.Locked = data.AccountLocked;
             account.LockManualPosts = data.AccountLockManualPosts;

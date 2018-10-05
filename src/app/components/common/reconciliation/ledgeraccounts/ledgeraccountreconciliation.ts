@@ -35,6 +35,7 @@ import { JournalEntryData } from '@app/models/models';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { RequestMethod } from '@angular/http';
 import { JournalEntryLineCouple } from '@app/services/accounting/postPostService';
+import {UniAutomarkModal} from './uniAutomarkModal';
 declare var _;
 
 
@@ -386,21 +387,44 @@ export class LedgerAccountReconciliation {
             return;
         }
 
-        const tableData = this.table.getTableData();
+        // If call comes from postpost view (with criterias)
+        if (!!criterias) {
+            const tableData = this.table.getTableData();
 
-        this.canAutoMark = false;
+            this.canAutoMark = false;
 
-        this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, criterias)
-            .then( result => {
-                if (result.length > 0) {
-                    this.allMarkingSessions = result;
-                    this.journalEntryLines = tableData;
-                    setTimeout(() => {
-                        this.calculateSums();
+            this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, criterias)
+                .then( result => {
+                    if (result.length > 0) {
+                        this.allMarkingSessions = result;
+                        this.journalEntryLines = tableData;
+                        setTimeout(() => {
+                            this.calculateSums();
+                        });
+                        this.isDirty = true;
+                    }
+            });
+        } else {
+            this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((res) => {
+                if (res) {
+                    const tableData = this.table.getTableData();
+
+                    this.canAutoMark = false;
+
+                    this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, res)
+                        .then( result => {
+                            if (result.length > 0) {
+                                this.allMarkingSessions = result;
+                                this.journalEntryLines = tableData;
+                                setTimeout(() => {
+                                    this.calculateSums();
+                                });
+                                this.isDirty = true;
+                            }
                     });
-                    this.isDirty = true;
                 }
-        });
+            });
+        }
     }
 
     private addToCurrentMarkingSession(model) {
@@ -630,7 +654,9 @@ export class LedgerAccountReconciliation {
                 title: 'Differanse markerte poster',
             }
         ];
-        if (this.summaryData.SumOpen !== this.summaryData.SumBalance && (this.customerID || this.supplierID)) {
+        if (this.summaryData.SumBalance
+                && this.summaryData.SumOpen !== this.summaryData.SumBalance
+                && (this.customerID || this.supplierID)) {
             this.summary.unshift({
                 value: this.summaryData ? this.numberFormatService.asMoney(this.summaryData.SumBalance) : null,
                 title: 'Saldo',

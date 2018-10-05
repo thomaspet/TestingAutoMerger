@@ -19,7 +19,7 @@ import * as _ from 'lodash';
             <header>
                 <h1>{{'Kolonneoppsett'}}</h1>
             </header>
-            <article>
+            <article class="scrollable">
                 <p>Her kan du bestemme synlighet, tittel, rekkefølge og posisjon på kolonnene.</p>
                 <p>"Hopp til kolonne" definere hvilken kolonne man skal gå til ved tab/enter klikk.</p>
                 <p>For å endre posisjon på en kolonne drar du <i class="material-icons move-icon">menu</i> ikonet opp eller ned.</p>
@@ -56,11 +56,7 @@ import * as _ from 'lodash';
                             </td>
 
                             <td>
-                                <input type="text"
-                                    [value]="column.header"
-                                    (change)="inputChange($event, 'header', column, idx)"
-                                    placeholder="Kolonnetittel"
-                                />
+                                {{column.header}}
                             </td>
 
                             <td>

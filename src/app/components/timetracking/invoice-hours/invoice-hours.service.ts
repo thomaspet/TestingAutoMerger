@@ -61,6 +61,22 @@ export class InvoiceHourService {
             });
     }
 
+    getInvoicableHoursOnOrder(orderID: number) {
+        const query = new URLSearchParams();
+        const filter = `CustomerOrderID eq ${orderID}`;
+
+        query.set('model', 'workitem');
+
+        query.set('select', 'CustomerOrderID as OrderID'
+            + ',sum(casewhen(minutestoorder ne 0,minutestoorder,minutes)) as SumMinutes'
+            + ',sum(casewhen(transferedtoorder eq 0,minutes,0)) as SumNotTransfered');
+        query.set('expand', 'customerorder');
+
+        query.set('filter', filter);
+
+        return this.statisticsService.GetAllByUrlSearchParams(query, true).map(response => response.json().Data);
+    }
+
     public getGroupedInvoicableHours(options: IWizardOptions) {
         const query = new URLSearchParams();
         let filter = '';

@@ -81,7 +81,7 @@ export class DistributionPeriodReportPart implements OnChanges {
     private numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: '.',
-        decimalLength: 2
+        decimalLength: 0
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B'];
@@ -144,8 +144,8 @@ export class DistributionPeriodReportPart implements OnChanges {
             accountIdFilter = ' (SubAccount.ID eq ' + this.subaccountIDs.join(' or SubAccount.ID eq ') + ') ';
         }
 
-        if (accountIdFilter && this.accountYear1 && this.accountYear2) {
-            if (accountIdFilter === '') {
+        if (this.accountYear1 && this.accountYear2) {
+            if (!accountIdFilter) {
                 accountIdFilter = 'TopLevelAccountGroup.GroupNumber ge 3';
             }
 
@@ -184,6 +184,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             }
 
             subject.subscribe((data: Array<any>) => {
+
                 const periodDataUnordered = data[0].Data;
 
                 // setup distributionperiods
@@ -208,7 +209,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                     }
                 });
 
-                if (this.includeIncomingBalance) {
+                if (this.includeIncomingBalance && data.length > 1) {
                     const incomingBalanceDistributionData = {
                         periodNo: 0,
                         periodName: 'Inngående balanse',

@@ -104,7 +104,7 @@ export class CustomerDetails implements OnInit {
     public selectConfig: any;
     private deletables: SellerLink[] = [];
     private sellers: Seller[];
-    private distributionPlans: any[];
+    private distributionPlans: any[] = [];
 
     private isDirty: boolean = false;
 
@@ -334,13 +334,13 @@ export class CustomerDetails implements OnInit {
         this.saveactions = [
              {
                  label: 'Lagre',
-                 action: (completeEvent) => this.saveCustomer(completeEvent),
+                 action: (completeEvent) => this.saveAction(completeEvent),
                  main: true,
                  disabled: !this.isDirty
              },
              {
                  label: 'Lagre som lead',
-                 action: (completeEvent) => this.saveCustomer(completeEvent, true),
+                 action: (completeEvent) => this.saveAction(completeEvent, true),
                  main: false,
                  disabled: !this.isDirty
              }
@@ -385,7 +385,6 @@ export class CustomerDetails implements OnInit {
         this.formIsInitialized = false;
         this.activeTabIndex = 0;
         this.router.navigateByUrl('/sales/customer/0');
-        this.reset();
     }
 
     private deleteCustomer(id: number) {
@@ -462,17 +461,14 @@ export class CustomerDetails implements OnInit {
             modalOptions.warning = 'Advarsel: Organisasjonsnummer er ikke gyldig';
         }
 
-        return this.modalService.confirm(modalOptions).onClose.map(modalResult => {
+        return this.modalService.confirm(modalOptions).onClose.switchMap(modalResult => {
             if (modalResult === ConfirmActions.ACCEPT) {
-                this.saveCustomer(() => {});
-            } else if (modalResult === ConfirmActions.REJECT) {
-                this.isDirty = false;
-                if (this.ledgerAccountReconciliation) {
-                    this.ledgerAccountReconciliation.isDirty = false;
-                }
+                return this.save()
+                    .catch(err => Observable.of(false))
+                    .map(res => !!res);
             }
 
-            return modalResult !== ConfirmActions.CANCEL;
+            return Observable.of(modalResult !== ConfirmActions.CANCEL);
         });
     }
 
@@ -552,6 +548,9 @@ export class CustomerDetails implements OnInit {
                     customer.SubAccountNumberSeriesID = numberSerie.ID;
                 }
 
+                if (this.customerID > 0) {
+                    this.getDataAndUpdateToolbarSubheads();
+                }
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
@@ -560,10 +559,6 @@ export class CustomerDetails implements OnInit {
                     customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
                     customer.CustomerInvoiceReminderSettings['_createguid'] =
                         this.customerInvoiceReminderSettingsService.getNewGuid();
-                }
-
-                if (this.customerID > 0) {
-                    this.getDataAndUpdateToolbarSubheads();
                 }
 
                 customer.DefaultSeller = customer.DefaultSeller;
@@ -918,151 +913,149 @@ export class CustomerDetails implements OnInit {
         }
     }
 
-    public saveCustomer(completeEvent: any, saveAsLead?: boolean) {
-        // small timeout to allow uniform and unitable to update the sources before saving
-        setTimeout(() => {
-            const customer = this.customer$.getValue();
 
-            // add createGuid for new entities and remove duplicate entities
-            if (!customer.Info.Emails) {
-                customer.Info.Emails = [];
+    preSave(customer): Customer {
+        // Copy paste from old save routine. Don't have time to refactor due to exedra deadline..
+        // Most of this stuff should be unnecessary, and is fixing bad practices elsewhere.
+        // If anyone feel like deleting useless code this is a good place to start :)
+
+        if (!customer.Info.Emails) {
+            customer.Info.Emails = [];
+        }
+
+        customer.Info.Emails.forEach(email => {
+            if (email.ID === 0 || !email.ID) {
+                email['_createguid'] = this.customerService.getNewGuid();
             }
+        });
 
-            customer.Info.Emails.forEach(email => {
-                if (email.ID === 0 || !email.ID) {
-                    email['_createguid'] = this.customerService.getNewGuid();
-                }
-            });
+        if (customer.Info.DefaultEmail) {
+            customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
+        }
 
-            if (customer.Info.DefaultEmail) {
-                customer.Info.Emails = customer.Info.Emails.filter(x => x !== customer.Info.DefaultEmail);
+        if (!customer.Info.Phones) {
+            customer.Info.Phones = [];
+        }
+
+        customer.Info.Phones.forEach(phone => {
+            if (phone.ID === 0 || !phone.ID) {
+                phone['_createguid'] = this.customerService.getNewGuid();
             }
+        });
 
-            if (!customer.Info.Phones) {
-                customer.Info.Phones = [];
+        if (customer.Info.DefaultPhone) {
+            customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
+        }
+
+        if (!customer.Info.Addresses) {
+            customer.Info.Addresses = [];
+        }
+
+        customer.Info.Addresses.forEach(address => {
+            if (address.ID === 0 || !address.ID) {
+                address['_createguid'] = this.customerService.getNewGuid();
             }
+        });
 
-            customer.Info.Phones.forEach(phone => {
-                if (phone.ID === 0 || !phone.ID) {
-                    phone['_createguid'] = this.customerService.getNewGuid();
-                }
-            });
+        if (customer.Info.ShippingAddress) {
+            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.ShippingAddress);
+        }
 
-            if (customer.Info.DefaultPhone) {
-                customer.Info.Phones = customer.Info.Phones.filter(x => x !== customer.Info.DefaultPhone);
+        if (customer.Info.InvoiceAddress) {
+            customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
+        }
+
+        if (!customer.Info.DefaultPhone && customer.Info.DefaultPhoneID === 0) {
+            customer.Info.DefaultPhoneID = null;
+        }
+
+        if (!customer.Info.DefaultEmail && customer.Info.DefaultEmailID === 0) {
+            customer.Info.DefaultEmailID = null;
+        }
+
+        if (!customer.Info.ShippingAddress && customer.Info.ShippingAddressID === 0) {
+            customer.Info.ShippingAddressID = null;
+        }
+
+        if (!customer.Info.InvoiceAddress && customer.Info.InvoiceAddressID === 0) {
+            customer.Info.InvoiceAddressID = null;
+        }
+
+        if (customer.Dimensions && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
+            customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
+        }
+
+        if (!customer.Info.Contacts) {
+            customer.Info.Contacts = [];
+        }
+
+        customer.Info.Contacts.forEach(contact => {
+            if (contact.ID === 0 || !contact.ID) {
+                contact['_createguid'] = this.customerService.getNewGuid();
             }
+        });
 
-            if (!customer.Info.Addresses) {
-                customer.Info.Addresses = [];
-            }
+        if (customer.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
+            // remove new contacts where name is not set, probably an empty row anyway
+            customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
+        }
 
-            customer.Info.Addresses.forEach(address => {
-                if (address.ID === 0 || !address.ID) {
-                    address['_createguid'] = this.customerService.getNewGuid();
-                }
-            });
+        if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
+            !customer.CustomerInvoiceReminderSettingsID) &&
+            (this.reminderSettings && !this.reminderSettings.isDirty)) {
+                customer.CustomerInvoiceReminderSettings = null;
+        }
 
-            if (customer.Info.ShippingAddress) {
-                customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.ShippingAddress);
-            }
-
-            if (customer.Info.InvoiceAddress) {
-                customer.Info.Addresses = customer.Info.Addresses.filter(x => x !== customer.Info.InvoiceAddress);
-            }
-
-            if (!customer.Info.DefaultPhone && customer.Info.DefaultPhoneID === 0) {
-                customer.Info.DefaultPhoneID = null;
-            }
-
-            if (!customer.Info.DefaultEmail && customer.Info.DefaultEmailID === 0) {
-                customer.Info.DefaultEmailID = null;
-            }
-
-            if (!customer.Info.ShippingAddress && customer.Info.ShippingAddressID === 0) {
-                customer.Info.ShippingAddressID = null;
-            }
-
-            if (!customer.Info.InvoiceAddress && customer.Info.InvoiceAddressID === 0) {
-                customer.Info.InvoiceAddressID = null;
-            }
-
-            if (customer.Dimensions && (!customer.Dimensions.ID || customer.Dimensions.ID === 0)) {
-                customer.Dimensions['_createguid'] = this.customerService.getNewGuid();
-            }
-
-            if (!customer.Info.Contacts) {
-                customer.Info.Contacts = [];
-            }
-
-            customer.Info.Contacts.forEach(contact => {
-                if (contact.ID === 0 || !contact.ID) {
-                    contact['_createguid'] = this.customerService.getNewGuid();
-                }
-            });
-
-            if (customer.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
-                // remove new contacts where name is not set, probably an empty row anyway
-                customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
-            }
-
-            if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
-                !customer.CustomerInvoiceReminderSettingsID) &&
-                (this.reminderSettings && !this.reminderSettings.isDirty)) {
-                    customer.CustomerInvoiceReminderSettings = null;
-            }
-
-            customer['_CustomerSearchResult'] = undefined;
+        customer['_CustomerSearchResult'] = undefined;
 
 
-            // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
-            if (this.deletables) {
-                this.deletables.forEach(sellerLink => customer.Sellers.push(sellerLink));
-            }
+        // add deleted sellers back to 'Sellers' to delete with 'Deleted' property, was sliced locally/in view
+        if (this.deletables) {
+            this.deletables.forEach(sellerLink => customer.Sellers.push(sellerLink));
+        }
 
-            if (this.customerID > 0) {
-                this.customerService.Put(customer.ID, customer).subscribe(
-                    (updatedCustomer) => {
-                        this.isDirty = false;
-                        completeEvent('Kunde lagret');
-                        if (this.modalMode) {
-                            this.customerUpdated.next(updatedCustomer);
-                        } else {
-                            this.customerService.Get(updatedCustomer.ID, this.expandOptions)
-                                .subscribe(retrievedCustomer => {
-                                    this.setMainContact(retrievedCustomer);
-                                    this.customer$.next(retrievedCustomer);
-                                    this.subCompany.refresh();
-                                    this.setTabTitle();
-                                });
-                        }
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
+        return customer;
+    }
+
+    private save(saveAsLead?: boolean): Observable<Customer> {
+        const customer = this.preSave(this.customer$.getValue());
+
+        if (saveAsLead) {
+            customer.StatusCode = StatusCode.Pending;
+        }
+
+        return customer.ID > 0
+            ? this.customerService.Put(customer.ID, customer)
+            : this.customerService.Post(customer);
+    }
+
+    private saveAction(doneCallback, saveAsLead?: boolean) {
+        this.save(saveAsLead).subscribe(
+            res => {
+                this.isDirty = false;
+                this.selectConfig = undefined;
+                doneCallback('Kunde lagret');
+                if (this.modalMode) {
+                    this.customerUpdated.next(res);
+                } else {
+                    // Reload if customer already existed, navigate if not
+                    if (this.customerID) {
+                        this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
+                            this.setMainContact(updatedCustomer);
+                            this.customer$.next(updatedCustomer);
+                            this.subCompany.refresh();
+                            this.setTabTitle();
+                        });
+                    } else {
+                        this.router.navigateByUrl('/sales/customer/' + res.ID);
                     }
-                );
-            } else {
-                if (saveAsLead) {
-                    customer.StatusCode = StatusCode.Pending;
                 }
-                this.customerService.Post(customer).subscribe(
-                    (newCustomer) => {
-                        this.isDirty = false;
-                        completeEvent('Kunde lagret');
-                        this.selectConfig = undefined;
-                        if (this.modalMode) {
-                            this.customerUpdated.next(newCustomer);
-                        } else {
-                            this.router.navigateByUrl('/sales/customer/' + newCustomer.ID);
-                        }
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
-                    }
-                );
+            },
+            err => {
+                this.errorService.handle(err);
+                doneCallback('Lagring feilet');
             }
-        }, 100);
+        );
     }
 
     public onContactChanged(contact: Contact) {

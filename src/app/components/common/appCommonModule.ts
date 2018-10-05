@@ -20,13 +20,12 @@ import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
 import {ImageModal} from './modals/ImageModal';
 import {UniAttachments} from './attacments/uniAttachements';
-import {UniPoster, TextWidget, ContactWidget, TableWidget, AlertsWidget, ImageWidget} from './poster/poster';
 import {LedgerAccountReconciliation} from './reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {UniAutomarkModal} from './reconciliation/ledgeraccounts/uniAutomarkModal';
 import {AccrualModal} from './modals/accrualModal';
 import {UniReminderSettingsModal} from './reminder/settings/reminderSettingsModal';
 import {ReminderSettings} from './reminder/settings/reminderSettings';
 import {ReminderRules} from './reminder/settings/reminderRules';
-import {DebtCollectionSetting} from './reminder/settings/debtCollectionSettings';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
@@ -45,6 +44,9 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
+import {
+    MatProgressBarModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -54,6 +56,7 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         HttpModule,
         RouterModule,
         UniFrameworkModule,
+        MatProgressBarModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -70,22 +73,16 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniSummary,
         ImageModal,
         UniAttachments,
-        UniPoster,
-        TextWidget,
-        ContactWidget,
-        TableWidget,
-        AlertsWidget,
-        ImageWidget,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
+        UniAutomarkModal,
 
         ReminderSettings,
         UniReminderSettingsModal,
         ReminderRules,
-        DebtCollectionSetting,
 
         ContactDetails,
         Contacts,
@@ -111,13 +108,13 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         AltinnAuthenticationModal,
         UniReminderSettingsModal,
         ReminderSettings,
-        DebtCollectionSetting,
         AddPaymentModal,
         AccrualModal,
         ImageModal,
         BookPaymentManualModal,
         VacationPaySettingsModal,
-        ApikeyLineModal
+        ApikeyLineModal,
+        UniAutomarkModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -131,20 +128,14 @@ import {ApikeyLineModal} from './apikey/modals/apikey-modal';
         UniSummary,
         ImageModal,
         UniAttachments,
-        UniPoster,
-        TextWidget,
-        ContactWidget,
-        TableWidget,
-        AlertsWidget,
-        ImageWidget,
         UniTags,
         AddPaymentModal,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
+        UniAutomarkModal,
 
         ReminderSettings,
-        DebtCollectionSetting,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
 

@@ -16,6 +16,7 @@ interface IHttpCacheEntry<T> {
 interface IHttpCacheSettings {
     timeout?: number;
     maxEntries?: number;
+    clearOnlyOnLogout?: boolean;
 }
 
 @Injectable()
@@ -33,9 +34,15 @@ export class BizHttp<T> {
     protected entityType: string;
 
     constructor(protected http: UniHttp) {
-        this.http.authService
-            .authentication$
-            .subscribe(change => this.invalidateCache());
+        this.http.authService.authentication$.subscribe(auth => {
+            if (this.cacheSettings.clearOnlyOnLogout) {
+                if (!auth || !auth.user) {
+                    this.invalidateCache();
+                }
+            } else {
+                this.invalidateCache();
+            }
+        });
     }
 
     protected disableCache() {
@@ -105,7 +112,7 @@ export class BizHttp<T> {
         this.cacheStore = {};
     }
 
-    public Get<T>(ID: number|string, expand?: string[]): Observable<any> {
+    public Get<T>(ID: number|string, expand?: string[], hateoas: boolean = false): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
@@ -120,10 +127,11 @@ export class BizHttp<T> {
             request = this.http
                 .usingBusinessDomain()
                 .asGET()
-                .withEndPoint(this.relativeURL + '/' + ID)
+                .withEndPoint(this.relativeURL + '/' + ID +'?hateoas=' + hateoas)
                 .send({expand: expandStr})
                 .publishReplay(1)
                 .refCount();
+
 
             this.storeInCache(hash, request);
         }

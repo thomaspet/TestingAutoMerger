@@ -172,6 +172,13 @@ export class UniCompanyDropdown {
         this.close();
         if (selectedCompany && selectedCompany !== this.activeCompany) {
             this.yearService.clearActiveYear();
+
+            // Trigger change detection on dropdown with previously active company.
+            // This is done because unsaved changes might stop the process of
+            // changing company. If company is changed successfully the class
+            // variable (and dropdown) will be updated with the new company.
+            this.activeCompany = Object.assign({}, this.activeCompany);
+
             this.authService.setActiveCompany(selectedCompany);
         }
     }

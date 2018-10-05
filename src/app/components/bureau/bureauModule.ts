@@ -12,7 +12,11 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
+import {GrantAccessSelectionList} from './grant-access-modal/selection-list/selection-list';
 import {PAGES} from '@app/components/bureau/grant-access-modal/pages';
+
+import {CompanyGroupModal} from './company-group-modal/company-group-modal';
+import {MatStepperModule, MatCheckboxModule, MatButtonModule, MatListModule, MatSelectModule, MatMenuModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -24,13 +28,22 @@ import {PAGES} from '@app/components/bureau/grant-access-modal/pages';
         AppPipesModule,
         LayoutModule,
         RouterModule,
+
+        MatStepperModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        MatListModule,
+        MatSelectModule,
+        MatMenuModule
     ],
     declarations: [
+        GrantAccessSelectionList,
         GrantAccessModal,
         BureauDashboard,
         BureauDetails,
-        ...TABS,
+        CompanyGroupModal,
         UniNewCompanyModal,
+        ...TABS,
         ...PAGES,
     ],
     providers: [
@@ -40,6 +53,7 @@ import {PAGES} from '@app/components/bureau/grant-access-modal/pages';
     entryComponents: [
         GrantAccessModal,
         UniNewCompanyModal,
+        CompanyGroupModal,
     ]
 })
 export class BureauModule {}

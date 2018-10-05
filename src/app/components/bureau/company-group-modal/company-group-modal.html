@@ -1,0 +1,64 @@
+<dialog role="dialog" class="uni-modal" style="position: relative;">
+    <article>
+        <section class="bureau-group-split-view">
+            <!-- List-->
+            <section class="bureau-group-list">
+                <ul id="group-list">
+                    <li class="header">Grupper</li>
+                    <li *ngFor="let group of groups; let idx = index"
+                        [attr.aria-selected]="idx === editingIndex"
+                        (click)="editGroup(idx)">
+
+                        <span>{{group.name}}</span>
+                        <i *ngIf="!group.static" class="material-icons" (click)="deleteGroup(idx)">clear</i>
+                    </li>
+                </ul>
+
+                <button class="button-clean" (click)="createGroup()">
+                    <i class="material-icons">add</i>
+                    Ny gruppe
+                </button>
+            </section>
+
+            <!-- Detail -->
+            <section class="bureau-group-details" id="group-details">
+                <strong>Gruppenavn</strong>
+                <input type="text"
+                    [(ngModel)]="groups[editingIndex].name"
+                    [disabled]="groups[editingIndex].static"
+                    placeholder="Gruppenavn"
+                    spellcheck="false"
+                    autofocus
+                />
+
+                <strong style="margin-top: 2rem">Selskaper i gruppe</strong>
+                <small *ngIf="groups[editingIndex].static">
+                    Hvilke selskap som inngår kan ikke endres for denne gruppen.
+                </small>
+                <ng-template [ngIf]="!groups[editingIndex].static">
+                    <input type="search"
+                        [formControl]="searchControl"
+                        placeholder="Filtrer liste"
+                    />
+
+                    <mat-selection-list>
+                        <mat-list-option *ngFor="let company of filteredCompanies"
+                            checkboxPosition="before"
+                            [selected]="company._isInGroup"
+                            (click)="companySelectionChange(company)">
+
+                            {{company.Name}}
+                        </mat-list-option>
+                    </mat-selection-list>
+                </ng-template>
+            </section>
+        </section>
+
+
+    </article>
+
+    <footer>
+        <button class="button-clean save-groups" (click)="submitChanges()">Lagre endringer</button>
+        <button class="button-clean" (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</dialog>

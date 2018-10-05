@@ -1,9 +1,9 @@
 ﻿<section class="uni-container">
     <section class="minimized-sidebar-icons" [hidden]="!minimized">
-        <a class="sidemenu_minified_calender_icon" (click)="toggleSidemenu()"></a>
-        <p class="sidemenu_minified_to_from" (click)="toggleSidemenu()">Calender</p>
+        <i class="material-icons" (click)="toggleSidemenu()">date_range</i>
+        <p class="sidemenu_minified_to_from" (click)="toggleSidemenu()">Kalender</p>
         <section *ngFor="let template of timeTrackingTemplates; let i = index;" (click)="onTemplateSelected(template)">
-            <a class="sidemenu_minified_template_icon"></a>
+            <i class="material-icons">access_time</i>
             <p class="sidemenu_minified_to_from" style="margin: 0;">{{ template.Name }}</p>
             <p class="sidemenu_minified_to_from" style="margin-top: 0;">{{ template.StartTime }} - {{ template.EndTime }}</p>
         </section>

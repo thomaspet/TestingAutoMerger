@@ -7,14 +7,18 @@ export class PageStateService {
     constructor(private location: Location) {
     }
 
+    public getUrl(): string {
+        return this.location.path(false);
+    }
+
     /// <summary>
     /// Sets url-state as parameters in actual url.
     /// Example: setPageState('filter', '123') results in url with '/test/single/1?filter=123
     /// Note: Also updates and protects existing parameters.
     /// </summary>
     public setPageState(parameterName: string, value: string) {
-        var input = this.location.path(false);
-        var output = this.mapIntoUrl(input, parameterName, value);
+        const input = this.location.path(false);
+        const output = this.mapIntoUrl(input, parameterName, value);
         if (input !== output) {
             this.location.replaceState(output);
         }

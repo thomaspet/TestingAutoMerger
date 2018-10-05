@@ -570,19 +570,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
-    private setVatDeductionPercent(rowModel: JournalEntryData): JournalEntryData {
+    private setVatDeductionPercent(rowModel: JournalEntryData, isPercentageChanged: boolean = false): JournalEntryData {
         let deductivePercent: number = 0;
+
+        if (isPercentageChanged) {
+            return rowModel;
+        }
         rowModel.VatDeductionPercent = null;
 
-        if (rowModel.DebitAccount && rowModel.DebitAccount.UseDeductivePercent) {
+        if (rowModel.DebitAccount && rowModel.DebitAccount.UseVatDeductionGroupID) {
             deductivePercent = this.journalEntryService.getVatDeductionPercent(
-                this.vatDeductions, rowModel.DebitAccount, rowModel.FinancialDate
+                this.vatDeductions, rowModel.DebitAccount, (rowModel.VatDate ? rowModel.VatDate : rowModel.FinancialDate)
             );
         }
 
-        if (deductivePercent === 0 && rowModel.CreditAccount && rowModel.CreditAccount.UseDeductivePercent) {
+        if (deductivePercent === 0 && rowModel.CreditAccount && rowModel.CreditAccount.UseVatDeductionGroupID) {
             deductivePercent = this.journalEntryService.getVatDeductionPercent(
-                this.vatDeductions, rowModel.CreditAccount, rowModel.FinancialDate
+                this.vatDeductions, rowModel.CreditAccount, (rowModel.VatDate ? rowModel.VatDate : rowModel.FinancialDate)
             );
         }
 
@@ -651,8 +655,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (newRow.VatDeductionPercent &&
-            !((newRow.DebitAccount && newRow.DebitAccount.UseDeductivePercent)
-            || (newRow.CreditAccount && newRow.CreditAccount.UseDeductivePercent))
+            !((newRow.DebitAccount && !newRow.DebitAccount.UseVatDeductionGroupID)
+            || (newRow.CreditAccount && !newRow.CreditAccount.UseVatDeductionGroupID))
         ) {
             this.toastService.addToast(
                 'Fradragsprosent kan ikke angis',
@@ -662,7 +666,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (!newRow.VatDeductionPercent) {
-            this.setVatDeductionPercent(newRow);
+            this.setVatDeductionPercent(newRow, true);
         }
         return newRow;
     }
@@ -953,6 +957,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setVisible(false)
             .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
 
+        const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
+
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
@@ -1112,8 +1118,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 but currently this causes problems, so ignore this for now
                 .setTemplate((row: JournalEntryData) => {
                 if (row['NetAmountCurrency'] && row.VatDeductionPercent && row.VatDeductionPercent !== 0
-                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
-                    || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    && ((row.DebitAccount && !!row.DebitAccount.UseVatDeductionGroupID)
+                    || (row.CreditAccount && !!row.CreditAccount.UseVatDeductionGroupID))) {
                     return `<span title="Nettobeløp kan ikke settes når en konto med forholdsvis mva er brukt">
                     ${this.numberFormatService.asMoney(row['NetAmountCurrency'])}</span>`;
                 } else if (row['NetAmountCurrency']) {
@@ -1122,8 +1128,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             })*/
             .setEditable((row: JournalEntryData) => {
                 if (row.VatDeductionPercent && row.VatDeductionPercent !== 0
-                    && ((row.DebitAccount && row.DebitAccount.UseDeductivePercent)
-                    || (row.CreditAccount && row.CreditAccount.UseDeductivePercent))) {
+                    && ((row.DebitAccount && !!row.DebitAccount.UseVatDeductionGroupID)
+                    || (row.CreditAccount && !!row.CreditAccount.UseVatDeductionGroupID))) {
                     return false;
                 }
 
@@ -1308,6 +1314,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 invoiceNoCol,
                 vatDateCol,
                 financialDateCol,
+                kidCol,
                 debitAccountCol,
                 creditAccountCol,
                 currencyCodeCol,
@@ -1319,7 +1326,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 addedPaymentCol,
                 fileCol
-            ];
+            ].map(col => {
+                col = _.cloneDeep(col);
+                if (col.field === invoiceNoCol.field ||
+                    col.field === vatDateCol.field ||
+                    col.field === amountCol.field ||
+                    col.field === amountCurrencyCol.field) {
+                    return col;
+                }
+                col.setEditable((row: JournalEntryData) => {
+                    return !row.CustomerInvoice;
+                });
+                return col;
+            });
+
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
             // SupplierInvoice == "Fakturamottak"
             tableName = 'accounting.journalEntry.supplierinvoice';
@@ -1393,7 +1413,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 sameOrNewCol,
                 vatDateCol,
                 financialDateCol,
-                invoiceNoTextCol,
+                kidCol,
+                invoiceNoCol,
                 dueDateCol,
                 debitAccountCol,
                 debitVatTypeCol,
@@ -1445,6 +1466,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setAutoScrollIfNewCellCloseToBottom(true)
             .setChangeCallback((event) => {
                 const rowModel = <JournalEntryData> event.rowModel;
+
                 // get row from table - it may have been updated after the editor got it
                 // because some of the events sometimes are async. Therefore, get the row
                 // from the table, and reapply the changes made by this event

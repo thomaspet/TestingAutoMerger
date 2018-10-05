@@ -417,6 +417,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Categories
                     },
                     {
+                        name: 'Trekkmaler',
+                        url: '/salary/salarybalancetemplates',
+                        moduleID: UniModules.SalarybalanceTemplates
+                    },
+                    {
                         name: 'Altinn oversikt',
                         url: '/salary/altinnoverview',
                         moduleID: UniModules.AltinnOverview
@@ -489,7 +494,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     prefix: ['prosjekt'],
                     selects: [
                         {key: 'ID', isNumeric: true},
-                        {key: 'ProjectNumber', isNumeric: true},
+                        {key: 'ProjectNumber', isNumeric: false},
                         {key: 'Name', isNumeric: false}
                     ]
                 },

@@ -3,9 +3,23 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {PostPost, LocalDate, StatusCodeJournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs/Observable';
+import {Subject} from 'rxjs/Subject';
+
+export interface IAutoMarkAllResponseObject {
+    message: string;
+    percent: any;
+    ETRInSeconds?: number;
+    finalized: boolean;
+    errors: number;
+    logMessages?: any[];
+    doneMessage?: string;
+}
 
 @Injectable()
 export class PostPostService extends BizHttp<PostPost> {
+
+    public cancelAutomarkAll: boolean = false;
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = PostPost.RelativeUrl;
@@ -62,6 +76,170 @@ export class PostPostService extends BizHttp<PostPost> {
                     return result.Pairs;
                 })
                 .toPromise();
+    }
+
+    public automarkAllAccounts(accountFrom, accountTo, method): Subject<IAutoMarkAllResponseObject> {
+        const query = '?model=JournalEntryLine&select=subaccount.accountnumber as AccountNo,' +
+        'subaccount.customerid as CustomerID,subaccount.accountName as Name,subaccount.supplierid as SupplierID' +
+        ',subaccount.ID as AccountID,sum(amount) as Balance,sum(restamount) as Unmarked,count(id) as ItemCount' +
+        ',sum(casewhen(restamount lt 0\,1\,0)) as NumNegative,sum(casewhen(restamount gt 0\,1\,0)) as NumPositive' +
+        `&filter=subaccount.accountnumber ge ${accountFrom} and subaccount.accountnumber le ${accountTo} and statuscode le 31002` +
+        '&orderby=subaccount.accountnumber&expand=subaccount&wrap=false';
+
+
+        const responseObject: Subject<IAutoMarkAllResponseObject> = new Subject();
+        let errors: number = 0;
+        const logMessages: any[] = [];
+
+        responseObject.next({
+            message: 'Starter automerking, henter data..',
+            percent: 100,
+            errors: errors,
+            finalized: false
+        });
+
+        this.http
+            .asGET()
+            .usingStatisticsDomain()
+            .withEndPoint(query)
+            .send()
+            .map(res => res.json())
+            .subscribe((result) => {
+
+                if (!result) {
+                    responseObject.next({
+                        message: 'Fant ingen kontoer å automerke.',
+                        percent: 100,
+                        errors: errors,
+                        finalized: true
+                    });
+                    responseObject.complete();
+                    return;
+                } else {
+                    responseObject.next({
+                        message: `Fant ${result.length} kontoer med mulig automerking. Sjekker kontoer nå.`,
+                        percent: 0,
+                        errors: errors,
+                        finalized: false
+                    });
+                }
+
+                const markableResults = result.filter(item => (item.ItemCount > 0 && item.NumNegative !== 0 && item.NumPositive !== 0));
+
+                const batchSuggestions = (index: number) => {
+                    if (index >= markableResults.length) {
+                        responseObject.next({
+                            message:  `${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
+                            percent: 100,
+                            errors: errors,
+                            finalized: true,
+                            logMessages: logMessages
+                        });
+
+                        return;
+                    } else if (this.cancelAutomarkAll) {
+                        responseObject.next({
+                            message:  `Automerking avbrutt.. ${logMessages.length - errors} kontoer merket, ${errors} feilet.`,
+                            percent: 100,
+                            errors: errors,
+                            finalized: true,
+                            logMessages: logMessages
+                        });
+
+                        return false;
+                    }
+
+                    const item = markableResults[index];
+
+                    responseObject.next({
+                        message: `${item.AccountNo} - ${item.Name}`,
+                        errors: errors,
+                        percent: Math.floor((index / markableResults.length) * 100),
+                        finalized: false
+                    });
+
+                    if (item.ItemCount < 0 || item.NumNegative === 0 || item.NumPositive === 0) {
+                        // Unmarkable, do nothing
+                        batchSuggestions(index + 1);
+                    } else {
+                        const route = `postposts?action=get-suggestions&methods=${method}&${this.getRouteFilter(item)}`;
+                        this.http
+                            .asGET()
+                            .usingBusinessDomain()
+                            .withEndPoint(route)
+                            .send()
+                            .map(res => res.json())
+                            .subscribe((suggestions) => {
+                                // Add new query to the allBatches array
+                                if (suggestions) {
+                                    const markings = suggestions.Pairs;
+                                    if (markings && markings.length) {
+                                        let position = 0;
+                                        const batches: any[] = [];
+                                        const batchSize: number = 50;
+
+                                        // Add suggested pairs in batches and send them to prevent server timeout
+                                        while (position < markings.length) {
+                                            const batch = markings.slice(position, position + batchSize);
+                                            position += batchSize;
+                                            batches.push(
+                                                this.http
+                                                    .asPOST()
+                                                    .usingBusinessDomain()
+                                                    .withEndPoint('postposts?action=markposts')
+                                                    .withBody(batch)
+                                                    .send()
+                                                    .do(() => {
+                                                        logMessages.push({
+                                                            message: 'Vellykket automerking av ' + (batch.length * 2) +
+                                                            ' linjer for ' + item.AccountNo + ' - ' + item.Name,
+                                                            error: false
+                                                        });
+                                                    })
+                                                    .catch((err) => {
+                                                        errors++;
+                                                        const error = err.json();
+                                                        let errorMessage = '';
+                                                        if (error && error.Messages && error.Messages.length) {
+                                                            errorMessage = error.Messages[0].Message;
+                                                        } else if (error && error.JournalEntryNumber) {
+                                                            errorMessage = 'Feil på bilagsnr. ' + error.JournalEntryNumber;
+                                                        }
+                                                        logMessages.push({
+                                                            message: 'Feil på automerking av konto: '
+                                                            + item.AccountNo + ' - ' + item.Name,
+                                                            error: true,
+                                                            errorMsg: errorMessage
+                                                            });
+                                                        return Observable.of('');
+                                                    })
+                                            );
+                                        }
+
+                                        Observable.forkJoin(batches).subscribe((batchResult) => {
+                                            batchSuggestions(index + 1);
+                                        }, (error) => {
+                                            batchSuggestions(index + 1);
+                                        });
+
+                                    } else {
+                                        batchSuggestions(index + 1);
+                                    }
+                                } else {
+                                    batchSuggestions(index + 1);
+                                }
+                            });
+                    }
+                };
+                batchSuggestions(0);
+            });
+
+            return responseObject;
+    }
+
+    private getRouteFilter(item) {
+        const string = item.SupplierID > 0 ? 'supplierID' : item.CustomerID > 0 ? 'customerID' : 'accountID';
+        return string + '=' + (item.SupplierID > 0 ? item.SupplierID : item.CustomerID > 0 ? item.CustomerID : item.AccountID);
     }
 }
 

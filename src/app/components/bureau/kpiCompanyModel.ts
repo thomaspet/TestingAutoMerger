@@ -14,6 +14,7 @@ export type KpiCompany = {
     OrganizationNumber: number;
     IsTest: boolean;
     Key: string;
+    ClientNumber:number;
     Kpi: {
         ID: number;
         KpiDefinitionID: number;

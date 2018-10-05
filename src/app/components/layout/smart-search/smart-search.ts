@@ -24,7 +24,6 @@ import {SmartSearchDataService} from './smart-search-data.service';
 @Component({
     selector: 'uni-smart-search',
     templateUrl: './smart-search.html',
-    styleUrls: ['./smart-search.sass']
 })
 export class UniSmartSearch {
     @ViewChild('searchInput') searchInput: ElementRef;
@@ -138,8 +137,10 @@ export class UniSmartSearch {
             this.close();
         } else if (item && item.type === 'action') {
              // Predifined actions called here
+             item.onSelect();
+             this.close();
         } else if (item && item.type === 'search') {
-            // USer selected one of 10 last searches
+            // User selected one of 10 last searches
             this.loading$.next(true);
             this.searchInput.nativeElement.value = item.value;
             this.searchResults = this.dataService.syncLookup(item.value.toLowerCase());

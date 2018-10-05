@@ -1,5 +1,6 @@
 import {Injectable} from '@angular/core';
 import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {AuthService} from '@app/authService';
 
 export interface IUniPageCache {
     isDirty?: boolean;
@@ -21,6 +22,10 @@ interface ICacheStore {
 export class UniCacheService {
     private store: ICacheStore = {};
 
+    constructor(authService: AuthService) {
+        authService.authentication$.subscribe(() => this.store = {});
+    }
+
     private initPageCache(url): IUniPageCache {
         this.store[url] = {
             isDirty: false,
@@ -40,7 +45,7 @@ export class UniCacheService {
             entry.updatedAt = new Date();
         }
 
-        let elements = entry.state;
+        const elements = entry.state;
         entry.isDirty = false;
         Object.keys(elements).forEach((key) => {
             if (elements[key].isDirty) {

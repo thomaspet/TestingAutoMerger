@@ -238,7 +238,12 @@ export class WorkEditor {
             this.createLookupColumn('CustomerOrder', 'Ordre', 'CustomerOrder',
                 x => this.lookupAny(x, 'orders', 'ordernumber', 'customername'), 'OrderNumber', 'CustomerName' )
                 .setWidth('6rem')
-                .setVisible(false),
+                .setVisible(false)
+                .setTemplate((item) => {
+                    return (item && item.CustomerOrder)
+                        ? item.CustomerOrder.OrderNumber + ' - ' + item.CustomerOrder.CustomerName
+                        : '';
+                }),
 
             this.createLookupColumn('Customer', 'Kunde', 'Customer',
                 x => this.lookupAny(x, 'customers', 'CustomerNumber', 'Info.Name', 'info'),

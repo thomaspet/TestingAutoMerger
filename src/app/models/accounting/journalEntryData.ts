@@ -42,6 +42,7 @@ export class JournalEntryData {
 
     FinancialDate: LocalDate;
     VatDate: LocalDate;
+    PaymentID: string;
 
     CustomerInvoiceID: number;
     SupplierInvoiceID: number;

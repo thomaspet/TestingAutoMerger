@@ -16,17 +16,17 @@ export class CompanySettingsService extends BizHttp<CompanySettings> {
             'DefaultAddress',
             'DefaultEmail',
             'DefaultPhone',
-            'BankAccounts',
             'BankAccounts.Bank',
             'BankAccounts.Account',
-            'CompanyBankAccount',
             'CompanyBankAccount.Account',
             'TaxBankAccount',
             'SalaryBankAccount',
             'DefaultSalesAccount',
             'BaseCurrencyCode',
             'Distributions',
-            'FactoringEmail'
+            'FactoringEmail',
+            'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+            'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation',
         ];
     }
 

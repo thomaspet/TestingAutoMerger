@@ -54,9 +54,9 @@ export class DrilldownResultReportPart implements OnChanges {
     private showPreviousAccountYear: boolean = true;
     private showall: boolean = false;
     private numberFormat: INumberFormat = {
-        thousandSeparator: '',
-        decimalSeparator: '.',
-        decimalLength: 2
+        thousandSeparator: ' ',
+        decimalSeparator: ',',
+        decimalLength: 0
     };
 
     private colors: Array<string> = ['#7293CB', '#84BA5B', '#ff0000', '#00ff00', '#f0f000'];
@@ -105,8 +105,8 @@ export class DrilldownResultReportPart implements OnChanges {
     private expandChildren(child) {
         if (child.children.length > 0) {
             child.expanded = true;
-            let index = this.flattenedTreeSummaryList.indexOf(child);
-            let childrenWithData = child.children.filter(x => x.rowCount > 0);
+            const index = this.flattenedTreeSummaryList.indexOf(child);
+            const childrenWithData = child.children.filter(x => x.rowCount > 0);
             this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
                 .slice( 0, index + 1 )
                 .concat( childrenWithData )
@@ -119,7 +119,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
     public rowClicked(summaryData: ResultSummaryData) {
         if (summaryData.isAccount) {
-            let data: IDetailsModalInput = {
+            const data: IDetailsModalInput = {
                 modalMode: true,
                 accountID: summaryData.id,
                 subaccountID: null,
@@ -134,9 +134,9 @@ export class DrilldownResultReportPart implements OnChanges {
             summaryData.expanded = !summaryData.expanded;
 
             if (summaryData.expanded) {
-                let index = this.flattenedTreeSummaryList.indexOf(summaryData);
+                const index = this.flattenedTreeSummaryList.indexOf(summaryData);
                 if (summaryData.children.length > 0) {
-                    let childrenWithData = summaryData.children.filter(x => x.rowCount > 0);
+                    const childrenWithData = summaryData.children.filter(x => x.rowCount > 0);
                     this.flattenedTreeSummaryList = this.flattenedTreeSummaryList
                         .slice( 0, index + 1 )
                         .concat( childrenWithData )
@@ -144,7 +144,7 @@ export class DrilldownResultReportPart implements OnChanges {
                 }
             } else {
                 // hide child and subchildren if multiple levels are expanded
-                let childrenWithData = this.getChildrenWithDataDeep(summaryData);
+                const childrenWithData = this.getChildrenWithDataDeep(summaryData);
                 this.flattenedTreeSummaryList = this.flattenedTreeSummaryList.filter(
                     x => !childrenWithData.find(y => x === y)
                 );
@@ -163,17 +163,17 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private loadData() {
-        let period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
+        const period1FilterExpression = `Period.AccountYear eq ${this.periodFilter1.year} `
             + `and Period.No ge ${this.periodFilter1.fromPeriodNo} and Period.No le ${this.periodFilter1.toPeriodNo}`;
-        let period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
+        const period2FilterExpression = `Period.AccountYear eq ${this.periodFilter2.year} `
             + `and Period.No ge ${this.periodFilter2.fromPeriodNo} and Period.No le ${this.periodFilter2.toPeriodNo}`;
-        let dimensionFilter = this.dimensionEntityName
+        const dimensionFilter = this.dimensionEntityName
             ? ` and isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.dimensionId}`
             : '';
-        let projectFilter = this.filter && this.filter.ProjectID
+        const projectFilter = this.filter && this.filter.ProjectID
             ? ` and isnull(Dimensions.ProjectID,0) eq ${this.filter.ProjectID}`
             : '';
-        let departmentFilter = this.filter && this.filter.DepartmentID
+        const departmentFilter = this.filter && this.filter.DepartmentID
             ? ` and isnull(Dimensions.DepartmentID,0) eq ${this.filter.DepartmentID}`
             : '';
 
@@ -197,27 +197,27 @@ export class DrilldownResultReportPart implements OnChanges {
                 + `sum(casewhen(${period2FilterExpression}\\,JournalEntryLine.Amount\\,0)) as SumAmountPeriod2`
             )
         ).subscribe(data => {
-            let accountGroups = data[0].Data;
-            let accounts = data[1].Data;
-            let journalEntries = data[2].Data;
+            const accountGroups = data[0].Data;
+            const accounts = data[1].Data;
+            const journalEntries = data[2].Data;
 
-            let summaryDataList: ResultSummaryData[] = [];
-            let treeSummaryList: ResultSummaryData[] = [];
+            const summaryDataList: ResultSummaryData[] = [];
+            const treeSummaryList: ResultSummaryData[] = [];
 
             // build treestructure and calculations based on groups and accounts
             accountGroups.forEach(group => {
-                if (group.GroupNumber && parseInt(group.GroupNumber.toString().substring(0, 1)) > 2) {
+                if (group.GroupNumber && parseInt(group.GroupNumber.toString().substring(0, 1), 10) > 2) {
 
-                    let summaryData: ResultSummaryData = new ResultSummaryData();
+                    const summaryData: ResultSummaryData = new ResultSummaryData();
 
                     summaryData.isAccount = false;
                     summaryData.name = group.Name;
-                    summaryData.number = parseInt(group.GroupNumber);
+                    summaryData.number = parseInt(group.GroupNumber, 10);
                     summaryData.id = group.ID;
                     summaryData.turned = this.shouldTurnAmount(summaryData.number);
 
                     if (group.MainGroupID) {
-                        let mainGroupSummaryData: ResultSummaryData = summaryDataList.find(
+                        const mainGroupSummaryData: ResultSummaryData = summaryDataList.find(
                             x => !x.isAccount && x.id === group.MainGroupID
                         );
 
@@ -233,17 +233,17 @@ export class DrilldownResultReportPart implements OnChanges {
                         summaryData.name = this.accountGroupService.getTopLevelGroupName(summaryData.number);
                     }
 
-                    let accountsForGroup = accounts.filter(x => x.AccountGroupID === group.ID);
+                    const accountsForGroup = accounts.filter(x => x.AccountGroupID === group.ID);
 
                     accountsForGroup.forEach(account => {
-                        let accountSummaryData: ResultSummaryData = new ResultSummaryData();
+                        const accountSummaryData: ResultSummaryData = new ResultSummaryData();
                         accountSummaryData.isAccount = true;
                         accountSummaryData.name = account.AccountName;
                         accountSummaryData.number = account.AccountNumber;
                         accountSummaryData.id = account.ID;
                         accountSummaryData.turned = this.shouldTurnAmount(accountSummaryData.number);
 
-                        let accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
+                        const accountJournalEntryData = journalEntries.find(x => x.AccountID === account.ID);
                         if (accountJournalEntryData) {
                             accountSummaryData.amountPeriod1 = this.shouldTurnAmount(accountSummaryData.number)
                                 ? accountJournalEntryData.SumAmountPeriod1 * -1
@@ -256,14 +256,17 @@ export class DrilldownResultReportPart implements OnChanges {
 
                         if (accountSummaryData.rowCount !== 0) {
                             if (this.shouldSkipGroupLevel(summaryData.number)) {
-                                accountSummaryData.parent = summaryData.parent;
-                                summaryData.parent.children.push(accountSummaryData);
+                                if (summaryData.parent) {
+                                    accountSummaryData.parent = summaryData.parent;
+                                    summaryData.parent.children.push(accountSummaryData);
+                                }
                             } else {
                                 accountSummaryData.parent = summaryData;
                                 summaryData.children.push(accountSummaryData);
                             }
-
-                            accountSummaryData.level = accountSummaryData.parent.level + 1;
+                            if (accountSummaryData.parent) {
+                                accountSummaryData.level = accountSummaryData.parent.level + 1;
+                            }
                         }
                     });
 
@@ -279,7 +282,7 @@ export class DrilldownResultReportPart implements OnChanges {
             this.calculateTreeAmounts(treeSummaryList);
 
             // add result summarydata - TBD: BØR VI HA MED DENNE? HVA MED ÅRSAVSLUTNING/RESULTATDISPONERING?
-            let resultNode: ResultSummaryData = {
+            const resultNode: ResultSummaryData = {
                 id: 0,
                 number: 9,
                 name: 'Resultat',
@@ -350,7 +353,7 @@ export class DrilldownResultReportPart implements OnChanges {
     ) {
 
         if (totalAmountPeriod1 === null || totalAmountPeriod2 === null) {
-            let totalIncomeNode = treeList.find(x => x.number === 3);
+            const totalIncomeNode = treeList.find(x => x.number === 3);
 
             totalAmountPeriod1 = totalIncomeNode.amountPeriod1;
             totalAmountPeriod2 = totalIncomeNode.amountPeriod2;
@@ -415,12 +418,13 @@ export class DrilldownResultReportPart implements OnChanges {
     }
 
     private setupChart() {
-        let dataSets = [];
+        const dataSets = [];
 
-        let sales = this.flattenedTreeSummaryList.find(x => x.number === 3);
-        let salary = this.flattenedTreeSummaryList.find(x => x.number === 5);
-        let other = this.flattenedTreeSummaryList.find(x => x.number === 7);
-        let result = this.flattenedTreeSummaryList.find(x => x.number === 9);
+        const sales = this.flattenedTreeSummaryList.find(x => x.number === 3);
+        const salary = this.flattenedTreeSummaryList.find(x => x.number === 5);
+        const other2 = this.flattenedTreeSummaryList.find(x => x.number === 6);
+        const other = this.flattenedTreeSummaryList.find(x => x.number === 7);
+        const result = this.flattenedTreeSummaryList.find(x => x.number === 9);
 
         // amountPeriod1
         dataSets.push({
@@ -435,7 +439,7 @@ export class DrilldownResultReportPart implements OnChanges {
         dataSets[0].data.push(
             sales.amountPeriod1,
             salary.amountPeriod1,
-            other.amountPeriod1,
+            other.amountPeriod1 + other2.amountPeriod1,
             result.amountPeriod1
         );
 
@@ -454,17 +458,17 @@ export class DrilldownResultReportPart implements OnChanges {
             dataSets[1].data.push(
                 sales.amountPeriod2,
                 salary.amountPeriod2,
-                other.amountPeriod2,
+                other.amountPeriod2 + other2.amountPeriod2,
                 result.amountPeriod2
             );
         }
 
         // Result
-        let resulttext = result.amountPeriod1 > 0
+        const resulttext = result.amountPeriod1 > 0
             ? 'Overskudd'
             : (result.amountPeriod1 < 0 ? 'Underskudd' : 'Resultat');
 
-        let chartConfig = {
+        const chartConfig = {
             label: '',
             labels: ['Salgsinntekter', 'Lønnskostnad', 'Andre kostnader', resulttext],
             chartType: 'bar',

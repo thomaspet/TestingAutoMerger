@@ -212,6 +212,12 @@ export class UnitableEditor {
             case 27:
                 this.close();
             break;
+            // Close editor on ctrl + space (smart search combination)
+            case 32:
+                if (event.ctrlKey) {
+                    this.close();
+                }
+            break;
             // Prevent up/down navigation on expanded editors
             case 38:
             case 40:

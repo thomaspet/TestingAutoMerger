@@ -60,6 +60,7 @@ export class AccountDetailsReport {
     includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     transactionsLookupFunction: (urlParams: URLSearchParams) => any;
+    columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
     doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     private dimensionEntityName: string;
@@ -93,9 +94,11 @@ export class AccountDetailsReport {
         this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
         this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null));
 
-        this.transactionsLookupFunction =
-            (urlParams: URLSearchParams) => this.getTableData(urlParams)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        this.transactionsLookupFunction = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+        this.columnSumResolver = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
         this.setupTransactionsTable();
 
@@ -250,7 +253,7 @@ export class AccountDetailsReport {
         this.doTurnAndInclude();
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<Response> {
+    private getTableData(urlParams: URLSearchParams, isSum: boolean = false): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
@@ -271,11 +274,23 @@ export class AccountDetailsReport {
         }
 
         urlParams.set('model', 'JournalEntryLine');
+        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
+        urlParams.set('filter', filters.join(' and '));
 
-        urlParams.set('select',
+        if (isSum) {
+            urlParams.set('select', 'sum(Amount) as Amount');
+            urlParams.delete('join');
+            urlParams.delete('orderby');
+
+            return this.statisticsService.GetAllByUrlSearchParams(urlParams)
+                .map(res => res.json())
+                .map(res => (res.Data && res.Data[0]) || []);
+        } else {
+            urlParams.set('select',
             'ID as ID,' +
             'JournalEntryNumber as JournalEntryNumber,' +
             'FinancialDate,' +
+            'PaymentID as PaymentID,' +
             'AmountCurrency as AmountCurrency,' +
             'Description as Description,' +
             'VatType.VatCode,' +
@@ -288,19 +303,20 @@ export class AccountDetailsReport {
             'ReferenceCreditPostID as ReferenceCreditPostID,' +
             'OriginalReferencePostID as OriginalReferencePostID,' +
             'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments');
+            urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
+            urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
-        urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
-        urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams.set('filter', filters.join(' and '));
-        urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-
-        return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+            return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+        }
     }
 
     private setupLookupTransactions() {
         this.transactionsLookupFunction =
             (urlParams: URLSearchParams) => this.getTableData(urlParams)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+        this.columnSumResolver = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public switchPeriods() {
@@ -338,17 +354,19 @@ export class AccountDetailsReport {
                 .setFilterOperator('contains')
                 .setFormat('DD.MM.YYYY')
                 .setTemplate(line => line.JournalEntryLineFinancialDate),
+            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text)
+                .setFilterOperator('contains'),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
                 .setFilterOperator('contains'),
             new UniTableColumn('VatType.VatCode', 'Mvakode', UniTableColumnType.Text)
                 .setFilterOperator('eq')
                 .setTemplate(line => line.VatTypeVatCode),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                .setCls('column-align-right')
-                .setFilterOperator('eq'),
+                .setFilterOperator('eq')
+                .setIsSumColumn(true),
             new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
-            .setCls('column-align-right')
-            .setFilterOperator('eq'),
+                .setFilterOperator('eq')
+                .setVisible(false),
             new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
                 .setFilterOperator('contains')
                 .setTemplate(line => { return line.DepartmentDepartmentNumber
@@ -363,12 +381,19 @@ export class AccountDetailsReport {
                 .setFilterable(false)
         ];
 
+        columns.forEach(x => {
+            x.conditionalCls = (data) => this.getCssClasses(data, x.field);
+        });
+
         const tableName = 'accounting.accountingreports.detailsmodal';
         this.uniTableConfigTransactions$.next(new UniTableConfig(tableName, false, false)
             .setPageable(true)
             .setPageSize(20)
             .setSearchable(true)
             .setConditionalRowCls(row => {
+                if (!row) {
+                    return '';
+                }
                 if (row.ReferenceCreditPostID || row.OriginalReferencePostID) {
                     return 'journal-entry-credited';
                 }
@@ -378,6 +403,20 @@ export class AccountDetailsReport {
                 return tmp;
             })
             .setColumns(columns));
+    }
+
+    private getCssClasses(data, field) {
+        let cssClasses = '';
+
+        if (!data) {
+            return '';
+        }
+
+        if (field === 'Amount') {
+            cssClasses += ' ' + (data.Amount >= 0 ? 'number-good' : 'number-bad');
+        }
+
+        return cssClasses.trim();
     }
 
     public periodSelected(row) {
