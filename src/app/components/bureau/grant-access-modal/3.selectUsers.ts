@@ -29,9 +29,12 @@ export class SelectUsersForBulkAccess {
     }
 
     private initData() {
-        this.authService.authentication$.subscribe((authentication: IAuthDetails) =>
-            this.elsaCompanyLicenseService.GetAllUsers(authentication.user.License.Company.Agency.CompanyKey)
-                .subscribe(
+        this.authService.authentication$
+            .take(1)
+            .subscribe((authentication: IAuthDetails) => {
+                this.elsaCompanyLicenseService.GetAllUsers(
+                    authentication.user.License.Company.Agency.CompanyKey
+                ).subscribe(
                     users => {
                         if (this.data.users && this.data.users.length) {
                             users.forEach(user => {
@@ -45,7 +48,8 @@ export class SelectUsersForBulkAccess {
 
                     },
                     err => this.errorService.handle(err),
-                )
+                );
+            }
         );
     }
 
