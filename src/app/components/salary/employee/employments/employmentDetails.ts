@@ -76,6 +76,10 @@ export class EmploymentDetails implements OnChanges {
                 }
             }
 
+            if (!!prevEmployment && currEmployment.ID !== prevEmployment.ID) {
+                this.resetAutocompletes();
+            }
+
 
             if (this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
@@ -220,6 +224,28 @@ export class EmploymentDetails implements OnChanges {
                 _isAmeldingValidationTooltip: true
             };
         }
+    }
+
+    private resetAutocompletes() {
+        const fields = this.fields$.getValue();
+        this.resetFields(
+            this.getFields(['SubEntityID', 'Dimensions.ProjectID', 'Dimensions.DepartmentID'], fields),
+            fields);
+    }
+
+    private getFields(fieldNames: string[], allFields: UniFieldLayout[]) {
+        return fieldNames.map(name => this.getField(name, allFields));
+    }
+
+    private getField(fieldName: string, allFields: UniFieldLayout[]) {
+        return allFields.find(field => field.Property === fieldName);
+    }
+
+    private resetFields(fields: UniFieldLayout[], allFields: UniFieldLayout[]) {
+        fields.forEach(field => field.Hidden = !field.Hidden);
+        this.fields$.next(allFields);
+        fields.forEach(field => field.Hidden = !field.Hidden);
+        this.fields$.next(allFields);
     }
 
     public setSourceOn(searchField: string, source: any) {
