@@ -534,11 +534,23 @@ export class AgGridWrapper {
         this.cellRendererComponents = {};
 
         const colDefs = columns.map(col => {
+
+            let cellClass: any = col.cls;
+            if (col.conditionalCls) {
+                cellClass = (params) => {
+                    let cls = col.conditionalCls(params.data);
+                    if (col.cls) {
+                        cls += ' ' + col.cls;
+                    }
+                    return cls;
+                };
+            }
+
             const agCol: ColDef = {
                 headerName: col.header,
                 hide: !col.visible,
                 headerClass: col.headerCls,
-                cellClass: col.conditionalCls || col.cls,
+                cellClass: cellClass,
                 headerTooltip: col.header,
                 tooltip: (params) => this.tableUtils.getColumnValue(params.data, col),
                 valueGetter: (params) => this.tableUtils.getColumnValue(params.data, col)

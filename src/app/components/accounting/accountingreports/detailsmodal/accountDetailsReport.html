@@ -42,10 +42,12 @@
             </period-picker>
         </h2>
 
-        <uni-table
+        <ag-grid-wrapper
+            class="transquery-grid-font-size"
             [resource]="transactionsLookupFunction"
+            [columnSumResolver]="columnSumResolver"
             [config]="uniTableConfigTransactions$ | async"
             (cellClick)="onCellClick($event)">
-        </uni-table>
+        </ag-grid-wrapper>
     </section>
 </article>

@@ -11,12 +11,14 @@
                 *ngIf="allowManualSearch">
         </uni-form>
     </article>
-    <uni-table
+    <ag-grid-wrapper
+        class="transquery-grid-font-size"
         [resource]="lookupFunction"
         [config]="uniTableConfig"
+        [columnSumResolver]="columnSumResolver"
         (columnsChange)="onColumnsChange($event)"
         (cellClick)="onCellClick($event)">
-    </uni-table>
+    </ag-grid-wrapper>
 
     <uni-summary [configs]="summary" *ngIf="summaryData" [attr.aria-busy]="busy"></uni-summary>
 </section>

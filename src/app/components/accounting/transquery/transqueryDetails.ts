@@ -2,22 +2,22 @@ import {IToolbarConfig} from '../../../components/common/toolbar/toolbar';
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
-    UniTable,
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
     ITableFilter,
     ICellClickEvent
 } from '../../../../framework/ui/unitable/index';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     TransqueryDetailsCalculationsSummary
 } from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
 import {Observable} from 'rxjs/Observable';
-import {JournalEntry, Account, FinancialYear} from '../../../unientities';
+import {JournalEntry, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniForm, FieldType} from '../../../../framework/ui/uniform/index';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {
@@ -26,7 +26,6 @@ import {
     ErrorService,
     NumberFormat,
     StatisticsService,
-    AccountService,
     FinancialYearService,
     BrowserStorageService,
     CustomDimensionService
@@ -38,8 +37,8 @@ import {
 } from '../../../../framework/uni-modal';
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
-import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import * as moment from 'moment';
 import * as _ from 'lodash';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
@@ -56,8 +55,8 @@ interface ISearchParams {
     templateUrl: './transqueryDetails.html',
 })
 export class TransqueryDetails implements OnInit {
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
 
     @ViewChild(UniForm)
     private uniForm: UniForm;
@@ -65,6 +64,7 @@ export class TransqueryDetails implements OnInit {
     public summaryData: TransqueryDetailsCalculationsSummary;
     public uniTableConfig: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
+    public columnSumResolver: (urlParams: URLSearchParams) => Observable<{[field: string]: number}>;
     private configuredFilter: string;
     public allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
@@ -94,7 +94,6 @@ export class TransqueryDetails implements OnInit {
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private journalEntryService: JournalEntryService,
-        private accountService: AccountService,
         private financialYearService: FinancialYearService,
         private storageService: BrowserStorageService,
         private router: Router,
@@ -110,6 +109,7 @@ export class TransqueryDetails implements OnInit {
     }
 
     public ngOnInit() {
+
         // setup unitable and router parameter subscriptions
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
@@ -146,13 +146,16 @@ export class TransqueryDetails implements OnInit {
     private setupFunction() {
         this.lookupFunction = (urlParams: URLSearchParams) =>
             this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+
+        this.columnSumResolver = (urlParams: URLSearchParams) =>
+            this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public onColumnsChange(event) {
         this.setupFunction();
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<Response> {
+    private getTableData(urlParams: URLSearchParams, isSum: boolean = false): Observable<Response> {
         urlParams = urlParams || new URLSearchParams();
         const filtersFromUniTable = urlParams.get('filter');
         let filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
@@ -229,7 +232,7 @@ export class TransqueryDetails implements OnInit {
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
-        this.table.tableColumns.toJS().forEach((col) => {
+        this.table.columns.forEach((col) => {
             selectString += col.visible ? ',' + col.field : '';
             if (col.field.indexOf('Dimension') !== -1 && col.visible) {
                 selectString += ',Dimension' + parseInt(col.field.substr(9, 3), 10) + '.Number';
@@ -244,19 +247,28 @@ export class TransqueryDetails implements OnInit {
         });
 
         urlParams.set('model', 'JournalEntryLine');
-        urlParams.set('select', selectString );
         urlParams.set(
             'expand',
             'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
                 + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode'
                 + expandString
         );
-        urlParams.set('join',
-            'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
         urlParams.set('filter', filters.join(' and '));
-        urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
-        return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+        if (isSum) {
+            urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
+            urlParams.delete('join');
+            urlParams.delete('orderby');
+            return this.statisticsService.GetAllByUrlSearchParams(urlParams)
+                .map(res => res.json())
+                .map(res => (res.Data && res.Data[0]) || []);
+        } else {
+            urlParams.set('select', selectString );
+            urlParams.set('join',
+                'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
+            urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
+            return this.statisticsService.GetAllByUrlSearchParams(urlParams);
+        }
     }
 
     public onFiltersChange(filter: string) {
@@ -592,7 +604,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(row => row.JournalEntryLineJournalEntryNumberNumeric || 'null')
                 .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
                 .setFilterable(false)
-                .setWidth('100px'),
+                .setWidth(100),
                 new UniTableColumn('JournalEntryNumber', 'Bnr. med år', UniTableColumnType.Link)
                 .setDisplayField('JournalEntryLineJournalEntryNumber')
                 .setLinkResolver(row => `/accounting/transquery;JournalEntryNumber=${row.JournalEntryNumber}`)
@@ -639,7 +651,8 @@ export class TransqueryDetails implements OnInit {
                 .setVisible(false),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setFilterable(false)
-                .setTemplate(line => line.JournalEntryLineAmount),
+                .setTemplate(line => line.JournalEntryLineAmount)
+                .setIsSumColumn(true),
             new UniTableColumn('AmountCurrency', 'V-beløp', UniTableColumnType.Money)
                 .setFilterable(false)
                 .setTemplate(line => line.JournalEntryLineAmountCurrency)
@@ -772,6 +785,7 @@ export class TransqueryDetails implements OnInit {
             .setPageSize(pageSize)
             .setColumnMenuVisible(false)
             .setSearchable(this.allowManualSearch)
+            .setEntityType('JournalEntryLine')
             .setFilters(unitableFilter)
             .setIsRowReadOnly(row => row.StatusCode === 31004)
             .setAllowGroupFilter(true)
@@ -818,6 +832,10 @@ export class TransqueryDetails implements OnInit {
 
     private getCssClasses(data, field) {
         let cssClasses = '';
+
+        if (!data) {
+            return '';
+        }
 
         if (data.ReferenceCreditPostID || data.OriginalReferencePostID) {
             cssClasses += 'journal-entry-credited';
