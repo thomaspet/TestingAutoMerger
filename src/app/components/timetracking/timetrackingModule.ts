@@ -34,7 +34,6 @@ import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
 import {TimeentryImportModal} from './components/file-import-modal';
-import {PopupMenu} from './timeentry/timetable/popupmenu';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
@@ -46,6 +45,7 @@ import {InvoiceHours} from './invoice-hours/invoice-hours';
 import {InvoiceHourService} from './invoice-hours/invoice-hours.service';
 
 import {MatSelectModule} from '@angular/material';
+import {MatMenuModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -55,6 +55,7 @@ import {MatSelectModule} from '@angular/material';
         HttpModule,
         AppPipesModule,
         MatSelectModule,
+        MatMenuModule,
 
         RouterModule.forChild(timetrackingRoutes),
 
@@ -90,7 +91,6 @@ import {MatSelectModule} from '@angular/material';
         TimeApproveModal,
         TimeentryImportModal,
         ReportWorkflow,
-        PopupMenu,
         UniApproveTaskModal,
         TimetrackingDashboard,
         WorkitemTransferWizard,

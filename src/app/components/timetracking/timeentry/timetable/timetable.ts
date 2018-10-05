@@ -12,37 +12,36 @@ import {ReportWorkflow} from './pipes';
 import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './model';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {WorkitemGroupService} from './workitemgroupservice';
-import {PopupMenu} from './popupmenu';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {UniApproveTaskModal} from './approvetaskmodal';
 
 @Component({
     selector: 'timetracking-timetable',
     templateUrl: './timetable.html',
-    providers: [ReportWorkflow, WorkitemGroupService, PopupMenu, UniApproveTaskModal]
+    providers: [ReportWorkflow, WorkitemGroupService, UniApproveTaskModal]
 })
 export class TimeTableReport {
     @Input() public set workrelation(value: WorkRelation ) {
         this.currentRelation = value;
         this.refreshReport(true);
     }
-    @Input() public eventcfg: IPreSaveConfig;
-    @Input() public lazy: boolean;
-    @ViewChild(PopupMenu) private popup: PopupMenu;
-    @ViewChild(UniApproveTaskModal) private approveTaskModal: UniApproveTaskModal;
+    @Input()
+    public eventcfg: IPreSaveConfig;
+
+    @Input()
+    public lazy: boolean;
+
+    @ViewChild(UniApproveTaskModal)
+    private approveTaskModal: UniApproveTaskModal;
+
     private currentRelation: WorkRelation;
-    public config: {
-        title: string,
-        items: Array<any>,
-        sumWork: number,
-        sumTotal: number
-    };
     private defaultWorkTypeID: number;
     public report: IReport;
     public filters: Array<IFilter>;
     public currentFilter: IFilter;
     public busy: boolean = true;
     private isActivated: boolean = false;
+    public actions = [];
 
     constructor(
         private workerService: WorkerService,
@@ -58,7 +57,12 @@ export class TimeTableReport {
             { name: 'months2', label: 'Siste 3 måneder', interval: ItemInterval.lastThreeMonths},
             { name: 'year', label: 'Dette år', interval: ItemInterval.thisYear}
         ];
-        this.currentFilter = this.filters[0];
+        this.currentFilter = this.filters[1];
+
+        if (!this.isActivated) {
+            this.isActivated = true;
+            this.onFilterClick( this.currentFilter );
+        }
     }
 
     private get CurrentRelationID(): number {
@@ -83,7 +87,7 @@ export class TimeTableReport {
                 return;
             }
 
-            let data = {
+            const data = {
                 date: day,
                 relation: this.currentRelation
             };
@@ -101,64 +105,54 @@ export class TimeTableReport {
         if (this.eventcfg && this.eventcfg.askReload) { this.eventcfg.askReload(); }
     }
 
-    public onRowActionClicked(week: Week, event: MouseEvent) {
-
-        var src: Element = <any>(event.target || event.srcElement);
-
+    public getActions(week: Week) {
         switch (week.Sums.Workflow) {
 
             case ReportFlow.Rejected:
-                this.popup.clear();
-                this.popup.addItem('comments', 'Vis årsak/kommentar', week);
-                this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'comments', label: 'Vis årsak/kommentar', cargo: week },
+                    { name: 'reset', label: 'Lås opp denne uken for redigering', cargo: week }
+                ];
 
             case ReportFlow.Draft:
-                this.popup.clear();
-                this.popup.addItem('assign', 'Send til godkjenning', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'assign', label: 'Send til godkjenning', cargo: week }
+                ];
 
             case ReportFlow.PartialAssign:
-                this.popup.clear();
-                this.popup.addItem('assign', 'Send resterende poster til godkjenning', week);
-                this.popup.addItem('reset', 'Nullstill innsending for denne uken', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'assign', label: 'Send resterende poster til godkjenning', cargo: week },
+                    { name: 'reset', label: 'Nullstill innsending for denne uken', cargo: week }
+                ];
 
             case ReportFlow.Approved:
-                this.popup.clear();
-                this.popup.addItem('reset', 'Lås opp denne uken for redigering', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'reset', label: 'Lås opp denne uken for redigering', cargo: week }
+                ];
 
             case ReportFlow.AwaitingApproval:
-                this.popup.clear();
-                this.popup.addItem('approve', 'Godkjenn', week);
-                this.popup.addItem('reject', 'Avvis', week);
-                this.popup.addItem('status', 'Vis tildelingsstatus', week);
-                this.popup.addItem('reset', 'Nullstill innsending for denne uken', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'approve', label: 'Godkjenn', cargo: week },
+                    { name: 'reject', label: 'Avvis', cargo: week },
+                    { name: 'status', label: 'Vis tildelingsstatus', cargo: week },
+                    { name: 'reset', label: 'Nullstill innsending for denne uken', cargo: week }
+                ];
 
             case ReportFlow.NotSet:
-                this.popup.clear();
-                this.popup.addItem('autofill', 'Registrer normaltid for hele uken', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'autofill', label: 'Registrer normaltid for hele uken', cargo: week }
+                ];
 
             default:
-                this.popup.clear();
-                this.popup.addItem('assign', 'Send inn nye timeføringer for perioden', week);
-                this.popup.addItem('reset', 'Nullstill innsending for perioden', week);
-                this.popup.addItem('regroup', 'Send hele uken inn på nytt', week);
-                this.popup.activate(src, week.WeekNumber);
-                break;
+                return [
+                    { name: 'assign', label: 'Send inn nye timeføringer for perioden', cargo: week },
+                    { name: 'reset', label: 'Nullstill innsending for denne perioden', cargo: week },
+                    { name: 'regroup', label: 'Send hele uken inn på nytt', cargo: week }
+                ];
         }
     }
 
-    public onPopupMenuClick(event) {
+    public onActionClick(event) {
         switch (event.name) {
             case 'assign':
                 this.assignWeek(event.cargo);
@@ -203,6 +197,25 @@ export class TimeTableReport {
         });
     }
 
+    public getIconString(index) {
+        switch (index) {
+            case 4:
+                return 'hourglass_empty';
+            case 5:
+                return 'hourglass_full';
+            case 7:
+                return 'warning';
+            case 8:
+                return 'done';
+            case 9:
+                return 'error_outline';
+            case 10:
+                return 'done_all';
+            default:
+                return '';
+        }
+    }
+
     private deleteAllGroupsForWeek(week: Week) {
         week.isBusy = true;
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay)
@@ -222,9 +235,9 @@ export class TimeTableReport {
 
     private approveOrRejectWeek(week: Week, approve: boolean) {
 
-        var rel = this.report.Relation.ID;
-        var d1 = week.FirstDay;
-        var d2 = week.LastDay;
+        const rel = this.report.Relation.ID;
+        const d1 = week.FirstDay;
+        const d2 = week.LastDay;
 
         week.isBusy = true;
 
@@ -232,9 +245,9 @@ export class TimeTableReport {
             .subscribe( (list: Array<{ID, StatusCode, TaskID}>) => {
 
                 // Tasks (approve via dialog) ?
-                var tasks = list.filter( x => !!x.TaskID);
+                const tasks = list.filter( x => !!x.TaskID);
                 if (tasks && tasks.length > 0) {
-                    let details = tasks[0];
+                    const details = tasks[0];
                     this.approveTaskModal.open(details.TaskID, details.ID, 'workitemgroup', approve)
                         .then( result => {
                             if (result) {
@@ -256,7 +269,7 @@ export class TimeTableReport {
                 .subscribe( result => {
                     this.refreshReport(false);
                 }, err => {
-                    var msg = this.errorService.extractMessage(err);
+                    const msg = this.errorService.extractMessage(err);
                     if (msg && msg.indexOf('exists an active approval task')) {
                         this.errorService.addErrorToast('Denne listen må godkjennes via'
                             + ' oppgavelisten til teamleder.');
@@ -291,7 +304,7 @@ export class TimeTableReport {
                         return;
                     }
 
-                    let msgDetails = {
+                    const msgDetails = {
                         header: 'Uke ' + week.WeekNumber + ' tildelt til:',
                         message: group + ` - ${activeCount} godkjenning${activeCount > 1 ? 'er' : ''} gjenstår.`,
                         buttonLabels: {
@@ -336,14 +349,14 @@ export class TimeTableReport {
 
         this.defaultWorkTypeID = workTypeId;
 
-        var ts = new TimeSheet(this.timesheetService);
+        const ts = new TimeSheet(this.timesheetService);
         ts.currentRelationId = this.CurrentRelationID;
         ts.currentRelation = this.currentRelation;
         week.Items.forEach( x => {
             if (x.ExpectedTime > 0) {
-                var offset = moment().utcOffset();
-                var startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
-                var endTime = moment(startTime).add(x.ExpectedTime, 'hours');
+                const offset = moment().utcOffset();
+                const startTime = moment(x.Date).add(-offset, 'minutes').add(8, 'hours');
+                const endTime = moment(startTime).add(x.ExpectedTime, 'hours');
                 ts.addItem( <any>{ Date: x.Date, Minutes: x.ExpectedTime * 60,
                     Description: 'Normaltid', WorkTypeID: workTypeId, LunchInMinutes: 0,
                     StartTime: toIso(startTime.toDate(), true), EndTime: toIso(endTime.toDate(), true) });
@@ -360,11 +373,11 @@ export class TimeTableReport {
 
     private assignWeek(week: Week) {
 
-        var rel = this.report.Relation.ID;
-        var d1 = week.FirstDay;
-        var d2 = week.LastDay;
-
+        const rel = this.report.Relation.ID;
+        const d1 = week.FirstDay;
+        const d2 = week.LastDay;
         week.isBusy = true;
+        this.busy = true;
 
         // Locate any open drafts inside this week
         this.api.GetGroups(rel, d1, d2, StatusCode.Draft, StatusCode.Declined)
@@ -375,12 +388,13 @@ export class TimeTableReport {
                     Observable.forkJoin(
                         list.map( x => this.api.AssignGroup(x.ID) )
                     )
-                    .finally(() => week.isBusy = false)
+                    .finally(() => { week.isBusy = false; this.busy = false; })
                     .subscribe( x => {
                         this.showApprovers(week, true);
                         this.refreshReport(false);
                     }, err => {
                         this.errorService.handle(err);
+                        this.busy = false;
                     });
                 } else {
                     // No, lets create a new one
@@ -391,12 +405,15 @@ export class TimeTableReport {
                         .subscribe( (x: WorkItemGroup) => {
                             this.showApprovers(week, true);
                             this.refreshReport(false);
+                            this.busy = false;
                         }, err => {
                             this.errorService.handle(err);
+                            this.busy = false;
                         });
                     },
                     err => {
                         week.isBusy = false;
+                        this.busy = false;
                         this.errorService.handle(err);
                     });
                 }
@@ -407,7 +424,7 @@ export class TimeTableReport {
         week.isBusy = true;
         this.api.GetGroups(this.CurrentRelationID, week.FirstDay, week.LastDay, StatusCode.Declined)
         .subscribe( (list: Array<WorkItemGroup>) => {
-            var idFilter = '';
+            let idFilter = '';
             list.forEach( (group, index) => {
                 idFilter += (index > 0 ? ' or ' : '') + 'entityid eq ' + group.ID;
             });
@@ -415,7 +432,7 @@ export class TimeTableReport {
                 + ` and (${idFilter})`)
                 .finally( () => week.isBusy = false )
                 .subscribe( (result: Array<{ Text: string }>) => {
-                    var output = '';
+                    let output = '';
                     result.forEach( (comment, index) => {
                         output += (index > 0 ? ', ' : '') + comment.Text;
                     });
@@ -439,7 +456,7 @@ export class TimeTableReport {
         }
         return new Promise<boolean>( (resolve, reject) => {
             if (showBusy) { this.busy = true; }
-            var dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
+            const dt = toIso(moment(this.workerService.getIntervalDate(this.currentFilter.interval))
                 .startOf('week').toDate());
             this.api.GetTimeSheet(this.CurrentRelationID, dt)
                 .subscribe( result => {
@@ -454,12 +471,12 @@ export class TimeTableReport {
     }
 
     private groupIntoWeeks(report: IReport): any {
-        var weeks = [];
-        var week: Week;
+        const weeks = [];
+        let week: Week;
 
         // Move items into each week (for easier templating)
-        for (var i = 0; i < report.Items.length; i++) {
-            let item = report.Items[i];
+        for (let i = 0; i < report.Items.length; i++) {
+            const item = report.Items[i];
             if ((week && item.WeekNumber !== week.WeekNumber) || (!week)) {
                 week = new Week(item.WeekNumber, item.Date);
                 week.Items.push(item);
@@ -482,10 +499,10 @@ export class TimeTableReport {
     }
 
     private groupIntoMonths(report: IReport): IReport {
-        var months: Array<Month> = [];
-        var month: Month;
-        for (var i = 0; i < report.Weeks.length; i++) {
-            let week = report.Weeks[i];
+        const months: Array<Month> = [];
+        let month: Month;
+        for (let i = 0; i < report.Weeks.length; i++) {
+            const week = report.Weeks[i];
             if (month === undefined || (!month.isInMonth(week))) {
                 month = new Month(week.LastDay);
                 month.Weeks.push(week);
