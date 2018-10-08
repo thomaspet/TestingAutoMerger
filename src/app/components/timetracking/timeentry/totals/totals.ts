@@ -266,12 +266,12 @@ export class RegtimeTotals {
                         .setTemplate((row) => {
                             return row[item] ? (row[item] / 60).toFixed(2) : '';
                         });
-                        col.setIsSumColumn(true);
                     }
                     cols.push(col);
                 }
             }
             cols[cols.length - 1].setCls('totals-bold');
+            cols[cols.length - 1].setIsSumColumn(true);
         } else {
             const worktypeCol = new UniTableColumn('WorkTypeName', 'Timeart', UniTableColumnType.Text);
             const sumCol = new UniTableColumn('Total', 'Timer', UniTableColumnType.Number).setTemplate(
