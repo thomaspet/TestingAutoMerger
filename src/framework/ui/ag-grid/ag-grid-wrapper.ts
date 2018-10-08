@@ -538,7 +538,7 @@ export class AgGridWrapper {
             let cellClass: any = col.cls;
             if (col.conditionalCls) {
                 cellClass = (params) => {
-                    let cls = col.conditionalCls(params.data);
+                    let cls = col.conditionalCls(params);
                     if (col.cls) {
                         cls += ' ' + col.cls;
                     }
