@@ -3,7 +3,8 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-marketplace-webinars',
-    templateUrl: './marketplaceWebinars.html'
+    templateUrl: './marketplaceWebinars.html',
+    styleUrls: ['./marketplaceWebinars.sass'],
 })
 export class MarketplaceWebinars {
     constructor(

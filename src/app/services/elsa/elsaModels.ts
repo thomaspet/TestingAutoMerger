@@ -101,30 +101,43 @@ export interface ElsaPurchaseForUserLicense {
 }
 
 export interface ElsaProduct {
-    id: number
-    imageReference: string
-    iconReference: string
-    productKey: string
-    name: string
-    label: string
-    description: string
-    price: number
-    isPerUser: boolean
-    isPerTransaction: boolean
-    isMonthly: boolean
-    listOfRoles: string
-    isBundle: boolean
-    productStatus: ElsaProductStatusCode
-    parentProductNames: string
+    id: number;
+    name: string;
+    label: string;
+    categoryName?: string;
+    productKey: string;
+    productStatus: ElsaProductStatusCode;
+    productStatusName: string;
+    productType: ElsaProductType;
+    productTypeName: string;
+    description: string;
+    htmlContent?: string;
+    iconReference?: string;
+    iconBackgroundColor?: string;
+    imageReference?: string;
+    isMonthly: boolean;
+    isPerTransaction: boolean;
+    isPerUser: boolean;
+    price: number;
+    parentProductNames?: any;
+    listOfRoles: string;
+    tags: string[];
     subProducts?: ElsaProduct[]
 }
 
 
-export enum ElsaProductStatusCode {
-    Active = 0,
-    Beta = 1,
-    Deprecated = 2,
-    Discontinued = 3
+export enum ElsaProductStatusCode
+{
+    Live = 0,
+    SoonToBeLaunched = 1,
+    DevelopmentCandidate = 2
+}
+
+export enum ElsaProductType
+{
+    Module = 0,
+    Bundle = 1,
+    Integration = 2
 }
 
 export interface ElsaPurchaseForLicense {
@@ -156,3 +169,13 @@ export interface ElsaUserLicense {
     purchases?: ElsaPurchase[];
     agreementAcceptances?: any;
 }
+
+export interface ElsaBundle {
+    id: number;
+    name: string;
+    created: Date;
+    end: Date;
+    bundlePrice: number;
+    products: ElsaProduct[];
+}
+

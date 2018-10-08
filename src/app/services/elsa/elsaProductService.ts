@@ -23,8 +23,7 @@ export class ElsaProductService {
             .usingElsaDomain()
             .withEndPoint('/api/products')
             .send()
-            .map(req => req.json())
-            .map(this.convertSubProductsToArray);
+            .map(req => req.json());
     }
 
     public FindProductByName(name: string): Observable<ElsaProduct> {
@@ -39,29 +38,6 @@ export class ElsaProductService {
             });
     }
 
-    private convertSubProductsToArray(products: ElsaProduct[]): ElsaProduct[] {
-        const mainProducts = products.filter(product => !product.parentProductNames);
-        let subProducts = products.filter(product => !!product.parentProductNames);
-        mainProducts.map(mainProduct => {
-            const subProductsForMainProduct = subProducts
-                .filter(subProduct => subProduct
-                    .parentProductNames
-                    .split(',')
-                    .some(name => name === mainProduct.name));
-            mainProduct.subProducts = subProductsForMainProduct || [];
-        });
-        return mainProducts;
-    }
-
-    public maxChar(products: ElsaProduct[], maxLength: number): ElsaProduct[] {
-        for (let product of products) {
-            if (product.description && product.description.length > maxLength) {
-                product.description = product.description.substr(0, maxLength - 3) + '...';
-            }
-        }
-        return products;
-    }
-
     public PurchaseProductOnCurrentCompany(product: ElsaProduct): Observable<ElsaPurchase> {
         return this.uniHttp
             .asPOST()
@@ -69,5 +45,19 @@ export class ElsaProductService {
             .withEndPoint(`/api/products/${product.id}/purchase`)
             .send()
             .map(req => req.json());
+    }
+
+    public ProductTypeToPriceText(product: ElsaProduct): string {
+        let text = [''];
+        if (product.isPerUser) {
+            text.push('per bruker');
+        }
+        if (product.isMonthly) {
+            text.push('per måned');
+        }
+        if (product.isPerTransaction) {
+            text.push('per transaksjon');
+        }
+        return text.join(' / ');
     }
 }

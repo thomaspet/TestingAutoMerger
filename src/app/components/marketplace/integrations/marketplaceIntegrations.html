@@ -1,98 +1,75 @@
 <section class="integration-main" [attr.aria-busy]="false">
     <section class="header">
-        <section class="background add-on-details-background-image">
-            <h1>Integrasjoner</h1>
-            <p>
-                Her er en oversikt over systemer Uni Economy vil ha integrasjoner med innen kort tid. Uni Economy er utviklet med
-                et åpent API, som gjør det enkelt å integrere med andre systemer. Vi kommer til å utvikle flere standardintegrasjoner
-                som vil dukke opp i listen her. Dersom dere ønsker å integrere andre systemer med Uni Economy, må dere ikke nøle med
-                å ta kontakt med oss.
+        <h1>Integrasjoner</h1>
+    </section>
+    <section class="search">
+        <div class="search-input">
+            <input type="search"
+                   placeholder="Søk"
+                   (input)="search($event.target.value)"
+                   [attr.deactivated]="!(filteredActiveIntegrations && filteredUpcomingIntegrations && filteredCandidateIntegrations)"
+            />
+            <p class="search-info">
+                {{(filteredActiveIntegrations?.length + filteredUpcomingIntegrations?.length + filteredCandidateIntegrations?.length)}} resultater
             </p>
-            <button (click)="navigateToExternalUrl('https://www.unimicro.no/kontakt')">Kontakt oss!</button>
+        </div>
+    </section>
+    <section class="live-integration-items" [attr.aria-busy]="!activeIntegrations">
+        <h3>Aktive</h3>
+        <section class="integration-item" *ngFor="let item of filteredActiveIntegrations">
+            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
+            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                <img src="{{item.iconReference}}" />
+            </section>
+            <div class="title-container">
+                <p class="title">{{item.name}}</p>
+                <p class="sub-title">{{item.label}}</p>
+            </div>
+            <p class="footer">
+                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
+            </p>
         </section>
     </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/onestop_reporting.png" />
-        <section class="text-section">
-            <h1>OneStop Reporting</h1>
-            <p>
-                OneStop Reporting tilbyr en rekke muligheter for et regnskapsbyrå som ønsker å utvide
-                sin kjernevirksomhet ut over selve bilagsføringen.
+    <section class="upcoming-integration-items" [attr.aria-busy]="!upcomingIntegrations">
+        <h3>Lanseres snart</h3>
+        <section class="integration-item" *ngFor="let item of filteredUpcomingIntegrations">
+            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
+            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                <img src="{{item.iconReference}}" />
+            </section>
+            <div class="title-container">
+                <p class="title">{{item.name}}</p>
+                <p class="sub-title">{{item.label}}</p>
+            </div>
+            <p class="footer">
+                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
             </p>
-            <ul>
-                <li>Excel-basert designer der man kan lage egne rapporter og input-formularer</li>
-                <li>Deling av rapporter til kollegaer og klienter med varslingsfunksjon</li>
-                <li>Sett sammen egne rapportpakker</li>
-                <li>Egne kommentarark som følger rapportene når de arkiveres</li>
-                <li>Drill-down på bilagsnivå med bilagsvisning</li>
-            </ul>
-            <a href="https://onestopreporting.com/provgratis/">Prøv gratis nå</a>
-            <a href="https://onestopreporting.com/unieconomy/">Les mer</a>
         </section>
     </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/hokas.png" />
-        <section class="text-section">
-            <h1>Fakturaoppfølging og inkasso</h1>
-            <p>
-                Hokas er en applikasjon til Uni Economy med automatisert fakturaoppfølging og purreservice.
+    <section class="candidate-integration-items" [attr.aria-busy]="!candidateIntegrations">
+        <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
+        <section class="integration-item" *ngFor="let item of filteredCandidateIntegrations">
+            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
+            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                <img src="{{item.iconReference}}" />
+            </section>
+            <div class="title-container">
+                <p class="title">{{item.name}}</p>
+                <p class="sub-title">{{item.label}}</p>
+            </div>
+            <p class="footer">
+                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
             </p>
-            <ul>
-                <li>Dere fakturerer akkurat som før.</li>
-                <li>Dere legger innbetalinger inn i deres økonomisystem, som før.</li>
-                <li>Integrasjonen til deres økonomisystem sikrer lik reskontro.</li>
-                <li>Hokas sender betalingspåminnelser til kundene som ikke betaler i henhold til avtalt tidslinje.</li>
-            </ul>
-            <a href="http://hokas.no/uni-economy-integration">Mer info</a>
-            <a href="http://hokas.no/integration-api/select-erp?integration_id=unieconomy">Aktiver nå</a>
         </section>
     </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/traveltext.png" />
-        <section class="text-section">
-            <h1>Travel Text</h1>
-            <p>
-                TravelText er integrert med Uni Economy. TravelText er et elektronisk reiseregningssystem både for brukere og administratorer.
-                TravelText er for to målgrupper: Brukere som reiser, kjører og legger ut penger – og de som administrerer dette. Målet er å
-                forenkle, redusere tidsbruk og overholde frister. Kontakt oss
-            </p>
-            <a href="https://www.unimicro.no/kontakt">kontakt oss</a>
-        </section>
-    </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/vipps.png" />
-        <section class="text-section">
-            <h1>Vipps Faktura</h1>
-            <p>
-                Med Vipps Faktura kan kundene dine betale faktura når og hvor de vil.
-                Du får kjappere innbetalinger og bedre likviditet.
-                Si JA til noe som er raskere, enklere og mer lønnsomt for din bedrift.
-            </p>
-            <a href="https://www.unimicro.no/kontakt">kontakt oss</a>
-        </section>
-    </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/ecommerce.png" />
-        <section class="text-section">
-            <h1>Nettbutikk</h1>
-            <p>
-                Uni Nettbutikk er integrert med Uni Economy. Alt du gjør synkroniseres på nettet,
-                slik at butikken og regnskapet alltid er oppdatert. Uni Nettbutikk styres fra
-                Uni Economy, og alle varer, priser, bilder, dokumenter og varebeskrivelser som er
-                tilgjengelig her kan enkelt bli gjort tilgjengelig i nettbutikken din.
-            </p>
-            <a href="https://www.unimicro.no/kontakt">kontakt oss</a>
-        </section>
-    </section>
-    <section class="integration-item">
-        <img src="https://public-files.unieconomy.no/files/marketplace/integrations/zapier.png" />
-        <section class="text-section">
-            <h1>Zapier</h1>
-            <p>
-                Med Zapier kan du linke dine systemer sammen med få tastetrykk, slik at systemene kan dele data. Zapier hjelper deg å bygge
-                integrasjoner raskt, - og helt uten koding. Med Zapier kan du integrere, automatisere og innovere.
-            </p>
-            <a href="https://www.unimicro.no/kontakt">kontakt oss</a>
-        </section>
+    <section class="more-info-container">
+        <h3>Vil du vite mer?</h3>
+        <p class="info-text">
+            Dette er et overblikk over systemer som Uni Economy vil ha integrasjoner med på kort sikt. Uni Economy er
+            utviklet med et åpent API, som gjør det enkelt å integrere med andre systemer. Vi vil utvikle mer standard
+            integrasjoner som vil komme i listen her. Kontakt oss hvis du vil integrere andre systemer med Uni
+            Economy.
+        </p>
+        <a class="button c2a contact-us-button" href="https://www.unimicro.no/kontakt">Kontakt oss</a>
     </section>
 </section>

@@ -1,0 +1,232 @@
+@import '../marketplaceSharedStyles.sass'
+@import '~src/styles/unibase/helpers/_multiline-ellipsis.sass'
+
+$default-margin: 2rem
+
+.marketplace-modules
+    background-color: $bg-color
+    color: $dark-text-color
+    display: flex
+    flex-flow: row wrap
+    margin-top: -1.5rem
+    margin-bottom: -1rem
+    padding-bottom: 6rem
+
+
+.material-icons
+    vertical-align: middle
+
+.header
+    background-color: white
+    width: 100%
+    padding-left: $default-margin
+
+.top-heading
+    width: 100%
+    font-weight: 600
+
+.modules, .extensions, .recommended
+    display: flex
+    flex-flow: row wrap
+    justify-content: flex-start
+    align-content: flex-start
+    padding-left: $default-margin
+    width: 100%
+    @media (min-width: 1400px)
+        padding-left: 5%
+        padding-right: 5%
+
+.extensions
+    background-color: $bg-darker-color
+
+.bundle, .module, .extension
+    border-radius: 3px
+    &:hover
+        box-shadow: 0rem 0.2rem 0.2rem 0.2rem #EDEDED
+        transition-property: box-shadow
+        transition: .25s ease-in-out
+
+.bundle
+    display: flex
+    flex-flow: column
+    width: 100%
+    background-color: white
+    padding: 1rem
+    margin-bottom: 2rem
+    margin-right: $default-margin
+    position: relative
+    overflow: hidden
+    max-height: 6.5rem // transition hack to make it work with height auto
+    &.expanded
+        transition: max-height 0.25s ease-in
+        max-height: 100% // more hack
+
+    .expand_arrow
+        display: none
+        position: absolute
+        right: 0
+        color: $arrow-color
+        cursor: pointer
+        padding: 2rem
+
+    .subscribe, .expand-button
+        align-self: flex-end
+        width: 12rem
+        height: 2.5rem
+        line-height: 0
+        background-color: $primary-button-color
+        text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+    .subscribe
+        margin: 3rem 0 1rem 0
+    .expand-button
+        position: absolute
+        top: 1.5rem
+        right: 1rem
+    &.expanded .expand-button
+        display: none
+    &.expanded .expand_arrow
+        display: block
+
+    .sale-text
+        color: $bad-color
+        margin: 0
+
+    .heading
+        margin: 1rem 0 0 0
+    &.expanded
+        margin-bottom: 2rem
+
+    .bundle-module
+        display: flex
+        background-color: $bg-color
+        width: 100%
+        margin: 0.5rem 0
+        padding: 1rem
+        flex-flow: wrap
+        .icon
+            height: 1.5rem
+            width: 1.5rem
+            margin-right: 1rem
+        .name
+            font-weight: bold
+            flex-grow: 1
+        .price_container
+            white-space: nowrap
+        .price
+            font-weight: bold
+        .type
+            padding-left: 0.3rem
+
+    .bundle-price
+        display: flex
+        justify-content: flex-end
+
+        .old-price
+            font-size: 1.2rem
+            font-weight: bold
+            text-decoration: line-through
+
+        .new-price
+            font-size: 1.2rem
+            font-weight: bold
+            color: $bad-color
+            padding: 0 0.3rem
+        .type
+            color: $light-text-color
+
+.module
+    $right-padding: 0.8rem
+    background-color: white
+    width: 20rem
+    height: 10rem
+    margin-bottom: 1.5rem
+    margin-right: 1.5rem
+    position: relative
+    .first-line
+        width: 100%
+        text-align: right
+        padding: 0.4rem $right-padding 1rem 0
+        .price
+            font-weight: 600
+            font-size: 0.8rem
+        .type
+            font-weight: 300
+            font-size: 0.7rem
+    .second-line
+        font-weight: 500
+        .icon
+            height: 2.5rem
+            width: 2.5rem
+            vertical-align: middle
+            margin: 0 1.25rem
+    .third-line
+        margin-left: 5rem
+        .subscribe
+            margin: 0
+            height: 2rem
+            line-height: 0rem
+            background-color: $primary-button-color
+            text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+    .forth-line
+        position: absolute
+        bottom: 0
+        right: 0
+        padding: 0 $right-padding 0.6rem 1rem
+        .link
+            font-weight: 600
+            text-decoration: none
+            color: $primary-button-color
+            &:hover
+                text-decoration: underline
+
+
+.extension
+    $right-padding: 0.8rem
+    background-color: white
+    width: 20rem
+    height: 10rem
+    margin-bottom: 1.5rem
+    margin-right: 1.5rem
+    position: relative
+    padding: 1rem 1rem 0 0
+    .icon
+        height: 100%
+        width: 5rem
+        position: relative
+        float: left
+        img
+            height: 2.5rem
+            width: 2.5rem
+            position: absolute
+            top: 1.3rem
+            left: 0
+            right: 0
+            margin: auto
+    .title
+        margin: 0
+        clear: none
+    .info
+        margin-top: 0.3rem
+    .subscribe
+        position: absolute
+        bottom: 1rem
+        left: 5rem
+        height: 2rem
+        line-height: 0
+        margin: 0
+        background-color: $primary-button-color
+        text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+    .link
+        position: absolute
+        bottom: 0.6rem
+        right: $right-padding
+        font-weight: 600
+        text-decoration: none
+        color: $primary-button-color
+
+.tabs
+    margin-top: -1rem
+    margin-bottom: 3rem
+
+.ellipsis-on-3-lines
+    @include multiline-ellipsis(3)

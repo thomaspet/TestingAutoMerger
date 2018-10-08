@@ -1,0 +1,82 @@
+@import '../../marketplaceSharedStyles.sass'
+
+$side-margins: 5rem
+
+header
+    display: flex
+    flex-flow: row wrap
+    padding: 2rem $side-margins 1rem
+    background-color: $bg-color
+    color: $dark-text-color
+    position: relative
+
+    .close-button
+        color: black
+        position: absolute
+        top: 0
+        right: 0
+        background-color: inherit
+        text-shadow: none
+        font-size: 2.2rem
+
+    .integration-icon
+        display: flex
+        margin: 0.5rem
+        width: 2.75rem
+        height: 2.75rem
+        flex-grow: 0
+        flex-shrink: 0
+        border-radius: 50%
+        box-shadow: 0.2rem 0.2rem #EDEDED
+        overflow: hidden
+        align-items: center
+        & img
+            width: 100%
+
+    .title-container
+        padding: 0.8rem 0 0 0
+
+        .title
+            color: black
+            font-size: 1.125rem
+            font-weight: 600
+            margin: 0
+
+        .sub-title
+            color: $light-text-color
+            font-size: 0.8rem
+            line-height: 0.6rem
+            padding: 0
+            margin: 0
+
+    .subscribe-button-container
+        flex-basis: 100%
+        flex-flow: column
+        .subscribe-button
+            margin: 0.4rem -1rem 0.9rem 3.75rem
+            padding-left: 3rem
+            padding-right: 3rem
+            background-color: $primary-button-color
+            text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+
+        .price-container
+            white-space: nowrap
+            margin-left: 3.75rem
+        .price
+            font-weight: 800
+            font-size: 1.6rem
+
+.htmlContent
+    color: $light-text-color
+    padding: 1rem 5rem
+    ::ng-deep // <-- Fix for styling not being applied recursively
+        h1
+            color: $dark-text-color
+            font-size: 1.125rem
+            font-weight: 600
+        li
+            list-style-type: none
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle style="fill:#{$light-text-color};" cx="10" cy="10" r="5"/></svg>')
+            background-repeat: no-repeat
+            background-position-y: center
+            padding-left: 2rem

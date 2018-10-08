@@ -1,9 +1,8 @@
 import {Routes} from '@angular/router';
-import {MarketplaceAddOns} from './addons/marketplaceAddOns';
 import {Marketplace} from './marketplace';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
 import {MarketplaceWebinars} from './webinars/marketplaceWebinars';
-import {MarketplaceAddOnsDetails} from './addons/marketplaceAddOnsDetail';
+import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
 
 export const marketplaceRoutes: Routes = [
     {
@@ -12,25 +11,21 @@ export const marketplaceRoutes: Routes = [
         children: [
             {
                 path: '',
-                redirectTo: 'add-ons',
-                pathMatch: 'full'
+                redirectTo: 'modules',
+                pathMatch: 'full',
             },
             {
-                path: 'add-ons',
-                component: MarketplaceAddOns
-            },
-            {
-                path: 'add-ons/:id',
-                component: MarketplaceAddOnsDetails
+                path: 'modules',
+                component: MarketplaceModules,
             },
             {
                 path: 'webinars',
-                component: MarketplaceWebinars
+                component: MarketplaceWebinars,
             },
             {
                 path: 'integrations',
-                component: MarketplaceIntegrations
-            }
+                component: MarketplaceIntegrations,
+            },
         ]
     }
 ];
