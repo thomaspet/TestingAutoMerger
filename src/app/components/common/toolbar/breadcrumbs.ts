@@ -22,7 +22,7 @@ export class UniBreadcrumbs {
         private router: Router
     ) {}
 
-    ngAfterViewInit() {
+    ngOnChanges() {
         // Timeout to avoid changedAfterCheck errors
         setTimeout(() => this.generateBreadcrumbs(this.router.url || ''));
     }

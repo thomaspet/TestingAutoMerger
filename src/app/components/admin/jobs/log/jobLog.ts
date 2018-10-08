@@ -50,8 +50,7 @@ export class JobLog {
 
     private updateToolBar() {
         this.toolbarconfig = {
-            title: this.jobName,
-            omitFinalCrumb: false
+            title: this.jobName
         };
     }
 

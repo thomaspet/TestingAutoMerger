@@ -87,6 +87,7 @@ export class Payments {
 
         const toolbarConfig: IToolbarConfig = {
             title: 'Registrering av innbetalinger',
+            omitFinalCrumb: true,
             contextmenu: this.contextMenuItems
         };
 

@@ -32,7 +32,6 @@ export class InvoiceHours implements OnInit {
     public rowCount: number = 0;
     public toolbarConfig: IToolbarConfig = {
         title: 'Fakturere/overføre timer',
-        omitFinalCrumb: true,
         saveactions: [
             {
                 action: (done) => this.createNew(done),

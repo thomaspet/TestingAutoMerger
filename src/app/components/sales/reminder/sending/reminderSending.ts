@@ -298,6 +298,7 @@ export class ReminderSending implements OnInit {
                 {title: this.currentRunNumberData.CreatedBy},
                 {title: moment(this.currentRunNumberData.RemindedDate).format('lll')}
             ],
+            omitFinalCrumb: true,
             navigation: {
                 prev: this.previousRunNumber.bind(this),
                 next: this.nextRunNumber.bind(this)
@@ -443,7 +444,7 @@ export class ReminderSending implements OnInit {
     }
 
     sendInvoicePrint(done?: (message: string) => void) {
-        const selected = this.getSelected();   
+        const selected = this.getSelected();
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',

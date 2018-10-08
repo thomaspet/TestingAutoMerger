@@ -42,6 +42,7 @@ export class ReminderList {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Klar til purring',
+        omitFinalCrumb: true
     };
 
     public summaryFields: ISummaryConfig[] = [];

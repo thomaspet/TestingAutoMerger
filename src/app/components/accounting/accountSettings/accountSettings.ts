@@ -20,7 +20,6 @@ export class AccountSettings {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
-        omitFinalCrumb: true,
         navigation: {
             add: {
                 label: 'Ny konto',

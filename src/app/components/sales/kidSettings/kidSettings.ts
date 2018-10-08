@@ -35,8 +35,7 @@ export class KIDSettings {
     showInactiveInList: boolean = false;
     toggleBtnLabel: string = 'Vis inaktive';
     toolbarconfig: IToolbarConfig = {
-        title: 'KID-innstillinger',
-        omitFinalCrumb: true
+        title: 'KID-innstillinger'
     };
 
     private companySettings: CompanySettings;

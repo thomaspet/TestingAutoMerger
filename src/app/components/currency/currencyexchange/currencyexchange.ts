@@ -47,7 +47,6 @@ export class CurrencyExchange {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Valutakurser',
-        omitFinalCrumb: true
     };
 
     private exchangerateUrlFormat: INumberFormat = {

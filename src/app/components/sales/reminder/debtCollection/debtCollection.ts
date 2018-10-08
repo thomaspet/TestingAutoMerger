@@ -38,7 +38,7 @@ export class DebtCollection implements OnInit {
     public reminderToDebtCollectTable: UniTableConfig;
     private showInvoicesWithReminderStop: boolean = false;
     public summaryFields: ISummaryConfig[] = [];
-    
+
     public summaryData: any = {
         restSumReadyForDebtCollection: 0,
         restSumChecked: 0
@@ -52,6 +52,7 @@ export class DebtCollection implements OnInit {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Klar til inkasso',
+        omitFinalCrumb: true
     };
 
     public saveactions: IUniSaveAction[] = [

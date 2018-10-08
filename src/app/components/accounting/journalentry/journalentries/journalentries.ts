@@ -33,6 +33,7 @@ export class JournalEntries {
 
     public toolbarConfig: IToolbarConfig = {
         title: 'Bilagsregistrering',
+        omitFinalCrumb: true,
         navigation: {
             prev: () => this.showPrevious(),
             next: () => this.showNext(),
@@ -234,6 +235,7 @@ export class JournalEntries {
 
         const toolbarConfig: IToolbarConfig = {
             title: 'Bilagsregistrering',
+            omitFinalCrumb: true,
             navigation: {
                 prev: () => this.showPrevious(),
                 next: () => this.showNext(),
