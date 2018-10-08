@@ -44,7 +44,6 @@ import {TradeItemTable} from './common/tradeItemTable';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/productgroups';
-import {TreeModule} from 'angular-tree-component';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
 import {ProductDetails} from './products/productDetails';
 import {ProductList} from './products/productList';
@@ -59,7 +58,10 @@ import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {InvoiceHourService} from '../../components/timetracking/invoice-hours/invoice-hours.service';
 
-import {MatSlideToggleModule} from '@angular/material';
+import {
+    MatSlideToggleModule,
+    MatTreeModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -68,6 +70,7 @@ import {MatSlideToggleModule} from '@angular/material';
         ReactiveFormsModule,
         HttpModule,
         MatSlideToggleModule,
+        MatTreeModule,
 
         RouterModule.forChild(salesRoutes),
 
@@ -78,7 +81,6 @@ import {MatSlideToggleModule} from '@angular/material';
         AppCommonModule,
         ReportsModule,
         UniTickerModule,
-        TreeModule,
     ],
     declarations: [
         UniSales,

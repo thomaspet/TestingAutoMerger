@@ -1,18 +1,14 @@
-import {Component, ViewChild, OnInit, ChangeDetectorRef} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Component} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IToolbarConfig, ICommentsConfig} from './../../common/toolbar/toolbar';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IUniTab} from '../../layout/uniTabs/uniTabs';
-import {ProductCategory} from '../../../unientities';
-import {TreeComponent} from 'angular-tree-component';
-import {
-    ProductCategoryService,
-    ErrorService,
-    StatisticsService
-} from '../../../services/services';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {ProductCategory} from '@uni-entities';
+import {ProductCategoryService, ErrorService} from '@app/services/services';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+
+import {MatTreeNestedDataSource} from '@angular/material/tree';
+import {NestedTreeControl} from '@angular/cdk/tree';
 
 export * from './groupDetails/groupDetails';
 
@@ -22,95 +18,50 @@ declare const _; // lodash
     selector: 'product-groups',
     templateUrl: './productgroups.html'
 })
-
 export class ProductGroups {
-    @ViewChild('tree') private treeComponent: TreeComponent;
-
     public nodes: any[];
     private groups: ProductCategory[] = [];
-    private activeProductGroupID: any = '';
 
     public toolbarconfig: IToolbarConfig;
-    public commentsConfig: ICommentsConfig;
-    public contextMenuItems: any;
-
-    private idParam: number;
     public selectedGroup: ProductCategory;
 
-    private init: number;
-
-    public saveactions: IUniSaveAction[] = [{
-        label: 'Lagre',
-        action: (completeEvent) => {
-            this.saveProductGroup().subscribe(success => {
-                completeEvent('');
-                this.router.navigateByUrl('/sales/productgroups/' + this.selectedGroup.ID);
-            });
-        },
-        main: true,
-        disabled: false
-    }];
-
-    public treeoptions: any = {
-        displayField: 'Name',
-        childrenField: '_children',
-        idField: 'ID',
-        actionMapping: {
-            mouse: {
-                click: (tree, node, $event) => {
-                    const group = node.data;
-                    if (group) {
-                        this.router.navigateByUrl('/sales/productgroups/' + group.ID);
-                    }
-                }
-            }
-        }
-    };
+    treeControl: NestedTreeControl<any>;
+    treeDataSource: MatTreeNestedDataSource<any>;
+    hasNestedChild = (level, node) => node._children && node._children.length;
 
     constructor(
-        private router: Router,
-        private route: ActivatedRoute,
         private tabService: TabService,
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
-        private statisticsService: StatisticsService,
         private modalService: UniModalService,
-        private cdr: ChangeDetectorRef
+        private toastService: ToastService
     ) {
+        this.treeControl = new NestedTreeControl(node => Observable.of(node._children));
+        this.treeDataSource = new MatTreeNestedDataSource();
+
         this.toolbarconfig = {
             title: 'Produktgruppe',
             subheads: [],
         };
 
-        this.updateTabInfo();
+        this.tabService.addTab({
+            url: '/sales/productgroups',
+            name: 'Produktgrupper',
+            active: true,
+            moduleID: UniModules.ProductGroup
+        });
 
-        this.contextMenuItems = [{
-            label: 'Slett',
-            disabled: () => !this.selectedGroup,
-            action: () => this.deleteGroup()
-        }];
+        this.loadGroups().subscribe(() => {
+            this.selectGroup(this.nodes[0]);
+        });
+    }
 
-        this.loadGroups().subscribe(success => {
-            this.route.paramMap.subscribe(paramMap => {
-                this.idParam = parseInt(paramMap.get('id'), 10);
-                this.updateTabInfo();
-
-                // Focus and set selected group
-                setTimeout(() => {
-                    const node = this.idParam >= 0
-                        ? this.treeComponent.treeModel.getNodeById(this.idParam)
-                        : this.treeComponent.treeModel.getFirstRoot();
-
-                    if (node && node.data) {
-                        this.selectedGroup = node.data;
-                        node.setActiveAndVisible();
-
-                        if (!this.idParam) {
-                            this.router.navigateByUrl('/sales/productgroups/' + node.data.ID);
-                        }
-                    }
-                });
-            });
+    selectGroup(group) {
+        this.canDeactivate().subscribe(allowed => {
+            if (allowed && group) {
+                this.expand(group);
+                this.selectedGroup = _.cloneDeep(group);
+            }
         });
     }
 
@@ -121,13 +72,13 @@ export class ProductGroups {
 
         return this.modalService.openUnsavedChangesModal().onClose.switchMap(response => {
             if (response === ConfirmActions.ACCEPT) {
-                return this.saveProductGroup();
+                return this.saveGroup();
             } else if (response === ConfirmActions.REJECT) {
-                this.selectedGroup = undefined;
-                this.idParam = undefined;
-                this.nodes = this.createTree(_.cloneDeep(this.groups));
-                this.treeComponent.treeModel.nodes = this.nodes;
-                this.treeComponent.treeModel.update();
+                if (!this.selectedGroup.ID) {
+                    this.groups = this.groups.filter(g => !g.ID);
+                    this.nodes = this.buildTreeData(this.groups);
+                    this.treeDataSource.data = this.nodes;
+                }
 
                 return Observable.of(true);
             } else {
@@ -136,25 +87,23 @@ export class ProductGroups {
         });
     }
 
-    private updateTabInfo() {
-        let url = '/sales/productgroups';
-        if (this.idParam) {
-            url += '/' + this.idParam;
+    expand(node) {
+        const rootNode = this.getRootNode(node);
+        if (rootNode) {
+            this.treeControl.expandDescendants(rootNode);
         }
-
-        this.tabService.addTab({
-            url: url,
-            name: 'Produktgrupper',
-            active: true,
-            moduleID: UniModules.ProductGroup
-        });
     }
 
-    public createGroup(parentGroup?: ProductCategory) {
-        if (!this.treeComponent) {
-            return;
+    private getRootNode(node) {
+        const parent = node.ParentID && this.groups.find(group => group.ID === node.ParentID);
+        if (parent) {
+            return this.getRootNode(parent);
+        } else {
+            return node;
         }
+    }
 
+    createGroup(parentGroup?: ProductCategory) {
         const guid = this.productCategoryService.getNewGuid();
         const newGroup: any = {
             ID: 0,
@@ -166,78 +115,75 @@ export class ProductGroups {
             _children: []
         };
 
-        if (parentGroup) {
-            const node = this.treeComponent.treeModel.getNodeById(parentGroup.ID);
-            if (!node.data['_children']) {
-                node.data['_children'] = [];
-            }
+        this.groups.push(newGroup);
+        this.nodes = this.buildTreeData(this.groups);
 
-            node.data['_children'].push(newGroup);
-        } else {
-            this.nodes.push(newGroup);
-            this.treeComponent.nodes = this.nodes;
+        this.treeDataSource.data = null;
+        this.treeDataSource.data = this.nodes;
+        this.selectGroup(newGroup);
+    }
+
+    saveGroup(): Observable<boolean> {
+        const group = this.selectedGroup;
+        if (!group || !group['_isDirty']) {
+            return Observable.of(true);
         }
 
-        const navigationPromise = this.idParam
-            ? this.router.navigateByUrl('/sales/productgroups/0')
-            : Promise.resolve(true);
+        const groupIndex = this.groups.findIndex(g => g.ID === this.selectedGroup.ID);
 
-        navigationPromise.then(() => {
-            this.selectedGroup = newGroup;
-            this.treeComponent.treeModel.update();
+        const saveRequest = this.selectedGroup.ID > 0
+            ? this.productCategoryService.Put(group.ID, group)
+            : this.productCategoryService.Post(group);
 
-            setTimeout(() => {
-                const newNode = this.treeComponent.treeModel.getNodeById(0);
-                if (newNode) {
-                    newNode.setActiveAndVisible();
-                }
-            });
+        return saveRequest.map(savedGroup => {
+            this.toastService.addToast('Produktgruppe lagret', ToastType.good, 5);
+            this.groups[groupIndex] = savedGroup;
+            this.selectedGroup = savedGroup;
+            this.nodes = this.buildTreeData(this.groups);
+
+            this.treeDataSource.data = null;
+            this.treeDataSource.data = this.nodes;
+            this.selectGroup(savedGroup);
+
+            return true;
         });
     }
 
-    private deleteGroup() {
-        if (!this.selectedGroup) {
-            return;
-        }
+    deleteGroup() {
+        const deleteRequest = this.selectedGroup.ID
+            ? this.productCategoryService.Remove(this.selectedGroup.ID)
+            : Observable.of(true);
 
-        if (this.selectedGroup.ID) {
-            this.productCategoryService.Remove(this.selectedGroup.ID, null)
-                .switchMap(res => this.loadGroups())
-                .subscribe(
-                    success => {
-                        this.selectedGroup = undefined;
-                        this.idParam = undefined;
-                        this.router.navigateByUrl('/sales/productgroups');
-                    },
-                    err => this.errorService.handle(err)
-                );
-        } else {
-            this.selectedGroup = undefined;
-            this.idParam = undefined;
-            this.router.navigateByUrl('/sales/productgroups');
+        deleteRequest.subscribe(
+            res => {
+                const parent = this.selectedGroup.ParentID && this.groups.find(group => group.ID === this.selectedGroup.ParentID);
 
-            this.nodes = this.createTree(_.cloneDeep(this.groups));
-            this.treeComponent.treeModel.update();
-        }
+                const groupIndex = this.groups.findIndex(group => group.ID === this.selectedGroup.ID);
+                this.selectedGroup = undefined;
+                this.groups.splice(groupIndex, 1);
+                this.nodes = this.buildTreeData(this.groups);
+
+                this.treeDataSource.data = null;
+                this.treeDataSource.data = this.nodes;
+                this.selectGroup(parent || this.groups[0]);
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
-    private createTree(
-        groups: ProductCategory[],
-        parent: Partial<ProductCategory> = {ID: 0},
-        tree = []
-    ) {
-        const children = _.filter(groups, child => child.ParentID === parent.ID);
-        if (!_.isEmpty(children)) {
-            if (parent.ID) {
-                parent['_children'] = children;
-            } else {
-                tree = children;
-            }
+    buildTreeData(groups: ProductCategory[]) {
+        groups.forEach(group => group['_children'] = undefined);
 
-            _.each(children, (child) => this.createTree(groups, child));
-        }
+        const buildChildTree = (parent: ProductCategory) => {
+            const childNodes = groups.filter(g => g.ParentID && g.ParentID === parent.ID);
+            childNodes.forEach(node => buildChildTree(node));
+            parent['_children'] = childNodes;
+        };
 
-        return tree;
+        const rootNodes = groups.filter(group => !group.ParentID);
+        rootNodes.forEach(node => buildChildTree(node));
+
+        return rootNodes;
     }
 
     public loadGroups() {
@@ -257,7 +203,8 @@ export class ProductGroups {
                         return group;
                     });
 
-                    this.nodes = this.createTree(_.cloneDeep(this.groups));
+                    this.nodes = this.buildTreeData(this.groups);
+                    this.treeDataSource.data = this.nodes;
                 } else {
                     this.groups = [];
                     this.nodes = [];
@@ -265,22 +212,5 @@ export class ProductGroups {
 
                 return Observable.of(true);
             });
-    }
-
-    private saveProductGroup(): Observable<boolean> {
-        const group = this.selectedGroup;
-        if (!group || !group['_isDirty']) {
-            return Observable.of(true);
-        }
-
-        const saveRequest = this.selectedGroup.ID > 0
-            ? this.productCategoryService.Put(group.ID, group)
-            : this.productCategoryService.Post(group);
-
-        return saveRequest.switchMap(savedGroup => {
-            this.selectedGroup.ID = savedGroup.ID;
-            this.selectedGroup['_isDirty'] = false;
-            return this.loadGroups();
-        });
     }
 }

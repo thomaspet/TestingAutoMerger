@@ -65,3 +65,44 @@ mat-selection-list
     background-color: #fff
     &:focus
         background-color: #fff
+
+mat-tree
+    ul, li
+        margin-top: 0
+        margin-bottom: 0
+        padding: 0
+        list-style-type: none
+
+    li, li.mat-tree-node
+        overflow: visible
+
+    mat-nested-tree-node ul
+        margin-left: 15px
+
+        mat-tree-node span
+            margin-left: 10px !important
+
+    .mat-tree-node
+        cursor: pointer
+        user-select: none
+        min-height: 35px
+        height: 35px
+        display: flex
+
+        i.material-icons
+            flex: 0 0 auto
+            margin: auto 0
+            line-height: 35px
+
+        span
+            flex: 0 0 auto
+            padding: 2px 5px
+            border-radius: 3px
+            margin: auto 0
+            max-width: 15rem
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+
+            &[aria-selected]:not([aria-selected=false])
+                background-color: #f0f0f0

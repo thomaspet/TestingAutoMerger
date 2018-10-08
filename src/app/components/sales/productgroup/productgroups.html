@@ -1,33 +1,46 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [saveactions]="saveactions"
-    [commentsConfig]="commentsConfig"
-    [contextmenu]="contextMenuItems">
-</uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="product-groups application">
-
     <section class="tree-view-container">
-        <header>Grupper</header>
-        <button class="good add-root-group" [disabled]="selectedGroup && !selectedGroup.ID" (click)="createGroup()">
+        <button class="button-clean" [disabled]="selectedGroup && !selectedGroup.ID" (click)="createGroup()">
+            <i class="material-icons add-new">create_new_folder</i>
             Ny hovedgruppe
         </button>
 
-        <div class="treeContainer">
-            <tree-root #tree *ngIf="nodes"
-                [nodes]="nodes"
-                [options]="treeoptions">
-             </tree-root>
-        </div>
+        <mat-tree [dataSource]="treeDataSource" [treeControl]="treeControl">
+            <mat-tree-node *matTreeNodeDef="let node" (click)="selectGroup(node)">
+                <li class="mat-tree-node">
+                    <span [attr.aria-selected]="node.ID === selectedGroup?.ID">
+                        {{node.Name}}
+                    </span>
+                </li>
+            </mat-tree-node>
+
+            <mat-nested-tree-node *matTreeNodeDef="let node; when: hasNestedChild">
+                <li>
+                    <div class="mat-tree-node">
+                        <i class="material-icons" matTreeNodeToggle>
+                            {{treeControl.isExpanded(node) ? 'arrow_drop_down' : 'arrow_right'}}
+                        </i>
+                        <span (click)="selectGroup(node)" [attr.aria-selected]="node.ID === selectedGroup?.ID">
+                            {{node.Name}}
+                        </span>
+                    </div>
+                    <ul [hidden]="!treeControl.isExpanded(node)">
+                        <ng-container matTreeNodeOutlet></ng-container>
+                    </ul>
+                </li>
+            </mat-nested-tree-node>
+        </mat-tree>
     </section>
 
     <group-details
         *ngIf="selectedGroup"
         [(group)]="selectedGroup"
+        (saveGroup)="saveGroup().subscribe()"
         (createChildGroup)="createGroup(selectedGroup)"
         (deleteGroup)="deleteGroup()">
     </group-details>
-
 </section>
 
 

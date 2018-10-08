@@ -1,6 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {ProductCategory} from '../../../../unientities';
+import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ProductCategory} from '@uni-entities';
 import {ProductCategoryService, ErrorService, StatisticsService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
@@ -18,11 +19,12 @@ class ExtendedProductCategory extends ProductCategory {
     templateUrl: './groupDetails.html'
 })
 export class GroupDetails implements OnInit {
-    @Input() public group: ExtendedProductCategory;
-    @Output() public groupChange: EventEmitter<ProductCategory> = new EventEmitter(false);
+    @Input() group: ExtendedProductCategory;
+    @Output() groupChange: EventEmitter<ProductCategory> = new EventEmitter(false);
 
-    @Output() public createChildGroup: EventEmitter<any> = new EventEmitter(false);
-    @Output() public deleteGroup: EventEmitter<any> = new EventEmitter(false);
+    @Output() saveGroup: EventEmitter<any> = new EventEmitter(false);
+    @Output() createChildGroup: EventEmitter<any> = new EventEmitter(false);
+    @Output() deleteGroup: EventEmitter<any> = new EventEmitter(false);
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -39,7 +41,8 @@ export class GroupDetails implements OnInit {
         private productCategoryService: ProductCategoryService,
         private errorService: ErrorService,
         private statisticsService: StatisticsService,
-        private uniSearchProductConfig: UniSearchProductConfig
+        private uniSearchProductConfig: UniSearchProductConfig,
+        private toastService: ToastService
     ) {
         this.uniSearchConfig = this.uniSearchProductConfig.generateProductsConfig();
     }
@@ -62,8 +65,22 @@ export class GroupDetails implements OnInit {
         this.groupChange.emit(this.group);
     }
 
+    onDeleteGroup() {
+        const products = this.productsInCategory && this.productsInCategory.filter(p => !p.Deleted);
+        if (products && products.length) {
+            this.toastService.addToast(
+                'Kan ikke slette gruppe',
+                ToastType.warn, 0,
+                'Grupper som har kobling til produkter kan ikke slettes. Vennligst fjern produktkoblingene før gruppen slettes'
+            );
+        } else {
+            this.deleteGroup.emit();
+        }
+    }
+
     public getProductsInGroup(group) {
         if (!group.ID) {
+            this.productsInCategory = [];
             return;
         }
 
@@ -131,6 +148,7 @@ export class GroupDetails implements OnInit {
         const tableName = 'sales.productgroups.products';
         return new UniTableConfig(tableName, false, true, 15)
             .setColumns([numberCol, nameCol, unitCol, costpriceCol, priceexvatCol])
+            .setAutoAddNewRow(false)
             .setDeleteButton(true)
             .setSearchable(false);
     }
