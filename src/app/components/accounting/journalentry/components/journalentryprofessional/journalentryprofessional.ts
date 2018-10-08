@@ -1415,7 +1415,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 vatDateCol,
                 financialDateCol,
                 kidCol,
-                invoiceNoCol,
+                invoiceNoTextCol,
                 dueDateCol,
                 debitAccountCol,
                 debitVatTypeCol,
