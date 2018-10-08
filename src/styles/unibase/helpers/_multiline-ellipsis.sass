@@ -1,0 +1,39 @@
+@mixin multiline-ellipsis($max-lines, $line-height: 1em)
+    /* hide text if it more than N lines  */
+    overflow: hidden
+    /* for set '...' in absolute position */
+    position: relative
+    /* use this value to count block height */
+    line-height: $line-height
+    /* max-height = line-height (1) * lines max number (3) */
+    max-height: $line-height * $max-lines
+    /* fix problem when last visible word doesn't adjoin right side  */
+    text-align: justify
+
+    /* */
+    margin-right: -1em
+    padding-right: 1em
+
+    @content
+
+    &:before
+        /* points in the end */
+        content: '...'
+        /* absolute position */
+        position: absolute
+        /* set position to right bottom corner of block */
+        right: 0
+        bottom: 0
+
+    &:after
+        /* points in the end */
+        content: ''
+        /* absolute position */
+        position: absolute
+        /* set position to right bottom corner of text */
+        right: 0
+        width: 1em
+        /* set width and height */
+        height: 1em
+        margin-top: 0.2em
+        background: white

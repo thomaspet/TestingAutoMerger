@@ -51,11 +51,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.BureauDashboard
                     },
                     {
-                        name: 'Markedsplass',
-                        url: '/marketplace',
-                        moduleID: UniModules.Marketplace
-                    },
-                    {
                         name: 'Mine oppgaver',
                         url: '/assignments',
                         moduleID: UniModules.Assignments
@@ -100,6 +95,36 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     },
                 ]
             }
+        ]
+    },
+
+    // MARKETPLACE
+    {
+        name: 'Markedsplass',
+        url: '/marketplace',
+        icon: 'sales',
+        mdIcon: 'developer_board',
+        linkGroups: [
+            {
+                name: '',
+                links: [
+                    {
+                        name: 'Moduler',
+                        url: '/marketplace/modules',
+                        moduleID: UniModules.Marketplace,
+                    },
+                    {
+                        name: 'Integrasjoner',
+                        url: '/marketplace/integrations',
+                        moduleID: UniModules.Marketplace,
+                    },
+                    {
+                        name: 'Webinar',
+                        url: '/marketplace/webinars',
+                        moduleID: UniModules.Marketplace,
+                    },
+                ]
+            },
         ]
     },
 

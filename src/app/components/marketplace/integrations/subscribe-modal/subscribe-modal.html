@@ -1,0 +1,23 @@
+<section class="subscribe-modal" role="dialog" class="uni-modal" (clickOutside)="close()">
+    <header>
+        <button class="close-button" (click)="close()">×</button>
+        <section class="integration-icon" [style.background-color]="integration.iconBackgroundColor">
+            <img [src]="integration.iconReference" />
+        </section>
+        <div class="title-container">
+            <p class="title">{{integration.name}}</p>
+            <p class="sub-title">{{integration.label}}</p>
+        </div>
+        <div class="subscribe-button-container">
+            <button class="subscribe-button" (click)="editPurchases()">Aktiver</button>
+            <span *ngIf="integration.price" class="price-container">
+                <span class="price">{{integration.price}} kr</span><span class="price-type">{{priceText(integration)}}</span>
+            </span>
+        </div>
+        <p>
+            {{integration.description}}
+        </p>
+    </header>
+
+    <article class="htmlContent" *ngIf="integration.htmlContent" [innerHTML]="integration.htmlContent"></article>
+</section>

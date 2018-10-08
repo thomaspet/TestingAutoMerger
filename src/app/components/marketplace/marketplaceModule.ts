@@ -6,12 +6,11 @@ import {Marketplace} from './marketplace';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
-import {MarketplaceAddOns} from './addons/marketplaceAddOns';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
 import {MarketplaceWebinars} from './webinars/marketplaceWebinars';
-import {MarketplaceAddOnsDetails} from './addons/marketplaceAddOnsDetail';
-import {FilterOutBundlesPipe} from './addons/filterOutBundlesPipe';
-import {OnlyBundlesPipe} from './addons/onlyBundlesPipe';
+import {IntegrationSubscribeModal} from '@app/components/marketplace/integrations/subscribe-modal/subscribe-modal';
+import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
+import {ModuleSubscribeModal} from '@app/components/marketplace/modules/subscribe-modal/subscribe-modal';
 
 @NgModule({
     imports: [
@@ -24,12 +23,15 @@ import {OnlyBundlesPipe} from './addons/onlyBundlesPipe';
     ],
     declarations: [
         Marketplace,
-        MarketplaceAddOns,
-        MarketplaceAddOnsDetails,
+        MarketplaceModules,
         MarketplaceWebinars,
         MarketplaceIntegrations,
-        FilterOutBundlesPipe,
-        OnlyBundlesPipe
+        IntegrationSubscribeModal,
+        ModuleSubscribeModal,
+    ],
+    entryComponents: [
+        IntegrationSubscribeModal,
+        ModuleSubscribeModal,
     ],
 })
 export class MarketplaceModule {}

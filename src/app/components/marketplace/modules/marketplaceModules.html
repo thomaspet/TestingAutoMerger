@@ -1,0 +1,63 @@
+<section class="marketplace-modules" [attr.aria-busy]="false">
+    <section class="header">
+        <h1 class="top-heading">Produkter</h1>
+    </section>
+    <section class="modules">
+        <h3 class="top-heading">Velg ett eller flere produkter</h3>
+        <section class="bundle" *ngFor="let bundle of bundles" [ngClass]="{'expanded': bundle._isExpanded}">
+            <i (click)="bundle._isExpanded = false"
+               class="expand_arrow material-icons"
+            >keyboard_arrow_down</i>
+            <button class="button expand-button"
+                    (click)="bundle._isExpanded = true"
+            >Velg komplett</button>
+            <h4 class="sale-text"><i class="material-icons">new_releases</i> Spar 20% på å abonnere på alle modulene</h4>
+            <h3 class="heading">Trenger du et fullt ERP-system? Abonner på alle modulene i Komplett og spar 20%</h3>
+            <ng-container *ngIf="bundle._isExpanded">
+                <section class="bundle-module" *ngFor="let bundleProduct of bundle.products">
+                    <img class="icon" [src]="bundleProduct.iconReference" />
+                    <span class="name">{{bundleProduct.name}}</span>
+                    <span class="price_container">
+                        <span class="price">{{bundleProduct.price}} kr</span>
+                        <span class="type">{{priceText(bundleProduct)}}</span>
+                    </span>
+                </section>
+                <section class="bundle-price">
+                    <span class="old-price">NOK {{bundleFullPrice(bundle)}}</span>
+                    <span class="new-price">NOK {{bundle.bundlePrice}}</span>
+                    <span class="type">/ per bruker / per måned</span>
+                </section>
+                <button class="button subscribe" (click)="editPurchases()">Abonner på {{bundle.name}}</button>
+            </ng-container>
+        </section>
+
+        <section class="module" *ngFor="let module of modules">
+            <section class="first-line">
+                <span class="price">{{module.price}} kr</span><span class="type"> {{priceText(module)}}</span>
+            </section>
+            <section class="second-line">
+                <img class="icon" [src]="module.iconReference" />
+                <span>{{module.name}}</span>
+            </section>
+            <section class="third-line">
+                <button class="subscribe" (click)="editPurchases()">Abonner</button>
+            </section>
+            <section class="forth-line">
+                <a class="link" (click)="openSubscribeModal(module)">Les mer</a>
+            </section>
+        </section>
+    </section>
+    <section class="extensions">
+        <h3 class="top-heading">Utvidelser</h3>
+        <uni-tabs class="tabs"
+                  [tabs]="tabs"
+                  (activeIndexChange)="tagChanged($event)"></uni-tabs>
+        <section class="extension" *ngFor="let extension of currentExtensions">
+            <section class="icon"><img src="//public-files.unieconomy.no/files/marketplace/material-extension.png" /></section>
+            <h3 class="title">{{extension.name}}</h3>
+            <p class="info ellipsis-on-3-lines">{{extension.description}}</p>
+            <button class="subscribe" (click)="editPurchases()">Abonner</button>
+            <a class="link" (click)="openSubscribeModal(extension)">Les mer</a>
+        </section>
+    </section>
+</section>
