@@ -184,6 +184,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             }
 
             subject.subscribe((data: Array<any>) => {
+
                 const periodDataUnordered = data[0].Data;
 
                 // setup distributionperiods
@@ -208,7 +209,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                     }
                 });
 
-                if (this.includeIncomingBalance) {
+                if (this.includeIncomingBalance && data.length > 1) {
                     const incomingBalanceDistributionData = {
                         periodNo: 0,
                         periodName: 'Inngående balanse',

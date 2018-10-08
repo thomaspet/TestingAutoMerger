@@ -9,6 +9,7 @@ import {
     ViewChild,
     ElementRef
 } from '@angular/core';
+import {MatMenuTrigger} from '@angular/material';
 import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
@@ -37,6 +38,8 @@ export interface IUploadConfig {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniImage {
+    @ViewChild(MatMenuTrigger) ocrMenu: MatMenuTrigger;
+
     @ViewChild('image')
     private image: ElementRef;
 
@@ -126,10 +129,7 @@ export class UniImage {
     public imgUrl2x: string = '';
     public highlightStyle: any;
 
-    public wordPickerAreaVisible: boolean = false;
-    public currentClickedWordStyle: any;
     public currentClickedWord: any;
-
 
     public processingPercentage: number = null;
     public ocrWords: Array<any> = [];
@@ -203,35 +203,19 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    public onWordClicked(word, event: MouseEvent) {
-        this.wordPickerAreaVisible = true;
-        this.currentClickedWord = word;
-
-        this.currentClickedWordStyle = {
-            top: 'calc(' + word._style.top + ' + 1.5rem)',
-            left: 'calc(' + word._style.left + ' - 6rem)'
-        };
-
+    onOCRWordClick(word, event: MouseEvent) {
         event.stopPropagation();
+        this.currentClickedWord = word;
     }
 
-    public selectWordUsage(useWordAs, event: MouseEvent) {
+    selectOCRWord(useWordAs, event: MouseEvent) {
         this.useWord.emit({
             word: this.currentClickedWord,
             propertyType: useWordAs
         });
 
         this.currentClickedWord = null;
-        this.currentClickedWordStyle = null;
-        this.wordPickerAreaVisible = false;
-
-        event.stopPropagation();
-    }
-
-    public abortUseWord(event: MouseEvent) {
-        this.currentClickedWord = null;
-        this.currentClickedWordStyle = null;
-        this.wordPickerAreaVisible = false;
+        this.ocrMenu.closeMenu();
     }
 
     public refreshFiles() {

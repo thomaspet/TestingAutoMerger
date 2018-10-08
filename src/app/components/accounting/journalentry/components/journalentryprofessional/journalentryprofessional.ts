@@ -570,8 +570,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
-    private setVatDeductionPercent(rowModel: JournalEntryData): JournalEntryData {
+    private setVatDeductionPercent(rowModel: JournalEntryData, isPercentageChanged: boolean = false): JournalEntryData {
         let deductivePercent: number = 0;
+
+        if (isPercentageChanged) {
+            return rowModel;
+        }
         rowModel.VatDeductionPercent = null;
 
         if (rowModel.DebitAccount && rowModel.DebitAccount.UseVatDeductionGroupID) {
@@ -662,7 +666,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (!newRow.VatDeductionPercent) {
-            this.setVatDeductionPercent(newRow);
+            this.setVatDeductionPercent(newRow, true);
         }
         return newRow;
     }
@@ -958,6 +962,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const invoiceNoCol = new UniTableColumn('CustomerInvoice', 'Faktura', UniTableColumnType.Lookup)
             .setDisplayField('InvoiceNumber')
             .setWidth('10%')
+            .setVisible(false)
             .setOptions({
                 itemTemplate: (selectedItem: CustomerInvoice) => {
                     return selectedItem

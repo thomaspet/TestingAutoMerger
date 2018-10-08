@@ -1,13 +1,3 @@
-<h3 *ngIf="config">{{config.title}}</h3>
-
-<!-- <aside class="regtime_filters no-print">
-    <ul>
-        <li *ngFor="let filter of filters">
-            <a (click)="onFilterClick(filter)" [ngClass]="{'router-link-active': filter.isSelected}" >{{filter.label}}</a>
-        </li>
-    </ul>
-</aside> -->
-
 <mat-form-field>
     <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
         <mat-option *ngFor="let filter of filters" [value]="filter">
@@ -19,87 +9,109 @@
 <section *ngIf="report" [attr.aria-busy]="busy">
 
     <div *ngFor="let month of report?.Months">
-    <h3>{{month.Name}}</h3>
+        <h3>{{month.Name}}</h3>
 
-    <table class="timesheet">
-        <thead><tr>
-            <th class="s2 center">Uke</th>
-            <th class="s2 center">Periode</th>
-            <th class="s3 center">Status</th>
-            <th class="s1 center"> </th>
-            <th class="s1 center">Man</th>
-            <th class="s1 center">Tir</th>
-            <th class="s1 center">Ons</th>
-            <th class="s1 center">Tor</th>
-            <th class="s1 center">Fre</th>
-            <th class="s1 center weekend">Lør</th>
-            <th class="s1 center weekend">Søn</th>
-            <th class="s1 center">Sum</th>
-            <th class="s1 center">Overtid</th>
-            <th class="s1 center">Ukesaldo</th>
-            <th class="s1 center">Prosjekt%</th>
-            <th class="s1 center">Faktura%</th>
-        </tr></thead>
-        <tbody>
-            <tr *ngFor="let week of month.Weeks; let i=index" >
-                <td class="center">Uke {{week.WeekNumber}}</td>
-                <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6]?.Date | isotime:'DD.MM'}}</td>
-                <td class="center" [class.bad]="week.Sums.Workflow === 9" [class.good]="week.Sums.Workflow === 10" >{{week.Sums.Workflow | ReportWorkflow}}</td>
-                <td class="center actions" ><button [attr.aria-busy]="week.isBusy" [class.locked]="week.Sums.Workflow>8" [class.assign]="week.Sums.Workflow==1" [class.approve]="week.Sums.Workflow>=4 && week.Sums.Workflow<=8"
-                    (click)="onRowActionClicked(week, $event)"></button></td>
-                <td (click)="onDayClick(item.Date)" class="timecell" [class.weekend]="item.IsWeekend"
-                    *ngFor="let item of week?.Items" [class.hasOvertime]="item.Overtime > 0" title="{{ item.Overtime > 0 ? 'Dato har overtid' : '' }}">
-                    <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0">
-                        <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
-                        <span *ngIf="item.ValidTimeOff" class="timeoff" >F</span>
-                        <span *ngIf="item.SickTime" class="timesick" >S</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">
-                    <div [class.flexplus]="week.Sums.Flextime > 0" [class.flexminus]="week.Sums.Flextime < 0" >
-                        <span >{{week.Sums.ValidTime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">
-                    <div>
-                        <span >{{week.Sums.Overtime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">
-                    <div [class.good]="week.Sums.Flextime > 0" [class.bad]="week.Sums.Flextime < 0" >
-                        <span >{{week.Sums.Flextime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">{{week.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
-                <td class="s1 timecell">{{week.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
-            </tr>
+        <table class="timesheet">
+            <thead>
+                <tr>
+                    <th class="s1 center">Uke</th>
+                    <th class="s2 center">Periode</th>
+                    <th class="s1 center">Man</th>
+                    <th class="s1 center">Tir</th>
+                    <th class="s1 center">Ons</th>
+                    <th class="s1 center">Tor</th>
+                    <th class="s1 center">Fre</th>
+                    <th class="s1 center weekend">Lør</th>
+                    <th class="s1 center weekend">Søn</th>
+                    <th class="s1 center">Sum</th>
+                    <th class="s1 center">Overtid</th>
+                    <th class="s3 center">Ukesaldo</th>
+                    <th class="s3 center">Prosjekt%</th>
+                    <th class="s3 center">Faktura%</th>
+                    <th class="s2 center">Status</th>
+                    <th class="s1 center"> </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let week of month.Weeks; let i=index" >
+                    <td class="center">{{week.WeekNumber}}</td>
+                    <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6]?.Date | isotime:'DD.MM'}}</td>
+                    <td (click)="onDayClick(item.Date)" class="timecell border hovereffect" [class.weekend]="item.IsWeekend"
+                        *ngFor="let item of week?.Items" [class.hasOvertime]="item.Overtime > 0" title="{{ item.Overtime > 0 ? 'Dato har overtid' : '' }}">
+                        <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0">
+                            <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
+                            <span *ngIf="item.ValidTimeOff" class="timeoff" >F</span>
+                            <span *ngIf="item.SickTime" class="timesick" >S</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell border">
+                        <div [class.flexplus]="week.Sums.Flextime > 0" [class.flexminus]="week.Sums.Flextime < 0" >
+                            <span >{{week.Sums.ValidTime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">
+                        <div>
+                            <span >{{week.Sums.Overtime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">
+                        <div [class.good]="week.Sums.Flextime > 0" [class.bad]="week.Sums.Flextime < 0" >
+                            <span >{{week.Sums.Flextime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">{{week.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
+                    <td class="s1 timecell">{{week.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
+                    <td class="center"
+                        [class.c2a]="week.Sums.Workflow <= 5 || week.Sums.Workflow === 8"
+                        [class.warn]="week.Sums.Workflow === 7"
+                        [class.bad]="week.Sums.Workflow === 9"
+                        [class.good]="week.Sums.Workflow === 10">
+                        <span *ngIf="week.Sums.Workflow !== 1">
+                            <i class="material-icons status-icon-class"> {{ getIconString(week.Sums.Workflow) }}</i>
+                            {{week.Sums.Workflow | ReportWorkflow}}
+                        </span>
+                        <span *ngIf="week.Sums.Workflow === 1">
+                            <button class="good send-in-button" (click)="assignWeek(week)" title="Send timer til godkjenning">Send inn</button>
+                        </span>
+                    </td>
+                    <td class="center hovereffect" [matMenuTriggerFor]="contextMenu">
+                        <ng-container>
+                            <i class="material-icons timetable-context-menu">
+                                more_horiz
+                            </i>
+                            <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
+                                <ul class="menu-list">
+                                    <li *ngFor="let item of getActions(week)" (click)="onActionClick(item)">
+                                        {{item.label}}
+                                    </li>
+                                </ul>
+                            </mat-menu>
+                        </ng-container>
+                    </td>
+                </tr>
 
-            <tr class="sum">
-                <td colspan="2"></td>
-                <td class="s2 center">{{month.Sums.Workflow | ReportWorkflow}}</td>
-                <td colspan="8" class="right">Sum: </td>
-                <td class="s1 timecell">
-                    <div [class.flexplus]="month.Sums.Flextime > 0" [class.flexminus]="month.Sums.Flextime < 0" >
-                        <span >{{month.Sums.ValidTime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">
-                    <div [class.flexplus]="month.Sums.Overtime > 0">
-                        <span >{{month.Sums.Overtime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">
-                    <div [class.good]="month.Sums.Flextime > 0" [class.bad]="month.Sums.Flextime < 0" >
-                        <span >{{month.Sums.Flextime | hours}}</span>
-                    </div>
-                </td>
-                <td class="s1 timecell">{{month.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
-                <td class="s1 timecell">{{month.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
-            </tr>
+                <tr class="sum">
+                    <td colspan="9" class="right">Sum: </td>
+                    <td class="s1 timecell">
+                        <div [class.flexplus]="month.Sums.Flextime > 0" [class.flexminus]="month.Sums.Flextime < 0" >
+                            <span >{{month.Sums.ValidTime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">
+                        <div [class.flexplus]="month.Sums.Overtime > 0">
+                            <span >{{month.Sums.Overtime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">
+                        <div [class.good]="month.Sums.Flextime > 0" [class.bad]="month.Sums.Flextime < 0" >
+                            <span >{{month.Sums.Flextime | hours}}</span>
+                        </div>
+                    </td>
+                    <td class="s1 timecell">{{month.Sums.ProjectPrc|uninumberformat:'percentage'}}</td>
+                    <td class="s1 timecell">{{month.Sums.InvoicePrc|uninumberformat:'percentage'}}</td>
+                </tr>
 
-        </tbody>
-    </table>
+            </tbody>
+        </table>
     </div>
-
-    <popup-menu (menuclick)="onPopupMenuClick($event)"></popup-menu>
 </section>

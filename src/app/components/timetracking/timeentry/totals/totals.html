@@ -16,29 +16,30 @@
     </mat-select>
 </mat-form-field>
 
-<section class="timeentry-scrollview" [attr.aria-busy]="busy">
-    <table class="timeentriesTable" *ngIf="config?.items?.length">
-        <thead><tr>
-            <th> </th>
-            <th class="right" *ngFor="let col of config.columns">{{col.label}}</th>
-            <th class="right">Sum</th>
-        </tr></thead>
-        <tbody>
-            <tr *ngFor="let item of config.items">
-                <td>{{item[currentSource.pivotResultColName]}}</td>
-                <td class="right" *ngFor="let col of config.columns">{{item[col.name] | min2hours:'decimal0' }}</td>
-                <td class="right sumright">{{item.sum | min2hours:'decimal0'}}</td>
-            </tr>
-            <tr>
-                <td class="sum">Totalsum</td>
-                <td class="right sum" *ngFor="let col of config.columns">{{config.sums[col.name] | min2hours:'decimal0' }}</td>
-                <td class="right sum">{{config.sums.sum | min2hours:'decimal0'}}</td>
-            </tr>
-        </tbody>
-    </table>
+<a (click)="showHideChart()" style="float: right; margin: .8rem 0 0 2rem;"> {{ showChart ? 'Skjul' : 'Vis' }} graf </a>
 
-    <small *ngIf="!config?.items?.length">
-        Ingenting å vise
-    </small>
-</section>
+<!-- Chart select  -->
+<mat-form-field *ngIf="showChart" style="float: right;">
+    <mat-select [value]="chart" (valueChange)="onChartFilterClick($event)" placeholder="Graf-type">
+        <mat-option *ngFor="let crt of charts" [value]="crt">
+            {{ crt.label }}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
 
+<div style="display: flex;" [attr.aria-busy]="busy">
+
+    <div class="totals-view-data" id="totals-grid-container">
+        <ag-grid-wrapper
+            [resource]="tableData"
+            [config]="tableConfig">
+        </ag-grid-wrapper>
+    </div>
+
+    <div class="totals-view-data" *ngIf="showChart">
+        <section>
+            <canvas #worktypeChart style="height: 300px !important;" id="myChart"></canvas>
+        </section>
+    </div>
+
+</div>

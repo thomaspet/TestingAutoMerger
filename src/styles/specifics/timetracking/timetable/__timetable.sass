@@ -6,7 +6,7 @@
     vertical-align: bottom
 
     .flexplus
-        border-bottom: 2px solid $uni-color-c2a
+        border-bottom: 2px solid $uni-color-good
 
     .flexminus
         border-bottom: 2px solid $uni-color-bad
@@ -25,9 +25,9 @@
     background-color: lighten($uni-color-scale9, 5%)
 
 .timesheet
+    // min-width: 100%
     table-layout: fixed
     border-collapse: collapse
-    cursor: pointer
     margin-top: 1rem
 
     thead tr
@@ -36,13 +36,15 @@
         th:not(:last-of-type)
             border-right: 1px solid $uni-color-scale9
 
-    tbody tr
+    tbody tr:not(.sum)
         border: 1px solid $uni-color-scale9
         td:not(:last-of-type)
             border-right: 1px solid $uni-color-scale9
 
-        &.sum td
-            border-bottom: none !important
+    //     &.sum td
+    //         border-bottom: none !important
+
+    // tr.sum
 
 .timesheet th
     font-size: 10pt
@@ -50,14 +52,17 @@
     text-overflow: ellipsis
     overflow-x: hidden
     white-space: nowrap
+    // border-width: 0 0 pxToRem(1) 0
+    // border-color: $uni-color-scale8
+    // border-style: solid
     padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
 
 .timesheet th.s1
-    width: pxToRem(40)
+    width: pxToRem(60)
 .timesheet th.s2
-    width: pxToRem(90)
-.timesheet th.s3
     width: pxToRem(140)
+.timesheet th.s3
+    width: pxToRem(120)
 .timesheet th.s4
     width: 35%
 .timesheet th.s5
@@ -73,22 +78,40 @@
 .timesheet th.right
     text-align: right
 
-.timesheet td:hover
-    background-color: lighten($uni-color-scale6, 32%)
+// .timesheet th:first-of-type
+//     border-width: 0 0 0 0
 
-.timesheet td
-    padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
-    white-space: nowrap
-    text-overflow: ellipsis
-    overflow-x: hidden
+// .timesheet th:last-of-type
+//     border-right: 0
+
+.timesheet .hovereffect:hover
+    background-color: lighten($uni-color-scale6, 32%)
+    cursor: pointer
+
+.timesheet
+    tr
+        height: 2.4rem
+    td
+        padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
+        // border-bottom: pxToRem(1) solid $uni-color-scale9
+        white-space: nowrap
+        text-overflow: ellipsis
+        overflow-x: hidden
+
+// .timesheet td.sum
+//     height: 2rem
+//     border-top: 1px solid #000 !important
+//     font-weight: 600
 
 tr.sum td
+    // border-bottom: 1px solid lighten($uni-color-scale6, 20%) !important
     font-weight: 600
     padding-bottom: 0.2em
     padding-top: 0.4em
 
 .timesheet td.sumright
     font-weight: 600
+    // border-left: 1px solid $uni-color-scale6
 
 .timesheet th.sum
     background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 24%)
@@ -102,30 +125,44 @@ tr.sum td
 
 .timesheet td.right
     text-align: right
+    padding-right: 2rem
+
+// .timesheet td:first-of-type
+//     border-width: 0 0 0 0
+
+// .timesheet td:last-of-type
+//     border-right: 0
 
 .timesheet td.good
+    color: $uni-color-good
+
+.timesheet td.warn
+    color: $uni-color-warn
+
+.timesheet td.c2a
     color: $uni-color-c2a
 
-.timesheet button
-    width: 2rem
-    margin: 0 0 pxToRem(2) pxToRem(2)
-    padding: pxToRem(5) pxToRem(2) pxToRem(2) pxToRem(2)
-    background-size: 0.8rem !important
-    background: lighten($uni-color-scale6, 34%) center center no-repeat
-    border: 1px solid #ccc
-    height: 1em
-    overflow: hidden
-
-    &.assign
-        background-image: unicon-letter($uni-color-scale3)
-        fill: $uni-color-c2a
-
-    &.approve
-        background-image: unicon-check($uni-color-scale3)
-        fill: $uni-color-good
-
-    &.locked
-        background-image: unicon-lock($uni-color-scale3)
+.timetable-context-menu
+    color: $uni-color-scale5
 
 .timesheet td.actions
     vertical-align: middle
+
+.border
+    border-left: pxToRem(1) solid $uni-color-scale9
+
+.status-icon-class
+    vertical-align: middle
+    margin-bottom: .2rem
+    font-size: 20px !important
+    line-height: 20px !important
+
+.send-in-button
+    height: 1.8rem
+    margin: 0
+    padding: 0 1rem
+    line-height: 0
+    // background-color: $uni-color-good
+
+    &:hover,&:focus,&:active
+        background-color: darken($uni-color-good, 5%)

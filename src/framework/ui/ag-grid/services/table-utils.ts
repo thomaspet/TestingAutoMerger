@@ -175,11 +175,10 @@ export class TableUtils {
         let value;
 
         if (column.template) {
-            value = column.template(rowModel) || '';
+            value = column.template(rowModel) || (rowModel._isSumRow ? 0 : '');
         } else {
-            value = _.get(rowModel, field) || '';
+            value = _.get(rowModel, field) || (rowModel._isSumRow ? 0 : '');
         }
-
         switch (column.type) {
             case UniTableColumnType.DateTime:
             case UniTableColumnType.LocalDate:
@@ -199,7 +198,7 @@ export class TableUtils {
             case UniTableColumnType.Number:
             case UniTableColumnType.Money:
             case UniTableColumnType.Percent:
-                if (value) {
+                if (value || (value === 0 && rowModel._isSumRow)) {
                     const format = column.numberFormat || {};
                     if (format.decimalLength >= 0) {
                         value = parseFloat(value).toFixed(format.decimalLength);
