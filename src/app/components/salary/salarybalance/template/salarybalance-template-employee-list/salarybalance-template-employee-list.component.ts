@@ -36,6 +36,11 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
       super.updateCacheKey(router.url);
     });
 
+    super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY)
+      .subscribe((balances) => {
+        this.salarybalances = balances;
+      });
+
   }
 
   public ngOnChanges(change: SimpleChanges) {
