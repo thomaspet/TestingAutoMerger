@@ -72,7 +72,7 @@ export class DimensionResultReport {
         }
 
         this.toolbarconfig = {
-            title: this.pageTitle
+            title: this.pageTitle,
         };
     }
 

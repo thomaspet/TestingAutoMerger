@@ -8,7 +8,7 @@ import {ProjectService, ErrorService} from '../../../services/services';
 @Component({
     selector: 'uni-project-lite',
     template: `
-        <uni-toolbar [config]="{title: 'Prosjekter', omitFinalCrumb: true}"></uni-toolbar>
+        <uni-toolbar [config]="{title: 'Prosjekter'}"></uni-toolbar>
         <section class="application">
             <button class="new-button" (click)="createNew()">Nytt prosjekt</button>
             <uni-table

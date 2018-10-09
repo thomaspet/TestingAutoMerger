@@ -201,7 +201,8 @@ export class BillsView implements OnInit {
     }];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Fakturamottak'
+        title: 'Fakturamottak',
+        omitFinalCrumb: true
     };
 
     constructor(

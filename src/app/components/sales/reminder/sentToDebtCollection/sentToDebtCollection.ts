@@ -46,6 +46,7 @@ export class SentToDebtCollection implements OnInit {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Sendt til inkasso',
+        omitFinalCrumb: true,
     };
 
     constructor(
@@ -95,12 +96,12 @@ export class SentToDebtCollection implements OnInit {
                     reminder['_statusText'] = this.reminderService.getStatusText(reminder.StatusCode);
                     return reminder;
                 });
-    
+
                 this.summaryData.restSumChecked = 0;
                 this.summaryData.restSumReadyForDebtCollection = _.sumBy(
                     this.remindersToDebtCollect, x => x.RestAmount
                 );
-                
+
                 this.setSums();
             },
             err => this.errorService.handle(err)

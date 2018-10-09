@@ -42,7 +42,6 @@ export class CurrencyOverrides {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Valutaoverstyring',
-        omitFinalCrumb: true
     };
 
     private exchangerateFormat: INumberFormat = {

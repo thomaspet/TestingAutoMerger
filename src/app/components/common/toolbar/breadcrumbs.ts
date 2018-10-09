@@ -1,66 +1,75 @@
 import {Component, Input} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {Router} from '@angular/router';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
 
 @Component({
     selector: 'uni-breadcrumbs',
     template: `
         <ol class="breadcrumbs" role="navigation">
-            <li *ngFor="let crumb of crumbs"><a [href]="crumb.url">{{crumb.title}}</a></li>
+            <li *ngFor="let crumb of crumbs">
+                <a [routerLink]="crumb.url">{{crumb.name}}</a>
+            </li>
         </ol>
     `
 })
 export class UniBreadcrumbs {
-    @Input()
-    public omitFinalCrumb: boolean;
+    @Input() omitFinalCrumb: boolean;
 
-    private moduleID: UniModules;
     public crumbs: any[] = [];
 
     constructor(
-        private tabService: TabService,
-        private navbarLinkService: NavbarLinkService
+        private navbarLinkService: NavbarLinkService,
+        private router: Router
     ) {}
 
-    public ngOnChanges() {
-        this.tabService.activeTab$.subscribe((activeTab) => {
-            if (activeTab) {
-                this.moduleID = activeTab.moduleID;
-                this.buildBreadcrumbs();
-            }
-        });
+    ngOnChanges() {
+        // Timeout to avoid changedAfterCheck errors
+        setTimeout(() => this.generateBreadcrumbs(this.router.url || ''));
     }
 
-    private buildBreadcrumbs() {
-        this.navbarLinkService.linkSections$.subscribe(linkSections => {
-            const moduleID = (this.moduleID || '').toString();
-            const moduleIndex = +moduleID.substring(0, moduleID.length - 2) - 1;
+    private generateBreadcrumbs(url) {
+        let urlWithoutParams = url.split('?')[0];
+        urlWithoutParams = url.split(';')[0];
 
-            const parentApp = linkSections[moduleIndex];
-            const crumbs: {title: string, url: string}[] = [];
+        let urlParts = urlWithoutParams.split('/');
 
-            if (parentApp) {
-                crumbs.push({
-                    title: parentApp.name,
-                    url: '/#' + parentApp.url
-                });
+        // Filter out empty parts
+        urlParts = urlParts.filter(part => !!part);
 
-                if (!this.omitFinalCrumb) {
-                    parentApp.linkGroups.find(group => {
-                        const moduleParent = group.links.find(link => link.moduleID === this.moduleID);
-                        if (moduleParent) {
-                            crumbs.push({
-                                title: moduleParent.name,
-                                url: '/#' + moduleParent.url
-                            });
+        // Remove last urlPart because we dont want a crumb for the current view
+        // e.g '/sales/invoices' should only give sales breadcrumb
+        urlParts.pop();
 
-                            return true;
+        if (urlParts.length) {
+            this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                const routeSections = [];
+                const parentSection = linkSections.find(section => section.url === '/' + urlParts[0]);
+
+                if (parentSection) {
+                    routeSections.push(parentSection);
+
+                    if (urlParts.length > 1) {
+                        const childRoutes = [];
+                        parentSection.linkGroups.forEach(linkGroup => {
+                            childRoutes.push(...linkGroup.links);
+                        });
+
+                        const childSection = childRoutes.find(route => {
+                            return route.url === `/${urlParts[0]}/${urlParts[1]}`;
+                        });
+
+                        if (childSection) {
+                            routeSections.push(childSection);
                         }
-                    });
-                }
-            }
+                    }
 
-            this.crumbs = crumbs;
-        });
+                    if (this.omitFinalCrumb && routeSections.length > 1) {
+                        routeSections.pop();
+                    }
+
+                    this.crumbs = routeSections;
+                }
+            });
+        }
     }
 }

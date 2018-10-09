@@ -66,7 +66,7 @@ export class TimeEntry {
     ];
 
     public toolbarConfig: any = {
-        title: 'Registrere timer', omitFinalCrumb: true
+        title: 'Registrere timer'
     };
 
     private initialContextMenu: Array<any> = [
@@ -417,7 +417,6 @@ export class TimeEntry {
             subheads: [
                 { title: subTitle }
             ],
-            omitFinalCrumb: true,
             navigation: {
                 add: () => {
                     this.onAddNew();

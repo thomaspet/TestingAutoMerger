@@ -183,8 +183,6 @@ export class AccountDetailsReport {
     public updateToolbar() {
         this.toolbarconfig = {
             title: 'Forespørsel konto',
-            subheads: [
-            ],
             navigation: {
                 prev: this.previous.bind(this),
                 next: this.next.bind(this)
@@ -248,7 +246,7 @@ export class AccountDetailsReport {
             // get default period filters
             this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
             this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));            
+            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
         }
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];

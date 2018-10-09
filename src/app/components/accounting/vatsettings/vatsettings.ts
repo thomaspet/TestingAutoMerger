@@ -57,7 +57,6 @@ export class VatSettings {
 
             this.toolbarconfig = {
                 title: 'MVA-innstillinger',
-                omitFinalCrumb: true
             };
         } else {
             this.saveactions = [{
@@ -75,7 +74,6 @@ export class VatSettings {
 
             this.toolbarconfig = {
                 title: 'Forholdsmessig MVA-innstillinger',
-                omitFinalCrumb: true
             };
         }
     }
