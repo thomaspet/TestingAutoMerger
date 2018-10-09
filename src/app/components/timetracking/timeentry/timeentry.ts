@@ -1,6 +1,5 @@
 ﻿import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {View} from '../../../models/view/view';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
 import {IsoTimePipe} from '../../common/utils/pipes';
@@ -24,12 +23,9 @@ import {ProjectService, ErrorService, PageStateService} from '@app/services/serv
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 
 import * as moment from 'moment';
-import { PARAMETERS } from '@angular/core/src/util/decorators';
 
 type colName = 'Date' | 'StartTime' | 'EndTime' | 'WorkTypeID' | 'LunchInMinutes' |
     'Dimensions.ProjectID' | 'CustomerOrderID';
-
-export const view = new View('timeentry', 'Timer', 'TimeEntry', false, '');
 
 @Component({
     selector: 'timeentry',
@@ -148,8 +144,8 @@ export class TimeEntry {
             }
             if (paramMap.has('projectID')) {
                 this.tabService.addTab({
-                    name: view.label,
-                    url: view.url + '?projectID=' + paramMap.get('projectID'),
+                    name: 'Timer',
+                    url: '/timetracking/timeentry?projectID=' + paramMap.get('projectID'),
                     moduleID: UniModules.Timesheets
                 });
                 this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
@@ -176,7 +172,7 @@ export class TimeEntry {
 
     private initApplicationTab() {
         this.tabService.addTab({
-            name: view.label,
+            name: 'Timer',
             url: this.pageStateService.getUrl(),
             moduleID: UniModules.Timesheets,
             active: true
@@ -828,5 +824,3 @@ export interface IPreSaveConfig {
     askSave(): Promise<boolean>;
     askReload?(): void;
 }
-
-view.component = TimeEntry;

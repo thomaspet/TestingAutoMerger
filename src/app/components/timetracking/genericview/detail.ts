@@ -126,8 +126,8 @@ export class GenericDetailview implements OnInit, OnChanges {
     }
 
     public onShowList() {
-        if (this.viewconfig && this.viewconfig.detail && this.viewconfig.detail.routeBackToList) {
-            this.router.navigateByUrl(this.viewconfig.detail.routeBackToList);
+        if (this.viewconfig && this.viewconfig.baseUrl) {
+            this.router.navigateByUrl(this.viewconfig.baseUrl);
         }
     }
 
@@ -271,14 +271,20 @@ export class GenericDetailview implements OnInit, OnChanges {
 
     private updateTitle(fallbackTitle?: string) {
         if (this.viewconfig) {
-            const nameProp = this.viewconfig.detail.nameProperty || 'Name';
+            const nameProp = this.viewconfig.titleProperty || 'Name';
             this.title = this.ID && this.current$.getValue()
                 ? getDeepValue(this.current$.getValue(), nameProp)
                 : fallbackTitle || '';
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
             const tabTitle = trimLength(this.title, 12);
-            const url = this.viewconfig.tab.url + '/' + this.ID;
-            this.tabService.addTab({name: tabTitle, url: url, moduleID: this.viewconfig.moduleID, active: true});
+
+            const url = this.viewconfig.baseUrl + '/' + this.ID;
+            this.tabService.addTab({
+                name: tabTitle,
+                url: url,
+                moduleID: this.viewconfig.moduleID,
+                active: true
+            });
         }
     }
 
@@ -301,7 +307,7 @@ export class GenericDetailview implements OnInit, OnChanges {
 
                     const postActions = () => {
                         this.itemChanged.emit(this.current$.getValue());
-                        if (done) {done(labels.msg_saved);}
+                        if (done) { done(labels.msg_saved); }
                         this.enableAction(IAction.Delete, true);
                         resolve(true);
                         this.flagDirty(false);
@@ -319,7 +325,7 @@ export class GenericDetailview implements OnInit, OnChanges {
 
                 }, (err) => {
                     this.errorService.handle(err);
-                    if (done) {done(labels.err_save);}
+                    if (done) { done(labels.err_save); }
                     resolve(false);
                 });
         });

@@ -1,9 +1,7 @@
 import {Component} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {IViewConfig} from '../genericview/list';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-export const view = new View('workers', 'Personer', 'WorkerListview', false, 'worker');
 
 @Component({
     selector: 'workers',
@@ -19,8 +17,8 @@ export class WorkerListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: UniModules.Workers,
-            detail: { route: '/timetracking/workers/'},
-            tab: view,
+            baseUrl: '/timetracking/workers',
+            title: 'Personer',
             data: {
                 route: 'workers',
                 expand: 'info'
@@ -38,8 +36,4 @@ export class WorkerListview {
         ];
         return new UniTableConfig('timetracking.worker.workers', false, true).setSearchable(true).setColumns(cols);
     }
-
-
-
 }
-view.component = WorkerListview;

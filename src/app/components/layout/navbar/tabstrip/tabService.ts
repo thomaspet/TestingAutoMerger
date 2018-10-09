@@ -78,6 +78,7 @@ export enum UniModules {
     Workers         = 601,
     WorkTypes       = 602,
     Timesheets      = 603,
+    InvoiceHours    = 604,
 
     Jobs            = 700,
     Translations    = 701,

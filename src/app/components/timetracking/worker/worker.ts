@@ -1,5 +1,4 @@
 ﻿import {Component, ViewChild} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {createFormField, FieldSize, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {Worker, WorkRelation, FieldType, Employee, Field, User} from '../../../unientities';
@@ -9,13 +8,8 @@ import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, EmployeeService, UserService} from '@app/services/services';
 import {Observable} from 'rxjs/Observable';
-import {flatten} from '@angular/compiler';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {WorkEditor} from '@app/components/timetracking/components/workeditor';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-
-export const view = new View('workers', 'Person', 'WorkerDetailview', true, '');
 
 @Component({
     selector: 'workers',
@@ -97,14 +91,15 @@ export class WorkerDetailview {
     private createFormConfig(empSource: any[]): IViewConfig {
         return {
             moduleID: UniModules.Workers,
+            baseUrl: '/timetracking/workers',
             labels: {
-                single: view.label,
+                single: 'Person',
                 plural: 'Personer',
                 createNew: 'Ny person',
                 ask_delete: 'Er du sikker på at du vil slette denne personen? (Obs: Kan ikke angres)'
             },
-            detail: {routeBackToList: '/timetracking/workers', nameProperty: 'Info.Name'},
-            tab: view,
+            titleProperty: 'Info.Name',
+            // tab: view,
             data: {
                 model: 'worker',
                 expand: 'info',
@@ -157,5 +152,3 @@ export class WorkerDetailview {
                 .do(data => this.employees = data);
     }
 }
-
-view.component = WorkerDetailview;

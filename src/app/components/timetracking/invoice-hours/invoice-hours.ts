@@ -1,11 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
 import {UniModules, TabService} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import { StatisticsService, ErrorService } from '@app/services/services';
 import { URLSearchParams } from '@angular/http';
-import { Alignment } from '@uni-entities';
 import { OnInit } from '@angular/core/src/metadata/lifecycle_hooks';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { Router } from '@angular/router';
@@ -14,7 +12,6 @@ import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
 import { Observable } from 'rxjs/Observable';
-export const view = new View('invoice-hours', 'Fakturere timer', 'InvoiceHours', false, 'invoice-hours');
 
 @Component({
     selector: 'invoice-hours',
@@ -66,11 +63,16 @@ export class InvoiceHours implements OnInit {
         private toastService: ToastService,
         private navigator: Router,
         private errorService: ErrorService,
-        private tabService: TabService,
-        private uniModalService: UniModalService) {
-            this.dataSource = (value) => this.queryInvoiceOrders(value);
-            tabService.addTab({ name: 'Overføring av timer', url: '/timetracking/invoice-hours',
-                moduleID: UniModules.Timesheets, active: true });
+        tabService: TabService,
+        private uniModalService: UniModalService
+    ) {
+        this.dataSource = (value) => this.queryInvoiceOrders(value);
+        tabService.addTab({
+            name: 'Fakturering av timer',
+            url: '/timetracking/invoice-hours',
+            moduleID: UniModules.InvoiceHours,
+            active: true
+        });
     }
 
     public ngOnInit() {
@@ -190,5 +192,3 @@ export class InvoiceHours implements OnInit {
     }
 
 }
-
-view.component = InvoiceHours;

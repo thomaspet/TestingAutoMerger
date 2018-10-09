@@ -1,12 +1,9 @@
 ﻿import {Component, ViewChild} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkProfile} from '../../../unientities';
 import {GenericDetailview} from '../genericview/detail';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-
-export var view = new View('workprofiles', 'Stillingsmal', 'WorkprofileDetailview', true, '');
 
 @Component({
     selector: 'workprofiles',
@@ -20,21 +17,19 @@ export class WorkprofileDetailview {
     }
 
     private createLayout(): IViewConfig {
-
-        var layout: IViewConfig = {
+        const layout: IViewConfig = {
             moduleID: UniModules.WorkProfiles,
+            baseUrl: '/timetracking/workprofiles',
             labels: {
                 single: 'Mal',
                 plural: 'Maler',
                 createNew: 'Ny mal',
                 ask_delete: 'Er du sikker på at du vil slette denne malen? (Obs: Kan ikke angres)'
             },
-            detail: { routeBackToList: '/timetracking/workprofiles'},
-            tab: view,
             data: {
                 model: 'workprofile',
                 route: 'workprofiles',
-                factory: () => { return new WorkProfile(); },
+                factory: () => new WorkProfile(),
                 check: (item) => { console.log('check item', item); }
             },
             formFields: [
@@ -55,5 +50,3 @@ export class WorkprofileDetailview {
         return this.genericDetail.canDeactivate();
     }
 }
-
-view.component = WorkprofileDetailview;

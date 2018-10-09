@@ -1,11 +1,8 @@
 import {Component} from '@angular/core';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {View} from '../../../models/view/view';
+import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {WorkTypeSystemTypePipe} from '../../common/utils/pipes';
 import {IViewConfig} from '../genericview/list';
-
-export const view = new View('worktypes', 'Timearter', 'WorktypeListview', false, 'worktype');
 
 @Component({
     selector: 'worktypes',
@@ -14,15 +11,15 @@ export const view = new View('worktypes', 'Timearter', 'WorktypeListview', false
 export class WorktypeListview {
     public viewconfig: IViewConfig;
 
-    constructor(private tabService: TabService) {
+    constructor() {
         this.viewconfig = this.createConfig();
     }
 
     private createConfig(): IViewConfig {
         return {
             moduleID: UniModules.WorkTypes,
-            detail: { route: '/timetracking/worktypes/'},
-            tab: view,
+            baseUrl: '/timetracking/worktypes',
+            title: 'Timearter',
             data: {
                 route: 'worktypes', expand: 'product'
             },
@@ -58,5 +55,3 @@ export class WorktypeListview {
             .setColumns(cols);
     }
 }
-
-view.component = WorktypeListview;

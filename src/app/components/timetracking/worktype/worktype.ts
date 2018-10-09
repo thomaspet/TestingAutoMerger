@@ -1,5 +1,4 @@
 ﻿import {Component, ViewChild} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {createFormField, ControlTypes, filterInput, debounce} from '../../common/utils/utils';
 import {IViewConfig} from '../genericview/list';
 import {WorkType, WageType} from '../../../unientities';
@@ -9,9 +8,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs/Observable';
 import {ProductService, WageTypeService, ErrorService} from '@app/services/services';
 import {URLSearchParams} from '@angular/http';
-import {isObject, isString} from 'util';
-
-export let view = new View('worktypes', 'Timeart', 'WorktypeDetailview', true, '');
+import {isString} from 'util';
 
 const defaultSystemType = 1; // 1 - Hours (default)
 
@@ -54,14 +51,14 @@ export class WorktypeDetailview {
 
         const layout: IViewConfig = {
             moduleID: UniModules.WorkTypes,
+            baseUrl: '/timetracking/worktypes',
+            titleProperty: 'Name',
             labels: {
                 single: 'Mal',
                 plural: 'Maler',
                 createNew: 'Ny Timeart',
                 ask_delete: 'Er du sikker på at du vil slette denne timearten? (Obs: Kan ikke angres)'
             },
-            detail: { routeBackToList: '/timetracking/worktypes'},
-            tab: view,
             data: {
                 model: 'worktype',
                 route: 'worktypes', expand: 'product',
@@ -135,5 +132,3 @@ export class WorktypeDetailview {
             .map((res) => res.json());
     }
 }
-
-view.component = WorktypeDetailview;

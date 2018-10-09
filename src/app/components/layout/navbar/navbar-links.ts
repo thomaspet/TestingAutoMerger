@@ -474,7 +474,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'Fakturering av timer',
                         url: '/timetracking/invoice-hours',
-                        moduleID: UniModules.Timesheets
+                        moduleID: UniModules.InvoiceHours
                     },
                 ]
             },
