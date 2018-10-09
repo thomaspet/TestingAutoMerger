@@ -1,13 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {View} from '../../../models/view/view';
 import {UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {Router} from '@angular/router';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {WorkerService} from '../../../services/timetracking/workerService';
 import {ErrorService} from '../../../services/services';
 import {Observable} from 'rxjs/Observable';
-
 
 export interface IViewConfig {
     labels?: {
@@ -17,12 +15,10 @@ export interface IViewConfig {
         ask_delete?: string;
     };
     moduleID: UniModules;
-    detail: {
-        route?: string;
-        routeBackToList?: string;
-        nameProperty?: string;
-    };
-    tab: View | { label: string, url: string };
+    baseUrl: string;
+    title?: string;
+    titleProperty?: string;
+    // tab: View | { label: string, url: string };
     data: {
         route: string;
         model?: string;
@@ -41,7 +37,6 @@ export interface IViewConfig {
 })
 export class GenericListView implements OnInit {
     @Input() public viewconfig: IViewConfig;
-    public label: string;
 
     public lookupFunction: (value: any) => {};
     public toolbarConfig: any = { title: '' };
@@ -57,26 +52,30 @@ export class GenericListView implements OnInit {
 
     public ngOnInit() {
         if (this.viewconfig) {
-            this.label = this.viewconfig.tab.label;
             this.lookupFunction = (urlParams) => {
                 return this.workerService.queryWithUrlParams(
                     urlParams, this.viewconfig.data.route, this.viewconfig.data.expand
                 ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
             };
-            const tab = this.viewconfig.tab;
+
+            console.log('adding tab: ' + this.viewconfig.baseUrl);
             this.tabService.addTab({
-                name: tab.label, url: tab.url, moduleID: this.viewconfig.moduleID, active: true
+                name: this.viewconfig.title,
+                url: this.viewconfig.baseUrl,
+                moduleID: this.viewconfig.moduleID,
+                active: true
             });
-            this.toolbarConfig = { title: this.label };
+
+            this.toolbarConfig = { title: this.viewconfig.title };
         }
     }
 
     public createNew() {
-        this.router.navigateByUrl(this.viewconfig.detail.route + '0');
+        this.router.navigateByUrl(this.viewconfig.baseUrl + '/0');
     }
 
     public onRowSelected(event) {
-        this.router.navigateByUrl(this.viewconfig.detail.route + event.rowModel.ID);
+        this.router.navigateByUrl(this.viewconfig.baseUrl + '/' + event.rowModel.ID);
     }
 
 }

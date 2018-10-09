@@ -1,10 +1,7 @@
 import {Component} from '@angular/core';
-import {View} from '../../../models/view/view';
 import {IViewConfig} from '../genericview/list';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-
-export var view = new View('workprofiles', 'Stillingsmaler', 'WorkprofileListview', false, 'workprofile');
 
 @Component({
     selector: 'workprofiles',
@@ -21,8 +18,8 @@ export class WorkprofileListview {
     private createConfig(): IViewConfig {
         return {
             moduleID: UniModules.WorkProfiles,
-            detail: { route: '/timetracking/workprofiles/'},
-            tab: view,
+            baseUrl: '/timetracking/workprofiles',
+            title: 'Stillingsmaler',
             data: {
                 route: 'workprofiles',
             },
@@ -31,7 +28,7 @@ export class WorkprofileListview {
     }
 
     private createTableConfig(): UniTableConfig {
-        var cols = [
+        const cols = [
             new UniTableColumn(
                 'ID', 'Nr.', UniTableColumnType.Number
             ).setWidth('10%').setFilterOperator('startswith'),
@@ -43,5 +40,3 @@ export class WorkprofileListview {
         return new UniTableConfig('timetracking.workprofiles.list', false, true).setSearchable(true).setColumns(cols);
     }
 }
-
-view.component = WorkprofileListview;

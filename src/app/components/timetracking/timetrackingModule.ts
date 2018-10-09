@@ -7,7 +7,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {timetrackingRoutes} from './timetrackingRoutes';
-import {UniTimetracking} from './timetracking';
 import {GenericDetailview} from './genericview/detail';
 import {GenericListView} from './genericview/list';
 import {TimeEntry} from './timeentry/timeentry';
@@ -65,7 +64,6 @@ import {MatMenuModule} from '@angular/material';
         WidgetModule
     ],
     declarations: [
-        UniTimetracking,
         GenericDetailview,
         GenericListView,
         TimeEntry,
@@ -87,7 +85,6 @@ import {MatMenuModule} from '@angular/material';
         UniTimeModal,
         UniTemplateModal,
         TeamworkReport,
-        // ApproveDetails,
         TimeApproveModal,
         TimeentryImportModal,
         ReportWorkflow,
@@ -112,24 +109,6 @@ import {MatMenuModule} from '@angular/material';
         WorkitemTransferWizard,
         TimeApproveModal,
         UniApproveTaskModal
-    ],
-    exports: [
-        UniTimetracking,
-        GenericDetailview,
-        GenericListView,
-        TimeEntry,
-        TimeTableReport,
-        RegtimeTotals,
-        View,
-        WorkerDetailview,
-        WorkerListview,
-        WorkprofileDetailview,
-        WorkprofileListview,
-        WorktypeDetailview,
-        WorktypeListview,
-        VacationView,
-        TimetrackingDashboard
     ]
 })
-export class TimetrackingModule {
-}
+export class TimetrackingModule {}
