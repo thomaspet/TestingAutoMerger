@@ -25,7 +25,6 @@ export class ReportService extends BizHttp<string> {
     private sendemail: SendEmail;
     private emailtoast: number;
     private parentModalIsClosed: boolean;
-    public steps$ = new BehaviorSubject(new ReportStep());
 
     constructor(
         http: UniHttp,
@@ -160,42 +159,42 @@ export class ReportService extends BizHttp<string> {
         });
     }
 
-    private startSteps() {
-        return new Promise((resolve, reject) => {
-            if (this.parentModalIsClosed) {
-                reject();
-            }
-            this.steps$.next(new ReportStep());
-            setTimeout(() => {
-                resolve(true);
-            }, 100);
-        });
-    }
+    // private startSteps() {
+    //     return new Promise((resolve, reject) => {
+    //         if (this.parentModalIsClosed) {
+    //             reject();
+    //         }
+    //         this.steps$.next(new ReportStep());
+    //         setTimeout(() => {
+    //             resolve(true);
+    //         }, 100);
+    //     });
+    // }
 
-    private runStep(stepKey: string) {
-        return new Promise((resolve, reject) => {
-            if (this.parentModalIsClosed) {
-                reject();
-            }
-            const steps = this.steps$.getValue().Steps;
-            steps[stepKey] = true;
-            this.steps$.next(new ReportStep(steps));
-            setTimeout(() => {
-                resolve(true);
-            }, 100);
-        });
-    }
+    // private runStep(stepKey: string) {
+    //     return new Promise((resolve, reject) => {
+    //         if (this.parentModalIsClosed) {
+    //             reject();
+    //         }
+    //         const steps = this.steps$.getValue().Steps;
+    //         steps[stepKey] = true;
+    //         this.steps$.next(new ReportStep(steps));
+    //         setTimeout(() => {
+    //             resolve(true);
+    //         }, 100);
+    //     });
+    // }
 
-    private getData() {
-        return Observable.forkJoin([
-            this.generateReportObservable(),
-            this.getDataSourcesObservable()
-        ]).toPromise();
-    }
+    // private getData() {
+    //     return Observable.forkJoin([
+    //         this.generateReportObservable(),
+    //         this.getDataSourcesObservable()
+    //     ]).toPromise();
+    // }
 
-    private loadLibraries() {
-        return this.reportGenerator.loadLibraries();
-    }
+    // private loadLibraries() {
+    //     return this.reportGenerator.loadLibraries();
+    // }
 
     private renderReport() {
         return new Promise((resolve, reject) => {
@@ -230,7 +229,7 @@ export class ReportService extends BizHttp<string> {
             .map(res => res.json());
     }
 
-    public distributeWithType(id, type,disttype) {
+    public distributeWithType(id, type, disttype) {
         return this.http
             .asPUT()
             .usingBusinessDomain()
@@ -253,7 +252,6 @@ export class ReportService extends BizHttp<string> {
 
     public startReportProcess(reportDefinition, target: any, closeEmitter: EventEmitter<boolean>) {
         this.parentModalIsClosed = false;
-        let report = null;
         this.format = 'html';
         this.report = <Report>reportDefinition;
         this.target = target;
@@ -264,25 +262,38 @@ export class ReportService extends BizHttp<string> {
             styleNode.parentNode.removeChild(styleNode);
             s.unsubscribe();
         });
-        return this.startSteps()
-            .then(() => this.runStep('FETCHING_DATA'))
-            .then(() => this.getData())
-            .then(() => this.runStep('DATA_FETCHED'))
-            .then(() => this.runStep('LOADING_LIBRARIES'))
-            .then(() => this.loadLibraries())
-            .then(() => this.runStep('LIBRARIES_LOADED'))
-            .then(() => this.runStep('RENDERING_REPORT'))
-            .then(() => this.renderReport())
-            .then((renderedReport) => report = renderedReport)
-            .then(() => this.runStep('REPORT_RENDERED'))
-            .then(() => this.runStep('RENDERING_HTML'))
-            .then(() => this.renderHtml(report))
-            .then(() => this.runStep('HTML_RENDERED'))
-            .catch(() => {
-                // we don't have to do anything when the process is interrupt
-                // but I put that here to remember that this process
-                // have rejections inside the methods
-            });
+
+        return Observable.forkJoin(
+            this.generateReportObservable(),
+            this.getDataSourcesObservable(),
+            this.reportGenerator.loadLibraries()
+        ).switchMap(() => {
+            return this.renderReport();
+        }).switchMap(renderedReport => {
+            return this.renderHtml(renderedReport);
+
+            // return Promise.reject('Nope');
+        });
+
+        // return this.startSteps()
+        //     .then(() => this.runStep('FETCHING_DATA'))
+        //     .then(() => this.getData())
+        //     .then(() => this.runStep('DATA_FETCHED'))
+        //     .then(() => this.runStep('LOADING_LIBRARIES'))
+        //     .then(() => this.loadLibraries())
+        //     .then(() => this.runStep('LIBRARIES_LOADED'))
+        //     .then(() => this.runStep('RENDERING_REPORT'))
+        //     .then(() => this.renderReport())
+        //     .then((renderedReport) => report = renderedReport)
+        //     .then(() => this.runStep('REPORT_RENDERED'))
+        //     .then(() => this.runStep('RENDERING_HTML'))
+        //     .then(() => this.renderHtml(report))
+        //     .then(() => this.runStep('HTML_RENDERED'))
+        //     .catch(() => {
+        //         // we don't have to do anything when the process is interrupt
+        //         // but I put that here to remember that this process
+        //         // have rejections inside the methods
+        //     });
     }
 
     private generateReportObservable() {

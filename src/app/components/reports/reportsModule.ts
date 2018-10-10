@@ -48,7 +48,6 @@ import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {
     ReconciliationListParamsModalComponent
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
-import {UniReportProgressComponent} from '@app/components/reports/modals/preview/uniReportProgress.component';
 import { UniReportComments } from '@app/components/reports/modals/parameter/reportComments';
 import { UniReportSendModal } from '@app/components/reports/modals/parameter/reportSendModal';
 
@@ -84,7 +83,6 @@ import { UniReportSendModal } from '@app/components/reports/modals/parameter/rep
         UniReportParamsModal,
         AnnualSatementReportFilterModalComponent,
         ReconciliationListParamsModalComponent,
-        UniReportProgressComponent,
         UniReportComments,
         UniReportSendModal,
     ],

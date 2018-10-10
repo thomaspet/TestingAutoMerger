@@ -2,9 +2,10 @@ import {
     Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewEncapsulation,
     AfterViewInit, ChangeDetectionStrategy
 } from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
 import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReportFormat} from '../../../../models/reportFormat';
-import {ReportService, Report} from '../../../../services/reports/reportService';
+import {ReportService, Report, ErrorService} from '@app/services/services';
 
 interface IDownloadAction {
     label: string;
@@ -16,17 +17,21 @@ interface IDownloadAction {
     changeDetection: ChangeDetectionStrategy.OnPush,
     selector: 'uni-preview-modal',
     template: `
-        <section class="uni-modal medium"
+        <section class="uni-modal"
             (clickOutside)="close()"
             (keydown.esc)="close()">
             <header>
                 <h1>{{options.header || 'Forhåndsvisning'}}</h1>
             </header>
-            <uni-report-progress [reportSteps]="reportService?.steps$ | async"></uni-report-progress>
+
             <article>
+                <section *ngIf="busy" class="report-loading">
+                    <small>Genererer rapport..</small>
+                </section>
+
                 <section id="reportContainer"></section>
             </article>
-            <footer>
+            <footer *ngIf="!busy">
                 <button class="main-action-button good" (click)="download(actions[0].format)" [disabled]="actionButtonDisabled">
                     {{actions[0].label}}
                 </button>
@@ -57,7 +62,8 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
 
     constructor(
         public reportService: ReportService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private errorService: ErrorService
     ) {
         this.actions = [
             {
@@ -97,11 +103,17 @@ export class UniPreviewModal implements IUniModal, AfterViewInit {
                 reportDefinition,
                 this.modalConfig,
                 this.onClose
-            ).then(() => {
-                this.actionButtonDisabled = false;
-                this.busy = false;
-                this.cdr.markForCheck();
-            });
+            ).subscribe(
+                () => {
+                    this.actionButtonDisabled = false;
+                    this.busy = false;
+                    this.cdr.markForCheck();
+                },
+                (err) => {
+                    this.errorService.handle(err);
+                    this.close();
+                }
+            );
         }
     }
 
