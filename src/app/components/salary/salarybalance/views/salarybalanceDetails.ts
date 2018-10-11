@@ -204,7 +204,9 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                     if (changes['InstalmentType']) {
                         this.salarybalanceService.refreshLayout(
                             model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
-                            .subscribe();
+                            .subscribe(result => {
+                                this.fields$.next(result);
+                            });
                     } else {
                         this.salarybalanceService.updateFields(
                             model, 'salarybalance', false, changes, this.lastChanges$,
