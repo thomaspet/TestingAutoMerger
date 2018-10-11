@@ -71,7 +71,7 @@ export class AgGridWrapper {
     private configStoreKey: string;
     private agGridApi: GridApi;
     public rowModelType: 'clientSide' | 'infinite';
-    public domLayout: string;
+    public localData: boolean;
     public cacheBlockSize: number;
     public tableHeight: string;
     public usePagination: boolean;
@@ -159,13 +159,13 @@ export class AgGridWrapper {
 
         if (this.config && this.resource && (changes['config'] || changes['resource'])) {
             if (Array.isArray(this.resource)) {
-                this.domLayout = 'autoHeight';
+                this.localData = true;
                 this.tableHeight = undefined;
                 this.rowModelType = 'clientSide';
                 this.cacheBlockSize = undefined;
                 this.usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
             } else {
-                this.domLayout = undefined;
+                this.localData = false;
                 this.rowModelType = 'infinite';
                 this.cacheBlockSize = 50;
                 this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
@@ -250,7 +250,7 @@ export class AgGridWrapper {
     }
 
     public onDataLoaded(api: GridApi) {
-        if (this.domLayout !== 'autoHeight') {
+        if (!this.localData) {
             const loadedRowCount = this.dataService.loadedRowCount;
 
             if (loadedRowCount < this.config.pageSize) {
