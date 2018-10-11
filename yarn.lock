@@ -406,13 +406,13 @@ after@0.8.2:
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/after/-/after-0.8.2.tgz#fedb394f9f0e02aa9768e702bda23b505fae7e1f"
 
-ag-grid-angular@^16.0.0:
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/ag-grid-angular/-/ag-grid-angular-16.0.0.tgz#de14f659c2da7f4e548a26953970133e1c97a125"
+ag-grid-angular@^18.0.0:
+  version "18.1.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-angular/-/ag-grid-angular-18.1.0.tgz#0da15d87701efe040d9945aff2fa93a40442d178"
 
-ag-grid@^16.0.1:
-  version "16.0.1"
-  resolved "https://registry.yarnpkg.com/ag-grid/-/ag-grid-16.0.1.tgz#f9b5562fff6c70b38a20ffb1708800006c902c1a"
+ag-grid@^18.0.1:
+  version "18.1.2"
+  resolved "https://registry.yarnpkg.com/ag-grid/-/ag-grid-18.1.2.tgz#d98b3dd824b9cb82d9f638e4bab5a5771513869b"
 
 agent-base@2:
   version "2.1.1"

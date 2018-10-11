@@ -70,7 +70,7 @@ export class AgGridWrapper {
 
     private configStoreKey: string;
     private agGridApi: GridApi;
-    public rowModelType: 'inMemory' | 'infinite';
+    public rowModelType: 'clientSide' | 'infinite';
     public domLayout: string;
     public cacheBlockSize: number;
     public tableHeight: string;
@@ -91,6 +91,8 @@ export class AgGridWrapper {
     // Used for custom cell renderers
     public context: any;
     public cellRendererComponents: any;
+
+    isRowSelectable: (rowModel: any) => boolean;
 
     constructor(
         public dataService: TableDataService,
@@ -138,6 +140,17 @@ export class AgGridWrapper {
                     return classes.join(' ');
                 };
             }
+
+            if (this.config.isRowSelectable) {
+                this.isRowSelectable = (params) => {
+                    const row = params && params.data;
+                    if (row) {
+                        return this.config.isRowSelectable(row);
+                    }
+
+                    return true;
+                };
+            }
         }
 
         if (changes['columnSumResolver'] && this.columnSumResolver) {
@@ -148,7 +161,7 @@ export class AgGridWrapper {
             if (Array.isArray(this.resource)) {
                 this.domLayout = 'autoHeight';
                 this.tableHeight = undefined;
-                this.rowModelType = 'inMemory';
+                this.rowModelType = 'clientSide';
                 this.cacheBlockSize = undefined;
                 this.usePagination = this.config.pageable && !this.config.editable && !this.config.rowDraggable;
             } else {

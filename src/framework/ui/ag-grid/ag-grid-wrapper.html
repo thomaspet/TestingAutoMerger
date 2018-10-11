@@ -28,6 +28,7 @@
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
         [pinnedBottomRowData]="dataService?.sumRow$ | async"
+        [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
         [domLayout]="domLayout"
@@ -57,6 +58,7 @@
 
         [rowSelection]="selectionMode"
         [suppressRowClickSelection]="selectionMode === 'multiple'"
+        [isRowSelectable]="isRowSelectable"
         (selectionChanged)="onSelectionChange($event)"
         (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"

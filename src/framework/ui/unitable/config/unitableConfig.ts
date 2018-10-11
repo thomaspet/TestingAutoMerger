@@ -51,6 +51,7 @@ export interface IUniTableConfig {
     filters?: ITableFilter[];
     expressionFilterValues?: IExpressionFilterValue[];
     isRowReadOnly?: (rowModel) => boolean;
+    isRowSelectable?: (rowModel) => boolean;
     defaultOrderBy?: ISortInfo;
     autoScrollIfNewCellCloseToBottom?: boolean;
     beforeEdit?: (editorData: IEditorData) => IEditorData;
@@ -106,6 +107,7 @@ export class UniTableConfig implements IUniTableConfig {
     public dataMapper: (data) => Array<any>;
     public defaultRowData: Object;
     public isRowReadOnly: (rowModel) => boolean;
+    public isRowSelectable: (rowModel) => boolean;
     public defaultOrderBy: ISortInfo;
     public allowEditToggle: boolean = false;
 
@@ -290,6 +292,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setIsRowReadOnly(isRowReadOnly: (rowModel) => boolean) {
         this.isRowReadOnly = isRowReadOnly;
+        return this;
+    }
+
+    public setIsRowSelectable(isRowSelectable: (rowModel) => boolean) {
+        this.isRowSelectable = isRowSelectable;
         return this;
     }
 
