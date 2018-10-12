@@ -112,6 +112,18 @@ export class BizHttp<T> {
         this.cacheStore = {};
     }
 
+    public waitUntilJobCompleted(jobID: number) {
+        return this.http
+            .usingJobInfoDomain()
+            .asGET()
+            .withEndPoint(jobID.toString())
+            .send()
+            .repeatWhen(c => c.debounceTime(1000))
+            .skipWhile(status => status.json().Completed !== true)
+            .take(1)
+            .map(response => response.json());
+    }
+
     public Get<T>(ID: number|string, expand?: string[],hateoas:boolean=false): Observable<any> {
         let expandStr;
         if (expand) {

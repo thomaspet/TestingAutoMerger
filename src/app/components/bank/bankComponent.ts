@@ -718,21 +718,29 @@ export class BankComponent implements AfterViewInit {
     }
 
     public fileUploaded(file: File) {
-        this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 10,
+        this.toastService.addToast('Laster opp innbetalingsfil..', ToastType.good, 5,
             'Dette kan ta litt tid, vennligst vent...');
-        this.paymentBatchService.registerAndCompleteCustomerPaymentAutoSelectWebjob(file.ID)
-            .subscribe(res => {
-                if (res) {
-                    if (res.processedAs === 'webjob') {
-                        // in the future do something fancy with push notification when the job is done.
-                        this.toastService.addToast('Innbetaling job kjører, vennligst sjekk om en stund', ToastType.good, 5);
+
+        this.paymentBatchService.registerAndCompleteCustomerPayment(file.ID)
+            .subscribe(result => {
+                this.toastService.clear();
+                if (result && result.ProgressUrl) {
+                    this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
+                    'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
+                    this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(jobResponse => {
+                        if (jobResponse && !jobResponse.HasError) {
+                            this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
+                            `<a href="/#/bank?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                        } else {
+                            this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+                        }
                         this.tickerContainer.getFilterCounts();
                         this.tickerContainer.mainTicker.reloadData();
-                    } else {
-                        this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
-                        this.tickerContainer.getFilterCounts();
-                        this.tickerContainer.mainTicker.reloadData();
-                    }
+                    });
+                } else {
+                    this.toastService.addToast('Innbetaling fullført', ToastType.good, 5);
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
                 }
             },
             err => this.errorService.handle(err)

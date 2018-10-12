@@ -116,6 +116,12 @@ export class UniHttp {
         return this;
     }
 
+    public usingJobInfoDomain() {
+        this.baseUrl = environment.BASE_URL;
+        this.apiDomain = environment.API_DOMAINS.JOBINFO;
+        return this;
+    }
+
     public usingUmhDomain() {
         this.baseUrl = environment.BASE_URL;
         this.apiDomain = environment.API_DOMAINS.UMH;
@@ -227,6 +233,8 @@ export class UniHttp {
         }
 
         this.headers.set('Accept', 'application/json');
+
+        this.headers.set('AcceptJob', 'true');
 
         const baseurl = request.baseUrl || this.baseUrl;
         const apidomain = request.apiDomain || this.apiDomain;

@@ -15,7 +15,8 @@ export const environment = {
         ROOT: '/api/',
         METADATA: '/api/metadata/',
         STATISTICS: '/api/statistics/',
-        UMH: '/api/umh/'
+        UMH: '/api/umh/',
+        JOBINFO: 'api/jobinfo/'
     },
 
     INTEGRATION_DOMAINS: {
