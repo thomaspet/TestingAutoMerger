@@ -205,13 +205,19 @@ export class AuthService {
                 this.activeCompany = activeCompany;
                 this.companyChange.emit(activeCompany);
 
-                this.verifyAuthentication().take(1).subscribe(authDetails => {
-                    this.authentication$.next(authDetails);
-                    setTimeout(() => {
-                        this.router.navigateByUrl(redirect || '');
+                this.verifyAuthentication().take(1).subscribe(
+                    authDetails => {
+                        this.authentication$.next(authDetails);
+                        setTimeout(() => {
+                            this.router.navigateByUrl(redirect || '');
+                            this.setLoadIndicatorVisibility(false);
+                        });
+                    },
+                    err => {
+                        this.clearAuthAndGotoLogin();
                         this.setLoadIndicatorVisibility(false);
-                    });
-                });
+                    }
+                );
             }
         });
     }
@@ -318,6 +324,7 @@ export class AuthService {
 
         this.storage.removeOnUser('jwt');
         this.storage.removeOnUser('activeCompany');
+        this.storage.removeOnUser('lastActiveCompanyKey');
         this.storage.removeOnUser('activeFinancialYear');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
