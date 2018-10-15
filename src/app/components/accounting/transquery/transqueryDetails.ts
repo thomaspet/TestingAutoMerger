@@ -650,7 +650,7 @@ export class TransqueryDetails implements OnInit {
                 .setTemplate(line => line.VatTypeVatCode),
             new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setFilterable(false)
-                .setTemplate(line => line.VatDeductionPercent)
+                .setTemplate(line => line.JournalEntryLineVatDeductionPercent)
                 .setVisible(false),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setFilterable(false)

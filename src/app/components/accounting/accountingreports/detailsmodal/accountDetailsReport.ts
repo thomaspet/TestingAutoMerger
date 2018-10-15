@@ -303,6 +303,7 @@ export class AccountDetailsReport {
             'Description as Description,' +
             'VatType.VatCode,' +
             'Amount as Amount,' +
+            'VatDeductionPercent as VatDeductionPercent,' +
             'Department.Name,' +
             'Project.Name,' +
             'Department.DepartmentNumber,' +
@@ -374,6 +375,9 @@ export class AccountDetailsReport {
                 .setIsSumColumn(true),
             new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
                 .setFilterOperator('eq')
+                .setVisible(false),
+            new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
+                .setFilterable(false)
                 .setVisible(false),
             new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
                 .setFilterOperator('contains')
