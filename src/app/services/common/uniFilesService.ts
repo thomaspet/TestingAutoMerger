@@ -19,7 +19,7 @@ export class UniFilesService {
     }
 
     public syncUniEconomyCompanySettings() {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -38,7 +38,7 @@ export class UniFilesService {
     }
 
     public checkAuthentication(): Promise<boolean> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -58,7 +58,7 @@ export class UniFilesService {
     }
 
     public forceFullLoad(id: string, reauthOnFailure: boolean = true): Observable<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -70,7 +70,7 @@ export class UniFilesService {
             .catch(err => {
             if (err.status === 401 && reauthOnFailure) {
                 return Observable.fromPromise(this.authService.authenticateUniFiles())
-                    .switchMap(() => this.forceFullLoad(id, false))
+                    .switchMap(() => this.forceFullLoad(id, false));
             } else {
                 return Observable.throw(err);
             }
@@ -78,7 +78,7 @@ export class UniFilesService {
     }
 
     public getFileSplitList(id: string, reauthOnFailure: boolean = true): Observable<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -90,7 +90,7 @@ export class UniFilesService {
             .catch(err => {
             if (err.status === 401 && reauthOnFailure) {
                 return Observable.fromPromise(this.authService.authenticateUniFiles())
-                    .switchMap(() => this.getFileSplitList(id, false))
+                    .switchMap(() => this.getFileSplitList(id, false));
             } else {
                 return Observable.throw(err);
             }
@@ -98,7 +98,7 @@ export class UniFilesService {
     }
 
     public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -111,7 +111,7 @@ export class UniFilesService {
     }
 
     public getFileProcessingStatus(id: string): Observable<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -125,7 +125,7 @@ export class UniFilesService {
     }
 
     public getOcrStatistics(): Observable<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -141,7 +141,7 @@ export class UniFilesService {
 
 
     public trainOcrEngine(ocrInterpretation, reauthOnFailure: boolean = true) {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,
@@ -168,8 +168,14 @@ export class UniFilesService {
                 });
     }
 
-    public splitFileMultiple(fileStorageReference, batches: Array<IFileSplitMultipleBatch>, rotations: Array<IFileRotation>, reauthOnFailure: boolean): Observable<any> {
-        var options = new RequestOptions({
+    public splitFileMultiple(
+        fileStorageReference,
+        batches: Array<IFileSplitMultipleBatch>,
+        rotations: Array<IFileRotation>,
+        reauthOnFailure: boolean
+        ): Observable<any> {
+
+        const options = new RequestOptions({
             headers: new Headers({
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -178,7 +184,7 @@ export class UniFilesService {
             })
         });
 
-        let splitData = {
+        const splitData = {
             Batches: batches,
             Rotations: rotations
         };
@@ -190,7 +196,7 @@ export class UniFilesService {
         ).catch(err => {
             if (err.status === 401 && reauthOnFailure) {
                 return Observable.fromPromise(this.authService.authenticateUniFiles())
-                    .switchMap(() => this.splitFileMultiple(fileStorageReference, batches, rotations, false))
+                    .switchMap(() => this.splitFileMultiple(fileStorageReference, batches, rotations, false));
             } else {
                 return Observable.throw(err);
             }
@@ -198,7 +204,7 @@ export class UniFilesService {
     }
 
     public splitFile(fileStorageReference, fromPage, reauthOnFailure: boolean): Promise<any> {
-        var options = new RequestOptions({
+        const options = new RequestOptions({
             headers: new Headers({
                 'Accept': 'application/json',
                 'Token': this.uniFilesToken,

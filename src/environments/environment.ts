@@ -8,7 +8,7 @@ export const environment = {
     BASE_URL_INIT: '',
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no/',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',

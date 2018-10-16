@@ -404,7 +404,7 @@ export class ReportService extends BizHttp<string> {
         if (this.report.parameters) {
             const logoKeyParam = new CustomReportDefinitionParameter();
             logoKeyParam.Name = 'LogoUrl';
-            logoKeyParam.value = environment.BASE_URL_FILES + 'api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
+            logoKeyParam.value = environment.BASE_URL_FILES + '/api/image/?key=' + this.http.authService.getCompanyKey() + '&id=logo';
             this.report.parameters.push(logoKeyParam);
         }
     }

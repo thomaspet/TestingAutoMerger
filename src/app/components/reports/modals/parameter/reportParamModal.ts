@@ -501,7 +501,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         parameters.push({
             Name: 'LogoUrl',
             value: environment.BASE_URL_FILES
-                + 'api/image/?key='
+                + '/api/image/?key='
                 + http.authService.getCompanyKey() + '&id=logo'
         });
 

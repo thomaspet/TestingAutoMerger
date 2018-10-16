@@ -56,7 +56,7 @@ export class EmailService extends BizHttp<Email> {
             parameters.push({
                 Name: 'LogoUrl',
                 value: environment.BASE_URL_FILES
-                    + 'api/image/?key='
+                    + '/api/image/?key='
                     + this.http.authService.getCompanyKey() + '&id=logo'
             });
 
