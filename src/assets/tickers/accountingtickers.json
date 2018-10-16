@@ -1210,7 +1210,7 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "Account",
-        "Expand": "AccountGroup,VatType",
+        "Expand": "AccountGroup,VatType,VatDeductionGroup",
         "OrderBy": "AccountNumber",
         "Columns": [
             {
@@ -1237,6 +1237,13 @@
                 "Field": "VatType.Name",
                 "Width": "200px",
                 "Type": "text"
+            },
+            {
+                "Header": "Fordelsmessig MVA-gruppe",
+                "Field": "UseVatDeductionGroup.Name",
+                "Width": "200px",
+                "Type": "text",
+                "DefaultHidden": true
             },
             {
                 "Header": "Sperret",
