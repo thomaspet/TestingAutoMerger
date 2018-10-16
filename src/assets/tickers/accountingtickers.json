@@ -842,21 +842,63 @@
         "SubTickersCodes": ["supplier_details", "contact_list", "supplierinvoice_list"],
         "Filters": [
             {
+                "Name": "Aktive",
+                "Code": "active_suppliers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "30001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Inaktive",
+                "Code": "inactive_suppliers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "50001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "Name": "Blokkerte",
+                "Code": "blocked_suppliers",
+                "UseAllCriterias": true,
+                "FilterGroups": [
+                    {
+                        "FieldFilters": [
+                            {
+                                "Field": "StatusCode",
+                                "Operator": "eq",
+                                "Value": "70001"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
                 "Name": "Alle",
                 "Code": "all_suppliers",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
                         {
-                            "Path": "Info",
-                            "Field": "Name",
-                            "Operator": "contains",
-                            "Value": ""
-                        },
-                        {
-                            "Field": "SupplierNumber",
-                            "Operator": "eq",
-                            "Value": ""
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "90001"
                         }
                     ]
                 }]
@@ -1210,7 +1252,7 @@
         "IsTopLevelTicker": true,
         "Group": "Regnskap",
         "Model": "Account",
-        "Expand": "AccountGroup,VatType",
+        "Expand": "AccountGroup,VatType,VatDeductionGroup",
         "OrderBy": "AccountNumber",
         "Columns": [
             {
@@ -1237,6 +1279,13 @@
                 "Field": "VatType.Name",
                 "Width": "200px",
                 "Type": "text"
+            },
+            {
+                "Header": "Fordelsmessig MVA-gruppe",
+                "Field": "UseVatDeductionGroup.Name",
+                "Width": "200px",
+                "Type": "text",
+                "DefaultHidden": true
             },
             {
                 "Header": "Sperret",

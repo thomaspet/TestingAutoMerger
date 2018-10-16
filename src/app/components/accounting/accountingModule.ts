@@ -73,6 +73,7 @@ import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/p
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
+import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {MatTabsModule, MatSelectModule, MatIconModule} from '@angular/material';
 
 @NgModule({
@@ -91,6 +92,7 @@ import {MatTabsModule, MatSelectModule, MatIconModule} from '@angular/material';
         AppCommonModule,
         WidgetModule,
         AppPipesModule,
+        UniTickerModule,
         RouterModule.forChild(accountingRoutes)
     ],
     declarations: [

@@ -1,14 +1,10 @@
 <uni-toolbar
-    [config]="{title: 'Leverandører'}"
-    [saveactions]="[createNewAction]">
+    [config]="{title: 'Leverandører'}">
 </uni-toolbar>
 
-<section class="application">
-    <uni-tabs [tabs]="tabs" [activeIndex]="1" (tabClick)="onFilterClick($event)"></uni-tabs>
-
-    <uni-table
-        [resource]="lookupFunction"
-        [config]="supplierTable"
-        (rowSelected)="onRowSelected($event)">
-    </uni-table>
-</section>
+<uni-ticker-wrapper
+    [tickerCode]="'supplier_list'"
+    [showFiltersAsNavbar]="true"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides">
+</uni-ticker-wrapper>

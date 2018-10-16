@@ -210,7 +210,10 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                     } else {
                         this.salarybalanceService.updateFields(
                             model, 'salarybalance', false, changes, this.lastChanges$,
-                            this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID);
+                            this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID)
+                            .subscribe(result => {
+                                this.fields$.next(result);
+                            });
                     }
                 }
             });
