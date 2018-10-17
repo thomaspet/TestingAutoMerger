@@ -341,6 +341,93 @@ export class AgaAndSubEntitySettings implements OnInit {
             }
         };
 
+        const calculateFinancial = new UniFieldLayout();
+        calculateFinancial.Label = 'Beregn finansskatt';
+        calculateFinancial.EntityType = 'CompanySalary';
+        calculateFinancial.Property = 'CalculateFinancialTax';
+        calculateFinancial.FieldType = FieldType.CHECKBOX;
+        calculateFinancial.ReadOnly = false;
+        calculateFinancial.Hidden = false;
+        calculateFinancial.Section = 2;
+        calculateFinancial.FieldSet = 3;
+        calculateFinancial.Legend = 'Finansskatt';
+        calculateFinancial.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'CalculateFinancialTax'
+        };
+
+        const rateFinancialTax = new UniFieldLayout();
+        rateFinancialTax.Label = 'Sats finansskatt';
+        rateFinancialTax.EntityType = 'CompanySalary';
+        rateFinancialTax.Property = 'RateFinancialTax';
+        rateFinancialTax.FieldType = FieldType.TEXT;
+        rateFinancialTax.Section = 2;
+        rateFinancialTax.FieldSet = 3;
+
+        const financial = new UniFieldLayout();
+        financial.EntityType = 'CompanySalary';
+        financial.Label = 'Konto finansskatt';
+        financial.Property = 'MainAccountFinancial';
+        financial.FieldType = FieldType.UNI_SEARCH;
+        financial.Section = 2;
+        financial.FieldSet = 3;
+        financial.Options = {
+            valueProperty: 'AccountNumber',
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountFinancial}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+        };
+
+        const costFinancial = new UniFieldLayout();
+        costFinancial.EntityType = 'CompanySalary';
+        costFinancial.Label = 'Konto skyldig finansskatt';
+        costFinancial.Property = 'MainAccountCostFinancial';
+        costFinancial.FieldType = FieldType.UNI_SEARCH;
+        costFinancial.Section = 2;
+        costFinancial.FieldSet = 3;
+        costFinancial.Options = {
+            valueProperty: 'AccountNumber',
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountCostFinancial}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+        };
+
+        const financialVacation = new UniFieldLayout();
+        financialVacation.EntityType = 'CompanySalary';
+        financialVacation.Label = 'Konto finansskatt av feriepenger';
+        financialVacation.Property = 'MainAccountFinancialVacation';
+        financialVacation.FieldType = FieldType.UNI_SEARCH;
+        financialVacation.Section = 2;
+        financialVacation.FieldSet = 3;
+        financialVacation.Options = {
+            valueProperty: 'AccountNumber',
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountFinancialVacation}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+        };
+
+        const costFinancialVacation = new UniFieldLayout();
+        costFinancialVacation.EntityType = 'CompanySalary';
+        costFinancialVacation.Label = 'Konto skyldig finansskatt av feriepenger';
+        costFinancialVacation.Property = 'MainAccountCostFinancialVacation';
+        costFinancialVacation.FieldType = FieldType.UNI_SEARCH;
+        costFinancialVacation.Section = 2;
+        costFinancialVacation.FieldSet = 3;
+        costFinancialVacation.Options = {
+            valueProperty: 'AccountNumber',
+            source: model => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountCostFinancialVacation}`)
+                .map(results => results[0])
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
+        };
+
         this.fields$.next([
             mainOrgName,
             mainOrgOrg,
@@ -360,7 +447,13 @@ export class AgaAndSubEntitySettings implements OnInit {
             interrimRemit,
             paymentInterval,
             postTax,
-            vacationSettingsBtn
+            vacationSettingsBtn,
+            calculateFinancial,
+            rateFinancialTax,
+            financial,
+            costFinancial,
+            financialVacation,
+            costFinancialVacation
         ]);
     }
 
@@ -384,6 +477,9 @@ export class AgaAndSubEntitySettings implements OnInit {
     public saveAgaAndSubEntities(done) {
         const saveObs: Observable<any>[] = [];
         const companySalary = this.companySalary$.getValue();
+        if (!companySalary['RateFinancialTax']) {
+            companySalary['RateFinancialTax'] = 0;
+        }
         if (companySalary) {
             let companySaveObs: Observable<CompanySalary>;
             companySaveObs = companySalary['_isDirty']
@@ -445,6 +541,14 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public companySalarychange(event) {
         const value = this.companySalary$.getValue();
+
+        if (event['CalculateFinancialTax']) {
+            if ((!value['RateFinancialTax'] || value['RateFinancialTax'] === 0)
+                && event['CalculateFinancialTax'].currentValue === true) {
+                    value['RateFinancialTax'] = 5;
+            }
+        }
+
         value['_isDirty'] = true;
         this.companySalary$.next(value);
     }

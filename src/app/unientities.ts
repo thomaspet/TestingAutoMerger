@@ -1343,12 +1343,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1704,7 +1704,7 @@ export class PostingSummaryDraft extends UniEntity {
     public draftWithDims: string;
     public ID: number;
     public PayrollID: number;
-    public status: number;
+    public status: Status;
     public statusTime: Date;
     public CustomFields: any;
 }
@@ -1896,9 +1896,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
-    public Transactions: Array<SalaryBalanceLine>;
     public Employee: Employee;
     public Supplier: Supplier;
+    public Transactions: Array<SalaryBalanceLine>;
     public CustomFields: any;
 }
 
@@ -2027,6 +2027,7 @@ export class CompanySalary extends UniEntity {
     public static EntityType = 'CompanySalary';
 
     public _createguid: string;
+    public CalculateFinancialTax: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -2039,9 +2040,14 @@ export class CompanySalary extends UniEntity {
     public MainAccountAllocatedVacation: number;
     public MainAccountCostAGA: number;
     public MainAccountCostAGAVacation: number;
+    public MainAccountCostFinancial: number;
+    public MainAccountCostFinancialVacation: number;
     public MainAccountCostVacation: number;
+    public MainAccountFinancial: number;
+    public MainAccountFinancialVacation: number;
     public PaymentInterval: CompanySalaryPaymentInterval;
     public PostToTaxDraw: boolean;
+    public RateFinancialTax: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -2170,9 +2176,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -4938,6 +4944,62 @@ export class DeniedUserAccessLog extends UniEntity {
 }
 
 
+export class HangfireJob extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'HangfireJob';
+
+    public CompanyID: number;
+    public CompanyKey: string;
+    public Completed: boolean;
+    public CreatedAt: Date;
+    public GlobalIdentity: string;
+    public HasError: boolean;
+    public ID: number;
+    public JobId: string;
+    public Status: number;
+    public UpdatedAt: Date;
+    public CustomFields: any;
+}
+
+
+export class HangfireJobContext extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'HangfireJobContext';
+
+    public CompanyID: number;
+    public CompanyKey: string;
+    public Completed: boolean;
+    public CreatedAt: Date;
+    public GlobalIdentity: string;
+    public HasError: boolean;
+    public ID: number;
+    public JobId: string;
+    public SchemaName: string;
+    public Status: number;
+    public UpdatedAt: Date;
+    public CustomFields: any;
+}
+
+
+export class HangfireResponse extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'HangfireResponse';
+
+    public CompanyID: number;
+    public CompanyKey: string;
+    public Completed: boolean;
+    public CreatedAt: Date;
+    public GlobalIdentity: string;
+    public HasError: boolean;
+    public ID: number;
+    public JobId: string;
+    public ProgressUrl: string;
+    public Status: number;
+    public UpdatedAt: Date;
+    public CustomFields: any;
+}
+
+
 export class KpiDefinition extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiDefinition';
@@ -5528,8 +5590,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatReportReferences: Array<VatReportReference>;
     public VatCodeGroup: VatCodeGroup;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -5990,11 +6052,11 @@ export class VatType extends UniEntity {
     public VatPercent: number;
     public VatTypeSetupID: number;
     public Visible: boolean;
-    public VatTypePercentages: Array<VatTypePercentage>;
-    public VatCodeGroup: VatCodeGroup;
-    public OutgoingAccount: Account;
     public IncomingAccount: Account;
+    public OutgoingAccount: Account;
+    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatTypePercentages: Array<VatTypePercentage>;
     public CustomFields: any;
 }
 
@@ -6303,9 +6365,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7406,6 +7468,13 @@ export enum FreeAmountType{
 export enum TabellType{
     loenn = 0,
     pension = 1,
+}
+
+
+export enum SummaryJobStatus{
+    running = 0,
+    finished = 1,
+    failed = 2,
 }
 
 
