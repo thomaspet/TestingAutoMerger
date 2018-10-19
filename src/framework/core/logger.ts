@@ -6,11 +6,10 @@ declare const Raygun;
 export class Logger {
     public exception(err: any) {
         console.error('EXCEPTION:', err);
-        if (!(err instanceof Error)) {
-            err = new Error(err);
-        }
+        const error = err instanceof Error ? err : new Error(err);
+
         if (Raygun && Raygun.send) {
-            Raygun.send(err);
+            Raygun.send(error);
         }
     }
 }

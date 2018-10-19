@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Logger} from '../../../framework/core/logger';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Observable';
-import {ObservableInput} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
+import {ObservableInput} from 'rxjs';
 import {ComplexValidationRule, EntityValidationRule} from '../../unientities';
 
 @Injectable()
@@ -28,7 +28,9 @@ export class ErrorService {
             error.customMessage = toastMsg;
         }
 
-        this.logger.exception(error);
+        try {
+            this.logger.exception(error);
+        } catch (e) {}
 
         if (error.status === 401) {
             return;
