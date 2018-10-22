@@ -1,5 +1,5 @@
 import {Component, Input, EventEmitter, Output} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 

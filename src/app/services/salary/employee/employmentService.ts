@@ -5,7 +5,7 @@ import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project
 } from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 
 @Injectable()

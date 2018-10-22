@@ -2,7 +2,7 @@ import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 import {JobServerMassInviteInput, JobService} from '@app/services/admin/jobs/jobService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'receipt-for-bulk-access',

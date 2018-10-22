@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
 import {Http} from '@angular/http';
 import {AuthService} from '../../../../authService';
-import {TimerObservable} from 'rxjs/observable/TimerObservable';
+import {timer as observableTimer} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {
     UniModalService,
@@ -39,7 +39,7 @@ export class SaftExportView implements OnInit {
 
     public ngOnInit() {
         this.loadList();
-        const timer = TimerObservable.create(5000, 5000);
+        const timer = observableTimer(5000, 5000);
         this.subscription = timer.subscribe( t => {
             if (this.busy) { return; }
             if (this.files.find( x => x.busyFetch)) {

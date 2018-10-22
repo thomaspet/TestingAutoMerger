@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {CompanySettings, CurrencyCode, LocalDate, Project, Seller} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 
 declare const _;

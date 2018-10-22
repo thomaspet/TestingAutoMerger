@@ -70,8 +70,8 @@ import {
 } from '@uni-framework/uni-modal';
 import {SettingsService} from '../settings-service';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import { AgreementService } from '@app/services/common/agreementService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
@@ -481,7 +481,7 @@ export class CompanySettingsComponent implements OnInit {
 
             // If Nordea bank is activated while DNB bank is activated
             if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
-                obj['UsePaymentBankValues'] = false;
+                obj['UsePaymentBankValues'] = <any> false;
                 this.hideBankValues = true;
                 this.companySettings$.next(obj);
                 this.fields$.next(this.fields$.getValue().map((item) => {
@@ -1642,7 +1642,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
                 Options: {
-                    source: [{ID: 0, Label: ''},{ID: 1, Label: 'SGFinans'}],
+                    source: [{ID: 0, Label: ''}, {ID: 1, Label: 'SGFinans'}],
                     displayProperty: 'Label',
                     valueProperty: 'ID'
                 },

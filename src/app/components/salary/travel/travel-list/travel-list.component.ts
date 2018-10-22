@@ -2,7 +2,7 @@ import {Component, OnInit, Input, ViewChild, Output, EventEmitter, AfterViewInit
 import {Travel, state} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, IContextMenuItem} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {ReplaySubject} from 'rxjs';
 import {TravelService} from '@app/services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {TravelRejectModal} from '@app/components/salary/travel/travel-modal/travelRejectModal';

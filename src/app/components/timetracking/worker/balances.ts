@@ -6,7 +6,7 @@ import {UniTableColumn, UniTableColumnType, UniTableConfig, UniTable} from '../.
 import {MinutesToHoursPipe} from '../../common/utils/pipes';
 import {ChangeMap} from '../../common/utils/changeMap';
 import {safeDec, safeInt} from '../../common/utils/utils';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 
 @Component({

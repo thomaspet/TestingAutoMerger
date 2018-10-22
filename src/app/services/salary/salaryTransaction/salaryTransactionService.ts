@@ -5,7 +5,7 @@ import {SalaryTransaction} from '../../../unientities';
 import {
     SalaryTransSupplementsModal
 } from '../../../components/salary/modals/salaryTransSupplementsModal';
-import {Observable} from 'rxJs/Observable';
+import {Observable} from 'rxjs';
 import {RequestMethod} from '@angular/http';
 
 @Injectable()

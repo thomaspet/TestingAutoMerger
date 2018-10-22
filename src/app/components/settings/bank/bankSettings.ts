@@ -11,7 +11,7 @@ import {
 import {BankService, ErrorService, AccountService, BankAccountService} from '../../../services/services';
 import {UniModalService, UniConfirmModalV2, ConfirmActions, UniBankAccountModal} from '../../../../framework/uni-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import { UnitableAutocomplete } from '@uni-framework/ui/unitable/controls/autocomplete';
 import { first } from 'rxjs/operator/first';
 import { CompanyBankAccount, BankAccount } from '@uni-entities';

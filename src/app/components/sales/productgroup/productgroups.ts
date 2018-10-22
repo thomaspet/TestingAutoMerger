@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';

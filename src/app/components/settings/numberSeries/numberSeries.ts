@@ -3,7 +3,7 @@ import {SettingsService} from '../settings-service';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniModalService, ConfirmActions, UniConfirmModalV2} from '../../../../framework/uni-modal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {

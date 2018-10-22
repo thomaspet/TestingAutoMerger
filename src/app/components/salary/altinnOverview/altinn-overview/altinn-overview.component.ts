@@ -1,12 +1,12 @@
 import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import {AltinnReceiptService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {AltinnReceipt} from '@uni-entities';
 import {IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {ReplaySubject} from 'rxjs';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'uni-altinn-overview',

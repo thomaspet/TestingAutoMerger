@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {VatType, Account} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import {AccountService} from '@app/services/accounting/accountService';
 

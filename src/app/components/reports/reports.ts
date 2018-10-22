@@ -15,7 +15,7 @@ import {
     ReconciliationListParamsModalComponent
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';

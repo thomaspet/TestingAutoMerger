@@ -1,8 +1,8 @@
 import {Component, OnInit, EventEmitter, Output, Input, OnChanges} from '@angular/core';
 import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {ReportDefinition, ReportDefinitionParameter, Employee} from '../../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {EmployeeService, YearService, StatisticsService, ReportDefinitionParameterService} from '../../../../../services/services';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 

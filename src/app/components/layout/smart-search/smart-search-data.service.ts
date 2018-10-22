@@ -1,6 +1,6 @@
 import {Injectable, Injector} from '@angular/core';
 import {NavbarLinkService} from '../navbar/navbar-link-service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';

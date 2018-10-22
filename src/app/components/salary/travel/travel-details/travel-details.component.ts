@@ -2,7 +2,7 @@ import {
     Component, OnInit, Input, Output, OnChanges, SimpleChanges,
     EventEmitter, OnDestroy, SimpleChange
 } from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {TravelLine, Travel} from '@uni-entities';
 import {TravelService} from '@app/services/services';
 const DIRTY = '_isDirty';

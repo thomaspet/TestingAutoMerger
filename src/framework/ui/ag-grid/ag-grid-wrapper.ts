@@ -39,8 +39,8 @@ import {
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({

@@ -9,7 +9,7 @@ import {
     ErrorService,
     FinancialYearService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'balance-report-filter-form',

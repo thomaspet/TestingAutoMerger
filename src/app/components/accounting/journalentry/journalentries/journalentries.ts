@@ -18,7 +18,7 @@ import {
     UniConfirmModalV2,
     ConfirmActions
 } from '../../../../../framework/uni-modal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
 import { JournalEntryData } from '@app/models/models';

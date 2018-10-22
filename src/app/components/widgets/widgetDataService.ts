@@ -2,7 +2,7 @@
 import {UniHttp} from '../../../framework/core/http/http';
 import {AuthService} from '../../authService';
 import {YearService} from '../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class WidgetDataService {

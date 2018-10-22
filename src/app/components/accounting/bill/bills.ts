@@ -36,10 +36,10 @@ import {
 } from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import { FieldType } from '../../../../framework/ui/uniform/field-type.enum';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 interface ILocalValidation {
     success: boolean;
@@ -195,7 +195,7 @@ export class BillsView implements OnInit {
 
     public saveActions: IUniSaveAction[] = [{
         label: 'Nytt fakturamottak',
-        action: (completeEvent) => setTimeout(this.onAddNew()),
+        action: (completeEvent) => setTimeout(() => this.onAddNew()),
         main: true,
         disabled: false
     }];
@@ -296,7 +296,7 @@ export class BillsView implements OnInit {
 
         this.saveActions.push ({
             label: 'Nytt fakturamottak',
-            action: (completeEvent) => setTimeout(this.onAddNew()),
+            action: (completeEvent) => setTimeout(() => this.onAddNew()),
             main: false,
             disabled: false
         });
@@ -304,7 +304,7 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Draft) {
             this.saveActions.push({
                 label: 'Tildel',
-                action: (done) => setTimeout(this.assignSupplierInvoices(done)),
+                action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
                 main: true,
                 disabled: false
             });
@@ -313,14 +313,14 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.ForApproval) {
             this.saveActions.push({
                 label: 'Godkjenn',
-                action: (done) => setTimeout(this.approveSupplierInvoices(done)),
+                action: (done) => setTimeout(() => this.approveSupplierInvoices(done)),
                 main: true,
                 disabled: false
             });
 
             this.saveActions.push({
                 label: 'Avvis',
-                action: (done) => setTimeout(this.rejectSupplierInvoices(done)),
+                action: (done) => setTimeout(() => this.rejectSupplierInvoices(done)),
                 main: false,
                 disabled: false
             });
@@ -329,7 +329,7 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Rejected) {
             this.saveActions.push({
                 label: 'Tildel',
-                action: (done) => setTimeout(this.assignSupplierInvoices(done)),
+                action: (done) => setTimeout(() => this.assignSupplierInvoices(done)),
                 main: true,
                 disabled: false
             });
@@ -338,7 +338,7 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Approved) {
             this.saveActions.push({
                 label: 'Bokfør',
-                action: (done) => setTimeout(this.journalSupplierInvoies(done)),
+                action: (done) => setTimeout(() => this.journalSupplierInvoies(done)),
                 main: true,
                 disabled: false
             });
@@ -347,7 +347,7 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
             this.saveActions.push({
                 label: 'Til betalingsliste',
-                action: (done) => setTimeout(this.sendForPaymentSupplierInvoices(done)),
+                action: (done) => setTimeout(() => this.sendForPaymentSupplierInvoices(done)),
                 main: true,
                 disabled: false
             });
@@ -356,7 +356,7 @@ export class BillsView implements OnInit {
         if (supplierInvoiceStatusCode === StatusCodeSupplierInvoice.Journaled) {
             this.saveActions.push({
                 label: 'Krediter',
-                action: (done) => setTimeout(this.creditSupplierInvoice(done)),
+                action: (done) => setTimeout(() => this.creditSupplierInvoice(done)),
                 main: false,
                 disabled: false
             });
@@ -950,11 +950,11 @@ export class BillsView implements OnInit {
             const fileId = row.ID;
             if (fileId) {
                 // Is file allready used for supplier invoice?
-                this.fileService.getLinkedEntityID("SupplierInvoice", fileId).subscribe(links => {
+                this.fileService.getLinkedEntityID('SupplierInvoice', fileId).subscribe(links => {
                     if (links.length > 0) {
                         const completedModal = this.modalService.open(UniConfirmModalV2, {
                             header: 'Bekreft fjerning fra innboks',
-                            message: 'Det finnes fakturamottak på ' + row.Name + ", fjerne fra innboksen?"
+                            message: 'Det finnes fakturamottak på ' + row.Name + ', fjerne fra innboksen?'
                         });
 
                         completedModal.onClose.subscribe(response => {
@@ -976,9 +976,7 @@ export class BillsView implements OnInit {
                                         this.refreshList(this.currentFilter);
                                     }
                                 );
-                            }
-                            else
-                            {
+                            } else {
                                 this.refreshList(this.currentFilter);
                             }
                         });

@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {CONTROLS_ENUM, UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ModulusService} from '@app/services/common/modulusService';
 
 @Injectable()

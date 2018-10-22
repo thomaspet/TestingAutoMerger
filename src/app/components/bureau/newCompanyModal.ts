@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {IUniSearchConfig, UniSearch} from '@uni-framework/ui/unisearch';
 import {ErrorService} from '@app/services/common/errorService';

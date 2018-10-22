@@ -36,7 +36,7 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     private previousModelValue: any;
     public currentModelValue: any;
     private input: HTMLInputElement;
-    private eventRemovers: [eventListenerRemover] = <[eventListenerRemover]>[];
+    private eventRemovers: eventListenerRemover[] = [];
 
     constructor(private elementRef: ElementRef) {
         super();

@@ -4,7 +4,7 @@ import {Employment, EmployeeLeave, Leavetype, LocalDate} from '../../../../unien
 import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService, EmployeeLeaveService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 
 @Component({

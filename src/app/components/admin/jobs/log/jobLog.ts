@@ -4,7 +4,7 @@ import {ActivatedRoute} from '@angular/router';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ErrorService, JobService} from '../../../../services/services';
-import { BehaviorSubject } from 'rxjs/internal/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'job-log',

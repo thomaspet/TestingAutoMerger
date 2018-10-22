@@ -4,7 +4,7 @@ import {EHFLog, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@angular/http';
 import {CompanySettingsService} from '../common/companySettingsService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 @Injectable()
 export class EHFService extends BizHttp<EHFLog> {
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);

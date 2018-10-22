@@ -1,5 +1,5 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {SettingsService} from '../settings-service';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {AuthService} from '../../../authService';

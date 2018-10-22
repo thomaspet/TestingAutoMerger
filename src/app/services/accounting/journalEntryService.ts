@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Account, VatType, Dimensions, FinancialYear, VatDeduction,
     JournalEntryPaymentData, Payment, CustomerInvoice, InvoicePaymentData} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '../../models/models';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';
 import {BizHttp} from '../../../framework/core/http/BizHttp';

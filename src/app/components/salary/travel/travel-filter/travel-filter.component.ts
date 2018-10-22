@@ -2,8 +2,8 @@ import {Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges
 import {Travel, PayrollRun, state, costtype} from '@uni-entities';
 import {PayrollrunService} from '@app/services/services';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs';
 import {ISelectConfig} from '@uni-framework/ui/uniform';
 import * as _ from 'lodash';
 

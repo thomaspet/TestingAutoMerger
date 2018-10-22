@@ -4,10 +4,10 @@ import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {ChangeMap} from '../../common/utils/changeMap';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {IResult} from '../genericview/detail';
 import {ErrorService} from '../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'workrelations',

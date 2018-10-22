@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Altinn} from '../../unientities';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';

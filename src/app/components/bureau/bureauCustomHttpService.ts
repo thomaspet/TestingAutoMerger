@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Http, Headers, BaseRequestOptions, Request, Response} from '@angular/http';
 import {AuthService} from '../../authService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {StatisticsResponse} from '../../models/StatisticsResponse';
 
 @Injectable()

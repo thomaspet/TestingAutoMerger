@@ -20,8 +20,8 @@ import {UniConfirmModalV2} from './confirmModal';
 import {UniMath} from '../../core/uniMath';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
 

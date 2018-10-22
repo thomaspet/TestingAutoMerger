@@ -1,6 +1,6 @@
 import {Component, Input, HostListener, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 export interface ISelectOptions {
     resource: Observable<any> | any[];

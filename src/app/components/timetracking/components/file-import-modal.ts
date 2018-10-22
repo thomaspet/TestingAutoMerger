@@ -99,7 +99,7 @@ export class TimeentryImportModal implements IUniModal {
 
 
                 reader.onload = () => {
-                    const rows = reader.result.split('\n');
+                    const rows = (<string> reader.result).split('\n');
                     const items = [];
                     const map = {
                         Date: 0,

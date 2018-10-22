@@ -5,9 +5,9 @@ import {
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, EmployeeCategory,
     JournalEntry, LocalDate, StdSystemType
 } from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './modals/controlModal';
 import {PostingSummaryModal} from './modals/postingSummaryModal';

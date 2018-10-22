@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {Travel, state, linestate, costtype, WageType, Account} from '@uni-entities';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {TravelService, ErrorService, WageTypeService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {ITravelFilter} from '@app/components/salary/travel/travel-filter/travel-filter.component';
 import {IUniSaveAction} from '@uni-framework/save/save';

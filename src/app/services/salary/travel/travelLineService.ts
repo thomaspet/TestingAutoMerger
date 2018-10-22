@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
 import {TravelLine} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {VatTypeService} from '@app/services/accounting/vatTypeService';
 
 @Injectable()

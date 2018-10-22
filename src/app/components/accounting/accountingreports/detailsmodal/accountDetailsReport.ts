@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {
     UniTableColumn,
@@ -13,7 +13,7 @@ import {JournalEntry} from '../../../../unientities';
 import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {FinancialYear, Account} from '../../../../unientities';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';

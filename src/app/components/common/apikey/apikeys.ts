@@ -2,7 +2,7 @@ import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTable, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/index';
 import {ApiKeyService, ErrorService} from '../../../services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ApiKey, Confirmation} from '@uni-entities';
 import {ApikeyLineModal} from './modals/apikey-modal';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';

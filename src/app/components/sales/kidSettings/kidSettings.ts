@@ -1,7 +1,7 @@
 import { Component, ViewChild, SimpleChanges, } from '@angular/core';
 
-import { BehaviorSubject, } from 'rxjs/BehaviorSubject';
-import { Observable, } from 'rxjs/Observable';
+import { BehaviorSubject, } from 'rxjs';
+import { Observable, } from 'rxjs';
 import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { TabService, UniModules, } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ErrorService, PaymentInfoTypeService, CompanySettingsService} from '@app/services/services';

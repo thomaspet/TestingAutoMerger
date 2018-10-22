@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {SalaryBalanceTemplate} from '@uni-entities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {SalarybalanceTemplateService, ErrorService} from '@app/services/services';
 

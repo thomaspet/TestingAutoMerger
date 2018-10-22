@@ -56,7 +56,7 @@ export class Project {
     private rootActions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: (completeEvent) => setTimeout(this.saveProject(completeEvent)),
+            action: (completeEvent) => setTimeout(() => this.saveProject(completeEvent)),
             main: true,
             disabled: false
         }

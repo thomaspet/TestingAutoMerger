@@ -1,7 +1,7 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {SupplierInvoiceService, ErrorService} from '../../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {SupplierInvoice} from '@uni-entities';
 
 @Component({
@@ -12,7 +12,7 @@ export class BillPreviousView {
     @Input() public supplierID: number;
     @Input() public supplierInvoiceID: number;
     @ViewChild(UniForm) private uniForm: UniForm;
-    
+
     public uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public supplierInvoice$: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(null);
@@ -32,12 +32,12 @@ export class BillPreviousView {
         if (this.supplierID) {
             const currentfilter = this.supplierInvoiceID ? ` and id lt ${this.supplierInvoiceID}` : ``;
             this.supplierInvoiceService.GetOneByQuery(
-                `filter=statuscode ge 30104 and supplierid eq ${this.supplierID}${currentfilter}&` + 
+                `filter=statuscode ge 30104 and supplierid eq ${this.supplierID}${currentfilter}&` +
                 `orderby=invoicedate desc`
             ).subscribe(supplierInvoice => {
                 this.supplierInvoice$.next(supplierInvoice);
                 this.getFormLayout();
-            });    
+            });
         }
     }
 

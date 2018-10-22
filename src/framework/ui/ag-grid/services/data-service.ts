@@ -7,9 +7,9 @@ import {ITableFilter, IExpressionFilterValue} from '../interfaces';
 import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 

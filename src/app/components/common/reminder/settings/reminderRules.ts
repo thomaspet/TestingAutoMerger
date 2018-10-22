@@ -6,7 +6,7 @@ import {
 } from '@uni-framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {FieldType} from '@uni-framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {CustomerInvoiceReminderRuleService} from '@app/services/services';
 import {
     CustomerInvoiceReminderSettings,

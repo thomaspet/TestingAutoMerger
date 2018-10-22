@@ -3,7 +3,7 @@ import {SubEntityService, ErrorService} from '../../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {SubEntity} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class SubEntitySettingsService {

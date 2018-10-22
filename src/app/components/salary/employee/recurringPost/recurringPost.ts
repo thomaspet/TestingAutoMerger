@@ -15,7 +15,7 @@ import {
     SalaryTransactionSupplement, WageTypeSupplement, Account
 } from '../../../../unientities';
 import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 

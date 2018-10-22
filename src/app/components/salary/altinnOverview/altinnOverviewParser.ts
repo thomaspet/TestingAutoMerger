@@ -72,11 +72,11 @@ export class AltinnOverviewParser {
         };
     }
 
-    private getNodeValue(doc: NodeListOf<Element>): any {
+    private getNodeValue(doc): any {
         return this.getNode(doc) && doc[0].firstChild && doc[0].firstChild.nodeValue;
     }
 
-    private getNode(doc: NodeListOf<Element>): Element {
+    private getNode(doc): Element {
         return doc && doc[0];
     }
 

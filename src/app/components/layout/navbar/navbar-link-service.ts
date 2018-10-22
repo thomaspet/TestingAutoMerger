@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS, INavbarLinkSection, INavbarLink} from './navbar-links';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as _ from 'lodash';
 

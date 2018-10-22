@@ -4,7 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import 'rxjs/add/operator/switchMap';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class FileService extends BizHttp<File> {
@@ -74,7 +74,7 @@ export class FileService extends BizHttp<File> {
         return fileID > 0
             ? this.getStatistics(`model=fileentitylink&select=entityid as entityID&filter=deleted eq 0 and entitytype eq '${entityType}' and fileid eq ${fileID}&orderby=entityid desc`).
               map(response => response.Data)
-            : Observable.of([]);      
+            : Observable.of([]);
     }
 
     public splitFile(oldFileID: number, newFileID1: number, newFileID2: number) {

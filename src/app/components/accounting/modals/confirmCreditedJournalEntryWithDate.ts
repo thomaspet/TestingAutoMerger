@@ -1,12 +1,12 @@
 import {Component, Input, Output, EventEmitter, OnInit, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {CompanySettingsService} from '../../../../app/services/common/companySettingsService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {LocalDate, CompanySettings} from '@uni-entities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import { JournalEntryService } from '@app/services/services';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'confirm-credited-journalEntry-with-date-modal',

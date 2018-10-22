@@ -5,7 +5,7 @@ import {UniForm, FieldType, UniFieldLayout} from '../../../../framework/ui/unifo
 import {DistributionPlanService} from '@app/services/common/distributionService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {DistributionPlan, DistributionPlanElementType} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import { Observable } from 'rxjs';
 import {SettingsService} from '../settings-service';
 declare const _; // lodash
@@ -245,7 +245,7 @@ export class UniDistributionSettings {
     private filterElementTypes(type: string, elements: any[]) {
         if (type === 'Models.Sales.CustomerInvoice') {
             return elements;
-        } 
+        }
         else if (type === 'Models.Sales.CustomerInvoiceReminder') {
             return elements.filter(res => res.ID === 2 || res.ID === 3);
         } else {

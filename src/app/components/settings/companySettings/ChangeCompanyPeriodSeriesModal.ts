@@ -1,7 +1,7 @@
 import {
     Component, OnInit, Input, Output, EventEmitter
 } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {PeriodSeries, CompanySettings} from '../../../unientities';
 import {ISelectConfig} from '../../../../framework/ui/uniform/index';
 import {CompanySettingsService, ErrorService} from '../../../services/services';

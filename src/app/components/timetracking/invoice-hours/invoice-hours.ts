@@ -11,7 +11,7 @@ import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'invoice-hours',

@@ -4,8 +4,8 @@ import {AddressService, BusinessRelationService, ErrorService} from '@app/servic
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 
 @Component({
