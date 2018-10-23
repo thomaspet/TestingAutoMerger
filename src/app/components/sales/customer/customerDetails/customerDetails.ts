@@ -171,6 +171,7 @@ export class CustomerDetails implements OnInit {
         'Info.BankAccounts.Bank',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+        'CustomerInvoiceReminderSettings.DebtCollectionSettings',
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
         'Info.Contacts.Info.DefaultPhone',
@@ -551,17 +552,16 @@ export class CustomerDetails implements OnInit {
                 if (this.customerID > 0) {
                     this.getDataAndUpdateToolbarSubheads();
                 }
+
+                if (!customer.CustomerInvoiceReminderSettings) {
+                    customer.CustomerInvoiceReminderSettings = <CustomerInvoiceReminderSettings>{
+                        _createguid: this.customerInvoiceReminderSettingsService.getNewGuid()
+                    };
+                }
+
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
-
-                if (customer.CustomerInvoiceReminderSettings === null) {
-                    customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
-                    customer.CustomerInvoiceReminderSettings['_createguid'] =
-                        this.customerInvoiceReminderSettingsService.getNewGuid();
-                }
-
-                customer.DefaultSeller = customer.DefaultSeller;
 
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.customerID, this.numberSeries, 'Customer number series'
