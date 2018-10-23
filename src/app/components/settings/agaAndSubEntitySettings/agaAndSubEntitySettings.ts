@@ -342,7 +342,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         const calculateFinancial = new UniFieldLayout();
-        calculateFinancial.Label = 'Beregn finansskatt';
+        calculateFinancial.Label = 'Finansskatt';
         calculateFinancial.EntityType = 'CompanySalary';
         calculateFinancial.Property = 'CalculateFinancialTax';
         calculateFinancial.FieldType = FieldType.CHECKBOX;
@@ -350,6 +350,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         calculateFinancial.Hidden = false;
         calculateFinancial.Section = 2;
         calculateFinancial.FieldSet = 3;
+        calculateFinancial.Tooltip = {
+            Text: 'Kryss av for å beregne finansskatt ved bokføring',
+            Alignment: 'bottom'
+        };
         calculateFinancial.Legend = 'Finansskatt';
         calculateFinancial.Options = {
             source: this.companySalary$.getValue(),
