@@ -30,11 +30,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     }
 
     public registerAndCompleteCustomerPayment(fileID: number) {
-        return super.PutAction(null, 'register-and-complete-customer-payment', `fileID=${fileID}`);
-    }
-
-    public registerAndCompleteCustomerPaymentAutoSelectWebjob(fileID: number) {
-        return super.PutAction(null, 'register-and-complete-customer-payment-auto-select-webjob', `fileID=${fileID}`);
+        return super.PutAction(null, 'register-and-complete-customer-payment', `fileID=${fileID}&acceptjob=true`);
     }
 
     // OLD
