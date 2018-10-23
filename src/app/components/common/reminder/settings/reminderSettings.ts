@@ -1,10 +1,8 @@
-import {Component, Input} from '@angular/core';
-import {CustomerInvoiceReminderSettings, CompanySettings} from '@uni-entities';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {CustomerInvoiceReminderSettings, DebtCollectionSettings} from '@uni-entities';
 import {FieldType} from '@uni-framework/ui/uniform';
 import {
-    CompanySettingsService,
     CustomerInvoiceReminderSettingsService,
-    ErrorService,
     JobService
 } from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
@@ -16,24 +14,27 @@ import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales
 })
 export class ReminderSettings {
     @Input() private reminderSettings: CustomerInvoiceReminderSettings;
+    @Output() reminderSettingsChange: EventEmitter<CustomerInvoiceReminderSettings> = new EventEmitter<CustomerInvoiceReminderSettings>();
 
     public isDirty: boolean = false;
     public reminderSettings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    constructor(private companySettingsService: CompanySettingsService,
-                private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
-                private errorService: ErrorService,
+    constructor(private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
                 private jobService: JobService) {
     }
 
-    public ngOnInit() {
-        this.setupForm();
-    }
-
     public ngOnChanges() {
-        this.reminderSettings$.next(this.reminderSettings);
+        if (this.reminderSettings) {
+            if (!this.reminderSettings.DebtCollectionSettings) {
+                this.reminderSettings.DebtCollectionSettings = <DebtCollectionSettings>{
+                    _createguid: this.customerInvoiceReminderSettingsService.getNewGuid()
+                };
+            }
+            this.reminderSettings$.next(this.reminderSettings);
+            this.setupForm();
+        }
     }
 
     public save(): Promise<any> {
@@ -50,22 +51,11 @@ export class ReminderSettings {
 
     public onChange(data) {
         this.isDirty = true;
+        this.reminderSettings = this.reminderSettings$.getValue();
+        this.reminderSettingsChange.emit(this.reminderSettings);
     }
 
     private async setupForm() {
-        if (!this.reminderSettings) {
-            const companySettings: CompanySettings = await this.companySettingsService.Get(
-                1, [
-                    'CustomerInvoiceReminderSettings',
-                    'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-                    'CustomerInvoiceReminderSettings.DebtCollectionSettings',
-                    'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
-                ]
-            ).toPromise();
-            this.reminderSettings = companySettings.CustomerInvoiceReminderSettings;
-            this.reminderSettings$.next(this.reminderSettings);
-        }
-
         const fields = [
             {
                 Legend: 'Purreinnstillinger',

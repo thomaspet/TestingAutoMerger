@@ -17,7 +17,11 @@ export class CustomerService extends BizHttp<Customer> {
 
         this.DefaultOrderBy = 'Info.Name';
 
-        this.defaultExpand = ['Info'];
+        this.defaultExpand = [
+            'Info',
+            'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+            'CustomerInvoiceReminderSettings.DebtCollectionSettings'
+        ];
     }
 
     public deleteCustomer(id: any): any {

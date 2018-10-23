@@ -1,6 +1,8 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from './../../../../../framework/uni-modal';
 import {ReminderSettings} from './reminderSettings';
+import { CompanySettingsService } from '@app/services/services';
+import { CustomerInvoiceReminderSettings, CompanySettings } from '@uni-entities';
 
 @Component({
     selector: 'uni-reminder-settings-modal',
@@ -14,7 +16,7 @@ import {ReminderSettings} from './reminderSettings';
             </header>
 
             <article>
-                <reminder-settings></reminder-settings>
+                <reminder-settings [reminderSettings]="reminderSettings"></reminder-settings>
             </article>
 
             <footer>
@@ -24,17 +26,16 @@ import {ReminderSettings} from './reminderSettings';
         </section>
     `
 })
-export class UniReminderSettingsModal implements IUniModal {
-    @ViewChild(ReminderSettings)
-    private settingsComponent: ReminderSettings;
+export class UniReminderSettingsModal implements IUniModal, OnInit {
+    @ViewChild(ReminderSettings) private settingsComponent: ReminderSettings;
+    @Input() options: IModalOptions = {};
+    @Output() onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @Input()
-    public options: IModalOptions = {};
+    reminderSettings: CustomerInvoiceReminderSettings;
 
-    @Output()
-    public onClose: EventEmitter<boolean> = new EventEmitter();
+    constructor(private companySettingsService: CompanySettingsService) {}
 
-    public close(saveBeforeClosing?: boolean) {
+    close(saveBeforeClosing?: boolean) {
         if (saveBeforeClosing && this.settingsComponent) {
             this.settingsComponent.save()
                 .then(() => this.onClose.emit(true))
@@ -42,6 +43,17 @@ export class UniReminderSettingsModal implements IUniModal {
         } else {
             this.onClose.emit(false);
         }
+    }
+
+    ngOnInit() {
+        this.companySettingsService.Get(
+            1, [
+                'CustomerInvoiceReminderSettings',
+                'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
+                'CustomerInvoiceReminderSettings.DebtCollectionSettings',
+                'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
+            ]
+        ).subscribe((companySettings: CompanySettings) => this.reminderSettings = companySettings.CustomerInvoiceReminderSettings);
     }
 
 }
