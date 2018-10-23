@@ -75,7 +75,7 @@ export class ProductGroups {
                 return this.saveGroup();
             } else if (response === ConfirmActions.REJECT) {
                 if (!this.selectedGroup.ID) {
-                    this.groups = this.groups.filter(g => !g.ID);
+                    this.groups = this.groups.filter(g => !!g.ID);
                     this.nodes = this.buildTreeData(this.groups);
                     this.treeDataSource.data = this.nodes;
                 }
