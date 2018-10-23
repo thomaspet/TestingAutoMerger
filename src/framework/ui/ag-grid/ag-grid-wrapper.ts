@@ -123,10 +123,15 @@ export class AgGridWrapper {
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
 
-            if (this.config.editable || this.config.conditionalRowCls) {
+            if (this.config.conditionalRowCls || this.config.isRowReadOnly || this.config.isRowSelectable) {
                 this.rowClassResolver = (params) => {
                     const row = params.data;
                     const classes = [];
+
+                    if (this.config.isRowSelectable && !this.config.isRowSelectable(row)) {
+                        classes.push('disabled-row');
+                    }
+
                     if (this.config.editable && this.config.isRowReadOnly) {
                         if (this.config.isRowReadOnly(row)) {
                             classes.push('readonly-row');
