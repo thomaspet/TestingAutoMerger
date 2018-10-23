@@ -272,9 +272,6 @@ export class EmploymentDetails implements OnChanges {
     }
 
     public onFormChange(changes: SimpleChanges) {
-        if (!Object.keys(changes).some(key => this.hasChanged(changes[key]))) {
-            return;
-        }
 
         const employment = this.employment$.getValue();
 
@@ -288,14 +285,6 @@ export class EmploymentDetails implements OnChanges {
         } else {
             this.employmentChange.emit(this.employment$.getValue());
         }
-    }
-
-    private hasChanged(value: SimpleChange) {
-        if (isNaN(value.currentValue) || isNaN(value.previousValue)) {
-            return value.currentValue !== value.previousValue;
-        }
-
-        return Math.round(value.currentValue) !== Math.round(value.previousValue);
     }
 
     public onFormReady(value) {
