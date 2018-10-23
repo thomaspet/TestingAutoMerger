@@ -223,9 +223,7 @@ export class SalarybalanceTemplateView extends UniView {
         super.getStateSubject(SALBAL_TEMPLATE_KEY)
             .asObservable()
             .take(1)
-            .switchMap(template => {
-                return this.salarybalanceTemplateService.saveTemplate(template);
-            })
+            .switchMap(template => this.salarybalanceTemplateService.save(template, done))
             .switchMap((savedTemplate: SalaryBalanceTemplate) => {
                 this.currentTemplate = savedTemplate;
                 return this.getSalaryBalancesObs(savedTemplate);
