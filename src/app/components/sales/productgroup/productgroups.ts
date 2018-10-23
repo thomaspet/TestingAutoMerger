@@ -77,6 +77,7 @@ export class ProductGroups {
                 if (!this.selectedGroup.ID) {
                     this.groups = this.groups.filter(g => !!g.ID);
                     this.nodes = this.buildTreeData(this.groups);
+                    this.treeDataSource.data = null;
                     this.treeDataSource.data = this.nodes;
                 }
 
