@@ -18,11 +18,13 @@ export class AmeldingPeriodSummaryView {
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
+    private sumFinansskattLoenn: number;
     public systemTableConfig: UniTableConfig;
 
     private forfallsdato: string = '';
     private sumAmldAga: number = 0;
     private sumAmldFtrekk: number = 0;
+    private sumAmldFinansskattLoenn: number = 0;
     public amldData: any[] = [];
     public amldTableConfig: UniTableConfig;
 
@@ -32,6 +34,7 @@ export class AmeldingPeriodSummaryView {
     public collapsePaymentInfo: boolean = false;
     public kidAGA: string;
     public kidTrekk: string;
+    public kidFinancial: string;
     public accountNumber: string;
 
     constructor(private numberFormat: NumberFormat) {
@@ -45,6 +48,7 @@ export class AmeldingPeriodSummaryView {
             this.sumGrunnlagAga = 0;
             this.sumCalculatedAga = 0;
             this.sumForskuddstrekk = 0;
+            this.sumFinansskattLoenn = 0;
 
             this.systemData.forEach(dataElement => {
                 dataElement['_type'] = 'Grunnlag';
@@ -52,18 +56,25 @@ export class AmeldingPeriodSummaryView {
                 this.sumGrunnlagAga += dataElement.Sums.baseAGA;
                 this.sumCalculatedAga += dataElement.Sums.calculatedAGA;
                 this.sumForskuddstrekk += sums.tableTax + sums.percentTax + sums.manualTax;
+                this.sumFinansskattLoenn += dataElement.Sums.calculatedFinancialTax;
             });
 
             this.systemPeriodSums = [
                 {
                     title: 'Grunnlag aga',
                     value: this.numberFormat.asMoney(this.sumGrunnlagAga, {decimalLength: 0})
-                }, {
+                },
+                {
                     title: 'Sum aga',
                     value: this.numberFormat.asMoney(this.sumCalculatedAga, {decimalLength: 0})
-                }, {
+                },
+                {
                     title: 'Sum forskuddstrekk',
                     value: this.numberFormat.asMoney(this.sumForskuddstrekk, {decimalLength: 0})
+                },
+                {
+                    title: 'Sum finansskatt',
+                    value: this.numberFormat.asMoney(this.sumFinansskattLoenn, {decimalLength: 0})
                 }
             ];
         }
@@ -108,16 +119,24 @@ export class AmeldingPeriodSummaryView {
                     }
                 }
 
-                this.ameldingPeriodSums = [{
-                    title: 'Forfallsdato',
-                    value: this.forfallsdato
-                }, {
-                    title: 'Sum aga',
-                    value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0})
-                }, {
-                    title: 'Sum forskuddstrekk',
-                    value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})
-                }];
+                this.ameldingPeriodSums = [
+                    {
+                        title: 'Forfallsdato',
+                        value: this.forfallsdato
+                    },
+                    {
+                        title: 'Sum aga',
+                        value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0})
+                    },
+                    {
+                        title: 'Sum forskuddstrekk',
+                        value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})
+                    },
+                    {
+                        title: 'Sum finansskatt',
+                        value: this.numberFormat.asMoney(this.sumAmldFinansskattLoenn || 0, {decimalLength: 0})
+                    }
+                ];
             }
         }
     }
@@ -137,6 +156,7 @@ export class AmeldingPeriodSummaryView {
             if (!!mottak.mottattPeriode && mottak.mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
                 this.sumAmldAga = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
                 this.sumAmldFtrekk = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
+                this.sumAmldFinansskattLoenn = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn;
             }
         }
     }
@@ -149,6 +169,9 @@ export class AmeldingPeriodSummaryView {
                 }
                 if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForForskuddstrekk')) {
                     this.kidTrekk = mottak.innbetalingsinformasjon.kidForForskuddstrekk;
+                }
+                if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForFinansskattLoenn')) {
+                    this.kidFinancial = mottak.innbetalingsinformasjon.kidForFinansskattLoenn;
                 }
                 if (mottak.innbetalingsinformasjon.hasOwnProperty('kontonummer')) {
                     this.accountNumber = mottak.innbetalingsinformasjon.kontonummer;

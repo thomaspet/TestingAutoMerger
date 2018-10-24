@@ -26,16 +26,19 @@
                     <td></td>
                     <th>Sum forskuddstrekk</th>
                     <th>Sum arbeidsgiveravgift</th>
+                    <th>Sum finansskatt</th>
                 </tr>
                 <tr>
                     <th class="datacolumn">Fra lønnsystem</th>
                     <td class="currency">{{totalFtrekkSystemStr}}</td>
                     <td class="currency">{{totalAGASystemStr}}</td>
+                    <td class="currency">{{totalFinancialSystemStr}}</td>
                 </tr>
                 <tr>
                     <th class="datacolumn">Fra tilbakemelding</th>
                     <td class="currency">{{totalFtrekkFeedbackStr}}</td>
                     <td class="currency">{{totalAGAFeedBackStr}}</td>
+                    <td class="currency">{{totalFinancialFeedbackStr}}</td>
                 </tr>
             </table>
         </article>
@@ -79,7 +82,8 @@
             <amelding-receipt-view
                 *ngSwitchCase="2"
                 [currentAMelding]="currentAMelding"
-                [aMeldingerInPeriod]="aMeldingerInPeriod">
+                [aMeldingerInPeriod]="aMeldingerInPeriod"
+                [companySalary]="companySalary">
             </amelding-receipt-view>
 
             <amelding-periodsummary-view
