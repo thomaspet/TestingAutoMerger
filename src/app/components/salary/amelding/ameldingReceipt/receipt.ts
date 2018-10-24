@@ -4,7 +4,7 @@ import {
     UniTableColumnType,
     UniTableColumn,
 } from '../../../../../framework/ui/unitable/index';
-import {AmeldingData, CompanySalary} from '../../../../unientities';
+import {AmeldingData} from '../../../../unientities';
 import * as moment from 'moment';
 
 @Component({
@@ -15,7 +15,6 @@ import * as moment from 'moment';
 export class AmeldingReceiptView {
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
-    @Input() public companySalary: CompanySalary;
     private mottattLeveranserIPerioden: any[] = [];
     private alleAvvikNoder: any[] = [];
     private allAvvikGroupedByPeriod: any[] = [];
@@ -213,14 +212,11 @@ export class AmeldingReceiptView {
             'mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money
         );
         const periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
-        const financialTaxCol = new UniTableColumn(
-            'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money)
-            .setVisible(this.companySalary.CalculateFinancialTax);
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
             .setDefaultOrderBy('meldingsId', -1)
             .setColumns([
-                meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol, financialTaxCol
+                meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
             ]);
     }
 }

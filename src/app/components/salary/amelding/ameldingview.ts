@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, CompanySalary} from '../../../unientities';
+import {AmeldingData} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -15,8 +15,7 @@ import {
     NumberFormat,
     SalarySumsService,
     YearService,
-    ReportDefinitionService,
-    CompanySalaryService
+    ReportDefinitionService
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -55,11 +54,6 @@ export class AMeldingView implements OnInit {
     public totalFtrekkFeedbackStr: string;
     public totalFtrekkSystem: number = 0;
     public totalFtrekkSystemStr: string;
-    public totalFinancialSystem: number = 0;
-    public totalFinancialSystemStr: string;
-    public totalFinancialFeedback: number = 0;
-    public totalFinancialFeedbackStr: string;
-
 
     public legalEntityNo: string;
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
@@ -68,7 +62,6 @@ export class AMeldingView implements OnInit {
     public periodStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
-    private companySalary: CompanySalary;
 
     public activeTabIndex: number = 0;
     public tabs: IUniTab[];
@@ -84,14 +77,8 @@ export class AMeldingView implements OnInit {
         private router: Router,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private reportDefinitionService: ReportDefinitionService,
-        private companySalaryService: CompanySalaryService
+        private reportDefinitionService: ReportDefinitionService
     ) {
-        this.companySalaryService.getCompanySalary()
-            .subscribe(compSalary => {
-                this.companySalary = compSalary;
-            });
-
         this._tabService.addTab({
             name: 'A-Melding',
             url: 'salary/amelding',
@@ -341,7 +328,6 @@ export class AMeldingView implements OnInit {
                 this.totalFtrekkFeedback = 0;
                 this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
                 this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
-                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
                 this.getDataFromFeedback(this.currentAMelding, 0);
 
                 this.totalAGASystem = 0;
@@ -351,12 +337,10 @@ export class AMeldingView implements OnInit {
                     const sums = dataElement.Sums;
                     this.totalAGASystem += dataElement.Sums.calculatedAGA;
                     this.totalFtrekkSystem += sums.tableTax + sums.percentTax + sums.manualTax;
-                    this.totalFinancialSystem += dataElement.Sums.calculatedFinancialTax;
                 });
 
                 this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
                 this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-                this.totalFinancialSystemStr = this.numberformat.asMoney(this.totalFinancialSystem, {decimalLength: 0});
             }, err => this.errorService.handle(err));
     }
 
