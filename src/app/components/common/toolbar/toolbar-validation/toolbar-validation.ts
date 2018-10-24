@@ -28,4 +28,10 @@ export class UniToolbarValidation {
         }
     }
 
+    onClick(item: IToolbarValidation) {
+        if (item.click) {
+            item.click();
+        }
+    }
+
 }
