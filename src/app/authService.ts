@@ -213,7 +213,8 @@ export class AuthService {
                             this.setLoadIndicatorVisibility(false);
                         });
                     },
-                    err => {
+                    () => {
+                        this.storage.removeOnUser('lastActiveCompanyKey');
                         this.clearAuthAndGotoLogin();
                         this.setLoadIndicatorVisibility(false);
                     }
@@ -324,7 +325,6 @@ export class AuthService {
 
         this.storage.removeOnUser('jwt');
         this.storage.removeOnUser('activeCompany');
-        this.storage.removeOnUser('lastActiveCompanyKey');
         this.storage.removeOnUser('activeFinancialYear');
         this.jwt = undefined;
         this.jwtDecoded = undefined;
