@@ -24,7 +24,7 @@ import {
     GridApi,
     ColDef,
     IDatasource,
-} from 'ag-grid';
+} from 'ag-grid-community';
 
 import {Observable} from 'rxjs';
 import {Subject} from 'rxjs';

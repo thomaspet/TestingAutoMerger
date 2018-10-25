@@ -34,7 +34,7 @@ import {
     RowClickedEvent,
     RowDragEndEvent,
     PaginationChangedEvent
-} from 'ag-grid';
+} from 'ag-grid-community';
 
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';

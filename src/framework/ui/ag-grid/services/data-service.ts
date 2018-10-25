@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../unitable/config/unitableColumn';
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
-import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid';
+import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
 import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';

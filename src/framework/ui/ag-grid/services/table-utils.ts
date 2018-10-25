@@ -1,8 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/config/unitableColumn';
 import {UniTableConfig} from '@uni-framework/ui/unitable/config/unitableConfig';
-import {ITableFilter, ISavedFilter} from '../interfaces';
-import {ColDef} from 'ag-grid';
+import {ISavedFilter} from '../interfaces';
 
 import * as _ from 'lodash';
 import * as moment from 'moment';
