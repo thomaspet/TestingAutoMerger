@@ -55,6 +55,11 @@ export class TableDataService {
             this.loadedRowCount = filteredData.length;
 
             this.gridApi.setRowData(filteredData);
+            this.gridApi.forEachNode(node => {
+                if (node.data && node.data['_rowSelected']) {
+                    node.setSelected(node.data['_rowSelected']);
+                }
+            });
             const lastRow = filteredData.length && filteredData[filteredData.length - 1];
             if (this.config.autoAddNewRow && this.config.editable && (!lastRow || !lastRow['_isEmpty'])) {
                 this.addRow();
