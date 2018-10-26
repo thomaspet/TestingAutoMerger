@@ -147,10 +147,10 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 newEmployment.EmployeeID = this.employee.ID;
                 newEmployment.JobCode = '';
                 newEmployment.JobName = '';
-                newEmployment.StartDate = new Date();
-                newEmployment.LastSalaryChangeDate = new Date();
-                newEmployment.LastWorkPercentChangeDate = new Date();
-                newEmployment.SeniorityDate = new Date();
+                newEmployment.StartDate = null;
+                newEmployment.LastSalaryChangeDate = null;
+                newEmployment.LastWorkPercentChangeDate = null;
+                newEmployment.SeniorityDate = null;
                 newEmployment.SubEntityID = this.employee.SubEntityID;
 
                 newEmployment['_createguid'] = this.employmentService.getNewGuid();
@@ -175,6 +175,20 @@ export class Employments extends UniView implements OnInit, OnDestroy {
                 }
                 return emp.ID === employment.ID;
             });
+        }
+
+        if (employment.StartDate) {
+            if (!employment.LastSalaryChangeDate) {
+                employment.LastSalaryChangeDate = employment.StartDate;
+            }
+
+            if (!employment.LastWorkPercentChangeDate) {
+                employment.LastWorkPercentChangeDate = employment.StartDate;
+            }
+
+            if (!employment.SeniorityDate) {
+                employment.SeniorityDate = employment.StartDate;
+            }
         }
         this.employments[index] = _.cloneDeep(employment);
         this.selectedEmployment$.next(employment);
