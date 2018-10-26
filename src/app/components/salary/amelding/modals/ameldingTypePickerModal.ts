@@ -45,7 +45,7 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
     }
 
     private createFormConfig() {
-        var ameldTypeField = new UniFieldLayout();
+        const ameldTypeField = new UniFieldLayout();
         ameldTypeField.Label = 'Type melding';
         ameldTypeField.EntityType = 'ameldingModel';
         ameldTypeField.FieldType = FieldType.DROPDOWN;

@@ -1704,7 +1704,7 @@ export class PostingSummaryDraft extends UniEntity {
     public draftWithDims: string;
     public ID: number;
     public PayrollID: number;
-    public status: Status;
+    public status: SummaryJobStatus;
     public statusTime: Date;
     public CustomFields: any;
 }
@@ -6461,6 +6461,7 @@ export class InvoicePaymentData extends UniEntity {
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
     public PaymentDate: LocalDate;
+    public PaymentID: string;
 }
 
 
@@ -6475,7 +6476,9 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
     public AccountNumber: string;
     public DueDate: Date;
     public EmploymentTax: number;
+    public FinancialTax: number;
     public KIDEmploymentTax: string;
+    public KIDFinancialTax: string;
     public KIDTaxDraw: string;
     public MessageID: string;
     public period: number;
@@ -6672,6 +6675,7 @@ export class SalaryTransactionSums extends UniEntity {
     public baseTableTax: number;
     public baseVacation: number;
     public calculatedAGA: number;
+    public calculatedFinancialTax: number;
     public calculatedVacationPay: number;
     public Employee: number;
     public grossPayment: number;
