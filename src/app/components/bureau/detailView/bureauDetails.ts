@@ -20,7 +20,7 @@ export const TABS = [
     selector: 'uni-dashboard-detail-view',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <uni-tabs [tabs]="tabs"></uni-tabs>
+        <uni-tabs [tabs]="tabs" [useRouterLinkTabs]="true"></uni-tabs>
         <ng-content></ng-content>
     `
 })

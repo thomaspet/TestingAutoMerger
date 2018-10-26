@@ -27,7 +27,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     }
 
     public hasTaxCard(taxcard: EmployeeTaxCard, year: number): boolean {
-        return taxcard && !!(taxcard.loennFraBiarbeidsgiver ||
+        return (taxcard && taxcard.ID) && !!(taxcard.loennFraBiarbeidsgiver ||
             taxcard.loennFraHovedarbeidsgiver ||
             taxcard.loennKunTrygdeavgiftTilUtenlandskBorger ||
             taxcard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger ||

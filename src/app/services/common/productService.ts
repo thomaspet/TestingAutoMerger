@@ -52,7 +52,7 @@ export class ProductService extends BizHttp<Product> {
     public getStatusText(statusCode: number): string {
         let statusText = '';
         if (!statusCode) {
-            statusText = 'Kladd';
+            statusText = 'Registrert';
         } else {
             statusText = 'Aktiv';
         }

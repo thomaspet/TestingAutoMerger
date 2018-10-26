@@ -425,7 +425,7 @@ export class AccountDetailsReport {
         }
 
         if (field === 'Amount') {
-            cssClasses += ' ' + (data.Amount >= 0 ? 'number-good' : 'number-bad');
+            cssClasses += ' ' + (parseInt(data.value, 10) >= 0 ? 'number-good' : 'number-bad');
         }
 
         return cssClasses.trim();

@@ -470,7 +470,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         if (employee) {
             validationMessages.push({
                 label: 'Kontonummer',
-                type: employee.BusinessRelationInfo.DefaultBankAccountID >= 0
+                type: employee.BusinessRelationInfo.DefaultBankAccountID
                     ? 'good' : 'bad',
                 link: 'personal-details'
             });

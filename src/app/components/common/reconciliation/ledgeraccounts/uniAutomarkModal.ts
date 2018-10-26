@@ -75,6 +75,11 @@ export class UniAutomarkModal implements IUniModal {
             _rowSelected: true
         },
         {
+            label: 'KID-treff, ulikt beløp',
+            value: 7,
+            _rowSelected: true
+        },
+        {
             label: 'Samsvar på fakturanummer',
             value: 2,
             _rowSelected: true

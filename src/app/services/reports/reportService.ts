@@ -26,6 +26,8 @@ export class ReportService extends BizHttp<string> {
     private emailtoast: number;
     private parentModalIsClosed: boolean;
 
+    progress$: BehaviorSubject<number> = new BehaviorSubject(0);
+
     constructor(
         http: UniHttp,
         private errorService: ErrorService,
@@ -159,43 +161,6 @@ export class ReportService extends BizHttp<string> {
         });
     }
 
-    // private startSteps() {
-    //     return new Promise((resolve, reject) => {
-    //         if (this.parentModalIsClosed) {
-    //             reject();
-    //         }
-    //         this.steps$.next(new ReportStep());
-    //         setTimeout(() => {
-    //             resolve(true);
-    //         }, 100);
-    //     });
-    // }
-
-    // private runStep(stepKey: string) {
-    //     return new Promise((resolve, reject) => {
-    //         if (this.parentModalIsClosed) {
-    //             reject();
-    //         }
-    //         const steps = this.steps$.getValue().Steps;
-    //         steps[stepKey] = true;
-    //         this.steps$.next(new ReportStep(steps));
-    //         setTimeout(() => {
-    //             resolve(true);
-    //         }, 100);
-    //     });
-    // }
-
-    // private getData() {
-    //     return Observable.forkJoin([
-    //         this.generateReportObservable(),
-    //         this.getDataSourcesObservable()
-    //     ]).toPromise();
-    // }
-
-    // private loadLibraries() {
-    //     return this.reportGenerator.loadLibraries();
-    // }
-
     private renderReport() {
         return new Promise((resolve, reject) => {
             if (this.parentModalIsClosed) {
@@ -264,36 +229,21 @@ export class ReportService extends BizHttp<string> {
         });
 
         return Observable.forkJoin(
-            this.generateReportObservable(),
-            this.getDataSourcesObservable(),
-            this.reportGenerator.loadLibraries()
+            this.generateReportObservable().do(() => {
+                this.progress$.next(this.progress$.value + 25);
+            }),
+            this.getDataSourcesObservable().do(() => {
+                this.progress$.next(this.progress$.value + 25);
+            }),
+            Observable.fromPromise(this.reportGenerator.loadLibraries()).do(() => {
+                this.progress$.next(this.progress$.value + 25);
+            }),
         ).switchMap(() => {
             return this.renderReport();
         }).switchMap(renderedReport => {
+            this.progress$.next(90);
             return this.renderHtml(renderedReport);
-
-            // return Promise.reject('Nope');
-        });
-
-        // return this.startSteps()
-        //     .then(() => this.runStep('FETCHING_DATA'))
-        //     .then(() => this.getData())
-        //     .then(() => this.runStep('DATA_FETCHED'))
-        //     .then(() => this.runStep('LOADING_LIBRARIES'))
-        //     .then(() => this.loadLibraries())
-        //     .then(() => this.runStep('LIBRARIES_LOADED'))
-        //     .then(() => this.runStep('RENDERING_REPORT'))
-        //     .then(() => this.renderReport())
-        //     .then((renderedReport) => report = renderedReport)
-        //     .then(() => this.runStep('REPORT_RENDERED'))
-        //     .then(() => this.runStep('RENDERING_HTML'))
-        //     .then(() => this.renderHtml(report))
-        //     .then(() => this.runStep('HTML_RENDERED'))
-        //     .catch(() => {
-        //         // we don't have to do anything when the process is interrupt
-        //         // but I put that here to remember that this process
-        //         // have rejections inside the methods
-        //     });
+        }).finally(() => this.progress$.next(0));
     }
 
     private generateReportObservable() {

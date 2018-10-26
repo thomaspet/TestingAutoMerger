@@ -51,6 +51,8 @@ import {
 import { UniReportComments } from '@app/components/reports/modals/parameter/reportComments';
 import { UniReportSendModal } from '@app/components/reports/modals/parameter/reportSendModal';
 
+import {MatProgressBarModule} from '@angular/material';
+
 @NgModule({
     imports: [
         CommonModule,
@@ -63,6 +65,7 @@ import { UniReportSendModal } from '@app/components/reports/modals/parameter/rep
         LayoutModule,
         AppCommonModule,
         AppPipesModule,
+        MatProgressBarModule
     ],
     declarations: [
         UniReports,

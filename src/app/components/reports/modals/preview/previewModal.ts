@@ -26,7 +26,12 @@ interface IDownloadAction {
 
             <article>
                 <section *ngIf="busy" class="report-loading">
-                    <small>Genererer rapport..</small>
+                    <small>Laster data og genererer rapport..</small>
+                    <mat-progress-bar
+                        class="uni-progress-bar"
+                        mode="determinate"
+                        [value]="reportService.progress$ | async">
+                    </mat-progress-bar>
                 </section>
 
                 <section id="reportContainer"></section>

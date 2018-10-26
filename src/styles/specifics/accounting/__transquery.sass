@@ -20,14 +20,20 @@ transquery-details
             padding: 0
             padding-right: 1.5rem
 
-            label span
-                @extend %visuallyHidden
+            &:not(:last-child)
+                label span
+                    @extend %visuallyHidden
 
-            label span+*
-                width: auto
+                label span+*
+                    width: auto
 
-            .uniSelect
-                width: 9.375rem
+                .uniSelect
+                    width: 9.375rem
+
+            &:last-child
+                label
+                    span
+                        width: 7rem
 
         .collapsable.-is-open > .collapsable-content
             justify-content: left

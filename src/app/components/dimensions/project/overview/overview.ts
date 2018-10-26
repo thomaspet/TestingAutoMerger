@@ -1,9 +1,16 @@
 ﻿import {Component, ViewChild, ElementRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Project, Customer, ProjectTask} from '../../../../unientities';
-import {ProjectService, CustomerService, PageStateService} from '../../../../services/services';
+import {Project, Customer, LocalDate} from '../../../../unientities';
+import {
+    ProjectService,
+    CustomerService,
+    StatisticsService,
+    NumberFormat
+} from '../../../../services/services';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
+import {Observable} from 'rxjs/Observable';
 
 export interface IMyProject extends Project {
     ProjectCustomerID: number;
@@ -24,93 +31,59 @@ export class ProjectOverview {
     @ViewChild('chartElement1')
     private chartElement1: ElementRef;
 
-    @ViewChild('chartElement2')
-    private chartElement2: ElementRef;
-
     private MONTHS: string[] = [
-        'Januar', 'Februar', 'Mars', 'April',
-        'Mai', 'Juni', 'Juli', 'August',
-        'September', 'Oktober', 'November', 'Desember'
+        'Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember' ];
+
+    private MONTHS_SHORT: string[] = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
+
+    private MONTHS_NUMERIC: string[] = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+
+    private CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
+        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
+
+    chartFilters: any[] = [
+        { name: 'Alt', value: '' },
+        { name: 'I år', value: 'year(FinancialDate) eq ' + new Date().getFullYear() }
     ];
-    public MONTHS_SHORT: string[] = [
-        'Jan', 'Feb', 'Mar', 'Apr',
-        'May', 'Jun', 'Jul', 'Aug',
-        'Sep', 'Oct', 'Nov', 'Dec'
+
+    currentChartFilter = this.chartFilters[0];
+
+    chartTypeFilters: any[] = [
+        { name: 'Resultat', ID: 1, value: 'default' },
+        { name: 'Utgifter', ID: 2, value: 'expence' }
     ];
-    public QUARTERS: string[] = [
-        '1. Kvartal',
-        '2. Kvartal',
-        '3. Kvartal',
-        '4. Kvartal'
-    ];
-    public QUARTERS_SHORT: string[] = ['Q1', 'Q2', 'Q3', 'Q4'];
+
+    currentChartDataTypeFilter = this.chartTypeFilters[0];
 
     private myChart: any;
-    private myChart2: any;
     public projectHoursTotal: number;
     public projectHoursInvoiced: number;
-    public projectExpectedResult: number;
-    public currentResult: number;
-    public remainingTasks: number;
-    private customer: Customer;
+    orderReserve: string = '0,00';
+    unpayedBills: string = '0,00';
+    resultSoFar: string = '0,00';
+    currentChartData: any;
+
     public customerName: string;
     private monthAndYearDataInBarChart: IMonthAndYear[] = [];
 
     public project: IMyProject;
-    private chart: any = {
-        type: 'bar',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Loggede timer',
-                data: [],
-                backgroundColor: '#7293cb',
-                borderColor: '#fff',
-                borderWidth: 1
-            }, {
-                label: 'Fakturerte timer',
-                data: [],
-                backgroundColor: '#e1974c',
-                borderColor: '#fff',
-                borderWidth: 1
-            }]
-        },
-        options: {}
-    };
-    private chart2: any = {
-        type: 'pie',
-        data: {
-            labels: [],
-            datasets: [{
-                label: '% ferdig',
-                data: [],
-                backgroundColor: ['#7293cb', '#e1974c'],
-                borderColor: '#FFFFFF',
-                borderWidth: 1
-            }],
-        },
-        options: {
-            cutoutPercentage: 60,
-            legend: {
-                position: 'bottom'
-            },
-        }
-    };
+    private chart: any = {};
 
     constructor(
-        private projectService: ProjectService,
+        public projectService: ProjectService,
         private customerService: CustomerService,
-        private pageStateService: PageStateService,
         private router: Router,
-        private route: ActivatedRoute) {
+        private route: ActivatedRoute,
+        private statisticsService: StatisticsService,
+        private numberFormat: NumberFormat,
+        private toast: ToastService) {
     }
 
     public ngOnInit() {
         this.route.queryParams.subscribe((params) => {
             if (!this.projectService.currentProject.getValue()) {
                 if (params && params['projectID']) {
-                    this.projectService.Get(
-                        +params['projectID'],
+                    this.projectService.Get(+params['projectID'],
                         ['ProjectTasks.ProjectTaskSchedules', 'ProjectResources'])
                     .subscribe((project: Project) => {
                         this.projectChanged(project);
@@ -123,117 +96,340 @@ export class ProjectOverview {
     }
 
     public ngAfterViewInit() {
+        if (!this.projectService.hasJournalEntryLineModule) {
+            return;
+        }
         this.chartElement1.nativeElement.onclick = (event) => {
-            if (!this.myChart || !event) { return; }
-            let temp = this.myChart.getElementAtEvent(event);
-            this.router.navigate(['/dimensions/projects/hours'], {
-                queryParams: {
-                    projectID: this.projectService.currentProject.getValue().ID,
-                    page: this.pageStateService.getPageState().page || 1,
-                    month: this.monthAndYearDataInBarChart[temp[0]._index].month,
-                    year: this.monthAndYearDataInBarChart[temp[0]._index].year
-                }
-            });
+            const temp = this.myChart.getElementAtEvent(event);
+            if (this.myChart && temp && temp.length) {
+                const project = this.projectService.currentProject.getValue();
+                this.onNavigate(`/accounting/accountingreports/dimension/1/${project.ID}/${project.ProjectNumber}/` +
+                project.Name.replace(' ', '%20'));
+                // TODO: When filter added to accounting view, attach filter from selected bar in chart
+            }
         };
     }
 
-    public navigateToEditmode() {
-        this.router.navigateByUrl('/dimensions/projects/editmode');
+    onNavigate(url, isChildRoute: boolean = false) {
+        if (isChildRoute) {
+            this.router.navigate([url], {
+                relativeTo: this.route,
+                queryParamsHandling: 'preserve'
+            });
+        } else {
+            this.router.navigateByUrl(url);
+        }
+    }
+
+    getQANClass(value: string, invert: boolean = false) {
+        const numeric = parseInt(value, 10) * (invert ? -1 : 1);
+        return  numeric > 0 ? 'good' : numeric === 0 ? 'c2a' : 'bad';
+    }
+
+    getDates(startOrStop: string) {
+        const project = this.projectService.currentProject.getValue();
+        if (!project) {
+            return 'Ikke satt';
+        }
+        if (startOrStop === 'start') {
+            if (!project.StartDate && !project.PlannedStartdate) {
+                return 'Ikke satt';
+            } else if (!project.StartDate && project.PlannedStartdate) {
+                return moment(project.PlannedStartdate).format('DD. MMM YYYY');
+            } else {
+                return moment(project.StartDate).format('DD. MMM YYYY');
+            }
+        } else {
+            if (!project.EndDate && !project.PlannedEnddate) {
+                return 'Ikke satt';
+            } else if (!project.EndDate && project.PlannedEnddate) {
+                return moment(project.PlannedEnddate).format('DD. MMM YYYY');
+            } else {
+                return moment(project.EndDate).format('DD. MMM YYYY');
+            }
+        }
+    }
+
+    onActiveChartFilterChange(filter) {
+        this.currentChartFilter = filter;
+        this.onActiveChartTypeFilterChange(this.currentChartDataTypeFilter);
+    }
+
+    onActiveChartTypeFilterChange(filter) {
+        this.currentChartDataTypeFilter = filter;
+        if (filter.value === 'expence') {
+            this.getExpensesChartQuery(this.currentChartFilter.value).subscribe((res) => {
+                this.formatDataAndDrawExpencesChart(res.Data);
+            });
+        } else {
+            this.getChartQuery(this.currentChartFilter.value).subscribe((res) => {
+                this.formatDataAndDrawChart(res.Data);
+            });
+        }
     }
 
     private projectChanged(project: IMyProject) {
         if (project && project.ID) {
             this.project = project;
-            this.getDataAndDrawChart();
+            this.getInitialDisplayData();
         }
     }
 
-    private getDataAndDrawChart() {
-        if (this.project && this.project.ID) {
-
-            if (this.project.ProjectCustomerID) {
-                this.customerService.Get(this.project.ProjectCustomerID).subscribe((customer: Customer) => {
-                    if (customer) {
-                        this.customer = customer;
-                        this.customerName = customer.Info.Name;
-                    } else {
-                        this.customerName = '';
-                    }
-                });
-            } else {
-                this.customerName = '';
-            }
-
-            this.remainingTasks = 0;
-            this.projectExpectedResult = 0;
-            this.currentResult = 0;
-            this.chart2.data.datasets[0].data = [];
-            this.chart2.data.labels = [];
-
-            this.project.ProjectTasks.forEach((task: ProjectTask) => {
-                if (moment(task.EndDate) > moment()) {
-                    this.remainingTasks++;
-                }
-                this.projectExpectedResult += task.Total;
-            });
-
-            if (this.project.ProjectTasks.length) {
-                let currentPercentCompleted = (
-                    ((this.project.ProjectTasks.length - this.remainingTasks)
-                    || this.project.ProjectTasks.length) / this.project.ProjectTasks.length
-                ) * 100;
-                let currentPercentRemaining = (this.remainingTasks / this.project.ProjectTasks.length) * 100;
-
-                this.chart2.data.datasets[0].data.push(this.project.ProjectTasks.length - this.remainingTasks);
-                this.chart2.data.labels.push(currentPercentCompleted + '% av oppgavene er ferdig');
-
-                if (currentPercentRemaining) {
-                    this.chart2.data.datasets[0].data.push(this.remainingTasks);
-                    this.chart2.data.labels.push(currentPercentRemaining + '% gjennstår');
-                }
-            } else {
-                this.chart2.data.datasets[0].data.push(0);
-                this.chart2.data.labels.push('Ingen oppgaver på prosjekt');
-            }
-
-            this.projectService.getProjectHours(this.project.ID).subscribe((res) => {
-                this.monthAndYearDataInBarChart = [];
-                this.chart.data.labels = [];
-                this.chart.data.datasets[0].data = [];
-                this.chart.data.datasets[1].data = [];
-                this.projectHoursTotal = 0;
-                this.projectHoursInvoiced = 0;
-
-                res.Data.forEach((data: any) => {
-                    this.monthAndYearDataInBarChart.push({ month: data.mnd, year: data.year });
-                    this.chart.data.labels.push(this.MONTHS[data.mnd - 1] + ' ' + data.year);
-                    this.chart.data.datasets[0].data.push(data.summinutes / 60);
-                    this.chart.data.datasets[1].data.push(data.WorkItemMinutesToOrder / 60);
-                    this.projectHoursTotal += data.summinutes;
-                    this.projectHoursInvoiced += data.WorkItemMinutesToOrder || 0;
-                });
-
-                this.projectHoursTotal /= 60;
-                this.projectHoursInvoiced /= 60;
-                this.drawChart();
-            });
+    private getInitialDisplayData() {
+        if (!this.project || !this.project.ID) {
+            return;
         }
+
+        const queries = [];
+
+        if (this.projectService.hasJournalEntryLineModule) {
+            this.onActiveChartTypeFilterChange(this.currentChartDataTypeFilter);
+        }
+
+        // Get sum of orderreserves
+        queries.push( this.projectService.hasOrderModule ? this.statisticsService.GetAll(
+            `model=customerorder&select=sum(items.SumTotalExVat) as sum,count(id) as counter` +
+            `&filter=DefaultDimensions.ProjectID eq ${this.project.ID} and (items.statuscode eq 41102 and ` +
+            `(statuscode eq 41002 or statuscode eq 41003))&expand=items,DefaultDimensions`) : Observable.of(null)
+        );
+
+        // Get sum of unpayed bills
+        queries.push( this.projectService.hasSupplierInvoiceModule ? this.statisticsService.GetAll(
+            `model=supplierinvoice&select=sum(Restamount) as sum` +
+            `&filter=DefaultDimensions.ProjectID eq ${this.project.ID} and ` +
+            `(statuscode lt 30107 and statuscode ne 30104)&expand=DefaultDimensions`) : Observable.of(null)
+        );
+
+        if (this.project.ProjectCustomerID) {
+            queries.push(this.customerService.Get(this.project.ProjectCustomerID));
+            this.customerService.Get(this.project.ProjectCustomerID).subscribe((customer: Customer) => {
+
+            });
+        } else {
+            this.customerName = 'Kunde ikke valgt';
+        }
+
+        Observable.forkJoin(queries).subscribe((res) => {
+            if (!res) {
+                this.toast.addToast('Kunne ikke hente data', ToastType.bad, 5, 'Noe gikk galt når vi prøvde å hente prosjektdata');
+                return;
+            }
+            if (res[0] ) {
+                this.orderReserve = this.numberFormat.asMoney(res[0].Data[0].sum || 0);
+            }
+
+            if (res[1] ) {
+                this.unpayedBills = this.numberFormat.asMoney(res[1].Data[0].sum || 0);
+            }
+
+            if (res[2]) {
+                this.customerName = res[2].Info.Name;
+            } else {
+                this.customerName = 'Kunde ikke valgt';
+            }
+        });
+    }
+
+    private getChartQuery(filter?: string) {
+        return this.statisticsService.GetAll(
+            `model=JournalEntryLine&filter=project.ID eq ${this.project.ID} and TopLevelAccountGroup.GroupNumber gt 2` +
+            (filter ? ` and ${filter}` : '') +
+            `&expand=Dimensions.Project,Account.TopLevelAccountGroup` +
+            `&select=sum(JournalEntryLine.Amount) as SumAmount,` +
+            `sum(casewhen(TopLevelAccountGroup.GroupNumber eq 3\\,JournalEntryLine.Amount\\,0)) as SumIncome,` +
+            `sum(casewhen(TopLevelAccountGroup.GroupNumber gt 3\\,JournalEntryLine.Amount\\,0)) as SumCost,` +
+            `sum(casewhen(TopLevelAccountGroup.GroupNumber ge 3\\,JournalEntryLine.Amount\\,0)) as SumResult,` +
+            `year(FinancialDate) as year, month(FinancialDate) as month&orderby=year(financialdate),month(financialdate)`);
+    }
+
+    private getExpensesChartQuery(filter: string) {
+        return this.statisticsService.GetAll(
+            `model=JournalEntryLine&filter=project.ID eq ${this.project.ID} and TopLevelAccountGroup.GroupNumber gt 2` +
+            (filter ? ` and ${filter}` : '') +
+            `&expand=Dimensions.Project,Account.TopLevelAccountGroup` +
+            `&select=sum(JournalEntryLine.Amount) as SumAmount,` +
+            `TopLevelAccountGroup.Name as TopLevelAccountGroupName,TopLevelAccountGroup.GroupNumber as TopLevelAccountGroupGroupNumber`);
+    }
+
+    private formatDataAndDrawChart(budgetData: any[]) {
+        const chartdata = this.fillGaps(budgetData);
+        this.chart = this.getEmptyResultChart();
+        this.currentChartData = chartdata;
+
+        this.monthAndYearDataInBarChart = [];
+        this.chart.data.labels = [];
+        this.chart.data.datasets[0].data = [];
+        this.chart.data.datasets[1].data = [];
+        this.chart.data.datasets[2].data = [];
+
+        let result = 0;
+        let labelMonths = chartdata.length < 5 ? this.MONTHS : this.MONTHS_SHORT;
+        labelMonths = chartdata.length > 8 ? this.MONTHS_NUMERIC : labelMonths;
+        const labelSeperator = chartdata.length > 8 ? '-' : ' ';
+
+        chartdata.forEach((element) => {
+            this.chart.data.labels.push(`${labelMonths[element.monthFinancialDate - 1]}${labelSeperator}${element.year}`);
+            this.chart.data.datasets[0].data.push(element.SumIncome * -1);
+            this.chart.data.datasets[1].data.push(element.SumCost * -1);
+            this.chart.data.datasets[2].data.push(element.SumResult * -1);
+            result += element.SumResult;
+        });
+
+        this.resultSoFar = this.numberFormat.asMoney(result * -1);
+
+        this.drawChart();
+    }
+
+    private formatDataAndDrawExpencesChart(chartdata) {
+        const labels = [];
+        const data = [];
+        let options = {};
+
+        chartdata.forEach((element) => {
+            if (element.SumAmount > 0) {
+                labels.push(element.TopLevelAccountGroupName);
+                data.push(element.SumAmount);
+            }
+        });
+
+        if (!data.length) {
+            options = {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Ingen utgifter å vise'
+                }
+            };
+        }
+
+        this.chart = {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        data: data,
+                        backgroundColor: this.CUSTOM_COLORS.slice(0, data.length)
+                    }
+                ]
+            },
+            options: options
+        };
+
+        this.drawChart();
+    }
+
+    private fillGaps(list: any[]) {
+        if (list.length === 0 ) {
+            let currentMonth = new Date().getMonth();
+            currentMonth = new Date().getMonth() === 1 ? currentMonth++ : new Date().getMonth() === 12 ? currentMonth-- : currentMonth;
+            list.push(this.getEmptyDummies(currentMonth - 1, new Date().getFullYear()));
+            list.push(this.getEmptyDummies(currentMonth, new Date().getFullYear()));
+            list.push(this.getEmptyDummies(currentMonth + 1, new Date().getFullYear()));
+        } else if (list.length === 1) {
+            const currentMonth = list[0].monthFinancialDate;
+            if (currentMonth === 1) {
+                list.unshift(this.getEmptyDummies(12, list[0].year - 1));
+                list.push(this.getEmptyDummies(currentMonth + 1, list[0].year));
+            } else if (currentMonth === 12) {
+                list.unshift(this.getEmptyDummies(currentMonth - 1, list[0].year));
+                list.push(this.getEmptyDummies(1, list[0].year + 1));
+            } else {
+                list.unshift(this.getEmptyDummies(currentMonth - 1, list[0].year));
+                list.push(this.getEmptyDummies(currentMonth + 1, list[0].year));
+            }
+        } else if (list.length === 2) {
+            const currentMonth = list[0].monthFinancialDate;
+            if (currentMonth === 1) {
+                list.unshift(this.getEmptyDummies(12, list[0].year - 1));
+            } else {
+                list.unshift(this.getEmptyDummies(currentMonth - 1, list[0].year));
+            }
+        } else {
+            let index = 1;
+            let monthShouldBe: number = list[0].monthFinancialDate === 12 ? 1 : list[0].monthFinancialDate + 1;
+            let yearShouldBe: number = list[0].year;
+
+            let notAllFilled: boolean = true;
+
+            while (notAllFilled) {
+
+                if (list[index].monthFinancialDate !== monthShouldBe || list[index].year !== yearShouldBe) {
+                    list.splice(index, 0, this.getEmptyDummies(monthShouldBe, yearShouldBe));
+                }
+                index++;
+
+                if (monthShouldBe === 12) {
+                    monthShouldBe = 1;
+                    yearShouldBe++;
+                } else {
+                    monthShouldBe++;
+                }
+
+                notAllFilled = !(yearShouldBe === list[list.length - 1].year && monthShouldBe === list[list.length - 1].monthFinancialDate);
+            }
+        }
+        return list;
+    }
+
+    private getEmptyDummies(month: number, year: number) {
+        return {
+            SumAmount: 0,
+            SumCost: 0,
+            SumIncome: 0,
+            SumResult: 0,
+            monthFinancialDate: month,
+            year: year
+        };
     }
 
     private drawChart() {
-
         if (this.myChart) {
             this.myChart.destroy();
         }
 
-        if (this.myChart2) {
-            this.myChart2.destroy();
-        }
-
-        let element = this.chartElement1.nativeElement;
-        let element2 = this.chartElement2.nativeElement;
-        element2.style.maxWidth = '300px';
+        const element = this.chartElement1.nativeElement;
         this.myChart = new Chart(<any>element, this.chart);
-        this.myChart2 = new Chart(<any>element2, this.chart2);
+    }
+
+    private getEmptyResultChart() {
+        return {
+            type: 'bar',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Inntekter',
+                    data: [],
+                    backgroundColor: '#01a901',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Utgifter',
+                    data: [],
+                    backgroundColor: '#d24d57',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Resultat',
+                    data: [],
+                    borderColor: '#638bb3',
+                    backgroundColor: '#638bb3',
+                    borderWidth: 1,
+                    type: 'line',
+                    fill: false,
+                    options: {
+                        fill: false
+                    }
+                }
+            ]
+            },
+            options: {
+                legend: {
+                    position: 'bottom'
+                },
+            }
+        };
     }
 }

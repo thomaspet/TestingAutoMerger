@@ -48,6 +48,7 @@ interface ISearchParams {
     JournalEntryNumber?: number;
     Account?: number;
     Amount?: number;
+    ShowCreditedLines?: boolean;
 }
 
 @Component({
@@ -68,6 +69,7 @@ export class TransqueryDetails implements OnInit {
     private configuredFilter: string;
     public allowManualSearch: boolean = true;
     public summary: ISummaryConfig[] = [];
+    public showCredited: boolean = false;
     private lastFilterString: string;
     private dimensionTypes: any[];
     private searchTimeout;
@@ -180,8 +182,8 @@ export class TransqueryDetails implements OnInit {
                         !x.includes('Period.AccountYear eq ')
                         && !x.includes('JournalEntryNumberNumeric eq ')
                         && !x.includes('Account.AccountNumber eq')
-                        && !x.includes('Amount eq'
-                        )
+                        && !x.includes('Amount eq')
+                        && !x.includes('isnull(StatusCode,0) ne')
                     ) {
                         newFilters.push(x);
                     }
@@ -203,6 +205,10 @@ export class TransqueryDetails implements OnInit {
                 }
                 if (searchParams.Amount && !isNaN(searchParams.Amount)) {
                     formFilters.push(`Amount eq ${searchParams.Amount}`);
+                }
+
+                if (!searchParams.ShowCreditedLines) {
+                    formFilters.push('isnull(StatusCode,0) ne 31004');
                 }
             }
             filters = filters.concat(formFilters);
@@ -793,6 +799,9 @@ export class TransqueryDetails implements OnInit {
             .setIsRowReadOnly(row => row.StatusCode === 31004)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
+            .setConditionalRowCls((row) => {
+                return (row && row.StatusCode === 31004) ? 'journal-entry-credited' : '';
+            })
             .setDataMapper((data) => {
                 const tmp = data !== null ? data.Data : [];
 
@@ -840,22 +849,8 @@ export class TransqueryDetails implements OnInit {
             return '';
         }
 
-        if (data.ReferenceCreditPostID || data.OriginalReferencePostID) {
-            cssClasses += 'journal-entry-credited';
-        } else {
-            if (field === 'Amount') {
-                cssClasses += ' ' + (data.JournalEntryLineAmount >= 0 ? 'number-good' : 'number-bad');
-            }
-
-            if (field === 'AmountCurrency') {
-                cssClasses += ' ' + (data.JournalEntryLineAmountCurrency >= 0 ? 'number-good' : 'number-bad');
-            }
-            if (field === 'RestAmount') {
-                cssClasses += ' ' + (data.JournalEntryLineRestAmount >= 0 ? 'number-good' : 'number-bad');
-            }
-            if (field === 'RestAmountCurrency') {
-                cssClasses += ' ' + (data.JournalEntryLineRestAmountCurrency >= 0 ? 'number-good' : 'number-bad');
-            }
+        if (field === 'Amount' || field === 'AmountCurrency' || field === 'RestAmount' || field === 'RestAmountCurrency') {
+            cssClasses += ' ' + (parseInt(data.value, 10) >= 0 ? 'number-good' : 'number-bad');
         }
 
         return cssClasses.trim();
@@ -907,6 +902,13 @@ export class TransqueryDetails implements OnInit {
                     FieldType: FieldType.NUMERIC,
                     Label: 'Beløp',
                     Placeholder: 'Beløp'
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'ShowCreditedLines',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Vis krediterte',
+                    Placeholder: ''
                 }
             ]
         };

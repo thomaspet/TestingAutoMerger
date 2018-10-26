@@ -1,51 +1,56 @@
 ﻿<section class="project-router-outlet">
-    <section class="project-overview-tile">
-        <span class="project_edit_button" (click)="navigateToEditmode()"></span>
-        <h3 class="project-overview-name"> {{ project?.Name }} </h3>
-        <p class="project-overview-description">{{ project?.Description }}</p>
-        <h2 class="project-overview-company">{{ customerName }}</h2>
-        <hr />
-        <p><strong>Prosjektleder:</strong> {{ project?.ProjectLeadName }}</p>
-        <p><strong>Total budget:</strong> {{ project?.Total | number }}</p>
-    </section>
+    <div class="project-header">
+        <div class="header-name-and-company">
+            <h3 class="project-header-name"> {{ project?.ProjectNumber }} - {{ project?.Name }} </h3>
+            <span> {{ customerName }} </span>
+        </div>
+        <div class="header-numbers-info" *ngIf="projectService?.hasJournalEntryLineModule">
+            <mat-form-field>
+                <mat-select [value]="currentChartFilter" (valueChange)="onActiveChartFilterChange($event)" placeholder="Grafdata - periode">
+                    <mat-option *ngFor="let filter of chartFilters" [value]="filter">
+                        {{ filter.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field>
+                <mat-select [value]="currentChartDataTypeFilter" (valueChange)="onActiveChartTypeFilterChange($event)" placeholder="Datavisning">
+                    <mat-option *ngFor="let filter of chartTypeFilters" [value]="filter">
+                        {{ filter.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </div>
 
-    <section class="project-overview-chart-tile-container">
-        <section class="project-overview-chart-tile">
-            <canvas #chartElement1> </canvas>
-        </section>
+    <div class="project-body" style="display: flex;">
+        <div class="quick-access-numbers" style="flex: 0 1 auto; width: 20%;">
+            <div>
+                <p>Startdato</p>
+                <h3 class="project-dash-dates">{{ getDates('start') }}</h3>
+            </div>
+            <div>
+                <p>Sluttdato</p>
+                <h3 class="project-dash-dates">{{ getDates('end') }}</h3>
+            </div>
+            <div *ngIf="projectService?.hasOrderModule">
+                <p>Ordrereserve:</p>
+                <h3 [ngClass]="getQANClass(orderReserve)" (click)="onNavigate('/dimensions/projects/orders', true)"> {{ orderReserve }}</h3>
+            </div>
+            <div *ngIf="projectService?.hasSupplierInvoiceModule">
+                <p>Ubetalte regninger</p>
+                <h3 [ngClass]="getQANClass(unpayedBills, true)" (click)="onNavigate('/dimensions/projects/supplierinvoices', true)"> {{ unpayedBills }} </h3>
+            </div>
+            <div *ngIf="projectService?.hasJournalEntryLineModule">
+                <p>Løpende resultat</p>
+                <h3 [ngClass]="getQANClass(resultSoFar)" (click)="onNavigate('/accounting/accountingreports/dimensions?dimtype=1')"> {{ resultSoFar }} </h3>
+            </div>
 
-        <section class="project-overview-chart-tile">
-            <canvas #chartElement2> </canvas>
-        </section>
-
-        <section class="project-overview-info-tiles">
-            <section>
-                <p>Loggede timer:</p>
-                <h3>{{ projectHoursTotal | hours }}</h3>
-            </section>
-
-            <section>
-                <p>Fakturerte timer:</p>
-                <h3>{{ projectHoursInvoiced }}</h3>
-            </section>
-
-            <section>
-                <p>Forventet resultat:</p>
-                <h3>{{ projectExpectedResult }}</h3>
-            </section>
-
-            <section>
-                <p>Resultat nå:</p>
-                <h3>{{ currentResult }}</h3>
-            </section>
-
-            <section>
-                <p>Gjennstående oppgaver</p>
-                <h3>{{ remainingTasks }}</h3>
-            </section>
-        </section>
-    </section>
-
+        </div>
+        <div class="chart-container">
+            <canvas #chartElement1 *ngIf="projectService?.hasJournalEntryLineModule"> </canvas>
+            <h4 *ngIf="!projectService?.hasJournalEntryLineModule" style="font-size: 1.2rem; font-weight: 400; text-align: center;"> Manglende tilganger for å se nøkkeltall for prosjekt </h4>
+        </div>
+    </div>
     <section class="project-overview-timeline-container">
     </section>
 </section>

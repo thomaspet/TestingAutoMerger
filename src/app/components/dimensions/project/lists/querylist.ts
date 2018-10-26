@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {
     ProjectService,
@@ -19,16 +19,23 @@ export class ProjectQueryList {
     private customerID: number = 0;
     public summary: ISummaryConfig[] = [];
 
-    constructor(private projectService: ProjectService,
-                private errorService: ErrorService,
-                private uniQueryDefinitionService: UniQueryDefinitionService,
-                private route: ActivatedRoute) {
+    constructor(
+        private projectService: ProjectService,
+        private errorService: ErrorService,
+        private uniQueryDefinitionService: UniQueryDefinitionService,
+        private route: ActivatedRoute,
+        private router: Router
+    ) {
     }
 
     public ngOnInit() {
         this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Projects).subscribe((links) => {
             this.route.url.subscribe((url) => {
-                let link = links.find(x => x.name === url[0].path);
+                if (url[0].path === 'supplierinvoices' && !this.projectService.hasSupplierInvoiceModule) {
+                    this.router.navigateByUrl('/dimensions/projects/editmode');
+                    return;
+                }
+                const link = links.find(x => x.name === url[0].path);
                 if (link) {
                     this.reportID = link.id;
                 }

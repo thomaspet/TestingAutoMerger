@@ -15,6 +15,7 @@ export interface IUniTab {
     selector: 'uni-tabs',
     template: `
         <mat-tab-group
+            *ngIf="!useRouterLinkTabs"
             [(selectedIndex)]="activeIndex"
             (selectedIndexChange)="onTabActivated($event)">
 
@@ -29,6 +30,17 @@ export interface IUniTab {
                 </ng-template>
             </mat-tab>
         </mat-tab-group>
+        <nav mat-tab-nav-bar *ngIf="useRouterLinkTabs">
+            <a mat-tab-link
+                *ngFor="let tab of filteredTabs; let i = index;"
+                [routerLink]="tab.path"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [active]="rla.isActive"
+                (click)="onTabActivated(i)">
+                {{ tab.name }}
+            </a>
+        </nav>
     `
 })
 export class UniTabs {
@@ -38,6 +50,7 @@ export class UniTabs {
     @Input() public counterProperty: string = 'count';
 
     @Input() public activeIndex: number;
+    @Input() public useRouterLinkTabs: boolean = false;
 
     @Output() public activeIndexChange: EventEmitter<number> = new EventEmitter(false);
     @Output() public tabClick: EventEmitter<IUniTab> = new EventEmitter(false);

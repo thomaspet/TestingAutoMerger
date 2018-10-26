@@ -56,7 +56,6 @@ export class StimulsoftReportWrapper {
     }
 
     public loadLibraries() {
-
         return this.loadStimulsoft()
             .then(() => this.loadStimulsoftCss())
             .then(() => this.loadStimulsoftViewer())
