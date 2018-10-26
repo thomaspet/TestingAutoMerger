@@ -16,6 +16,9 @@ export class ProjectService extends BizHttp<Project> {
     public saveActions: ReplaySubject<Array<IUniSaveAction>> = new ReplaySubject(null);
     public allProjects: Project[];
     public isDirty: boolean;
+    hasSupplierInvoiceModule: boolean = false;
+    hasJournalEntryLineModule: boolean = false;
+    hasOrderModule: boolean = false;
 
     constructor(http: UniHttp) {
         super(http);
@@ -27,7 +30,7 @@ export class ProjectService extends BizHttp<Project> {
 
     // tslint:disable-next-line:member-ordering
     public statusTypes: Array<any> = [
-        { Code: 42201, Text: 'Kladd', isPrimary: true},
+        { Code: 42201, Text: 'Registrert', isPrimary: true},
         { Code: 42202, Text: 'Tilbudsfase', isPrimary: false },
         { Code: 42203, Text: 'Pågår', isPrimary: true },
         { Code: 42204, Text: 'Fullført', isPrimary: true },
@@ -51,13 +54,20 @@ export class ProjectService extends BizHttp<Project> {
             .withEndPoint(route)
             .send()
             .map(response => response.json());
-    };
+    }
+
+    public resetBools() {
+        this.hasOrderModule = false;
+        this.hasSupplierInvoiceModule = false;
+        this.hasJournalEntryLineModule = false;
+    }
 
     public getAllProjectHours(filter: string) {
         const route = 'workitems?expand=WorkType,Dimensions,Dimensions.Project,WorkRelation.Worker.Info,'
             + 'Dimensions.Department,CustomerOrder,Customer,Customer.Info'
             + '&filter=' + filter
             + '&orderBy=StartTime&hateoas=false';
+
         return this.http.asGET()
             .usingBusinessDomain()
             .withEndPoint(route)
@@ -76,7 +86,7 @@ export class ProjectService extends BizHttp<Project> {
         }
 
         // Apply basefilter?
-        var userFilter = params.get('filter');
+        const userFilter = params.get('filter');
         if (baseFilter) {
             params.set('filter', userFilter ? userFilter + ' and ( ' + baseFilter + ' )' : baseFilter);
         }
@@ -85,7 +95,7 @@ export class ProjectService extends BizHttp<Project> {
             params.delete('filter');
         }
 
-        var result = this.http
+        const result = this.http
             .usingBusinessDomain()
             .asGET()
             .withEndPoint(this.relativeURL)

@@ -24,6 +24,8 @@ import {ProjectLiteDetails} from './projectLite/projectLiteDetails';
 
 import {UniDimensionView} from './custom/dimension';
 
+import {MatSelectModule} from '@angular/material';
+
 
 @NgModule({
     imports: [
@@ -35,6 +37,7 @@ import {UniDimensionView} from './custom/dimension';
 
         UniFrameworkModule,
         LayoutModule,
+        MatSelectModule,
 
         // TODO: see if we really need these
         AppCommonModule,

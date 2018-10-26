@@ -7,24 +7,36 @@
 <section class="application">
     <uni-tabs
         [tabs]="childRoutes"
-        [queryParamsHandling]="'preserve'">
+        [queryParamsHandling]="'preserve'"
+        [useRouterLinkTabs]="true">
     </uni-tabs>
 
     <section class="splitview">
         <nav class="splitview_list">
-            <uni-tabs
-                [tabs]="filters"
-                [activeIndex]="activeFilterIndex"
-                (activeIndexChange)="onActiveFilterChange($event)">
-            </uni-tabs>
+            <!-- Active/all/mine select -->
+            <mat-form-field>
+                <mat-select [value]="currentFilter" (valueChange)="onActiveFilterChange($event)" placeholder="Prosjekter">
+                    <mat-option *ngFor="let filter of filters" [value]="filter">
+                        {{ filter.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
 
-            <uni-table
-                [resource]="lookupFunction"
-                [config]="tableConfig"
-                (rowSelected)="onRowSelected($event)"
-                (dataLoaded)="onTableReady()"
-                (pageChange)="onPageChange($event)">
-            </uni-table>
+            <div class="project-list-container">
+                <input type="search" [(ngModel)]="projectSearchFilterString" [formControl]="searchControl" />
+                <ul id="role-info">
+                     <li *ngFor="let project of filteredProjects"
+                        [class.selected]="project.ID === activeProjectID"
+                        (click)="onProjectSelect(project)">
+                         <span>
+                             {{ project.Name }}
+                         </span>
+                         <span>
+                            Prosjektnr: &nbsp; {{ project.ProjectNumber }}
+                        </span>
+                     </li>
+                </ul>
+            </div>
         </nav>
 
         <main class="splitview_detail">

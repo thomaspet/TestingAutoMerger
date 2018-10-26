@@ -5,11 +5,11 @@
     [tags]="categoryFilter"
     [tagConfig]="tagConfig"
     [searchConfig]="toolbarSearchConfig"
-    [validationMessages]="toolbarValidation"    
+    [validationMessages]="toolbarValidation"
     class="employeeToolbar">
 </uni-toolbar>
 
 <article class="application" [attr.aria-busy]="busy">
-    <uni-tabs [tabs]="childRoutes"></uni-tabs>
+    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
     <router-outlet></router-outlet>
 </article>
