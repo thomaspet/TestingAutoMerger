@@ -37,9 +37,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     });
 
     super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY)
-      .subscribe((balances) => {
-        this.salarybalances = balances;
-      });
+        .subscribe((balances) => this.salarybalances = balances);
 
   }
 
@@ -50,7 +48,7 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     ).subscribe((response: [SalaryBalance[], Employee[]]) => {
       const[balances, emps] = response;
       this.employees = emps;
-      this.salarybalances = balances;
+      super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, balances, false);
       this.createConfig();
     });
   }

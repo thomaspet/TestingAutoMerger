@@ -220,22 +220,27 @@ export class SalarybalanceTemplateView extends UniView {
     }
 
     private saveAll(done, updateView = true) {
-        super.getStateSubject(SALBAL_TEMPLATE_KEY)
-            .asObservable()
+        Observable
+            .combineLatest(super.getStateSubject(SALBAL_TEMPLATE_KEY), super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY))
             .take(1)
-            .switchMap(template => this.salarybalanceTemplateService.save(template, done))
-            .switchMap((savedTemplate: SalaryBalanceTemplate) => {
-                this.currentTemplate = savedTemplate;
-                return this.getSalaryBalancesObs(savedTemplate);
+            .switchMap(ret => {
+                const [template, salBals] = ret;
+                return this.salarybalanceTemplateService.save(template, salBals, done);
+            })
+            .do(() => this.salarybalanceService.invalidateCache())
+            .do(template => {
+                if (!updateView) {
+                    return;
+                }
+                super.updateState(SALBAL_TEMPLATE_KEY, template, false);
+                this.getSalaryBalances(template);
             })
             .catch((err, obs) => {
                 done('Lagring feilet');
                 return this.errorService.handleRxCatch(err, obs);
             })
             .finally(() => {
-                super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, this.salarybalancesOnTemplate, false);
                 if (updateView) {
-                    super.updateState(SALBAL_TEMPLATE_KEY, this.currentTemplate, false);
                     const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(URL + this.currentTemplate.ID + '/' + childRoute);
                 }
@@ -243,6 +248,12 @@ export class SalarybalanceTemplateView extends UniView {
                 this.saveActions[0].disabled = true;
             })
             .subscribe();
+    }
+
+    private getSalaryBalances(template: SalaryBalanceTemplate) {
+        this.salarybalanceService
+            .getSalarybalancesOnTemplate(template.ID)
+            .subscribe(salBals => super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, salBals, false));
     }
 
     private getSalaryBalancesObs(salarybalanceTemplate: SalaryBalanceTemplate): Observable<SalaryBalance[]> {

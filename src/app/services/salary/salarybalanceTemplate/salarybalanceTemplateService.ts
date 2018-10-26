@@ -1,12 +1,13 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance} from '../../../unientities';
+import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance, SalBalDrawType} from '../../../unientities';
 import {Observable} from 'rxjs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
+import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 
 @Injectable()
 export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate> {
@@ -25,7 +26,7 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
     constructor(
         protected http: UniHttp,
         private uniModalService: UniModalService,
-        private salaryTransactionService: SalaryTransactionService
+        private salaryTransactionService: SalaryTransactionService,
     ) {
         super(http);
         this.relativeURL = SalaryBalanceTemplate.RelativeUrl;
@@ -58,7 +59,11 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
             .map(resultSet => resultSet[0]);
     }
 
-    public save(template: SalaryBalanceTemplate, done: (msg: string) => void = null) {
+    public save(
+        template: SalaryBalanceTemplate,
+        salBals: SalaryBalance[] = [],
+        done: (msg: string) => void = null): Observable<SalaryBalanceTemplate> {
+        template.SalaryBalances = this.prepareSalBalsForTemplate(salBals.filter(x => x.EmployeeID), template);
         return this.uniModalService
             .confirm({
                 header: 'Lagre trekkmal',
@@ -70,8 +75,25 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
                 done('Lagring avbrutt');
             })
             .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
-            .switchMap(() => template.ID ? super.Put(template.ID, template) : super.Post(template))
+            .switchMap(() => this.saveTemplate(template))
             .do(() => this.clearCache());
+    }
+
+    private prepareSalBalsForTemplate(salBals: SalaryBalance[], template: SalaryBalanceTemplate) {
+        if (!salBals || !salBals.length) {
+            return [];
+        }
+        salBals.forEach(salBal => {
+            if (!salBal.ID) {
+                salBal._createguid = this.getNewGuid();
+                salBal.Type = SalBalDrawType.FixedAmount;
+            }
+            if (!salBal.WageTypeNumber) {
+                salBal.WageTypeNumber = template.WageTypeNumber;
+            }
+        });
+
+        return salBals;
     }
 
     public getTemplate(id: number | string, expand: string[] = null): Observable<any> {
