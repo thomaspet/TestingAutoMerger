@@ -166,7 +166,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                     PaymentDate: new LocalDate(new Date()),
                     AgioAccountID: null,
                     BankChargeAccountID: 0,
-                    AgioAmount: 0
+                    AgioAmount: 0,
+                    PaymentID: null
                 };
 
                 const modal = this.modalService.open(UniRegisterPaymentModal, {

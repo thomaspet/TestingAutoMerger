@@ -2989,7 +2989,8 @@ export class BillView implements OnInit {
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: 0,
             BankChargeAccountID: 0,
-            AgioAmount: 0
+            AgioAmount: 0,
+            PaymentID: null
         };
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {

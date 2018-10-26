@@ -1851,7 +1851,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: null,
             BankChargeAccountID: 0,
-            AgioAmount: 0
+            AgioAmount: 0,
+            PaymentID: null
         };
 
         const paymentModal = this.modalService.open(UniRegisterPaymentModal, {

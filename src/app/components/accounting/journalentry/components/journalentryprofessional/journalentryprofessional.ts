@@ -1646,7 +1646,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
 
         return new Promise(resolve => {
-            const journalEntryPaymentData: InvoicePaymentData = {
+            const journalEntryPaymentData: Partial<InvoicePaymentData> = {
                 Amount: postPostJournalEntryLine.RestAmount,
                 AmountCurrency: postPostJournalEntryLine.RestAmountCurrency,
                 BankChargeAmount: 0,
@@ -1826,7 +1826,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
                 AgioAccountID: 0,
                 BankChargeAccountID: 0,
-                AgioAmount: 0
+                AgioAmount: 0,
+                PaymentID: null
             };
 
             const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
