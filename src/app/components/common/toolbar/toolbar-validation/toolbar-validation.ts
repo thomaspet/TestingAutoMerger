@@ -27,5 +27,4 @@ export class UniToolbarValidation {
             return 'info';
         }
     }
-
 }
