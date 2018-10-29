@@ -89,7 +89,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                             this.options.header = 'Autentisering steg 2 - Kode på telefon';
                             this.fieldText = 'Vi har nå sendt en kode til nummeret du oppga da du tegnet autobank avtalen.' +
                                 ' Vennligst skriv inn kode for å fortsette.';
-                            this.okButtonText = 'Send kode';
+                            this.okButtonText = 'Fullfør betaling';
                             this.formFields$.next(this.getFormFields(true));
                        }
                     }, err => this.errorService.handle(err));
