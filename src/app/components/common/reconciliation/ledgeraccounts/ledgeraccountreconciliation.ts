@@ -1033,6 +1033,7 @@ export class LedgerAccountReconciliation {
             new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
                 .setVisible(false)
                 .setSortMode(UniTableColumnSortMode.Absolute),
+            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text).setVisible(false),
             new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setWidth('7rem')
