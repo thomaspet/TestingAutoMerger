@@ -35,8 +35,12 @@ export class ApiModelService {
         return this.models;
     }
 
-    public getField(model: ApiModel, field: string) {
-        return model.Fields[field.toLowerCase()];
+    public getField(model: ApiModel, fieldName: string) {
+        return model.Fields && model.Fields.find(field => {
+            if (field.Publicname && fieldName) {
+                return field.Publicname.toLowerCase() === fieldName.toLowerCase();
+            }
+        });
     }
 
     public getModules(): Array<ModuleConfig> {
