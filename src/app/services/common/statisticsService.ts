@@ -120,7 +120,6 @@ export class StatisticsService extends BizHttp<string> {
     }
 
     public checkShouldShowField(field: string) {
-
         if (field.toLowerCase() === 'id') {
             return true;
         }
@@ -130,7 +129,7 @@ export class StatisticsService extends BizHttp<string> {
             return false;
         }
 
-        if (this.notSoImportantFields.find(x => x === field)) {
+        if (this.notSoImportantFields.find(x => x === field.toLowerCase())) {
             return false;
         }
 

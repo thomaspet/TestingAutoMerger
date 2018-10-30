@@ -32,7 +32,7 @@ export class ModelTreeView implements OnChanges {
     public visibleModules: Array<ModuleConfig> = [];
     private models: Array<any> = [];
 
-    public model: {Relations: any, Fields: any[], fieldArray: string[]};
+    public model: {Relations: any, Fields: any[], fieldArray: any[]};
 
     constructor(
         private statisticsService: StatisticsService,
@@ -71,7 +71,7 @@ export class ModelTreeView implements OnChanges {
 
     private setDefaultExpandedModels() {
         if (this.mainModelName && this.models) {
-            let mainModel = this.models.find(x => x.Name === this.mainModelName);
+            const mainModel = this.models.find(x => x.Name === this.mainModelName);
 
             if (mainModel) {
                 mainModel.Expanded = true;
@@ -81,10 +81,10 @@ export class ModelTreeView implements OnChanges {
                 this.models = this.models.filter(x => x !== mainModel);
                 this.models.unshift(mainModel);
 
-                let expandedMainModel = _.cloneDeep(mainModel);
+                const expandedMainModel = _.cloneDeep(mainModel);
                 expandedMainModel.RelatedModels = [];
                 expandedMainModel.Relations.forEach(rel => {
-                    let relatedModel = this.models.find(x => x.Name === rel.RelatedModel);
+                    const relatedModel = this.models.find(x => x.Name === rel.RelatedModel);
                     if (relatedModel) {
                         expandedMainModel.RelatedModels.push({
                             RelationName: rel.Name, Model: _.cloneDeep(relatedModel)
@@ -100,7 +100,7 @@ export class ModelTreeView implements OnChanges {
     }
 
     private filterModules() {
-        let modules = this.modules.concat();
+        const modules = this.modules.concat();
 
         modules.forEach(module => {
             module.ModelList = module.ModelList.filter(
@@ -108,22 +108,25 @@ export class ModelTreeView implements OnChanges {
             );
 
             module.ModelList.forEach(model => {
-                model.fieldArray = Object.keys(model.Fields).filter(
-                    x => this.showAllFields || this.statisticsService.checkShouldShowField(x)
+                model.fieldArray = model.Fields.filter(x => this.showAllFields
+                    || this.statisticsService.checkShouldShowField(x.Publicname)
                 );
 
                 if (this.selectedFields) {
-                    let fieldsOnTopLevelModels = this.selectedFields
+                    const fieldsOnTopLevelModels = this.selectedFields
                         .filter(
                             (field: UniTableColumn) =>
                                 field.path === null || field.path === '' || field.path === this.mainModelName
                         );
 
                     fieldsOnTopLevelModels.forEach((field: UniTableColumn) => {
-                        let selectedField = model.fieldArray.find(x => x === field.field.toLowerCase());
+                        const selectedField = model.fieldArray.find(x => x.Publicname.toLowerCase() === field.field.toLowerCase());
 
                         if (selectedField !== undefined) {
-                            model.Fields[field.field.toLowerCase()].Selected = true;
+                            const modelField = model.Fields.find(x => x.Publicname.toLowerCase() === field.field.toLowerCase());
+                            if (modelField) {
+                                modelField.Selected = true;
+                            }
                         }
                     });
                 }

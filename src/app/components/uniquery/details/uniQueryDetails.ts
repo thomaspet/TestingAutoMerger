@@ -1,5 +1,12 @@
 import {Component, ViewChild, Input} from '@angular/core';
-import {UniTable, UniTableColumn, UniTableColumnType, UniTableConfig, ITableFilter, IExpressionFilterValue} from '../../../../framework/ui/unitable/index';
+import {
+    UniTable,
+    UniTableColumn,
+    UniTableColumnType,
+    UniTableConfig,
+    ITableFilter,
+    IExpressionFilterValue
+} from '../../../../framework/ui/unitable/index';
 import {Router, ActivatedRoute} from '@angular/router';
 import {URLSearchParams} from '@angular/http';
 import {UniHttp} from '../../../../framework/core/http/http';
@@ -79,7 +86,7 @@ export class UniQueryDetails {
             });
         });
 
-        let token = this.authService.getTokenDecoded();
+        const token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
         }
@@ -156,7 +163,13 @@ export class UniQueryDetails {
                 .subscribe(res => {
                     this.queryDefinition = res;
 
-                    this.tabService.addTab({ name: this.queryDefinition.Name, url: '/uniqueries/details/' + this.queryDefinitionID, moduleID: UniModules.UniQuery, active: true });
+                    this.tabService.addTab(
+                        {
+                            name: this.queryDefinition.Name,
+                            url: '/uniqueries/details/' + this.queryDefinitionID,
+                            moduleID: UniModules.UniQuery,
+                            active: true
+                        });
 
                     if (this.queryDefinition.UniQueryFields.filter(x => x.Index).length > 0) {
                         // Index is specified for the fields, sort the fields to reflect this
@@ -164,7 +177,7 @@ export class UniQueryDetails {
                     }
 
                     this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
-                       let f: UniTableColumn = new UniTableColumn();
+                       const f: UniTableColumn = new UniTableColumn();
                        f.alias = field.Alias;
                        f.field = field.Field;
                        f.header = field.Header;
@@ -175,21 +188,21 @@ export class UniQueryDetails {
                        f.type = field.FieldType;
 
                        if (f.field.toLowerCase().endsWith('statuscode')) {
-                           let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
-                           if (statusCodes && statusCodes.length > 0) {
+                            const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                            if (statusCodes && statusCodes.length > 0) {
                                f.selectConfig = {
                                    options: statusCodes,
                                    displayField: 'name',
                                    valueField: 'statusCode'
                                };
-                           }
+                            }
                        }
 
                        this.fields.push(f);
                     });
 
                     this.queryDefinition.UniQueryFilters.forEach((field: UniQueryFilter) => {
-                       let f: ITableFilter = {
+                        const f: ITableFilter = {
                            field: field.Field,
                            operator: field.Operator,
                            value: field.Value,
@@ -226,14 +239,14 @@ export class UniQueryDetails {
     private setupTableConfig() {
 
         // Define columns to use in the table
-        let columns: Array<UniTableColumn> = [];
-        let expands: Array<string> = [];
-        let selects: Array<string> = [];
+        const columns: Array<UniTableColumn> = [];
+        const expands: Array<string> = [];
+        const selects: Array<string> = [];
 
         for (let i = 0; i < this.fields.length; i++) {
-            let field = this.fields[i];
+            const field = this.fields[i];
 
-            let colName = field.field;
+            const colName = field.field;
             let aliasColName = '';
             let selectableColName = '';
 
@@ -246,7 +259,7 @@ export class UniQueryDetails {
                 let prefix = field.path;
 
                 if (field.path.indexOf('.') > 0) {
-                    let lastIndex = field.path.lastIndexOf('.');
+                    const lastIndex = field.path.lastIndexOf('.');
                     prefix = field.path.substring(lastIndex + 1);
                 }
 
@@ -262,10 +275,7 @@ export class UniQueryDetails {
                 selectableColName = `${field.sumFunction}(${selectableColName})`;
             }
 
-            // keep this for debugging for now
-            // console.log('setupTableConfig, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
-
-            let col = new UniTableColumn(selectableColName, field.header, field.type || UniTableColumnType.Text);
+            const col = new UniTableColumn(selectableColName, field.header, field.type || UniTableColumnType.Text);
             col.alias = aliasColName;
             col.path = field.path;
             col.width = field.width;
@@ -292,14 +302,13 @@ export class UniQueryDetails {
         }
 
         if (this.queryDefinition.ClickUrl && this.queryDefinition.ClickParam) {
-            let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+            const params: Array<string> = this.queryDefinition.ClickParam.split(',');
 
             params.forEach(param => {
-                let paramAlias = param.replace('.', '');
-                let paramSelect = param + ' as ' + paramAlias;
+                const paramAlias = param.replace('.', '');
+                const paramSelect = param + ' as ' + paramAlias;
 
                 if (!selects.find(x => x === paramSelect)) {
-                    console.log('add extra field to select: ' + paramSelect);
                     selects.push(paramSelect);
                 }
             });
@@ -308,7 +317,7 @@ export class UniQueryDetails {
         this.selects = selects.join(',');
         this.expands = expands.join(',');
 
-        let expressionFilterValues: Array<IExpressionFilterValue> = [
+        const expressionFilterValues: Array<IExpressionFilterValue> = [
             {
                 expression: 'currentuserid',
                 value: this.currentUserGlobalIdentity
@@ -358,7 +367,7 @@ export class UniQueryDetails {
             .setExpressionFilterValues(expressionFilterValues)
             .setFilters(this.filters)
             .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
+                const tmp = data !== null ? data.Data : [];
 
                 if (data !== null && data.Message !== null && data.Message !== '') {
                     this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
@@ -370,18 +379,18 @@ export class UniQueryDetails {
     }
 
     private statusCodeToText(statusCode: number): string {
-        let text: string = this.statusService.getStatusText(statusCode);
+        const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
     }
 
     private exportReportToExcel(completeEvent) {
-        let expands: Array<string> = [];
-        let selects: Array<string> = [];
+        const expands: Array<string> = [];
+        const selects: Array<string> = [];
 
         for (let i = 0; i < this.fields.length; i++) {
-            let field = this.fields[i];
+            const field = this.fields[i];
 
-            let colName = field.field;
+            const colName = field.field;
             let aliasColName = '';
             let selectableColName = '';
 
@@ -394,7 +403,7 @@ export class UniQueryDetails {
                 let prefix = field.path;
 
                 if (field.path.indexOf('.') > 0) {
-                    let lastIndex = field.path.lastIndexOf('.');
+                    const lastIndex = field.path.lastIndexOf('.');
                     prefix = field.path.substring(lastIndex + 1);
                 }
 
@@ -410,9 +419,6 @@ export class UniQueryDetails {
                 selectableColName = `${field.sumFunction}(${selectableColName})`;
             }
 
-            // keep this for debugging for now
-            // console.log('exportReportToExcel, add column. colName: ' + colName + ', selectableColName: ' + selectableColName + ', aliasColName: ' + aliasColName);
-
             if (field.path && field.path !== '') {
                 if (field.path.indexOf('(') === -1) {
                     if (!expands.find(x => field.path === x)) {
@@ -426,7 +432,7 @@ export class UniQueryDetails {
 
         this.selects = selects.join(',');
         this.expands = expands.join(',');
-        let headers = this.fields.map(x => x.header).join(',');
+        const headers = this.fields.map(x => x.header).join(',');
 
         // execute request to create Excel file
         this.statisticsService
@@ -445,17 +451,17 @@ export class UniQueryDetails {
     }
 
     public onRowSelected(event) {
-        let selectedObject = event.rowModel;
+        const selectedObject = event.rowModel;
 
         if (this.queryDefinition.ClickUrl) {
             let url = this.queryDefinition.ClickUrl;
 
             // replace values in parameters with values from the selected row before navigating
             if (this.queryDefinition.ClickParam) {
-                let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+                const params: Array<string> = this.queryDefinition.ClickParam.split(',');
 
                 params.forEach(param => {
-                   let paramAlias = param.replace('.', '');
+                   const paramAlias = param.replace('.', '');
                    url = url.replace(`:${param}`, selectedObject[paramAlias]);
                 });
             }
@@ -465,10 +471,10 @@ export class UniQueryDetails {
     }
 
     public onColumnsChange(newColumns: Array<UniTableColumn>) {
-        let newColumnSetup: Array<UniTableColumn> = [];
+        const newColumnSetup: Array<UniTableColumn> = [];
 
         newColumns.forEach((column: UniTableColumn) => {
-            let newCol: UniTableColumn = column;
+            const newCol: UniTableColumn = column;
 
             if (this.isFunction(column.field)) {
                 // this is a function, dont analyze this field. Users can add crazy expressions such
@@ -489,7 +495,7 @@ export class UniQueryDetails {
             }
 
             if (column.field.toLowerCase().endsWith('statuscode')) {
-                let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+                const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
                 if (statusCodes && statusCodes.length > 0) {
                     newCol.selectConfig = {
                         options: statusCodes,
@@ -559,7 +565,7 @@ export class UniQueryDetails {
     private saveQuery(saveAsNewQuery: boolean, completeEvent) {
         // work on a cloned queryDefinition, this is done to avoid potential problems
         // if the user aborts without clicking save in the modal
-        let definition = _.cloneDeep(this.queryDefinition);
+        const definition = _.cloneDeep(this.queryDefinition);
 
         if (saveAsNewQuery) {
             definition.ID = 0;
@@ -670,7 +676,7 @@ export class UniQueryDetails {
         }
     }
 
-    private addOrRemoveFieldFromChild(event){
+    private addOrRemoveFieldFromChild(event) {
         this.addOrRemoveField(event.model, event.fieldname, event.field, event.path);
     }
 
@@ -680,7 +686,10 @@ export class UniQueryDetails {
             return;
         }
 
-        let existingField = this.fields.find(x => (x.field === fieldname && x.path === path) || (x.field === fieldname && x.path === undefined) || (x.field === fieldname && x.path === this.queryDefinition.MainModelName));
+        const existingField =
+            this.fields.find(x => (x.field === fieldname && x.path === path)
+                || (x.field === fieldname && x.path === undefined)
+                || (x.field === fieldname && x.path === this.queryDefinition.MainModelName));
 
         if (existingField) {
             this.fields = this.fields.filter(x => x !== existingField);
@@ -695,9 +704,10 @@ export class UniQueryDetails {
         }
 
         if (model.Name !== this.queryDefinition.MainModelName) {
-            alert(`Du kan ikke legge til felter fra ${model.Name}, du har valgt ${this.queryDefinition.MainModelName} som hovedmodellen din
-
-Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes ut via relasjoner til ${this.queryDefinition.MainModelName} eller du må velge ${model.Name} som hovedmodell ved å kun hente felter som ligger under den modellen`);
+            alert(`Du kan ikke legge til felter fra ${model.Name}, du har valgt ${this.queryDefinition.MainModelName} ` +
+                `som hovedmodellen din.\n\nHvis du vil hente felter som ligger under ${model.Name} må dette enten ` +
+                `hentes ut via relasjoner til ${this.queryDefinition.MainModelName} eller du må velge ${model.Name} ` +
+                `som hovedmodell ved å kun hente felter som ligger under den modellen`);
             return;
         } else {
             model.Selected = true;
@@ -719,11 +729,11 @@ Hvis du vil hente felter som ligger under ${model.Name} må dette enten hentes u
             colType = UniTableColumnType.Text;
         }
 
-        let newCol = new UniTableColumn(field.Publicname, field.Publicname, colType);
+        const newCol = new UniTableColumn(field.Publicname, field.Publicname, colType);
         newCol.path = path;
 
         if (newCol.field.toLowerCase().endsWith('statuscode')) {
-            let statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
+            const statusCodes = this.statusService.getStatusCodesForEntity(this.queryDefinition.MainModelName);
             if (statusCodes && statusCodes.length > 0) {
                 newCol.selectConfig = {
                     options: statusCodes,
