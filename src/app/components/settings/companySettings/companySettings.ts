@@ -1838,7 +1838,7 @@ export class CompanySettingsComponent implements OnInit {
                 .subscribe(hasBought => {
                     hasBought
                     ? modal()
-                    : this.router.navigateByUrl('/marketplace/add-ons/' + product.id);
+                    : this.router.navigateByUrl('/marketplace/modules');
                 });
             } else {
                 this.toastService.addToast(`Produkt ${name} ikke tilgjengelig`, ToastType.bad, ToastTime.short);

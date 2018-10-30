@@ -1320,7 +1320,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         const validdeduction =
             vatdeductions.find(x => x.VatDeductionGroupID === account.UseVatDeductionGroupID
                 && moment(date).isSameOrAfter(moment(x.ValidFrom))
-                && (!x.ValidTo || moment(date).isBefore(moment(x.ValidTo)))
+                && (!x.ValidTo || moment(date).diff(moment(x.ValidTo)) <= 0)
             );
 
         return validdeduction ? validdeduction.DeductionPercent : 0;
