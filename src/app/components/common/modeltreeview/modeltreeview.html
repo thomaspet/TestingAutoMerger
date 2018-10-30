@@ -17,7 +17,7 @@
                             <model-tree-relation-node *ngIf="relation.Expanded" [relation]="relation" [path]="relation.Name" [models]="models" [showAllFields]="showAllFields" [selectedFields]="fields" (fieldAdded)="addOrRemoveFieldFromChild(model, $event)"></model-tree-relation-node>
                         </li>
                         <li *ngFor="let field of model.fieldArray">
-                            <a class="selectable" [attr.aria-selected]="model.Fields[field].Selected" (click)="addOrRemoveField(model, model.Fields[field].Publicname, model.Fields[field], null)">{{model.Fields[field].Publicname}}</a>
+                            <a class="selectable" [attr.aria-selected]="field.Selected" (click)="addOrRemoveField(model, field.Publicname, field, null)">{{field.Publicname}}</a>
                         </li>
                     </ul>
                 </li>
