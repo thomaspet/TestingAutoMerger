@@ -201,7 +201,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
                     .subscribe();
                 }
                 if (this.useExternalChangeDetection) {
-                    if (changes['InstalmentType']) {
+                    if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID']) {
                         this.salarybalanceService.refreshLayout(
                             model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
                             .subscribe(result => {
@@ -298,23 +298,29 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     }
 
     private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
-        this.fields$.next(this.fields$.getValue().map(field => {
-            switch (changedField.toLowerCase()) {
-                case 'salarybalancetemplateid':
-                    if (field.Property !== 'SalaryBalanceTemplateID' && field.Property !== 'FromDate' && field.Property !== 'ToDate') {
-                        field.ReadOnly = salarybalance.SalaryBalanceTemplateID > 0 ? true : false;
-                    }
-                    break;
-                case 'instalmenttype':
-                    if (field.Property === 'SalaryBalanceTemplateID') {
-                        field.ReadOnly = salarybalance.InstalmentType !== null ? true : false;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            return field;
-        }));
+        const fields = this.fields$.getValue();
+        if (fields) {
+            fields.map(field => {
+                switch (changedField.toLowerCase()) {
+                    case 'salarybalancetemplateid':
+                        if (field.Property !== 'SalaryBalanceTemplateID' && field.Property !== 'FromDate' && field.Property !== 'ToDate') {
+                            field.ReadOnly = salarybalance.SalaryBalanceTemplateID > 0 ? true : false;
+                        }
+                        break;
+                    case 'instalmenttype':
+                        if (field.Property === 'SalaryBalanceTemplateID') {
+                            field.ReadOnly = salarybalance.InstalmentType !== null ? true : false;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                return field;
+            })
+            .map(field => {
+                this.fields$.next(field);
+            });
+        }
         return salarybalance;
     }
 
