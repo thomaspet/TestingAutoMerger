@@ -544,6 +544,10 @@ export class AMeldingView implements OnInit {
             this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
             this.totalFtrekkFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
             this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
+            if (mottattPeriode.mottattAvgiftOgTrekkTotalt.hasOwnProperty('sumFinansskattLoenn')) {
+                this.totalFinancialFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn;
+                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
+            }
         }
     }
 
