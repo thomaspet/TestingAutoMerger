@@ -215,7 +215,7 @@ export class AmeldingReceiptView {
         const periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
         const financialTaxCol = new UniTableColumn(
             'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money)
-            .setVisible(this.companySalary.CalculateFinancialTax);
+            .setVisible(!!this.companySalary && this.companySalary.CalculateFinancialTax);
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
             .setDefaultOrderBy('meldingsId', -1)
