@@ -186,35 +186,19 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .do(() => this.lastChanges$.next(changes))
             .subscribe((model: SalaryBalance) => {
                 this.updateSalaryBalance(model);
-                if (changes['SalaryBalanceTemplateID']) {
+                if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID']) {
+                    this.salarybalanceService.refreshLayout(
+                        model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
+                        .subscribe(result => {
+                            this.fields$.next(result);
+                        });
+                } else {
                     this.salarybalanceService.updateFields(
-                        model, 'SalaryBalance',
-                        true,
-                        changes,
-                        this.lastChanges$,
-                        this.form,
-                        this.fields$,
-                        this.ignoreFields,
-                        !!model.SalaryBalanceTemplateID
-                    )
-                    .do(() => this.toggleReadOnly(model, 'SalaryBalanceTemplateID'))
-                    .subscribe();
-                }
-                if (this.useExternalChangeDetection) {
-                    if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID']) {
-                        this.salarybalanceService.refreshLayout(
-                            model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
-                            .subscribe(result => {
-                                this.fields$.next(result);
-                            });
-                    } else {
-                        this.salarybalanceService.updateFields(
-                            model, 'salarybalance', false, changes, this.lastChanges$,
-                            this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID)
-                            .subscribe(result => {
-                                this.fields$.next(result);
-                            });
-                    }
+                        model, 'salarybalance', false, changes, this.lastChanges$,
+                        this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID)
+                        .subscribe(result => {
+                            this.fields$.next(result);
+                        });
                 }
             });
     }
@@ -299,7 +283,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
 
     private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
         const fields = this.fields$.getValue();
-        if (fields) {
+        if (fields.length > 0) {
             fields.map(field => {
                 switch (changedField.toLowerCase()) {
                     case 'salarybalancetemplateid':
