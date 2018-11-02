@@ -3,7 +3,7 @@ import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {SubEntityList} from './subEntityList';
-import {UniModalService} from '../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {GrantModal} from './modals/grantModal';
 import {FreeAmountModal} from './modals/freeamountModal';
 import {Observable} from 'rxjs';
@@ -25,6 +25,7 @@ import {
 } from '../../../services/services';
 import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import { ToastService } from '@uni-framework/uniToast/toastService';
 declare var _;
 
 @Component({
@@ -69,7 +70,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         private agazoneService: AgaZoneService,
         private errorService: ErrorService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private toastService: ToastService,
     ) {
         this.formConfig$.next({
             sections: {
@@ -89,7 +91,12 @@ export class AgaAndSubEntitySettings implements OnInit {
            return true;
         }
 
-        return this.modalService.deprecated_openUnsavedChangesModal().onClose;
+        return this.modalService.openUnsavedChangesModal().onClose.map(result => {
+            if (result === ConfirmActions.ACCEPT) {
+                this.saveAgaAndSubEntities(() => '');
+            }
+            return result !== ConfirmActions.CANCEL;
+        });
     }
 
     private getDataAndSetupForm() {
