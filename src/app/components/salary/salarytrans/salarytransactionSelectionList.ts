@@ -164,12 +164,17 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         const accountError = !employee.BusinessRelationID
             || !employee.BusinessRelationInfo.DefaultBankAccountID;
 
+        const socialSecurityNumber = !employee.SocialSecurityNumber;
+
         const errors: string[] = [];
         if (taxError) {
             errors.push('Skatteinfo');
         }
         if (accountError) {
             errors.push((errors.length ? 'k' : 'K') + 'ontonummer');
+        }
+        if (socialSecurityNumber) {
+            errors.push((errors.length ? 'f' : 'F') + 'ødselsnummer');
         }
         const lastEntry = errors.pop() || '';
         if (!lastEntry) {

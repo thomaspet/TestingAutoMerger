@@ -263,7 +263,6 @@ export class TransqueryDetails implements OnInit {
 
         if (isSum) {
             urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
-            urlParams.delete('join');
             urlParams.delete('orderby');
             return this.statisticsService.GetAllByUrlSearchParams(urlParams)
                 .map(res => res.json())
