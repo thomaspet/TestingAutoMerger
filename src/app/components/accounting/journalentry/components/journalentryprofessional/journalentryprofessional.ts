@@ -535,17 +535,35 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (account) {
             rowModel.DebitAccountID = account.ID;
 
-            if (account.VatTypeID) {
-                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
-                rowModel.DebitVatType = vatType;
+            if (this.companySettings.TaxMandatoryType === 3) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    rowModel.DebitVatType = vatType;
+                } else {
+                    rowModel.DebitVatType = null;
+                }
+            } else if (this.companySettings.TaxMandatoryType === 2) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    const overrideVatCodes = ['3', '31', '32', '33'];
+                    if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+                        const vatType6 = this.vattypes.find(x => x.VatCode === '6');
+                        rowModel.DebitVatType = vatType6;
+                    } else {
+                        rowModel.DebitVatType = vatType;
+                    }
+                } else {
+                    rowModel.DebitVatType = null;
+                }
             } else {
-                rowModel.CreditVatType = null;
+                rowModel.DebitVatType = null;
             }
 
             this.setDebitVatTypeProperties(rowModel);
             this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.DebitAccountID = null;
+            rowModel.DebitVatType = null;
         }
         return rowModel;
     }
@@ -555,9 +573,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (account) {
             rowModel.CreditAccountID = account.ID;
 
-            if (account.VatTypeID) {
-                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
-                rowModel.CreditVatType = vatType;
+            if (this.companySettings.TaxMandatoryType === 3) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    rowModel.CreditVatType = vatType;
+                } else {
+                    rowModel.CreditVatType = null;
+                }
+            } else if (this.companySettings.TaxMandatoryType === 2) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    const overrideVatCodes = ['3', '31', '32', '33'];
+                    if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+                        const vatType6 = this.vattypes.find(x => x.VatCode === '6');
+                        rowModel.CreditVatType = vatType6;
+                    } else {
+                        rowModel.CreditVatType = vatType;
+                    }
+                } else {
+                    rowModel.CreditVatType = null;
+                }
             } else {
                 rowModel.CreditVatType = null;
             }
@@ -566,6 +601,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.CreditAccountID = null;
+            rowModel.CreditVatType = null;
         }
         return rowModel;
     }
@@ -573,9 +609,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setVatDeductionPercent(rowModel: JournalEntryData, isPercentageChanged: boolean = false): JournalEntryData {
         let deductivePercent: number = 0;
 
+        if (!rowModel.DebitVatTypeID && !rowModel.CreditVatTypeID) {
+            return rowModel;
+        }
+
         if (isPercentageChanged) {
             return rowModel;
         }
+
         rowModel.VatDeductionPercent = null;
 
         if (rowModel.DebitAccount && rowModel.DebitAccount.UseVatDeductionGroupID) {
@@ -1044,7 +1085,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     )]);
                 },
                 groupConfig: this.groupConfig
-            });
+            })
+            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
 
         const creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
@@ -1096,7 +1138,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     )]);
                 },
                 groupConfig: this.groupConfig
-            });
+            })
+            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
 
         const deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setWidth('90px')

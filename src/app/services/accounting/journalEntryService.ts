@@ -45,6 +45,7 @@ import {AuthService, IAuthDetails} from '../../authService';
 import { JournalEntries } from '@app/components/accounting/journalentry/journalentries/journalentries';
 import { IJournalEntryLineDraft } from '@uni-framework/interfaces/interfaces';
 import {CustomerInvoiceService} from '@app/services/sales/customerInvoiceService';
+import {NumberFormat} from '@app/services/common/numberFormatService';
 
 @Injectable()
 export class JournalEntryService extends BizHttp<JournalEntry> {
@@ -60,6 +61,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         public authService: AuthService,
+        private numberFormat: NumberFormat,
         private invoiceService: CustomerInvoiceService,
     ) {
         super(http);
@@ -129,6 +131,29 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             )
             .send()
             .map(response => response.json());
+    }
+
+    public getTaxableIncomeLast12Months(toDate: LocalDate): Observable<any> {
+        const fromDate = moment(toDate).add('years', -1).format('YYYY-MM-DD');
+
+        return this.http
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint(
+                '/api/statistics?model=journalentryline' +
+                '&select=sum(JournalEntryLine.Amount) as SumAmount' +
+                '&expand=Account.TopLevelAccountGroup,VatType' +
+                '&filter=TopLevelAccountGroup.GroupNumber eq 3 and VatType.VatCode eq \'6\' and VatDate ge \'' +
+                   `${fromDate.toString()}'`
+            )
+            .send()
+            .map(response => {
+                const data = response.json().Data;
+                if (data && data.length > 0) {
+                    return data[0].SumAmount;
+                }
+                return 0;
+            });
     }
 
     public getMinDatesForJournalEntry(journalEntryID: number): Observable<any> {
@@ -833,6 +858,80 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 }
             }
 
+            // inline function that checks if the sum
+            const vatSummaryCheck = () => {
+                if (companySettings.TaxMandatoryType === 2) {
+                    // get sum of items where vatcode is used - if the sum is larger than limit, add warning
+                    let sumNewRowsWithVatCode6 = 0;
+                    sortedJournalEntries.forEach(x => {
+                        if (x.DebitVatType && x.DebitVatType.VatCode === '6') {
+                            sumNewRowsWithVatCode6 += x.NetAmount;
+                        }
+                        if (x.CreditVatType && x.CreditVatType.VatCode === '6') {
+                            sumNewRowsWithVatCode6 += (x.NetAmount * -1);
+                        }
+                    });
+
+                    // get max date from items where vatcode 6 is used and check if
+                    let maxDate = null;
+                    sortedJournalEntries.forEach(x => {
+                        if ((x.DebitVatType && x.DebitVatType.VatCode === '6')
+                            || (x.CreditVatType && x.CreditVatType.VatCode === '6')) {
+                            if (!maxDate) {
+                                maxDate = x.VatDate || x.FinancialDate;
+                            } else if (maxDate < (x.VatDate || x.FinancialDate)) {
+                                maxDate = x.VatDate || x.FinancialDate;
+                            }
+                        }
+                    });
+
+                    if (maxDate && sumNewRowsWithVatCode6 !== 0) {
+                        // get sum for existing rows
+                        this.getTaxableIncomeLast12Months(maxDate)
+                            .subscribe(existingAmount => {
+
+                                // add sum for the new rows
+                                const sumAllIncomeLast12Months = existingAmount + sumNewRowsWithVatCode6;
+
+                                // we are summing income here, so check if the number is less than -50000
+                                if (sumAllIncomeLast12Months < (this.companySettings.TaxableFromLimit * -1)) {
+                                    const message = new ValidationMessage();
+                                    message.Level = ValidationLevel.Warning;
+                                    message.Message = `Det er bokført totalt kr ${this.numberFormat.asMoney((existingAmount * -1))} ` +
+                                        `med MVA-kode 6 de siste 12 månedene. `;
+
+                                    if (!(existingAmount < (this.companySettings.TaxableFromLimit * -1))) {
+                                        message.Message += `Posteringene over gjør at grensen på kr ` +
+                                        `${this.numberFormat.asMoney(this.companySettings.TaxableFromLimit)} som er registrert i ` +
+                                        `Firmaoppsett passeres. Etter denne bokføringen er det `;
+                                    } else {
+                                        message.Message += `Dette er over grensen på kr ` +
+                                        `${this.numberFormat.asMoney(this.companySettings.TaxableFromLimit)} som er registrert i ` +
+                                        `Firmaoppsett. Det er `;
+                                    }
+
+                                    // the start of this sentence is set in the if above, it depends on if the current
+                                    // journalentries is cause the limit to be reached, or it is previously reached
+                                    message.Message += `praktisk å vente med videre fakturering/bokføring av momspliktige ` +
+                                    `inntekter til etter mva-registreringen er godkjent og man har lagt inn dato for ` +
+                                    `registrering. "Mva.pliktig" skal da endres til "Avgiftspliktig". ` +
+                                    `Må man fakturere/bokføre flere salg etter grense er nådd, men før registrering er godkjent, skal ` +
+                                    `man etter reglene fakturere uten mva, og deretter etterfakturere mva når godkjenning er mottatt.`;
+
+                                    result.Messages.push(message);
+                                    resolve(result);
+                                } else {
+                                    resolve(result);
+                                }
+                            });
+                    } else {
+                        resolve(result);
+                    }
+                } else {
+                    resolve(result);
+                }
+            };
+
             // FORKJOIN CHECKS
             const obs = [];
             const indexes = [];
@@ -858,10 +957,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                             result.Messages.push(warning);
                         }
                     });
-                    resolve(result);
-                }, (err) => { resolve(result); });
+
+                    // run vat summary check (if needed), this resolves the promise
+                    vatSummaryCheck();
+                }, (err) => { vatSummaryCheck(); });
             } else {
-                resolve(result);
+                // run vat summary check (if needed), this resolves the promise
+                vatSummaryCheck();
             }
         });
     }

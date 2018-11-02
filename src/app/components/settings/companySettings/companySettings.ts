@@ -546,6 +546,48 @@ export class CompanySettingsComponent implements OnInit {
                         this.form.field('_UpdateEmail').readMode();
                     }
             }, err => this.errorService.handle(err));
+        } else if (changes['TaxMandatoryType']) {
+            const taxMandatoryType = changes['TaxMandatoryType'].currentValue;
+            const previousTaxMandatoryType = changes['TaxMandatoryType'].previousValue;
+
+            if ((taxMandatoryType === 2 && previousTaxMandatoryType !== 2)
+                || (taxMandatoryType !== 2 && previousTaxMandatoryType === 2)) {
+
+                // run extendFormConfig to show/hide fields based on the new taxMandatoryType
+                this.extendFormConfig();
+            }
+
+            if (taxMandatoryType === 1 && previousTaxMandatoryType !== 1) {
+                const companySettings = this.companySettings$.getValue();
+                const currentDefaultSalesAccount = companySettings.DefaultSalesAccount;
+
+                if (currentDefaultSalesAccount && currentDefaultSalesAccount.AccountNumber !== 3020) {
+                    // ask user if default salesaccount should be changed if they change
+                    // to using taxmandatorytype === 1 (not taxable)
+                    return this.modalService.confirm({
+                        header: 'Endre standard salgskonto?',
+                        message: `Vil du endre standard salgskonto til konto 3200, dette er ` +
+                            `normalt å bruke når selskapet ikke er avgiftspliktig`,
+                        buttonLabels: {
+                            accept: 'Ja, endre salgskonto',
+                            cancel: 'Nei, fortsett uten å endre'
+                        }
+                    }).onClose.subscribe(modalResponse => {
+                        if (modalResponse === ConfirmActions.ACCEPT) {
+                            this.accountService.GetAll('filter=AccountNumber eq 3200')
+                                .subscribe(accounts => {
+                                    if (accounts.length > 0) {
+                                        companySettings.DefaultSalesAccount = accounts[0];
+                                        companySettings.DefaultSalesAccountID = accounts[0].ID;
+                                        this.companySettings$.next(companySettings);
+                                    }
+                                });
+                        }
+                    });
+                }
+
+
+            }
         }
     }
 
@@ -711,6 +753,8 @@ export class CompanySettingsComponent implements OnInit {
 
     private extendFormConfig() {
         const fields = this.fields$.getValue();
+        const companySettings = this.companySettings$.getValue();
+
         const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
             allowAddValue: false,
@@ -814,6 +858,34 @@ export class CompanySettingsComponent implements OnInit {
             displayProperty: 'Name',
             debounceTime: 200
         };
+
+        const taxMandatoryType: UniFieldLayout = fields.find(x => x.Property === 'TaxMandatoryType');
+        taxMandatoryType.Options = {
+            source: [{
+                ID: 1,
+                Name: 'Avgiftsfri'
+            }, {
+                ID: 2,
+                Name: 'Avgiftsfri, men planlegger mva-registrering når omsetningsgrensen passeres'
+            }, {
+                ID: 3,
+                Name: 'Avgiftspliktig'
+            }],
+            valueProperty: 'ID',
+            displayProperty: 'Name',
+            debounceTime: 200
+        };
+
+        const taxableFromLimit: UniFieldLayout = fields.find(x => x.Property === 'TaxableFromLimit');
+        const taxableFrom: UniFieldLayout = fields.find(x => x.Property === 'TaxableFromDate');
+
+        if (companySettings.TaxMandatoryType === 2) {
+            taxableFromLimit.Hidden = false;
+            taxableFrom.Hidden = false;
+        } else {
+            taxableFromLimit.Hidden = true;
+            taxableFrom.Hidden = true;
+        }
 
         this.companyTypes.unshift(null);
         const companyTypeID: UniFieldLayout = fields.find(x => x.Property === 'CompanyTypeID');
@@ -1182,11 +1254,31 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
-                Property: 'TaxMandatory',
-                FieldType: FieldType.CHECKBOX,
+                Property: 'TaxMandatoryType',
+                FieldType: FieldType.DROPDOWN,
                 Label: 'Mva-pliktig',
                 FieldSet: 2,
                 Section: 1,
+                Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'TaxableFromLimit',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Avgiftspliktig fra (beløpsgrense)',
+                FieldSet: 2,
+                Section: 1,
+                Hidden: true,
+                Sectionheader: 'Selskapsoppsett'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'TaxableFromDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Avgiftspliktig fra (dato)',
+                FieldSet: 2,
+                Section: 1,
+                Hidden: true,
                 Sectionheader: 'Selskapsoppsett'
             },
             {

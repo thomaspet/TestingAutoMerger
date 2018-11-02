@@ -3613,8 +3613,11 @@ export class CompanySettings extends UniEntity {
     public ShowNumberOfDecimals: number;
     public StatusCode: number;
     public SupplierAccountID: number;
+    public TaxableFromDate: LocalDate;
+    public TaxableFromLimit: number;
     public TaxBankAccountID: number;
     public TaxMandatory: boolean;
+    public TaxMandatoryType: number;
     public TwoStageAutobankEnabled: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
