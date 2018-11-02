@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
 import {ElsaPurchaseService} from '@app/services/elsa/elsaPurchasesService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs';
+import {Observable} from 'rxjs/Rx';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 import {IModalOptions, IUniModal} from '../interfaces';
