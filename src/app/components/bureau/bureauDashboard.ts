@@ -170,8 +170,6 @@ export class BureauDashboard {
                         this.setCurrentCompany(this.companies[0]);
                     }
                     this.filterCompanies();
-
-                    // this.editGroups();
                 },
                 err => this.errorService.handle(err)
             );
@@ -187,7 +185,6 @@ export class BureauDashboard {
     }
 
     editGroups() {
-        // const activeIndex = this.activeGroupIndex >= 0 ? this.activeGroupIndex : 0;
         const activeIndex = this.groups.findIndex(g => g.active);
         this.modalService.open(CompanyGroupModal, {
             data: {
@@ -200,6 +197,8 @@ export class BureauDashboard {
                 this.groups = updatedGroups;
                 this.activeGroup = this.groups[activeIndex] || this.groups[0];
                 this.filterCompanies();
+
+                this.saveUserPreferences();
             }
         });
     }
@@ -302,12 +301,7 @@ export class BureauDashboard {
             ]);
     }
 
-    public ngOnDestroy() {
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-
-        // Store filter string and sort info
+    private saveUserPreferences() {
         try {
             const preferences: IBureauPreferences = {
                 filterString: <string>(this.searchControl.value || ''),
@@ -320,6 +314,14 @@ export class BureauDashboard {
 
             this.browserStorage.setItem('bureau_user_preferences', preferences);
         } catch (e) {}
+    }
+
+    public ngOnDestroy() {
+        if (this.subscription) {
+            this.subscription.unsubscribe();
+        }
+
+        this.saveUserPreferences();
     }
 
     filterCompanies(): void {
