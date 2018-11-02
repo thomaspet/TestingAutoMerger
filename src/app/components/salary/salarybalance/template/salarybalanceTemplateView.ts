@@ -8,6 +8,7 @@ import { IUniSaveAction } from '@uni-framework/save/save';
 import { SalaryBalanceTemplate, SalaryBalance, SalBalDrawType } from '@uni-entities';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 const URL = '/salary/salarybalancetemplates/';
 const SALBAL_TEMPLATE_KEY = 'salarybalancetemplate';
@@ -35,7 +36,8 @@ export class SalarybalanceTemplateView extends UniView {
         private errorService: ErrorService,
         private tabService: TabService,
         private modalService: UniModalService,
-        private salarybalanceService: SalarybalanceService
+        private salarybalanceService: SalarybalanceService,
+        private toastService: ToastService,
     ) {
         super(router.url, cacheService);
 
@@ -240,6 +242,10 @@ export class SalarybalanceTemplateView extends UniView {
                 return this.errorService.handleRxCatch(err, obs);
             })
             .finally(() => {
+                if (!this.currentTemplate.WageTypeNumber || !this.currentTemplate.InstalmentType || !this.currentTemplate.Supplier) {
+                    return done('Lagring avbrutt');
+                }
+
                 if (updateView) {
                     const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(URL + this.currentTemplate.ID + '/' + childRoute);

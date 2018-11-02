@@ -7,6 +7,7 @@ import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class SalaryBalanceViewService {
@@ -19,7 +20,8 @@ export class SalaryBalanceViewService {
         private router: Router,
         private reportDefinitionService: ReportDefinitionService,
         private modalService: UniModalService,
-        private fileService: FileService
+        private fileService: FileService,
+        private toastService: ToastService
     ) {}
 
     public setupSearchConfig(salaryBalance: SalaryBalance): IToolbarSearchConfig {
@@ -40,6 +42,29 @@ export class SalaryBalanceViewService {
 
     public save(salarybalance: SalaryBalance) {
         const currentSalBal = _.cloneDeep(salarybalance);
+        const errors = [];
+
+        if (!salarybalance.InstalmentType) {
+            errors.push('type');
+        }
+
+        if (!salarybalance.WageTypeNumber) {
+            errors.push('lønnsart');
+        }
+
+        if (!salarybalance.EmployeeID) {
+            errors.push('ansatt');
+        }
+
+        if (errors.length > 0) {
+            const lastError = errors.pop();
+            const errorString = !!errors.length ? `${errors.join(', ')} og ${lastError}` : lastError;
+
+            const message = `Legg til ${errorString} før du lagrer`;
+            this.toastService.addToast(message, ToastType.bad, 5);
+            return Observable.of(salarybalance);
+        }
+
         return this.salaryBalanceService
             .save(salarybalance)
             .do(salaryBalance => {

@@ -8,6 +8,7 @@ import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate> {
@@ -27,6 +28,7 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
         protected http: UniHttp,
         private uniModalService: UniModalService,
         private salaryTransactionService: SalaryTransactionService,
+        private toastService: ToastService
     ) {
         super(http);
         this.relativeURL = SalaryBalanceTemplate.RelativeUrl;
@@ -63,6 +65,29 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
         template: SalaryBalanceTemplate,
         salBals: SalaryBalance[] = [],
         done: (msg: string) => void = null): Observable<SalaryBalanceTemplate> {
+        const errors = [];
+
+        if (!template.InstalmentType) {
+            errors.push('type');
+        }
+
+        if (!template.WageTypeNumber) {
+            errors.push('lønnsart');
+        }
+
+        if (!template.Supplier) {
+            errors.push('leverandør');
+        }
+
+        if (errors.length > 0) {
+            const lastError = errors.pop();
+            const errorString = !!errors.length ? `${errors.join(', ')} og ${lastError}` : lastError;
+
+            const message = `Legg til ${errorString} før du lagrer`;
+            this.toastService.addToast(message, ToastType.bad, 5);
+            return Observable.of(template);
+        }
+
         template.SalaryBalances = this.prepareSalBalsForTemplate(salBals.filter(x => x.EmployeeID), template);
         return this.uniModalService
             .confirm({
