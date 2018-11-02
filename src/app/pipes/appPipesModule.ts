@@ -5,12 +5,14 @@ import {UniAccountNumberPipe} from './uniAccountNumberPipe';
 import {UniCurrencyPipe} from './uniCurrencyPipe';
 import {UniDateFormatPipe} from './uniDateFormatPipe';
 import {UniNumberFormatPipe} from './uniNumberFormatPipe';
+import {SkipSanitizationPipe} from './skipSanitizationPipe';
 
 @NgModule({
     imports: [
         CommonModule
     ],
     declarations: [
+        SkipSanitizationPipe,
         PeriodDateFormatPipe,
         UniAccountNumberPipe,
         UniCurrencyPipe,
@@ -18,6 +20,7 @@ import {UniNumberFormatPipe} from './uniNumberFormatPipe';
         UniNumberFormatPipe
     ],
     providers: [
+        SkipSanitizationPipe,
         PeriodDateFormatPipe,
         UniAccountNumberPipe,
         UniCurrencyPipe,
@@ -25,6 +28,7 @@ import {UniNumberFormatPipe} from './uniNumberFormatPipe';
         UniNumberFormatPipe
     ],
     exports: [
+        SkipSanitizationPipe,
         CommonModule,
         PeriodDateFormatPipe,
         UniAccountNumberPipe,

@@ -19,5 +19,5 @@
         </p>
     </header>
 
-    <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent"></article>
+    <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent | keepHtml"></article>
 </section>
