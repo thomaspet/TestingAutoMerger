@@ -1,13 +1,13 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
 import {ElsaPurchaseService} from '@app/services/elsa/elsaPurchasesService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 import {IModalOptions, IUniModal} from '../interfaces';
 import {
     ElsaPurchasesForUserLicenseByCompany, ElsaPurchaseForUserLicense,
-    ElsaPurchaseForCompany, ElsaPurchase, ElsaProduct, ElsaPurchaseForLicense
+    ElsaPurchaseForCompany, ElsaPurchase, ElsaProduct, ElsaPurchaseForLicense, ElsaProductType
 } from '@app/services/elsa/elsaModels';
 
 interface UserLine   {
@@ -91,7 +91,7 @@ export class ManageProductsModal implements IUniModal {
     public ngOnInit() {
         this.companyKey = this.options.data.companyKey;
         if (!this.companyKey) {
-            throw new Error('companyKey is a required field for using the ManageProductsModal')
+            throw new Error('companyKey is a required field for using the ManageProductsModal');
         }
 
         Observable.forkJoin(
@@ -102,7 +102,9 @@ export class ManageProductsModal implements IUniModal {
             .subscribe(
                 parts => {
                     const licensePurchases: ElsaPurchasesForUserLicenseByCompany[] = parts[0];
-                    this.products = parts[1];
+                    this.products = parts[1] ?
+                        parts[1].filter(product => !product.isPerTransaction && product.productType !== ElsaProductType.Integration) :
+                        [];
                     this.purchasesPerUser = this.mapPurchasesToUsers(licensePurchases, this.products);
                 },
                 err => {
@@ -116,10 +118,10 @@ export class ManageProductsModal implements IUniModal {
 
     private mapPurchasesToUsers(licensePurchases: ElsaPurchasesForUserLicenseByCompany[], products: ElsaProduct[]): UserLine[] {
         const userLines = this.getUserLines(licensePurchases);
-        for(const userLine of userLines) {
-            for(const product of products) {
+        for (const userLine of userLines) {
+            for (const product of products) {
                 const alreadyPurchased = licensePurchases
-                    .find(l => l.userLicenseID == userLine.userLicenseID && l.productID == product.id);
+                    .find(l => l.userLicenseID === userLine.userLicenseID && l.productID === product.id);
                 userLine.purchases.push(alreadyPurchased || <ElsaPurchasesForUserLicenseByCompany>{
                         productName: product.name,
                         productID: product.id,
@@ -164,23 +166,23 @@ export class ManageProductsModal implements IUniModal {
                 .switchMap((companyLicense: ElsaPurchaseForLicense) =>
                     this.elsaPurchasesService
                         .PurchaseProductForContract(product.id, companyLicense.contractID)
-                        .switchMap((purchase: ElsaPurchase)=>
+                        .switchMap((purchase: ElsaPurchase) =>
                             this.elsaPurchasesService
                                 .PurchaseProductForCompany(purchase.id, companyLicense.id)
                                 .switchMap((companyPurchase: ElsaPurchaseForCompany) =>
                                     this.elsaCompanyLicenseService.PurchasesForUserLicense(this.companyKey)
                                         .do(purchases => this.purchasesPerUser = this.mapPurchasesToUsers(purchases, this.products))
                                         .map((purchases: ElsaPurchasesForUserLicenseByCompany[]) =>
-                                            purchases.find(purchase =>
-                                                purchase.productID === product.id
-                                                && purchase.userLicenseID === licensePurchase.userLicenseID
+                                            purchases.find(p =>
+                                                p.productID === product.id
+                                                && p.userLicenseID === licensePurchase.userLicenseID
                                             )
                                         )
                                 )
                         )
-                )
+                );
         } else {
-            licensePurchaseObservable = Observable.of(licensePurchase)
+            licensePurchaseObservable = Observable.of(licensePurchase);
         }
         licensePurchaseObservable.subscribe(purchase => {
             let action: Observable<ElsaPurchaseForUserLicense>;
