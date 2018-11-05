@@ -19,5 +19,5 @@
         </p>
     </header>
 
-    <article class="htmlContent" *ngIf="integration.htmlContent" [innerHTML]="integration.htmlContent"></article>
+    <article class="htmlContent" *ngIf="integration.htmlContent" [innerHTML]="integration.htmlContent | keepHtml"></article>
 </section>

@@ -126,7 +126,9 @@ export class SalarybalanceTemplateView extends UniView {
         this.canDeactivate()
             .filter(canDeactivate => canDeactivate)
             .switchMap(() => {
-                return this.salarybalanceTemplateService.getPrevious(this.currentTemplate.ID);
+                return this.salarybalanceTemplateService.getPrevious(
+                    this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
+                );
             })
             .subscribe((prev: SalaryBalanceTemplate) => {
                 if (prev) {
@@ -141,7 +143,9 @@ export class SalarybalanceTemplateView extends UniView {
         this.canDeactivate()
             .filter(canDeactivate => canDeactivate)
             .switchMap(() => {
-                    return this.salarybalanceTemplateService.getNext(this.currentTemplate.ID);
+                return this.salarybalanceTemplateService.getNext(
+                    this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
+                );
             })
             .subscribe((next: SalaryBalanceTemplate) => {
                 if (next) {
@@ -197,7 +201,7 @@ export class SalarybalanceTemplateView extends UniView {
 
     private getTemplate() {
         this.salarybalanceTemplateService
-            .getTemplate(this.salarybalanceTemplateID)
+            .getTemplate(this.salarybalanceTemplateID, ['Supplier.Info.DefaultBankAccount.AccountNumber'])
             .subscribe((salbalTemplate: SalaryBalanceTemplate) => {
                 this.currentTemplate = salbalTemplate;
                 super.updateState('salarybalancetemplate', salbalTemplate, false);

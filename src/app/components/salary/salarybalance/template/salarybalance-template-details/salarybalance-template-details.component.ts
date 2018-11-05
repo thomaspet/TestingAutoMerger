@@ -15,7 +15,7 @@ const SALBAL_TEMPLATE_KEY = 'salarybalancetemplate';
   templateUrl: './salarybalance-template-details.component.html',
   styleUrls: ['./salarybalance-template-details.component.sass']
 })
-export class SalarybalanceTemplateDetailsComponent extends UniView implements OnInit {
+export class SalarybalanceTemplateDetailsComponent extends UniView {
 
   public currentTemplate$: BehaviorSubject<SalaryBalanceTemplate> = new BehaviorSubject(new SalaryBalanceTemplate());
   public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
@@ -56,9 +56,6 @@ export class SalarybalanceTemplateDetailsComponent extends UniView implements On
           }, err => this.errorService.handle(err));
       });
    }
-
-  ngOnInit() {
-  }
 
   public change(change: SimpleChanges) {
     this.currentTemplate$

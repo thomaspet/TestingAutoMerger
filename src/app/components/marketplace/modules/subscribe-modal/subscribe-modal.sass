@@ -1,6 +1,9 @@
 @import '../../marketplaceSharedStyles.sass'
 
-$side-margins: 5rem
+$side-margins: 2rem
+
+.uni-modal
+    width: 42rem
 
 header
     display: flex
@@ -66,15 +69,23 @@ header
 
 .htmlContent
     color: $light-text-color
-    padding: 1rem 5rem
+    padding: 1rem 5rem 2rem
     ::ng-deep // <-- Fix for styling not being applied recursively
         h1
             color: $dark-text-color
             font-size: 1.125rem
             font-weight: 600
+
+        ul
+            padding-bottom: 1.67rem
+
         li
             list-style-type: none
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle style="fill:#{$light-text-color};" cx="10" cy="10" r="5"/></svg>')
             background-repeat: no-repeat
             background-position-y: center
             padding-left: 2rem
+
+        img
+            width: 100%
+            height: auto
