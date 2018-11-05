@@ -7,7 +7,6 @@ import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
-import {MarketplaceWebinars} from './webinars/marketplaceWebinars';
 import {IntegrationSubscribeModal} from '@app/components/marketplace/integrations/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
 import {ModuleSubscribeModal} from '@app/components/marketplace/modules/subscribe-modal/subscribe-modal';
@@ -24,7 +23,6 @@ import {ModuleSubscribeModal} from '@app/components/marketplace/modules/subscrib
     declarations: [
         Marketplace,
         MarketplaceModules,
-        MarketplaceWebinars,
         MarketplaceIntegrations,
         IntegrationSubscribeModal,
         ModuleSubscribeModal,

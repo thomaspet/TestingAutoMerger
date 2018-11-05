@@ -101,6 +101,8 @@ export interface ElsaPurchaseForUserLicense {
 }
 
 export interface ElsaProduct {
+    buttonLabel: string;
+    buttonLink: string;
     id: number;
     name: string;
     label: string;
@@ -137,7 +139,8 @@ export enum ElsaProductType
 {
     Module = 0,
     Bundle = 1,
-    Integration = 2
+    Integration = 2,
+    Extension = 3
 }
 
 export interface ElsaPurchaseForLicense {

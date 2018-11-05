@@ -103,7 +103,7 @@ export class ManageProductsModal implements IUniModal {
                 parts => {
                     const licensePurchases: ElsaPurchasesForUserLicenseByCompany[] = parts[0];
                     this.products = parts[1] ?
-                        parts[1].filter(product => !product.isPerTransaction && product.productType !== ElsaProductType.Integration) :
+                        parts[1].filter(product => product.isPerUser && product.name !== 'Complete') :
                         [];
                     this.purchasesPerUser = this.mapPurchasesToUsers(licensePurchases, this.products);
                 },

@@ -4,14 +4,9 @@
 $default-margin: 2rem
 
 .marketplace-modules
-    background-color: $bg-color
     color: $dark-text-color
     display: flex
     flex-flow: row wrap
-    margin-top: -1.5rem
-    margin-bottom: -1rem
-    padding-bottom: 6rem
-
 
 .material-icons
     vertical-align: middle
@@ -20,6 +15,7 @@ $default-margin: 2rem
     background-color: white
     width: 100%
     padding-left: $default-margin
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
 
 .top-heading
     width: 100%
@@ -36,8 +32,8 @@ $default-margin: 2rem
         padding-left: 5%
         padding-right: 5%
 
-.extensions
-    background-color: $bg-darker-color
+.modules
+    margin-top: 2rem
 
 .bundle, .module, .extension
     border-radius: 3px
@@ -135,6 +131,8 @@ $default-margin: 2rem
             color: $light-text-color
 
 .module
+    display: flex
+    flex-direction: column
     $right-padding: 0.8rem
     background-color: white
     width: 20rem
@@ -142,7 +140,9 @@ $default-margin: 2rem
     margin-bottom: 1.5rem
     margin-right: 1.5rem
     position: relative
-    .first-line
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
+
+    .price-info
         width: 100%
         text-align: right
         padding: 0.4rem $right-padding 1rem 0
@@ -152,32 +152,46 @@ $default-margin: 2rem
         .type
             font-weight: 300
             font-size: 0.7rem
-    .second-line
+    .product-info
         font-weight: 500
+        > *
+            vertical-align: middle
         .icon
             height: 2.5rem
             width: 2.5rem
-            vertical-align: middle
             margin: 0 1.25rem
-    .third-line
-        margin-left: 5rem
-        .subscribe
-            margin: 0
-            height: 2rem
-            line-height: 0rem
-            background-color: $primary-button-color
-            text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
-    .forth-line
-        position: absolute
-        bottom: 0
-        right: 0
-        padding: 0 $right-padding 0.6rem 1rem
-        .link
-            font-weight: 600
-            text-decoration: none
-            color: $primary-button-color
-            &:hover
-                text-decoration: underline
+
+        .purchase-indicator
+            color: $good-color
+            font-size: 21px
+            margin-left: 8px
+
+    button.more-button
+        margin: auto 1rem 1rem auto
+        height: 2rem
+        line-height: 0
+        background-color: $primary-button-color
+        text-shadow: none
+
+    // .third-line
+    //     margin-left: 5rem
+    //     .subscribe
+    //         margin: 0
+    //         height: 2rem
+    //         line-height: 0rem
+    //         background-color: $primary-button-color
+    //         text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+    // .forth-line
+    //     position: absolute
+    //     bottom: 0
+    //     right: 0
+    //     padding: 0 $right-padding 0.6rem 1rem
+    //     .link
+    //         font-weight: 600
+    //         text-decoration: none
+    //         color: $primary-button-color
+    //         &:hover
+    //             text-decoration: underline
 
 
 .extension
@@ -230,3 +244,5 @@ $default-margin: 2rem
 
 .ellipsis-on-3-lines
     @include multiline-ellipsis(3)
+
+
