@@ -17,7 +17,6 @@
     <section class="live-integration-items" [attr.aria-busy]="!activeIntegrations">
         <h3>Aktive</h3>
         <section class="integration-item" *ngFor="let item of filteredActiveIntegrations">
-            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>
@@ -33,7 +32,6 @@
     <section class="upcoming-integration-items" [attr.aria-busy]="!upcomingIntegrations">
         <h3>Lanseres snart</h3>
         <section class="integration-item" *ngFor="let item of filteredUpcomingIntegrations">
-            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>
@@ -49,7 +47,6 @@
     <section class="candidate-integration-items" [attr.aria-busy]="!candidateIntegrations">
         <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
         <section class="integration-item" *ngFor="let item of filteredCandidateIntegrations">
-            <i *ngIf="item['_isBought']" class="material-icons has-bought">check_circle</i>
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>

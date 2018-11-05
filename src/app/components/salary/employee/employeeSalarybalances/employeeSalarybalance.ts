@@ -98,7 +98,7 @@ export class EmployeeSalarybalance extends UniView implements OnInit {
 
         const prevSalBal = this.salarybalances[index];
 
-        if (prevSalBal.InstalmentType !== salarybalance.InstalmentType && salarybalance.InstalmentType) {
+        if (prevSalBal && prevSalBal.InstalmentType !== salarybalance.InstalmentType && salarybalance.InstalmentType) {
             salarybalance.Name = this.salaryBalanceService.getInstalmentTypes().find(type => type.ID === salarybalance.InstalmentType).Name;
         }
 
