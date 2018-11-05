@@ -141,6 +141,7 @@ export class Project {
         });
 
         this.childRoutes = this.childRoutes.concat([], ...[
+            { name: 'Timer', path: 'hours' },
             { name: 'Dokumenter', path: 'documents' },
             { name: 'Redigering', path: 'editmode' }
         ]);
