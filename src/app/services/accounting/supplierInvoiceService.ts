@@ -249,7 +249,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         if (!file.Name) { return false; }
 
         const name = (file.Name || '').toLowerCase();
-        return name.indexOf('.ehf') !== -1;
+        const contenttype = (file.ContentType || '').toLowerCase();
+        return name.indexOf('.ehf') !== -1 || contenttype.startsWith('bis/billing');
     }
 
     private selectBuilder(...args: any[]): string {
