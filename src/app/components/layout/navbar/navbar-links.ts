@@ -113,11 +113,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/marketplace/modules',
                         moduleID: UniModules.Marketplace,
                     },
-                    {
+/*                     {
                         name: 'Integrasjoner',
                         url: '/marketplace/integrations',
                         moduleID: UniModules.Marketplace,
-                    },
+                    }, */
                 ]
             },
         ]
