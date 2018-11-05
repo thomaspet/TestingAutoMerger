@@ -2,7 +2,7 @@ import {Component, AfterViewInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ElsaProductService, ElsaCompanyLicenseService, ElsaPurchaseService, ErrorService} from '@app/services/services';
-import {ElsaProduct, ElsaProductType, ElsaBundle} from '@app/services/elsa/elsaModels';
+import {ElsaProduct, ElsaProductType, ElsaBundle, ElsaPurchasesForUserLicenseByCompany} from '@app/services/elsa/elsaModels';
 import {ModuleSubscribeModal} from '@app/components/marketplace/modules/subscribe-modal/subscribe-modal';
 import {UniModalService, ManageProductsModal} from '@uni-framework/uni-modal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
@@ -20,6 +20,7 @@ import {AuthService} from '@app/authService';
 export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
+    hasAccess: boolean = true;
 
     // bundles: ElsaProduct[];
     // modulesWithExtensions: ElsaProduct[];
@@ -50,7 +51,11 @@ export class MarketplaceModules implements AfterViewInit {
         const companyKey = this.authService.getCompanyKey();
         Observable.forkJoin(
             this.elsaProductService.GetAll(),
-            this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey),
+            this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey)
+                .catch(err => {
+                    this.hasAccess = false;
+                    return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
+                }),
             this.elsaPurchaseService.GetAll()
             // this.elsaBundleService.GetAll(),
 
@@ -87,7 +92,11 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     openSubscribeModal(module: ElsaProduct) {
-        return this.modalService.open(ModuleSubscribeModal, {data: module}).onClose
+        return this.modalService.open(ModuleSubscribeModal, {
+            data: {
+                module: module,
+                hasAccess: this.hasAccess
+        }}).onClose
             .subscribe(() => {});
     }
 

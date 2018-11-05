@@ -1,8 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, ManageProductsModal} from '@uni-framework/uni-modal';
 import {ElsaProduct} from '@app/services/elsa/elsaModels';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Company} from '@app/unientities';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {AuthService} from '@app/authService';
 
@@ -18,11 +16,11 @@ export class ModuleSubscribeModal implements IUniModal, OnInit {
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
+    hasAccess: boolean = true;
 
     constructor(
         private authService: AuthService,
         private modalService: UniModalService,
-        private browserStorage: BrowserStorageService,
         private elsaProductService: ElsaProductService,
     ) {
         this.authService.authentication$.take(1).subscribe(auth => {
@@ -33,7 +31,8 @@ export class ModuleSubscribeModal implements IUniModal, OnInit {
     }
 
     ngOnInit() {
-        this.product = this.options.data;
+        this.product = this.options.data.module;
+        this.hasAccess = this.options.data.hasAccess;
     }
 
     manageUserPurchases() {

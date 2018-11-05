@@ -30,7 +30,7 @@
 
                 <button *ngIf="!product._isBought"
                     class="per-transaction"
-                    [disabled]="!canPurchaseProducts"
+                    [disabled]="!canPurchaseProducts || !hasAccess"
                     (click)="purchaseProduct(product)">
                     Aktiver produkt
                 </button>
