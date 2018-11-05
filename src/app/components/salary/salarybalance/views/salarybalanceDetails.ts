@@ -274,6 +274,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             salarybalance.Instalment = !!template ? template.Instalment : null;
             salarybalance.InstalmentPercent = !!template ? template.InstalmentPercent : null;
             salarybalance.SupplierID = !!template ? template.SupplierID : null;
+            salarybalance.Supplier = !!template ? template.Supplier : null;
             salarybalance.KID = !!template ? template.KID : null;
             salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
             salarybalance.MinAmount = !!template ? template.MinAmount : null;

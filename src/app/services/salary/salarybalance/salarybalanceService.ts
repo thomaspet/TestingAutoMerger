@@ -190,7 +190,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     private templatesObs(): Observable<SalaryBalanceTemplate[]> {
-        return this.salarybalanceTemplateService.GetAll('');
+        return this.salarybalanceTemplateService.GetAll('', ['Supplier.Info.DefaultBankAccount.AccountNumber']);
     }
 
     public getWagetypes() {
