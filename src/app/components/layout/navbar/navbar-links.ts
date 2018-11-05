@@ -118,11 +118,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/marketplace/integrations',
                         moduleID: UniModules.Marketplace,
                     },
-                    {
-                        name: 'Webinar',
-                        url: '/marketplace/webinars',
-                        moduleID: UniModules.Marketplace,
-                    },
                 ]
             },
         ]
