@@ -101,6 +101,8 @@ export interface ElsaPurchaseForUserLicense {
 }
 
 export interface ElsaProduct {
+    buttonLabel: string;
+    buttonLink: string;
     id: number;
     name: string;
     label: string;
