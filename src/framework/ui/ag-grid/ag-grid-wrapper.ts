@@ -82,6 +82,7 @@ export class AgGridWrapper {
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
+    private resizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
@@ -112,6 +113,12 @@ export class AgGridWrapper {
         this.columnMoveDebouncer$
             .debounceTime(1000)
             .subscribe((event: ColumnMovedEvent) => this.onColumnMove(event));
+
+        this.resizeDebouncer$
+            .debounceTime(200)
+            .subscribe(event => {
+                this.onColumnResize(event);
+            });
     }
 
     public ngOnDestroy() {
@@ -273,13 +280,6 @@ export class AgGridWrapper {
         }
     }
 
-    public onGridSizeChange(event: GridSizeChangedEvent) {
-        event.api.sizeColumnsToFit();
-        // As sad as this is, its required for the widths
-        // to update properly after scroll bars disappear..
-        setTimeout(() => event.api.sizeColumnsToFit(), 500);
-    }
-
     public onRowDragEnd(event: RowDragEndEvent) {
         try {
             const originalIndex = event.node.data['_originalIndex'];
@@ -298,29 +298,22 @@ export class AgGridWrapper {
 
     public onColumnResize(event: ColumnResizedEvent) {
         if (event.finished) {
-            const field = event.column.getColId();
-            if (this.resizeInProgress === field) {
-                this.resizeInProgress = undefined;
-
-                const index = this.columns.findIndex(col => col.field === field);
-                if (index >= 0) {
-                    this.columns[index].width = event.column.getActualWidth();
-                    if (this.config.configStoreKey) {
-                        this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
-                    }
-
-                    // Re-destribute available space if body width is now less than viewport width
-                    if (this.wrapperElement) {
-                        const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
-                        const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-                        if (body.clientWidth < viewport.clientWidth) {
-                            event.api.sizeColumnsToFit();
-                        }
-                    }
+            if (event.source === 'autosizeColumns' || event.source === 'uiColumnDragged') {
+                const field = event.column.getColId();
+                const colIndex = this.columns.findIndex(col => col.field === field);
+                if (colIndex >= 0 && this.config.configStoreKey) {
+                    this.columns[colIndex].width = event.column.getActualWidth();
+                    this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
                 }
             }
-        } else {
-            this.resizeInProgress = event.column.getColId();
+
+            if (this.wrapperElement) {
+                const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
+                const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
+                if (body.clientWidth < viewport.clientWidth) {
+                    event.api.sizeColumnsToFit();
+                }
+            }
         }
     }
 

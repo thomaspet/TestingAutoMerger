@@ -51,8 +51,7 @@
         (paginationChanged)="onPaginationChange($event)"
 
         (gridReady)="onAgGridReady($event)"
-        (gridSizeChanged)="onGridSizeChange($event)"
-        (columnResized)="onColumnResize($event)"
+        (columnResized)="resizeDebouncer$.next($event)"
         (modelUpdated)="onAgModelUpdate($event)"
         (rowDragEnd)="onRowDragEnd($event)"
 
