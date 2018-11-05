@@ -7,7 +7,7 @@ $side-margins: 2rem
 
 header
     display: flex
-    flex-flow: row wrap
+    flex-flow: column
     padding: 2rem $side-margins 1rem
     background-color: $bg-color
     color: $dark-text-color
@@ -16,53 +16,61 @@ header
     .close-button
         color: black
         position: absolute
-        top: 0
+        top: .5rem
         right: 0
         background-color: inherit
         text-shadow: none
         font-size: 2.2rem
 
-    .integration-icon
+    .product-info
         display: flex
-        margin: 0.5rem
-        width: 2.75rem
-        height: 2.75rem
-        flex-grow: 0
-        flex-shrink: 0
-        overflow: hidden
-        align-items: center
-        & img
-            width: 100%
+        flex-direction: row
+        margin: 0 0 1rem
 
-    .title-container
-        padding: 0.8rem 0 0 0
+        img
+            width: 2.75rem
+            height: 2.75rem
 
-        .title
-            color: black
-            font-size: 1.125rem
-            font-weight: 600
-            margin: 0
+        .product-name
+            margin: auto 1rem
 
-        .sub-title
-            color: $light-text-color
-            font-size: 0.8rem
-            line-height: 0.6rem
-            padding: 0
-            margin: 0
+            strong, small
+                display: block
+                line-height: 18px
 
-    .subscribe-button-container
-        flex-basis: 100%
-        flex-flow: column
-        .subscribe-button
-            margin: 0.4rem -1rem 0.9rem 3.75rem
-            padding-left: 3rem
-            padding-right: 3rem
+            strong
+                font-size: 18px
+
+            small
+                color: #707d90
+
+    .subscribe-section
+        display: flex
+
+        button.per-user,
+        button.per-transaction
+            margin-left: 0
+            text-shadow: none
             background-color: $primary-button-color
-            text-shadow: 0 0 .15rem darken($primary-button-color, 8%)
+
+        button.per-user.is-bought
+            background-color: $good-color
+
+        button.per-transaction.is-bought
+            background-color: $bad-color
+
+        span.is-purchased
+            font-size: 14px
+            color: #707d90
+            i.material-icons
+                color: $good-color
+                font-size: 21px
+                vertical-align: middle
+                margin-right: 5px
 
         .price-container
+            margin: auto
             white-space: nowrap
-            margin-left: 3.75rem
         .price
             font-weight: 800
             font-size: 1.6rem

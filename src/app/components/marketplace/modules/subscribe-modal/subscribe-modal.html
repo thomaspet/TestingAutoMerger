@@ -1,19 +1,48 @@
 <section class="subscribe-modal" role="dialog" class="uni-modal" (clickOutside)="close()">
     <header>
         <button class="close-button" (click)="close()">×</button>
-        <section class="integration-icon" [style.background-color]="product.iconBackgroundColor">
+
+        <section class="product-info">
             <img [src]="product.iconReference" />
+
+            <section class="product-name">
+                <strong>{{product.name}}</strong>
+                <small>{{product.label}}</small>
+            </section>
         </section>
-        <div class="title-container">
-            <p class="title">{{product.name}}</p>
-            <p class="sub-title">{{product.label}}</p>
-        </div>
-        <div class="subscribe-button-container">
-            <button class="subscribe-button" (click)="editPurchases()">Aktiver</button>
+
+        <section class="subscribe-section">
+            <button *ngIf="product.isPerUser"
+                class="per-user"
+                [disabled]="!canPurchaseProducts"
+                [ngClass]="{'is-bought': product._isBought}"
+                (click)="manageUserPurchases()">
+
+                {{product._isBought ? 'Velg brukere' : 'Aktiver produkt'}}
+            </button>
+
+
+            <ng-container *ngIf="product.isPerTransaction">
+                <span class="is-purchased" *ngIf="product._isBought">
+                    <i class="material-icons">check_circle</i>
+                    Aktivert
+                </span>
+
+                <button *ngIf="!product._isBought"
+                    class="per-transaction"
+                    [disabled]="!canPurchaseProducts"
+                    (click)="purchaseProduct(product)">
+                    Aktiver produkt
+                </button>
+            </ng-container>
+
+
             <span *ngIf="product.price" class="price-container">
-                <span class="price">{{product.price}} kr</span><span class="price-type">{{priceText(product)}}</span>
+                <span class="price">{{product.price}} kr</span>
+                <span class="price-type">{{priceText(product)}}</span>
             </span>
-        </div>
+        </section>
+
         <p>
             {{product.description}}
         </p>

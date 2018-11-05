@@ -3,7 +3,7 @@
         <h1 class="top-heading">Produkter</h1>
     </section>
     <section class="modules">
-        <h3 class="top-heading">Velg ett eller flere produkter</h3>
+        <!-- <h3 class="top-heading">Velg ett eller flere produkter</h3>
         <section class="bundle" *ngFor="let bundle of bundles" [ngClass]="{'expanded': bundle._isExpanded}">
             <i (click)="bundle._isExpanded = false"
                class="expand_arrow material-icons"
@@ -29,35 +29,53 @@
                 </section>
                 <button class="button subscribe" (click)="editPurchases()">Abonner på {{bundle.name}}</button>
             </ng-container>
-        </section>
+        </section> -->
 
         <section class="module" *ngFor="let module of modules">
-            <section class="first-line">
+            <section class="price-info">
                 <span class="price">{{module.price}} kr</span><span class="type"> {{priceText(module)}}</span>
             </section>
-            <section class="second-line">
+
+            <section class="product-info">
                 <img class="icon" [src]="module.iconReference" />
                 <span>{{module.name}}</span>
+                <i *ngIf="module._isBought" class="material-icons purchase-indicator">check_circle</i>
             </section>
-            <section class="third-line">
-                <button class="subscribe" (click)="editPurchases()">Abonner</button>
-            </section>
-            <section class="forth-line">
-                <a class="link" (click)="openSubscribeModal(module)">Les mer</a>
-            </section>
+
+            <button class="more-button" (click)="openSubscribeModal(module)">
+                Les mer
+            </button>
         </section>
     </section>
-    <section class="extensions">
+
+    <section *ngIf="extensions?.length" class="extensions">
         <h3 class="top-heading">Utvidelser</h3>
-        <uni-tabs class="tabs"
+        <!-- <uni-tabs class="tabs"
                   [tabs]="tabs"
-                  (activeIndexChange)="tagChanged($event)"></uni-tabs>
-        <section class="extension" *ngFor="let extension of currentExtensions">
+                  (activeIndexChange)="tagChanged($event)"></uni-tabs> -->
+
+        <section class="module" *ngFor="let extension of extensions">
+            <section class="price-info">
+                <span class="price">{{extension.price}} kr</span><span class="type"> {{priceText(extension)}}</span>
+            </section>
+
+            <section class="product-info">
+                <img class="icon" [src]="extension.iconReference" />
+                <span>{{extension.name}}</span>
+                <i *ngIf="extension._isBought" class="material-icons purchase-indicator">check_circle</i>
+            </section>
+
+            <button class="more-button" (click)="openSubscribeModal(extension)">
+                Les mer
+            </button>
+        </section>
+
+        <!-- <section class="extension" *ngFor="let extension of extensions">
             <section class="icon"><img src="//public-files.unieconomy.no/files/marketplace/material-extension.png" /></section>
             <h3 class="title">{{extension.name}}</h3>
             <p class="info ellipsis-on-3-lines">{{extension.description}}</p>
             <button class="subscribe" (click)="editPurchases()">Abonner</button>
             <a class="link" (click)="openSubscribeModal(extension)">Les mer</a>
-        </section>
+        </section> -->
     </section>
 </section>

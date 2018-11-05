@@ -9,7 +9,7 @@
             <p class="sub-title">{{integration.label}}</p>
         </div>
         <div class="subscribe-button-container">
-            <button class="subscribe-button" (click)="editPurchases()">Aktiver</button>
+            <a href="{{integration.buttonLink}}" target="_blank"><button class="subscribe-button" >{{integration.buttonLabel || 'Aktiver'}}</button></a>
             <span *ngIf="integration.price" class="price-container">
                 <span class="price">{{integration.price}} kr</span><span class="price-type">{{priceText(integration)}}</span>
             </span>
