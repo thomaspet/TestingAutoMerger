@@ -506,7 +506,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placement: 0,
-                        ReadOnly: !!salBal.ID,
+                        ReadOnly: basedOnTemplate || !!salBal.ID,
                         Options: {
                             source: this.getInstalmentTypes(entity),
                             displayProperty: 'Name',
@@ -539,7 +539,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         Section: 0,
                         Placement: 1,
                         LineBreak: true,
-                        ReadOnly: basedOnTemplate && !!salBal.ID ? true : false,
+                        ReadOnly: basedOnTemplate || !!salBal.ID ? true : false,
                     },
                     {
                         EntityType: entity,
@@ -552,6 +552,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placement: 1,
+                        ReadOnly: basedOnTemplate,
                         LineBreak: true,
                     },
                     {
@@ -595,7 +596,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldSet: 0,
                         Section: 0,
                         Placement: 3,
-                        ReadOnly: !!salBal.ID,
+                        ReadOnly: basedOnTemplate || !!salBal.ID,
                         Options: {
                             source: wageTypes,
                             valueProperty: 'WageTypeNumber',
