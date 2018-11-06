@@ -1337,10 +1337,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 return reject('Forfallsdato må være lik eller senere enn fakturadato.');
             }
 
-            if (this.invoice.Items.filter(x => !x.VatTypeID && (x.PriceExVat > 0 || x.PriceIncVat > 0)).length > 0) {
-                return reject('Kan ikke lagre faktura, mvakode må velges på alle linjene med et beløp');
-            }
-
             this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
                 if (canSave) {
                     saveRequest.subscribe(

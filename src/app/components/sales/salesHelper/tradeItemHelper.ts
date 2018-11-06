@@ -280,7 +280,7 @@ export class TradeItemHelper  {
             }
         } else {
             rowModel.VatTypeID = product.VatTypeID;
-            rowModel.VatType = productVatType;
+            rowModel.VatType = productVatType || product.VatType;
 
             if (!rowModel.VatTypeID && product.Account) {
                 rowModel.VatTypeID = product.Account.VatTypeID;
