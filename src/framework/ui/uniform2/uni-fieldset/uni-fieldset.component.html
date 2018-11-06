@@ -1,0 +1,41 @@
+<fieldset [ngClass]="{'small': true}">
+    <legend *ngIf="legend">{{legend}}</legend>
+    <section class="fieldset-column-container" *ngIf="fieldsetColumns">
+        <section class="fieldset-column" *ngFor="let column of fieldsetColumns">
+            <ng-container  *ngFor="let field of column">
+                <uni-field *ngIf="!field?.Hidden"
+                    [field]="field"
+                    [control]="controls.get(field?.Property | toControlName)"
+                    (changeEvent)="onChange($event)"
+                    (focusEvent)="onFocus($event)"
+                    (blurEvent)="onBlur($event)"
+                    (sourceChange)="onSourceChange($event)"
+                ></uni-field>
+            </ng-container>
+
+        </section>
+
+        <!-- <ng-template ngFor let-item [ngForOf]="fields">
+            <ng-container *ngIf="item?.type !== 'column'">
+                <uni-field [field]="item"
+                           [control]="controls.get(item?.Property | toControlName)"
+                           (changeEvent)="onChange($event)"
+                           (focusEvent)="onFocus($event)"
+                           (blurEvent)="onBlur($event)"
+                           (sourceChange)="onSourceChange($event)"
+                ></uni-field>
+            </ng-container>
+            <section class="fieldset-column" *ngIf="item?.type === 'column'">
+                <ng-template ngFor let-field [ngForOf]="item?.list">
+                    <uni-field [field]="field"
+                               [control]="controls.get(field?.Property | toControlName)"
+                               (changeEvent)="onChange($event)"
+                               (focusEvent)="onFocus($event)"
+                               (blurEvent)="onBlur($event)"
+                               (sourceChange)="onSourceChange($event)"
+                    ></uni-field>
+                </ng-template>
+            </section>
+        </ng-template> -->
+    </section>
+</fieldset>

@@ -1,0 +1,10 @@
+<button #button
+        [class]="config?.classes"
+        (click)="onClick($event)"
+        type="button"
+        [title]="config?.Label"
+        tabindex="-1"
+        (focus)="onFocus()"
+        (blur)="onBlur()">
+    {{config?.Label}}
+</button>

@@ -1,0 +1,29 @@
+<main class="application">
+    <section class="splitview">
+        <!--<article class="splitview_list">-->
+            <uniform2 name="form" #form
+                      appWithNavigation
+                      [fields]="fields"
+                      [(ngModel)]="model"
+                      (updateEvent)="onChange($event)"
+                      (errorEvent)="onError($event)"
+                      (warningEvent)="onWarning($event)"
+                      (moveForwardEvent)="onMoveForward($event)"
+                      (moveBackwardEvent)="onMoveBackward($event)"
+            >
+            </uniform2>
+        <!--  </article>
+        <article class="splitview_detail">
+             <p>Form value:</p>
+             <pre>{{form?.group?.value | json}}</pre>
+             <p>Status:</p>
+             <pre>{{form?.status | json}}</pre>
+             <p>Errors:</p>
+             <pre>{{errors | json}}</pre>
+             <p>Warnings:</p>
+             <pre>{{warnings | json}}</pre>
+             <p>Model Value: </p>
+             <pre>{{model | json}}</pre>
+         </article> -->
+    </section>
+</main>

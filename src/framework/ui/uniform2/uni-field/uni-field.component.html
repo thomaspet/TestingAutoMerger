@@ -1,0 +1,145 @@
+<label *ngIf="field?.FieldType !== 'button'">
+    <span [title]="field?.Label">
+        <span>{{field?.Label | isReguiredField:field}}</span>
+        <uni-tooltip *ngIf="field?.Tooltip"
+                     [type]="field?.Tooltip?.Type"
+                     [alignment]="field?.Tooltip?.Alignment"
+                     [text]="field?.Tooltip?.Text">
+        </uni-tooltip>
+    </span>
+    <ng-container [ngSwitch]="field?.FieldType">
+        <uni-text-input2        *ngSwitchCase="'text'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-text-input2>
+        <uni-password-input2    *ngSwitchCase="'password'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-password-input2>
+        <uni-numeric-input2    *ngSwitchCase="'numeric'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-numeric-input2>
+        <uni-textarea-input2    *ngSwitchCase="'textarea'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-textarea-input2>
+        <uni-checkbox-input2    *ngSwitchCase="'checkbox'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (change)="onChange($event)"
+                                [config]="field">
+        </uni-checkbox-input2>
+        <uni-radio-input2       *ngSwitchCase="'radio'"
+                                #component
+                                [formControl]="control"
+                                [source]="field?.Options?.source"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (change)="onChange($event)"
+                                [config]="field">
+        </uni-radio-input2>
+        <uni-email-input2       *ngSwitchCase="'email'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-email-input2>
+        <uni-url-input2         *ngSwitchCase="'url'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-url-input2>
+        <uni-hyperlink-input2   *ngSwitchCase="'hyperlink'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-hyperlink-input2>
+        <uni-static-text-input2 *ngSwitchCase="'static-text'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                [config]="field">
+        </uni-static-text-input2>
+        <uni-multivalue-input2  *ngSwitchCase="'multivalue'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                (sourceChange)="onSourceChange($event)"
+                                [source]="field?.Options?.source"
+                                [guid]="1234"
+                                [config]="field">
+        </uni-multivalue-input2>
+        <uni-autocomplete-input2 *ngSwitchCase="'autocomplete'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                (sourceChange)="onSourceChange($event)"
+                                [source]="field?.Options?.source"
+                                [config]="field">
+        </uni-autocomplete-input2>
+        <uni-date-input2        *ngSwitchCase="'date'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-date-input2>
+        <uni-search-input2      *ngSwitchCase="'unisearch'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-search-input2>
+        <uni-select-input2      *ngSwitchCase="'select'"
+                                #component
+                                [formControl]="control"
+                                (focus)="onFocus($event)"
+                                (blur)="onBlur($event)"
+                                (ngModelChange)="onChange($event)"
+                                [config]="field">
+        </uni-select-input2>
+    </ng-container>
+</label>
+<show-error [control]="control"></show-error>
+<uni-button-input2  *ngIf="field?.FieldType === 'button'"
+                    #component
+                    [formControl]="control"
+                    (focus)="onFocus($event)"
+                    (blur)="onBlur($event)"
+                    [config]="field">
+</uni-button-input2>

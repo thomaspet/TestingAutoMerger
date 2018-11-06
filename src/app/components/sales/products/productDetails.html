@@ -5,14 +5,19 @@
     [tagConfig]="tagConfig">
 </uni-toolbar>
 
-<section *ngIf="(product$ | async)" class="product-details application">
-    <uni-form
+<section *ngIf="product" class="product-details application">
+    <!--<uni-form
             [config]="config$"
             [fields]="fields$"
             [model]="product$"
             (changeEvent)="change($event)">
-    </uni-form>
-
+    </uni-form>-->
+    <uniform2 name="form" #form
+              appWithNavigation
+              [fields]="fields$ | async"
+              [(ngModel)]="product"
+              (updateEvent)="change($event)">
+    </uniform2>
     <article class="collapsable" [ngClass]="{'-is-open': showExtendedProductInfo}">
         <h4 (click)="showExtendedProductInfo = !showExtendedProductInfo">Utvidet produktinformasjon</h4>
         <div class="collapsable-content">
@@ -30,10 +35,10 @@
 
             <fieldset>
                 <legend>Produktbilde</legend>
-                <small *ngIf="!(product$ | async)?.ID">Produktet må lagres før bilde kan lastes opp</small>
+                <small *ngIf="!product?.ID">Produktet må lagres før bilde kan lastes opp</small>
                 <uni-image
                     [entity]="'product'"
-                    [entityID]="(product$ | async)?.ID"
+                    [entityID]="product?.ID"
                     [uploadConfig]="imageUploadConfig">
                 </uni-image>
             </fieldset>

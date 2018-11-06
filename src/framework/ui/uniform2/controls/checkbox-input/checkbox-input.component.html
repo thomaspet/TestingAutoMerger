@@ -1,0 +1,21 @@
+<mat-slide-toggle
+    #input
+    tabindex="-1"
+    [(checked)]="value"
+    *ngIf="config.slideToggle; else checkbox"
+    (change)="onChangeCheckboxValue($event)"
+    (focus)="onFocus()"
+    (blur)="onBlur()">
+</mat-slide-toggle>
+
+<ng-template #checkbox>
+    <mat-checkbox #input
+        tabindex="-1"
+        [(checked)]="value"
+        [labelPosition]="'before'"
+        [disableRipple]="true"
+        (change)="onChangeCheckboxValue($event)"
+        (focus)="onFocus()"
+        (blur)="onBlur()">
+    </mat-checkbox>
+</ng-template>

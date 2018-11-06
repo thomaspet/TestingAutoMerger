@@ -1,0 +1,8 @@
+<mat-radio-group [value]="value" (change)="onChangeRadioValue($event)" #input>
+    <mat-radio-button
+        [tabindex]="-1"
+        *ngFor="let item of source"
+        [value]="getRadioButtonValue(item)">
+        {{getRadioButtonLabel(item)}}
+    </mat-radio-button>
+</mat-radio-group>

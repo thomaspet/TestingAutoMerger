@@ -1,0 +1,29 @@
+<article class="collapsable" [ngClass]="{'-is-open':isOpen}">
+    <h4 *ngIf="header" (click)="toggle()">{{header}}</h4>
+    <div class="collapsable-content">
+        <ng-template ngFor let-item [ngForOf]="fields">
+            <ng-container [ngSwitch]="item?.type">
+                <uni-fieldset *ngSwitchCase="'fieldset'"
+                    [fields]="item?.list"
+                    [legend]="item?.header"
+                    [controls]="controls"
+                    (changeEvent)="onChange($event)"
+                    (focusEvent)="onFocus($event)"
+                    (blurEvent)="onBlur($event)"
+                    (sourceChange)="onSourceChange($event)"
+                ></uni-fieldset>
+                <ng-container *ngSwitchDefault>
+                    <uni-field
+                        *ngIf="!item?.Hidden"
+                        [field]="item"
+                        [control]="controls.get(item?.Property | toControlName)"
+                        (changeEvent)="onChange($event)"
+                        (focusEvent)="onFocus($event)"
+                        (blurEvent)="onBlur($event)"
+                        (sourceChange)="onSourceChange($event)"
+                    ></uni-field>
+                </ng-container>
+            </ng-container>
+        </ng-template>
+    </div>
+</article>

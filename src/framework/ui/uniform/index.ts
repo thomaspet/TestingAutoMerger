@@ -4,7 +4,7 @@ export * from './unifield/unifield';
 export * from './showError.component';
 export * from './interfaces/index';
 export * from './uniform.module';
-export * from './controls/select/select';
+export * from '../uni-select/select';
 export * from './controls/index';
 export * from './services/index';
 export * from './field-type.enum';

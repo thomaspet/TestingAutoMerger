@@ -42,6 +42,7 @@ import {
     MatInputModule,
     MatMenuModule
 } from '@angular/material';
+import { Uniform2Module } from '@uni-framework/ui/uniform2/uniform2.module';
 
 @NgModule({
     imports: [
@@ -58,6 +59,7 @@ import {
         UniSearchModule,
         UniTooltipModule,
         UniFormModule,
+        Uniform2Module,
         UniTableModule,
         AgGridWrapperModule
     ],
@@ -96,6 +98,7 @@ import {
         UniPipesModule,
         UniSearchModule,
         UniFormModule,
+        Uniform2Module,
         UniTableModule,
         UniTooltipModule,
         AgGridWrapperModule,

@@ -1,4 +1,7 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ElementRef} from '@angular/core';
+import {
+    Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy, ElementRef,
+    ChangeDetectorRef
+} from '@angular/core';
 import {UniSearchAttr} from './UniSearchAttr';
 import {IUniSearchConfig} from './IUniSearchConfig';
 
@@ -45,7 +48,20 @@ export class UniSearch {
 
     public onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
-    constructor(private componentElement: ElementRef) {
+    get NativeInput() {
+        if (!this.componentElement) {
+            console.error('[DEV ERROR] UniSearch: NativeInput is null.');
+            return null;
+        }
+        return this.componentElement.nativeElement.querySelector('input');
+    }
+
+    constructor(private componentElement: ElementRef, private cd: ChangeDetectorRef) {
+    }
+
+    public setValue(value) {
+        this.NativeInput.value = value;
+        this.cd.detectChanges();
     }
 
     public onChangeEvent(event) {
@@ -56,8 +72,8 @@ export class UniSearch {
     }
     public focus() {
         try {
-            this.componentElement.nativeElement.querySelector('input').focus();
-            this.componentElement.nativeElement.querySelector('input').select();
+            this.NativeInput.focus();
+            this.NativeInput.select();
         } catch (e) {}
     }
 }

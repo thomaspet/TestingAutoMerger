@@ -1,0 +1,24 @@
+<ul #list
+    class="uniTable_dropdown_list"
+    [id]="'results-' + guid"
+    role="listbox"
+    tabindex="-1"
+    [attr.aria-expanded]="expanded">
+
+    <li *ngFor="let item of lookupResults; let idx = index"
+        class="autocomplete_result uniTable_dropdown_item"
+        role="option"
+        (mouseover)="onMouseOver(item.isHeader, item, idx)"
+        (click)="confirmSelection(item)"
+        [attr.aria-selected]="selectedIndex === idx"
+        [ngClass]="{ 'group_list_header' : item.isHeader }">
+        {{ item.isHeader ? item.header : applyTemplate(item) }}
+    </li>
+    <li class="poster_tags_addNew" *ngIf="editor"
+        (click)="openEditor()"
+        (keydown.enter)="openEditor()"
+        (mouseover)="selectedIndex = lookupResults?.length; selectedItem = null"
+        [attr.aria-selected]="selectedIndex === lookupResults?.length"
+    >
+        Opprett <strong> '{{queryInput?.value}}'</strong>…</li>
+</ul>

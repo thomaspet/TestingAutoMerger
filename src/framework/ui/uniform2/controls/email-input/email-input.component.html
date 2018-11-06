@@ -1,0 +1,10 @@
+<input
+    #textinput
+    type="email"
+    placeholder="{{config.placeholder}}"
+    [formControl]="mainControl"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    [tabindex]="-1"
+>
+

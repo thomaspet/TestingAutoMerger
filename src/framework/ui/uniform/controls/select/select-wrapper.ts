@@ -11,8 +11,8 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
-import {Observable} from 'rxjs';
-import {UniSelect} from './select';
+import {Observable} from 'rxjs/Observable';
+import {UniSelect} from '../../../uni-select/select';
 import {BaseControl} from '../baseControl';
 
 import * as _ from 'lodash';

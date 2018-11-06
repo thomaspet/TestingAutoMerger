@@ -1,0 +1,23 @@
+<section class="uni-datepicker" (clickOutside)="close()">
+    <input #input
+           [attr.aria-describedby]="1234"
+           type="text"
+           (focus)="onFocus()"
+           [formControl]="mainControl"
+           [placeholder]="config?.Placeholder || ''"
+           class="uni-datepicker-input"
+           [title]="mainControl?.value || ''"
+           tabindex="-1"
+    />
+    <button type="button"
+            tabindex="-1"
+            class="uni-datepicker-calendarBtn"
+            (click)="calendarOpen = !calendarOpen"
+            (focus)="focusInput()"
+    >Kalender</button>
+    <ng-content></ng-content>
+    <uni-calendar-input2 [attr.aria-expanded]="calendarOpen"
+                  [date]="selectedDate"
+                  (dateChange)="selectDate($event)">
+    </uni-calendar-input2>
+</section>

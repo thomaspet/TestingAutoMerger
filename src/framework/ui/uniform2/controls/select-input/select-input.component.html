@@ -1,0 +1,12 @@
+<uni-select #uniselect
+            [config]="config?.Options"
+            [items]="items"
+            [value]="selectedItem"
+            [readonly]="false"
+            [searchFn]="config?.Options?.searchFn"
+            [initialItemFn]="config?.Options?.initialItemFn"
+            [newButtonAction]="config?.Options?.newButtonAction"
+            (valueChange)="onChangeEvent($event)"
+            (readyEvent)="createFocusListener()">
+</uni-select>
+<ng-content></ng-content>

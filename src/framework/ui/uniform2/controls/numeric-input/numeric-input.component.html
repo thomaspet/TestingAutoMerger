@@ -1,0 +1,10 @@
+<input
+    #textinput
+    type="text"
+    placeholder="{{config.placeholder}}"
+    [title]="mainControl?.value"
+    [formControl]="mainControl"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
+    tabindex="-1"
+>
