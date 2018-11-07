@@ -698,7 +698,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             sortedJournalEntries.forEach(entry => {
                 if (doValidateBalance) {
                     if (lastJournalEntryNo !== entry.JournalEntryNo) {
-                        const diff = currentSumDebit - (currentSumCredit * -1);
+                        const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
                         if (diff !== 0) {
                             const message = new ValidationMessage();
                             message.Level = ValidationLevel.Error;
@@ -823,12 +823,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             }
 
             if (doValidateBalance) {
-                const diff = currentSumDebit - (currentSumCredit * -1);
+                const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
                 if (diff !== 0) {
                     const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo || ''}
-                    går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff.toFixed(2)})`;
+                    går ikke i balanse. Sum debet og sum kredit må være lik (differanse: ${diff})`;
                     result.Messages.push(message);
                 }
             }
