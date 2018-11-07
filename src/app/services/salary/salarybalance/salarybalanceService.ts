@@ -533,7 +533,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         FieldType: FieldType.TEXT,
                         Label: entity === 'salarybalancetemplate' ? 'Navn på mal' : 'Tekst til lønnspost',
                         Tooltip: {
-                            Text: this.getHelpText('templatename')
+                            Text: this.getHelpText(entity === 'salarybalancetemplate' ? 'templatename' : 'name')
                         },
                         FieldSet: 0,
                         Section: 0,
