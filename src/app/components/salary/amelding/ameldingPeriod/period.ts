@@ -1,7 +1,7 @@
 import {NumberFormat} from './../../../../services/services';
 import {Component, Input} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
-import {AmeldingData, SalaryTransactionPeriodSums} from '../../../../unientities';
+import {AmeldingData, SalaryTransactionPeriodSums, CompanySalary} from '../../../../unientities';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import * as moment from 'moment';
 
@@ -14,6 +14,7 @@ export class AmeldingPeriodSummaryView {
     @Input() public systemData: SalaryTransactionPeriodSums[] = [];
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
+    @Input() public companySalary: CompanySalary;
 
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
@@ -71,12 +72,16 @@ export class AmeldingPeriodSummaryView {
                 {
                     title: 'Sum forskuddstrekk',
                     value: this.numberFormat.asMoney(this.sumForskuddstrekk, {decimalLength: 0})
-                },
-                {
-                    title: 'Sum finansskatt',
-                    value: this.numberFormat.asMoney(this.sumFinansskattLoenn, {decimalLength: 0})
                 }
             ];
+            if (this.companySalary && this.companySalary.CalculateFinancialTax) {
+                this.systemPeriodSums.push(
+                    {
+                        title: 'Sum finansskatt',
+                        value: this.numberFormat.asMoney(this.sumFinansskattLoenn, {decimalLength: 0})
+                    }
+                );
+            }
         }
 
         if (this.currentAMelding) {
@@ -131,12 +136,16 @@ export class AmeldingPeriodSummaryView {
                     {
                         title: 'Sum forskuddstrekk',
                         value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})
-                    },
-                    {
-                        title: 'Sum finansskatt',
-                        value: this.numberFormat.asMoney(this.sumAmldFinansskattLoenn || 0, {decimalLength: 0})
                     }
                 ];
+                if (this.companySalary && this.companySalary.CalculateFinancialTax) {
+                    this.ameldingPeriodSums.push(
+                        {
+                            title: 'Sum finansskatt',
+                            value: this.numberFormat.asMoney(this.sumAmldFinansskattLoenn || 0, {decimalLength: 0})
+                        }
+                    );
+                }
             }
         }
     }
