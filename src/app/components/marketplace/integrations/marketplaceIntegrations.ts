@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {IntegrationSubscribeModal} from '@app/components/marketplace/integrations/subscribe-modal/subscribe-modal';
+import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/services/elsa/elsaModels';
 import {ErrorService} from '@app/services/common/errorService';
@@ -51,11 +51,11 @@ export class MarketplaceIntegrations {
 
     search(searchText: string) {
         this.filteredActiveIntegrations = this.activeIntegrations
-            .filter(integration => integration.name.toLowerCase().includes(searchText.toLowerCase()));
+            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
         this.filteredUpcomingIntegrations = this.upcomingIntegrations
-            .filter(integration => integration.name.toLowerCase().includes(searchText.toLowerCase()));
+            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
         this.filteredCandidateIntegrations = this.candidateIntegrations
-            .filter(integration => integration.name.toLowerCase().includes(searchText.toLowerCase()));
+            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
     }
 
     navigateToExternalUrl(url: string) {
@@ -63,7 +63,7 @@ export class MarketplaceIntegrations {
     }
 
     openSubscribeModal(integrationItem: ElsaProduct) {
-        return this.modalService.open(IntegrationSubscribeModal, {data: integrationItem}).onClose
+        return this.modalService.open(SubscribeModal, {data: integrationItem}).onClose
             .subscribe(
                 () => {},
                 err => console.error(err),

@@ -1,0 +1,59 @@
+<section class="subscribe-modal" role="dialog" class="uni-modal" (clickOutside)="close()">
+    <header>
+        <button class="close-button" (click)="close()">×</button>
+
+        <section class="product-info">
+            <img [src]="product.iconReference" />
+
+            <section class="product-name">
+                <strong>{{product.label}}</strong>
+                <small>{{product.categoryName}}</small>
+            </section>
+        </section>
+
+        <section class="subscribe-section">
+            <div [matTooltip]="cannotPurchaseProductsText">
+                <button *ngIf="product.isPerUser"
+                    class="per-user"
+                    [disabled]="!canPurchaseProducts"
+                    [ngClass]="{'is-bought': product._isBought}"
+                    (click)="manageUserPurchases()">
+
+                    {{product._isBought ? 'Velg brukere' : 'Aktiver produkt'}}
+                </button>
+            </div>
+
+            <a *ngIf="product.productType === elsaProductType.Integration" href="{{product.buttonLink}}" target="_blank">
+                <button class="subscribe-button">{{product.buttonLabel || 'Aktiver produkt'}}</button>
+            </a>
+
+            <ng-container *ngIf="product.isPerTransaction">
+                <span class="is-purchased" *ngIf="product._isBought">
+                    <i class="material-icons">check_circle</i>
+                    Aktivert
+                </span>
+
+                <div [matTooltip]="!canPurchaseProducts ? 'Du har ikke rettigheter til å aktivere produkter. Vennligst kontakt systemansvarlig.' : null">
+                    <button *ngIf="!product._isBought"
+                        class="per-transaction"
+                        [disabled]="!canPurchaseProducts"
+                        (click)="purchaseProduct(product)">
+                        Aktiver produkt
+                    </button>
+                </div>
+            </ng-container>
+
+
+            <span *ngIf="product.price" class="price-container">
+                <span class="price">{{product.price}} kr</span>
+                <span class="price-type">{{priceText(product)}}</span>
+            </span>
+        </section>
+
+        <p>
+            {{product.description}}
+        </p>
+    </header>
+
+    <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent | keepHtml"></article>
+</section>

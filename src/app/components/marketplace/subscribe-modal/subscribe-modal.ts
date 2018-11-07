@@ -1,22 +1,23 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, ManageProductsModal} from '@uni-framework/uni-modal';
-import {ElsaProduct} from '@app/services/elsa/elsaModels';
+import {ElsaProduct, ElsaProductType} from '@app/services/elsa/elsaModels';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {AuthService} from '@app/authService';
 
 @Component({
-    selector: 'uni-module-subscribe-modal',
+    selector: 'uni-product-subscribe-modal',
     templateUrl: './subscribe-modal.html',
     styleUrls: ['./subscribe-modal.sass']
 })
-export class ModuleSubscribeModal implements IUniModal, OnInit {
+export class SubscribeModal implements IUniModal, OnInit {
     @Input() options: IModalOptions = {};
 
     @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
-    hasAccess: boolean = true;
+    cannotPurchaseProductsText: string;
+    elsaProductType = ElsaProductType;
 
     constructor(
         private authService: AuthService,
@@ -31,8 +32,11 @@ export class ModuleSubscribeModal implements IUniModal, OnInit {
     }
 
     ngOnInit() {
-        this.product = this.options.data.module;
-        this.hasAccess = this.options.data.hasAccess;
+        this.product = this.options.data;
+        if (!this.canPurchaseProducts) {
+            const action = this.product['_isBought'] ? 'velge brukere' : 'aktivere produkter';
+            this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å ' + action + '. Vennligst kontakt systemansvarlig.';
+        }
     }
 
     manageUserPurchases() {

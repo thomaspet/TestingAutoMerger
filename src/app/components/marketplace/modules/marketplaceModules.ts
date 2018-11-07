@@ -3,12 +3,12 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ElsaProductService, ElsaCompanyLicenseService, ElsaPurchaseService, ErrorService} from '@app/services/services';
 import {ElsaProduct, ElsaProductType, ElsaBundle, ElsaPurchasesForUserLicenseByCompany} from '@app/services/elsa/elsaModels';
-import {ModuleSubscribeModal} from '@app/components/marketplace/modules/subscribe-modal/subscribe-modal';
+import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {UniModalService, ManageProductsModal} from '@uni-framework/uni-modal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {Observable} from 'rxjs';
 import {ElsaBundleService} from '@app/services/elsa/elsaBundleService';
-import {Company, TradeHeaderCalculationSummary} from '@app/unientities';
+import {Company} from '@app/unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {AuthService} from '@app/authService';
 
@@ -20,7 +20,6 @@ import {AuthService} from '@app/authService';
 export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
-    hasAccess: boolean = true;
 
     // bundles: ElsaProduct[];
     // modulesWithExtensions: ElsaProduct[];
@@ -52,9 +51,13 @@ export class MarketplaceModules implements AfterViewInit {
         Observable.forkJoin(
             this.elsaProductService.GetAll(),
             this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey)
-                .catch(err => {
-                    this.hasAccess = false;
-                    return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
+                .catch((err, obs) => {
+                    if (err.status === 403) {
+                        return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
+                    } else {
+                        return obs;
+                    }
+
                 }),
             this.elsaPurchaseService.GetAll()
             // this.elsaBundleService.GetAll(),
@@ -81,7 +84,7 @@ export class MarketplaceModules implements AfterViewInit {
 
                 // this.bundles = bundles;
                 // this.modulesWithExtensions = products.filter(hasSubProducts);
-                // this.tabs = this.modulesWithExtensions.map(m => ({name: m.name}))
+                // this.tabs = this.modulesWithExtensions.map(m => ({name: m.label}))
             },
             err => this.errorService.handle(err),
         );
@@ -92,11 +95,7 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     openSubscribeModal(module: ElsaProduct) {
-        return this.modalService.open(ModuleSubscribeModal, {
-            data: {
-                module: module,
-                hasAccess: this.hasAccess
-        }}).onClose
+        return this.modalService.open(SubscribeModal, {data: module}).onClose
             .subscribe(() => {});
     }
 
