@@ -25,11 +25,11 @@ export class AmeldingReceiptView {
     private identificationObject: any = {};
 
     constructor() {
-        this.setupMottakTable();
     }
 
     public ngOnChanges() {
         this.showFeedback = false;
+        this.setupMottakTable();
         if (this.currentAMelding) {
             this.getAlleAvvik();
         }
@@ -214,13 +214,17 @@ export class AmeldingReceiptView {
         );
         const periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
         const financialTaxCol = new UniTableColumn(
-            'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money)
-            .setVisible(!!this.companySalary && this.companySalary.CalculateFinancialTax);
+            'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money);
+
+        const columns: UniTableColumn[] = [
+            meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
+        ];
+        if (this.companySalary && this.companySalary.CalculateFinancialTax) {
+            columns.push(financialTaxCol);
+        }
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
             .setDefaultOrderBy('meldingsId', -1)
-            .setColumns([
-                meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol, financialTaxCol
-            ]);
+            .setColumns(columns);
     }
 }

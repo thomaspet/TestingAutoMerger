@@ -69,6 +69,7 @@ export class AMeldingView implements OnInit {
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
     private companySalary: CompanySalary;
+    public showFinanceTax: boolean;
 
     public activeTabIndex: number = 0;
     public tabs: IUniTab[];
@@ -90,6 +91,7 @@ export class AMeldingView implements OnInit {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
                 this.companySalary = compSalary;
+                this.showFinanceTax = compSalary.CalculateFinancialTax;
             });
 
         this._tabService.addTab({
