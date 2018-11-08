@@ -44,7 +44,10 @@ export class SubscribeModal implements IUniModal, OnInit {
             const companyKey = this.authService.getCompanyKey();
             this.modalService.open(ManageProductsModal, {
                 header: `Velg hvilke brukere som skal ha hvilke produkter`,
-                data: {companyKey: companyKey},
+                data: {
+                    companyKey: companyKey,
+                    selectedProduct: this.product
+                },
             });
 
             this.onClose.emit();

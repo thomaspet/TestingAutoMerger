@@ -27,7 +27,7 @@
                     <span class="new-price">NOK {{bundle.bundlePrice}}</span>
                     <span class="type">/ per bruker / per måned</span>
                 </section>
-                <button class="button subscribe" (click)="editPurchases()">Abonner på {{bundle.label}}</button>
+                <button class="button subscribe" (click)="editPurchases(bundle)">Abonner på {{bundle.label}}</button>
             </ng-container>
         </section> -->
 
@@ -74,7 +74,7 @@
             <section class="icon"><img src="//public-files.unieconomy.no/files/marketplace/material-extension.png" /></section>
             <h3 class="title">{{extension.label}}</h3>
             <p class="info ellipsis-on-3-lines">{{extension.description}}</p>
-            <button class="subscribe" (click)="editPurchases()">Abonner</button>
+            <button class="subscribe" (click)="editPurchases(extension)">Abonner</button>
             <a class="link" (click)="openSubscribeModal(extension)">Les mer</a>
         </section> -->
     </section>

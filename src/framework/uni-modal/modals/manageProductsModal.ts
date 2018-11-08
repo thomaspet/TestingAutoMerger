@@ -76,7 +76,7 @@ export class ManageProductsModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<string> = new EventEmitter<string>();
 
-    public products: ElsaProduct[];
+    public products: ElsaProduct[] = [];
     public purchasesPerUser: UserLine[];
     private companyKey: string;
 
@@ -93,10 +93,18 @@ export class ManageProductsModal implements IUniModal {
         if (!this.companyKey) {
             throw new Error('companyKey is a required field for using the ManageProductsModal');
         }
+        const selectedProduct: ElsaProduct = this.options.data.selectedProduct;
 
         Observable.forkJoin(
-            this.elsaCompanyLicenseService.PurchasesForUserLicense(this.companyKey),
-            this.elsaProductService.GetAll(),
+            this.elsaCompanyLicenseService.PurchasesForUserLicense(this.companyKey)
+                .catch((err, obs) => {
+                    if (err.status === 403) {
+                        return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
+                    } else {
+                        return obs;
+                    }
+                }),
+            selectedProduct ? Observable.of(null) : this.elsaProductService.GetAll(),
         )
             .do(() => this.cdr.markForCheck())
             .subscribe(
@@ -104,7 +112,7 @@ export class ManageProductsModal implements IUniModal {
                     const licensePurchases: ElsaPurchasesForUserLicenseByCompany[] = parts[0];
                     this.products = parts[1] ?
                         parts[1].filter(product => product.isPerUser && product.name !== 'Complete') :
-                        [];
+                        [selectedProduct];
                     this.purchasesPerUser = this.mapPurchasesToUsers(licensePurchases, this.products);
                 },
                 err => {

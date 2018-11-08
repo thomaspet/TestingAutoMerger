@@ -107,12 +107,15 @@ export class MarketplaceModules implements AfterViewInit {
         return this.elsaProductService.ProductTypeToPriceText(module);
     }
 
-    // editPurchases() {
+    // editPurchases(product) {
     //     const company: Company = this.browserStorage.getItem('activeCompany');
     //     this.modalService
     //         .open(ManageProductsModal, {
     //             header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
-    //             data: {companyKey: company.Key},
+    //             data: {
+    //                 companyKey: company.Key,
+    //                 selectedProduct: product
+    //             },
     //         });
     // }
 
