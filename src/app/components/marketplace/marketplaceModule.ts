@@ -9,7 +9,7 @@ import {LayoutModule} from '../layout/layoutModule';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
-import { MatTooltipModule } from '@angular/material';
+import {MatTooltipModule} from '@angular/material';
 
 @NgModule({
     imports: [
