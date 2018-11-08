@@ -304,20 +304,48 @@ export class TradeItemHelper  {
 
         rowModel.PriceSetByUser = false;
 
-        if (rowModel.Dimensions) {
-            if (!rowModel.Dimensions.ProjectID) {
-                if (product.Dimensions && product.Dimensions.ProjectID) {
-                    rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
-                    rowModel.Dimensions.Project = product.Dimensions.Project;
-                }
-            }
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = {};
+        }
 
-            if (!rowModel.Dimensions.DepartmentID) {
-                if (product.Dimensions && product.Dimensions.DepartmentID) {
-                    rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
-                    rowModel.Dimensions.Department = product.Dimensions.Department;
-                }
-            }
+        if (product.Dimensions && product.Dimensions.ProjectID) {
+            rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
+            rowModel.Dimensions.Project = product.Dimensions.Project;
+        }
+
+        if (product.Dimensions && product.Dimensions.DepartmentID) {
+            rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
+            rowModel.Dimensions.Department = product.Dimensions.Department;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension5ID) {
+            rowModel.Dimensions.Dimension5ID = product.Dimensions.Dimension5ID;
+            rowModel.Dimensions.Dimension5 = product.Dimensions.Dimension5;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension6ID) {
+            rowModel.Dimensions.Dimension6ID = product.Dimensions.Dimension6ID;
+            rowModel.Dimensions.Dimension6 = product.Dimensions.Dimension6;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension7ID) {
+            rowModel.Dimensions.Dimension7ID = product.Dimensions.Dimension7ID;
+            rowModel.Dimensions.Dimension7 = product.Dimensions.Dimension7;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension8ID) {
+            rowModel.Dimensions.Dimension8ID = product.Dimensions.Dimension8ID;
+            rowModel.Dimensions.Dimension8 = product.Dimensions.Dimension8;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension9ID) {
+            rowModel.Dimensions.Dimension9ID = product.Dimensions.Dimension9ID;
+            rowModel.Dimensions.Dimension9 = product.Dimensions.Dimension9;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension10ID) {
+            rowModel.Dimensions.Dimension10ID = product.Dimensions.Dimension10ID;
+            rowModel.Dimensions.Dimension10 = product.Dimensions.Dimension10;
         }
     }
 
