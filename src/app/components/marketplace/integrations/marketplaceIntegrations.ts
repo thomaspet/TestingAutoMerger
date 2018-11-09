@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Pipe, PipeTransform} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
@@ -6,19 +6,30 @@ import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/services/elsa/elsaModels';
 import {ErrorService} from '@app/services/common/errorService';
 
+@Pipe({name: 'filterIntegrations'})
+export class FilterIntegrationsPipe implements PipeTransform {
+    transform(integrations: ElsaProduct[], searchText: string): ElsaProduct[] {
+        return (integrations || []).filter(integration => {
+            return (integration.label || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.categoryName || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.tags || []).find(tag => (tag || '').toLowerCase().includes(searchText.toLowerCase()))
+                || (integration.description || '').toLowerCase().includes(searchText.toLowerCase())
+                || (integration.htmlContent || '').toLowerCase().includes(searchText.toLowerCase());
+        });
+    }
+}
+
 @Component({
     selector: 'uni-marketplace-integrations',
     templateUrl: './marketplaceIntegrations.html',
     styleUrls: ['./marketplaceIntegrations.sass'],
 })
-export class MarketplaceIntegrations {
+export class MarketplaceIntegrations implements OnInit {
 
     activeIntegrations: ElsaProduct[];
     upcomingIntegrations: ElsaProduct[];
     candidateIntegrations: ElsaProduct[];
-    filteredActiveIntegrations: ElsaProduct[];
-    filteredUpcomingIntegrations: ElsaProduct[];
-    filteredCandidateIntegrations: ElsaProduct[];
+    searchText: string = '';
 
     constructor(
         tabService: TabService,
@@ -40,22 +51,13 @@ export class MarketplaceIntegrations {
             .subscribe(
                 products => {
                     const integrations = products.filter(isIntegration);
-                    this.filteredActiveIntegrations = this.activeIntegrations = integrations.filter(isActive);
-                    this.filteredUpcomingIntegrations = this.upcomingIntegrations = integrations.filter(isUpcoming);
-                    this.filteredCandidateIntegrations = this.candidateIntegrations = integrations.filter(isCandidate);
+                    this.activeIntegrations = integrations.filter(isActive);
+                    this.upcomingIntegrations = integrations.filter(isUpcoming);
+                    this.candidateIntegrations = integrations.filter(isCandidate);
 
                 },
                 err => this.errorService.handle(err),
             );
-    }
-
-    search(searchText: string) {
-        this.filteredActiveIntegrations = this.activeIntegrations
-            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
-        this.filteredUpcomingIntegrations = this.upcomingIntegrations
-            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
-        this.filteredCandidateIntegrations = this.candidateIntegrations
-            .filter(integration => integration.label.toLowerCase().includes(searchText.toLowerCase()));
     }
 
     navigateToExternalUrl(url: string) {

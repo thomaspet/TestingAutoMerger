@@ -1,12 +1,12 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {ReactiveFormsModule} from '@angular/forms';
+import {ReactiveFormsModule, FormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {Marketplace} from './marketplace';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
-import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
+import {MarketplaceIntegrations, FilterIntegrationsPipe} from './integrations/marketplaceIntegrations';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
 import {MatTooltipModule} from '@angular/material';
@@ -20,12 +20,14 @@ import {MatTooltipModule} from '@angular/material';
         RouterModule,
         LayoutModule,
         MatTooltipModule,
+        FormsModule,
     ],
     declarations: [
         Marketplace,
         MarketplaceModules,
         MarketplaceIntegrations,
         SubscribeModal,
+        FilterIntegrationsPipe
     ],
     entryComponents: [
         SubscribeModal,

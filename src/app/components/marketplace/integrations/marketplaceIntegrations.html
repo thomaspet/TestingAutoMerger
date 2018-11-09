@@ -4,19 +4,12 @@
     </section>
     <section class="search">
         <div class="search-input">
-            <input type="search"
-                   placeholder="Søk"
-                   (input)="search($event.target.value)"
-                   [attr.deactivated]="!(filteredActiveIntegrations && filteredUpcomingIntegrations && filteredCandidateIntegrations)"
-            />
-            <p class="search-info">
-                {{(filteredActiveIntegrations?.length + filteredUpcomingIntegrations?.length + filteredCandidateIntegrations?.length)}} resultater
-            </p>
+            <input [(ngModel)]="searchText" type="search" placeholder="Søk"/>
         </div>
     </section>
     <section class="live-integration-items" [attr.aria-busy]="!activeIntegrations">
         <h3>Aktive</h3>
-        <section class="integration-item" *ngFor="let item of filteredActiveIntegrations">
+        <section class="integration-item" *ngFor="let item of activeIntegrations | filterIntegrations: searchText">
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>
@@ -31,7 +24,7 @@
     </section>
     <section class="upcoming-integration-items" [attr.aria-busy]="!upcomingIntegrations">
         <h3>Lanseres snart</h3>
-        <section class="integration-item" *ngFor="let item of filteredUpcomingIntegrations">
+        <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>
@@ -46,7 +39,7 @@
     </section>
     <section class="candidate-integration-items" [attr.aria-busy]="!candidateIntegrations">
         <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
-        <section class="integration-item" *ngFor="let item of filteredCandidateIntegrations">
+        <section class="integration-item" *ngFor="let item of candidateIntegrations | filterIntegrations: searchText">
             <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
                 <img src="{{item.iconReference}}" />
             </section>
