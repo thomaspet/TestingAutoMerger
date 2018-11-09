@@ -125,6 +125,13 @@ export class TableDataService {
                         if (res.json) {
                             data = res.json();
                             totalRowCount = res.headers && res.headers.get('count');
+                            if (data.Data) {
+                                data.Data.forEach(item => {
+                                    if (item.ID === 3223) {
+                                        console.log({item});
+                                    }
+                                });
+                            }
                             if (!totalRowCount) {
                                 totalRowCount = data.length;
                             }

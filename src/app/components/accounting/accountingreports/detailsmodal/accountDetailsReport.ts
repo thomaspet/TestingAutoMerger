@@ -476,4 +476,8 @@ export class AccountDetailsReport {
         this.periodFilter3$.next(this.periodFilter2$.getValue());
         this.setupLookupTransactions();
     }
+
+    onResourceChange($event) {
+        console.log($event);
+    }
 }

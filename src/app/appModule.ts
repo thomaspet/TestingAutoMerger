@@ -51,7 +51,6 @@ import {AboutModule} from './components/about/aboutModule';
 import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
 import {ElsaServicesModule} from '@app/services/elsaServicesModule';
-import { Uniform2TestComponent } from '@uni-framework/ui/uniform2/uniform2-test/uniform2-test.component';
 
 import {ReloadHelper} from './reload';
 
@@ -104,7 +103,6 @@ moment.locale('nb');
     ],
     declarations: [
         App,
-        Uniform2TestComponent,
         ReloadHelper
     ],
     bootstrap: [App],

@@ -31,7 +31,7 @@ import {
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
-import * as _ from 'lodash';
+declare const _; // lodash
 
 @Component({
     selector: 'product-details',
@@ -55,8 +55,7 @@ export class ProductDetails {
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    // public product$: BehaviorSubject<Product> = new BehaviorSubject(null);
-    public product = null;
+    public product$: BehaviorSubject<Product> = new BehaviorSubject(null);
 
     private defaultSalesAccount: Account;
 
@@ -85,12 +84,12 @@ export class ProductDetails {
     public toolbarconfig: IToolbarConfig;
 
     public saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveProduct(completeEvent),
-             main: true,
-             disabled: false
-         }
+        {
+            label: 'Lagre',
+            action: (completeEvent) => this.saveProduct(completeEvent),
+            main: true,
+            disabled: false
+        }
     ];
 
     public categoryFilter: ITag[] = [];
@@ -133,12 +132,12 @@ export class ProductDetails {
         // setup form
         if (!this.formIsInitialized) {
             Observable.forkJoin(
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null),
-                    this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
-                    this.customDimensionService.getMetadata()
-                )
+                this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
+                this.projectService.GetAll(null),
+                this.departmentService.GetAll(null),
+                this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
+                this.customDimensionService.getMetadata()
+            )
                 .subscribe((response: Array<any>) => {
                     this.vatTypes = response[0];
                     this.projects = response[1];
@@ -158,16 +157,16 @@ export class ProductDetails {
     private setupToolbar() {
         const subheads = [];
         if (this.productId > 0) {
-            subheads.push({title: 'Produktnr. ' + this.product.PartName});
+            subheads.push({title: 'Produktnr. ' + this.product$.getValue().PartName});
         }
 
-        if (this.product.CalculateGrossPriceBasedOnNetPrice) {
-            if (this.product.PriceExVat !== null) {
-                subheads.push({title: 'Utpris eks. mva ' + this.product.PriceExVat });
+        if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
+            if (this.product$.getValue().PriceExVat !== null) {
+                subheads.push({title: 'Utpris eks. mva ' + this.product$.getValue().PriceExVat });
             }
         } else {
-            if (this.product.PriceIncVat !== null) {
-                subheads.push({title: 'Utpris inkl. mva ' + this.product.PriceIncVat });
+            if (this.product$.getValue().PriceIncVat !== null) {
+                subheads.push({title: 'Utpris inkl. mva ' + this.product$.getValue().PriceIncVat });
             }
         }
 
@@ -195,17 +194,17 @@ export class ProductDetails {
         }
 
         subject.subscribe(response => {
-            this.product = response[0];
+            this.product$.next(response[0]);
             this.descriptionControl.setValue(response[0] && response[0].Description);
 
             if (!this.modalMode) {
                 this.setTabTitle();
                 this.setupToolbar();
             }
-            this.showHidePriceFields(this.product.CalculateGrossPriceBasedOnNetPrice);
+            this.showHidePriceFields(this.product$.getValue().CalculateGrossPriceBasedOnNetPrice);
 
             if (response.length > 1 && response[1] !== null) {
-                this.product.PartName = response[1].PartNameSuggestion;
+                this.product$.getValue().PartName = response[1].PartNameSuggestion;
             }
 
             this.getProductCategories();
@@ -218,21 +217,21 @@ export class ProductDetails {
     }
 
     private setTabTitle() {
-        const tabTitle = this.product.PartName
-            ? 'Produktnr. ' + this.product.PartName
+        const tabTitle = this.product$.getValue().PartName
+            ? 'Produktnr. ' + this.product$.getValue().PartName
             : 'Produkt (kladd)';
         this.tabService.addTab({
-            url: '/sales/products/' + this.product.ID,
+            url: '/sales/products/' + this.product$.getValue().ID,
             name: tabTitle, active: true, moduleID: UniModules.Products
         });
     }
 
     public textareaChange() {
         const description = this.descriptionControl.value;
-        const product = this.product;
+        const product = this.product$.getValue();
         if (description && product) {
             product.Description = description;
-            this.product = _.cloneDeep(product);
+            this.product$.next(product);
         }
     }
 
@@ -241,19 +240,19 @@ export class ProductDetails {
             this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
         }
         if (changes['PriceExVat']) {
-            if (!this.product.CalculateGrossPriceBasedOnNetPrice) {
+            if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
                 this.calculateAndUpdatePrice();
             }
         }
         if (changes['PriceIncVat']) {
-            if (this.product.CalculateGrossPriceBasedOnNetPrice) {
+            if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
                 this.calculateAndUpdatePrice();
             }
         }
     }
 
     public saveProduct(completeEvent) {
-        const product = this.product;
+        const product = this.product$.getValue();
         if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
             product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
@@ -285,7 +284,7 @@ export class ProductDetails {
                 }
             );
         } else {
-            this.productService.Post(this.product)
+            this.productService.Post(this.product$.getValue())
                 .subscribe(
                     (newProduct) => {
                         if (this.modalMode) {
@@ -305,8 +304,8 @@ export class ProductDetails {
     }
 
     private calculateAndUpdatePrice() {
-        const product = this.productService.calculatePriceLocal(this.product);
-        this.product = _.cloneDeep(product);
+        const product = this.productService.calculatePriceLocal(this.product$.getValue());
+        this.product$.next(product);
         this.setupToolbar();
     }
 
@@ -318,13 +317,13 @@ export class ProductDetails {
         priceIncVat.Hidden = !value;
         priceExVat.Hidden = value;
         this.fields$.next(fields);
-        this.product = _.cloneDeep(this.product);
+        this.product$.next(this.product$.getValue());
         this.calculateAndUpdatePrice();
         this.setupToolbar();
     }
 
     private previousProduct() {
-        this.productService.getPreviousID(this.product.ID)
+        this.productService.getPreviousID(this.product$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
                     this.router.navigateByUrl('/sales/products/' + ID);
@@ -335,7 +334,7 @@ export class ProductDetails {
     }
 
     private nextProduct() {
-        this.productService.getNextID(this.product.ID)
+        this.productService.getNextID(this.product$.getValue().ID)
             .subscribe((ID) => {
                 if (ID) {
                     this.router.navigateByUrl('/sales/products/' + ID);
@@ -349,9 +348,9 @@ export class ProductDetails {
         this.router.navigateByUrl('/sales/products/0');
     }
 
-    private extendFormConfig(initialFields) {
+    private extendFormConfig() {
         const self = this;
-        const department: UniFieldLayout = initialFields.find(x => x.Property === 'Dimensions.DepartmentID');
+        const department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.departments,
             valueProperty: 'ID',
@@ -359,16 +358,14 @@ export class ProductDetails {
                 return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
             },
             events: {
-                enter: (model, event: KeyboardEvent) => {
-                    event.preventDefault();
-                    event.stopPropagation();
+                enter: () => {
                     self.descriptionField.nativeElement.focus();
                 }
             },
             debounceTime: 200
         };
 
-        const project: UniFieldLayout = initialFields.find(x => x.Property === 'Dimensions.ProjectID');
+        const project: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.projects,
             valueProperty: 'ID',
@@ -378,7 +375,7 @@ export class ProductDetails {
             debounceTime: 200
         };
 
-        const vattype: UniFieldLayout = initialFields.find(x => x.Property === 'VatTypeID');
+        const vattype: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
         if (this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
             vattype.Placeholder =
                 this.defaultSalesAccount.VatType.VatCode + ' - ' + this.defaultSalesAccount.VatType.Name;
@@ -390,21 +387,21 @@ export class ProductDetails {
             debounceTime: 100,
             search: (searchValue: string) => {
                 if (!searchValue) {
-                    return this.vatTypes;
+                    return [this.vatTypes];
                 } else {
-                    return this.vatTypes.filter((vt) => vt.VatCode === searchValue
+                    return [this.vatTypes.filter((vt) => vt.VatCode === searchValue
                         || vt.VatPercent.toString() === searchValue
                         || vt.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
                         || `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` === searchValue
-                    );
+                    )];
                 }
             },
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : '',
             events: {
-                    select: (model: Product) => {
-                        this.updateVatType(model);
-                    }
-                },
+                select: (model: Product) => {
+                    this.updateVatType(model);
+                }
+            },
             groupConfig: {
                 groupKey: 'VatCodeGroupingValue',
                 visibleValueKey: 'Visible',
@@ -426,13 +423,13 @@ export class ProductDetails {
             }
         };
 
-        const accountField: UniFieldLayout = initialFields.find(x => x.Property === 'AccountID');
+        const accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
         if (this.defaultSalesAccount) {
             accountField.Placeholder =
                 this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
         }
         accountField.Options = {
-            initialValueFn: () => this.getDefaultAccountData(),
+            getDefaultData: () => this.getDefaultAccountData(),
             displayProperty: 'AccountNumber',
             valueProperty: 'ID',
             debounceTime: 200,
@@ -447,26 +444,26 @@ export class ProductDetails {
             }
         };
 
-        const typeField: UniFieldLayout = initialFields.find(x => x.Property === 'Type');
+        const typeField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Type');
         typeField.Options = {
             displayProperty: 'TypeName',
             valueProperty: 'ID',
             source: this.productTypes
         };
-        return initialFields;
-        // this.priceExVat =  this.fields$.getValue().find(x => x.Property === 'PriceExVat');
-        // this.priceIncVat = this.fields$.getValue().find(x => x.Property === 'PriceIncVat');
-        // this.vatTypeField = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
-        // this.calculateGrossPriceBasedOnNetPriceField = this.fields$.getValue().find(
-        //     x => x.Property === 'CalculateGrossPriceBasedOnNetPrice'
-        // );
+
+        this.priceExVat =  this.fields$.getValue().find(x => x.Property === 'PriceExVat');
+        this.priceIncVat = this.fields$.getValue().find(x => x.Property === 'PriceIncVat');
+        this.vatTypeField = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
+        this.calculateGrossPriceBasedOnNetPriceField = this.fields$.getValue().find(
+            x => x.Property === 'CalculateGrossPriceBasedOnNetPrice'
+        );
     }
 
     private getDefaultAccountData() {
-        if (this.product && this.product.Account ) {
-            return Observable.of(this.product.Account);
+        if (this.product$.getValue() && this.product$.getValue().Account ) {
+            return Observable.of([this.product$.getValue().Account]);
         } else {
-            return Observable.of(null);
+            return Observable.of([]);
         }
     }
 
@@ -474,19 +471,19 @@ export class ProductDetails {
         if (model && model.AccountID) {
             this.accountService.Get(model.AccountID, ['VatType'])
                 .subscribe(account => {
-                    if (account) {
-                        this.product.Account = account;
-                        if (this.product.Account.VatTypeID !== null) {
-                            this.product.VatTypeID = this.product.Account.VatTypeID;
-                            this.product.VatType = this.product.Account.VatType;
-                            this.calculateAndUpdatePrice();
+                        if (account) {
+                            this.product$.getValue().Account = account;
+                            if (this.product$.getValue().Account.VatTypeID !== null) {
+                                this.product$.getValue().VatTypeID = this.product$.getValue().Account.VatTypeID;
+                                this.product$.getValue().VatType = this.product$.getValue().Account.VatType;
+                                this.calculateAndUpdatePrice();
 
-                            this.product = _.cloneDeep(this.product);
+                                this.product$.next(this.product$.getValue());
+                            }
                         }
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+                    },
+                    err => this.errorService.handle(err)
+                );
         }
     }
 
@@ -494,13 +491,13 @@ export class ProductDetails {
         if (model && model.VatTypeID) {
             this.vatTypeService.Get(model.VatTypeID)
                 .subscribe(vattype => {
-                    if (vattype) {
-                        this.product.VatType = vattype;
-                        this.calculateAndUpdatePrice();
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+                        if (vattype) {
+                            this.product$.getValue().VatType = vattype;
+                            this.calculateAndUpdatePrice();
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
         }
     }
 
@@ -555,7 +552,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PartName',
-                    FieldType: 'text',
+                    FieldType: FieldType.TEXT,
                     Label: 'Produktnr'
                 },
                 {
@@ -563,7 +560,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'Name',
-                    FieldType: 'text',
+                    FieldType: FieldType.TEXT,
                     Label: 'Navn'
                 },
                 {
@@ -571,7 +568,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'Unit',
-                    FieldType: 'text',
+                    FieldType: FieldType.TEXT,
                     Label: 'Enhet'
                 },
                 {
@@ -579,7 +576,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'Type',
-                    FieldType: 'select',
+                    FieldType: FieldType.DROPDOWN,
                     Label: 'Produkttype'
                 },
 
@@ -590,7 +587,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'CostPrice',
-                    FieldType: 'numeric',
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Innpris eks. mva',
                     Options: {
                         format: 'money',
@@ -602,7 +599,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceExVat',
-                    FieldType: 'numeric',
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Utpris eks. mva',
                     Options: {
                         format: 'money',
@@ -614,7 +611,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PriceIncVat',
-                    FieldType: 'numeric',
+                    FieldType: FieldType.NUMERIC,
                     Label: 'Utpris inkl. mva',
                     Options: {
                         format: 'money',
@@ -626,7 +623,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'CalculateGrossPriceBasedOnNetPrice',
-                    FieldType: 'checkbox',
+                    FieldType: FieldType.CHECKBOX,
                     Label: 'Utpris inkl. mva'
                 },
 
@@ -637,7 +634,7 @@ export class ProductDetails {
                     Legend: 'Regnskapsinnstillinger',
                     EntityType: 'Product',
                     Property: 'AccountID',
-                    FieldType: 'autocomplete',
+                    FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Hovedbokskonto'
                 },
                 {
@@ -645,7 +642,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'VatTypeID',
-                    FieldType: 'autocomplete',
+                    FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Mvakode'
                 },
 
@@ -656,7 +653,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Project',
                     Property: 'Dimensions.ProjectID',
-                    FieldType: 'select',
+                    FieldType: FieldType.DROPDOWN,
                     Label: 'Prosjekt'
                 },
                 {
@@ -664,7 +661,7 @@ export class ProductDetails {
                     Section: 0,
                     EntityType: 'Department',
                     Property: 'Dimensions.DepartmentID',
-                    FieldType: 'select',
+                    FieldType: FieldType.DROPDOWN,
                     Label: 'Avdeling'
                 }
             ]

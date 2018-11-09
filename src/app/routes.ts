@@ -21,7 +21,6 @@ import {SharingsList} from './components/sharings/list/sharingsList';
 import {UniReports} from './components/reports/reports';
 import {ContactDetails} from './components/common/contact/contactDetails';
 import {PredefinedDescriptionList} from './components/common/predefinedDescriptions/predefinedDescriptionList';
-import { Uniform2TestComponent } from '@uni-framework/ui/uniform2/uniform2-test/uniform2-test.component';
 import {ReloadHelper} from './reload';
 
 const routes = [
@@ -30,11 +29,6 @@ const routes = [
         pathMatch: 'full',
         component: Dashboard,
     },
-    // add it for testing pourposes on uniform2
-    // {
-    //     path: 'test',
-    //     component: Uniform2TestComponent,
-    // },
     {
         path: 'overview',
         component: UniTickerOverview
