@@ -1,16 +1,22 @@
 import {Component, AfterViewInit} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ElsaProductService, ElsaCompanyLicenseService, ElsaPurchaseService, ErrorService} from '@app/services/services';
 import {ElsaProduct, ElsaProductType, ElsaBundle, ElsaPurchasesForUserLicenseByCompany} from '@app/services/elsa/elsaModels';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
-import {UniModalService, ManageProductsModal} from '@uni-framework/uni-modal';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {Observable} from 'rxjs';
 import {ElsaBundleService} from '@app/services/elsa/elsaBundleService';
 import {Company} from '@app/unientities';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {AuthService} from '@app/authService';
+import {
+    UniModalService,
+    ManageProductsModal,
+    ActivateOCRModal,
+    UniActivateAPModal,
+
+} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -35,6 +41,7 @@ export class MarketplaceModules implements AfterViewInit {
         private elsaPurchaseService: ElsaPurchaseService,
         private errorService: ErrorService,
         private router: Router,
+        private route: ActivatedRoute,
         private modalService: UniModalService,
         private browserStorage: BrowserStorageService,
     ) {
@@ -80,6 +87,20 @@ export class MarketplaceModules implements AfterViewInit {
                 this.extensions = extensions.map(product => {
                     product['_isBought'] = allPurchases.some(p => p.productID === product.id);
                     return product;
+                });
+
+                // Check queryParams if we should open a specific product dialog immediately
+                this.route.queryParamMap.subscribe(paramMap => {
+                    const productName = paramMap.get('productName');
+                    if (productName) {
+                        const product = products.find(p => {
+                            return productName.toLowerCase() === (p.name || '').toLowerCase();
+                        });
+
+                        if (product) {
+                            this.openSubscribeModal(product);
+                        }
+                    }
                 });
 
                 // this.bundles = bundles;
