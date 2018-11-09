@@ -676,6 +676,7 @@ export class ProductDetails {
                     EntityType: 'Project',
                     Property: `Dimensions.Dimension${dim.Dimension}ID`,
                     FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: !dim.IsActive,
                     Options: {
                         uniSearchConfig: this.uniSearchDimensionConfig.generateDimensionConfig(dim.Dimension, this.customDimensionService),
                         valueProperty: 'ID'
