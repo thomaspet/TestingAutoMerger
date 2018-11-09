@@ -803,6 +803,10 @@
                 "FilterOperator": "contains"
             },
             {
+                "Header": "Org.nr.",
+                "Field": "OrgNumber"
+            },
+            {
                 "Header": "Telefon",
                 "Field": "Info.DefaultPhone.Number"
             },
@@ -951,6 +955,10 @@
                 "Field": "Info.Name",
                 "Width": "250px",
                 "Type": "link"
+            },
+            {
+                "Header": "Org.nr.",
+                "Field": "OrgNumber"
             },
             {
                 "Header": "Telefon",
