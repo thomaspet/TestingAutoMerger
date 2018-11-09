@@ -64,6 +64,9 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     }
 
     public ngOnChanges(change: SimpleChanges) {
+        if (change['field']) {
+            this.readOnly$.next(this.field && this.field.ReadOnly);
+        }
         if (change['model'] && this.field.Options && this.field.Options.uniSearchConfig) {
             const value = lodash.get(this.model, this.field.Property);
             if (this.asideGuid) {
