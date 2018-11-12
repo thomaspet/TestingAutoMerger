@@ -12,18 +12,18 @@
         </section>
 
         <section class="subscribe-section">
-            <a *ngIf="product.productType === elsaProductType.Integration" href="{{product.buttonLink}}" target="_blank">
+            <a *ngIf="product.productType === elsaProductType.Integration" href="{{product.buttonLink}}" target="_blank" [matTooltip]="cannotPurchaseProductsText">
                 <button class="subscribe-button">{{product.buttonLabel || 'Aktiver produkt'}}</button>
             </a>
 
-            <button *ngIf="action"
-                class="per-user"
-                (click)="action.click()"
-                [matTooltip]="cannotPurchaseProductsText"
-                [disabled]="!canPurchaseProducts">
-
-                {{action.label}}
-            </button>
+            <div [matTooltip]="cannotPurchaseProductsText">
+                <button *ngIf="action"
+                    class="per-user"
+                    (click)="action.click()"
+                    [disabled]="!canPurchaseProducts">
+                        {{action.label}}
+                </button>
+            </div>
 
             <span class="is-purchased" *ngIf="extensionBoughtAndActivated && !action">
                 <i class="material-icons">check_circle</i>

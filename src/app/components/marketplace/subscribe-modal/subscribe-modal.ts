@@ -54,7 +54,7 @@ export class SubscribeModal implements IUniModal, OnInit {
 
         if (this.product.productType !== ElsaProductType.Integration) {
             if (!this.canPurchaseProducts) {
-                this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter';
+                this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å velge brukere. Vennligst kontakt systemansvarlig.';
             }
 
             // This is messy as f$2#!, but we need to solve activation NOW..
