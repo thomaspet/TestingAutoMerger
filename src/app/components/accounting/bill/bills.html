@@ -11,9 +11,18 @@
         (tabClick)="onFilterClick($event)">
     </uni-tabs>
 
+    <section class="progress-container">
+        <mat-progress-bar
+            *ngIf="loading$ | async"
+            class="uni-progress-bar"
+            mode="indeterminate">
+        </mat-progress-bar>
+    </section>    
+
     <section class="bill-container">
         <!-- List -->
         <section class="uni-container bill-list">
+
             <uni-autocomplete-input
                 *ngIf="activeFilterIndex > 1 && activeFilterIndex < 5"
                 class="assignee-filter"
@@ -21,6 +30,7 @@
                 [model]="searchParams$"
                 (changeEvent)="onFormFilterChange($event)">
             </uni-autocomplete-input>
+            
 
             <uni-table
                 [resource]="listOfInvoices"
@@ -30,6 +40,7 @@
                 (pageChange)="onPageChange($event)"
                 (rowSelectionChanged)="onRowSelectionChanged()">
             </uni-table>
+            <span title="Oppdater" class="refreshbutton" (click)="onRefreshClicked()" ><i class="material-icons vertical-middle">refresh</i></span>
 
             <div class="right total" *ngIf="this.currentFilter.name === 'Inbox'">
                 {{currentFilter.label}} ({{currentFilter.count}} stk.)

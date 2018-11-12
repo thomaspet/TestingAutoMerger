@@ -36,7 +36,7 @@ import {
 } from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import { FieldType } from '../../../../framework/ui/uniform/field-type.enum';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import { Observable } from 'rxjs';
@@ -73,9 +73,11 @@ export class BillsView implements OnInit {
     @ViewChild(UniImage) public uniImage: UniImage;
 
     public searchControl: FormControl = new FormControl('');
+    public loading$: Subject<boolean> = new Subject();
 
     public tableConfig: UniTableConfig;
     public listOfInvoices: Array<any> = [];
+    public comments: Array<{ FileID: Number, CommendID: Number, Comment: string, CreatedAt: Date }>;
     public busy: boolean = true;
     public loadingPreview: boolean = false;
     public totals: { grandTotal: number } = { grandTotal: 0 };
@@ -706,13 +708,19 @@ export class BillsView implements OnInit {
         return v.replace(/[`~!@#$%^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
 
+    public onRefreshClicked() {
+        this.refreshList(this.currentFilter, false, undefined, undefined, true);
+    }
+
     private refreshList(
         filter?: IFilter,
         refreshTotals: boolean = false,
         searchFilter?: string,
-        filterOnUserID?: string
+        filterOnUserID?: string,
+        useProgressBar = false
     ) {
         this.busy = true;
+        this.loading$.next(useProgressBar);
         const params = new URLSearchParams();
         if (filter && filter.filter) {
             params.set('filter', filter.filter + ((searchFilter ? ' and ' : '') + (searchFilter || '')));
@@ -736,6 +744,7 @@ export class BillsView implements OnInit {
                 this.totals.grandTotal = filter.total || this.totals.grandTotal;
             }
             this.busy = false;
+            this.loading$.next(false);
 
             this.QueryInboxTotals();
         }, err => this.errorService.handle(err));
@@ -798,8 +807,35 @@ export class BillsView implements OnInit {
         }
     }
 
+    private fetchComments(dataset: Array<any>) {
+
+        const route = `?model=filetag&select=fileid as FileID,comment.ID as CommentID`
+            + `,comment.Text as Comment,CreatedAt as CreatedAt&filter=`
+            + `(tagname eq 'IncomingMail' or tagname eq 'IncomingEHF' or tagname eq 'IncomingTravel' or tagname eq 'IncomingExpense')`
+            + ` and (isnull(Status,0) eq 0 or (status eq 30 and datediff('hour',createdat,getdate()) gt 1 ))`
+            + ` and comment.entitytype eq 'file'&join=filetag.fileid eq comment.entityid`;
+
+            this.supplierInvoiceService.getStatQuery(route).subscribe(
+                (data: Array<{ FileID: Number, CommendID: Number, Comment: string, CreatedAt: Date }>) => {
+                    this.comments = data;
+                    if (!data) { return; }
+                    data.forEach( x => {
+                        const index = dataset.findIndex( y => y.ID === x.FileID);
+                        if (index >= 0) {
+                            const match = dataset[index];
+                            match.Comments = ( match.Comment ? match.Comment : [] );
+                            match.Comments.push(x);
+                            this.unitable.updateRow(index, match);
+                        }
+                    });
+
+            }, err => { this.errorService.handle(err); });
+
+    }
+
     public onInboxDataReady(data: Array<any>) {
         this.removeNullItems(data);
+        this.fetchComments(data);
         this.listOfInvoices = data;
         const filter = this.getInboxFilter();
         if (filter) {
@@ -834,6 +870,13 @@ export class BillsView implements OnInit {
                     }
                     return '';
             }),
+            new UniTableColumn('Comment', 'Kommentar', UniTableColumnType.Text)
+                .setWidth('9rem')
+                .setTemplate((rowModel) => {
+                    if (rowModel.Comments && rowModel.Comments.length > 0) {
+                        return rowModel.Comments[0].Comment;
+                    }
+                })
         ];
         const cfg = new UniTableConfig('accounting.bills.inboxTable', false, true)
             .setSearchable(true)
@@ -841,7 +884,10 @@ export class BillsView implements OnInit {
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
             .setColumnMenuVisible(true)
-            .setDeleteButton(true);
+            .setDeleteButton(true)
+            .setConditionalRowCls(row => {
+                return row.Comments && row.Comments.length > 0 ? 'hascomments' : '';
+            });
         this.tableConfig = cfg;
     }
 
@@ -963,6 +1009,7 @@ export class BillsView implements OnInit {
                                     this.previewVisible = false;
                                     this.fileID = null;
                                 }
+                                // tslint:disable-next-line:max-line-length
                                 this.fileService.getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileId).subscribe(
                                     tags => {
                                         this.fileService.tag(fileId, tags.Data[0].tagname, StatusCode.Completed).subscribe(() => {
