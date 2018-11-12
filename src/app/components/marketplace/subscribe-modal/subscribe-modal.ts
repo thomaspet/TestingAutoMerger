@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, EventEmitter, OnInit} from '@angular/core';
 import {
     IModalOptions,
     IUniModal,
@@ -21,9 +21,8 @@ import {CompanySettingsService, EHFService} from '@app/services/services';
     styleUrls: ['./subscribe-modal.sass']
 })
 export class SubscribeModal implements IUniModal, OnInit {
-    @Input() options: IModalOptions = {};
-
-    @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
+    options: IModalOptions = {};
+    onClose: EventEmitter<void> = new EventEmitter<void>();
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
@@ -42,7 +41,6 @@ export class SubscribeModal implements IUniModal, OnInit {
         private elsaProductService: ElsaProductService,
         private companySettingsService: CompanySettingsService,
         private ehfService: EHFService,
-        // public extensionHelper: ExtensionsHelper
     ) {
         this.authService.authentication$.take(1).subscribe(auth => {
             try {
@@ -107,7 +105,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                         this.modalService.open(activationModal).onClose.subscribe(res => {
                             if (res || res === ConfirmActions.ACCEPT) {
                                 this.action = undefined;
-                                this.close();
+                                this.onClose.emit();
                             }
                         });
                     }
@@ -150,14 +148,6 @@ export class SubscribeModal implements IUniModal, OnInit {
                 err => console.error(err)
             );
         }
-    }
-
-    togglePerTransactionProduct() {
-        window.alert('Not yet implemented');
-    }
-
-    close() {
-        this.onClose.emit();
     }
 
     priceText(product: ElsaProduct): string {
