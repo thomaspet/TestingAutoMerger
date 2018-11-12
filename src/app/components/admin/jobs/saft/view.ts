@@ -2,7 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {ErrorService, JobService, FileService} from '../../../../services/services';
 import {Http} from '@angular/http';
 import {AuthService} from '../../../../authService';
-import {timer as observableTimer} from 'rxjs';
+import {timer as observableTimer, BehaviorSubject, forkJoin} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {
     UniModalService,
@@ -10,6 +10,9 @@ import {
 } from '../../../../../framework/uni-modal';
 import {SaftImportModal} from './saftimportmodal';
 import * as moment from 'moment';
+import { SaftExportModal } from './saftexportmodal';
+import { JobRun } from '@app/models/admin/jobs/jobRun';
+import {saveAs} from 'file-saver';
 
 const JOBNAME: string = 'ImportSaft';
 const COMPLETEMESSAGE: string = 'Import completed';
@@ -18,6 +21,8 @@ const COMPLETEMESSAGE: string = 'Import completed';
     selector: 'saft-import-view',
     templateUrl: './view.html'
 })
+
+
 export class SaftExportView implements OnInit {
     @ViewChild('fileInput') private fileInput: any;
     public busy: boolean = false;
@@ -93,6 +98,25 @@ export class SaftExportView implements OnInit {
         });
     }
 
+    public onDownloadExport(file:ISaftFileInfo){
+        this.fileService.getDownloadUrl(file.FileID)
+            .subscribe((url) => {
+                const link: any = document.createElement('a');
+                if (link.download !== undefined) {
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', file.FileName);
+                    link.style = 'visibility:hidden';
+                }
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            },
+            err => {
+                this.errorService.handle(err);
+            }
+        );
+    }
+
     public onFileDeleteClick(file: ISaftFileInfo) {
         this.modalService.confirm({
             header: 'Bekreft sletting av fil',
@@ -122,18 +146,60 @@ export class SaftExportView implements OnInit {
     private loadList() {
         this.busyFetch = true;
         this.files = [];
+        forkJoin(this.jobService.getJobRuns("ExportSaft"),
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
-            + ',filetag.tagname as tag,filetag.status as status'
-            + `&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
-            + '&join=file.id eq filetag.fileid&top=10&orderby=id desc')
-            .finally( () => this.busyFetch = false)
-            .subscribe( data => {
-                if (data.Success) {
-                    this.files = this.findJobIds(data.Data);
+        + ',filetag.tagname as tag,filetag.status as status'
+        + `&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
+        + '&join=file.id eq filetag.fileid&top=10&orderby=id desc')
+            ).subscribe(result=>{
+                this.files =this.mapExportJob(result[0]);
+                if(result[1].Success){
+                    this.files = this.files.concat(this.findJobIds(result[1].Data).map(x=>{x.JobName='ImportSaft';return x;}));
                 }
-            });
+                this.busyFetch = false;
+            },
+            err => this.errorService.handle(err),
+            () => this.busyFetch = false
+        );
+
     }
 
+    private mapExportJob(list: Array<JobRun>): Array<ISaftFileInfo> {
+        var retlist : Array<ISaftFileInfo>=[];
+        let filter:string = "";
+        list.forEach(job => {
+            let f:any = {};
+            f.JobName = job.JobName;
+            if(job.Output){
+                let o = JSON.parse(job.Output); 
+                if(!!o){
+                    f.FileID = o.FileID;
+                    f.Url = o.Url;
+                }
+            }
+            if(filter){
+                filter += " or "
+            }
+            filter+="id eq " + f.FileID;
+            f.hasError = job.Exception==="";
+            retlist.push(f);
+        });
+        
+        this.fileService.getStatistics('model=File&select=file.*&filter='+filter)
+            .subscribe( data => {
+                if (data.Success) {
+                    data.Data.forEach(file => {
+                        var retfile = retlist.find(x=>x.FileID == file.ID);
+                        retfile.FileName = file.Name;
+                        retfile.FileContentType = file.ContentType;
+                        retfile.FileSize = file.Size;
+                    });
+                }
+            });
+        return retlist;
+    }
+
+   
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {
         const n = list.length;
         for (let i = n - 1; i > 0; i--) {
@@ -181,6 +247,27 @@ export class SaftExportView implements OnInit {
                     }
                 }
             });
+    }
+
+
+    public exportSaft(event){
+       
+        this.modalService.open(SaftExportModal,{data: 
+            {
+                FromYear: new Date().getFullYear(),
+                ToYear: new Date().getFullYear(),
+                FromPeriod:1,
+                ToPeriod:12,
+                SendEmail:true
+            }
+            }).onClose.subscribe((resp)=>{
+                if (resp) {
+                    this.jobService.startJob("ExportSaft", undefined, resp)
+                        .subscribe((jobID: number) => {
+                           this.refresh();
+                        });
+                }
+        })
     }
 
     public uploadFile(event, triedReAuthenticating?: boolean) {
@@ -241,6 +328,7 @@ interface IUniFile {
 }
 
 interface ISaftFileInfo {
+    JobName: string;
     FileID: number;
     FileName: string;
     FileSize: number;
@@ -256,4 +344,5 @@ interface ISaftFileInfo {
     hasActiveJob?: boolean;
     diff?: number;
     hasError?: boolean;
+    Url:string;
 }

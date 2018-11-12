@@ -7,4 +7,8 @@ export class JobRun {
     public Progress: JobProgress[]; // List<JobProgress>
     public Created: string; // DateTimeOffset
     public JobRunLogs: JobRunLog[];
+    public Output:string;
+    public JobName:string;
+    public Exception:string;
+
 }

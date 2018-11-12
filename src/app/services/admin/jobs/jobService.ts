@@ -10,6 +10,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 // model
 import {Job} from '../../../models/admin/jobs/job';
 import {Trigger} from '../../../models/admin/jobs/trigger';
+import {JobRun} from '../../../models/admin/jobs/jobRun';
 import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProduct} from '@app/services/elsa/elsaModels';
 
 export interface JobLogProgress {
@@ -52,6 +53,14 @@ export class JobService {
                 if (jobRun.Exception) {
                     throw new Error(jobRun.Exception);
                 }
+                return jobRun;
+            });
+    }
+
+    public getJobRuns(jobName: string, loglimit: number = 50): Observable<Array<JobRun>> {
+        return this.uniHttp.asGET()
+            .sendToUrl(environment.UNI_JOB_SERVER_URL + 'jobruns/'+jobName  + '?loglimit=' + loglimit)
+            .map(jobRun => {
                 return jobRun;
             });
     }
