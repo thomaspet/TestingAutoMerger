@@ -547,7 +547,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {name: 'Altinn', url: '/settings/altinn'},
                     {name: 'Nummerserier', url: '/settings/numberseries'},
                     {name: 'Betingelser', url: '/settings/terms'},
-                    {name: 'Dimensjoner', url: '/settings/dimensions'},
+                    {name: 'Dimensjoner', url: '/settings/dimension'},
                 ]
             },
             {

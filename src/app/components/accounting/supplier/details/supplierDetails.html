@@ -30,9 +30,16 @@
         </article>
     </ng-template>
 
-    <section *ngIf="activeTabIndex === 1" class="uni-container">
-        <ledger-account-reconciliation
+    <section *ngIf="activeTabIndex === 1" class="uni-container customer-post-post-view">
+        <uni-tabs
+            [tabs]="postposttabs"
+            (tabClick)="onPostpostFilterClick($event)">
+        </uni-tabs>
+        <button class="good" (click)="goToPostpost()">Rediger</button>
+        <ledger-account-reconciliation style="font-size: .9rem"
             [accountNumber]="(supplier$|async)?.SupplierNumber"
+            [showRowSelect]="false"
+            [hideHeader]="true"
             [supplierID]="(supplier$|async)?.ID">
         </ledger-account-reconciliation>
     </section>

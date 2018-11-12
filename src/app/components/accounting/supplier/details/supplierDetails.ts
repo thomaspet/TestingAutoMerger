@@ -72,7 +72,7 @@ export class SupplierDetails implements OnInit {
     public form: UniForm;
 
     @ViewChild(LedgerAccountReconciliation)
-    private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    private postpost: LedgerAccountReconciliation;
 
     public supplierID: number;
     public supplierNameFromUniSearch: string;
@@ -119,6 +119,12 @@ export class SupplierDetails implements OnInit {
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
         'Info.Contacts.Info.DefaultPhone'
+    ];
+
+    public postposttabs: IUniTab[] = [
+        {name: 'Åpne poster', value: 'OPEN'},
+        {name: 'Lukkede poster', value: 'MARKED'},
+        {name: 'Alle poster', value: 'ALL'}
     ];
 
 
@@ -300,6 +306,14 @@ export class SupplierDetails implements OnInit {
         this.setup();
     }
 
+    public onPostpostFilterClick(event: any) {
+        this.postpost.showHideEntries(event.value);
+    }
+
+    public goToPostpost() {
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&mode=leverandør');
+    }
+
     public nextSupplier() {
         this.supplierService.getNextID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
@@ -431,8 +445,8 @@ export class SupplierDetails implements OnInit {
                 this.saveSupplier(() => {});
             } else if (modalResult === ConfirmActions.REJECT) {
                 this.isDirty = false;
-                if (this.ledgerAccountReconciliation) {
-                    this.ledgerAccountReconciliation.isDirty = false;
+                if (this.postpost) {
+                    this.postpost.isDirty = false;
                 }
             }
 

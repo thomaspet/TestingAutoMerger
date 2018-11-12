@@ -36,6 +36,7 @@ import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
 import { RequestMethod } from '@angular/http';
 import { JournalEntryLineCouple } from '@app/services/accounting/postPostService';
 import {UniAutomarkModal} from './uniAutomarkModal';
+import {Subject} from 'rxjs/Subject';
 declare var _;
 
 
@@ -65,6 +66,9 @@ export class LedgerAccountReconciliation {
     @Input()
     public hideHeader: boolean = false;
 
+    @Input()
+    public showRowSelect: boolean = true;
+
     @Output()
     public allSelectedLocked: EventEmitter<boolean> = new EventEmitter();
 
@@ -75,6 +79,7 @@ export class LedgerAccountReconciliation {
     private showMarkedEntries: boolean = false;
     public uniTableConfig: UniTableConfig;
     public journalEntryLines: Array<any> = [];
+    loading$: Subject<boolean> = new Subject();
 
     public itemsSummaryData: any = {};
 
@@ -376,7 +381,7 @@ export class LedgerAccountReconciliation {
         }
     }
 
-    public autoMarkJournalEntries(criterias) {
+    public autoMarkJournalEntries(criterias, done?: any) {
 
         if (this.allMarkingSessions.length > 0) {
             this.toastService.addToast('Kan ikke kjøre automerking',
@@ -386,7 +391,7 @@ export class LedgerAccountReconciliation {
             );
             return;
         }
-
+        this.loading$.next(true);
         // If call comes from postpost view (with criterias)
         if (!!criterias) {
             const tableData = this.table.getTableData();
@@ -395,6 +400,10 @@ export class LedgerAccountReconciliation {
 
             this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, criterias)
                 .then( result => {
+                    this.loading$.next(false);
+                    if (done) {
+                        done('Merking fullført. Trykk lagre for å lukke merkede poster');
+                    }
                     if (result.length > 0) {
                         this.allMarkingSessions = result;
                         this.journalEntryLines = tableData;
@@ -413,6 +422,10 @@ export class LedgerAccountReconciliation {
 
                     this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, res)
                         .then( result => {
+                            this.loading$.next(false);
+                            if (done) {
+                                done('Merking fullført. Trykk lagre for å lukke merkede poster');
+                            }
                             if (result.length > 0) {
                                 this.allMarkingSessions = result;
                                 this.journalEntryLines = tableData;
@@ -787,7 +800,7 @@ export class LedgerAccountReconciliation {
         if (reload) {this.loadData(); }
     }
 
-    public reconciliateJournalEntries() {
+    public reconciliateJournalEntries(done?: any) {
         // if at least 2 rows are marked but haven't been closed yet (because they dont match exactly),
         // close them before saving
         if (this.currentMarkingSession.length > 1) {
@@ -804,6 +817,7 @@ export class LedgerAccountReconciliation {
             this.toastService.addToast(
                 'Lagring avbrutt', ToastType.warn, ToastTime.medium, 'Du har ikke gjort noen endringer som kan lagres'
             );
+            done('Lagring avbrutt');
             return;
         }
 
@@ -817,8 +831,10 @@ export class LedgerAccountReconciliation {
                 this.isDirty = false;
                 this.toastService.addToast('Merking lagret', ToastType.good, ToastTime.short);
                 this.loadData();
+                done('Merking lagret');
             }, err => {
                 this.errorService.handle(err);
+                done(err);
                 this.busy = false;
             }
         );
@@ -992,6 +1008,7 @@ export class LedgerAccountReconciliation {
     }
 
     private setupUniTable() {
+        this.loading$.next(true);
         this.journalEntryLineService.getJournalEntryLinePostPostData(
             this.displayPostsOption !== 'MARKED',
             this.displayPostsOption !== 'OPEN',
@@ -1001,6 +1018,7 @@ export class LedgerAccountReconciliation {
             this.pointInTime)
             .subscribe(data => {
                 this.journalEntryLines = data;
+                this.loading$.next(false);
                 this.canAutoMark = data && data.length > 1 && this.displayPostsOption === 'OPEN';
                 setTimeout(() => {
                     this.calculateSums();
@@ -1011,14 +1029,14 @@ export class LedgerAccountReconciliation {
         );
 
         const columns = [
-            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text)
-                .setWidth('7rem'),
+            new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Link)
+                .setWidth('7rem').setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
                 .setVisible(false),
             new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
             new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
-            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime).setVisible(false),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
                 .setSortMode(UniTableColumnSortMode.Absolute),
             new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
@@ -1038,7 +1056,7 @@ export class LedgerAccountReconciliation {
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setWidth('7rem')
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
-            new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
+            new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text).setVisible(false)
                 .setWidth('60px')
                 .setTemplate(
                     x => x.NumberOfPayments > 0
@@ -1059,7 +1077,7 @@ export class LedgerAccountReconciliation {
 
         this.uniTableConfig = new UniTableConfig('common.reconciliation.legderaccounts', false, true, 25)
             .setColumns(columns)
-            .setMultiRowSelect(true)
+            .setMultiRowSelect(this.showRowSelect)
             .setColumnMenuVisible(true)
             .setConditionalRowCls((row) => {
                 return (row.StatusCode === StatusCodeJournalEntryLine.Marked) ? 'reconciliation-marked-row' : '';
