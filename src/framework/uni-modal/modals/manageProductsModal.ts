@@ -27,7 +27,7 @@ interface UserLine   {
             <article>
                 <main>
                     <p *ngIf="purchasesPerUser?.length === 0; else productTable">
-                        Du har ingen kjøp for dette selskapet, gå til <a href="#/marketplace">markedsplass</a> og kjøp et produkt først!
+                        Klarte ikke hente kjøpshistorikk. Har du tilgang til å kjøpe produkter?
                     </p>
                     <ng-template #productTable>
                         <table *ngIf="!!products"
@@ -97,12 +97,8 @@ export class ManageProductsModal implements IUniModal {
 
         Observable.forkJoin(
             this.elsaCompanyLicenseService.PurchasesForUserLicense(this.companyKey)
-                .catch((err, obs) => {
-                    if (err.status === 403) {
-                        return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
-                    } else {
-                        return obs;
-                    }
+                .catch(() => {
+                    return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
                 }),
             selectedProduct ? Observable.of(null) : this.elsaProductService.GetAll(),
         )

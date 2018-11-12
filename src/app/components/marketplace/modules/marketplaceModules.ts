@@ -40,7 +40,6 @@ export class MarketplaceModules implements AfterViewInit {
         private elsaCompanyLicenseService: ElsaCompanyLicenseService,
         private elsaPurchaseService: ElsaPurchaseService,
         private errorService: ErrorService,
-        private router: Router,
         private route: ActivatedRoute,
         private modalService: UniModalService,
         private browserStorage: BrowserStorageService,
@@ -57,15 +56,9 @@ export class MarketplaceModules implements AfterViewInit {
         const companyKey = this.authService.getCompanyKey();
         Observable.forkJoin(
             this.elsaProductService.GetAll(),
-            this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey)
-                .catch((err, obs) => {
-                    if (err.status === 403) {
-                        return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
-                    } else {
-                        return obs;
-                    }
-
-                }),
+            this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey).catch(() => {
+                return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
+            }),
             this.elsaPurchaseService.GetAll()
             // this.elsaBundleService.GetAll(),
 
@@ -109,10 +102,6 @@ export class MarketplaceModules implements AfterViewInit {
             },
             err => this.errorService.handle(err),
         );
-    }
-
-    navigateTo(url: string) {
-        this.router.navigateByUrl(url);
     }
 
     openSubscribeModal(module: ElsaProduct) {
