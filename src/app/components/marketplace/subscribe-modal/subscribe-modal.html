@@ -1,4 +1,51 @@
-<section class="subscribe-modal" role="dialog" class="uni-modal" (clickOutside)="close()">
+<section class="subscribe-modal" role="dialog" class="uni-modal">
+    <header>
+        <button class="close-button" (click)="close()">×</button>
+
+        <section class="product-info">
+            <img [src]="product.iconReference" />
+
+            <section class="product-name">
+                <strong>{{product.name}}</strong>
+                <small>{{product.label}}</small>
+            </section>
+        </section>
+
+        <section class="subscribe-section">
+            <a *ngIf="product.productType === elsaProductType.Integration" href="{{product.buttonLink}}" target="_blank">
+                <button class="subscribe-button">{{product.buttonLabel || 'Aktiver produkt'}}</button>
+            </a>
+
+            <button *ngIf="action"
+                class="per-user"
+                (click)="action.click()"
+                [matTooltip]="cannotPurchaseProductsText"
+                [disabled]="!canPurchaseProducts">
+
+                {{action.label}}
+            </button>
+
+            <span class="is-purchased" *ngIf="extensionBoughtAndActivated && !action">
+                <i class="material-icons">check_circle</i>
+                Aktivert
+            </span>
+
+            <span *ngIf="product.price" class="price-container">
+                <span class="price">{{product.price}} kr</span>
+                <span class="price-type">{{priceText(product)}}</span>
+            </span>
+        </section>
+
+        <p>
+            {{product.description}}
+        </p>
+    </header>
+
+    <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent | keepHtml"></article>
+</section>
+
+
+<!-- <section class="subscribe-modal" role="dialog" class="uni-modal" (clickOutside)="close()">
     <header>
         <button class="close-button" (click)="close()">×</button>
 
@@ -56,4 +103,4 @@
     </header>
 
     <article class="htmlContent" *ngIf="product.htmlContent" [innerHTML]="product.htmlContent | keepHtml"></article>
-</section>
+</section> -->

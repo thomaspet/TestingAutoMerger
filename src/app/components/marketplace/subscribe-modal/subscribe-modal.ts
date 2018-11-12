@@ -28,6 +28,7 @@ export class SubscribeModal implements IUniModal, OnInit {
     product: ElsaProduct;
     canPurchaseProducts: boolean;
     cannotPurchaseProductsText: string;
+    extensionBoughtAndActivated: boolean;
     elsaProductType = ElsaProductType;
 
     action: {
@@ -53,26 +54,30 @@ export class SubscribeModal implements IUniModal, OnInit {
     ngOnInit() {
         this.product = this.options.data;
 
-        if (!this.canPurchaseProducts) {
-            // const action = this.product['_isBought'] ? 'velge brukere' : 'aktivere produkter';
-            this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter';
-        }
+        if (this.product.productType !== ElsaProductType.Integration) {
+            if (!this.canPurchaseProducts) {
+                this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter';
+            }
 
-        // This is messy as f$2#!, but we need to solve activation NOW..
-        // Will come back to it when prod marketplace actually works
-        if (this.product.isPerUser) {
-            this.action = {
-                label: 'Velg brukere',
-                click: () => this.manageUserPurchases()
-            };
-        } else {
-            if (this.product['_isBought']) {
-                this.setActivationAction();
-            } else {
+            // This is messy as f$2#!, but we need to solve activation NOW..
+            // Will come back to it when prod marketplace actually works
+            if (this.product.isPerUser) {
                 this.action = {
-                    label: 'Kjøp produkt',
-                    click: () => this.purchaseProduct(this.product)
+                    label: 'Velg brukere',
+                    click: () => this.manageUserPurchases()
                 };
+            } else {
+                if (this.product['_isBought']) {
+                    this.setActivationAction();
+                    if (!this.action) {
+                        this.extensionBoughtAndActivated = true;
+                    }
+                } else {
+                    this.action = {
+                        label: 'Kjøp produkt',
+                        click: () => this.purchaseProduct(this.product)
+                    };
+                }
             }
         }
     }
