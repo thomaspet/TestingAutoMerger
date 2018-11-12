@@ -86,7 +86,8 @@ export class TimeTableReport {
 
             const data = {
                 date: day,
-                relation: this.currentRelation
+                relation: this.currentRelation,
+                disableSaveButton: !this.currentRelation.IsActive
             };
 
             this.modalService.open(UniTimeModal, { data: data }).onClose.subscribe((res) => {
