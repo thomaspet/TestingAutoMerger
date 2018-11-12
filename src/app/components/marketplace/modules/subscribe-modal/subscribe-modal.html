@@ -15,7 +15,8 @@
             <button *ngIf="action"
                 class="per-user"
                 (click)="action.click()"
-                [matTooltip]="cannotPurchaseProductsText">
+                [matTooltip]="cannotPurchaseProductsText"
+                [disabled]="!canPurchaseProducts">
 
                 {{action.label}}
             </button>
