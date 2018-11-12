@@ -1,17 +1,12 @@
 ﻿import {Component} from '@angular/core';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
-import {UniModalService, UniChangelogModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-rss',
     template: `
         <section class="uni-widget-header">Nyhetsbrev</section>
         <ul>
-            <li class="rss-item sticky">
-                <header>Nytt design i Uni Economy</header>
-                <article>Uni Economy har fått nytt design. <a (click)="openChangelogModal()">Se introduksjonsvideo</a>.</article>
-            </li>
             <li *ngFor="let item of rssFeed" class="rss-item">
                 <header>
                     {{item.Title}}
@@ -29,10 +24,7 @@ export class UniRSSWidget {
     public widget: IUniWidget;
     public rssFeed: any[] = [];
 
-    constructor(
-        private widgetDataService: WidgetDataService,
-        private modalService: UniModalService
-    ) {}
+    constructor(private widgetDataService: WidgetDataService) {}
 
     public ngAfterViewInit() {
         if (this.widget) {
@@ -50,17 +42,9 @@ export class UniRSSWidget {
                         });
                     }
                 },
-                err => console.log("Couldn't load the rss feed for the news dashboard widget:", err)
+                err => console.log(`Couldn't load the rss feed for the news dashboard widget:`, err)
             );
         }
-    }
-
-    public openChangelogModal() {
-        this.modalService.open(UniChangelogModal, {
-            closeOnClickOutside: false,
-            closeOnEscape: false,
-            hideCloseButton: true
-        });
     }
 
     private stripHTML(html: string): string {

@@ -13,7 +13,6 @@ import {
     CustomerLicenseAgreementModal,
     UserLicenseAgreementModal,
     UniConfirmModalV2,
-    UniChangelogModal
 } from '@uni-framework/uni-modal';
 
 import * as moment from 'moment';
@@ -83,8 +82,6 @@ export class App {
                         this.showCanNotAcceptCustomerLicenseModal(authDetails.user);
                     }
                 }
-
-                this.checkForChangelog(authDetails.user);
             }
         } /* don't need error handling */);
 
@@ -109,28 +106,6 @@ export class App {
     private hasAcceptedUserLicense(user: UserDto): boolean {
         return (user && user.License && user.License.UserLicenseAgreement) ?
             (!!user.License.UserLicenseAgreement.HasAgreedToLicense || user.License.UserLicenseAgreement.AgreementId === 0) : true;
-    }
-
-    private checkForChangelog(user: UserDto) {
-        /*
-            This functionality is not implemented yet.
-            It's intended for informing about certain news on first login
-            after the changes. The content (and hasBeenDisplayed check)
-            should come from "the outside", but since the application design
-            goes live in ~2 days we need to hard code something here.
-        */
-        const oldUser = moment(user.CreatedAt).isBefore(moment(new Date('06.01.2018')));
-        const hasSeenDesignChanges = this.browserStorage.getItem('informedAboutDesignChanges');
-
-        if (oldUser && !hasSeenDesignChanges) {
-            this.modalService.open(UniChangelogModal, {
-                closeOnClickOutside: false,
-                closeOnEscape: false,
-                hideCloseButton: true
-            }).onClose.subscribe(() => {
-                this.browserStorage.setItem('informedAboutDesignChanges', true);
-            });
-        }
     }
 
     private showCustomerLicenseModal() {
