@@ -59,7 +59,7 @@ export class MarketplaceModules implements AfterViewInit {
             this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey).catch(() => {
                 return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
             }),
-            this.elsaPurchaseService.GetAll()
+            this.elsaPurchaseService.GetAllByCompanyKey(companyKey)
             // this.elsaBundleService.GetAll(),
 
         ).subscribe(

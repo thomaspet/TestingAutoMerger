@@ -30,6 +30,15 @@ export class ElsaPurchaseService {
             .map(response => response.json());
     }
 
+    public GetAllByCompanyKey(companyKey: string): Observable<ElsaPurchase[]> {
+        return this.uniHttp
+            .asGET()
+            .usingElsaDomain()
+            .withEndPoint(`/api/CompanyLicenses/${companyKey}/purchases`)
+            .send()
+            .map(response => response.json());
+    }
+
     public PurchaseProductForContract(productId: number, contractId: number): Observable<ElsaPurchase> {
         return this.uniHttp
             .asPOST()
