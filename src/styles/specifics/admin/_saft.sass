@@ -1,36 +1,7 @@
-table.simple
-
-    width: 100%
-    min-width: pxToRem(800)
-    table-layout: fixed
-    border-collapse: collapse
-    cursor: pointer
-    margin-top: 1rem
-
-    th, td
-        text-align: left
-        text-overflow: ellipsis
-        overflow-x: hidden
-        white-space: nowrap
-        border-width: 0 0 pxToRem(1) 0
-        border-color: $uni-color-scale8
-        border-style: solid
-        padding: pxToRem(3) pxToRem(4) 0 pxToRem(4)
-
-    td
-        border-bottom: pxToRem(1) solid $uni-color-scale9
-        border-left: pxToRem(1) solid $uni-color-scale9
-
-    a.bad
-         color: red !important
-         margin-right: 1em
-
-    tr.current
-        background-color: $uni-color-scale9
-
-    button
-        margin: pxToRem(3)
-        padding: pxToRem(5)
+.saftTableLine
+    margin: 0 !important
+    height: 2rem
+    line-height: 1rem
 
 saft-import-modal
 
@@ -45,3 +16,4 @@ saft-import-modal
 
     td.right
         text-align: right
+

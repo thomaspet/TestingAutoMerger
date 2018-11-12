@@ -32,7 +32,7 @@ export class FileService extends BizHttp<File> {
             .map((urlResponse: Response) => urlResponse);
     }
 
-    public downloadFile(fileID: number, contentType: string) {
+    public downloadFileDirect(fileID: number, contentType: string) {
         return this.http
             .asGET()
             .withDefaultHeaders()
@@ -43,7 +43,45 @@ export class FileService extends BizHttp<File> {
                 let url = urlResponse['_body'].replace(/\"/g, '');
                 return this.http.http.get(url);
             })
-            .map(res => new Blob([res['_body']], { type: contentType }));
+            
+    }
+
+    public getDownloadUrl(fileID: number) {
+        return this.http
+            .asGET()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=download`)
+            .send()
+            .map(response => response.json());
+    }
+
+    public downloadFile(fileID: number, contentType: string,asAttachment:boolean=true) {
+        return this.http
+            .asGET()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=download`)
+            .send()
+            .switchMap((urlResponse: Response) => {
+                let url = urlResponse['_body'].replace(/\"/g, '');
+                return this.http.http.get(url);
+            })
+            .map(res => new Blob([res['_body']],{ type: contentType}));
+    }
+
+    private  getQueryParams(qs) {
+        qs = qs.split('+').join(' ');
+    
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+    
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+    
+        return params;
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {

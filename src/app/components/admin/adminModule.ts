@@ -24,10 +24,12 @@ import {SaftImportModal} from './jobs/saft/saftimportmodal';
 import { UniGdprPeopleList } from '@app/components/admin/gdpr/gdpr-people-list.component';
 import { PeopleService } from '@app/components/admin/gdpr/people.service';
 import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
+import { SaftExportModal } from './jobs/saft/saftexportmodal';
 
 @NgModule({
     entryComponents: [
-        SaftImportModal
+        SaftImportModal,
+        SaftExportModal
     ],
     imports: [
         BrowserModule,
@@ -53,6 +55,7 @@ import { GdprFileWriter } from '@app/components/admin/gdpr/gdpr-file-writer';
         ApprovalThresholdRules,
         SaftExportView,
         SaftImportModal,
+        SaftExportModal,
         UniGdprPeopleList
     ],
     providers: [
