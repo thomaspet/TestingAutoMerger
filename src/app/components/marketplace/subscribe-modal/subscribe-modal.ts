@@ -121,6 +121,7 @@ export class SubscribeModal implements IUniModal, OnInit {
         if (this.canPurchaseProducts) {
             const companyKey = this.authService.getCompanyKey();
             this.modalService.open(ManageProductsModal, {
+                closeOnClickOutside: true,
                 header: `Velg hvilke brukere som skal ha hvilke produkter`,
                 data: {
                     companyKey: companyKey,
@@ -134,6 +135,7 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     purchaseProduct(product) {
         if (this.canPurchaseProducts) {
+
             this.elsaProductService.PurchaseProductOnCurrentCompany(product).subscribe(
                 () => {
                     this.product['_isBought'] = true;

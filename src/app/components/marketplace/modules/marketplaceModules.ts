@@ -105,8 +105,10 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     openSubscribeModal(module: ElsaProduct) {
-        return this.modalService.open(SubscribeModal, {data: module}).onClose
-            .subscribe(() => {});
+        return this.modalService.open(SubscribeModal, {
+            data: module,
+            closeOnClickOutside: true
+        });
     }
 
     // tagChanged(tabIndex: number) {
