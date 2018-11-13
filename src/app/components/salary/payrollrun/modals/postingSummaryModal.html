@@ -10,6 +10,7 @@
                 [model]="formModel$"
                 (changeEvent)="change($event)">
             </uni-form>
+            <p *ngIf="!busy && !valid" role="alert" class="error"> Mangler systemkontoer. Sjekk hovedbokskontoene på <a (click)="routeToSalarySettings()">lønnsinnstillinger</a>.</p>
             <section [attr.aria-busy]="busy">
                 <ag-grid-wrapper *ngIf="summary" [resource]="summary.PostList" [config]="accountTableConfig"></ag-grid-wrapper>
                 <label>Kontrollsum totalt: </label> {{sum$ | async | unicurrency }}
@@ -29,7 +30,7 @@
 
     <footer class="postingsummary_footer">
         <section *ngIf="!showReceipt">
-            <button [disabled]="busy" (click)="postTransactions()" class="good">Bokfør</button>
+            <button [disabled]="busy || !valid" (click)="postTransactions()" class="good">Bokfør</button>
             <button [disabled]="busy" (click)="close()" class="bad">Avbryt</button>
         </section>
         <button [disabled]="busy" *ngIf="showReceipt" (click)="close()" class="good">OK</button>
