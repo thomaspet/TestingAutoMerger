@@ -54,53 +54,51 @@ export class MarketplaceModules implements AfterViewInit {
         // const hasSubProducts = product => product.subProducts.length > 0;
 
         const companyKey = this.authService.getCompanyKey();
-        Observable.forkJoin(
-            this.elsaProductService.GetAll(),
-            this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey).catch(() => {
-                return Observable.of(<ElsaPurchasesForUserLicenseByCompany[]>[]);
-            }),
-            this.elsaPurchaseService.GetAllByCompanyKey(companyKey)
-            // this.elsaBundleService.GetAll(),
 
-        ).subscribe(
-            res => {
-                const products = res[0];
+        // Get products first, then purchases with error handler
+        // that returns empty purchases array if the request fails (missing permissions).
+        // This is done because we want everyone to see the marketplace
+        // with available products, even though they can't make purchases.
+        this.elsaProductService.GetAll().subscribe(
+            products => {
 
-                // Don't ask..
-                const userPurchases = res[1];
-                const allPurchases = res[2];
+                Observable.forkJoin(
+                    this.elsaCompanyLicenseService.PurchasesForUserLicense(companyKey),
+                    this.elsaPurchaseService.GetAllByCompanyKey(companyKey)
+                ).catch(() => {
+                    return Observable.of([]);
+                }).subscribe((res) => {
+                    const userPurchases = res[0] || [];
+                    const companyPurchases = res[1] || [];
 
-                const modules = products.filter(p => p.productType === ElsaProductType.Module);
-                this.modules = modules.map(product => {
-                    product['_isBought'] = userPurchases.some(p => p.productID === product.id && p.isAssigned);
-                    return product;
-                });
+                    const modules = products.filter(p => p.productType === ElsaProductType.Module);
+                    this.modules = modules.map(product => {
+                        product['_isBought'] = userPurchases.some(p => p.productID === product.id && p.isAssigned);
+                        return product;
+                    });
 
-                const extensions = products.filter(p => p.productType === ElsaProductType.Extension);
-                this.extensions = extensions.map(product => {
-                    product['_isBought'] = allPurchases.some(p => p.productID === product.id);
-                    return product;
-                });
+                    const extensions = products.filter(p => p.productType === ElsaProductType.Extension);
+                    this.extensions = extensions.map(product => {
+                        product['_isBought'] = companyPurchases.some(p => p.productID === product.id);
+                        return product;
+                    });
 
-                // Check queryParams if we should open a specific product dialog immediately
-                this.route.queryParamMap.subscribe(paramMap => {
-                    const productName = paramMap.get('productName');
-                    if (productName) {
-                        const product = products.find(p => {
-                            return productName.toLowerCase() === (p.name || '').toLowerCase();
-                        });
+                    // Check queryParams if we should open a specific product dialog immediately
+                    this.route.queryParamMap.subscribe(paramMap => {
+                        const productName = paramMap.get('productName');
+                        if (productName) {
+                            const product = products.find(p => {
+                                return productName.toLowerCase() === (p.name || '').toLowerCase();
+                            });
 
-                        if (product) {
-                            this.openSubscribeModal(product);
+                            if (product) {
+                                this.openSubscribeModal(product);
+                            }
                         }
-                    }
+                    });
                 });
-
-                // this.bundles = bundles;
-                // this.modulesWithExtensions = products.filter(hasSubProducts);
-                // this.tabs = this.modulesWithExtensions.map(m => ({name: m.label}))
             },
-            err => this.errorService.handle(err),
+            err => this.errorService.handle(err)
         );
     }
 
