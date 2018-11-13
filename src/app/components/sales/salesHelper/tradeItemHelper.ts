@@ -218,6 +218,17 @@ export class TradeItemHelper  {
             const normalizedDisccount = this.round(discount * 100, 4);
             newRow['DiscountPercent'] = normalizedDisccount;
         }
+
+        if (!newRow.PriceIncVatCurrency) {
+            newRow.PriceIncVatCurrency = 0;
+        }
+        if (!newRow.PriceExVatCurrency) {
+            newRow.PriceExVatCurrency = 0;
+        }
+        if (!newRow.NumberOfItems) {
+            newRow.NumberOfItems = 0;
+        }
+
         this.calculateBaseCurrencyAmounts(newRow, currencyExchangeRate);
         this.calculateDiscount(newRow, currencyExchangeRate);
 
