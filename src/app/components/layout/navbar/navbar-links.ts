@@ -98,31 +98,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         ]
     },
 
-    // MARKETPLACE
-    {
-        name: 'Markedsplass',
-        url: '/marketplace',
-        icon: 'sales',
-        mdIcon: 'developer_board',
-        linkGroups: [
-            {
-                name: '',
-                links: [
-                    {
-                        name: 'Moduler',
-                        url: '/marketplace/modules',
-                        moduleID: UniModules.Marketplace,
-                    },
-/*                     {
-                        name: 'Integrasjoner',
-                        url: '/marketplace/integrations',
-                        moduleID: UniModules.Marketplace,
-                    }, */
-                ]
-            },
-        ]
-    },
-
     // SALG
     {
         name: 'Salg',
@@ -527,6 +502,23 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         }]
     },
 
+    // DIMENSJONER
+    {
+        name: 'Dimensjoner',
+        url: '',
+        icon: 'dimension',
+        mdIcon: 'developer_board',
+        linkGroups: [{
+            name: '',
+            links: [
+                {
+                    name: '',
+                    url: ''
+                }
+            ]
+        }]
+    },
+
     // INNSTILLINGER
     {
         name: 'Innstillinger',
@@ -581,5 +573,30 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 ]
             }
         ]
-    }
+    },
+
+    // MARKETPLACE
+    {
+        name: 'Markedsplass',
+        url: '/marketplace',
+        icon: 'marketplace',
+        mdIcon: 'shopping_basket',
+        linkGroups: [
+            {
+                name: '',
+                links: [
+                    {
+                        name: 'Moduler',
+                        url: '/marketplace/modules',
+                        moduleID: UniModules.Marketplace,
+                    },
+/*                     {
+                        name: 'Integrasjoner',
+                        url: '/marketplace/integrations',
+                        moduleID: UniModules.Marketplace,
+                    }, */
+                ]
+            },
+        ]
+    },
 ];

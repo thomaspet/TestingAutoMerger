@@ -1,39 +1,50 @@
 manage-products-modal
+    font-family: 'Roboto', sans-serif
+
     .uni-modal
         width: fit-content
+        min-width: 25rem
+        padding-bottom: 2rem
 
-    .manage-products-table
-        line-height: 0.5rem
-        margin-left: 0.5rem
+    table
+        width: 100%
+        overflow: auto
+        border-collapse: collapse
+        font-size: 15px
+        user-select: none
 
-    th.username-cell
-        text-align: left
-    td.username-cell
-        text-align: left
-        vertical-align: middle
+        thead tr
+            height: 50px
 
-    th.matrix-cell
-        padding: 0 0.5rem
-    td.matrix-cell
-        //padding-top: 7px
-        text-align: center
+        tbody tr:hover
+            background: #f5f5f5
 
-    .material-icons.checkmark-bought::before
-        content: "check"
-        color: $uni-color-good
+        th, td
+            text-align: center
+            &:first-of-type
+                text-align: left
+                padding-right: 20px
 
-    .material-icons.checkmark-bought:hover::before
-        content: "remove"
-        color: $uni-color-warn
+        th
+            position: sticky
+            top: 0
+            background: #fff
+            padding: 0 15px
+            min-width: 5rem
+            font-size: 14px
+            font-weight: 500
 
-    .material-icons.checkmark-unbought::before
-        content: "close"
-        color: $uni-color-scale6
+        td
+            padding: 0
+            &:first-of-type
+                padding-left: 15px
 
-    .material-icons.checkmark-unbought:hover::before
-        content: "add"
-        color: $uni-color-good
+            i.material-icons
+                display: block
+                padding: 10px 0
+                vertical-align: middle
+                cursor: pointer
+                color: rgba(0,0,0,.55)
 
-    .username-row:hover
-        background-color: $uni-color-scale9
-        border-color: $uni-color-scale9
+                &.active
+                    color: lighten(#0f4880, 5%)
