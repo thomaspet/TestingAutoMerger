@@ -3,10 +3,12 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
-    WorkingHoursScheme, Department, Project
+    WorkingHoursScheme, Department, Project, Company, CompanySalary,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea,
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
+import {CompanySalaryService} from '../companySalary/companySalaryService';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -39,27 +41,30 @@ export class EmploymentService extends BizHttp<Employment> {
         { ID: WorkingHoursScheme.ShiftWork, Name: '5 - skiftarbeid' }
     ];
 
-    // private shipType: {ID: number, Name: string}[] = [
-    //     {ID: 0, Name: 'Udefinert'},
-    //     {ID: 1, Name: '1 - Annet'},
-    //     {ID: 2, Name: '2 - Boreplattform'},
-    //     {ID: 3, Name: '3 - Turist'}
-    // ];
+    private shipType: {ID: number, Name: string}[] = [
+        {ID: ShipTypeOfShip.notSet, Name: 'Ikke valgt'},
+        {ID: ShipTypeOfShip.Other, Name: '1 - Annet'},
+        {ID: ShipTypeOfShip.DrillingPlatform, Name: '2 - Boreplattform'},
+        {ID: ShipTypeOfShip.Tourist, Name: '3 - Turist'}
+    ];
 
-    // private shipReg: {ID: number, Name: string}[] = [
-    //     {ID: 0, Name: 'Udefinert'},
-    //     {ID: 1, Name: '1 - Norsk Internasjonalt skipsregister'},
-    //     {ID: 2, Name: '2 - Norsk ordinært skipsregister'},
-    //     {ID: 3, Name: '3 - Utenlandsk skipsregister'}
-    // ];
+    private shipReg: {ID: number, Name: string}[] = [
+        {ID: ShipRegistry.notSet, Name: 'Ikke valgt'},
+        {ID: ShipRegistry.NorwegianInternationalShipRegister, Name: '1 - Norsk Internasjonalt skipsregister (NIS)'},
+        {ID: ShipRegistry.NorwegianOrdinaryShipRegister, Name: '2 - Norsk ordinært skipsregister (NOR)'},
+        {ID: ShipRegistry.ForeignShipRegister, Name: '3 - Utenlandsk skipsregister (UTL)'}
+    ];
 
-    // private tradeArea: {ID: number, Name: string}[] = [
-    //     {ID: 0, Name: 'Udefinert'},
-    //     {ID: 1, Name: '1 - Innenriks'},
-    //     {ID: 2, Name: '2 - Utenriks'}
-    // ];
+    private tradeArea: {ID: number, Name: string}[] = [
+        {ID: ShipTradeArea.notSet, Name: 'Ikke valgt'},
+        {ID: ShipTradeArea.Domestic, Name: '1 - Innenriks'},
+        {ID: ShipTradeArea.Foreign, Name: '2 - Utenriks'}
+    ];
 
-    constructor(http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private companySalaryService: CompanySalaryService,
+        ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
         this.entityType = Employment.EntityType;
@@ -87,221 +92,273 @@ export class EmploymentService extends BizHttp<Employment> {
     }
 
     public layout(layoutID: string) {
-        return Observable.from([{
-            Name: layoutID,
-            BaseEntity: 'Employment',
-            Fields: [
-                {
-                    EntityType: 'Employment',
-                    Property: 'JobCode',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Yrkeskode',
-                    FieldSet: 1,
-                    Legend: 'Arbeidsforhold',
-                    Section: 0,
-                    Placeholder: 'Yrkeskode',
-                    Validations: [this.requiredValidation()]
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'JobName',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Yrkestittel',
-                    FieldSet: 1,
-                    Section: 0,
-                    Validations: [this.requiredValidation()]
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'WorkPercent',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Stillingsprosent',
-                    FieldSet: 1,
-                    Section: 0,
-                    Options: {
-                        decimalLength: 2
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'StartDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Startdato',
-                    FieldSet: 1,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'EndDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Sluttdato',
-                    FieldSet: 1,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'SubEntityID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Virksomhet',
-                    FieldSet: 1,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'Standard',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Standard',
-                    FieldSet: 1,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'TypeOfEmployment',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Arbeidsforhold',
-                    FieldSet: 2,
-                    Section: 0,
-                    Legend: 'A-meldingsinformasjon',
-                    Options: {
-                        source: this.typeOfEmployment,
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
+        return this.companySalaryService
+            .getCompanySalary()
+            .map(compSal => {return {
+                Name: layoutID,
+                BaseEntity: 'Employment',
+                Fields: [
+                    {
+                        EntityType: 'Employment',
+                        Property: 'JobCode',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Yrkeskode',
+                        FieldSet: 1,
+                        Legend: 'Arbeidsforhold',
+                        Section: 0,
+                        Placeholder: 'Yrkeskode',
+                        Validations: [this.requiredValidation()]
                     },
-                    hasLineBreak: true
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'RemunerationType',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Avlønningstype',
-                    FieldSet: 2,
-                    Section: 0,
-                    Options: {
-                        source: this.remunerationType,
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'WorkingHoursScheme',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Arbeidstid',
-                    FieldSet: 2,
-                    Section: 0,
-                    Options: {
-                        source: this.workingHoursScheme,
-                        valueProperty: 'ID',
-                        displayProperty: 'Name'
+                    {
+                        EntityType: 'Employment',
+                        Property: 'JobName',
+                        FieldType: FieldType.TEXT,
+                        Label: 'Yrkestittel',
+                        FieldSet: 1,
+                        Section: 0,
+                        Validations: [this.requiredValidation()]
                     },
-                    hasLineBreak: true
+                    {
+                        EntityType: 'Employment',
+                        Property: 'WorkPercent',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Stillingsprosent',
+                        FieldSet: 1,
+                        Section: 0,
+                        Options: {
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'StartDate',
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
+                        Label: 'Startdato',
+                        FieldSet: 1,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'EndDate',
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
+                        Label: 'Sluttdato',
+                        FieldSet: 1,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'SubEntityID',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Virksomhet',
+                        FieldSet: 1,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'Standard',
+                        FieldType: FieldType.CHECKBOX,
+                        Label: 'Standard',
+                        FieldSet: 1,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'TypeOfEmployment',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Arbeidsforhold',
+                        FieldSet: 2,
+                        Section: 0,
+                        Legend: 'A-meldingsinformasjon',
+                        Options: {
+                            source: this.typeOfEmployment,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name'
+                        },
+                        hasLineBreak: true
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'RemunerationType',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Avlønningstype',
+                        FieldSet: 2,
+                        Section: 0,
+                        Options: {
+                            source: this.remunerationType,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name'
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'WorkingHoursScheme',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Arbeidstid',
+                        FieldSet: 2,
+                        Section: 0,
+                        Options: {
+                            source: this.workingHoursScheme,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name'
+                        },
+                        hasLineBreak: true
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'HoursPerWeek',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Timer pr uke full stilling',
+                        FieldSet: 2,
+                        Section: 0,
+                        Options: {
+                            decimalLength: 1
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'SeniorityDate',
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
+                        Label: 'Ansiennitet',
+                        FieldSet: 2,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'LastSalaryChangeDate',
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
+                        Label: 'Lønnsjustering',
+                        FieldSet: 2,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'LastWorkPercentChangeDate',
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
+                        Label: 'Sist endret %',
+                        FieldSet: 2,
+                        Section: 0,
+                        openByDefault: true
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'MonthRate',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Månedslønn',
+                        Legend: 'Ytelser',
+                        FieldSet: 3,
+                        Section: 0,
+                        Options: {
+                            format: 'money'
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'HourRate',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Timelønn',
+                        FieldSet: 3,
+                        Section: 0,
+                        Options: {
+                            format: 'money'
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'UserDefinedRate',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Fri sats',
+                        FieldSet: 3,
+                        Section: 0,
+                        Options: {
+                            format: 'money'
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'LedgerAccount',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Hovedbokskonto',
+                        FieldSet: 3,
+                        Section: 0
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'Dimensions.ProjectID',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Prosjekt',
+                        FieldSet: 4,
+                        Legend: 'Dimensjoner',
+                        Section: 0,
+                        Options: {
+                            valueProperty: 'ID',
+                            template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : ''
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: 'Dimensions.DepartmentID',
+                        FieldType: FieldType.AUTOCOMPLETE,
+                        Label: 'Avdeling',
+                        FieldSet: 4,
+                        Section: 0,
+                        Options: {
+                            valueProperty: 'ID',
+                            template: (department: Department) => department
+                                ? `${department.DepartmentNumber} - ${department.Name}`
+                                : ''
+                        }
+                    },
+                    ...this.getShipFields(compSal),
+                ]
+            };
+        });
+    }
+
+    private getShipFields(compSal: CompanySalary): any[] {
+        if (!compSal.Base_SpesialDeductionForMaritim) {
+            return [];
+        }
+        return [
+            {
+                EntityType: 'Employment',
+                Property: 'ShipReg',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'SkipsRegister',
+                Legend: 'Fartøysopplysninger',
+                FieldSet: 5,
+                Section: 0,
+                Options: {
+                    source: this.shipReg,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
                 },
-                {
-                    EntityType: 'Employment',
-                    Property: 'HoursPerWeek',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Timer pr uke full stilling',
-                    FieldSet: 2,
-                    Section: 0,
-                    Options: {
-                        decimalLength: 1
-                    }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'ShipType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'SkipsType',
+                FieldSet: 5,
+                Section: 0,
+                Options: {
+                    source: this.shipType,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
                 },
-                {
-                    EntityType: 'Employment',
-                    Property: 'SeniorityDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Ansiennitet',
-                    FieldSet: 2,
-                    Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'TradeArea',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Fartsområde',
+                FieldSet: 5,
+                Section: 0,
+                Options: {
+                    source: this.tradeArea,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
                 },
-                {
-                    EntityType: 'Employment',
-                    Property: 'LastSalaryChangeDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Lønnsjustering',
-                    FieldSet: 2,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'LastWorkPercentChangeDate',
-                    FieldType: FieldType.LOCAL_DATE_PICKER,
-                    Label: 'Sist endret %',
-                    FieldSet: 2,
-                    Section: 0,
-                    openByDefault: true
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'MonthRate',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Månedslønn',
-                    Legend: 'Ytelser',
-                    FieldSet: 3,
-                    Section: 0,
-                    Options: {
-                        format: 'money'
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'HourRate',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Timelønn',
-                    FieldSet: 3,
-                    Section: 0,
-                    Options: {
-                        format: 'money'
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'UserDefinedRate',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Fri sats',
-                    FieldSet: 3,
-                    Section: 0,
-                    Options: {
-                        format: 'money'
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'LedgerAccount',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Hovedbokskonto',
-                    FieldSet: 3,
-                    Section: 0
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'Dimensions.ProjectID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Prosjekt',
-                    FieldSet: 4,
-                    Legend: 'Dimensjoner',
-                    Section: 0,
-                    Options: {
-                        valueProperty: 'ID',
-                        template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : ''
-                    }
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'Dimensions.DepartmentID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Avdeling',
-                    FieldSet: 4,
-                    Section: 0,
-                    Options: {
-                        valueProperty: 'ID',
-                        template: (department: Department) => department
-                            ? `${department.DepartmentNumber} - ${department.Name}`
-                            : ''
-                    }
-                }
-            ]
-        }]);
+            },
+        ];
     }
 }

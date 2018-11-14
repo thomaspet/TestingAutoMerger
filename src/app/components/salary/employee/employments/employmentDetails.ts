@@ -196,6 +196,10 @@ export class EmploymentDetails implements OnChanges {
         // Ordinary, maritime and frilancer
         this.setRequiredTooltip(fields, employment, 'StartDate');
 
+        this.setRequiredTooltip(fields, employment, 'ShipReg');
+        this.setRequiredTooltip(fields, employment, 'ShipType');
+        this.setRequiredTooltip(fields, employment, 'TradeArea');
+
         // Ordinary and maritime
         if (employment.TypeOfEmployment !== TypeOfEmployment.FrilancerContratorFeeRecipient) {
             this.setRequiredTooltip(fields, employment, 'JobCode');
