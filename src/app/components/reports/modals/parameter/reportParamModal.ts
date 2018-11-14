@@ -197,7 +197,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         fields[i] = this.generateFields(params[paramsIdx]);
                         paramsIdx++;
                     }
-                    this.fields$.next(fields);
+                    this.fields$.next(fields.filter( x => x));
 
                     const model = this.model$.getValue();
                     params.map(param => {
@@ -377,7 +377,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 .switchMap(loadedParams => this.resolveParamValues(loadedParams, true))
                 .subscribe(resolvedParams => {
                     this.report.parameters = resolvedParams;
-                    this.fields$.next(resolvedParams.map(param => this.generateFields(param)));
+                    this.fields$.next(resolvedParams.map(param => this.generateFields(param)).filter(x => x));                    
                     const model = this.model$.getValue();
                     resolvedParams.map(param => {
                         model[param.Name] = param.value;
