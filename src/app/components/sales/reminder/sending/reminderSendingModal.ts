@@ -17,7 +17,7 @@ import {EHFService} from '@app/services/services';
 
             <footer>
                 <button class="good" (click)="send()">Send valgte til epost/utskrift</button>
-                <button *ngIf="ehfService.isActivated('NETSPRINT')" class="good" (click)="reminderSending.sendInvoicePrint()">
+                <button *ngIf="ehfService.isInvoicePrintActivated()" class="good" (click)="reminderSending.sendInvoicePrint()">
                     Send valgte til fakturaprint
                 </button>
                 <button class="warning" (click)="reminderSending.sendPrint(true)">Skriv ut valgte</button>

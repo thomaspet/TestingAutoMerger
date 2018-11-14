@@ -892,14 +892,14 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.ehfService.isActivated('EHF INVOICE 2.0')
+        apActivated.Label = this.ehfService.isEHFActivated()
             ? 'Reaktiver EHF' : 'Aktiver EHF';
-        apActivated.Options.class = this.ehfService.isActivated('EHF INVOICE 2.0') ? 'good' : '';
+        apActivated.Options.class = this.ehfService.isEHFActivated() ? 'good' : '';
 
         const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
-        invoicePrint.Label = this.ehfService.isActivated('NETSPRINT')
+        invoicePrint.Label = this.ehfService.isInvoicePrintActivated()
             ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint';
-        invoicePrint.Options.class = this.ehfService.isActivated('NETSPRINT') ? 'good' : '';
+        invoicePrint.Options.class = this.ehfService.isInvoicePrintActivated() ? 'good' : '';
 
 
         const ocrToggle = fields.find(f => f.Property === 'UseOcrInterpretation');

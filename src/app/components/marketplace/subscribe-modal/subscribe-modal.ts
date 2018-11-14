@@ -57,8 +57,6 @@ export class SubscribeModal implements IUniModal, OnInit {
                 this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter.';
             }
 
-            // This is messy as f$2#!, but we need to solve activation NOW..
-            // Will come back to it when prod marketplace actually works
             if (this.product.isPerUser) {
                 this.action = {
                     label: 'Velg brukere',
@@ -66,7 +64,7 @@ export class SubscribeModal implements IUniModal, OnInit {
                 };
             } else {
                 if (this.product['_isBought']) {
-                    this.setActivationAction();
+                    this.action = this.product['_activationFunction'];
                     if (!this.action) {
                         this.extensionBoughtAndActivated = true;
                     }
@@ -79,43 +77,6 @@ export class SubscribeModal implements IUniModal, OnInit {
             }
         }
     }
-
-    // This is messy as f$2#!, but we need to solve activation NOW..
-    // Will come back to it when prod marketplace actually works
-    private setActivationAction() {
-        this.companySettingsService.Get(1).subscribe(settings => {
-            const name = this.product && this.product.name.toLowerCase();
-
-            let activationModal;
-
-            if (name === 'invoiceprint' && !this.ehfService.isActivated('EHF INVOICE 2.0')) {
-                activationModal = UniActivateInvoicePrintModal;
-
-            } else if (name === 'ehf' && !this.ehfService.isActivated('NETSPRINT')) {
-                activationModal = UniActivateAPModal;
-
-            } else if (name === 'ocr-scan' && !settings.UseOcrInterpretation) {
-                activationModal = ActivateOCRModal;
-            }
-
-            if (activationModal) {
-                this.action = {
-                    label: 'Aktiver',
-                    click: () => {
-                        this.modalService.open(activationModal).onClose.subscribe(res => {
-                            if (res || res === ConfirmActions.ACCEPT) {
-                                this.action = undefined;
-                                this.onClose.emit();
-                            }
-                        });
-                    }
-                };
-            } else {
-                this.action = undefined;
-            }
-        });
-    }
-
 
     manageUserPurchases() {
         if (this.canPurchaseProducts) {
@@ -139,10 +100,7 @@ export class SubscribeModal implements IUniModal, OnInit {
             this.elsaProductService.PurchaseProductOnCurrentCompany(product).subscribe(
                 () => {
                     this.product['_isBought'] = true;
-
-                    // This is messy as f$2#!, but we need to solve activation NOW..
-                    // Will come back to it when prod marketplace actually works
-                    this.setActivationAction();
+                    this.action = this.product['_activationFunction'];
                     if (this.action) {
                         this.action.click();
                     }
