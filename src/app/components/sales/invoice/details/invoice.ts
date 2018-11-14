@@ -1617,22 +1617,21 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isEHFActivated) {
+        if (this.ehfService.isEHFActivated()) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
-                header: 'Markedsplassen',
-                message: 'Til markedsplassen for å kjøpe tilgang til å sende EHF?',
+                header: 'EHF er ikke aktivert',
+                message: 'Sending av EHF er ikke aktivert. Ønsker du å gå til markedplassen for aktivering?',
                 buttonLabels: {
                     accept: 'Ja',
                     cancel: 'Nei'
                 }
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.elsaProductService.FindProductByName('EHF').subscribe(p => {
-                        this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
-                    });
+                    this.router.navigateByUrl('/marketplace/modules?productName=EHF');
                 }
+
                 doneHandler('');
             });
         }
