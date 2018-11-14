@@ -203,9 +203,9 @@ export class TransqueryDetails implements OnInit {
                 if (searchParams.Account && !isNaN(searchParams.Account)) {
                     formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
                 }
-                let amount = searchParams.Amount;
+                let amount = searchParams.Amount.toString();
                 amount = amount.replace(',', '.');
-                if (amount && !isNaN(amount)) {
+                if (amount && !isNaN(+amount)) {
                     formFilters.push(`Amount eq ${amount}`);
                 }
 
