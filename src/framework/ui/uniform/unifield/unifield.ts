@@ -216,6 +216,10 @@ export class UniField {
      *
      */
     public onMultivalueMoveForward(action) {
+        if (!this.field.isLast) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
         this.moveForwardEvent.emit(action);
     }
 
@@ -242,6 +246,10 @@ export class UniField {
             }
         }
         if (combination.length === 1 && (combination[0] === 'enter' || combination[0] === 'tab')) {
+            if (!this.field.isLast) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             this.moveForwardEvent.emit({
                 event: event,
                 field: this.field
@@ -249,6 +257,10 @@ export class UniField {
             this.validateModel(this.getSimpleChange());
 
         } else if (combination.length === 2 && (combination[0] === 'shift' && combination[1] === 'tab')) {
+            if (!this.field.isLast) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
             this.moveBackwardEvent.emit({
                 event: event,
                 field: this.field
