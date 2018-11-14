@@ -4,7 +4,11 @@ import {EHFLog, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@angular/http';
 import {CompanySettingsService} from '../common/companySettingsService';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+export const AP_NAME_EHF = 'EHF INVOICE 2.0';
+export const AP_NAME_INVOICEPRINT = 'NETSPRINT';
+
 @Injectable()
 export class EHFService extends BizHttp<EHFLog> {
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
@@ -33,9 +37,21 @@ export class EHFService extends BizHttp<EHFLog> {
         });
     }
 
-    public isActivated(format: string): boolean {
-        var settings = this.companySettings$.getValue();
-        if (settings == null) { return false; }
-        return settings.APActivated && settings.APOutgoing && settings.APOutgoing.some(f => f.Name === format);
+    isInvoicePrintActivated(companySettings?: CompanySettings): boolean {
+        const settings = companySettings || this.companySettings$.getValue();
+        if (settings) {
+            return settings.APActivated && settings.APOutgoing && settings.APOutgoing.some(format => {
+                return format.Name === AP_NAME_INVOICEPRINT;
+            });
+        }
+    }
+
+    isEHFActivated(companySettings?: CompanySettings): boolean {
+        const settings = companySettings || this.companySettings$.getValue();
+        if (settings) {
+            return settings.APActivated && settings.APOutgoing && settings.APOutgoing.some(format => {
+                return format.Name === AP_NAME_EHF;
+            });
+        }
     }
 }

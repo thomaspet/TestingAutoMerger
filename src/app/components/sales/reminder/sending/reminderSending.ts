@@ -101,7 +101,7 @@ export class ReminderSending implements OnInit {
          {
             label: 'Send alle valgte til fakturaprint',
             action: (done) => this.sendInvoicePrint(done),
-            disabled: !this.ehfService.isActivated("NETSPRINT")
+            disabled: !this.ehfService.isInvoicePrintActivated()
          },
          {
              label: 'Skriv ut valgte',

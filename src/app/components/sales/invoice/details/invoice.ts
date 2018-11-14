@@ -1699,7 +1699,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHFAction(doneHandler: (msg: string) => void = null) {
-        if (this.ehfService.isActivated('EHF INVOICE 2.0')) {
+        if (this.ehfService.isEHFActivated) {
             this.askSendEHF(doneHandler);
         } else {
             this.modalService.confirm({
