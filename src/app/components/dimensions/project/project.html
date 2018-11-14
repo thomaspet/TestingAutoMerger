@@ -12,7 +12,7 @@
     </uni-tabs>
 
     <section class="splitview">
-        <nav class="splitview_list">
+        <nav class="small-split-view-list splitview_list">
             <!-- Active/all/mine select -->
             <mat-form-field>
                 <mat-select [value]="currentFilter" (valueChange)="onActiveFilterChange($event)" placeholder="Prosjekter">
@@ -22,21 +22,19 @@
                 </mat-select>
             </mat-form-field>
 
-            <div class="project-list-container">
-                <input type="search" [(ngModel)]="projectSearchFilterString" [formControl]="searchControl" />
-                <ul id="role-info">
-                     <li *ngFor="let project of filteredProjects"
-                        [class.selected]="project.ID === activeProjectID"
-                        (click)="onProjectSelect(project)">
-                         <span>
-                             {{ project.Name }}
-                         </span>
-                         <span>
-                            Prosjektnr: &nbsp; {{ project.ProjectNumber }}
+            <input type="search" [(ngModel)]="projectSearchFilterString" [formControl]="searchControl" />
+            <ul id="role-info">
+                    <li *ngFor="let project of filteredProjects"
+                    [class.selected]="project.ID === activeProjectID"
+                    (click)="onProjectSelect(project)">
+                        <span>
+                            {{ project.Name }}
                         </span>
-                     </li>
-                </ul>
-            </div>
+                        <span>
+                        Prosjektnr: &nbsp; {{ project.ProjectNumber }}
+                    </span>
+                    </li>
+            </ul>
         </nav>
 
         <main class="splitview_detail">

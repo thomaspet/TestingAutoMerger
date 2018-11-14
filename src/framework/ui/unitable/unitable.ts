@@ -1043,7 +1043,7 @@ export class UniTable implements OnChanges {
     }
 
     public getTableData() {
-        return this.tableData.filterNot((item) => item.get('_isEmpty')).toJS();
+        return !!this.tableData ? this.tableData.filterNot((item) => item.get('_isEmpty')).toJS() : [];
     }
 
     public getVisibleTableData() {
@@ -1080,13 +1080,15 @@ export class UniTable implements OnChanges {
                 if (!this.tableData || !this.tableData.size) {
                     return;
                 }
-
                 try {
                     const firstVisibleCellIndex = this.tableColumns.findIndex(col  => {
                         return col.get('visible');
                     });
 
                     const index = this.tableData.findIndex(r => r.get('_originalIndex') === originalIndex);
+                    if (index === -1) {
+                        return;
+                    }
                     const rows = this.tbody.nativeElement.rows;
                     const cell = rows[index].cells[firstVisibleCellIndex];
                     cell.focus();

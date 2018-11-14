@@ -46,7 +46,8 @@ export class NavbarLinkService {
             dimensionLinks => {
                 if (dimensionLinks) {
                     const linkSections = this.linkSections$.getValue();
-                    linkSections.push(dimensionLinks);
+                    const dimensionsIdx = linkSections.findIndex(section => section.name === 'Dimensjoner');
+                    linkSections[dimensionsIdx] = dimensionLinks;
                     this.linkSections$.next(linkSections);
                 }
             },

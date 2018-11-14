@@ -60,6 +60,7 @@ import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeC
 import {
     UniActivateAPModal,
     UniActivateInvoicePrintModal,
+    ActivateOCRModal,
     UniAddressModal,
     UniBankAccountModal,
     UniEmailModal,
@@ -481,7 +482,7 @@ export class CompanySettingsComponent implements OnInit {
 
             // If Nordea bank is activated while DNB bank is activated
             if (obj.UseXtraPaymentOrgXmlTag && obj['UsePaymentBankValues']) {
-                obj['UsePaymentBankValues'] = <any> false;
+                obj.UsePaymentBankValues = false;
                 this.hideBankValues = true;
                 this.companySettings$.next(obj);
                 this.fields$.next(this.fields$.getValue().map((item) => {
@@ -963,16 +964,20 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.hasBoughtEHF
-            ? (this.ehfService.isActivated('EHF INVOICE 2.0') ? 'Reaktiver EHF' : 'Aktiver EHF')
-            : 'EHF på markesplassen';
-        apActivated.Options.class = this.ehfService.isActivated('EHF INVOICE 2.0') ? 'good' : '';
+        apActivated.Label = this.ehfService.isEHFActivated()
+            ? 'Reaktiver EHF' : 'Aktiver EHF';
+        apActivated.Options.class = this.ehfService.isEHFActivated() ? 'good' : '';
 
         const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
-        invoicePrint.Label = this.hasBoughtInvoicePrint
-            ? (this.ehfService.isActivated('NETSPRINT') ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint')
-            : 'Fakturaprint på markedsplassen';
-        invoicePrint.Options.class = this.ehfService.isActivated('NETSPRINT') ? 'good' : '';
+        invoicePrint.Label = this.ehfService.isInvoicePrintActivated()
+            ? 'Reaktiver Fakturaprint' : 'Aktiver Fakturaprint';
+        invoicePrint.Options.class = this.ehfService.isInvoicePrintActivated() ? 'good' : '';
+
+
+        const ocrToggle = fields.find(f => f.Property === 'UseOcrInterpretation');
+        ocrToggle.Label = settings.UseOcrInterpretation
+            ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning';
+        ocrToggle.Options.class = settings.UseOcrInterpretation ? 'bad' : '';
 
         this.fields$.next(fields);
     }
@@ -1562,7 +1567,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 7,
                 Legend: 'Elektroniske Faktura',
                 Options: {
-                    click: () => this.activateProduct('INVOICEPRINT', this.openActivateInvoicePrintModal)
+                    click: () => this.activateProduct('INVOICEPRINT', this.openActivateInvoicePrintModal.bind(this))
                 }
             },
             {
@@ -1575,7 +1580,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 7,
                 Legend: 'Elektroniske Faktura',
                 Options: {
-                    click: () => this.activateProduct('EHF', this.openActivateAPModal)
+                    click: () => this.activateProduct('EHF', this.openActivateAPModal.bind(this))
                 }
             },
             {
@@ -1591,14 +1596,19 @@ export class CompanySettingsComponent implements OnInit {
             {
                 Property: 'UseOcrInterpretation',
                 FieldType: FieldType.BUTTON,
-                Label: this.companySettings$.getValue()['UseOcrInterpretation'] ? 'Deaktiver OCR-tolkning' : 'Aktiver OCR-tolkning',
                 Sectionheader: 'Diverse',
                 Section: 1,
                 FieldSet: 7,
                 Legend: 'OCR tolkning',
                 Options: {
-                    click: () => this.confirmTermsOCR()
-                 }
+                    click: () => {
+                        if (this.companySettings$.getValue().UseOcrInterpretation) {
+                            this.deactivateOCR();
+                        } else {
+                            this.activateProduct('OCR-SCAN', this.openActivateOCRModal.bind(this));
+                        }
+                    }
+                }
             },
             {
                 Property: '_FileFlowEmailActivated',
@@ -1921,16 +1931,19 @@ export class CompanySettingsComponent implements OnInit {
         });
     }
 
-    private activateProduct(name: string, modal: () => void) {
-        this.elsaProductService.FindProductByName(name)
-        .subscribe(product => {
+    private activateProduct(name: string, activationModal: () => void) {
+        this.elsaProductService.FindProductByName(name).subscribe(product => {
             if (product) {
                 this.elsaPurchasesService.GetAll()
                 .map(purchases => purchases.some(purchase => purchase.productID === product.id))
                 .subscribe(hasBought => {
-                    hasBought
-                    ? modal()
-                    : this.router.navigateByUrl('/marketplace/modules');
+                    if (hasBought) {
+                        activationModal();
+                    } else {
+                        const marketplaceUrl = `/marketplace/modules?productName=${product.name}`;
+                        console.log('navigating to: ' + marketplaceUrl);
+                        this.router.navigateByUrl(marketplaceUrl);
+                    }
                 });
             } else {
                 this.toastService.addToast(`Produkt ${name} ikke tilgjengelig`, ToastType.bad, ToastTime.short);
@@ -1938,54 +1951,71 @@ export class CompanySettingsComponent implements OnInit {
         });
     }
 
+
+
     private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal)
-            .onClose.subscribe((status) => {
+        this.modalService.open(UniActivateAPModal).onClose.subscribe(
+            (status) => {
                 if (status !== 0) {
                     this.companySettingsService.Get(1).subscribe(settings => {
                         const company = this.companySettings$.getValue();
                         company.BankAccounts = settings.BankAccounts;
                         company.CompanyBankAccount = settings.CompanyBankAccount;
                         this.companySettings$.next(company);
+
+                        // Hacky, but uniform doesnt like things that change..
+                        this.extendFormConfig();
                     });
                 }
-        }, err => this.errorService.handle(err));
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private openActivateInvoicePrintModal() {
-        this.modalService.open(UniActivateInvoicePrintModal)
-        .onClose.subscribe((status) => {
-            if (status !== 0) {
-                this.companySettingsService.Get(1).subscribe(settings => {
-                    const company = this.companySettings$.getValue();
-                    company.BankAccounts = settings.BankAccounts;
-                    company.CompanyBankAccount = settings.CompanyBankAccount;
-                    this.companySettings$.next(company);
-                });
-            }
-        }, err => this.errorService.handle(err));
+        this.modalService.open(UniActivateInvoicePrintModal).onClose.subscribe(
+            (status) => {
+                if (status !== 0) {
+                    this.companySettingsService.Get(1).subscribe(settings => {
+                        const company = this.companySettings$.getValue();
+                        company.BankAccounts = settings.BankAccounts;
+                        company.CompanyBankAccount = settings.CompanyBankAccount;
+                        this.companySettings$.next(company);
+
+                        // Hacky, but uniform doesnt like things that change..
+                        this.extendFormConfig();
+                    });
+                }
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
-    private confirmTermsOCR() {
-        const data = this.companySettings$.getValue();
+    private openActivateOCRModal() {
+        this.modalService.open(ActivateOCRModal).onClose.subscribe(activated => {
+            if (activated) {
+                const settings = this.companySettings$.getValue();
+                settings.UseOcrInterpretation = true;
+                this.companySettings$.next(settings);
 
-        if (!data['UseOcrInterpretation']) {
-            this.elsaProductService.FindProductByName('OCR-SCAN').subscribe(p => {
-                this.router.navigateByUrl('/marketplace/add-ons/' + p.id);
-            });
-        } else {
-            // deactivate the OCR agreement in UE
-            this.companySettingsService.PostAction(1, 'reject-ocr-agreement')
-                .subscribe(acceptResp => {
-                    data['UseOcrInterpretation'] = false;
-                    this.companySettings$.next(data);
+                // Hacky, but uniform doesnt like things that change..
+                this.extendFormConfig();
+            }
+        });
+    }
 
-                    const fields = this.fields$.getValue();
-                    fields.find(f => f.Property === 'UseOcrInterpretation').Label = 'Aktiver OCR-tolkning';
-                    this.fields$.next(fields);
-                },
-                err => this.errorService.handle(err));
-        }
+    private deactivateOCR() {
+        this.companySettingsService.PostAction(1, 'reject-ocr-agreement').subscribe(
+            () => {
+                const settings = this.companySettings$.getValue();
+                settings.UseOcrInterpretation = false;
+                this.companySettings$.next(settings);
+
+                // Hacky, but uniform doesnt like things that change..
+                this.extendFormConfig();
+            },
+            err => this.errorService.handle(err)
+        );
     }
 
     private activateEmail() {

@@ -376,8 +376,8 @@ export class TimesheetService {
             }
 
             return relationsSource.map((list: WorkRelation[]) => {
-                const first = list[0];
-                const timesheet = this.newTimeSheet(first);
+                const firstActive = list.filter(x => x.IsActive)[0];
+                const timesheet = this.newTimeSheet(firstActive);
                 this.workRelations = list;
                 return timesheet;
            });
@@ -386,8 +386,8 @@ export class TimesheetService {
 
     public initWorker(workerId: number): Observable<TimeSheet> {
         return this.workerService.getRelationsForWorker(workerId).mergeMap((list: WorkRelation[]) => {
-            const first = list[0];
-            const ts = this.newTimeSheet(first);
+            const firstActive = list.filter(x => x.IsActive)[0];
+            const ts = this.newTimeSheet(firstActive);
             this.workRelations = list;
             return Observable.of(ts);
         });

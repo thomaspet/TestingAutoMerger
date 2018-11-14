@@ -30,7 +30,7 @@ import {WorkEditor} from './workeditor';
             </article>
 
             <footer>
-                <button (click)="close('ok')" class="good">Lagre</button>
+                <button [disabled]="this.options.data.disableSaveButton" (click)="close('ok')" class="good">Lagre</button>
                 <button (click)="close('cancel')" class="bad">Avbryt</button>
             </footer>
         </section>

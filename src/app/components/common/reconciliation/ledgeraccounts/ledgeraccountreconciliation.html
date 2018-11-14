@@ -20,7 +20,14 @@
         </button>
     </section>
 
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+
     <uni-table
+        class="smaller-font-size-table"
         [resource]="journalEntryLines"
         [config]="uniTableConfig"
         (rowSelectionChanged)="onRowSelected($event)">

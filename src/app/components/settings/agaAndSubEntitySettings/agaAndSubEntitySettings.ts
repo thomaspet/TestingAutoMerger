@@ -377,15 +377,15 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const financial = new UniFieldLayout();
         financial.EntityType = 'CompanySalary';
-        financial.Label = 'Konto finansskatt';
-        financial.Property = 'MainAccountFinancial';
+        financial.Label = 'Avsatt finansskatt';
+        financial.Property = 'MainAccountAllocatedFinancial';
         financial.FieldType = FieldType.UNI_SEARCH;
         financial.Section = 2;
         financial.FieldSet = 3;
         financial.Options = {
             valueProperty: 'AccountNumber',
-            source: model => this.accountService
-                .GetAll(`filter=AccountNumber eq ${model.MainAccountFinancial}`)
+            source: (model: CompanySalary) => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedFinancial}`)
                 .map(results => results[0])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
@@ -393,14 +393,14 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const costFinancial = new UniFieldLayout();
         costFinancial.EntityType = 'CompanySalary';
-        costFinancial.Label = 'Konto skyldig finansskatt';
+        costFinancial.Label = 'Kostnad finansskatt';
         costFinancial.Property = 'MainAccountCostFinancial';
         costFinancial.FieldType = FieldType.UNI_SEARCH;
         costFinancial.Section = 2;
         costFinancial.FieldSet = 3;
         costFinancial.Options = {
             valueProperty: 'AccountNumber',
-            source: model => this.accountService
+            source: (model: CompanySalary) => this.accountService
                 .GetAll(`filter=AccountNumber eq ${model.MainAccountCostFinancial}`)
                 .map(results => results[0])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
@@ -409,15 +409,15 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const financialVacation = new UniFieldLayout();
         financialVacation.EntityType = 'CompanySalary';
-        financialVacation.Label = 'Konto finansskatt av feriepenger';
-        financialVacation.Property = 'MainAccountFinancialVacation';
+        financialVacation.Label = 'Avsatt finansskatt av feriepenger';
+        financialVacation.Property = 'MainAccountAllocatedFinancialVacation';
         financialVacation.FieldType = FieldType.UNI_SEARCH;
         financialVacation.Section = 2;
         financialVacation.FieldSet = 3;
         financialVacation.Options = {
             valueProperty: 'AccountNumber',
-            source: model => this.accountService
-                .GetAll(`filter=AccountNumber eq ${model.MainAccountFinancialVacation}`)
+            source: (model: CompanySalary) => this.accountService
+                .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedFinancialVacation}`)
                 .map(results => results[0])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
@@ -425,14 +425,14 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const costFinancialVacation = new UniFieldLayout();
         costFinancialVacation.EntityType = 'CompanySalary';
-        costFinancialVacation.Label = 'Konto skyldig finansskatt av feriepenger';
+        costFinancialVacation.Label = 'Kostnad finansskatt av feriepenger';
         costFinancialVacation.Property = 'MainAccountCostFinancialVacation';
         costFinancialVacation.FieldType = FieldType.UNI_SEARCH;
         costFinancialVacation.Section = 2;
         costFinancialVacation.FieldSet = 3;
         costFinancialVacation.Options = {
             valueProperty: 'AccountNumber',
-            source: model => this.accountService
+            source: (model: CompanySalary) => this.accountService
                 .GetAll(`filter=AccountNumber eq ${model.MainAccountCostFinancialVacation}`)
                 .map(results => results[0])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),

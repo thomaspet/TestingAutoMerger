@@ -129,7 +129,8 @@ export class TimeEntry {
         private http: UniHttp,
         private modalService: UniModalService,
         private projectService: ProjectService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private toastService: ToastService,
     ) {
 
         this.filters = service.getFilterIntervalItems();
@@ -399,6 +400,10 @@ export class TimeEntry {
         this.userName = name || this.userName;
         const contextMenus = this.initialContextMenu.slice();
         const list = workRelations || this.workRelations;
+
+        // sorting list by IsActive in workrelation
+        list.sort((a, b) =>  (a.IsActive === b.IsActive) ? 0 : a.IsActive ? -1 : 1);
+
         if (list && list.length > 1) {
             list.forEach(x => {
                 const label = `Stilling: ${x.Description || ''} ${x.WorkPercentage}%`;
@@ -514,6 +519,12 @@ export class TimeEntry {
         return new Promise((resolve, reject) => {
 
             if (this.busy) { resolve(false); return; }
+
+            if (!this.timeSheet.currentRelation.IsActive) {
+                if (done) { done('Arbeidstidsmal er ikke aktiv, lagring avbrutt'); }
+                this.toastService.addToast('Kan ikke lagre timer på inaktiv arbeidstidsmal', ToastType.bad, 5);
+                return resolve(false);
+            }
 
             if (!this.validate()) {
                 if (done) { done('Feil ved validering'); }

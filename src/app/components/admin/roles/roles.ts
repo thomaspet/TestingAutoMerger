@@ -58,7 +58,7 @@ export class UniRoles {
         this.initTableConfigs();
         this.initFormConfig();
 
-        this.roleService.GetAll(null).subscribe(
+        this.roleService.GetAll(`expand=RolePermissions.Permission`).subscribe(
             res => {
                 this.roles = res.length ? res : [this.getNewRole()];
                 setTimeout(() => {

@@ -1,4 +1,4 @@
-@import '../../marketplaceSharedStyles.sass'
+@import '../marketplaceSharedStyles.sass'
 
 $side-margins: 2rem
 
@@ -47,17 +47,13 @@ header
     .subscribe-section
         display: flex
 
-        button.per-user,
-        button.per-transaction
+        button
             margin-left: 0
             text-shadow: none
             background-color: $primary-button-color
 
-        button.per-user.is-bought
-            background-color: $good-color
-
-        button.per-transaction.is-bought
-            background-color: $bad-color
+            &.is-bought
+                background-color: $good-color
 
         span.is-purchased
             font-size: 14px
