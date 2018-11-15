@@ -88,9 +88,9 @@ export class NumberSeries {
 
     public onSerieSelected(event) {
         if (!(event && event.rowModel)) { return; }
-        this.currentSerie = event.rowModel;
 
         this.checkSave(true).then( ok => { if (ok) {
+            this.currentSerie = event.rowModel;
             this.setCurrent(event.rowModel);
         }});
     }
