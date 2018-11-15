@@ -347,11 +347,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.deliveryTerms = res[5];
                         if (res[6]) {
                             order = this.tofHelper.mapCustomerToEntity(res[6], order);
-                            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
-                                this.setDeliveryDate(order);
-                            }
-                        } else {
-                            order.DeliveryDate = null;
                         }
                         if (res[7]) {
                             order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
@@ -379,6 +374,11 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         }
 
                         order.OrderDate = new LocalDate(Date());
+                        if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                            this.setDeliveryDate(order);
+                        } else {
+                            order.DeliveryDate = null;
+                        }
 
                         if (!order.CurrencyCodeID) {
                             order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
