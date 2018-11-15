@@ -1,4 +1,4 @@
-import {Component, Input, HostListener, ViewChild, ElementRef} from '@angular/core';
+import {Component, Input, HostListener, ViewChild, ElementRef, Output, EventEmitter} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 
@@ -56,6 +56,8 @@ export class UnitableSelect {
     @Input()
     public inputControl: FormControl;
 
+    itemSelected: EventEmitter<any> = new EventEmitter();
+
     public expanded: boolean = false;
     private options: ISelectOptions;
 
@@ -91,12 +93,13 @@ export class UnitableSelect {
         this.expanded = !this.expanded;
     }
 
-    private itemClicked(index) {
+    itemClicked(index) {
         this.selectedItem = this.items[index];
         this.focusedIndex = index;
         this.inputControl.setValue(this.getDisplayValue(this.selectedItem));
         this.expanded = false;
         this.inputElement.nativeElement.focus();
+        this.itemSelected.emit();
     }
 
     private getDisplayValue(item: any): string {
