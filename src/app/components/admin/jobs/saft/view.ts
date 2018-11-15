@@ -258,6 +258,7 @@ export class SaftExportView implements OnInit {
                 ToYear: new Date().getFullYear(),
                 FromPeriod: 1,
                 ToPeriod: 12,
+                Anonymous: false,
                 SendEmail: true
             }
             }).onClose.subscribe((resp) => {
