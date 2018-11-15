@@ -77,7 +77,7 @@ import { AgreementService } from '@app/services/common/agreementService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 
-declare var _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'settings',
@@ -1022,15 +1022,13 @@ export class CompanySettingsComponent implements OnInit {
                 fields.find(f => f.Property === '_FileFlowEmailActivated').Label = 'Deaktiver e-postmottak';
                 fields.find(f => f.Property === '_FileFlowEmail').Hidden = false;
                 fields.find(f => f.Property === '_UpdateEmail').Hidden = false;
+                fields.find(f => f.Property === '_UpdateEmail').ReadOnly = true;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmailCheckbox').Hidden = false;
                 fields.find(f => f.Property === '_FileFlowOrgnrEmail').Hidden = false;
 
                 this.fields$.next(fields);
                 this.companySettings$.next(data);
 
-                setTimeout(() => {
-                     this.form.field('_UpdateEmail').readMode();
-                }, 100); // temp solution
             }, err => this.errorService.handle(err));
     }
 

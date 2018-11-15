@@ -8,8 +8,7 @@ import * as _ from 'lodash';
 })
 export class MarkLastFieldPipe implements PipeTransform {
     public transform(fields: UniFieldLayout[]): UniFieldLayout[] {
-        const markedFields = _.cloneDeep(fields);
-        markedFields[markedFields.length - 1].isLast = true;
-        return markedFields;
+        fields[fields.length - 1].isLast = true;
+        return fields;
     }
 }
