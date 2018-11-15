@@ -29,7 +29,7 @@
         <li class="multivalue-help">
             <small *ngIf="!field?.Options?.hideDeleteButton">Slett rad (del)</small>
             <small>Rediger rad (F1)</small>
-            <small><a (click)="addNew(filter)">Legg til (F3)</a></small>
+            <small><a *ngIf="field.Options.allowAddValue !== false" (click)="addNew(filter)">Legg til (F3)</a></small>
         </li>
         <li>
             <input type="search"
@@ -65,6 +65,7 @@
                     </button>
 
                     <button type="button"
+                            *ngIf="field.Options.allowAddValue !== false"
                             class="uni-multivalue_edit_action-edit"
                             (click)="edit(row, $event)">
                         Edit

@@ -69,6 +69,12 @@ export class LedgerAccountReconciliation {
     @Input()
     public showRowSelect: boolean = true;
 
+    @Input()
+    public disablePaymentToField: boolean = false;
+
+    @Input()
+    public customerBankAccounts: any;
+
     @Output()
     public allSelectedLocked: EventEmitter<boolean> = new EventEmitter();
 
@@ -942,7 +948,13 @@ export class LedgerAccountReconciliation {
                  'Tilbakebetaling overbetalt beløp.';
                 newPayment.IsCustomerPayment = false;
                 newPayment.AutoJournal = true;
-                this.modalService.open(AddPaymentModal, {data: { model: newPayment }}).onClose.subscribe((updatedPaymentInfo: Payment) => {
+                this.modalService.open(AddPaymentModal, {
+                    data: {
+                        model: newPayment,
+                        disablePaymentToField: this.disablePaymentToField,
+                        customerBankAccounts: this.customerBankAccounts
+                    }
+                }).onClose.subscribe((updatedPaymentInfo: Payment) => {
                     if (updatedPaymentInfo) {
                         this.paymentService.ActionWithBody(null,
                             updatedPaymentInfo,
@@ -987,6 +999,8 @@ export class LedgerAccountReconciliation {
     private getPaymentByCustomerID(id): Observable<Payment> {
         const payment: Payment = new Payment();
         return this.customerService.Get(id, ['Info', 'Info.DefaultBankAccount']).map(customer => {
+            payment.ToBankAccount = customer.Info.DefaultBankAccount;
+            payment.ToBankAccountID = customer.Info.DefaultBankAccountID;
             payment.BusinessRelationID = customer.ID;
             payment.BusinessRelation = this.getBusinessRelationDataFromCustomerSearch(customer);
             return payment;

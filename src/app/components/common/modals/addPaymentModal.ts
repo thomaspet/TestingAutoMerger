@@ -3,7 +3,8 @@ import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
     UniForm,
     FieldType,
-    UniFieldLayout
+    UniFieldLayout,
+    UniFormError
 } from '../../../../framework/ui/uniform/index';
 import {
     UniEntity,
@@ -63,7 +64,7 @@ export class AddPaymentModal implements IUniModal {
 
 
     public config: any = {};
-    public model$: BehaviorSubject<any>= new BehaviorSubject(null);
+    public model$: BehaviorSubject<any> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
 
@@ -108,7 +109,7 @@ export class AddPaymentModal implements IUniModal {
             this.paymentCodeService.GetAll(null)
         ).subscribe(data => {
             this.fromBankAccountsList = data[0];
-            this.config.model['ToBankAccountsList'] = data[1];
+            this.config.model['ToBankAccountsList'] = this.options.data.customerBankAccounts || data[1];
             this.paymentCodes = data[2];
             this.fields$.next(this.getFields());
         });
@@ -246,6 +247,7 @@ export class AddPaymentModal implements IUniModal {
             linkProperty: 'ID',
             storeIdInProperty: 'ToBankAccountID',
             storeResultInProperty: 'ToBankAccount',
+            allowAddValue: !this.options.data.disablePaymentToField,
             editor: (bankaccount) => {
                 if (!bankaccount || !bankaccount.ID) {
                     bankaccount = bankaccount || new BankAccount();
@@ -253,11 +255,15 @@ export class AddPaymentModal implements IUniModal {
                     bankaccount.BankAccountType = this.accountType;
                 }
                 bankaccount['_saveBankAccountInModal'] = true;
-                const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
-                });
+                if (this.options && this.options.data.disablePaymentToField && !this.options.data.customerBankAccounts[0]) {
+                    return Promise.resolve();
+                } else {
+                    const modal = this.modalService.open(UniBankAccountModal, {
+                        data: bankaccount
+                    });
 
-                return modal.onClose.take(1).toPromise();
+                    return modal.onClose.take(1).toPromise();
+                }
             }
         };
     }
@@ -297,6 +303,7 @@ export class AddPaymentModal implements IUniModal {
                 Label: 'Betales til',
                 FieldSet: 0,
                 Section: 0,
+                ReadOnly: this.options.data.disablePaymentToField,
                 Options: {
                     getDefaultData: () => this.getDefaultBusinessRelationData(),
                     displayProperty: 'Name',
@@ -341,7 +348,8 @@ export class AddPaymentModal implements IUniModal {
                 Label: 'Konto til',
                 FieldSet: 0,
                 Section: 0,
-                Options: this.getBankAccountsOptions()
+                Options: this.getBankAccountsOptions(),
+                Validations: [this.validateToAccountNumber.bind(this)]
             },
             {
                 EntityType: 'Payment',
@@ -401,6 +409,18 @@ export class AddPaymentModal implements IUniModal {
         ];
     }
 
+    private validateToAccountNumber(value: number, field: UniFieldLayout): UniFormError | null {
+        if (this.options && this.options.data.disablePaymentToField && !this.options.data.customerBankAccounts[0]) {
+            return {
+                value: value,
+                errorMessage: 'Gå til kunde og fyll inn kontonummer',
+                field: field,
+                isWarning: true
+            };
+        }
+        return null;
+    }
+
     public close(action: string) {
         if (action === 'ok') {
             const data = this.model$.getValue();
@@ -415,6 +435,10 @@ export class AddPaymentModal implements IUniModal {
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto fra!');
                 return false;
             } else if (!data['ToBankAccountID']) {
+                if (this.options && !this.options.data.customerBankAccounts[0]) {
+                    this.toastService.addToast('Error', ToastType.bad, 5, 'Gå til kunde og fyll inn kontonummer');
+                    return false;
+                }
                 this.toastService.addToast('Error', ToastType.bad, 5, 'Mangler konto til!');
                 return false;
             } else if (!data['AmountCurrency']) {

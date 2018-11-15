@@ -62,7 +62,9 @@
             (tabClick)="onPostpostFilterClick($event)">
         </uni-tabs>
         <button class="good" (click)="goToPostpost()">Rediger</button>
-        <ledger-account-reconciliation style="font-size: .9rem"
+        <ledger-account-reconciliation
+            [customerBankAccounts]="(customer$ | async)?.Info?.BankAccounts"
+            [disablePaymentToField]="true"
             [accountNumber]="(customer$ | async)?.CustomerNumber"
             [showRowSelect]="false"
             [hideHeader]="true"
