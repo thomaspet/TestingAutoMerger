@@ -16,13 +16,13 @@ export class JobList implements OnInit {
     public tabs: IUniTab[] = [
         {name: 'Siste utførte'},
         {name: 'Alle jobber'},
-        {name: 'SAF-T import'},
+        {name: 'SAF-T'},
     ];
 
     public filterTabs: any[] = [
         { label: 'Siste utførte', name: 'jobruns', id: 1 },
         { label: 'Alle jobber', name: 'jobs', id: 2 },
-        { label: 'SAF-T import', name: 'saft', id: 3 }
+        { label: 'SAF-T', name: 'saft', id: 3 }
     ];
 
     private activeTab: { id: number, name: string, label: string } = this.filterTabs[0];

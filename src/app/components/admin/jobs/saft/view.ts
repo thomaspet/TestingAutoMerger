@@ -69,7 +69,7 @@ export class SaftExportView implements OnInit {
     public onJobStart(file: ISaftFileInfo) {
 
         this.modalService.open(SaftImportModal,
-            { header: 'SAF-T IMPORT', data: {
+            { header: 'SAF-T', data: {
                 IncludeStartingBalance: true,
                 ReuseExistingNumbers: true,
                 UpdateExistingData: false,
@@ -98,7 +98,7 @@ export class SaftExportView implements OnInit {
         });
     }
 
-    public onDownloadExport(file:ISaftFileInfo){
+    public onDownloadExport(file: ISaftFileInfo) {
         this.fileService.getDownloadUrl(file.FileID)
             .subscribe((url) => {
                 const link: any = document.createElement('a');
@@ -146,15 +146,15 @@ export class SaftExportView implements OnInit {
     private loadList() {
         this.busyFetch = true;
         this.files = [];
-        forkJoin(this.jobService.getJobRuns("ExportSaft"),
+        forkJoin(this.jobService.getJobRuns('ExportSaft'),
         this.fileService.getStatistics('model=file&select=id,name,size,statuscode,contenttype'
         + ',filetag.tagname as tag,filetag.status as status'
         + `&filter=statuscode eq 20001 and (filetag.tagname eq 'SAFT' or filetag.tagname eq 'jobid')`
         + '&join=file.id eq filetag.fileid&top=10&orderby=id desc')
-            ).subscribe(result=>{
-                this.files =this.mapExportJob(result[0]);
-                if(result[1].Success){
-                    this.files = this.files.concat(this.findJobIds(result[1].Data).map(x=>{x.JobName='ImportSaft';return x;}));
+            ).subscribe(result => {
+                this.files = this.mapExportJob(result[0]);
+                if (result[1].Success) {
+                    this.files = this.files.concat(this.findJobIds(result[1].Data).map(x => {x.JobName = 'ImportSaft'; return x; }));
                 }
                 this.busyFetch = false;
             },
@@ -165,41 +165,43 @@ export class SaftExportView implements OnInit {
     }
 
     private mapExportJob(list: Array<JobRun>): Array<ISaftFileInfo> {
-        var retlist : Array<ISaftFileInfo>=[];
-        let filter:string = "";
+        const retlist: Array<ISaftFileInfo> = [];
+        let filter: string = '';
         list.forEach(job => {
-            let f:any = {};
+            const f: any = {};
             f.JobName = job.JobName;
-            if(job.Output){
-                let o = JSON.parse(job.Output); 
-                if(!!o){
+            if (job.Output) {
+                const o = JSON.parse(job.Output);
+                if (!!o) {
                     f.FileID = o.FileID;
                     f.Url = o.Url;
                 }
             }
-            if(filter){
-                filter += " or "
+            if (filter) {
+                filter += ' or ';
             }
-            filter+="id eq " + f.FileID;
-            f.hasError = job.Exception==="";
+            filter += 'id eq ' + f.FileID;
+            f.hasError = job.Exception === '';
             retlist.push(f);
         });
-        
-        this.fileService.getStatistics('model=File&select=file.*&filter='+filter)
+
+        this.fileService.getStatistics('model=File&select=file.*&filter=' + filter)
             .subscribe( data => {
                 if (data.Success) {
                     data.Data.forEach(file => {
-                        var retfile = retlist.find(x=>x.FileID == file.ID);
-                        retfile.FileName = file.Name;
-                        retfile.FileContentType = file.ContentType;
-                        retfile.FileSize = file.Size;
+                        const retfile = retlist.find(x => x.FileID === file.ID);
+                        if (retfile) {
+                            retfile.FileName = file.Name;
+                            retfile.FileContentType = file.ContentType;
+                            retfile.FileSize = file.Size;
+                        }
                     });
                 }
             });
         return retlist;
     }
 
-   
+
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {
         const n = list.length;
         for (let i = n - 1; i > 0; i--) {
@@ -250,24 +252,25 @@ export class SaftExportView implements OnInit {
     }
 
 
-    public exportSaft(event){
-       
-        this.modalService.open(SaftExportModal,{data: 
+    public exportSaft(event) {
+
+        this.modalService.open(SaftExportModal, {data:
             {
                 FromYear: new Date().getFullYear(),
                 ToYear: new Date().getFullYear(),
-                FromPeriod:1,
-                ToPeriod:12,
-                SendEmail:true
+                FromPeriod: 1,
+                ToPeriod: 12,
+                Anonymous: false,
+                SendEmail: true
             }
-            }).onClose.subscribe((resp)=>{
+            }).onClose.subscribe((resp) => {
                 if (resp) {
-                    this.jobService.startJob("ExportSaft", undefined, resp)
+                    this.jobService.startJob('ExportSaft', undefined, resp)
                         .subscribe((jobID: number) => {
                            this.refresh();
                         });
                 }
-        })
+        });
     }
 
     public uploadFile(event, triedReAuthenticating?: boolean) {
@@ -344,5 +347,5 @@ interface ISaftFileInfo {
     hasActiveJob?: boolean;
     diff?: number;
     hasError?: boolean;
-    Url:string;
+    Url: string;
 }

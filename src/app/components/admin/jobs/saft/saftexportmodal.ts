@@ -74,14 +74,18 @@ export class SaftExportModal implements IUniModal {
                 Property: 'ToPeriod',
                 FieldType: FieldType.NUMERIC,
                 Label: 'Til Periode'
-                
+            },
+            <any> {
+                EntityType: 'JobDetails',
+                Property: 'Anonymous',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Anonymiser data'
             },
             <any> {
                 EntityType: 'JobDetails',
                 Property: 'SendEmail',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Send meg epost med filen'
-                
             }
         ];
     }
