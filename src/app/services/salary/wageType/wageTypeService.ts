@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {WageType, Account, LimitType} from '../../../unientities';
+import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, SpecialAgaRule} from '../../../unientities';
 import {BehaviorSubject} from 'rxjs';
 import {AccountService} from '../../accounting/accountService';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
@@ -10,6 +10,7 @@ import {FieldType} from '../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
 import 'rxjs';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import {CompanySalaryService} from '../companySalary/companySalaryService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -36,12 +37,23 @@ export class WageTypeService extends BizHttp<WageType> {
         {Type: LimitType.Sum, Name: 'Beløp'}
     ];
 
+    private specialTaxAndContributionsRule: { ID: SpecialTaxAndContributionsRule, Name: string }[] = [
+        { ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt' },
+        { ID: SpecialTaxAndContributionsRule.SpesialDeductionForMaritim, Name: 'Særskilt fradrag for sjøfolk'},
+        { ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbard' },
+        { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene' },
+        { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
+        { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
+        { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' }
+    ];
+
     constructor(
         protected http: UniHttp,
         private accountService: AccountService,
         private errorService: ErrorService,
         private salaryTransactionService: SalaryTransactionService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private companySalaryService: CompanySalaryService,
     ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
@@ -197,175 +209,197 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
-        return Observable.from([{
-            Name: layoutID,
-            BaseEntity: 'wagetype',
-            Fields: [
-                {
-                    EntityType: 'wagetype',
-                    Property: 'WageTypeNumber',
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: true,
-                    Label: 'Nr',
-                    FieldSet: 1,
-                    Legend: 'Lønnsart',
-                    Section: 0,
-                    Placeholder: 'La stå tom for neste ledige'
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'WageTypeName',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Navn',
-                    FieldSet: 1,
-                    Section: 0
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'GetRateFrom',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Sats hentes fra',
-                    Legend: 'Sats',
-                    FieldSet: 2,
-                    Section: 0,
-                    Sectionheader: 'Sats'
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'Rate',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Sats',
-                    FieldSet: 2,
-                    Section: 0,
-                    Options: {
-                        format: 'money'
-                    }
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'RateFactor',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Utbetales med tillegg i prosent',
-                    FieldSet: 2,
-                    Section: 0,
-                    Options: {format: 'percent'}
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'taxtype',
-                    FieldType: FieldType.DROPDOWN,
-                    LookupField: 'Name',
-                    Label: 'Behandlingsregel skattetrekk',
-                    FieldSet: 3,
-                    Legend: 'Behandling',
-                    Section: 0
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: '_baseOptions',
-                    FieldType: FieldType.CHECKBOXGROUP,
-                    Label: 'Med i grunnlag for: ',
-                    FieldSet: 3,
-                    Section: 0,
-                    Options: {
-                        multivalue: true,
-                        source: [
-                            {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
-                            {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
-                            {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
-                        ],
-                        valueProperty: 'ID',
-                        labelProperty: 'Name'
-                    }
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'AccountNumber',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Hovedbokskonto',
-                    Legend: 'Regnskapsinnstillinger',
-                    FieldSet: 4,
-                    Section: 0,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber')
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'Base_Payment',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Utbetales',
-                    FieldSet: 4,
-                    Section: 0
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'AccountNumber_balance',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Motkonto kredit',
-                    FieldSet: 4,
-                    Section: 0,
-                    Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance')
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'IncomeType',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Inntektstype',
-                    FieldSet: 1,
-                    Section: 2,
-                    Sectionheader: 'A-meldingsinformasjon',
-                    Legend: 'A-meldingsinformasjon',
-                    openByDefault: true,
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'Benefit',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Fordel',
-                    FieldSet: 1,
-                    Section: 2
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'Description',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Beskrivelse',
-                    FieldSet: 1,
-                    Section: 2
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'SpecialTaxAndContributionsRule',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Skatte- og avgiftsregel',
-                    FieldSet: 1,
-                    Section: 2,
-                },
-                {
-                    EntityType: 'wagetype',
-                    Property: 'SupplementPackage',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Tilleggsinformasjon pakke',
-                    FieldSet: 1,
-                    Section: 2
-                },
-                {
-                    Property: '_AMeldingHelp',
-                    FieldType: FieldType.HYPERLINK,
-                    Label: 'Hjelp',
-                    Tooltip: {
-                        Type: 'info',
-                        Text: 'Hjelp til a-ordningen'
-                    },
-                    FieldSet: 1,
-                    Section: 2,
-                    Options: {
-                        description: 'Veiledning a-ordningen',
-                        target: '_blank'
-                    },
-                    Combo: 0
-                }
-            ]
-        }]);
+        return this.companySalaryService
+            .getCompanySalary()
+            .map(compSal => {
+                return {
+                    Name: layoutID,
+                    BaseEntity: 'wagetype',
+                    Fields: [
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'WageTypeNumber',
+                            FieldType: FieldType.TEXT,
+                            ReadOnly: true,
+                            Label: 'Nr',
+                            FieldSet: 1,
+                            Legend: 'Lønnsart',
+                            Section: 0,
+                            Placeholder: 'La stå tom for neste ledige'
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'WageTypeName',
+                            FieldType: FieldType.TEXT,
+                            Label: 'Navn',
+                            FieldSet: 1,
+                            Section: 0
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'GetRateFrom',
+                            FieldType: FieldType.DROPDOWN,
+                            Label: 'Sats hentes fra',
+                            Legend: 'Sats',
+                            FieldSet: 2,
+                            Section: 0,
+                            Sectionheader: 'Sats'
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'Rate',
+                            FieldType: FieldType.NUMERIC,
+                            Label: 'Sats',
+                            FieldSet: 2,
+                            Section: 0,
+                            Options: {
+                                format: 'money'
+                            }
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'RateFactor',
+                            FieldType: FieldType.NUMERIC,
+                            Label: 'Utbetales med tillegg i prosent',
+                            FieldSet: 2,
+                            Section: 0,
+                            Options: {format: 'percent'}
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'taxtype',
+                            FieldType: FieldType.DROPDOWN,
+                            LookupField: 'Name',
+                            Label: 'Behandlingsregel skattetrekk',
+                            FieldSet: 3,
+                            Legend: 'Behandling',
+                            Section: 0
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: '_baseOptions',
+                            FieldType: FieldType.CHECKBOXGROUP,
+                            Label: 'Med i grunnlag for: ',
+                            FieldSet: 3,
+                            Section: 0,
+                            Options: {
+                                multivalue: true,
+                                source: [
+                                    {ID: WageTypeBaseOptions.VacationPay, Name: 'Feriepenger'},
+                                    {ID: WageTypeBaseOptions.AGA, Name: 'Aga'},
+                                    {ID: WageTypeBaseOptions.Pension, Name: 'Pensjon'}
+                                ],
+                                valueProperty: 'ID',
+                                labelProperty: 'Name'
+                            }
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'AccountNumber',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Hovedbokskonto',
+                            Legend: 'Regnskapsinnstillinger',
+                            FieldSet: 4,
+                            Section: 0,
+                            Options: this.getAccountSearchOptions(wageType$, 'AccountNumber')
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'Base_Payment',
+                            FieldType: FieldType.CHECKBOX,
+                            Label: 'Utbetales',
+                            FieldSet: 4,
+                            Section: 0
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'AccountNumber_balance',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Motkonto kredit',
+                            FieldSet: 4,
+                            Section: 0,
+                            Options: this.getAccountSearchOptions(wageType$, 'AccountNumber_balance')
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'IncomeType',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Inntektstype',
+                            FieldSet: 1,
+                            Section: 2,
+                            Sectionheader: 'A-meldingsinformasjon',
+                            Legend: 'A-meldingsinformasjon',
+                            openByDefault: true,
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'Benefit',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Fordel',
+                            FieldSet: 1,
+                            Section: 2
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'Description',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Beskrivelse',
+                            FieldSet: 1,
+                            Section: 2
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'SpecialTaxAndContributionsRule',
+                            FieldType: FieldType.DROPDOWN,
+                            Label: 'Skatte- og avgiftsregel',
+                            FieldSet: 1,
+                            Section: 2,
+                            Options: {
+                                source: this.getSpecialTaxAndContributionRules(compSal),
+                                displayProperty: 'Name',
+                                valueProperty: 'ID'
+                            },
+                            Tooltip: {
+                                Type: 'info',
+                                Text: 'For å få flere skatte- og avgiftsregler må du aktivere skatte- og ' +
+                                    'avgiftsregel på Innstillinger - Lønnsinnstillinger'
+                            },
+                        },
+                        {
+                            EntityType: 'wagetype',
+                            Property: 'SupplementPackage',
+                            FieldType: FieldType.DROPDOWN,
+                            Label: 'Tilleggsinformasjon pakke',
+                            FieldSet: 1,
+                            Section: 2
+                        },
+                        {
+                            Property: '_AMeldingHelp',
+                            FieldType: FieldType.HYPERLINK,
+                            Label: 'Hjelp',
+                            Tooltip: {
+                                Type: 'info',
+                                Text: 'Hjelp til a-ordningen'
+                            },
+                            FieldSet: 1,
+                            Section: 2,
+                            Options: {
+                                description: 'Veiledning a-ordningen',
+                                target: '_blank'
+                            },
+                            Combo: 0
+                        }
+                    ]
+                };
+            });
+    }
+
+    private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
+        const ret = [this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard)];
+        if (companySalary.Base_SpesialDeductionForMaritim) {
+            ret.push(this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.SpesialDeductionForMaritim));
+        }
+        return ret;
     }
 
     public specialSettingsLayout(layoutID: string, wageTypes$: Observable<WageType[]>) {

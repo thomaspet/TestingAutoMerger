@@ -7,7 +7,6 @@ import {
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WageTypeService, UniCacheService, ErrorService, YearService} from '../../../services/services';
 import {WageTypeViewService} from './services/wageTypeViewService';
-import {ToastService} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 
@@ -43,7 +42,6 @@ export class WageTypeView extends UniView implements OnDestroy {
     constructor(
         private route: ActivatedRoute,
         private wageTypeService: WageTypeService,
-        private toastService: ToastService,
         private router: Router,
         private tabService: TabService,
         public cacheService: UniCacheService,
@@ -294,7 +292,7 @@ export class WageTypeView extends UniView implements OnDestroy {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((wageType: WageType) =>
                 super.updateState(
-                    'wagetype',
+                    WAGETYPE_KEY,
                     wageType.ID ? wageType : this.setDefaultValues(wageType), false));
     }
 
