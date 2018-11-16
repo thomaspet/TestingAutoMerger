@@ -62,6 +62,7 @@ import {
     MatSlideToggleModule,
     MatTreeModule
 } from '@angular/material';
+import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 
 @NgModule({
     imports: [
@@ -132,6 +133,7 @@ import {
         SellerDetails,
         SellerSalesList,
         KIDSettings,
+        KidModalComponent
     ],
     entryComponents: [
         UniOrderToInvoiceModal,
@@ -142,6 +144,7 @@ import {
         CustomerDetailsModal,
         UniTofSelectModal,
         UniProductDetailsModal,
+        KidModalComponent
     ],
     providers: [
         TradeItemHelper,
@@ -179,7 +182,8 @@ import {
         SellerList,
         // SellerLinks,
         SellerDetails,
-        SellerSalesList
+        SellerSalesList,
+        KidModalComponent
     ]
 })
 export class SalesModule {

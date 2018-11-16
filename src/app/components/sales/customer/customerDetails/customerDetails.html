@@ -18,7 +18,8 @@
             [config]="config$"
             [fields]="fields$"
             [model]="customer$"
-            (changeEvent)="onChange($event)">
+            (changeEvent)="onChange($event)"
+            (errorEvent)="onError($event)">
         </uni-form>
 
         <ng-template [ngIf]="(customer$ | async)?.ID">

@@ -8,6 +8,8 @@ import {Observable} from 'rxjs';
 @Injectable()
 export class CustomerService extends BizHttp<Customer> {
 
+    KIDCache = {};
+
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
@@ -89,6 +91,26 @@ export class CustomerService extends BizHttp<Customer> {
                 }
 
                 return customerStatistics;
+            });
+    }
+
+    validateKID(value: string) {
+        if (this.KIDCache[value]) {
+            return Observable.of(this.KIDCache[value]);
+        }
+        return this.http
+            .asGET()
+            .withDefaultHeaders()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}?action=validate-customer-KID-Alias&customerKidAlias=${value}`)
+            .send()
+            .switchMap(res => {
+                this.KIDCache[value] = res;
+                return Observable.of(res);
+            })
+            .catch(res => {
+                this.KIDCache[value] = res;
+                return Observable.of(res);
             });
     }
 }

@@ -178,7 +178,7 @@ export class UniField {
                     } else {
                         this.hasError++;
                     }
-                    this.errorMessages.push(error);
+                    this.errorMessages = [error];
                     if (i === numErrors) {
                         errorsList[this.field.Property] = this.errorMessages;
                         this.errorEvent.emit(errorsList);

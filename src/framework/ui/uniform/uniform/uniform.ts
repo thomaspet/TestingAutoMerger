@@ -401,14 +401,31 @@ export class UniForm implements OnChanges, OnInit {
         }
     }
 
+    public justHasWarning(errorList) {
+        let hasWarnings = false;
+        let hasError = false;
+        if (Array.isArray(errorList)) {
+            for (const index in errorList) {
+                if (!hasWarnings) {
+                    hasWarnings = errorList[index].isWarning;
+                }
+                if (!hasError && !errorList[index].isWarning) {
+                    hasError = true;
+                }
+            }
+        }
+        return hasWarnings && !hasError;
+
+    }
+
     public onError(event) {
         this.valid = true;
+        _.assign(this.errorList, event);
         for (const error in this.errorList) {
-            if (this.errorList[error].length > 0) {
+            if (this.errorList[error].length > 0 && !this.justHasWarning(this.errorList[error])) {
                 this.valid = false;
             }
         }
-        _.assign(this.errorList, event);
         const eventWithValid = Object.assign({isFormValid: this.valid}, event || {});
         this.errorEvent.emit(eventWithValid);
     }
