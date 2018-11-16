@@ -1687,7 +1687,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-        const sign = journalEntryRow.DebitAccountID > 0 ? -1 : 1; // we need to invert but not use abs!
+        const sign = journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID ? -1 : 1; // we need to invert but not use abs!
         return new Promise(resolve => {
             const journalEntryPaymentData: Partial<InvoicePaymentData> = {
                 Amount: postPostJournalEntryLine.RestAmount * sign,
@@ -1710,7 +1710,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
                     currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
-                    isDebit: journalEntryRow.DebitAccountID > 0
+                    isDebit: journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID
                 }
             });
             paymentModal.onClose.subscribe((paymentData) => {
@@ -1796,6 +1796,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const customerInvoice = journalEntryRow.CustomerInvoice;
+
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
                 Amount: customerInvoice.RestAmount,
@@ -1827,7 +1828,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (!payment) {
                     resolve(journalEntryRow);
                 }
-
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
@@ -1842,6 +1842,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
                 journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
+                journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
+                journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
 
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
@@ -1849,11 +1851,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     journalEntryRow.DebitAccountID = null;
 
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
-                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        this.updateJournalEntryLine(journalEntryRow);
                         resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
                     });
                 } else {
                     resolve(journalEntryRow);
+                }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        this.addJournalEntryLines([bankChargesRow]);
+                        resolve(journalEntryRow);
+                    });
                 }
             });
         });
