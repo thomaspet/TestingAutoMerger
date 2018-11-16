@@ -3,7 +3,14 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {CompanySalary} from '../../../unientities';
 import {Observable} from 'rxjs';
-
+export enum CompanySalaryBaseOptions {
+    NettoPayment = 0,
+    SpesialDeductionForMaritim = 1,
+    Svalbard = 2,
+    PayAsYouEarnOnPensions = 3,
+    JanMayenAndBiCountries = 4,
+    NettoPaymentForMaritim = 6,
+}
 @Injectable()
 export class CompanySalaryService extends BizHttp<CompanySalary> {
 
@@ -21,5 +28,22 @@ export class CompanySalaryService extends BizHttp<CompanySalary> {
             .send({top: 1})
             .map(response => response.json())
             .map(res => res[0]);
+    }
+
+    public getBaseOptions(compSal: CompanySalary): CompanySalaryBaseOptions[] {
+        return Object
+            .keys(CompanySalaryBaseOptions)
+            .filter(key => compSal['Base_' + key])
+            .map(key => CompanySalaryBaseOptions[key]);
+    }
+
+    public setBaseOptions(compSal: CompanySalary, baseOptions: CompanySalaryBaseOptions[]): CompanySalary {
+        Object
+            .keys(CompanySalaryBaseOptions)
+            .filter(key => isNaN(+key))
+            .forEach(key => {
+                compSal['Base_' + key] = baseOptions.some(opt => opt === CompanySalaryBaseOptions[key]);
+            });
+        return compSal;
     }
 }

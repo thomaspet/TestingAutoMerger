@@ -1,4 +1,4 @@
-﻿import {Component, OnInit, ViewChild} from '@angular/core';
+﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -21,7 +21,8 @@ import {
     AccountService,
     SubEntityService,
     AgaZoneService,
-    ErrorService
+    ErrorService,
+    CompanySalaryBaseOptions
 } from '../../../services/services';
 import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
@@ -108,8 +109,9 @@ export class AgaAndSubEntitySettings implements OnInit {
             this.agazoneService.getAgaRules()
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
-                const [companysalaries, mainOrg, zones, rules] = dataset;
-                this.companySalary$.next(companysalaries);
+                const [companysalary, mainOrg, zones, rules] = dataset;
+                companysalary['_baseOptions'] = this.companySalaryService.getBaseOptions(companysalary);
+                this.companySalary$.next(companysalary);
                 this.agaZones = zones;
                 this.agaRules = rules;
 
@@ -439,6 +441,26 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
+        const taxAndFeeRules = new UniFieldLayout();
+        taxAndFeeRules.EntityType = 'CompanySalary';
+        taxAndFeeRules.Label = 'Benytte skatte og avgiftsregel: ';
+        taxAndFeeRules.Property = '_baseOptions';
+        taxAndFeeRules.FieldType = FieldType.CHECKBOXGROUP;
+        taxAndFeeRules.Section = 2;
+        taxAndFeeRules.FieldSet = 4;
+        taxAndFeeRules.Legend = 'Skatte og avgiftsregler';
+        taxAndFeeRules.Options = {
+            multivalue: true,
+            source: [
+                {
+                    ID: CompanySalaryBaseOptions.SpesialDeductionForMaritim,
+                    Name: 'Særskilt fradrag for sjøfolk'
+                },
+            ],
+            valueProperty: 'ID',
+            labelProperty: 'Name',
+        };
+
         this.fields$.next([
             mainOrgName,
             mainOrgOrg,
@@ -464,7 +486,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             financial,
             costFinancial,
             financialVacation,
-            costFinancialVacation
+            costFinancialVacation,
+            taxAndFeeRules,
         ]);
     }
 
@@ -550,7 +573,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     }
 
-    public companySalarychange(event) {
+    public companySalarychange(event: SimpleChanges) {
         const value = this.companySalary$.getValue();
 
         if (event['CalculateFinancialTax']) {
@@ -558,6 +581,10 @@ export class AgaAndSubEntitySettings implements OnInit {
                 && event['CalculateFinancialTax'].currentValue === true) {
                     value['RateFinancialTax'] = 5;
             }
+        }
+
+        if (event['_baseOptions']) {
+            this.companySalaryService.setBaseOptions(value, event['_baseOptions'].currentValue);
         }
 
         value['_isDirty'] = true;
