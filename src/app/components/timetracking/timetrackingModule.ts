@@ -26,9 +26,7 @@ import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {SideMenu} from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {WorkEditor} from './components/workeditor';
 import {DayBrowser} from './components/daybrowser';
-import {UniTimeModal} from './components/popupeditor';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
@@ -36,12 +34,6 @@ import {TimeentryImportModal} from './components/file-import-modal';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
-import {WorkitemTransferWizard} from './invoice-hours/transfer-wizard';
-import {WorkitemTransferWizardFilter} from './invoice-hours/transfer-wizard-filter';
-import {WorkitemTransferWizardProducts} from './invoice-hours/transfer-wizard-products';
-import {WorkitemTransferWizardPreview} from './invoice-hours/transfer-wizard-preview';
-import {InvoiceHours} from './invoice-hours/invoice-hours';
-import {InvoiceHourService} from './invoice-hours/invoice-hours.service';
 
 import {MatSelectModule} from '@angular/material';
 import {MatMenuModule} from '@angular/material';
@@ -79,10 +71,8 @@ import {MatMenuModule} from '@angular/material';
         WorktypeListview,
         VacationView,
         WorkBalancesView,
-        WorkEditor,
         SideMenu,
         DayBrowser,
-        UniTimeModal,
         UniTemplateModal,
         TeamworkReport,
         TimeApproveModal,
@@ -90,23 +80,15 @@ import {MatMenuModule} from '@angular/material';
         ReportWorkflow,
         UniApproveTaskModal,
         TimetrackingDashboard,
-        WorkitemTransferWizard,
-        WorkitemTransferWizardFilter,
-        WorkitemTransferWizardProducts,
-        WorkitemTransferWizardPreview,
-        InvoiceHours
     ],
     providers: [
         CanDeactivateGuard,
         ReportWorkflow,
-        InvoiceHourService,
     ],
     entryComponents: [
         TimeentryImportModal,
         UniTemplateModal,
-        UniTimeModal,
         TimetrackingDashboard,
-        WorkitemTransferWizard,
         TimeApproveModal,
         UniApproveTaskModal
     ]

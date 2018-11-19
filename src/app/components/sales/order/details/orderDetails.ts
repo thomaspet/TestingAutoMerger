@@ -51,6 +51,7 @@ import {
     CustomDimensionService,
     PaymentInfoTypeService,
     ModulusService,
+    InvoiceHourService,
 } from '../../../../services/services';
 
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -76,7 +77,8 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniOrderToInvoiceModal} from '../orderToInvoiceModal';
 import * as moment from 'moment';
-import { InvoiceHourService } from '@app/components/timetracking/invoice-hours/invoice-hours.service';
+import { UniChooseOrderHoursModal } from '@app/components/sales/order/modal/chooseOrderHoursModal';
+import {AuthService} from '@app/authService';
 declare var _;
 
 @Component({
@@ -132,12 +134,13 @@ export class OrderDetails implements OnInit, AfterViewInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
-    hoursOnOrder: string = null;
-    notTransferedHoursOnOrder: string = null;
-
+    hoursOnOrderCount: number = 0;
+    nonTransferredHoursOnOrderCount: number = 0;
+    private transferredWorkItemIDs: number[] = [];
 
     readonly: boolean;
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
+    hasTimetrackingAccess: boolean = false;
 
     private customerExpands: string[] = [
         'DeliveryTerms',
@@ -222,6 +225,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
         private paymentInfoTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
         private invoiceHoursService: InvoiceHourService,
+        private authService: AuthService,
    ) {}
 
     ngOnInit() {
@@ -254,130 +258,43 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 entityID: this.orderID
             };
 
-            if (this.orderID) {
-                Observable.forkJoin(
-                    this.getOrder(this.orderID),
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
-                    this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
-                    this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null),
-                    this.paymentInfoTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 2'),
-                    this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID)
-                ).subscribe(res => {
-                    const order = <CustomerOrder>res[0];
-                    this.companySettings = res[1];
-                    this.currencyCodes = res[2];
-                    this.paymentTerms = res[3];
-                    this.deliveryTerms = res[4];
-                    this.projects = res[5];
-                    this.sellers = res[6];
-                    this.vatTypes = res[7];
-                    this.departments = res[8];
-                    this.setUpDims(res[9]);
-                    this.paymentInfoTypes = res[10];
-                    this.distributionPlans = res[11];
-                    this.reports = res[12];
-                    if (res[13][0]) {
-                        this.hoursOnOrder = (res[13][0].SumMinutes / 60).toFixed(1);
-                        this.notTransferedHoursOnOrder = (res[13][0]['SumNotTransfered'] / 60).toFixed(1);
-                    }
-
-                    if (!order.CurrencyCodeID) {
-                        order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
-                        order.CurrencyExchangeRate = 1;
-                    }
-                    this.currencyCodeID = order.CurrencyCodeID;
-                    this.currencyExchangeRate = order.CurrencyExchangeRate;
-
-                    order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
-                    if (order.DefaultDimensions) {
-                        this.projectID = order.DefaultDimensions.ProjectID;
-                    }
-                    order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
-
-                    if (hasCopyParam) {
-                        this.refreshOrder(this.copyOrder(order));
-                    } else {
-                        this.refreshOrder(order);
-                    }
-
-                    this.tofHead.focus();
-                },
-                    err => this.errorService.handle(err));
-            } else {
-                Observable.forkJoin(
-                    this.getOrder(0),
-                    this.userService.getCurrentUser(),
-                    this.companySettingsService.Get(1),
-                    this.currencyCodeService.GetAll(null),
-                    this.termsService.GetAction(null, 'get-payment-terms'),
-                    this.termsService.GetAction(null, 'get-delivery-terms'),
-                    customerID ? this.customerService.Get(
-                        customerID, this.customerExpands
-                    ) : Observable.of(null),
-                    projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
-                    this.numberSeriesService.GetAll(
-                        `filter=NumberSeriesType.Name eq 'Customer Order number `
-                        + `series' and Empty eq false and Disabled eq false`,
-                        ['NumberSeriesType']
-                    ),
-                    this.projectService.GetAll(null),
-                    this.sellerService.GetAll(null),
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
-                    this.departmentService.GetAll(null),
-                    this.dimensionsSettingsService.GetAll(null),
-                    this.paymentInfoTypeService.GetAll(null),
-                    this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 2')
-                ).subscribe(
-                    (res) => {
-                        let order = <CustomerOrder>res[0];
-                        this.currentUser = res[1];
-                        order.OurReference = this.currentUser.DisplayName;
-                        this.companySettings = res[2];
-                        this.currencyCodes = res[3];
-                        this.paymentTerms = res[4];
-                        this.deliveryTerms = res[5];
-                        if (res[6]) {
-                            order = this.tofHelper.mapCustomerToEntity(res[6], order);
-                        }
-                        if (res[7]) {
-                            order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
-                            order.DefaultDimensions.ProjectID = res[7].ID;
-                            order.DefaultDimensions.Project = res[7];
-                        }
-                        this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
-                        this.selectConfig = this.numberSeriesService.getSelectConfig(
-                            this.orderID, this.numberSeries, 'Customer Order number series'
-                        );
-                        this.projects = res[9];
-                        this.sellers = res[10];
-                        this.vatTypes = res[11];
-                        this.departments = res[12];
-                        this.setUpDims(res[13]);
-                        this.paymentInfoTypes = res[14];
-                        this.distributionPlans = res[15];
-                        this.reports = res[16];
-
-                        if (!!customerID && res[6] && res[6]['Distributions']
-                        && res[6]['Distributions'].CustomerOrderDistributionPlanID) {
-                            order.DistributionPlanID = res[6]['Distributions'].CustomerOrderDistributionPlanID;
-                        } else if (this.companySettings['Distributions']) {
-                            order.DistributionPlanID = this.companySettings['Distributions'].CustomerOrderDistributionPlanID;
-                        }
-
-                        order.OrderDate = new LocalDate(Date());
-                        if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
-                            this.setDeliveryDate(order);
-                        } else {
-                            order.DeliveryDate = null;
+            this.authService.authentication$.take(1).subscribe(authDetails => {
+                this.hasTimetrackingAccess = this.authService.hasUIPermission(authDetails.user, 'ui_timetracking');
+                if (this.orderID) {
+                    Observable.forkJoin(
+                        this.getOrder(this.orderID),
+                        this.companySettingsService.Get(1),
+                        this.currencyCodeService.GetAll(null),
+                        this.termsService.GetAction(null, 'get-payment-terms'),
+                        this.termsService.GetAction(null, 'get-delivery-terms'),
+                        this.projectService.GetAll(null),
+                        this.sellerService.GetAll(null),
+                        this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                        this.departmentService.GetAll(null),
+                        this.dimensionsSettingsService.GetAll(null),
+                        this.paymentInfoTypeService.GetAll(null),
+                        this.reportService.getDistributions(this.distributeEntityType),
+                        this.reportDefinitionService.GetAll('filter=ReportType eq 2'),
+                        this.hasTimetrackingAccess
+                            ? this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID).catch(() => Observable.of([]))
+                            : Observable.of([]),
+                    ).subscribe(res => {
+                        const order = <CustomerOrder>res[0];
+                        this.companySettings = res[1];
+                        this.currencyCodes = res[2];
+                        this.paymentTerms = res[3];
+                        this.deliveryTerms = res[4];
+                        this.projects = res[5];
+                        this.sellers = res[6];
+                        this.vatTypes = res[7];
+                        this.departments = res[8];
+                        this.setUpDims(res[9]);
+                        this.paymentInfoTypes = res[10];
+                        this.distributionPlans = res[11];
+                        this.reports = res[12];
+                        if (res[13] && res[13][0]) {
+                            this.hoursOnOrderCount = res[13][0].SumMinutes / 60;
+                            this.nonTransferredHoursOnOrderCount = res[13][0]['SumNotTransfered'] / 60;
                         }
 
                         if (!order.CurrencyCodeID) {
@@ -387,11 +304,103 @@ export class OrderDetails implements OnInit, AfterViewInit {
                         this.currencyCodeID = order.CurrencyCodeID;
                         this.currencyExchangeRate = order.CurrencyExchangeRate;
 
-                        this.refreshOrder(order);
+                        order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
+                        if (order.DefaultDimensions) {
+                            this.projectID = order.DefaultDimensions.ProjectID;
+                        }
+                        order.DefaultDimensions.Project = this.projects.find(project => project.ID === this.projectID);
+
+                        if (hasCopyParam) {
+                            this.refreshOrder(this.copyOrder(order));
+                        } else {
+                            this.refreshOrder(order);
+                        }
+
+                        this.tofHead.focus();
                     },
-                    err => this.errorService.handle(err)
+                        err => this.errorService.handle(err));
+                } else {
+                    Observable.forkJoin(
+                        this.getOrder(0),
+                        this.userService.getCurrentUser(),
+                        this.companySettingsService.Get(1),
+                        this.currencyCodeService.GetAll(null),
+                        this.termsService.GetAction(null, 'get-payment-terms'),
+                        this.termsService.GetAction(null, 'get-delivery-terms'),
+                        customerID ? this.customerService.Get(
+                            customerID, this.customerExpands
+                        ) : Observable.of(null),
+                        projectID ? this.projectService.Get(projectID, null) : Observable.of(null),
+                        this.numberSeriesService.GetAll(
+                            `filter=NumberSeriesType.Name eq 'Customer Order number `
+                            + `series' and Empty eq false and Disabled eq false`,
+                            ['NumberSeriesType']
+                        ),
+                        this.projectService.GetAll(null),
+                        this.sellerService.GetAll(null),
+                        this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
+                        this.departmentService.GetAll(null),
+                        this.dimensionsSettingsService.GetAll(null),
+                        this.paymentInfoTypeService.GetAll(null),
+                        this.reportService.getDistributions(this.distributeEntityType),
+                        this.reportDefinitionService.GetAll('filter=ReportType eq 2')
+                    ).subscribe(
+                        (res) => {
+                            let order = <CustomerOrder>res[0];
+                            this.currentUser = res[1];
+                            order.OurReference = this.currentUser.DisplayName;
+                            this.companySettings = res[2];
+                            this.currencyCodes = res[3];
+                            this.paymentTerms = res[4];
+                            this.deliveryTerms = res[5];
+                            if (res[6]) {
+                                order = this.tofHelper.mapCustomerToEntity(res[6], order);
+                            }
+                            if (res[7]) {
+                                order.DefaultDimensions = order.DefaultDimensions || new Dimensions();
+                                order.DefaultDimensions.ProjectID = res[7].ID;
+                                order.DefaultDimensions.Project = res[7];
+                            }
+                            this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[8]);
+                            this.selectConfig = this.numberSeriesService.getSelectConfig(
+                                this.orderID, this.numberSeries, 'Customer Order number series'
+                            );
+                            this.projects = res[9];
+                            this.sellers = res[10];
+                            this.vatTypes = res[11];
+                            this.departments = res[12];
+                            this.setUpDims(res[13]);
+                            this.paymentInfoTypes = res[14];
+                            this.distributionPlans = res[15];
+                            this.reports = res[16];
+
+                            if (!!customerID && res[6] && res[6]['Distributions']
+                            && res[6]['Distributions'].CustomerOrderDistributionPlanID) {
+                                order.DistributionPlanID = res[6]['Distributions'].CustomerOrderDistributionPlanID;
+                            } else if (this.companySettings['Distributions']) {
+                                order.DistributionPlanID = this.companySettings['Distributions'].CustomerOrderDistributionPlanID;
+                            }
+
+                            order.OrderDate = new LocalDate(Date());
+                            if (order.DeliveryTerms && order.DeliveryTerms.CreditDays) {
+                                this.setDeliveryDate(order);
+                            } else {
+                                order.DeliveryDate = null;
+                            }
+
+                            if (!order.CurrencyCodeID) {
+                                order.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+                                order.CurrencyExchangeRate = 1;
+                            }
+                            this.currencyCodeID = order.CurrencyCodeID;
+                            this.currencyExchangeRate = order.CurrencyExchangeRate;
+
+                            this.refreshOrder(order);
+                        },
+                        err => this.errorService.handle(err)
                     );
-            }
+                }
+            });
         });
     }
 
@@ -755,28 +764,38 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 ? Observable.of(order)
                 : this.getOrder(this.orderID);
 
-            orderObservable.subscribe(res => {
-                if (!order) { order = res; }
+            Observable.forkJoin(
+                orderObservable,
+                this.hasTimetrackingAccess
+                    ? this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID).catch(() => Observable.of([]))
+                    : Observable.of([]),
+                ).subscribe(res => {
+                if (!order) { order = res[0]; }
 
-                this.readonly = res.StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
+                this.readonly = res[0].StatusCode === StatusCodeCustomerOrder.TransferredToInvoice;
                 this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
-                this.orderItems = res.Items.sort(
+                this.orderItems = res[0].Items.sort(
                     function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
                 );
                 this.isDirty = false;
 
-                this.currentCustomer = res.Customer;
+                this.currentCustomer = res[0].Customer;
 
                 order.DefaultSeller = order.DefaultSeller;
 
                 this.currentOrderDate = order.OrderDate;
+
+                if (res[1] && res[1][0]) {
+                    this.hoursOnOrderCount = res[1][0].SumMinutes / 60;
+                    this.nonTransferredHoursOnOrderCount = res[1][0]['SumNotTransfered'] / 60;
+                }
 
                 this.order = _.cloneDeep(order);
                 this.updateCurrency(order, true);
                 this.updateTab();
                 this.updateToolbar();
                 this.updateSaveActions();
-                this.recalcDebouncer.next(res.Items);
+                this.recalcDebouncer.next(res[0].Items);
 
                 resolve(true);
             });
@@ -898,8 +917,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.customerOrderService.getNextID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
-                    this.hoursOnOrder = null;
-                    this.notTransferedHoursOnOrder = null;
+                    this.hoursOnOrderCount = 0;
+                    this.nonTransferredHoursOnOrderCount = 0;
                     this.router.navigateByUrl('/sales/orders/' + ID);
                 } else {
                     this.toastService.addToast('Ikke flere ordre etter denne', ToastType.warn, 5);
@@ -913,8 +932,8 @@ export class OrderDetails implements OnInit, AfterViewInit {
         this.customerOrderService.getPreviousID(this.order.ID).subscribe(
             (ID) => {
                 if (ID) {
-                    this.hoursOnOrder = null;
-                    this.notTransferedHoursOnOrder = null;
+                    this.hoursOnOrderCount = 0;
+                    this.nonTransferredHoursOnOrderCount = 0;
                     this.router.navigateByUrl('/sales/orders/' + ID);
                 } else {
                     this.toastService.addToast('Ikke flere ordre før denne', ToastType.warn, 5);
@@ -1421,5 +1440,27 @@ export class OrderDetails implements OnInit, AfterViewInit {
         }
 
         return currencyCode ? currencyCode.Code : '';
+    }
+
+    openModal() {
+        this.modalService.open(UniChooseOrderHoursModal, {
+            data: {
+                order: this.order,
+                settings: this.companySettings,
+                vatTypes: this.vatTypes,
+                transferredHoursIDs: this.transferredWorkItemIDs
+            },
+            closeOnClickOutside: false,
+            closeOnEscape: true,
+            header: 'Overføring av timer 1/2',
+        }).onClose.subscribe((result: {items: CustomerOrderItem[], transferredHoursIDs: number[]}) => {
+            if (result && result.items) {
+                this.orderItems = result.items;
+                this.transferredWorkItemIDs = result.transferredHoursIDs;
+                this.isDirty = true;
+                this.updateSaveActions();
+                this.recalcItemSums(this.orderItems);
+            }
+        });
     }
 }

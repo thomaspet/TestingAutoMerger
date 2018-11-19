@@ -10,7 +10,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
-import {WorkEditor} from '../components/workeditor';
+import {WorkEditor} from '@app/components/common/timetrackingCommon';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';

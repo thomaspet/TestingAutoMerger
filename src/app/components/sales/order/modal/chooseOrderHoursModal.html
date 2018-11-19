@@ -1,0 +1,71 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        <h1 class="new">{{options.header}}</h1>
+    </header>
+
+    <article id="article" *ngIf="!hasContinued">
+        <uni-tabs [tabs]="tabs" [activeIndex]="0" (tabClick)="onFilterClick($event)"></uni-tabs>
+        <div class="uniTable">
+            <button class="new" type="button" (click)="registerNewWorkItem()">
+                <i class="material-icons">add</i>
+                Ny timeføring
+            </button>
+            <ag-grid-wrapper *ngIf="settings"
+                    [(resource)]="workItems"
+                    [config]="workItemTableConfig"
+                    (rowChange)="onRowChange($event)"
+                    (rowSelectionChange)="onHourSelectionChange($event)">
+            </ag-grid-wrapper>
+
+            <div class="sumHours">
+                <h4 class="chosenHours">Sum valgte timer: </h4>
+                <h4 class="chosenHoursNumber">{{selectedHoursCount}}</h4>
+            </div>
+        </div>
+
+    </article>
+
+    <i *ngIf="hasContinued" class="material-icons arrow_back icon-blue">arrow_back</i>
+    <a *ngIf="hasContinued" (click)="backToEdit()">Tilbake til timevalg</a>
+
+    <article class="uniTable2" *ngIf="hasContinued">
+        <div class="uniTable">
+            <ag-grid-wrapper
+                [resource]="productWorkItems"
+                [config]="productWorkItemTableConfig"
+                (rowChange)="onRowChange($event)">
+            </ag-grid-wrapper>
+
+            <div class="sumHours2">
+                <h4 class="hoursAmount">Antall valgte timer:</h4>
+                <h4 class="hoursAmountNumber">{{selectedHoursCount}}</h4>
+                <h4 class="totalPrice">Totalpris:</h4>
+                <h4 class="totalPriceNumber">{{totalPrice}}</h4>
+            </div>
+        </div>
+
+    </article>
+
+    <footer>
+        <div *ngIf="!hasContinued" class="buttonTooltipWrapper2" [matTooltip]="continueButtonDisabled ? 'Velg linjer for å gå videre' : null">
+            <button *ngIf="!hasContinued" class="good continue" id="good_button_ok" (click)="continue()" [disabled]="continueButtonDisabled">
+                Videre
+            </button>
+        </div>
+
+        <div *ngIf="hasContinued" class="buttonTooltipWrapper" [matTooltip]="transferButtonDisabled ? 'Velg produkt på linjer før du overfører ordre' : null">
+            <button
+                *ngIf="hasContinued"
+                class="good transferHours"
+                id="good_button_ok"
+                (click)="transferHours()"
+                [disabled]="transferButtonDisabled">
+                    Overfør timer
+            </button>
+        </div>
+
+        <button class="cancel" (click)="cancel()">
+            Avbryt
+        </button>
+    </footer>
+</section>

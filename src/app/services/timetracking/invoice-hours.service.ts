@@ -1,9 +1,24 @@
-import { IWizardOptions, WizardSource } from './wizardoptions';
 import {URLSearchParams} from '@angular/http';
-import { StatisticsService } from '@app/services/services';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { ProductService } from '@app/services/common/productService';
+import { ValueItem } from '@app/services/timetracking/timesheetService';
 import { Injectable } from '@angular/core';
-import { roundTo } from '@app/components/common/utils/utils';
+import { roundTo, filterInput } from '@app/components/common/utils/utils';
 import { Observable } from 'rxjs';
+
+import {
+    WorkOrder,
+    WorkOrderItem,
+    WorkItemSource,
+    WorkItemSourceDetail,
+} from '@app/components/common/timetrackingCommon/invoice-hours/workorder';
+
+import {
+    IWizardOptions,
+    WizardSource,
+    MergeByEnum,
+} from '@app/components/common/timetrackingCommon/invoice-hours/wizardoptions';
+import { WorkItem } from '@uni-entities';
 
 export interface ISumHours {
     customerHours: number;
@@ -12,10 +27,33 @@ export interface ISumHours {
     total: number;
 }
 
+export interface CustomWorkItem extends WorkItem {
+    WorkTypeID: number;
+    WorktypeName: string;
+    WorkerName: string;
+    PriceExVat: number;
+    PriceExVatCurrency: number;
+    ProductPartName: string;
+    Unit: string;
+    ProductID: number;
+    VatTypeID: number;
+    ProductName: string;
+    ProductDescription: string;
+    SumMinutes: number;
+    _sumTotal: number;
+    _discountPercent: number;
+    _transferredToOrder: boolean;
+    _rowSelected: boolean;
+}
+
+const BATCH_SIZE = 100;
+
 @Injectable()
 export class InvoiceHourService {
+    private orderList: Array<WorkOrder> = [];
+    public computing = true;
 
-    constructor(private statisticsService: StatisticsService) {
+    constructor(private statisticsService: StatisticsService, private productService: ProductService) {
 
     }
 
@@ -63,17 +101,10 @@ export class InvoiceHourService {
 
     getInvoicableHoursOnOrder(orderID: number) {
         const query = new URLSearchParams();
-        const filter = `CustomerOrderID eq ${orderID}`;
-
         query.set('model', 'workitem');
-
-        query.set('select', 'CustomerOrderID as OrderID'
-            + ',sum(casewhen(minutestoorder ne 0,minutestoorder,minutes)) as SumMinutes'
-            + ',sum(casewhen(transferedtoorder eq 0,minutes,0)) as SumNotTransfered');
-        query.set('expand', 'customerorder');
-
-        query.set('filter', filter);
-
+        query.set('select', 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes)) as SumMinutes'
+            + ',sum(casewhen(transferedtoorder eq 0,casewhen(minutestoorder ne 0,minutestoorder,minutes),0)) as SumNotTransfered');
+        query.set('filter', `CustomerOrderID eq ${orderID}`);
         return this.statisticsService.GetAllByUrlSearchParams(query, true).map(response => response.json().Data);
     }
 
@@ -134,12 +165,54 @@ export class InvoiceHourService {
 
     }
 
+
+    getWorkHours(options) {
+        const query = new URLSearchParams();
+        let filter = '';
+
+        query.set('model', 'WorkItem');
+
+        query.set('select',
+            'ID as ID'
+            + ',CustomerOrderID as CustomerOrderID'
+            + ',CustomerID as CustomerID'
+            + ',Worktype.ID as WorkTypeID'
+            + ',Worktype.Name as WorktypeName'
+            + ',Date as Date'
+            + ',StartTime as StartTime'
+            + ',EndTime as EndTime'
+            + ',Description as Description'
+            + ',TransferedToOrder as TransferedToOrder'
+            + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
+            + ',Info.Name as WorkerName'
+            + ',casewhen(Worktype.Price ne 0\,Worktype.Price\,Product.PriceExVat) as PriceExVat'
+            + ',casewhen(Worktype.Price ne 0\,Worktype.Price\,Product.PriceExVatCurrency) as PriceExVatCurrency'
+            + ',Product.PartName as ProductPartName'
+            + ',Product.Unit as Unit'
+            + ',Product.ID as ProductID'
+            + ',Product.VatTypeID as VatTypeID'
+            + ',Product.Name as ProductName'
+            + ',Product.Description as ProductDescription');
+        query.set('expand', 'Worktype.Product,WorkRelation.Worker.Info');
+        query.set('orderby', 'Worktype.Name');
+
+        filter = `CustomerOrderID eq ${options.orderID}`;
+        if (options.tabValue === 1) {
+            filter = `CustomerID eq ${options.customerID}`;
+        }
+        filter += ' and (Minutes ne 0 or MinutesToOrder ne 0)';
+
+        query.set('filter', filter);
+
+        return this.statisticsService.GetAllByUrlSearchParams(query, true).map(resp => resp.json().Data);
+    }
+
     public getWorkTypeWithProducts(options: IWizardOptions) {
         const query = new URLSearchParams();
 
         query.set('model', 'workitem');
         query.set('select', 'sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes'
-            + ',Worktype.ID as WorktypeID'
+            + ',Worktype.ID as WorkTypeID'
             + ',WorkType.Name as WorktypeName'
             + ',casewhen(WorkType.Price ne 0\,WorkType.Price\,Product.PriceExVat) as PriceExVat'
             + ',Product.PartName as PartName'
@@ -211,7 +284,7 @@ export class InvoiceHourService {
         + `,${groupField} as GroupValue`
         + `,${customerField} as CustomerID`
         + ',Description as Description'
-        + ',Worktype.ID as WorktypeID'
+        + ',Worktype.ID as WorkTypeID'
         + ',WorkType.Name as WorktypeName'
         + ',sum(casewhen(minutestoorder ne 0\,minutestoorder\,minutes)) as SumMinutes');
 
@@ -249,4 +322,139 @@ export class InvoiceHourService {
         .map(response => response.json().Data);
     }
 
+    lookupProduct(txt: string) {
+        const params = new URLSearchParams();
+        const value = filterInput(txt);
+        params.set('filter', `partname eq '${value}' or startswith(name,'${value}')`);
+        params.set('top', '50');
+        params.set('hateoas', 'false');
+        params.set('select', 'ID,Partname,Name,PriceExVat,VatTypeID,Unit');
+        return this.productService.GetAllByUrlSearchParams(params).map(result => result.json());
+    }
+
+    onEditChange(event: { originalIndex: number, field: string, rowModel: CustomWorkItem }) {
+        const change = new ValueItem(event.field, event.rowModel[event.field], event.originalIndex);
+        if (event.field === 'PartName' && change.value && change.value.ID) {
+            event.rowModel['ProductID'] = change.value.ID;
+            event.rowModel['PartName'] = change.value.PartName;
+            event.rowModel['ProductName'] = change.value.Name;
+            event.rowModel['PriceExVat'] = change.value.PriceExVat;
+            event.rowModel['VatTypeID'] = change.value.VatTypeID;
+            event.rowModel['Unit'] = change.value.Unit;
+        }
+        return event.rowModel;
+    }
+
+    processList(list: Array<IWorkHours>, options: IWizardOptions, order?: WorkOrder): Promise<WorkOrder[]> {
+        return new Promise(resolve => {
+        this.computing = true;
+        this.orderList.length = 0;
+            this.createOrders(list, options, [], 0, order).then(orders => {
+            if (options.addComment) {
+                orders.forEach(x => x.insertDateComment('Timer for perioden'));
+            }
+            this.orderList = orders;
+            this.orderList[0]._expand = true;
+            this.computing = false;
+                resolve(orders);
+        });
+        });
+    }
+
+    private buildItemText(row: IWorkHours, workType: IWorktypeInfo, options: IWizardOptions): any {
+
+        switch (options.mergeBy) {
+            case MergeByEnum.mergeByProduct:
+                return workType.ProductName;
+
+            case MergeByEnum.mergeByWorktype:
+                return workType.WorktypeName;
+
+            case MergeByEnum.mergeByText:
+                return row.Description ? row.Description : row.WorktypeName;
+
+            default:
+                return `${row.WorktypeName}${row.Description ? ' : ' + row.Description : ''}`;
+        }
+    }
+
+    private createOrders(hours: Array<IWorkHours>, options: IWizardOptions, orders = [], startIndex = 0,
+        order?: WorkOrder): Promise<Array<WorkOrder>> {
+            const isOrderUpdate = options.source === WizardSource.OrderHours;
+
+            return new Promise((resolve, reject) => {
+                for (let i = startIndex; i < hours.length; i++) {
+                    const row = hours[i];
+                    const dto = isOrderUpdate ?
+                        options.selectedCustomers.find(x => x.OrderID === row.GroupValue) :
+                        options.selectedCustomers.find(x => x.CustomerID === row.CustomerID);
+
+                    if ((!order) || order.CustomerID !== row.CustomerID) {
+                        order = new WorkOrder();
+                        order.ID = isOrderUpdate ? row.GroupValue : order.ID;
+                        order.CustomerID = isOrderUpdate ? dto.CustomerID : row.CustomerID;
+                        order.CustomerName = dto.CustomerName;
+                        order.OurReference = options.currentUser.DisplayName;
+                        if (options.source === WizardSource.ProjectHours) {
+                            order.setProject(row.GroupValue);
+                        }
+                        orders.push(order);
+                    }
+
+                    const workType = options.selectedProducts.find(x => x.WorkTypeID === row.WorkTypeID);
+                    const item = new WorkOrderItem();
+                    if (workType && workType._rowSelected) {
+                        item.ID = workType.ID;
+                        item.ItemText = this.buildItemText(row, workType, options);
+                        item.ProductID = workType.ProductID;
+                        item.Unit = workType.Unit;
+                        item.PriceExVat = workType.PriceExVat;
+                        item.PriceExVatCurrency = workType.PriceExVat;
+                        item.SumTotalExVat = workType._sumTotal;
+                        item.SumTotalExVatCurrency = workType._sumTotal;
+                        item.DiscountPercent = workType._discountPercent;
+                        item.VatTypeID = workType.VatTypeID;
+                        item.NumberOfItems = roundTo(row.SumMinutes / 60, 2);
+                        item.ItemSource = new WorkItemSource();
+                        item.ItemSource.Details.push(new WorkItemSourceDetail(row.ID, row.SumMinutes));
+                        if (options.source === WizardSource.ProjectHours) {
+                            item.setProject(row.GroupValue);
+                        }
+                        order.addItem(item, true, row.Date);
+                    }
+
+                    // To prevent js-locking we process only BATCH_SIZE rows at the time
+                    if (i - startIndex > BATCH_SIZE) {
+                        setTimeout(() => {
+                            this.createOrders(hours, options, orders, i + 1, order)
+                                .then(() => {
+                                    resolve(orders);
+                                });
+                        });
+                        return;
+                    }
+                }
+                if (options.addItemsDirectly) {
+                    orders.push(order);
+                }
+                resolve(orders);
+            });
+    }
+}
+
+export interface IWorktypeInfo {
+    ProductName: string;
+    PartName: string;
+    WorktypeName: string;
+}
+
+export interface IWorkHours {
+    ID: number;
+    Date: string;
+    GroupValue: number;
+    CustomerID: number;
+    Description: string;
+    WorkTypeID: number;
+    WorktypeName: string;
+    SumMinutes: number;
 }

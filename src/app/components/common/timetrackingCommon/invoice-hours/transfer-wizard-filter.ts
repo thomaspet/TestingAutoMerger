@@ -1,10 +1,8 @@
 import {Component, OnInit, Input, ViewChild} from '@angular/core';
-import { ErrorService } from '@app/services/common/errorService';
 import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
-import { Observable } from 'rxjs';
 import {URLSearchParams} from '@angular/http';
 import { IWizardOptions, WizardSource } from './wizardoptions';
-import { InvoiceHourService } from './invoice-hours.service';
+import { InvoiceHourService, ErrorService } from '@app/services/services';
 
 @Component({
     selector: 'workitem-transfer-wizard-filter',

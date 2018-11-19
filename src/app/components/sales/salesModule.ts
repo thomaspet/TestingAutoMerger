@@ -56,13 +56,9 @@ import {UniDimensionTOFView} from './common/dimensionForm';
 import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
-import {InvoiceHourService} from '../../components/timetracking/invoice-hours/invoice-hours.service';
-
-import {
-    MatSlideToggleModule,
-    MatTreeModule
-} from '@angular/material';
+import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
+import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -72,6 +68,8 @@ import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-
         HttpModule,
         MatSlideToggleModule,
         MatTreeModule,
+        MatTooltipModule,
+        MatCardModule,
 
         RouterModule.forChild(salesRoutes),
 
@@ -117,6 +115,7 @@ import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-
         ReminderConfirmForm,
         ReminderSending,
         UniReminderSendingModal,
+        UniChooseOrderHoursModal,
         DebtCollection,
         SentToDebtCollection,
         InvoiceReminders,
@@ -144,13 +143,13 @@ import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-
         CustomerDetailsModal,
         UniTofSelectModal,
         UniProductDetailsModal,
-        KidModalComponent
+        KidModalComponent,
+        UniChooseOrderHoursModal,
     ],
     providers: [
         TradeItemHelper,
         TofHelper,
         CanDeactivateGuard,
-        InvoiceHourService,
     ],
     exports: [
         UniSales,
@@ -174,6 +173,7 @@ import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-
         ProductGroups,
         GroupDetails,
         KIDSettings,
+        UniChooseOrderHoursModal,
 
         ProductDetails,
         ProductList,

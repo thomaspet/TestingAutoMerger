@@ -54,7 +54,7 @@ export class TradeItemTable {
     @Input() public projects: Project[];
     @Input() public departments: Department[];
     @Input() public configStoreKey: string;
-    @Input() public items: any;
+    @Input() public items: any[];
     @Input() public dimensionTypes: any;
     @Input() public vatDate: LocalDate;
     @Output() public itemsChange: EventEmitter<any> = new EventEmitter();

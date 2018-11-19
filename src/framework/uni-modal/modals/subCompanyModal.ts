@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ErrorService } from '../../../app/services/services';
+import { ErrorService } from '@app/services/services';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { UniHttp } from '@uni-framework/core/http/http';
 

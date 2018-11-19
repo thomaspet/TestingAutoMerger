@@ -44,6 +44,17 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
+import {AppPipesModule} from '@app/pipes/appPipesModule';
+import {
+    WorkEditor,
+    UniTimeModal,
+    WorkitemTransferWizard,
+    WorkitemTransferWizardFilter,
+    WorkitemTransferWizardPreview,
+    WorkitemTransferWizardProducts,
+    InvoiceHours
+} from './timetrackingCommon';
+
 import {
     MatProgressBarModule
 } from '@angular/material';
@@ -56,7 +67,8 @@ import {
         HttpModule,
         RouterModule,
         UniFrameworkModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        AppPipesModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -102,7 +114,15 @@ import {
 
         ApiKeyComponent,
         ApikeyLine,
-        ApikeyLineModal
+        ApikeyLineModal,
+
+        WorkEditor,
+        UniTimeModal,
+        WorkitemTransferWizard,
+        WorkitemTransferWizardFilter,
+        WorkitemTransferWizardPreview,
+        WorkitemTransferWizardProducts,
+        InvoiceHours
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -114,7 +134,9 @@ import {
         BookPaymentManualModal,
         VacationPaySettingsModal,
         ApikeyLineModal,
-        UniAutomarkModal
+        UniAutomarkModal,
+        UniTimeModal,
+        WorkitemTransferWizard
     ],
     exports: [
         PredefinedDescriptionList,
@@ -157,6 +179,14 @@ import {
         ApiKeyComponent,
         ApikeyLine,
         ApikeyLineModal,
+
+        WorkEditor,
+        UniTimeModal,
+        WorkitemTransferWizard,
+        WorkitemTransferWizardFilter,
+        WorkitemTransferWizardPreview,
+        WorkitemTransferWizardProducts,
+        InvoiceHours
     ]
 })
 export class AppCommonModule {}
