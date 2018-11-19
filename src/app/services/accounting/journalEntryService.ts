@@ -280,7 +280,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 : Observable.of([]));
 
         const paymentObs = Observable
-            .of(journalEntryDataNew.filter(x => x.CustomerInvoiceID))
+            .of(journalEntryDataNew.filter(x => x.CustomerInvoiceID && x.DebitAccountID > 0))
             .map(data => this.createInvoicePaymentDataObjects(data))
             .switchMap(data => this.invoiceService.payInvoices(data));
 

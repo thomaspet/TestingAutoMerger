@@ -329,6 +329,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 Property: 'AgioAmount',
                 Hidden: this.isMainCurrency,
                 FieldType: FieldType.NUMERIC,
+                ReadOnly: true,
                 Label: 'Agiobeløp [' + this.companySettings.BaseCurrencyCode.Code + ']',
                 Sectionheader: '',
                 Options: {
@@ -352,7 +353,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAmount',
                 Placement: 1,
-                Hidden: this.isMainCurrency,
+                Hidden: this.isMainCurrency || this.config.hideBankCharges,
                 FieldType: FieldType.NUMERIC,
                 ReadOnly: false,
                 LookupField: false,
@@ -367,7 +368,7 @@ export class UniRegisterPaymentModal implements IUniModal {
             <any> {
                 EntityType: 'InvoicePaymentData',
                 Property: 'BankChargeAccountID',
-                Hidden: this.isMainCurrency,
+                Hidden: this.isMainCurrency || this.config.hideBankCharges,
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Konto',
                 Placeholder: 'Konto for bilagsføring av gebyr',

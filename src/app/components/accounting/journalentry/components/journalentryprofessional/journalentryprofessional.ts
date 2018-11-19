@@ -1820,7 +1820,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 modalConfig: {
                     entityName: CustomerInvoice.EntityType,
                     currencyCode: customerInvoice.CurrencyCode.Code,
-                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate
+                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
+                    hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
                 }
             });
 
@@ -1851,6 +1852,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     journalEntryRow.DebitAccountID = null;
 
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        agioRow.CustomerInvoiceID = customerInvoice.ID;
                         this.updateJournalEntryLine(journalEntryRow);
                         resolve(journalEntryRow);
                         setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
@@ -1860,8 +1862,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
                 if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
                     this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
-                        this.addJournalEntryLines([bankChargesRow]);
+                        bankChargesRow.CustomerInvoiceID = customerInvoice.ID;
                         resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([bankChargesRow]));
                     });
                 }
             });
@@ -2531,7 +2534,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
-
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {
                 const firstJournalEntry = data[0];
