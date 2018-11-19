@@ -195,7 +195,7 @@ export class BankComponent implements AfterViewInit {
     }
 
     public isAllowedToForceDeletePayment(selectedRow: any): boolean {
-        const enabledForStatuses = [44002, 44007, 44008, 44009, 44011];
+        const enabledForStatuses = [44002, 44005, 44007, 44008, 44009, 44011];
         return enabledForStatuses.includes(selectedRow.PaymentStatusCode);
     }
 
@@ -567,15 +567,20 @@ export class BankComponent implements AfterViewInit {
             message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
             warning: warningMessage,
             buttonLabels: {
-                accept: 'Slett betaling',
-                reject: 'Avbryt'
+                accept: 'Slett og krediter faktura',
+                reject: 'Slett betaling',
+                cancel: 'Avbryt'
             }
         });
 
         modal.onClose.subscribe((result) => {
-            if (result === ConfirmActions.ACCEPT) {
-                this.paymentService.Action(row.ID, 'force-delete', null, RequestMethod.Delete)
-                .subscribe(paymentResponse => {
+            if (result !== ConfirmActions.CANCEL) {
+                this.paymentService.Action(
+                    row.ID,
+                    result === ConfirmActions.ACCEPT ? 'force-delete-and-credit' : 'force-delete',
+                    null,
+                    RequestMethod.Delete
+                ).subscribe(paymentResponse => {
                     this.tickerContainer.mainTicker.reloadData(); // refresh table
                     this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
                     });
@@ -967,7 +972,7 @@ export class BankComponent implements AfterViewInit {
         const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Bekreft sletting',
             message: `Er du sikker på at du vil slette ${this.rows.length} betalinger?`,
-            buttonLabels: {accept: 'Slett', cancel: 'Avbryt'}
+            buttonLabels: {accept: 'Slett og krediter faktura', reject: 'Slett betaling', cancel: 'Avbryt'}
         });
 
         modal.onClose.subscribe(result => {
@@ -978,7 +983,11 @@ export class BankComponent implements AfterViewInit {
 
             const requests = [];
             this.rows.forEach(x => {
-                requests.push(this.paymentService.Remove(x.ID, x));
+                requests.push(
+                    result === ConfirmActions.ACCEPT
+                    ? this.paymentService.Action(x.ID, 'delete-and-credit', null, RequestMethod.Delete)
+                    : this.paymentService.Remove(x.ID, x),
+                    );
             });
 
             Observable.forkJoin(requests).subscribe(response => {
