@@ -275,8 +275,10 @@ export class AgGridWrapper {
                 this.tableHeight = 80 + (this.config.pageSize * 35) + 'px';
             }
 
-            api.doLayout();
-            api.sizeColumnsToFit();
+            setTimeout(() => {
+                api.doLayout();
+                api.sizeColumnsToFit();
+            });
         }
     }
 
