@@ -140,13 +140,6 @@ export class UniReports implements OnInit {
             case 11:
                 this.salaryWithholdingAndAGAReportFilterModal.open(report);
                 break;
-            case 12:
-            case 13:
-                this.balanceListModal.open(report);
-                break;
-            case 14:
-                this.resultAndBalanceModal.open(report);
-                break;
             default:
                 this.defaultRunReport(report);
                 break;

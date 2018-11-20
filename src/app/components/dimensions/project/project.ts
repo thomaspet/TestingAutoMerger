@@ -185,7 +185,7 @@ export class Project {
                 || project.ProjectNumber.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())) {
                 return project;
             }
-        });
+        }).slice(0, 99);
     }
 
     private updateToolbar() {

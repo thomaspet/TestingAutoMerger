@@ -88,9 +88,9 @@ export class NumberSeries {
 
     public onSerieSelected(event) {
         if (!(event && event.rowModel)) { return; }
-        this.currentSerie = event.rowModel;
 
         this.checkSave(true).then( ok => { if (ok) {
+            this.currentSerie = event.rowModel;
             this.setCurrent(event.rowModel);
         }});
     }
@@ -388,8 +388,13 @@ export class NumberSeries {
                 && (row.UseNumbersFromNumberSeriesID === null || row.UseNumbersFromNumberSeriesID === 0)
             ) {
                 this.modalService.confirm({
-                    header: 'Vennligst bekreft',
-                    message: 'Vennligst bekreft operasjon. Endring kan ikke omgjøres etter lagring'
+                    header: 'Advarsel',
+                    warning: 'Denne endringen kan ikke omgjøres etter lagring',
+                    message: 'Vennligst bekreft at at bilag skal bruke nummerserie for faktura',
+                    buttonLabels: {
+                        accept: 'Bekreft',
+                        cancel: 'Angre'
+                    }
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
                         row.UseNumbersFromNumberSeriesID = this.asinvoicenumberserie;
