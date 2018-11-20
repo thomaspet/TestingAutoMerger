@@ -216,7 +216,7 @@ export class UniField {
      *
      */
     public onMultivalueMoveForward(action) {
-        if (!this.field.isLast) {
+        if (!this.field.isLast && action.event) {
             event.preventDefault();
             event.stopPropagation();
         }
@@ -254,7 +254,6 @@ export class UniField {
                 event: event,
                 field: this.field
             });
-            this.validateModel(this.getSimpleChange());
 
         } else if (combination.length === 2 && (combination[0] === 'shift' && combination[1] === 'tab')) {
             if (!this.field.isLast) {
@@ -265,7 +264,6 @@ export class UniField {
                 event: event,
                 field: this.field
             });
-            this.validateModel(this.getSimpleChange());
         }
         return;
     }
