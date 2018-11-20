@@ -2,8 +2,8 @@ import {
     Component, OnInit, ViewChild, Input, Output, OnChanges,
     ChangeDetectionStrategy, EventEmitter, SimpleChanges, SimpleChange
 } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {
     UniTableConfig, UniTableColumn, UniTableColumnType, UniTable, IRowChangeEvent
 } from '../../../../../framework/ui/unitable';

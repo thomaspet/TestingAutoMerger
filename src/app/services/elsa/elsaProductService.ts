@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Response} from '@angular/http';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ElsaProduct, ElsaPurchase} from '@app/services/elsa/elsaModels';
 
 @Injectable()

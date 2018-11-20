@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'uni-confirm-modal',

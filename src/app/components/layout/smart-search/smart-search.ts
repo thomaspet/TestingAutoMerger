@@ -12,9 +12,9 @@ import {OverlayRef} from '@angular/cdk/overlay';
 import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
 import {_getOptionScrollPosition} from '@angular/material';
 
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {FormControl} from '@angular/forms';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 import {KeyCodes} from '@app/services/common/keyCodes';

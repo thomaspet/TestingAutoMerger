@@ -56,9 +56,18 @@
     </ng-template>
 
     <!-- Reconciliation tab -->
-    <section *ngIf="activeTabIndex === 1" class="uni-container">
+    <section *ngIf="activeTabIndex === 1" class="uni-container customer-post-post-view">
+        <uni-tabs
+            [tabs]="postposttabs"
+            (tabClick)="onPostpostFilterClick($event)">
+        </uni-tabs>
+        <button class="good" (click)="goToPostpost()">Rediger</button>
         <ledger-account-reconciliation
+            [customerBankAccounts]="(customer$ | async)?.Info?.BankAccounts"
+            [disablePaymentToField]="true"
             [accountNumber]="(customer$ | async)?.CustomerNumber"
+            [showRowSelect]="false"
+            [hideHeader]="true"
             [customerID]="(customer$ | async)?.ID">
         </ledger-account-reconciliation>
     </section>

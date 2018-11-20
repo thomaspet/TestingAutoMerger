@@ -14,7 +14,7 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
 import {IEditorData} from '../config/unitableConfig';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import 'rxjs/add/observable/fromPromise';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';
@@ -98,6 +98,10 @@ export class UnitableEditor {
         component.inputControl = this.inputControl;
         component.column = this.column;
         component.rowModel = this.rowModel;
+
+        if (component.itemSelected) {
+            component.itemSelected.subscribe(() => this.emitAndClose());
+        }
 
         // Focus input and select text
         setTimeout(() => {

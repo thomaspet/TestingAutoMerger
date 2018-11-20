@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, SimpleChanges } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
-import { Observable } from 'rxjs/Observable';
+import { BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { StatisticsResponse } from '@app/models/StatisticsResponse';
 import {

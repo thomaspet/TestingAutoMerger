@@ -2,7 +2,7 @@ import {Component} from '@angular/core';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
 import {UniModules} from '../layout/navbar/tabstrip/tabService';
 import {SettingsService} from './settings-service';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniHttp} from '../../../framework/core/http/http';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 

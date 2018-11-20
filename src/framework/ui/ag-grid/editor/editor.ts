@@ -24,10 +24,10 @@ import {
     GridApi,
     ColDef,
     IDatasource,
-} from 'ag-grid';
+} from 'ag-grid-community';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as _ from 'lodash';
 import * as Immutable from 'immutable';
 

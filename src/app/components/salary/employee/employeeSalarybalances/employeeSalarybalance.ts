@@ -5,10 +5,10 @@ import {UniCacheService, SalaryBalanceLineService, SalarybalanceService, ErrorSe
 import {SalaryBalance, SalBalDrawType, SalBalType} from '../../../../unientities';
 import * as _ from 'lodash';
 import {UniTable} from '@uni-framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {SalarybalanceList} from '@app/components/salary/salarybalance/salaryBalanceList/salarybalanceList';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
+import {ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 
 const SALARYBALANCES_KEY = 'salarybalances';

@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
 import {ICellRendererAngularComp} from 'ag-grid-angular';
-import {ICellRendererParams} from 'ag-grid';
+import {ICellRendererParams} from 'ag-grid-community';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({

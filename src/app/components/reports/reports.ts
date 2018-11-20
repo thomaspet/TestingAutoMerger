@@ -15,7 +15,7 @@ import {
     ReconciliationListParamsModalComponent
 } from './modals/reconciliationList/reconciliation-list-params-modal/reconciliation-list-params-modal.component';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
 import {UniPreviewModal} from './modals/preview/previewModal';
@@ -139,13 +139,6 @@ export class UniReports implements OnInit {
                 break;
             case 11:
                 this.salaryWithholdingAndAGAReportFilterModal.open(report);
-                break;
-            case 12:
-            case 13:
-                this.balanceListModal.open(report);
-                break;
-            case 14:
-                this.resultAndBalanceModal.open(report);
                 break;
             default:
                 this.defaultRunReport(report);

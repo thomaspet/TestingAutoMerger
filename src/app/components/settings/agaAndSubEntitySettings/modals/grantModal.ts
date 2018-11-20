@@ -8,7 +8,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {GrantService, SubEntityService, ErrorService} from '../../../../services/services';
 import {Grant, SubEntity} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'grant-modal',

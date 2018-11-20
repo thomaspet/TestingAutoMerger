@@ -1,6 +1,6 @@
 import {RequestMethod} from '@angular/http';
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Email} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';

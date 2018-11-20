@@ -1,0 +1,53 @@
+.small-split-view-list
+    padding: 1rem
+    background: #fff
+    border: 1px solid $uni-color-scale9
+    border-radius: 3px
+
+    mat-form-field
+        width: 100%
+        margin: 0 !important
+
+    input[type=search]
+        height: 2rem
+        width: 100%
+        padding: 0 1rem
+
+    ul
+        position: relative // required for scroll to work properly
+        max-height: calc(100vh - 35rem)
+        min-height: 20rem
+        list-style: none
+
+        li
+            display: flex
+            flex-direction: column
+            border-bottom: 1px solid $uni-color-scale9
+            padding: .5rem 1rem
+            cursor: pointer
+
+            &:hover
+                background-color: #f3f3f3
+
+            &.selected
+                background-color: #D5EEF6
+
+            span
+                flex: 1
+                overflow: hidden
+                white-space: nowrap
+                text-overflow: ellipsis
+                font-size: .8rem
+                &:first-of-type
+                    font-weight: 600
+                    font-size: .9rem
+                &.number-good
+                    font-weight: 400 !important
+                    color: $uni-color-plus
+                &.number-bad
+                    font-weight: 400 !important
+                    color: $uni-color-minus
+                &.link
+                    color: #0f4880
+                    text-decoration: underline
+                    cursor: pointer

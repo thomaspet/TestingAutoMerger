@@ -6,7 +6,7 @@ import {FieldType} from '../../../../framework/ui/uniform/index';
 import {AltinnAuthenticationService, ErrorService} from '../../../services/services';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {KeyCodes} from '../../../services/common/keyCodes';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,

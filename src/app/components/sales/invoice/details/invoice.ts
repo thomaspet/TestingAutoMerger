@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 
 import {
@@ -42,6 +42,7 @@ import {
     ReportService,
     StatisticsService,
     TermsService,
+    JournalEntryService,
     UserService,
     NumberSeriesService,
     EmailService,
@@ -228,6 +229,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private elsaProductService: ElsaProductService,
         private dimensionsSettingsService: DimensionSettingsService,
         private customDimensionService: CustomDimensionService,
+        private journalEntryService: JournalEntryService,
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
@@ -1351,7 +1353,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         },
                         err => reject(err));
                 } else {
-                    reject('Endre MVA kode og lagre på ny');
+                    done('Lagring avbrutt');
                 }
             });
         });
@@ -1454,93 +1456,173 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
         const doneText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
 
-        if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
-            return this.modalService.open(UniConfirmModalV2, {
-                header: 'Bekreft kunde',
-                message: `Ugyldig org.nr. '${this.invoice.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
-                buttonLabels: {
-                    accept: 'Ja',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(
-                response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        // send dummy function to saveInvoice to avoid setting done before the
-                        // invoicing is completed (so the button does not appear to be clickable)
-                        // before the invoicing is complete
-                        this.saveInvoice((s) => {}).then((invoice) => {
-                            if (invoice) {
-                                this.isDirty = false;
-
-                                // Update ID to avoid posting multiple times
-                                // in case any of the following requests fail
-                                if (invoice.ID && !this.invoice.ID) {
-                                    this.invoice.ID = invoice.ID;
-                                }
-
-                                if (!isDraft) {
-                                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                                    done(doneText);
-                                    return;
-                                }
-
-                                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                                    (res) => this.selectConfig = undefined,
-                                    (err) => this.errorService.handle(err),
-                                    () => {
-                                        this.getInvoice(invoice.ID).subscribe(res => {
-                                            this.refreshInvoice(res);
-                                            done(doneText);
-                                        });
-                                    }
-                                );
-                            } else {
-                                done('Lagring feilet');
+        this.checkVatLimitsBeforeSaving()
+            .then(doSave => {
+                if (doSave) {
+                    if (this.invoice.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.invoice.Customer.OrgNumber)) {
+                        return this.modalService.open(UniConfirmModalV2, {
+                            header: 'Bekreft kunde',
+                            message: `Ugyldig org.nr. '${this.invoice.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                            buttonLabels: {
+                                accept: 'Ja',
+                                cancel: 'Avbryt'
                             }
-                        }).catch(error => {
-                            this.handleSaveError(error, done);
-                        });
+                        }).onClose.subscribe(
+                            response => {
+                                if (response === ConfirmActions.ACCEPT) {
+                                    // send dummy function to saveInvoice to avoid setting done before the
+                                    // invoicing is completed (so the button does not appear to be clickable)
+                                    // before the invoicing is complete
+                                    this.saveInvoice((s) => {}).then((invoice) => {
+                                        if (invoice) {
+                                            this.isDirty = false;
+
+                                            // Update ID to avoid posting multiple times
+                                            // in case any of the following requests fail
+                                            if (invoice.ID && !this.invoice.ID) {
+                                                this.invoice.ID = invoice.ID;
+                                            }
+
+                                            if (!isDraft) {
+                                                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                                                done(doneText);
+                                                return;
+                                            }
+
+                                            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                                                (res) => this.selectConfig = undefined,
+                                                (err) => this.errorService.handle(err),
+                                                () => {
+                                                    this.getInvoice(invoice.ID).subscribe(res => {
+                                                        this.refreshInvoice(res);
+                                                        done(doneText);
+                                                    });
+                                                }
+                                            );
+                                        } else {
+                                            done('Lagring feilet');
+                                        }
+                                    }).catch(error => {
+                                        this.handleSaveError(error, done);
+                                    });
+                                }
+                                return done();
+                            }
+                        );
                     }
-                    return done();
+
+                    // send dummy function to saveInvoice to avoid setting done before the
+                    // invoicing is completed (so the button does not appear to be clickable)
+                    // before the invoicing is complete
+                    this.saveInvoice((s) => {}).then((invoice) => {
+                        if (invoice) {
+                            this.isDirty = false;
+
+                            // Update ID to avoid posting multiple times
+                            // in case any of the following requests fail
+                            if (invoice.ID && !this.invoice.ID) {
+                                this.invoice.ID = invoice.ID;
+                            }
+
+                            if (!isDraft) {
+                                this.router.navigateByUrl('sales/invoices/' + invoice.ID);
+                                done(doneText);
+                                return;
+                            }
+
+                            this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
+                                (res) => this.selectConfig = undefined,
+                                (err) => this.errorService.handle(err),
+                                () => {
+                                    this.getInvoice(invoice.ID).subscribe(res => {
+                                        this.refreshInvoice(res);
+                                        done(doneText);
+                                    });
+                                });
+                        } else {
+                            done('Lagring feilet');
+                        }
+                    }).catch(error => {
+                        this.handleSaveError(error, done);
+                    });
+
+                } else {
+                    done('Lagring avbrutt');
                 }
-            );
+            });
+    }
+
+    private checkVatLimitsBeforeSaving(): Promise<boolean> {
+        if (this.companySettings.TaxMandatoryType !== 2) {
+            // we are either not using VAT or using it, so no need to do more checks before running invoicing
+            return Promise.resolve(true);
+        } else if (this.companySettings.TaxMandatoryType === 2) {
+            // we are planning to use VAT when a limit is reached, so we need to check if the
+            // limit is now reached before running invoicing
+            return new Promise((resolve, reject) => {
+                this.journalEntryService.getTaxableIncomeLast12Months(this.invoice.DeliveryDate || this.invoice.InvoiceDate)
+                    .subscribe(existingAmount => {
+                        const linesWithVatCode6 =
+                            this.invoice.Items.filter(x => x.VatType && x.VatType.VatCode === '6');
+
+                        // income is negative amounts in the journalentries, switch to positive amounts
+                        // to make it easier to calculate the values here
+                        existingAmount = existingAmount * -1;
+
+                        const sumLinesWithVatCode6 = linesWithVatCode6.reduce((a, b) => {
+                            return a + b.SumTotalExVat;
+                        }, 0);
+
+                        const sumIncludingThis = existingAmount + sumLinesWithVatCode6;
+
+                        // TODO / TBD: Skal det komme noe varsel ved fakturering hvis ikke mvakode 6 er brukt på fakturaen?
+
+                        if ((existingAmount + sumLinesWithVatCode6) >= this.companySettings.TaxableFromLimit) {
+                            let message: string = '';
+
+                            message = `Det er tidligere fakturert totalt kr ${this.numberFormat.asMoney(existingAmount)} ` +
+                                `med mva-kode 6. `;
+
+                            if (existingAmount < this.companySettings.TaxableFromLimit) {
+                                message += `Denne fakturaen gjør at grensen på kr ` +
+                                `${this.numberFormat.asMoney(this.companySettings.TaxableFromLimit)} som er registrert ` +
+                                `i Firmaoppsett passeres.<br/><br/>`;
+                            } else {
+                                message += `Dette er over grensen på kr ` +
+                                `${this.numberFormat.asMoney(this.companySettings.TaxableFromLimit)} som er registrert ` +
+                                `i Firmaoppsett.<br/><br/>`;
+                            }
+
+                            // add extra message if this invoice is what causes the limit to be passed
+                            message += `Det er praktisk å vente med videre fakturering/bokføring av momspliktige inntekter ` +
+                                `til etter mva-registreringen er godkjent og man har lagt inn dato for registrering ` +
+                                `under Firmaoppsett. "Mva.pliktig" skal da endres til "Avgiftspliktig" under Firmaoppsett.<br/><br/>` +
+                                `Må man fakturere/bokføre flere salg etter at grensen er nådd, men før registrering er godkjent, ` +
+                                `skal man etter reglene fakturere uten mva, og deretter etterfakturere mva når godkjenning er mottatt.`;
+
+                            return this.modalService.confirm({
+                                header: 'Grense for mva nådd',
+                                message: message,
+                                buttonLabels: {
+                                    accept: 'Fortsett fakturering',
+                                    cancel: 'Avbryt'
+                                }
+                            }).onClose.subscribe(modalResponse => {
+                                if (modalResponse === ConfirmActions.ACCEPT) {
+                                    resolve(true);
+                                } else {
+                                    resolve(false);
+                                }
+                            });
+                        } else {
+                            // the configured limit is not reached yet, run invoicing
+                            resolve(true);
+                        }
+                    });
+            });
+        } else {
+            return Promise.resolve(true);
         }
-
-        // send dummy function to saveInvoice to avoid setting done before the
-        // invoicing is completed (so the button does not appear to be clickable)
-        // before the invoicing is complete
-        this.saveInvoice((s) => {}).then((invoice) => {
-            if (invoice) {
-                this.isDirty = false;
-
-                // Update ID to avoid posting multiple times
-                // in case any of the following requests fail
-                if (invoice.ID && !this.invoice.ID) {
-                    this.invoice.ID = invoice.ID;
-                }
-
-                if (!isDraft) {
-                    this.router.navigateByUrl('sales/invoices/' + invoice.ID);
-                    done(doneText);
-                    return;
-                }
-
-                this.customerInvoiceService.Transition(invoice.ID, null, 'invoice').subscribe(
-                    (res) => this.selectConfig = undefined,
-                    (err) => this.errorService.handle(err),
-                    () => {
-                        this.getInvoice(invoice.ID).subscribe(res => {
-                            this.refreshInvoice(res);
-                            done(doneText);
-                        });
-                    }
-                );
-            } else {
-                done('Lagring feilet');
-            }
-        }).catch(error => {
-            this.handleSaveError(error, done);
-        });
     }
 
     private reminderStop(done) {
@@ -1850,7 +1932,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: null,
             BankChargeAccountID: 0,
-            AgioAmount: 0
+            AgioAmount: 0,
+            PaymentID: null
         };
 
         const paymentModal = this.modalService.open(UniRegisterPaymentModal, {

@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {
     StatusCodeCustomerInvoiceItem,
     LocalDate

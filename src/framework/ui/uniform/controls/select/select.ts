@@ -3,7 +3,7 @@ import {
     ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, AfterViewInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import * as _ from 'lodash';
 import {KeyCodes} from '@app/services/common/keyCodes';
 

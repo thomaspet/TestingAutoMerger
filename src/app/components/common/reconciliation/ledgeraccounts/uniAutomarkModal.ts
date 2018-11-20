@@ -9,7 +9,7 @@ import {
     UniTableColumnSortMode
 } from '../../../../../framework/ui/unitable/index';
 import { PostPostService, IAutoMarkAllResponseObject } from '../../../../services/services';
-import {Subject} from 'rxjs/Subject';
+import {Subject} from 'rxjs';
 import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../../common/utils/utils';
 
 @Component({

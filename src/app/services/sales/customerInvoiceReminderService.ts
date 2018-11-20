@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CustomerInvoiceReminder, StatusCodeCustomerInvoiceReminder} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {RequestMethod} from '@angular/http';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import {ErrorService} from '../common/errorService';

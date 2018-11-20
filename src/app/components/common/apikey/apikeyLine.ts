@@ -1,6 +1,6 @@
 import {Component, OnInit, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {ApiKey, TypeOfIntegration, LocalDate} from '@uni-entities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {UniComponentLayout, LayoutBuilder, FieldSize, UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {ApiKeyService, ErrorService} from '@app/services/services';
 

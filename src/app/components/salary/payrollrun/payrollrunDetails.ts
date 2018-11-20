@@ -5,9 +5,9 @@ import {
     CompanySalary, CompanySalaryPaymentInterval, Project, Department, TaxDrawFactor, EmployeeCategory,
     JournalEntry, LocalDate, StdSystemType
 } from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './modals/controlModal';
 import {PostingSummaryModal} from './modals/postingSummaryModal';
@@ -434,21 +434,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private accountOnTransesSet(): boolean {
-        for (let i = 0; i < this.salaryTransactions.length; i++) {
-            const trans = this.salaryTransactions[i];
-            if (!trans.Account) {
-                this._toastService
-                    .addToast('Konto mangler',
-                        ToastType.warn,
-                        ToastTime.medium,
-                        `Ansatt nr ${trans.EmployeeNumber}:
-                        Lønnspost nr ${trans.ID},
-                        med lønnsart ${trans.WageTypeNumber},
-                        tekst '${trans.Text}' mangler konto`);
-                return false;
+        if (this.salaryTransactions) {
+            for (let i = 0; i < this.salaryTransactions.length; i++) {
+                const trans = this.salaryTransactions[i];
+                if (!trans.Account) {
+                    this._toastService
+                        .addToast('Konto mangler',
+                            ToastType.warn,
+                            ToastTime.medium,
+                            `Ansatt nr ${trans.EmployeeNumber}:
+                            Lønnspost nr ${trans.ID},
+                            med lønnsart ${trans.WageTypeNumber},
+                            tekst '${trans.Text}' mangler konto`);
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
+        return false;
     }
 
     public toggleDetailsView(setValue?: boolean): void {
@@ -627,6 +630,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             trans['_Project'] = projects ? projects
                                 .find(x => x.ID === trans.Dimensions.ProjectID) : undefined;
                         }
+
+                        // making trans files array with only truthy values
+                        trans['Files'] = trans['Files'].filter(x => !!x);
                         trans['_FileIDs'] = trans['Files'].map(x => x.ID);
 
                         const account = new Account();

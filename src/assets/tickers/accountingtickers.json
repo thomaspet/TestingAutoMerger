@@ -182,33 +182,51 @@
             },
             {
                 "Header": "Dim5",
-                "Field": "Dimensions.Info.Dimension5Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension5Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension5Name"
+                }]
             },
             {
                 "Header": "Dim6",
-                "Field": "Dimensions.Info.Dimension6Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension6Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension6Name"
+                }]
             },
             {
                 "Header": "Dim7",
-                "Field": "Dimensions.Info.Dimension7Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension7Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension7Name"
+                }]
             },
             {
                 "Header": "Dim8",
-                "Field": "Dimensions.Info.Dimension8Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension8Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension8Name"
+                }]
             },
             {
                 "Header": "Dim9",
-                "Field": "Dimensions.Info.Dimension9Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension9Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension9Name"
+                }]
             },
             {
                 "Header": "Dim10",
-                "Field": "Dimensions.Info.Dimension10Name",
-                "DefaultHidden": true
+                "Field": "Dimensions.Info.Dimension10Number",
+                "DefaultHidden": true,
+                "SubFields": [{
+                    "Field": "Dimensions.Info.Dimension10Name"
+                }]
             }
         ],
         "Actions": [

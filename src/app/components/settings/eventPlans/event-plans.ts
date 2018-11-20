@@ -4,7 +4,7 @@ import { EventplanService } from '@app/components/settings/eventPlans/eventplan.
 
 import { ErrorService } from '@app/services/common/errorService';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
 
 @Component({

@@ -25,8 +25,8 @@ import {
 } from '../../../../services/services';
 declare const _;
 
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {UniField} from '../../../../../framework/ui/uniform/index';
 
 const EMPLOYEE_KEY = 'employee';

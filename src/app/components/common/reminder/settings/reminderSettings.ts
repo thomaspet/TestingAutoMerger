@@ -5,7 +5,7 @@ import {
     CustomerInvoiceReminderSettingsService,
     JobService
 } from '@app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales/reminders/debtCollectionAutomations';
 
 @Component({

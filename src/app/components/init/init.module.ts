@@ -30,7 +30,7 @@ import {environment} from 'src/environments/environment';
         AppCommonModule,
         RecaptchaModule.forRoot(),
         RecaptchaFormsModule
-        
+
     ],
     declarations: [
         UniPasswordGuide,

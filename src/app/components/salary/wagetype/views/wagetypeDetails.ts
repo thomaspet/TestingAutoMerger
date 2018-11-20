@@ -5,12 +5,12 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index
 import {
         WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, TaxType, code
     } from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 interface IValidValuesFilter {
     IncomeType?: string;

@@ -15,7 +15,7 @@ import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {VatDeductionGroup} from '../../../../../app/unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {
     VatDeductionGroupService,
     VatDeductionService,

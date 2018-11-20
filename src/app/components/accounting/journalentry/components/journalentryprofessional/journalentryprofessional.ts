@@ -9,7 +9,7 @@ import {
     EventEmitter,
     ChangeDetectorRef
 } from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {
     UniTable,
     UniTableColumn,
@@ -535,17 +535,35 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (account) {
             rowModel.DebitAccountID = account.ID;
 
-            if (account.VatTypeID) {
-                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
-                rowModel.DebitVatType = vatType;
+            if (this.companySettings.TaxMandatoryType === 3) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    rowModel.DebitVatType = vatType;
+                } else {
+                    rowModel.DebitVatType = null;
+                }
+            } else if (this.companySettings.TaxMandatoryType === 2) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    const overrideVatCodes = ['3', '31', '32', '33'];
+                    if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+                        const vatType6 = this.vattypes.find(x => x.VatCode === '6');
+                        rowModel.DebitVatType = vatType6;
+                    } else {
+                        rowModel.DebitVatType = vatType;
+                    }
+                } else {
+                    rowModel.DebitVatType = null;
+                }
             } else {
-                rowModel.CreditVatType = null;
+                rowModel.DebitVatType = null;
             }
 
             this.setDebitVatTypeProperties(rowModel);
             this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.DebitAccountID = null;
+            rowModel.DebitVatType = null;
         }
         return rowModel;
     }
@@ -555,9 +573,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (account) {
             rowModel.CreditAccountID = account.ID;
 
-            if (account.VatTypeID) {
-                const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
-                rowModel.CreditVatType = vatType;
+            if (this.companySettings.TaxMandatoryType === 3) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    rowModel.CreditVatType = vatType;
+                } else {
+                    rowModel.CreditVatType = null;
+                }
+            } else if (this.companySettings.TaxMandatoryType === 2) {
+                if (account.VatTypeID) {
+                    const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
+                    const overrideVatCodes = ['3', '31', '32', '33'];
+                    if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+                        const vatType6 = this.vattypes.find(x => x.VatCode === '6');
+                        rowModel.CreditVatType = vatType6;
+                    } else {
+                        rowModel.CreditVatType = vatType;
+                    }
+                } else {
+                    rowModel.CreditVatType = null;
+                }
             } else {
                 rowModel.CreditVatType = null;
             }
@@ -566,6 +601,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.setVatDeductionPercent(rowModel);
         } else {
             rowModel.CreditAccountID = null;
+            rowModel.CreditVatType = null;
         }
         return rowModel;
     }
@@ -573,9 +609,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private setVatDeductionPercent(rowModel: JournalEntryData, isPercentageChanged: boolean = false): JournalEntryData {
         let deductivePercent: number = 0;
 
+        if (!rowModel.DebitVatTypeID && !rowModel.CreditVatTypeID) {
+            return rowModel;
+        }
+
         if (isPercentageChanged) {
             return rowModel;
         }
+
         rowModel.VatDeductionPercent = null;
 
         if (rowModel.DebitAccount && rowModel.DebitAccount.UseVatDeductionGroupID) {
@@ -1044,7 +1085,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     )]);
                 },
                 groupConfig: this.groupConfig
-            });
+            })
+            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
 
         const creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
@@ -1096,7 +1138,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     )]);
                 },
                 groupConfig: this.groupConfig
-            });
+            })
+            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
 
         const deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setWidth('90px')
@@ -1644,11 +1687,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-
+        const sign = journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID ? -1 : 1; // we need to invert but not use abs!
         return new Promise(resolve => {
-            const journalEntryPaymentData: InvoicePaymentData = {
-                Amount: postPostJournalEntryLine.RestAmount,
-                AmountCurrency: postPostJournalEntryLine.RestAmountCurrency,
+            const journalEntryPaymentData: Partial<InvoicePaymentData> = {
+                Amount: postPostJournalEntryLine.RestAmount * sign,
+                AmountCurrency: postPostJournalEntryLine.RestAmountCurrency * sign,
                 BankChargeAmount: 0,
                 CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
@@ -1660,17 +1703,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             const title = `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber}, `
                 + `${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
-
             const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
                 header: title,
                 data: journalEntryPaymentData,
                 modalConfig: {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
-                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
+                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
+                    isDebit: journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID
                 }
             });
-
             paymentModal.onClose.subscribe((paymentData) => {
                 if (!paymentData) {
                     resolve(journalEntryRow);
@@ -1690,13 +1732,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
                 journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
-
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
 
                     if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
                         journalEntryRow.CreditAccount = null;
                         journalEntryRow.CreditAccountID = null;
+                        oppositeRow.DebitAccount = null;
+                        oppositeRow.DebitAccountID = null;
                         oppositeRow.CreditAccount = this.defaultAccountPayments;
                         oppositeRow.CreditAccountID = this.defaultAccountPayments
                             ? this.defaultAccountPayments.ID
@@ -1704,12 +1747,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
                         journalEntryRow.DebitAccount = null;
                         journalEntryRow.DebitAccountID = null;
+                        oppositeRow.CreditAccount = null;
+                        oppositeRow.CreditAccountID = null;
                         oppositeRow.DebitAccount = this.defaultAccountPayments;
                         oppositeRow.DebitAccountID = this.defaultAccountPayments
                             ? this.defaultAccountPayments.ID
                             : null;
                     }
-
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
                         this.updateJournalEntryLine(journalEntryRow);
                         this.addJournalEntryLines([oppositeRow, agioRow]);
@@ -1737,78 +1781,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     this.updateJournalEntryLine(journalEntryRow);
                     resolve(journalEntryRow);
                 }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        this.addJournalEntryLines([bankChargesRow]);
+                        resolve(journalEntryRow);
+                    });
+                }
             });
 
-            // const updatedRow = this.registerPaymentModal.confirm(
-            //     postPostJournalEntryLine.ID,
-            //     title,
-            //     postPostJournalEntryLine.CurrencyCode,
-            //     postPostJournalEntryLine.CurrencyExchangeRate,
-            //     JournalEntryLine.EntityType,
-            //     journalEntryPaymentData
-            // )
-            //     .then(modalResult => {
-            //         if (modalResult.status === ConfirmActions.ACCEPT) {
-            //             const paymentData = modalResult.model;
-
-            //             journalEntryRow.FinancialDate = paymentData.PaymentDate;
-
-            //             // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
-            //             // calculate the Amount that was paid in the base currency - the diff between this and
-            //             // what is registerred as a payment on the opposite account (normally a bankaccount)
-            //             // will be balanced using an agio line
-            //             journalEntryRow.Amount =
-            //                UniMath.round(paymentData.AmountCurrency
-            //                * postPostJournalEntryLine.CurrencyExchangeRate);
-            //             journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
-            //             journalEntryRow.NetAmount = journalEntryRow.Amount;
-            //             journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-            //             journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
-
-            //             if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
-            //                 const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-
-            //                 if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
-            //                     journalEntryRow.CreditAccount = null;
-            //                     journalEntryRow.CreditAccountID = null;
-            //                     oppositeRow.CreditAccount = this.defaultAccountPayments;
-            //                     oppositeRow.CreditAccountID = this.defaultAccountPayments
-            //                            ? this.defaultAccountPayments.ID : null;
-            //                 } else if (journalEntryRow.CreditAccount
-            //                     && journalEntryRow.CreditAccount.UsePostPost
-            //                  ) {
-            //                     journalEntryRow.DebitAccount = null;
-            //                     journalEntryRow.DebitAccountID = null;
-            //                     oppositeRow.DebitAccount = this.defaultAccountPayments;
-            //                     oppositeRow.DebitAccountID = this.defaultAccountPayments
-            //                        ? this.defaultAccountPayments.ID
-            //                          : null;
-            //                 }
-
-            //                 this.createAgioRow(journalEntryRow, paymentData)
-            //                     .then(agioRow => {
-            //                         this.updateJournalEntryLine(journalEntryRow);
-            //                         this.addJournalEntryLines([oppositeRow, agioRow]);
-            //                     });
-            //             } else {
-            //                 if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
-            //                     && !journalEntryRow.CreditAccount) {
-            //                     journalEntryRow.CreditAccount = this.defaultAccountPayments;
-            //                     journalEntryRow.CreditAccountID = this.defaultAccountPayments
-            //                         ? this.defaultAccountPayments.ID : null;
-            //                 } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost
-            //                     && !journalEntryRow.DebitAccount
-            //                 ) {
-            //                     journalEntryRow.DebitAccount = this.defaultAccountPayments;
-            //                     journalEntryRow.DebitAccountID = this.defaultAccountPayments
-            //                        ? this.defaultAccountPayments.ID : null;
-            //                 }
-
-            //                 this.updateJournalEntryLine(journalEntryRow);
-            //             }
-            //         }
-            //         return journalEntryRow;
-            //     });
         });
     }
 
@@ -1816,6 +1796,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const customerInvoice = journalEntryRow.CustomerInvoice;
+
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
                 Amount: customerInvoice.RestAmount,
@@ -1826,7 +1807,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
                 AgioAccountID: 0,
                 BankChargeAccountID: 0,
-                AgioAmount: 0
+                AgioAmount: 0,
+                PaymentID: null
             };
 
             const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
@@ -1838,7 +1820,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 modalConfig: {
                     entityName: CustomerInvoice.EntityType,
                     currencyCode: customerInvoice.CurrencyCode.Code,
-                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate
+                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
+                    hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
                 }
             });
 
@@ -1846,7 +1829,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (!payment) {
                     resolve(journalEntryRow);
                 }
-
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
@@ -1861,6 +1843,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
                 journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
+                journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
+                journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
 
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
@@ -1868,52 +1852,22 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     journalEntryRow.DebitAccountID = null;
 
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
-                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        agioRow.CustomerInvoiceID = customerInvoice.ID;
+                        this.updateJournalEntryLine(journalEntryRow);
                         resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
                     });
                 } else {
                     resolve(journalEntryRow);
                 }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        bankChargesRow.CustomerInvoiceID = customerInvoice.ID;
+                        resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([bankChargesRow]));
+                    });
+                }
             });
-
-            // const updatedRow = this.registerPaymentModal.confirm(
-            //     customerInvoice.ID,
-            //     title,
-            //     customerInvoice.CurrencyCode,
-            //     customerInvoice.CurrencyExchangeRate,
-            //     CustomerInvoice.EntityType,
-            //     invoiceData
-            // )
-            //     .then(modalResult => {
-            //         if (modalResult.status === ConfirmActions.ACCEPT) {
-            //             const paymentData = modalResult.model;
-            //             journalEntryRow.FinancialDate = paymentData.PaymentDate;
-
-            //             // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
-            //             // the Amount that was paid in the base currency - the diff between this and what
-            //             // is registerred as a payment on the opposite account (normally a bankaccount)
-            //             // will be balanced using an agio line
-            //             journalEntryRow.Amount =
-            //                 UniMath.round(paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate);
-            //             journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
-            //             journalEntryRow.NetAmount = journalEntryRow.Amount;
-            //             journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-            //             journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
-
-            //             if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
-            //                 const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-            //                 journalEntryRow.DebitAccount = null;
-            //                 journalEntryRow.DebitAccountID = null;
-            //                 this.createAgioRow(journalEntryRow, paymentData)
-            //                     .then(agioRow => {
-            //                         this.addJournalEntryLines([oppositeRow, agioRow]);
-            //                     });
-            //             }
-            //         }
-            //         return journalEntryRow;
-            //     });
-
-            // res(updatedRow);
         });
     }
 
@@ -1922,6 +1876,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     ): JournalEntryData {
         const oppositeRow = new JournalEntryData();
         const invoice = journalEntryData.CustomerInvoice;
+        const bankChargesAmount = invoicePaymentData.BankChargeAccountID > 0 && invoicePaymentData.BankChargeAmount !== 0 ?
+            invoicePaymentData.BankChargeAmount : 0;
 
         oppositeRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
         oppositeRow.CustomerInvoice = invoice;
@@ -1935,7 +1891,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         oppositeRow.Dimensions = journalEntryData.Dimensions;
         oppositeRow.Description = journalEntryData.Description;
 
-        oppositeRow.Amount = invoicePaymentData.Amount;
+        oppositeRow.Amount = invoicePaymentData.Amount - bankChargesAmount;
         oppositeRow.AmountCurrency = invoicePaymentData.AmountCurrency;
         oppositeRow.NetAmount = oppositeRow.Amount;
         oppositeRow.NetAmountCurrency = oppositeRow.AmountCurrency;
@@ -1984,6 +1940,54 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             agioRow.DebitAccount = agioAccount;
                         }
                         resolve(agioRow);
+                    },
+                    err => this.errorService.handle(err)
+                );
+        });
+    }
+
+
+    private createBankChargesRow(
+        journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData
+    ): Promise<JournalEntryData> {
+        const bankChargesRow = new JournalEntryData();
+        const isCredit = journalEntryData.DebitAccountID > 0;
+
+        bankChargesRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
+        bankChargesRow.CustomerInvoice = journalEntryData.CustomerInvoice;
+        bankChargesRow.SameOrNew = journalEntryData.SameOrNew;
+        bankChargesRow.JournalEntryNo = journalEntryData.JournalEntryNo;
+        bankChargesRow.VatDate = journalEntryData.VatDate;
+        bankChargesRow.FinancialDate = journalEntryData.FinancialDate;
+        bankChargesRow.Dimensions = journalEntryData.Dimensions;
+        bankChargesRow.Description = journalEntryData.Description;
+        bankChargesRow.Amount = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.AmountCurrency = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.NetAmount = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.NetAmountCurrency = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.NetAmountCurrency = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.NetAmountCurrency = Math.abs(invoicePaymentData.BankChargeAmount);
+        bankChargesRow.VatDeductionPercent = journalEntryData.VatDeductionPercent;
+        bankChargesRow.CurrencyCode = this.companySettings.BaseCurrencyCode;
+        bankChargesRow.CurrencyID = this.companySettings.BaseCurrencyCode.ID;
+        bankChargesRow.CurrencyExchangeRate = 1;
+
+        return new Promise((resolve) => {
+            this.accountService.Get(invoicePaymentData.BankChargeAccountID)
+                .subscribe(
+                    bankChargeAccount => {
+                        if (isCredit) {
+                            bankChargesRow.CreditAccountID = bankChargeAccount.ID;
+                            bankChargesRow.CreditAccount = bankChargeAccount;
+                            bankChargesRow.DebitAccountID = this.defaultAccountPayments.ID;
+                            bankChargesRow.DebitAccount = this.defaultAccountPayments;
+                        } else {
+                            bankChargesRow.DebitAccountID = bankChargeAccount.ID;
+                            bankChargesRow.DebitAccount = bankChargeAccount;
+                            bankChargesRow.CreditAccountID = this.defaultAccountPayments.ID;
+                            bankChargesRow.CreditAccount = this.defaultAccountPayments;
+                        }
+                        resolve(bankChargesRow);
                     },
                     err => this.errorService.handle(err)
                 );
@@ -2530,7 +2534,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
-
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {
                 const firstJournalEntry = data[0];

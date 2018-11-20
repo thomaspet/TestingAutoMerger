@@ -1,8 +1,8 @@
 import {Component, OnInit, EventEmitter, Output, Input} from '@angular/core';
 import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {ReportDefinition, ReportDefinitionParameter, Employee} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {EmployeeService, YearService} from '../../../../services/services';
 interface IField {
     Label: string;

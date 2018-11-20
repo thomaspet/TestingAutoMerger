@@ -4,9 +4,9 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTable} from '../.
 import {SalarybalanceService, ErrorService, NumberFormat} from '../../../../services/services';
 import {SalaryBalance, SalBalDrawType} from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 
 interface BalanceActionFormattedType {
     salaryBalanceID: number;

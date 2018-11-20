@@ -4,9 +4,9 @@ import {UniView} from '../../../../../framework/core/uniView';
 import {
     UniCacheService, ErrorService, SalarybalanceService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {ReplaySubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {
     SalaryBalance, SalBalType, WageType, StdWageType, SalaryBalanceLine, Supplier, SalaryBalanceTemplate
@@ -17,7 +17,7 @@ import {
 import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {ImageModal} from '../../../common/modals/ImageModal';
-import {Subscription} from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 
 const SAVING_KEY = 'viewSaving';
 

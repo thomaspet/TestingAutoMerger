@@ -7,7 +7,7 @@ import {View as RelationsSubView} from './relations';
 import {View as BalancesSubView} from './balances';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, EmployeeService, UserService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 

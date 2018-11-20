@@ -1,4 +1,4 @@
-import {ICellRendererParams} from 'ag-grid';
+import {ICellRendererParams} from 'ag-grid-community';
 import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
 export class CellRenderer {

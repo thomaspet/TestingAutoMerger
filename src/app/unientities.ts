@@ -1704,7 +1704,7 @@ export class PostingSummaryDraft extends UniEntity {
     public draftWithDims: string;
     public ID: number;
     public PayrollID: number;
-    public status: Status;
+    public status: SummaryJobStatus;
     public statusTime: Date;
     public CustomFields: any;
 }
@@ -2037,14 +2037,14 @@ export class CompanySalary extends UniEntity {
     public InterrimRemitAccount: number;
     public MainAccountAllocatedAGA: number;
     public MainAccountAllocatedAGAVacation: number;
+    public MainAccountAllocatedFinancial: number;
+    public MainAccountAllocatedFinancialVacation: number;
     public MainAccountAllocatedVacation: number;
     public MainAccountCostAGA: number;
     public MainAccountCostAGAVacation: number;
     public MainAccountCostFinancial: number;
     public MainAccountCostFinancialVacation: number;
     public MainAccountCostVacation: number;
-    public MainAccountFinancial: number;
-    public MainAccountFinancialVacation: number;
     public PaymentInterval: CompanySalaryPaymentInterval;
     public PostToTaxDraw: boolean;
     public RateFinancialTax: number;
@@ -2743,6 +2743,7 @@ export class AccountSetup extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCode: string;
+    public Visible: boolean;
     public AccountGroup: AccountGroupSetup;
     public CustomFields: any;
 }
@@ -3613,8 +3614,11 @@ export class CompanySettings extends UniEntity {
     public ShowNumberOfDecimals: number;
     public StatusCode: number;
     public SupplierAccountID: number;
+    public TaxableFromDate: LocalDate;
+    public TaxableFromLimit: number;
     public TaxBankAccountID: number;
     public TaxMandatory: boolean;
+    public TaxMandatoryType: number;
     public TwoStageAutobankEnabled: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
@@ -4923,7 +4927,7 @@ export class CompanyAccess extends UniEntity {
 
 
 export class DeniedUserAccessLog extends UniEntity {
-    public static RelativeUrl = 'denied-users';
+    public static RelativeUrl = '';
     public static EntityType = 'DeniedUserAccessLog';
 
     public _createguid: string;
@@ -6461,6 +6465,7 @@ export class InvoicePaymentData extends UniEntity {
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
     public PaymentDate: LocalDate;
+    public PaymentID: string;
 }
 
 
@@ -6475,7 +6480,9 @@ export class AmeldingAgaAndTaxSums extends UniEntity {
     public AccountNumber: string;
     public DueDate: Date;
     public EmploymentTax: number;
+    public FinancialTax: number;
     public KIDEmploymentTax: string;
+    public KIDFinancialTax: string;
     public KIDTaxDraw: string;
     public MessageID: string;
     public period: number;
@@ -6672,6 +6679,7 @@ export class SalaryTransactionSums extends UniEntity {
     public baseTableTax: number;
     public baseVacation: number;
     public calculatedAGA: number;
+    public calculatedFinancialTax: number;
     public calculatedVacationPay: number;
     public Employee: number;
     public grossPayment: number;
@@ -6893,6 +6901,7 @@ export class Agency extends UniEntity {
 
 
 export class ContractLicenseType extends UniEntity {
+    public TrialExpiration: Date;
     public TypeID: number;
     public TypeName: string;
 }
@@ -7144,6 +7153,7 @@ export class JournalEntryLinePostPostData extends UniEntity {
     public MarkedAgainstJournalEntryLineID: number;
     public MarkedAgainstJournalEntryNumber: string;
     public NumberOfPayments: number;
+    public PaymentID: string;
     public PeriodNo: number;
     public RestAmount: number;
     public RestAmountCurrency: number;
@@ -7357,6 +7367,25 @@ export class JournalEntryPeriodData extends UniEntity {
     public PeriodNo: number;
     public PeriodSumYear1: number;
     public PeriodSumYear2: number;
+}
+
+
+export class LedgerSuggestion extends UniEntity {
+    public BusinessType: string;
+    public IndustryCode: string;
+    public IndustryName: string;
+    public Name: string;
+    public OrgNumber: string;
+    public Source: SuggestionSource;
+    public Suggestion: AccountUsage;
+    public Suggestions: Array<AccountUsage>;
+}
+
+
+export class AccountUsage extends UniEntity {
+    public AccountNumber: number;
+    public Counter: number;
+    public PercentWeight: number;
 }
 
 
@@ -7974,6 +8003,13 @@ export enum AltinnGetVatReportDataFromAltinnStatus{
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
     ReportReceived = 3,
+}
+
+
+export enum SuggestionSource{
+    InternalCompanyHistory = 1,
+    CommonSupplierHistory = 2,
+    CommonIndustryHistory = 3,
 }
 
 

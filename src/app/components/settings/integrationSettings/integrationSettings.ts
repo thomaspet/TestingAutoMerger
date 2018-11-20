@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { EventPlans } from '@app/components/settings/eventPlans/event-plans';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'integration-settings',

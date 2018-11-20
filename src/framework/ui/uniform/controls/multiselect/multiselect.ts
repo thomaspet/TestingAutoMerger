@@ -7,7 +7,7 @@ import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces/uni-field-l
 import { FormControl } from '@angular/forms';
 import * as _ from 'lodash';
 import { NgSelectComponent } from '@ng-select/ng-select';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'uni-multi-select-input',

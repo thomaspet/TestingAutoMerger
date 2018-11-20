@@ -1,7 +1,7 @@
 import {Router, ActivatedRoute} from '@angular/router';
 import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges, OnInit} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {UniForm, UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
 import {NavbarLinkService} from '../../../layout/navbar/navbar-link-service';
@@ -75,7 +75,7 @@ export class CustomerDetails implements OnInit {
     @Input() public modalMode: boolean;
     @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(LedgerAccountReconciliation) private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(SubCompanyComponent) private subCompany: SubCompanyComponent;
 
@@ -200,6 +200,12 @@ export class CustomerDetails implements OnInit {
     private localizationOptions: {Culture: string, Label: string}[] = [
         {Culture: 'no', Label: 'Norsk bokmål'},
         {Culture: 'en', Label: 'Engelsk'},
+    ];
+
+    public postposttabs: IUniTab[] = [
+        {name: 'Åpne poster', value: 'OPEN'},
+        {name: 'Lukkede poster', value: 'MARKED'},
+        {name: 'Alle poster', value: 'ALL'}
     ];
 
     constructor(
@@ -642,6 +648,14 @@ export class CustomerDetails implements OnInit {
                 }
             );
         });
+    }
+
+    public onPostpostFilterClick(event: any) {
+        this.postpost.showHideEntries(event.value);
+    }
+
+    public goToPostpost() {
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.customer$.value.Info.Name + '&mode=kunder');
     }
 
     public numberSeriesChange(selectedSerie) {

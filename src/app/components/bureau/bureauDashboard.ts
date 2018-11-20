@@ -16,7 +16,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
-import {Subscription} from 'rxjs/Subscription';
+import {Subscription} from 'rxjs';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';

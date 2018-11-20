@@ -27,4 +27,11 @@ export class UniToolbarValidation {
             return 'info';
         }
     }
+
+    onClick(item: IToolbarValidation) {
+        if (item.click) {
+            item.click();
+        }
+    }
+
 }

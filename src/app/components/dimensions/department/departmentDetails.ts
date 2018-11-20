@@ -8,7 +8,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {DepartmentService, ErrorService} from '../../../services/services';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 @Component({
     selector: 'department-dimensions-details',

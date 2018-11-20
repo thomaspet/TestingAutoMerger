@@ -4,7 +4,7 @@ import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 import {
     PeriodService,

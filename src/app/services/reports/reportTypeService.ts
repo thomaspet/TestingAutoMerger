@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { RequestMethod } from '@angular/http';
 import { BizHttp } from '../../../framework/core/http/BizHttp';
 import { UniHttp } from '../../../framework/core/http/http';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ReportDefinition } from '../../unientities';
 import { ReportTypeEnum } from '@app/models/reportTypeEnum';
 

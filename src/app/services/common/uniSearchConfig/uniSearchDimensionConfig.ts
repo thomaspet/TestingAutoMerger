@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';

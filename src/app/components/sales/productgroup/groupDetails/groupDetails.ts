@@ -108,7 +108,7 @@ export class GroupDetails implements OnInit {
 
     onRowDeleted(rowModel) {
         this.productCategoryService.deleteCategoryLink(rowModel['_categoryLinkID']).subscribe(
-            () => {},
+            () => { this.getProductsInGroup(this.group) },
             (err) => this.errorService.handle(err)
         );
     }

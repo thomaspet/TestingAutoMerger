@@ -56,7 +56,7 @@ export class Project {
     rootActions: IUniSaveAction[] = [
         {
             label: 'Lagre',
-            action: (completeEvent) => setTimeout(this.saveProject(completeEvent)),
+            action: (completeEvent) => setTimeout(() => this.saveProject(completeEvent)),
             main: true,
             disabled: false
         }
@@ -185,7 +185,7 @@ export class Project {
                 || project.ProjectNumber.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())) {
                 return project;
             }
-        });
+        }).slice(0, 99);
     }
 
     private updateToolbar() {

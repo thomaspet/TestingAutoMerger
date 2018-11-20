@@ -5,7 +5,7 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry, JournalEntryLine} from '../../../../unientities';
 import {PayrollrunService, ErrorService, NumberSeriesService, BrowserStorageService, JournalEntryService} from '../../../../../app/services/services';
 import * as moment from 'moment';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 const NUMBER_SERIES_KEY = 'numberSeriesID_salaryBooking';
 interface IBookingModel {
     date: LocalDate;

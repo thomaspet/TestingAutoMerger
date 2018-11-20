@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
 import {UniProductDetailsModal} from '../products/productDetailsModal';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
@@ -329,7 +329,18 @@ export class TradeItemTable {
                 lookupFunction: (query: string) => {
                     return this.productService.GetAll(
                         `filter=contains(Name,'${query}') or startswith(PartName,'${query}')&top=100`,
-                        ['Account', 'Dimensions', 'Dimensions.Project', 'Dimensions.Department']
+                        [
+                            'Account',
+                            'Dimensions',
+                            'Dimensions.Project',
+                            'Dimensions.Department',
+                            'Dimensions.Dimension5',
+                            'Dimensions.Dimension6',
+                            'Dimensions.Dimension7',
+                            'Dimensions.Dimension8',
+                            'Dimensions.Dimension9',
+                            'Dimensions.Dimension10'
+                        ]
                     )
 
                     .catch((err, obs) => this.errorService.handleRxCatch(err, obs));

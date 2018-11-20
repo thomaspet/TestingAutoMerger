@@ -34,13 +34,13 @@ import {
     RowClickedEvent,
     RowDragEndEvent,
     PaginationChangedEvent
-} from 'ag-grid';
+} from 'ag-grid-community';
 
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({
@@ -82,6 +82,7 @@ export class AgGridWrapper {
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
+    private resizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private resizeInProgress: string;
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
@@ -112,6 +113,12 @@ export class AgGridWrapper {
         this.columnMoveDebouncer$
             .debounceTime(1000)
             .subscribe((event: ColumnMovedEvent) => this.onColumnMove(event));
+
+        this.resizeDebouncer$
+            .debounceTime(200)
+            .subscribe(event => {
+                this.onColumnResize(event);
+            });
     }
 
     public ngOnDestroy() {
@@ -123,10 +130,15 @@ export class AgGridWrapper {
             this.columns = this.tableUtils.getTableColumns(this.config);
             this.agColDefs = this.getAgColDefs(this.columns);
 
-            if (this.config.editable || this.config.conditionalRowCls) {
+            if (this.config.conditionalRowCls || this.config.isRowReadOnly || this.config.isRowSelectable) {
                 this.rowClassResolver = (params) => {
                     const row = params.data;
                     const classes = [];
+
+                    if (this.config.isRowSelectable && !this.config.isRowSelectable(row)) {
+                        classes.push('disabled-row');
+                    }
+
                     if (this.config.editable && this.config.isRowReadOnly) {
                         if (this.config.isRowReadOnly(row)) {
                             classes.push('readonly-row');
@@ -268,13 +280,6 @@ export class AgGridWrapper {
         }
     }
 
-    public onGridSizeChange(event: GridSizeChangedEvent) {
-        event.api.sizeColumnsToFit();
-        // As sad as this is, its required for the widths
-        // to update properly after scroll bars disappear..
-        setTimeout(() => event.api.sizeColumnsToFit(), 500);
-    }
-
     public onRowDragEnd(event: RowDragEndEvent) {
         try {
             const originalIndex = event.node.data['_originalIndex'];
@@ -293,29 +298,22 @@ export class AgGridWrapper {
 
     public onColumnResize(event: ColumnResizedEvent) {
         if (event.finished) {
-            const field = event.column.getColId();
-            if (this.resizeInProgress === field) {
-                this.resizeInProgress = undefined;
-
-                const index = this.columns.findIndex(col => col.field === field);
-                if (index >= 0) {
-                    this.columns[index].width = event.column.getActualWidth();
-                    if (this.config.configStoreKey) {
-                        this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
-                    }
-
-                    // Re-destribute available space if body width is now less than viewport width
-                    if (this.wrapperElement) {
-                        const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
-                        const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-                        if (body.clientWidth < viewport.clientWidth) {
-                            event.api.sizeColumnsToFit();
-                        }
-                    }
+            if (event.source === 'autosizeColumns' || event.source === 'uiColumnDragged') {
+                const field = event.column.getColId();
+                const colIndex = this.columns.findIndex(col => col.field === field);
+                if (colIndex >= 0 && this.config.configStoreKey) {
+                    this.columns[colIndex].width = event.column.getActualWidth();
+                    this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
                 }
             }
-        } else {
-            this.resizeInProgress = event.column.getColId();
+
+            if (this.wrapperElement) {
+                const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
+                const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
+                if (body.clientWidth < viewport.clientWidth) {
+                    event.api.sizeColumnsToFit();
+                }
+            }
         }
     }
 

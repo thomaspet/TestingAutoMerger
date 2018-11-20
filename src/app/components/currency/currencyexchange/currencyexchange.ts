@@ -10,8 +10,8 @@ import {
     INumberFormat
 } from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {
     LocalDate

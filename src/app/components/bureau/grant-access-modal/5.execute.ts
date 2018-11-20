@@ -2,7 +2,7 @@ import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 import {ElsaCompanyLicense, ElsaProduct, ElsaUserLicense} from '@app/services/elsa/elsaModels';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Component({
     selector: 'execute-for-bulk-access',

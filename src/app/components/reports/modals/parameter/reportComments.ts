@@ -2,7 +2,7 @@ import { Component, Input, Output, OnInit, AfterViewInit, EventEmitter, ViewChil
 import { ErrorService, StatisticsService } from '@app/services/services';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { UniTableConfig, UniTableColumn, UniTableColumnType, UniTable } from '@uni-framework/ui/unitable';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 export interface ReportComment {
     ID?: number;

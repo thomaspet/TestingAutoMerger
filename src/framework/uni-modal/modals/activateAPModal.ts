@@ -13,8 +13,8 @@ import {
     ErrorService,
     BankAccountService
 } from '../../../../src/app/services/services';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountModal';
 
@@ -120,7 +120,7 @@ export class UniActivateAPModal implements IUniModal {
 
                 model.incommingInvoice = settings.APIncomming.find(f => f.Name === 'EHF INVOICE 2.0') != null;
                 model.outgoingInvoice = settings.APOutgoing.find(f => f.Name === 'EHF INVOICE 2.0') != null;
-                model.outgoingInvoicePrint = settings.APOutgoing.find(f => f.Name === 'NETSPRINT') != null; 
+                model.outgoingInvoicePrint = settings.APOutgoing.find(f => f.Name === 'NETSPRINT') != null;
 
                 model.settings = settings;
 

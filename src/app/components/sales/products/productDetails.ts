@@ -23,10 +23,13 @@ import {
     ProjectService,
     DepartmentService,
     CompanySettingsService,
-    ProductCategoryService
+    ProductCategoryService,
+    CustomDimensionService,
+    UniSearchDimensionConfig,
+    Dimension
 } from '../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
 declare const _; // lodash
 
@@ -63,6 +66,7 @@ export class ProductDetails {
     private vatTypes: VatType[];
     private projects: Project[];
     private departments: Department[];
+    private customDimensions;
 
     private productTypes: any[] = [
         {ID: 1, TypeName: 'Lagervare'},
@@ -114,7 +118,9 @@ export class ProductDetails {
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
         private productCategoryService: ProductCategoryService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private customDimensionService: CustomDimensionService,
+        private uniSearchDimensionConfig: UniSearchDimensionConfig
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
@@ -125,21 +131,22 @@ export class ProductDetails {
     public setupForm() {
         // setup form
         if (!this.formIsInitialized) {
-            this.fields$.next(this.getComponentLayout().Fields);
-
             Observable.forkJoin(
                     this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
                     this.projectService.GetAll(null),
                     this.departmentService.GetAll(null),
-                    this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType'])
+                    this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
+                    this.customDimensionService.getMetadata()
                 )
                 .subscribe((response: Array<any>) => {
                     this.vatTypes = response[0];
                     this.projects = response[1];
                     this.departments = response[2];
                     this.defaultSalesAccount = response[3].DefaultSalesAccount;
-                    this.extendFormConfig();
+                    this.customDimensions = response[4];
                     this.formIsInitialized = true;
+                    this.fields$.next(this.getComponentLayout().Fields);
+                    this.extendFormConfig();
                     this.loadProduct();
                 }, err => this.errorService.handle(err));
         } else {
@@ -534,7 +541,7 @@ export class ProductDetails {
 
     // TODO: return ComponentLayout when the object respects the interface
     private getComponentLayout(): any {
-        return {
+        const layout =  {
             Name: 'Product',
             BaseEntity: 'Product',
             Fields: [
@@ -656,32 +663,29 @@ export class ProductDetails {
                     Property: 'Dimensions.DepartmentID',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Avdeling'
-                },
-
-                // Description textarea commented out of form config for now.
-                // Because design wants this to be in the same fieldset as product image.
-                // We dont have a form control for uni-image yet,
-                // so these fields needs to be hard coded into the template
-
-                // FieldSet 5 (Utvider produktinformasjon)
-                // {
-                //     FieldSet: 5,
-                //     Legend: 'Beskrivelse',
-                //     Section: 1,
-                //     ComponentLayoutID: 3,
-                //     EntityType: 'Product',
-                //     Property: 'Description',
-                //     Placement: 4,
-                //     FieldType: FieldType.TEXTAREA,
-                //     Label: 'Beskrivelse',
-                //     Description: '',
-                //     HelpText: '',
-                //     Sectionheader: 'Beskrivelse',
-                //     StatusCode: 0,
-                //     ID: 9,
-                //     Classes: 'max-width visuallyHideLabel'
-                // },
+                }
             ]
         };
+
+        this.customDimensions.forEach((dim) => {
+            layout.Fields.push(
+                <any>{
+                    FieldSet: 4,
+                    Legend: 'Dimensjoner',
+                    Section: 0,
+                    EntityType: 'Project',
+                    Property: `Dimensions.Dimension${dim.Dimension}ID`,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: !dim.IsActive,
+                    Options: {
+                        uniSearchConfig: this.uniSearchDimensionConfig.generateDimensionConfig(dim.Dimension, this.customDimensionService),
+                        valueProperty: 'ID'
+                    },
+                    Label: dim.Label
+                }
+            );
+        });
+
+        return layout;
     }
 }

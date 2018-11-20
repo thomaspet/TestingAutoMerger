@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {EmploymentService} from '../employee/employmentService';
 import {PayrollrunService} from '../payrollRun/payrollrunService';
 import {SalaryTransaction, LocalDate, Account, VatType} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {VatTypeService} from '@app/services/accounting/vatTypeService';

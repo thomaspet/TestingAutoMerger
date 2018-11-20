@@ -15,7 +15,7 @@ export default function createFormConfig(models, jobs) {
             FieldType: FieldType.UNI_MULTISELECT,
             Label: 'Operation Filter',
             Section: 0,
-            FieldSet: 2,
+            FieldSet: 1,
             Options: {
                 showAllButton: true,
                 showCheckbox: true,
@@ -49,7 +49,7 @@ export default function createFormConfig(models, jobs) {
                     if (hasD) {
                         result += 'D';
                     }
-                    if(result === 'CUD') {
+                    if (result === 'CUD') {
                         return '*';
                     }
                     return result;
@@ -113,7 +113,7 @@ export default function createFormConfig(models, jobs) {
             FieldType: FieldType.DROPDOWN,
             Label: 'Type',
             Section: 0,
-            FieldSet: 2,
+            FieldSet: 1,
             Options: {
                 valueProperty: 'ID',
                 displayProperty: 'Name',
@@ -149,7 +149,7 @@ export default function createFormConfig(models, jobs) {
             FieldType: FieldType.UNI_MULTISELECT,
             Label: 'Job Names',
             Section: 0,
-            FieldSet: 2,
+            FieldSet: 1,
             Options: {
                 source: jobs,
                 bindValue: 'ID',

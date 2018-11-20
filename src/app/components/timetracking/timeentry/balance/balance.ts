@@ -61,7 +61,8 @@ export class RegtimeBalance {
 
         let data = {
             date: item.Date,
-            relation: this.current
+            relation: this.current,
+            disableSaveButton: !this.current.IsActive,
         };
 
         this.modalService.open(UniTimeModal, { data: data }).onClose.subscribe((res: any) => {

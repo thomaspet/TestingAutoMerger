@@ -3,6 +3,8 @@ import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
 import {IUniWidget} from '../widgets/widgetCanvas';
 import {environment} from '../../../environments/environment';
 
+import {Observable} from 'rxjs';
+
 @Component({
     selector: 'uni-salary',
     template: `

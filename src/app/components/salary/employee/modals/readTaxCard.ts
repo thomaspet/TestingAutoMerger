@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {AltinnReceipt} from '../../../../../app/unientities';
 import {AltinnReceiptService, EmployeeService, ErrorService} from '../../../../../app/services/services';
 import {TaxResponseModal} from './taxResponseModal';

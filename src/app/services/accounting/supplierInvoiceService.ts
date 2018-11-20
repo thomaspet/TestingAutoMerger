@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {URLSearchParams} from '@angular/http';
 import {ErrorService} from '../common/errorService';
 import {UserService} from '../common/userService';
@@ -249,7 +249,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         if (!file.Name) { return false; }
 
         const name = (file.Name || '').toLowerCase();
-        return name.indexOf('.ehf') !== -1;
+        const contenttype = (file.ContentType || '').toLowerCase();
+        return name.indexOf('.ehf') !== -1 || contenttype.startsWith('bis/billing');
     }
 
     private selectBuilder(...args: any[]): string {

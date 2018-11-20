@@ -2,14 +2,14 @@ import {Injectable} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../unitable/config/unitableColumn';
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
-import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid';
+import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
 import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 
@@ -55,6 +55,11 @@ export class TableDataService {
             this.loadedRowCount = filteredData.length;
 
             this.gridApi.setRowData(filteredData);
+            this.gridApi.forEachNode(node => {
+                if (node.data && node.data['_rowSelected']) {
+                    node.setSelected(node.data['_rowSelected']);
+                }
+            });
             const lastRow = filteredData.length && filteredData[filteredData.length - 1];
             if (this.config.autoAddNewRow && this.config.editable && (!lastRow || !lastRow['_isEmpty'])) {
                 this.addRow();

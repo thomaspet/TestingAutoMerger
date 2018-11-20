@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import * as moment from 'moment';
 
 import {
@@ -323,12 +323,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                         this.deliveryTerms = res[5];
                         if (res[6]) {
                             quote = this.tofHelper.mapCustomerToEntity(res[6], quote);
-
-                            if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
-                                this.setDeliveryDate(quote);
-                            }
-                        } else {
-                            quote.DeliveryDate =  null;
                         }
                         if (res[7]) {
                             quote.DefaultDimensions = quote.DefaultDimensions || new Dimensions();
@@ -355,6 +349,11 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
                         quote.QuoteDate = new LocalDate(Date());
                         quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
+                        if (quote.DeliveryTerms && quote.DeliveryTerms.CreditDays) {
+                            this.setDeliveryDate(quote);
+                        } else {
+                            quote.DeliveryDate =  null;
+                        }
 
                         if (!quote.CurrencyCodeID) {
                             quote.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;

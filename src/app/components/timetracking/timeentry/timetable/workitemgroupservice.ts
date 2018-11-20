@@ -2,7 +2,7 @@ import {StatusCode} from './model';
 import {toIso} from '../../../common/utils/utils';
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../../../framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 const workitemgroupModelID = 196;
 
@@ -10,7 +10,7 @@ const workitemgroupModelID = 196;
 export class WorkitemGroupService {
 
     constructor(private http: UniHttp) {
-        
+
     }
 
     public GetTimeSheet(relationId: number, fromDate) {
@@ -20,19 +20,19 @@ export class WorkitemGroupService {
     public GetGroups(relationId: number, fromDate, toDate, ... statuses: Array<StatusCode> ) {
         var d1 = toIso(fromDate);
         var d2 = toIso(toDate);
-        var route = this.routeBuilder('model=workitemgroup', 
-            '&select', 'id as ID,statuscode as StatusCode,task.id as TaskID', 
+        var route = this.routeBuilder('model=workitemgroup',
+            '&select', 'id as ID,statuscode as StatusCode,task.id as TaskID',
             'join', 'workitemgroup.id eq task.entityid',
             'expand', 'items', 'filter', `workrelationid eq ${relationId}`
                 + ` and items.date ge '${d1}' and items.date le '${d2}'`
                 + ` and isnull(task.modelid, ${workitemgroupModelID}) eq ${workitemgroupModelID}`);
         if (statuses && statuses.length > 0) {
             route += ' AND (';
-            statuses.forEach( (x, index) => 
+            statuses.forEach( (x, index) =>
                 route += `${(index > 0 ? ' or ' : '')} statuscode eq ${x}`
             );
             route += ')';
-        } 
+        }
         return this.getStatistics(route).map( x => x.Data );
     }
 
@@ -54,7 +54,7 @@ export class WorkitemGroupService {
         return this.POST(
             this.routeBuilder('workitemgroups/' + groupId, 'action', 'Reject')
         );
-    }    
+    }
 
     public Delete(groupId: number) {
         return this.deleteByID(groupId, 'workitemgroups');
@@ -63,7 +63,7 @@ export class WorkitemGroupService {
     public CreateGroup(relationId: number, fromDate, toDate) {
         var d1 = toIso(fromDate);
         var d2 = toIso(toDate);
-        var route = this.routeBuilder('workitemgroups', 
+        var route = this.routeBuilder('workitemgroups',
             'action', 'create-from-items', 'workrelationid', relationId, 'fromdate', d1, 'todate', d2);
         return this.POST(route);
     }
@@ -78,11 +78,11 @@ export class WorkitemGroupService {
     private routeBuilder(route: string, ... argPairs: any[] ) {
         var result = route;
         for (var i = 0; i < argPairs.length; i += 2 ) {
-            result += ( argPairs[i].substr(0, 1) === '&' ? '' : i > 0 ? '&' : '?' ) 
+            result += ( argPairs[i].substr(0, 1) === '&' ? '' : i > 0 ? '&' : '?' )
             + argPairs[i] + '=' + argPairs[i + 1];
         }
         return result;
-    }    
+    }
 
     public deleteByID(id: any, baseRoute: string): Observable<any> {
         return this.http.asDELETE().usingBusinessDomain().withEndPoint(baseRoute + '/' + id).send(undefined);
@@ -90,7 +90,7 @@ export class WorkitemGroupService {
 
     public getByID<T>(id: number, baseRoute: string, expand?: string): Observable<T> {
         return this.GET(baseRoute + '/' + id, { expand: expand});
-    }    
+    }
 
     public get<T>(route: string, params?: any): Observable<T> {
         return this.GET(route, params);
@@ -100,7 +100,7 @@ export class WorkitemGroupService {
         return this.http.asGET().usingBusinessDomain()
         .withEndPoint(route).send(params)
         .map(response => response.json());
-    }    
+    }
 
     private POST(route: string, params?: any, body?: any ): Observable<any> {
         if (body) {
@@ -112,7 +112,7 @@ export class WorkitemGroupService {
             .withEndPoint(route).send(params)
             .map(response => response.json());
         }
-    }    
+    }
 
     public getStatistics(query: string): Observable<any> {
         return this.http.asGET().usingStatisticsDomain()

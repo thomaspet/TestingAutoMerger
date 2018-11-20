@@ -4,7 +4,7 @@ import {
     UniTableColumnType,
     UniTableColumn,
 } from '../../../../../framework/ui/unitable/index';
-import {AmeldingData} from '../../../../unientities';
+import {AmeldingData, CompanySalary} from '../../../../unientities';
 import * as moment from 'moment';
 
 @Component({
@@ -15,6 +15,7 @@ import * as moment from 'moment';
 export class AmeldingReceiptView {
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
+    @Input() public companySalary: CompanySalary;
     private mottattLeveranserIPerioden: any[] = [];
     private alleAvvikNoder: any[] = [];
     private allAvvikGroupedByPeriod: any[] = [];
@@ -24,11 +25,11 @@ export class AmeldingReceiptView {
     private identificationObject: any = {};
 
     constructor() {
-        this.setupMottakTable();
     }
 
     public ngOnChanges() {
         this.showFeedback = false;
+        this.setupMottakTable();
         if (this.currentAMelding) {
             this.getAlleAvvik();
         }
@@ -212,11 +213,18 @@ export class AmeldingReceiptView {
             'mottattAvgiftOgTrekkTotalt.sumForskuddstrekk', 'Forskuddstrekk', UniTableColumnType.Money
         );
         const periodeCol = new UniTableColumn('periode', 'Periode', UniTableColumnType.Text);
+        const financialTaxCol = new UniTableColumn(
+            'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money);
+
+        const columns: UniTableColumn[] = [
+            meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
+        ];
+        if (this.companySalary && this.companySalary.CalculateFinancialTax) {
+            columns.push(financialTaxCol);
+        }
 
         this.mottattLeveranserIPeriodenConfig = new UniTableConfig('salary.amelding.ameldingReceipt', false, false)
             .setDefaultOrderBy('meldingsId', -1)
-            .setColumns([
-                meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
-            ]);
+            .setColumns(columns);
     }
 }

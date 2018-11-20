@@ -1,6 +1,6 @@
 import {Component, Input, ViewChild, Output, EventEmitter, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IReference} from '../../../../models/iReference';
@@ -10,7 +10,7 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {
     Supplier,
     Contact,
@@ -72,7 +72,7 @@ export class SupplierDetails implements OnInit {
     public form: UniForm;
 
     @ViewChild(LedgerAccountReconciliation)
-    private ledgerAccountReconciliation: LedgerAccountReconciliation;
+    private postpost: LedgerAccountReconciliation;
 
     public supplierID: number;
     public supplierNameFromUniSearch: string;
@@ -119,6 +119,12 @@ export class SupplierDetails implements OnInit {
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
         'Info.Contacts.Info.DefaultPhone'
+    ];
+
+    public postposttabs: IUniTab[] = [
+        {name: 'Åpne poster', value: 'OPEN'},
+        {name: 'Lukkede poster', value: 'MARKED'},
+        {name: 'Alle poster', value: 'ALL'}
     ];
 
 
@@ -300,6 +306,14 @@ export class SupplierDetails implements OnInit {
         this.setup();
     }
 
+    public onPostpostFilterClick(event: any) {
+        this.postpost.showHideEntries(event.value);
+    }
+
+    public goToPostpost() {
+        this.router.navigateByUrl('/accounting/postpost?name=' + this.supplier$.value.Info.Name + '&mode=leverandør');
+    }
+
     public nextSupplier() {
         this.supplierService.getNextID(this.supplier$.getValue().ID)
             .subscribe((ID) => {
@@ -431,8 +445,8 @@ export class SupplierDetails implements OnInit {
                 this.saveSupplier(() => {});
             } else if (modalResult === ConfirmActions.REJECT) {
                 this.isDirty = false;
-                if (this.ledgerAccountReconciliation) {
-                    this.ledgerAccountReconciliation.isDirty = false;
+                if (this.postpost) {
+                    this.postpost.isDirty = false;
                 }
             }
 

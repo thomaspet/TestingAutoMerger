@@ -1,9 +1,14 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance, SalBalDrawType} from '../../../unientities';
+import {Observable} from 'rxjs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
+import {SalarybalanceService} from '../salarybalance/salarybalanceService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate> {
@@ -20,11 +25,18 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
     ];
 
     constructor(
-        protected http: UniHttp
+        protected http: UniHttp,
+        private uniModalService: UniModalService,
+        private salaryTransactionService: SalaryTransactionService,
+        private toastService: ToastService
     ) {
         super(http);
         this.relativeURL = SalaryBalanceTemplate.RelativeUrl;
         this.entityType = SalaryBalanceTemplate.EntityType;
+    }
+
+    private clearCache() {
+        this.salaryTransactionService.invalidateCache();
     }
 
     public getInstalmentTypes() {
@@ -47,6 +59,66 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
     public getNext(ID: number, expands: string[] = null) {
         return super.GetAll(`filter=ID gt ${ID}&top=1&orderBy=ID`, expands ? expands : this.defaultExpands)
             .map(resultSet => resultSet[0]);
+    }
+
+    public save(
+        template: SalaryBalanceTemplate,
+        salBals: SalaryBalance[] = [],
+        done: (msg: string) => void = null): Observable<SalaryBalanceTemplate> {
+        const errors = [];
+
+        if (!template.InstalmentType) {
+            errors.push('type');
+        }
+
+        if (!template.WageTypeNumber) {
+            errors.push('lønnsart');
+        }
+
+        if (!template.Supplier) {
+            errors.push('leverandør');
+        }
+
+        if (errors.length > 0) {
+            const lastError = errors.pop();
+            const errorString = !!errors.length ? `${errors.join(', ')} og ${lastError}` : lastError;
+
+            const message = `Legg til ${errorString} før du lagrer`;
+            this.toastService.addToast(message, ToastType.bad, 5);
+            return Observable.of(template);
+        }
+
+        template.SalaryBalances = this.prepareSalBalsForTemplate(salBals.filter(x => x.EmployeeID), template);
+        return this.uniModalService
+            .confirm({
+                header: 'Lagre trekkmal',
+                message: 'Alle trekkene tilknyttet denne malen blir oppdatert',
+            })
+            .onClose
+            .do((res: ConfirmActions) => {
+                if (res === ConfirmActions.ACCEPT || !done) { return; }
+                done('Lagring avbrutt');
+            })
+            .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+            .switchMap(() => this.saveTemplate(template))
+            .do(() => this.clearCache());
+    }
+
+    private prepareSalBalsForTemplate(salBals: SalaryBalance[], template: SalaryBalanceTemplate) {
+        if (!salBals || !salBals.length) {
+            return [];
+        }
+        salBals.forEach(salBal => {
+            if (!salBal.ID) {
+                salBal._createguid = this.getNewGuid();
+                salBal.Type = SalBalDrawType.FixedAmount;
+            }
+            if (!salBal.WageTypeNumber) {
+                salBal.WageTypeNumber = template.WageTypeNumber;
+            }
+        });
+
+        return salBals;
     }
 
     public getTemplate(id: number | string, expand: string[] = null): Observable<any> {

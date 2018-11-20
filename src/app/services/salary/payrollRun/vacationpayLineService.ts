@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 
 @Injectable()

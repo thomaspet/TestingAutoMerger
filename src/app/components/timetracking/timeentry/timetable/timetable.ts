@@ -7,7 +7,7 @@ import {UniTimeModal} from '../../components/popupeditor';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 import {WorkItemGroup, WorkRelation} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ReportWorkflow} from './pipes';
 import {Sums, StatusCode, ReportFlow, IReport, Week, IWorkDay, Month} from './model';
 import {UniModalService} from '../../../../../framework/uni-modal';
@@ -86,7 +86,8 @@ export class TimeTableReport {
 
             const data = {
                 date: day,
-                relation: this.currentRelation
+                relation: this.currentRelation,
+                disableSaveButton: !this.currentRelation.IsActive
             };
 
             this.modalService.open(UniTimeModal, { data: data }).onClose.subscribe((res) => {

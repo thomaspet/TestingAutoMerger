@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, ViewChild, Output, EventEmitter, ChangeDetectionStrategy} from '@angular/core';
 import {Employee} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {

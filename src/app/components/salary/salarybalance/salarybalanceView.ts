@@ -4,9 +4,9 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs/Observable';
-import {Subscription} from 'rxjs/Subscription';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {Subscription} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {SalaryBalance, SalBalType} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -23,6 +23,7 @@ import {
     EmployeeService,
     SupplierService
 } from '../../../services/services';
+import { ToastService } from '@uni-framework/uniToast/toastService';
 
 const SALARY_BALANCE_KEY = 'salarybalance';
 const SAVING_KEY = 'viewSaving';
@@ -57,7 +58,8 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         private wageTypeService: WageTypeService,
         private employeeService: EmployeeService,
         private supplierService: SupplierService,
-        private salaryBalanceViewService: SalaryBalanceViewService
+        private salaryBalanceViewService: SalaryBalanceViewService,
+        private toastService: ToastService,
     ) {
         super(router.url, cacheService);
 
@@ -248,14 +250,16 @@ export class SalarybalanceView extends UniView implements OnDestroy {
         super.updateState(SAVING_KEY, true, false);
         super.getStateSubject(SALARY_BALANCE_KEY)
             .take(1)
-            .switchMap(salaryBalance => this.salaryBalanceViewService.save(salaryBalance))
+            .switchMap(salaryBalance => {
+                return this.salaryBalanceViewService.save(salaryBalance);
+            })
             .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe((salbal: SalaryBalance) => {
                 this.saveActions[0].disabled = true;
-                if (!salbal.ID) {
-                    done('Lagring avbrutt');
-                    return;
+                if (!salbal.ID || !salbal.EmployeeID || !salbal.WageTypeNumber || !salbal.InstalmentType) {
+                    return done('Lagring avbrutt');
                 }
+
                 if (updateView) {
                     super.updateState(SALARY_BALANCE_KEY, salbal, false);
                     this.router.navigate([this.url, salbal.ID]);

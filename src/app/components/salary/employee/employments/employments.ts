@@ -7,10 +7,10 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {Employee, Employment, SubEntity, Project, Department, EmploymentValidValues} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
-import {ReplaySubject} from 'rxjs/ReplaySubject';
+import {ReplaySubject} from 'rxjs';
 import * as _ from 'lodash';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import { UniConfirmModalV2, UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
 import { doesNotThrow } from 'assert';
 

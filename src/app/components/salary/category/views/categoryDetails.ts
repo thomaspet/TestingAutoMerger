@@ -3,13 +3,13 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {EmployeeCategoryService} from '../../../../services/services';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {EmployeeCategory} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 
 declare var _; // lodash
 

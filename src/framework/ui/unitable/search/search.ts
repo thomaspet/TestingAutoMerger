@@ -16,8 +16,8 @@ import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import {UniTableUtils, ISavedFilter} from '../unitableUtils';
 import {IUniTableConfig} from '../config/unitableConfig';
 
-import {Observable} from 'rxjs/Observable';
-import {Subject} from 'rxjs/Subject';
+import {Observable} from 'rxjs';
+import {Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as Immutable from 'immutable';
 

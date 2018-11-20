@@ -5,7 +5,7 @@ import {
     SalaryBalance, WageType, Employee, Supplier, SalBalType,
     SalBalDrawType, SalaryBalanceTemplate
 } from '../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {FieldType, UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';

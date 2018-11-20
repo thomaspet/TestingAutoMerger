@@ -1,7 +1,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {Overlay, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal, PortalInjector} from '@angular/cdk/portal';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {UniSmartSearch} from './smart-search';
 import {UniCompanySearch} from './company-search/company-search';
 import {KeyCodes} from '@app/services/common/keyCodes';

@@ -3,11 +3,11 @@ import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniTo
 import {SendEmail} from '../../../../models/sendEmail';
 import {IToolbarConfig} from './../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {LocalDate, CustomerInvoiceReminder, ReportDefinition, StatusCodeCustomerInvoiceReminder} from '../../../../unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {
     StatisticsService,

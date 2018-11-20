@@ -21,7 +21,7 @@ import { UniModalService } from '../../../framework/uni-modal/modalService';
 import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
 import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/registerPaymentModal';
 import { BizHttp } from '../../../framework/core/http/BizHttp';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
 import * as moment from 'moment';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
@@ -166,7 +166,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
                     PaymentDate: new LocalDate(new Date()),
                     AgioAccountID: null,
                     BankChargeAccountID: 0,
-                    AgioAmount: 0
+                    AgioAmount: 0,
+                    PaymentID: null
                 };
 
                 const modal = this.modalService.open(UniRegisterPaymentModal, {

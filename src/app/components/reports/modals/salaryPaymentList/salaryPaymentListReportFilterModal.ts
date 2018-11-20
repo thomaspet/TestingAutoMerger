@@ -4,8 +4,8 @@ import {ReportDefinition, ReportDefinitionParameter, PayrollRun} from '../../../
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniPreviewModal} from '../preview/previewModal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {
     ReportDefinitionParameterService,
     YearService,

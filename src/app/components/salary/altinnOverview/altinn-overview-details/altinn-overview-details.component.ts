@@ -1,6 +1,6 @@
 import {Component, OnInit, Input, OnChanges, ChangeDetectionStrategy} from '@angular/core';
 import {AltinnReceipt, LocalDate} from '@uni-entities';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {ErrorService} from '@app/services/services';
 import {

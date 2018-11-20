@@ -13,7 +13,7 @@ import {
     TransqueryDetailsCalculationsSummary
 } from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import {URLSearchParams, Response} from '@angular/http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {JournalEntry, FinancialYear} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
@@ -37,7 +37,7 @@ import {
 } from '../../../../framework/uni-modal';
 import {ConfirmCreditedJournalEntryWithDate} from '../modals/confirmCreditedJournalEntryWithDate';
 
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 

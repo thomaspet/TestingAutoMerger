@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild} from '@angular/core';
 import {FormControl, FormGroup} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
@@ -20,7 +20,7 @@ import {UniChangePasswordModal} from './changePasswordModal';
 import {UniRegisterBankUserModal} from '@app/components/settings/users/register-bank-user.modal';
 import {UniAdminPasswordModal} from '@app/components/settings/users/admin-password.modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {EmailService} from '@app/services/common/emailService';
 

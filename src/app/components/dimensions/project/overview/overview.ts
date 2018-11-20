@@ -10,7 +10,7 @@ import {
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 export interface IMyProject extends Project {
     ProjectCustomerID: number;

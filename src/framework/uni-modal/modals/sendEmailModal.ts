@@ -9,8 +9,8 @@ import { CompanySettingsService } from '@app/services/common/companySettingsServ
 import { ErrorService } from '@app/services/common/errorService';
 import {ReportTypeService} from '@app/services/reports/reportTypeService';
 
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import { ReportDefinitionParameterService } from '@app/services/reports/reportDefinitionParameterService';
 
 @Component({

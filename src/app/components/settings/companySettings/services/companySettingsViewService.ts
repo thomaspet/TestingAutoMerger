@@ -4,7 +4,7 @@ import {SubEntitySettingsService} from '../../agaAndSubEntitySettings/services/s
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {CompanySettings} from '../../../../unientities';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 
 @Injectable()
 export class CompanySettingsViewService {

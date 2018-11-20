@@ -1,7 +1,8 @@
 <span class="validation-item"
     *ngFor="let item of validationMessages"
     [routerLink]="item.link"
-    [ngClass]="{'interactive': item.link || item.click}">
+    [ngClass]="{'interactive': item.link || item.click}"
+    (click)="onClick(item)">
 
     <i class="material-icons validation-icon" [ngClass]="item.type">
         {{getValidationIcon(item)}}

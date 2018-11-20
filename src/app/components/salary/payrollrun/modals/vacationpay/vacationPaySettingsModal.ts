@@ -10,8 +10,8 @@ import {
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
 } from '../../../../../unientities';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';

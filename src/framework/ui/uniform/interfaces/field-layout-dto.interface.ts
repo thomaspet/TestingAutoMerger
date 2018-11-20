@@ -39,4 +39,5 @@ export class FieldLayoutDto {
     public Width: string;
     public Validations: Array<any>;
     public CustomFields: any;
+    public Tooltip: any;
 }

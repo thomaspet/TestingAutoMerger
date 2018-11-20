@@ -4,8 +4,8 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {UniMath} from '@uni-framework/core/uniMath';
 import {IRowChangeEvent} from '@uni-framework/ui/ag-grid/interfaces';
 import {WageTypeService, AccountService, TravelTypeService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {Observable} from 'rxjs/Observable';
+import {BehaviorSubject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {TravelLineService} from '@app/services/salary/travel/travelLineService';
 import {SalaryTransViewService} from '@app/components/salary/sharedServices/salaryTransViewService';
 const DIRTY = '_isDirty';

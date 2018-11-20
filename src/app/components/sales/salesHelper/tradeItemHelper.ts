@@ -3,6 +3,7 @@ import {GuidService, NumberFormat} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
     Project,
+    Product,
     ProjectTask,
     Department,
     CompanySettings,
@@ -121,7 +122,8 @@ export class TradeItemHelper  {
         if (event.field === 'Product') {
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes);
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings);
+
                 if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;
                     newRow.VatTypeID = foreignVatType.ID;
@@ -240,48 +242,110 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>) {
-        const product = rowModel['Product'];
+    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings) {
+        const product: Product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
         rowModel.Account = product.Account;
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
-        rowModel.VatTypeID = product.VatTypeID;
-        rowModel.VatType = rowModel.VatTypeID ? vatTypes.find(x => x.ID === rowModel.VatTypeID) : null;
 
-        rowModel.PriceExVat = product.PriceExVat;
-        rowModel.PriceIncVat = product.PriceIncVat;
+        const productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
+
+        if (settings.TaxMandatoryType === 1) {
+            // company does not use VAT/MVA
+            rowModel.VatTypeID = null;
+            rowModel.VatType = null;
+        } else if (settings.TaxMandatoryType === 2) {
+            // company will use VAT when configured limit is passed - validations will be run
+            // when saving the invoice to see
+            if (productVatType) {
+
+                const overrideVatCodes = ['3', '31', '32', '33'];
+                if (overrideVatCodes.indexOf(productVatType.VatCode) !== -1) {
+                    const vatType6 = vatTypes.find(x => x.VatCode === '6');
+                    rowModel.VatType = vatType6;
+                    rowModel.VatTypeID = vatType6.ID;
+                } else {
+                    rowModel.VatTypeID = product.VatTypeID;
+                    rowModel.VatType = productVatType;
+
+                    if (!rowModel.VatTypeID && product.Account) {
+                        rowModel.VatTypeID = product.Account.VatTypeID;
+                    }
+                }
+            }
+        } else {
+            rowModel.VatTypeID = product.VatTypeID;
+            rowModel.VatType = productVatType;
+
+            if (!rowModel.VatTypeID && product.Account) {
+                rowModel.VatTypeID = product.Account.VatTypeID;
+            }
+        }
+
+        // if vat is not used/not defined, set PriceIncVat to PriceExVat
+        if ((!rowModel.VatType || rowModel.VatType.VatPercent === 0)) {
+            rowModel.PriceExVat = product.PriceExVat;
+            rowModel.PriceIncVat = product.PriceExVat;
+        } else {
+            rowModel.PriceExVat = product.PriceExVat;
+            rowModel.PriceIncVat = product.PriceIncVat;
+        }
 
         if (currencyExchangeRate) {
-            rowModel.PriceExVatCurrency = this.round(product.PriceExVat / currencyExchangeRate, 4);
-            rowModel.PriceIncVatCurrency = this.round(product.PriceIncVat / currencyExchangeRate, 4);
+            rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
+            rowModel.PriceIncVatCurrency = this.round(rowModel.PriceIncVat / currencyExchangeRate, 4);
         } else {
-            rowModel.PriceExVatCurrency = product.PriceExVat;
-            rowModel.PriceIncVatCurrency = product.PriceIncVat;
+            rowModel.PriceExVatCurrency = rowModel.PriceExVat;
+            rowModel.PriceIncVatCurrency = rowModel.PriceIncVat;
         }
 
         rowModel.PriceSetByUser = false;
 
-        if (!rowModel.VatTypeID && product.Account) {
-            rowModel.VatTypeID = product.Account.VatTypeID;
+        if (!rowModel.Dimensions) {
+            rowModel.Dimensions = {};
         }
 
-        if (rowModel.Dimensions) {
-            if (!rowModel.Dimensions.ProjectID) {
-                if (product.Dimensions && product.Dimensions.ProjectID) {
-                    rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
-                    rowModel.Dimensions.Project = product.Dimensions.Project;
-                }
-            }
+        if (product.Dimensions && product.Dimensions.ProjectID) {
+            rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
+            rowModel.Dimensions.Project = product.Dimensions.Project;
+        }
 
-            if (!rowModel.Dimensions.DepartmentID) {
-                if (product.Dimensions && product.Dimensions.DepartmentID) {
-                    rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
-                    rowModel.Dimensions.Department = product.Dimensions.Department;
-                }
-            }
+        if (product.Dimensions && product.Dimensions.DepartmentID) {
+            rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
+            rowModel.Dimensions.Department = product.Dimensions.Department;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension5ID) {
+            rowModel.Dimensions.Dimension5ID = product.Dimensions.Dimension5ID;
+            rowModel.Dimensions.Dimension5 = product.Dimensions.Dimension5;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension6ID) {
+            rowModel.Dimensions.Dimension6ID = product.Dimensions.Dimension6ID;
+            rowModel.Dimensions.Dimension6 = product.Dimensions.Dimension6;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension7ID) {
+            rowModel.Dimensions.Dimension7ID = product.Dimensions.Dimension7ID;
+            rowModel.Dimensions.Dimension7 = product.Dimensions.Dimension7;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension8ID) {
+            rowModel.Dimensions.Dimension8ID = product.Dimensions.Dimension8ID;
+            rowModel.Dimensions.Dimension8 = product.Dimensions.Dimension8;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension9ID) {
+            rowModel.Dimensions.Dimension9ID = product.Dimensions.Dimension9ID;
+            rowModel.Dimensions.Dimension9 = product.Dimensions.Dimension9;
+        }
+
+        if (product.Dimensions && product.Dimensions.Dimension10ID) {
+            rowModel.Dimensions.Dimension10ID = product.Dimensions.Dimension10ID;
+            rowModel.Dimensions.Dimension10 = product.Dimensions.Dimension10;
         }
     }
 

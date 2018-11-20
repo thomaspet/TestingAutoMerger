@@ -4,8 +4,8 @@ import {
     Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
 } from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {Observable} from 'rxjs/Observable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {EmployeeService} from '../employee/employeeService';
 import {ApiKeyService} from '../../common/apikeyService';
 import {FileService} from '../../common/fileService';

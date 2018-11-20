@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {URLSearchParams, RequestMethod} from '@angular/http';
 import {UniHttp} from './http';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import 'rxjs/add/operator/concatMap';
 
 interface IHttpCacheStore<T> {
@@ -139,11 +139,11 @@ export class BizHttp<T> {
             request = this.http
                 .usingBusinessDomain()
                 .asGET()
-                .withEndPoint(this.relativeURL + '/' + ID + (typeof ID == 'string' && ID.indexOf('?') == 0 ? '&' : '?') + 'hateoas=' + hateoas) 
+                .withEndPoint(this.relativeURL + '/' + ID + (typeof ID == 'string' && ID.indexOf('?') == 0 ? '&' : '?') + 'hateoas=' + hateoas)
                 .send({expand: expandStr})
                 .publishReplay(1)
                 .refCount();
-                
+
 
             this.storeInCache(hash, request);
         }

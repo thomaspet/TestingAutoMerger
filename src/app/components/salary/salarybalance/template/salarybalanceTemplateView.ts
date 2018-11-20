@@ -8,6 +8,7 @@ import { IUniSaveAction } from '@uni-framework/save/save';
 import { SalaryBalanceTemplate, SalaryBalance, SalBalDrawType } from '@uni-entities';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 const URL = '/salary/salarybalancetemplates/';
 const SALBAL_TEMPLATE_KEY = 'salarybalancetemplate';
@@ -35,7 +36,8 @@ export class SalarybalanceTemplateView extends UniView {
         private errorService: ErrorService,
         private tabService: TabService,
         private modalService: UniModalService,
-        private salarybalanceService: SalarybalanceService
+        private salarybalanceService: SalarybalanceService,
+        private toastService: ToastService,
     ) {
         super(router.url, cacheService);
 
@@ -224,24 +226,31 @@ export class SalarybalanceTemplateView extends UniView {
     }
 
     private saveAll(done, updateView = true) {
-        super.getStateSubject(SALBAL_TEMPLATE_KEY)
-            .asObservable()
+        Observable
+            .combineLatest(super.getStateSubject(SALBAL_TEMPLATE_KEY), super.getStateSubject(SALARYBALANCES_ON_TEMPLATE_KEY))
             .take(1)
-            .switchMap(template => {
-                return this.salarybalanceTemplateService.saveTemplate(template);
+            .switchMap(ret => {
+                const [template, salBals] = ret;
+                return this.salarybalanceTemplateService.save(template, salBals, done);
             })
-            .switchMap((savedTemplate: SalaryBalanceTemplate) => {
-                this.currentTemplate = savedTemplate;
-                return this.getSalaryBalancesObs(savedTemplate);
+            .do(() => this.salarybalanceService.invalidateCache())
+            .do(template => {
+                if (!updateView) {
+                    return;
+                }
+                super.updateState(SALBAL_TEMPLATE_KEY, template, false);
+                this.getSalaryBalances(template);
             })
             .catch((err, obs) => {
                 done('Lagring feilet');
                 return this.errorService.handleRxCatch(err, obs);
             })
             .finally(() => {
-                super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, this.salarybalancesOnTemplate, false);
+                if (!this.currentTemplate.WageTypeNumber || !this.currentTemplate.InstalmentType || !this.currentTemplate.Supplier) {
+                    return done('Lagring avbrutt');
+                }
+
                 if (updateView) {
-                    super.updateState(SALBAL_TEMPLATE_KEY, this.currentTemplate, false);
                     const childRoute = this.router.url.split('/').pop();
                     this.router.navigateByUrl(URL + this.currentTemplate.ID + '/' + childRoute);
                 }
@@ -249,6 +258,12 @@ export class SalarybalanceTemplateView extends UniView {
                 this.saveActions[0].disabled = true;
             })
             .subscribe();
+    }
+
+    private getSalaryBalances(template: SalaryBalanceTemplate) {
+        this.salarybalanceService
+            .getSalarybalancesOnTemplate(template.ID)
+            .subscribe(salBals => super.updateState(SALARYBALANCES_ON_TEMPLATE_KEY, salBals, false));
     }
 
     private getSalaryBalancesObs(salarybalanceTemplate: SalaryBalanceTemplate): Observable<SalaryBalance[]> {

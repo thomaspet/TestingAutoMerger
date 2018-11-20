@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef} from '@angular/core';
 import {Router} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {CompanySettings, FinancialYear, User} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
 import {UniModalService} from '@uni-framework/uni-modal';

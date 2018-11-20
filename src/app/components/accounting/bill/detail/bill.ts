@@ -2,7 +2,7 @@ import {ViewChild, Component, SimpleChanges, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs/Observable';
+import {Observable} from 'rxjs';
 import {ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {
     safeInt,
@@ -82,7 +82,7 @@ import {
     FileService,
     VatDeductionService
 } from '../../../../services/services';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
@@ -1812,7 +1812,7 @@ export class BillView implements OnInit {
                 list.push(
                     {
                         label: 'Krediter',
-                        action: (done) => setTimeout(this.creditSupplierInvoice(done)),
+                        action: (done) => setTimeout(() => this.creditSupplierInvoice(done)),
                         main: false,
                         disabled: false
                     }
@@ -2313,7 +2313,7 @@ export class BillView implements OnInit {
                     'CurrencyCode',
                     'BankAccount',
                     'DefaultDimensions', 'DefaultDimensions.Project', 'DefaultDimensions.Department'
-                ],true).finally( () => {
+                ], true).finally( () => {
                 this.flagUnsavedChanged(true);
              })
             .subscribe((invoice: SupplierInvoice) => {
@@ -2989,7 +2989,8 @@ export class BillView implements OnInit {
             PaymentDate: new LocalDate(Date()),
             AgioAccountID: 0,
             BankChargeAccountID: 0,
-            AgioAmount: 0
+            AgioAmount: 0,
+            PaymentID: null
         };
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
