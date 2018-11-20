@@ -546,10 +546,12 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.settingsService.setSaveActions([this.saveaction]);
             })
             .subscribe((response: any) => {
-                this.companySalary$.next(response[0]);
+                const companySal = response[0];
+                companySal['_baseOptions'] = this.companySalaryService.getBaseOptions(companySal);
+                this.companySalary$.next(companySal);
                 this.mainOrganization$.next(response[2]);
                 this.isDirty = false;
-                done('Sist lagret: ');
+                done('Lagret');
             },
             err => {
                 this.errorService.handle(err);
