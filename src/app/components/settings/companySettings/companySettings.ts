@@ -320,19 +320,11 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private setupCompanySettingsData(companySettings: CompanySettings) {
-        // this is done to make it easy to use the multivalue component - this works with arrays
-        // so we create dummy arrays and put our default address, phone and email in the arrays
-        // even though we actually only have one of each
-        companySettings.DefaultAddress = companySettings.DefaultAddress
-            ? companySettings.DefaultAddress : this.emptyAddress;
-        companySettings['Addresses'] = [companySettings.DefaultAddress];
-        companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
-        companySettings['Phones'] = [companySettings.DefaultPhone];
-        companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
-        companySettings['Emails'] = [companySettings.DefaultEmail];
+        companySettings['Addresses'] = companySettings.DefaultAddress ? [companySettings.DefaultAddress] : [];
+        companySettings['Phones'] = companySettings.DefaultPhone ? [companySettings.DefaultPhone] : [];
+        companySettings['Emails'] = companySettings.DefaultEmail ? [companySettings.DefaultEmail] : [];
         companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
         companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
-
         return companySettings;
     }
 
@@ -533,6 +525,10 @@ export class CompanySettingsComponent implements OnInit {
                 this.companySettings$.next(cs);
             }
         }
+
+        if (changes['DefaultEmail'] || changes['DefaultAddress'] || changes['DefaultPhone']) {
+            this.extendFormConfig();
+        }
     }
 
     public onFormInputChange(changes: SimpleChanges) {
@@ -604,19 +600,19 @@ export class CompanySettingsComponent implements OnInit {
             });
         }
 
-        if (company.DefaultAddress.ID === 0 && !company.DefaultAddress['_createguid']) {
+        if (company.DefaultAddress && company.DefaultAddress.ID === 0 && !company.DefaultAddress['_createguid']) {
             company.DefaultAddress['_createguid'] = this.addressService.getNewGuid();
         }
 
-        if (company.FactoringEmail.ID === 0 && !company.FactoringEmail['_createguid']) {
+        if (company.FactoringEmail && company.FactoringEmail.ID === 0 && !company.FactoringEmail['_createguid']) {
             company.FactoringEmail['_createguid'] = this.emailService.getNewGuid();
         }
 
-        if (company.DefaultEmail.ID === 0 && !company.DefaultEmail['_createguid']) {
+        if (company.DefaultEmail && company.DefaultEmail.ID === 0 && !company.DefaultEmail['_createguid']) {
             company.DefaultEmail['_createguid'] = this.emailService.getNewGuid();
         }
 
-        if (company.DefaultPhone.ID === 0 && !company.DefaultPhone['_createguid']) {
+        if (company.DefaultPhone && company.DefaultPhone.ID === 0 && !company.DefaultPhone['_createguid']) {
             company.DefaultPhone['_createguid'] = this.phoneService.getNewGuid();
         }
 
@@ -664,7 +660,6 @@ export class CompanySettingsComponent implements OnInit {
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
-                    // this.company$.next(this.setupCompanySettingsData(retrievedCompany));
                     this.getDataAndSetupForm();
 
                     this.reminderSettings.save().then(() => {
@@ -758,7 +753,7 @@ export class CompanySettingsComponent implements OnInit {
 
         const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
-            allowAddValue: false,
+            allowAddValue: !this.companySettings$.getValue().DefaultAddress,
             allowDeleteValue: true,
             entity: Address,
             listProperty: 'Addresses',
@@ -782,7 +777,7 @@ export class CompanySettingsComponent implements OnInit {
         const phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
-            allowAddValue: false,
+            allowAddValue: !this.companySettings$.getValue().DefaultPhone,
             allowDeleteValue: true,
             entity: Phone,
             listProperty: 'Phones',
@@ -803,7 +798,7 @@ export class CompanySettingsComponent implements OnInit {
         const emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
-            allowAddValue: false,
+            allowAddValue: !this.companySettings$.getValue().DefaultEmail,
             allowDeleteValue: true,
             entity: Email,
             listProperty: 'Emails',
