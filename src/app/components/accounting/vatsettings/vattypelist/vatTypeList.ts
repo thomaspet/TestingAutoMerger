@@ -1,10 +1,9 @@
 import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
-import {VatType} from '../../../../unientities';
-import {VatTypeService, ErrorService, YearService} from '../../../../services/services';
-import {
-    UniTable, UniTableColumn, UniTableColumnType, UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
+import {VatType} from '@uni-entities';
+import {VatTypeService, ErrorService, YearService} from '@app/services/services';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import * as moment from 'moment';
 
 @Component({
@@ -13,7 +12,7 @@ import * as moment from 'moment';
 })
 export class VatTypeList implements OnInit, AfterViewInit {
     @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     public vatTableConfig: UniTableConfig;
     public lookupFunction: (urlParams: URLSearchParams) => any;
@@ -46,7 +45,9 @@ export class VatTypeList implements OnInit, AfterViewInit {
     }
 
     public refresh() {
-        this.table.refreshTableData();
+        if (this.table) {
+            this.table.refreshTableData();
+        }
     }
 
     private setupTable() {
