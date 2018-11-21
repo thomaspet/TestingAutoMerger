@@ -6,7 +6,6 @@ import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {TypeOfEmployment} from '@uni-entities';
 import {
-    EmployeeService,
     ErrorService,
     EmploymentService,
     AccountService,
@@ -48,11 +47,10 @@ export class EmploymentDetails implements OnChanges {
     private jobCodeInitValue: Observable<any>;
 
     constructor(
-        private employeeService: EmployeeService,
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
     ) {}
 
     public ngOnChanges(change: SimpleChanges) {
@@ -278,6 +276,10 @@ export class EmploymentDetails implements OnChanges {
     public onFormChange(changes: SimpleChanges) {
 
         const employment = this.employment$.getValue();
+
+        if (changes['TypeOfEmployment']) {
+            this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
+        }
 
         if (changes['JobCode'] && employment.JobCode) {
             this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
