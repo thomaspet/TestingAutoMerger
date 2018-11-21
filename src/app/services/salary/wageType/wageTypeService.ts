@@ -388,11 +388,13 @@ export class WageTypeService extends BizHttp<WageType> {
                                 target: '_blank'
                             },
                             Combo: 0
-                        }
+                        },
                     ]
                 };
             });
     }
+
+
 
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
         const ret = [this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard)];
@@ -403,9 +405,12 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public specialSettingsLayout(layoutID: string, wageTypes$: Observable<WageType[]>) {
-        return wageTypes$
+        return Observable
+            .forkJoin(wageTypes$, this.companySalaryService.getCompanySalary())
             .take(1)
-            .switchMap(wageTypes => Observable.from([{
+            .map(response => {
+                const [wagetypes, compSal] = response;
+                return {
                 Name: layoutID,
                 BaseEntity: 'wagetype',
                 Fields: [
@@ -509,14 +514,33 @@ export class WageTypeService extends BizHttp<WageType> {
                         FieldSet: 2,
                         Section: 0,
                         Options: {
-                            source: wageTypes,
+                            source: wagetypes,
                             valueProperty: 'WageTypeNumber',
                             template: (wt: WageType) => wt
                                 ? `${wt.WageTypeNumber} - ${wt.WageTypeName}`
                                 : ''
                         }
-                    }
+                    },
+                    ...this.getShipFields(compSal)
                 ]
-            }]));
+            };
+        });
+    }
+
+    private getShipFields(compSal: CompanySalary): any[] {
+        if (!compSal.Base_SpesialDeductionForMaritim) {
+            return [];
+        }
+        return [
+            {
+                EntityType: 'WageType',
+                Property: 'DaysOnBoard',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Antall døgn ombord',
+                Legend: 'Særskilt fradrag for sjøfolk',
+                FieldSet: 3,
+                Section: 0,
+            },
+        ];
     }
 }
