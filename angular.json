@@ -29,9 +29,6 @@
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css"
-            ],
-            "scripts": [
-              "src/raygun-setup.js"
             ]
           },
           "configurations": {

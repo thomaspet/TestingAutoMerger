@@ -69,7 +69,6 @@ export class ResetPassword {
                         this.errorMessage = 'Noe gikk galt, vennligst prøv igjen';
                     }
                     this.busy = false;
-                    this.logger.exception(error);
                 }
             );
     }
