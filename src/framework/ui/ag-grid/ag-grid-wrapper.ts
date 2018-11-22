@@ -312,7 +312,7 @@ export class AgGridWrapper {
             if (this.wrapperElement) {
                 const viewport = this.wrapperElement.nativeElement.querySelector('.ag-body-viewport');
                 const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
-                if (body.clientWidth < viewport.clientWidth) {
+                if (body && body.clientWidth < viewport.clientWidth) {
                     event.api.sizeColumnsToFit();
                 }
             }
