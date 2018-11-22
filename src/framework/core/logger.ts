@@ -11,7 +11,7 @@ export class Logger {
         if (RAYGUN_API_KEY) {
             raygun('apiKey', RAYGUN_API_KEY);
             raygun('setVersion', APP_METADATA.GIT_REVISION);
-            raygun('enableCrashReporting', true);
+            raygun('enableCrashReporting', false); // we control what's logged
 
             this.raygunEnabled = true;
         }
