@@ -61,9 +61,8 @@ export class Login {
                 this.working = false;
                 this.usernameControl.enable();
                 this.passwordControl.enable();
-                this.passwordControl.setValue(null)
+                this.passwordControl.setValue(null);
                 this.errorMessage = 'Noe gikk galt. Vennligst sjekk brukernavn og passord, og prøv igjen.';
-                this.logger.exception(error);
             }
         );
     }

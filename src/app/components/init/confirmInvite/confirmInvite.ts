@@ -91,7 +91,7 @@ export class ConfirmInvite {
                     this.confirmInviteForm.enable();
                     this.errorMessage = 'Noe gikk galt ved oppretting av bruker, vennligst prøv igjen.';
                     try {
-                        let messages = JSON.parse(error._body).Messages;
+                        const messages = JSON.parse(error._body).Messages;
                         if (messages.length) {
                             messages.forEach(element => {
                                 if ( element.PropertyName === 'UserName'
@@ -101,8 +101,6 @@ export class ConfirmInvite {
                             });
                         }
                     } catch (e) {}
-
-                    this.logger.exception(error);
                 }
             );
     }

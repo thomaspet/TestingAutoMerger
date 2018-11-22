@@ -1,15 +1,28 @@
 import {Injectable} from '@angular/core';
-
-declare const Raygun;
+import * as raygun from 'raygun4js';
+import {RAYGUN_API_KEY} from 'src/environments/raygun';
+import {APP_METADATA} from 'src/environments/metadata';
 
 @Injectable()
 export class Logger {
-    public exception(err: any) {
-        console.error('EXCEPTION:', err);
-        const error = err instanceof Error ? err : new Error(err);
+    private raygunEnabled: boolean;
 
-        if (Raygun && Raygun.send) {
-            Raygun.send(error);
+    constructor() {
+        if (RAYGUN_API_KEY) {
+            raygun('apiKey', RAYGUN_API_KEY);
+            raygun('setVersion', APP_METADATA.GIT_REVISION);
+            raygun('enableCrashReporting', false); // we control what's logged
+
+            this.raygunEnabled = true;
+        }
+    }
+
+    log(err: any) {
+        if (this.raygunEnabled) {
+            const error = err instanceof Error ? err : new Error(err);
+            try {
+                raygun('send', { error: error });
+            } catch (e) {}
         }
     }
 }
