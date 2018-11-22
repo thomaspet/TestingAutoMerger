@@ -497,7 +497,13 @@ export class TimeEntry {
             if (item.IsWeekend) {
                 flexDays.push('');
             } else {
-                flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
+                // Dont show deep red user has registered more then 3 hours
+                if (item.Flextime < 0) {
+                    const percentWorked = (item.ExpectedTime + item.Flextime) / (item.ExpectedTime || 1) * 100;
+                    flexDays.push(percentWorked >= 50 ? 'calendar_flexminus_light' : 'calendar_flexminus');
+                } else {
+                    flexDays.push('calendar_flexplus');
+                }
             }
         });
 
