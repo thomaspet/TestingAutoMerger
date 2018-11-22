@@ -588,6 +588,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         }
 
         value['_isDirty'] = true;
+        this.isDirty = true;
         this.companySalary$.next(value);
     }
 
