@@ -354,7 +354,7 @@ export class PostPost {
                 || account.AccountNumber.toString().includes(this.accountSearchFilterString.toLowerCase())) {
                 return account;
             }
-        });
+        }).slice(0, 99);
     }
 
     private compare(propName, rev) {
