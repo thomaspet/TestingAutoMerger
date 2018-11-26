@@ -139,7 +139,7 @@ export class UniForm implements OnChanges, OnInit {
         }
         setTimeout(() => {
             if (this.currentComponent) {
-                this.currentComponent = this.field(this.currentComponent.field.Property);
+                this.currentComponent = this.field(this.currentComponent.field.Property, this.currentComponent.field.Label);
                 if (this.currentComponent) {
                     this.currentComponent.focus();
                 } else {
@@ -154,7 +154,7 @@ export class UniForm implements OnChanges, OnInit {
         setTimeout(() => {
             if (this.currentComponent) {
                 setTimeout(() => {
-                    this.currentComponent = this.field(this.currentComponent.field.Property);
+                    this.currentComponent = this.field(this.currentComponent.field.Property, this.currentComponent.field.Label);
                     if (this.currentComponent) {
                         this.currentComponent.focus();
                     } else {
@@ -245,7 +245,7 @@ export class UniForm implements OnChanges, OnInit {
     public onMoveForward(action) {
         const field = action.field;
         const event = action.event;
-        let index = this._layout.Fields.findIndex(item => item.Property === field.Property);
+        let index = this._layout.Fields.findIndex(item => item.Property === field.Property && item.Label === field.Label);
         if (index === this._layout.Fields.length - 1) {
             this.moveOutEvent.emit({
                 event: event,
@@ -281,7 +281,7 @@ export class UniForm implements OnChanges, OnInit {
             isMultivalue = true;
         }
 
-        const component = this.field(property, isMultivalue);
+        const component = this.field(property, nextField.Label);
         this.currentComponent = component;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
@@ -349,7 +349,7 @@ export class UniForm implements OnChanges, OnInit {
             isMultivalue = true;
         }
 
-        const component = this.field(property, isMultivalue);
+        const component = this.field(property, nextField.Label);
         this.currentComponent = component;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
@@ -384,19 +384,18 @@ export class UniForm implements OnChanges, OnInit {
 
     }
 
-    public field(property: string, isMultivalue?: boolean): UniField {
+    public field(property: string, label?: string): UniField {
         const fieldLayout: UniFieldLayout = this._layout.Fields.find((f: UniFieldLayout) => {
-                if (isMultivalue) {
-                    if (f.Options && f.Options.storeResultInProperty) {
-                        return f.Options.storeResultInProperty === property;
-                    }
-                }
-                return f.Property === property;
+            const labelCheck = !label ? true : label === f.Label;
+            if (f.Options && f.Options.storeResultInProperty) {
+                return f.Options.storeResultInProperty === property && labelCheck;
+            }
+            return f.Property === property && labelCheck;
         });
         if (fieldLayout) {
             const section: UniSection = this.section(fieldLayout.Section);
             if (section) {
-                return section.field(property, isMultivalue);
+                return section.field(property, label);
             }
         }
     }
@@ -437,7 +436,7 @@ export class UniForm implements OnChanges, OnInit {
 
     public findFirstNotHiddenComponent() {
         const f = this._layout.Fields.find(x => !x.Hidden);
-        return this.field(f.Property);
+        return this.field(f.Property, f.Label);
     }
 
     public addSectionEvents() {

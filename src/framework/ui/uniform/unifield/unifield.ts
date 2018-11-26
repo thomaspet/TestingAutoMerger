@@ -216,10 +216,6 @@ export class UniField {
      *
      */
     public onMultivalueMoveForward(action) {
-        if (!this.field.isLast) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
         this.moveForwardEvent.emit(action);
     }
 
