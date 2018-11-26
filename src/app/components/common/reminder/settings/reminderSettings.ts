@@ -70,7 +70,13 @@ export class ReminderSettings {
                 Label: 'Antall purringer før inkasso',
                 FieldType: FieldType.TEXT,
                 Section: 0,
-                FieldSet: 1
+                FieldSet: 1,
+                ReadOnly: !this.reminderSettings
+                    || !this.reminderSettings.CustomerInvoiceReminderRules
+                    || this.reminderSettings.CustomerInvoiceReminderRules.length < 2,
+                Tooltip: {
+                    Text: 'Det må være opprettet likt antall purreregler under + regel for inkasso for å få lagre dette feltet.'
+                },
             },
             {
                 Property: 'AcceptPaymentWithoutReminderFee',
@@ -95,8 +101,10 @@ export class ReminderSettings {
                 FieldSet: 2,
 
                 Options: {
-                    source: [{ID: DebtCollectionFormat.Predator, Label: "Predator"},
-                             {ID: DebtCollectionFormat.Lindorff, Label: "Lindorff"}],
+                    source: [
+                        { ID: DebtCollectionFormat.Predator, Label: 'Predator' },
+                        { ID: DebtCollectionFormat.Lindorff, Label: 'Lindorff' }
+                    ],
                     valueProperty: 'ID',
                     displayProperty: 'Label'
                 }

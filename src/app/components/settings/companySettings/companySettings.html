@@ -39,7 +39,7 @@
     <article class="reminders collapsable" [ngClass]="{'-is-open': showReminderSection}">
         <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
         <div class="collapsable-content">
-            <reminder-settings [reminderSettings]="(companySettings$ | async)?.CustomerInvoiceReminderSettings"></reminder-settings>
+            <reminder-settings *ngIf="showReminderSection" [reminderSettings]="(companySettings$ | async)?.CustomerInvoiceReminderSettings"></reminder-settings>
         </div>
     </article>
 </article>
