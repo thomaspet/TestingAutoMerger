@@ -31,7 +31,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [gridAutoHeight]="localData"
+        [domLayout]="localData ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"

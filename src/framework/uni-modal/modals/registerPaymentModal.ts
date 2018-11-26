@@ -79,7 +79,14 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     public ngOnInit() {
         this.config = this.options.modalConfig;
+        if (this.config.entityName === 'CustomerInvoice') { // temp disable for CustomerInvoice
+            this.config.hideBankCharges = true;
+        }
         const paymentData = this.options.data || {};
+        if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'SupplierInvoice' ||
+            this.config.entityName === 'JournalEntryLine') {
+            Math.abs(UniMath.round(this.config.currencyExchangeRate = paymentData.Amount / paymentData.AmountCurrency, 4));
+        }
         this.companySettingsService.Get(1, [
             'AgioGainAccount',
             'AgioLossAccount',
@@ -203,15 +210,12 @@ export class UniRegisterPaymentModal implements IUniModal {
         const sign = this.config.isDebit ? 1 : -1;
         let previousAgioAmount = payment.AgioAmount;
 
-        let ledgerLineAmount = UniMath.round(
-            payment.AmountCurrency * this.config.currencyExchangeRate
-        ); // Calculated in the same exchange rate as the invoice
+        let ledgerLineAmount = UniMath.round(payment.AmountCurrency * this.config.currencyExchangeRate, 2);
 
-        let agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment));
-
+        let agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment), 2);
         payment.AgioAmount = UniMath.round(
             (payment.Amount - payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
-        );
+        , 2);
 
         this.SetAgioAccount(payment, previousAgioAmount);
     }
