@@ -2535,6 +2535,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+            if (!data.VatDeductionPercent) {
+                data.VatDeductionPercent = 100;
+            }
         });
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {

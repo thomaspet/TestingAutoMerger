@@ -2679,7 +2679,11 @@ export class BillView implements OnInit {
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                       current.JournalEntry = null;
                     }
-
+                    current.JournalEntry.DraftLines.forEach(line => {
+                        if (!line.VatDeductionPercent) {
+                            line.VatDeductionPercent = 0;
+                        }
+                    });
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
                     obs = this.supplierInvoiceService.Post(current);
