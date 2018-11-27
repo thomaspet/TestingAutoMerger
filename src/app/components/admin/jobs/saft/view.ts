@@ -69,7 +69,7 @@ export class SaftExportView implements OnInit {
     public onJobStart(file: ISaftFileInfo) {
 
         this.modalService.open(SaftImportModal,
-            { header: 'SAF-T IMPORT', data: {
+            { header: 'SAF-T', data: {
                 IncludeStartingBalance: true,
                 ReuseExistingNumbers: true,
                 UpdateExistingData: false,
@@ -190,9 +190,11 @@ export class SaftExportView implements OnInit {
                 if (data.Success) {
                     data.Data.forEach(file => {
                         const retfile = retlist.find(x => x.FileID === file.ID);
-                        retfile.FileName = file.Name;
-                        retfile.FileContentType = file.ContentType;
-                        retfile.FileSize = file.Size;
+                        if (retfile) {
+                            retfile.FileName = file.Name;
+                            retfile.FileContentType = file.ContentType;
+                            retfile.FileSize = file.Size;
+                        }
                     });
                 }
             });
