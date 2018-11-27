@@ -25,9 +25,6 @@ export class Employments extends UniView implements OnInit, OnDestroy {
     public employments: Employment[] = [];
     private selectedIndex: number;
     public tableConfig: UniTableConfig;
-    public subEntities: SubEntity[];
-    public projects: Project[];
-    public departments: Department[];
     public employeeID: number;
     public selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
     public busy: boolean;
@@ -64,17 +61,8 @@ export class Employments extends UniView implements OnInit, OnDestroy {
             this.employeeID = +params['id'];
             this.selectedIndex = undefined;
 
-            super.getStateSubject('subEntities')
-                .subscribe(subEntities => this.subEntities = subEntities, err => this.errorService.handle(err));
-
             super.getStateSubject('employee')
                 .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
-
-            super.getStateSubject('projects')
-                .subscribe(projects => this.projects = projects, err => this.errorService.handle(err));
-
-            super.getStateSubject('departments')
-                .subscribe(departments => this.departments = departments, err => this.errorService.handle(err));
 
             super.getStateSubject('employments').subscribe((employments: Employment[]) => {
                 this.employments = employments || [];

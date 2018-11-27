@@ -4,16 +4,19 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, Company, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity,
 } from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, ReplaySubject} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
 
-    public subEntities: any[];
+    private subEntities$: ReplaySubject<SubEntity[]> = new ReplaySubject(1);
+    private projects$: ReplaySubject<Project[]> = new ReplaySubject(1);
+    private departments$: ReplaySubject<Department[]> = new ReplaySubject(1);
+    private employment$: ReplaySubject<Employment> = new ReplaySubject(1);
 
     private typeOfEmployment: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
@@ -91,6 +94,28 @@ export class EmploymentService extends BizHttp<Employment> {
         };
     }
 
+    public clearCache() {
+        this.subEntities$ = new ReplaySubject(1);
+        this.departments$ = new ReplaySubject(1);
+        this.projects$ = new ReplaySubject(1);
+        this.employment$ = new ReplaySubject(1);
+    }
+
+    public setSubEntities(subEntities: SubEntity[]) {
+        this.subEntities$.next(subEntities);
+    }
+
+    public setDepartments(departments: Department[]) {
+        this.departments$.next(departments);
+    }
+    public setProjects(projects: Project[]) {
+        this.projects$.next(projects);
+    }
+
+    public updateDefaults(employment: Employment) {
+        this.employment$.next(employment);
+    }
+
     public layout(layoutID: string) {
         return this.companySalaryService
             .getCompanySalary()
@@ -151,7 +176,26 @@ export class EmploymentService extends BizHttp<Employment> {
                         FieldType: FieldType.AUTOCOMPLETE,
                         Label: 'Virksomhet',
                         FieldSet: 1,
-                        Section: 0
+                        Section: 0,
+                        Options: {
+                            valueProperty: 'ID',
+                            debounceTime: 200,
+                            getDefaultData: () => this.employment$
+                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.subEntities$.take(1)))
+                                .map((result: [Employment, SubEntity[]]) => result[1].filter(x => x.ID === result[0].SubEntityID)),
+                            search: (query: string) => this.subEntities$
+                                .map(subs =>
+                                    subs.filter(sub =>
+                                        sub.BusinessRelationInfo.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                        sub.OrgNumber.startsWith(query))),
+                            template: (obj: SubEntity) =>
+                                obj && obj.BusinessRelationInfo
+                                ?
+                                obj.BusinessRelationInfo.Name
+                                    ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
+                                    : `${obj.OrgNumber}`
+                                : ''
+                        }
                     },
                     {
                         EntityType: 'Employment',
@@ -291,7 +335,16 @@ export class EmploymentService extends BizHttp<Employment> {
                         Section: 0,
                         Options: {
                             valueProperty: 'ID',
-                            template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : ''
+                            template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
+                            getDefaultData: () => this.employment$
+                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.projects$.take(1)))
+                                .map((result: [Employment, Project[]]) =>
+                                    result[1].filter(p => result[0].Dimensions && p.ID === result[0].Dimensions.ProjectID)),
+                            search: (query: string) => this.projects$
+                                .map(projects =>
+                                    projects.filter(p =>
+                                        p.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                        p.ProjectNumber.startsWith(query)))
                         }
                     },
                     {
@@ -305,7 +358,16 @@ export class EmploymentService extends BizHttp<Employment> {
                             valueProperty: 'ID',
                             template: (department: Department) => department
                                 ? `${department.DepartmentNumber} - ${department.Name}`
-                                : ''
+                                : '',
+                                getDefaultData: () => this.employment$
+                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
+                                .map((result: [Employment, Department[]]) =>
+                                    result[1].filter(d => result[0].Dimensions && d.ID === result[0].Dimensions.DepartmentID)),
+                                search: (query: string) => this.departments$
+                                    .map(deps =>
+                                        deps.filter(dep =>
+                                            dep.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                            dep.DepartmentNumber.startsWith(query)))
                         }
                     },
                     ...this.getShipFields(compSal),
