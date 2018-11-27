@@ -406,7 +406,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return salaryBalance;
     }
 
-    public isHiddenByInstalmentType(salaryBalance: SalaryBalance | SalaryBalanceTemplate) {
+    public isHiddenByInstalmentType(salaryBalance: SalaryBalance | SalaryBalanceTemplate): boolean {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
             && (salaryBalance.InstalmentType !== SalBalType.Outlay)
             && (salaryBalance.InstalmentType !== SalBalType.Other)
