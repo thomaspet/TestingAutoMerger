@@ -1143,7 +1143,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
-
+        this.contextMenuItems.push(<IContextMenuItem>{
+            label: 'Periodisering',
+            action: (item) => console.log('periodisering'),
+            disabled: () => false
+        });
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
