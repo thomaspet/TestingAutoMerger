@@ -1,5 +1,6 @@
 import {RouterModule} from '@angular/router';
 import {AuthGuard} from './authGuard';
+import {CompanyKeyRouteGuard} from './companyKeyRouteGuard';
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 
@@ -112,7 +113,7 @@ export const APP_ROUTES = RouterModule.forRoot([
     // everything else does
     {
         path: '',
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, CompanyKeyRouteGuard],
         canActivateChild: [RoutePermissionGuard],
         children: routes
     }
