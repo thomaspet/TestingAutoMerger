@@ -75,7 +75,7 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
             errors.push('lønnsart');
         }
 
-        if (!template.Supplier) {
+        if (!template.SupplierID) {
             errors.push('leverandør');
         }
 

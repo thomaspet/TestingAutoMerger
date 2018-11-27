@@ -5377,9 +5377,9 @@ raw-loader@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/raw-loader/-/raw-loader-0.5.1.tgz#0c3d0beaed8a01c966d9787bf778281252a979aa"
 
-raygun4js@^2.7.1:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.8.4.tgz#80e71f2d9690bfb2fe4a5204c971fd759263e588"
+raygun4js@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.13.3.tgz#e3817c341656cc302c5825f3e17683dc3bb2da6d"
 
 rc@^1.1.7:
   version "1.2.2"

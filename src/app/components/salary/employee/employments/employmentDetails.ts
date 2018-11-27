@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, SimpleChange} from '@angular/core';
-import {Employment, Account, SubEntity, Project, Department} from '../../../../unientities';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
+import {Employment, Account} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -30,9 +30,6 @@ export class EmploymentDetails implements OnChanges {
     @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
-    @Input() private subEntities: SubEntity[];
-    @Input() private projects: Project[];
-    @Input() private departments: Department[];
     @Input() private employeeID: number;
 
     @Output() private employmentChange: EventEmitter<Employment> = new EventEmitter<Employment>();
@@ -93,19 +90,8 @@ export class EmploymentDetails implements OnChanges {
             }
 
             this.employment$.next(change['employment'].currentValue);
+            this.employmentService.updateDefaults(change['employment'].currentValue);
             this.updateAmeldingTooltips();
-        }
-
-        if (change['subEntities'] && change['subEntities'].currentValue) {
-            this.setSourceOn('SubEntityID', this.subEntities);
-        }
-
-        if (change['projects'] && change['projects'].currentValue) {
-            this.setSourceOn('Dimensions.ProjectID', this.projects);
-        }
-
-        if (change['departments'] && change['departments'].currentValue) {
-            this.setSourceOn('Dimensions.DepartmentID', this.departments);
         }
     }
 
@@ -117,19 +103,6 @@ export class EmploymentDetails implements OnChanges {
                     '1': { isOpen: true }
                 }
             });
-
-            const subEntityField = layout.Fields.find(field => field.Property === 'SubEntityID');
-            subEntityField.Options = {
-                valueProperty: 'ID',
-                debounceTime: 200,
-                template: (obj: SubEntity) =>
-                    obj && obj.BusinessRelationInfo
-                    ?
-                    obj.BusinessRelationInfo.Name
-                        ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
-                        : `${obj.OrgNumber}`
-                    : ''
-            };
 
             const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
@@ -248,15 +221,6 @@ export class EmploymentDetails implements OnChanges {
         this.fields$.next(allFields);
         fields.forEach(field => field.Hidden = !field.Hidden);
         this.fields$.next(allFields);
-    }
-
-    public setSourceOn(searchField: string, source: any) {
-        const fields = this.fields$.getValue();
-        const currentField = fields.find(field => field.Property === searchField);
-        if (currentField) {
-            currentField.Options.source = source;
-        }
-        this.fields$.next(fields);
     }
 
     public getJobName(styrk) {

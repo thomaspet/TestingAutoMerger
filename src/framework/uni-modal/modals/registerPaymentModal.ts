@@ -67,7 +67,6 @@ export class UniRegisterPaymentModal implements IUniModal {
     private companySettings: CompanySettings;
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
-    private isDebit: boolean;
 
     constructor(
         private companySettingsService: CompanySettingsService,

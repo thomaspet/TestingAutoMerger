@@ -1687,7 +1687,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-        const sign = journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID ? -1 : 1; // we need to invert but not use abs!
+        const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
             const journalEntryPaymentData: Partial<InvoicePaymentData> = {
                 Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
@@ -1709,8 +1709,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 modalConfig: {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
-                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
-                    isDebit: journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID
+                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
                 }
             });
             paymentModal.onClose.subscribe((paymentData) => {

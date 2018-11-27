@@ -433,6 +433,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     public ngOnDestroy() {
         this.employeeID = undefined;
         this.subscriptions.forEach(sub => sub.unsubscribe());
+        this.employmentService.clearCache();
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -695,6 +696,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getProjects() {
         this.getProjectsObservable().subscribe(projects => {
+            this.employmentService.setProjects(projects);
             super.updateState('projects', projects, false);
         });
     }
@@ -705,6 +707,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getDepartments() {
         this.getDepartmentsObservable().subscribe(departments => {
+            this.employmentService.setDepartments(departments);
             super.updateState('departments', departments, false);
         });
     }
@@ -728,6 +731,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private getSubEntities() {
         this.getSubEntitiesObservable().subscribe((response: SubEntity[]) => {
+            this.employmentService.setSubEntities(response);
             super.updateState(SUB_ENTITIES_KEY, response, false);
         }, err => this.errorService.handle(err));
     }
