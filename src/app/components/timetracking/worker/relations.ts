@@ -6,7 +6,7 @@ import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {ChangeMap} from '../../common/utils/changeMap';
 import {Observable} from 'rxjs';
 import {IResult} from '../genericview/detail';
-import {ErrorService} from '../../../services/services';
+import {ErrorService, BrowserStorageService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 
 @Component({
@@ -37,7 +37,12 @@ export class View implements OnInit {
 
     private changeMap: ChangeMap = new ChangeMap();
 
-    constructor(private workerService: WorkerService, private router: Router, private errorService: ErrorService) {
+    constructor(
+        private workerService: WorkerService,
+        private router: Router,
+         private errorService: ErrorService,
+         private browserStorage: BrowserStorageService,
+    ) {
         this.layout = this.createLayout();
         this.fields$.next(this.layout.formFields);
     }
@@ -71,7 +76,7 @@ export class View implements OnInit {
     public onAddNew() {
         const item: WorkRelation = this.layout.data.factory();
         item.WorkPercentage = 100;
-        item.CompanyName = this.workerService.user.company;
+        item.CompanyName = this.browserStorage.getItem('activeCompany').Name;
         item.IsActive = true;
         this.items.push(item);
         this.onItemClicked(item);
