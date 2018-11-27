@@ -345,6 +345,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         vacationSettingsBtn.Section = 2;
         vacationSettingsBtn.FieldSet = 2;
         vacationSettingsBtn.Options = {
+            class: 'vacationSettingsButton',
             click: (event) => {
                 this.openVacationSettingsModal();
             }
