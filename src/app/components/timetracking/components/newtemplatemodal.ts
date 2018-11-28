@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {ITimeTrackingTemplate, ITemplate} from '../sidemenu/sidemenu';
 import {getDeepValue} from '../../common/utils/utils';
-import {WorkEditor} from './workeditor';
+import {WorkEditor} from '@app/components/common/timetrackingCommon';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {

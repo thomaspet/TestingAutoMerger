@@ -1,16 +1,16 @@
 <uni-toolbar *ngIf="!modalMode"
-    [config]="toolbarconfig"
-    [saveactions]="saveactions"
-    [tags]="categoryFilter"
-    [tagConfig]="tagConfig">
+             [config]="toolbarconfig"
+             [saveactions]="saveactions"
+             [tags]="categoryFilter"
+             [tagConfig]="tagConfig">
 </uni-toolbar>
 
 <section *ngIf="(product$ | async)" class="product-details application">
     <uni-form
-            [config]="config$"
-            [fields]="fields$"
-            [model]="product$"
-            (changeEvent)="change($event)">
+        [config]="config$"
+        [fields]="fields$"
+        [model]="product$"
+        (changeEvent)="change($event)">
     </uni-form>
 
     <article class="collapsable" [ngClass]="{'-is-open': showExtendedProductInfo}">
@@ -21,9 +21,9 @@
                 <label>
                     <span>Beskrivelse</span>
                     <textarea
-                            #descriptionField
-                            [formControl]="descriptionControl"
-                            (change)="textareaChange">
+                        #descriptionField
+                        [formControl]="descriptionControl"
+                        (change)="textareaChange">
                     </textarea>
                 </label>
             </fieldset>

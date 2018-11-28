@@ -310,7 +310,7 @@ export class ReminderSending implements OnInit {
 
     loadRunNumber(runNumber): Promise<any> {
         return new Promise((resolve, reject) => {
-            if (this.modalMode || runNumber < 1) {
+            if (runNumber < 1) {
                 resolve(false);
             } else {
                 Observable.forkJoin([

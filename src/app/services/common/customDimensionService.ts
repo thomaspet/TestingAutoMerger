@@ -8,20 +8,16 @@ export class CustomDimensionService {
 
     constructor(private http: UniHttp) { }
 
-    public getCustomDimensionList(dimension: number) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('dimension' + dimension)
-            .send()
-            .map(res => res.json());
-    }
+    public getCustomDimensionList(dimension: number, odata?: string) {
+        let endpoint = 'dimension' + dimension;
+        if (odata) {
+            endpoint += odata;
+        }
 
-    public getCustomDimensionListWithFilter(dimension: number, filter: string) {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('dimension' + dimension + '?')
+            .withEndPoint(endpoint)
             .send()
             .map(res => res.json());
     }

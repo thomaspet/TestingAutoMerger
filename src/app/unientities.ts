@@ -2027,6 +2027,12 @@ export class CompanySalary extends UniEntity {
     public static EntityType = 'CompanySalary';
 
     public _createguid: string;
+    public Base_JanMayenAndBiCountries: boolean;
+    public Base_NettoPayment: boolean;
+    public Base_NettoPaymentForMaritim: boolean;
+    public Base_PayAsYouEarnOnPensions: boolean;
+    public Base_SpesialDeductionForMaritim: boolean;
+    public Base_Svalbard: boolean;
     public CalculateFinancialTax: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;

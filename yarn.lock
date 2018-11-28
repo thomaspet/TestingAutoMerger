@@ -327,6 +327,10 @@
   version "2.0.35"
   resolved "https://registry.yarnpkg.com/@types/grecaptcha/-/grecaptcha-2.0.35.tgz#f63fcd8f11e0aa62b6d8746267142440d8d89975"
 
+"@types/lodash@^4.14.118":
+  version "4.14.118"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.118.tgz#247bab39bfcc6d910d4927c6e06cbc70ec376f27"
+
 "@types/node@*":
   version "10.12.0"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.0.tgz#ea6dcbddbc5b584c83f06c60e82736d8fbb0c235"
@@ -5373,9 +5377,9 @@ raw-loader@0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/raw-loader/-/raw-loader-0.5.1.tgz#0c3d0beaed8a01c966d9787bf778281252a979aa"
 
-raygun4js@^2.7.1:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.8.4.tgz#80e71f2d9690bfb2fe4a5204c971fd759263e588"
+raygun4js@^2.13.3:
+  version "2.13.3"
+  resolved "https://registry.yarnpkg.com/raygun4js/-/raygun4js-2.13.3.tgz#e3817c341656cc302c5825f3e17683dc3bb2da6d"
 
 rc@^1.1.7:
   version "1.2.2"

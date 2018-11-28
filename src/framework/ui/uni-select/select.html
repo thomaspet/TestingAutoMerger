@@ -1,5 +1,5 @@
 <article class="uniSelect"
-         *ngIf="config && items" (clickOutside)="close()">
+         *ngIf="config" (clickOutside)="close()">
 
     <input type="text" #valueInput
            [attr.aria-describedby]="config?.asideGuid"
@@ -9,7 +9,7 @@
            [attr.aria-owns]="guid"
            [attr.aria-activedescendant]="activeDescendantId"
            tabindex="-1"
-           [value]="getDisplayValue(selectedItem)"
+           [formControl]="valueInputControl"
            [placeholder]="config?.placeholder || ''"
            [attr.aria-readonly]="readonly"
            (click)="toggle()"

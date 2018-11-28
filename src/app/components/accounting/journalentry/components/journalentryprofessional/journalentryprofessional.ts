@@ -614,6 +614,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         if (isPercentageChanged) {
+            rowModel.VatDeductionPercent = rowModel.VatDeductionPercent || 0;
             return rowModel;
         }
 
@@ -696,8 +697,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (newRow.VatDeductionPercent &&
-            !((newRow.DebitAccount && !newRow.DebitAccount.UseVatDeductionGroupID)
-            || (newRow.CreditAccount && !newRow.CreditAccount.UseVatDeductionGroupID))
+            !((newRow.DebitAccount && newRow.DebitAccount.UseVatDeductionGroupID)
+            || (newRow.CreditAccount && newRow.CreditAccount.UseVatDeductionGroupID))
         ) {
             this.toastService.addToast(
                 'Fradragsprosent kan ikke angis',
@@ -1257,9 +1258,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     return (item.Number + ': ' + item.Name);
                 },
                 lookupFunction: (query) => {
-                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                    return this.customDimensionService.getCustomDimensionList(
                         type.Dimension,
-                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                        `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
                     ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             }).setWidth('8%');
@@ -1687,11 +1688,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-        const sign = journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID ? -1 : 1; // we need to invert but not use abs!
+        const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
             const journalEntryPaymentData: Partial<InvoicePaymentData> = {
-                Amount: postPostJournalEntryLine.RestAmount * sign,
-                AmountCurrency: postPostJournalEntryLine.RestAmountCurrency * sign,
+                Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
+                AmountCurrency: UniMath.round(postPostJournalEntryLine.RestAmountCurrency * sign, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
@@ -1709,8 +1710,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 modalConfig: {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
-                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
-                    isDebit: journalEntryRow.DebitAccountID !== this.defaultAccountPayments.ID
+                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
                 }
             });
             paymentModal.onClose.subscribe((paymentData) => {
@@ -1724,8 +1724,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // calculate the Amount that was paid in the base currency - the diff between this and
                 // what is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
+                const higherPrecisionExchangeRate = postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency;
                 journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * postPostJournalEntryLine.CurrencyExchangeRate
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate // postPostJournalEntryLine.CurrencyExchangeRate
                 );
 
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
@@ -1799,8 +1800,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
-                Amount: customerInvoice.RestAmount,
-                AmountCurrency: customerInvoice.RestAmountCurrency,
+                Amount: customerInvoice.RestAmount, //UniMath.round(customerInvoice.RestAmountCurrency * customerInvoice.CurrencyExchangeRate, 2),
+                AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: customerInvoice.CurrencyCodeID,
                 CurrencyExchangeRate: 0,
@@ -1835,8 +1836,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // the Amount that was paid in the base currency - the diff between this and what
                 // is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
+                const higherPrecisionExchangeRate = customerInvoice.RestAmount / customerInvoice.RestAmountCurrency;
                 journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate //paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
                 );
 
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;

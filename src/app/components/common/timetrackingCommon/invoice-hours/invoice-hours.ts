@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig, UniTable} from '../../../../framework/ui/unitable/index';
-import {UniModules, TabService} from '../../layout/navbar/tabstrip/tabService';
+import {UniTableColumn, UniTableColumnType, UniTableConfig, IUniTableConfig, UniTable} from '@uni-framework/ui/unitable/index';
+import {UniModules, TabService} from '@app/components/layout/navbar/tabstrip/tabService';
 import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import { StatisticsService, ErrorService } from '@app/services/services';
 import { URLSearchParams } from '@angular/http';
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { filterInput, safeInt } from '@app/components/common/utils/utils';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
-import { WorkitemTransferWizard } from '@app/components/timetracking/invoice-hours/transfer-wizard';
+import { WorkitemTransferWizard } from './transfer-wizard';
 import { Observable } from 'rxjs';
 
 @Component({

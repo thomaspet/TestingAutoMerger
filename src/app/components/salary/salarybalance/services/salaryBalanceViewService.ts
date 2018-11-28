@@ -56,6 +56,10 @@ export class SalaryBalanceViewService {
             errors.push('ansatt');
         }
 
+        if (!this.salaryBalanceService.isHiddenByInstalmentType(currentSalBal) && !currentSalBal.SupplierID) {
+            errors.push('leverandør');
+        }
+
         if (errors.length > 0) {
             const lastError = errors.pop();
             const errorString = !!errors.length ? `${errors.join(', ')} og ${lastError}` : lastError;

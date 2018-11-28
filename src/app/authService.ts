@@ -28,7 +28,8 @@ const PUBLIC_ROOT_ROUTES = [
     'sharings',
     'marketplace',
     'predefined-descriptions',
-    'gdpr'
+    'gdpr',
+    'test'
 ];
 
 const PUBLIC_ROUTES = [];

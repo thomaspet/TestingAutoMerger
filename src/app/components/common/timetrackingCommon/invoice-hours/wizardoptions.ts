@@ -18,6 +18,7 @@ export interface IWizardOptions {
     orders: Array<WorkOrder>;
     mergeBy: MergeByEnum;
     addComment?: boolean;
+    addItemsDirectly?: boolean;
 }
 
 export enum MergeByEnum {

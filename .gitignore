@@ -268,5 +268,6 @@ dist.zip
 # destination AppConfig file (ignored because it's generated on build)
 src/app/AppConfig.ts
 
-# auto generated metadata about the app
+# Files that are generated on build
 src/environments/metadata.ts
+src/environments/raygun.ts

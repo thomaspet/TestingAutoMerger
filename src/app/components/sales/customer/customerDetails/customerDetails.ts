@@ -65,7 +65,20 @@ import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
-import { SelectLicenseForBulkAccess } from '@app/components/bureau/grant-access-modal/1.selectLicense';
+import * as _ from 'lodash';
+import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
+
+const isNumber = (value) => _.reduce(value, (res, letter) => {
+    if (res === false) {
+        return false;
+    } else {
+        if (letter >= '0' && letter <= '9') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}, true);
 
 @Component({
     selector: 'customer-details',
@@ -107,6 +120,7 @@ export class CustomerDetails implements OnInit {
     private distributionPlans: any[] = [];
 
     private isDirty: boolean = false;
+    private hasErrors: boolean = false;
 
     public toolbarSubheads: IToolbarSubhead[];
     public toolbarStatusValidation: IToolbarValidation[];
@@ -343,13 +357,13 @@ export class CustomerDetails implements OnInit {
                  label: 'Lagre',
                  action: (completeEvent) => this.saveAction(completeEvent),
                  main: true,
-                 disabled: !this.isDirty
+                 disabled: !this.isDirty || this.hasErrors
              },
              {
                  label: 'Lagre som lead',
                  action: (completeEvent) => this.saveAction(completeEvent, true),
                  main: false,
-                 disabled: !this.isDirty
+                 disabled: !this.isDirty || this.hasErrors
              }
         ];
     }
@@ -494,6 +508,7 @@ export class CustomerDetails implements OnInit {
     public reset() {
         this.customerID = 0;
         this.isDirty = false;
+        this.hasErrors = false;
         this.setup();
         this.formIsInitialized = true;
         this.showReportWithID = null;
@@ -1047,6 +1062,7 @@ export class CustomerDetails implements OnInit {
         this.save(saveAsLead).subscribe(
             res => {
                 this.isDirty = false;
+                this.hasErrors = false;
                 this.selectConfig = undefined;
                 doneCallback('Kunde lagret');
                 if (this.modalMode) {
@@ -1126,6 +1142,11 @@ export class CustomerDetails implements OnInit {
         return uniSearchConfig;
     }
 
+    public onError(errorsInfo) {
+        this.hasErrors = !errorsInfo.isFormValid;
+        this.setupSaveActions();
+    }
+
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
         this.isDirty = true;
@@ -1164,6 +1185,19 @@ export class CustomerDetails implements OnInit {
                 customer = searchResult;
                 this.showHideNameProperties(customer);
             }
+        }
+
+        if (changes['CustomerNumberKidAlias']) {
+            const kidSimpleChange = changes['CustomerNumberKidAlias'];
+            this.modalService.open(KidModalComponent).onClose.subscribe(value => {
+                if (!value) {
+                    const currentCustomer = this.customer$.getValue();
+                    _.set(currentCustomer, 'CustomerNumberKidAlias', kidSimpleChange.previousValue);
+                    this.customer$.next(currentCustomer);
+                    this.form.forceValidation();
+                    this.setupSaveActions();
+                }
+            });
         }
 
         if (changes['Distributions.CustomerInvoiceDistributionPlanID'] ||
@@ -1395,6 +1429,55 @@ export class CustomerDetails implements OnInit {
                     Property: 'Info.BankAccounts',
                     FieldType: FieldType.MULTIVALUE,
                     Label: 'Bankkonto'
+                },
+                {
+                    FieldSet: 6,
+                    Legend: 'Bank',
+                    Section: 0,
+                    EntityType: 'Customer',
+                    Property: 'CustomerNumberKidAlias',
+                    FieldType: FieldType.TEXT,
+                    Label: 'KID-Identifikator',
+                    Tooltip: {
+                        Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at kundenummer-del av KID skal erstattes av dette nummeret.'
+                    },
+                    Validations: [
+                        // check if value is a valid number
+                        (value: string, fieldToValidate) => {
+                            if (isNumber(value)) {
+                                return null;
+                            } else {
+                                return {
+                                    value: value,
+                                    errorMessage: 'KID-Identifikator må være et heltall',
+                                    field: fieldToValidate,
+                                    isWarning: false
+                                };
+                            }
+                        },
+
+                        // check if KID is valid
+                        (value: string, fieldToValidate) => {
+                            const errorMessage = {
+                                value: value,
+                                errorMessage: 'KID-identifikator er ugyldig og  det må ligge utenfor debitor-serien',
+                                field: fieldToValidate,
+                                isWarning: false
+                            };
+                            if (!isNumber(value)) {
+                                return null;
+                            }
+                            return this.customerService.validateKID(value)
+                                .switchMap(response => {
+                                    const body = response.json();
+                                    const result = body === true ? null : errorMessage;
+                                    return Observable.of(result);
+                               })
+                                .catch(response => {
+                                    return Observable.of(errorMessage);
+                                });
+                        }
+                    ]
                 },
                 {
                     EntityType: 'Customer',

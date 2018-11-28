@@ -71,7 +71,7 @@ export class JournalEntries {
         });
 
         this.route.params.subscribe(params => {
-            const journalEntryID = params['journalEntryID'];
+            const journalEntryID = +params['journalEntryID'];
             const journalEntryNumber = params['journalEntryNumber'];
 
             if (journalEntryID) {

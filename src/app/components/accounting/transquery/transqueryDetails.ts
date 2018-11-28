@@ -203,8 +203,10 @@ export class TransqueryDetails implements OnInit {
                 if (searchParams.Account && !isNaN(searchParams.Account)) {
                     formFilters.push(`Account.AccountNumber eq ${searchParams.Account}`);
                 }
-                if (searchParams.Amount && !isNaN(searchParams.Amount)) {
-                    formFilters.push(`Amount eq ${searchParams.Amount}`);
+                let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
+                amount = amount.replace(',', '.');
+                if (amount && !isNaN(+amount)) {
+                    formFilters.push(`Amount eq ${amount}`);
                 }
 
                 if (!searchParams.ShowCreditedLines) {
@@ -313,33 +315,33 @@ export class TransqueryDetails implements OnInit {
 
     public onFormInput(input) {
         clearTimeout(this.searchTimeout);
-
-        const form = this.searchParams$.getValue();
-
-        if (input['JournalEntryNumber']) {
-            form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
-        }
-
-        if (input['Account']) {
-            form['Account'] = input['Account'].currentValue;
-        }
-
-        if (input['Amount']) {
-            form['Amount'] = input['Amount'].currentValue;
-        }
-
-        const params = [];
-        if (form['JournalEntryNumber']) {
-            params.push('number=' + form['JournalEntryNumber']);
-        }
-        if (form['Amount']) {
-            params.push('totalamount=' + form['Amount']);
-        }
-        if (form['Account']) {
-            params.push('accountnumber=' + form['Account']);
-        }
-
         this.searchTimeout = setTimeout(() => {
+            const form = this.searchParams$.getValue();
+
+            if (input['JournalEntryNumber']) {
+                form['JournalEntryNumber'] = input['JournalEntryNumber'].currentValue;
+            }
+
+            if (input['Account']) {
+                form['Account'] = input['Account'].currentValue;
+            }
+
+            if (input['Amount']) {
+                form['Amount'] = input['Amount'].currentValue;
+                input['Amount'].currentValue = input['Amount'].currentValue.replace(',', '.');
+            }
+
+            const params = [];
+            if (form['JournalEntryNumber']) {
+                params.push('number=' + form['JournalEntryNumber']);
+            }
+            if (form['Amount']) {
+                params.push('totalamount=' + form['Amount']);
+            }
+            if (form['Account']) {
+                params.push('accountnumber=' + form['Account']);
+            }
+
             this.searchParams$.next(form);
             let url = this.router.url.split('?')[0];
             if (params.length) {
@@ -348,7 +350,7 @@ export class TransqueryDetails implements OnInit {
 
             this.tabService.currentActiveTab.url = url;
             this.router.navigateByUrl(url);
-        }, 300);
+        }, 500);
     }
 
     private setSums() {
@@ -898,7 +900,7 @@ export class TransqueryDetails implements OnInit {
                 {
                     EntityType: 'JournalEntryLine',
                     Property: 'Amount',
-                    FieldType: FieldType.NUMERIC,
+                    FieldType: FieldType.TEXT,
                     Label: 'Beløp',
                     Placeholder: 'Beløp'
                 },

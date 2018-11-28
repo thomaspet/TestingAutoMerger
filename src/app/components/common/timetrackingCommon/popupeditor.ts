@@ -12,29 +12,37 @@ import {
     TimeSheet,
     TimesheetService,
     ErrorService
-} from '../../../services/services';
-import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
-import {LocalDate} from '../../../unientities';
+} from '@app/services/services';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import {LocalDate} from '@uni-entities';
 import {WorkEditor} from './workeditor';
 
 @Component({
     selector: 'uni-time-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 80vw">
+        <section role="dialog" class="uni-modal">
             <header><h1>Rediger timer</h1></header>
 
-            <article [attr.aria-busy]="busy">
+            <i *ngIf="options.data.linkToCancel" class="material-icons arrow_back icon-blue">arrow_back</i>
+            <a *ngIf="options.data.linkToCancel" (click)="close()">Tilbake til timevalg</a>
+
+            <article [attr.aria-busy]="busy" id="uniTableWrapper">
+            <div class="uniTable">
                 <h3>{{date|isotime:'Udddd DD.MM.YYYY'}}</h3>
-                <workeditor [timesheet]="timesheet"> </workeditor>
-                <span class="total">Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}</span>
+                <workeditor class="workEditor" [order]="options.data.order" [timesheet]="timesheet"> </workeditor>
+                <div class="sum">
+                    <h4 class="total">Totalsum: {{timesheet?.totals?.Minutes|min2hours:'decimal'}}</h4>
+                </div>
+            </div>
             </article>
 
             <footer>
-                <button [disabled]="this.options.data.disableSaveButton" (click)="close('ok')" class="good">Lagre</button>
-                <button (click)="close('cancel')" class="bad">Avbryt</button>
+                <button (click)="close('cancel')" class="cancel">Avbryt</button>
+                <button (click)="close('ok')" class="good">Lagre</button>
             </footer>
         </section>
     `,
+    styleUrls: ['./popupeditor.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTimeModal implements IUniModal {
@@ -61,7 +69,13 @@ export class UniTimeModal implements IUniModal {
     }
 
     public ngOnInit() {
-        var ts = this.timesheetService.newTimeSheet(this.options.data.relation);
+        // setting height of other modal to cover the other modal
+        if (this.options.data.height) {
+            const element = document.getElementById('uniTableWrapper');
+            element.setAttribute('style', 'height:' + this.options.data.height + ';');
+        }
+
+        const ts = this.timesheetService.newTimeSheet(this.options.data.relation);
         if (this.timesheet) {
             this.timesheet.items = [];
         }

@@ -15,9 +15,6 @@
     <main class="splitview_detail" *ngIf="employments">
         <employment-details
             [employment]="selectedEmployment$ | async"
-            [subEntities]="subEntities"
-            [projects]="projects"
-            [departments]="departments"
             [employeeID]="employeeID"
             (employmentChange)="onEmploymentChange($event)">
         </employment-details>

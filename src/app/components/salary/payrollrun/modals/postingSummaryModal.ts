@@ -2,10 +2,17 @@ import {Component, OnInit, Input, Output, EventEmitter, SimpleChanges} from '@an
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../../framework/ui/unitable/index';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry, JournalEntryLine} from '../../../../unientities';
-import {PayrollrunService, ErrorService, NumberSeriesService, BrowserStorageService, JournalEntryService} from '../../../../../app/services/services';
+import {PostingSummary, LocalDate, PayrollRun, NumberSeries, JournalEntry, JournalEntryLine, JournalEntryLineDraft} from '../../../../unientities';
+import {
+    PayrollrunService,
+    ErrorService,
+    NumberSeriesService,
+    BrowserStorageService,
+    JournalEntryService
+} from '../../../../../app/services/services';
 import * as moment from 'moment';
 import {BehaviorSubject} from 'rxjs';
+import {Router} from '@angular/router';
 const NUMBER_SERIES_KEY = 'numberSeriesID_salaryBooking';
 interface IBookingModel {
     date: LocalDate;
@@ -38,6 +45,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
     private journalDate: string;
     public headerString: string = 'Konteringssammendrag';
     private numberSeries: NumberSeries[] = [];
+    public valid: boolean;
 
     constructor(
         private payrollService: PayrollrunService,
@@ -45,6 +53,7 @@ export class PostingSummaryModal implements OnInit, IUniModal {
         private numberseriesService: NumberSeriesService,
         private browserStorageService: BrowserStorageService,
         private journalEntryService: JournalEntryService,
+        private router: Router,
     ) {}
 
     public ngOnInit() {
@@ -139,6 +148,15 @@ export class PostingSummaryModal implements OnInit, IUniModal {
 
                 return postingSummary;
             })
+            .do(postingSummary => this.valid = !postingSummary.PostList.some(line => !line.Account))
+            .map((postingSummary: PostingSummary) => {
+
+                postingSummary.PostList = postingSummary
+                    .PostList
+                    .sort((a, b) => this.GetNumberFromBool(!!a.Account) - this.GetNumberFromBool(!!b.Account));
+
+                return postingSummary;
+            })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do(response => this.updateSum(response))
             .subscribe((response: PostingSummary) => {
@@ -147,6 +165,10 @@ export class PostingSummaryModal implements OnInit, IUniModal {
                     + response.PayrollRun.ID + ' - ' + response.PayrollRun.Description
                     + ', utbetales ' + moment(response.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
             });
+    }
+
+    private GetNumberFromBool(bool: boolean): number {
+        return bool ? 1 : 0;
     }
 
     private cacheNumberSeriesID(model: IBookingModel) {
@@ -217,7 +239,8 @@ export class PostingSummaryModal implements OnInit, IUniModal {
         this.accountTableConfig = new UniTableConfig('salary.payrollrun.postingSummaryModalContent', false, false)
             .setColumns(cols)
             .setColumnMenuVisible(false)
-            .setSearchable(false);
+            .setSearchable(false)
+            .setConditionalRowCls((row: JournalEntryLineDraft) => !row.Account ? 'bad' : '');
     }
 
     public change(event: SimpleChanges) {
@@ -225,6 +248,13 @@ export class PostingSummaryModal implements OnInit, IUniModal {
             this.getPostingSummary(this.payrollrunID, event['hasGrouping'].currentValue);
             this.createTableConfig(event['hasGrouping'].currentValue);
         }
+    }
+
+    public routeToSalarySettings() {
+        this.busy = true;
+        this.router
+            .navigate(['settings/aga-and-subentities'])
+            .then(() => this.close());
     }
 
     public close() {

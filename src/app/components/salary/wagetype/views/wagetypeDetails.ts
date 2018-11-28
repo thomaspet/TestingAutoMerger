@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {WageTypeService, AccountService, InntektService, WageTypeBaseOptions} from '../../../../services/services';
 import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {
-        WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, TaxType, code
+        WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, TaxType, code, CompanySalary
     } from '../../../../unientities';
 import {Observable} from 'rxjs';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
@@ -11,6 +11,8 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../..
 import {UniView} from '../../../../../framework/core/uniView';
 import {UniCacheService, ErrorService} from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
+
+const WAGETYPE_KEY = 'wagetype';
 
 interface IValidValuesFilter {
     IncomeType?: string;
@@ -71,15 +73,6 @@ export class WagetypeDetail extends UniView {
 
     @ViewChild(UniForm) public uniform: UniForm;
 
-    private specialTaxAndContributionsRule: { ID: SpecialTaxAndContributionsRule, Name: string }[] = [
-        { ID: SpecialTaxAndContributionsRule.Standard, Name: 'Standard/ingen valgt' },
-        { ID: SpecialTaxAndContributionsRule.Svalbard, Name: 'Svalbard' },
-        { ID: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, Name: 'Jan Mayen og bilandene' },
-        { ID: SpecialTaxAndContributionsRule.NettoPayment, Name: 'Netto lønn' },
-        { ID: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, Name: 'Nettolønn for sjøfolk' },
-        { ID: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, Name: 'Kildeskatt for pensjonister' }
-    ];
-
     private getRateFrom: { ID: GetRateFrom, Name: string }[] = [
         { ID: GetRateFrom.WageType, Name: 'Lønnsart' },
         { ID: GetRateFrom.MonthlyPayEmployee, Name: 'Månedslønn ansatt' },
@@ -99,7 +92,6 @@ export class WagetypeDetail extends UniView {
         private route: ActivatedRoute,
         private router: Router,
         private wageService: WageTypeService,
-        private accountService: AccountService,
         private inntektService: InntektService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
@@ -110,7 +102,7 @@ export class WagetypeDetail extends UniView {
 
         this.route.parent.params.subscribe(params => {
             super.updateCacheKey(router.url);
-            super.getStateSubject('wagetype')
+            super.getStateSubject(WAGETYPE_KEY)
                 .switchMap((wageType: WageType) => {
                     if (wageType.ID !== this.wagetypeID) {
                         this.wagetypeID = wageType.ID;
@@ -211,14 +203,6 @@ export class WagetypeDetail extends UniView {
         this.editField(fields, 'GetRateFrom', getRateFrom => {
             getRateFrom.Options = {
                 source: this.getRateFrom,
-                displayProperty: 'Name',
-                valueProperty: 'ID'
-            };
-        });
-
-        this.editField(fields, 'SpecialTaxAndContributionsRule', specialTaxAndContributionsRule => {
-            specialTaxAndContributionsRule.Options = {
-                source: this.specialTaxAndContributionsRule,
                 displayProperty: 'Name',
                 valueProperty: 'ID'
             };

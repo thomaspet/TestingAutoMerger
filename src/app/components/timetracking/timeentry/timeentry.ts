@@ -10,7 +10,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {RegtimeBalance} from './balance/balance';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
-import {WorkEditor} from '../components/workeditor';
+import {WorkEditor} from '@app/components/common/timetrackingCommon';
 import {DayBrowser, Day, ITimeSpan, INavDirection} from '../components/daybrowser';
 import {SideMenu, ITemplate, ITimeTrackingTemplate} from '../sidemenu/sidemenu';
 import {TeamworkReport, Team} from '../components/teamworkreport';
@@ -497,7 +497,13 @@ export class TimeEntry {
             if (item.IsWeekend) {
                 flexDays.push('');
             } else {
-                flexDays.push(item.Flextime >= 0 ? 'calendar_flexplus' : 'calendar_flexminus');
+                // Dont show deep red user has registered more then 3 hours
+                if (item.Flextime < 0) {
+                    const percentWorked = (item.ExpectedTime + item.Flextime) / (item.ExpectedTime || 1) * 100;
+                    flexDays.push(percentWorked >= 50 ? 'calendar_flexminus_light' : 'calendar_flexminus');
+                } else {
+                    flexDays.push('calendar_flexplus');
+                }
             }
         });
 

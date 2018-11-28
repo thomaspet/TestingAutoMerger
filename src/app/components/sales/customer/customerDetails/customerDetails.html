@@ -18,7 +18,8 @@
             [config]="config$"
             [fields]="fields$"
             [model]="customer$"
-            (changeEvent)="onChange($event)">
+            (changeEvent)="onChange($event)"
+            (errorEvent)="onError($event)">
         </uni-form>
 
         <ng-template [ngIf]="(customer$ | async)?.ID">
@@ -57,12 +58,15 @@
 
     <!-- Reconciliation tab -->
     <section *ngIf="activeTabIndex === 1" class="uni-container customer-post-post-view">
-        <uni-tabs
-            [tabs]="postposttabs"
-            (tabClick)="onPostpostFilterClick($event)">
-        </uni-tabs>
-        <button class="good" (click)="goToPostpost()">Rediger</button>
-        <ledger-account-reconciliation
+        <div style="display: flex;">
+            <uni-tabs
+                [tabs]="postposttabs"
+                (tabClick)="onPostpostFilterClick($event)">
+            </uni-tabs>
+            <button class="good" (click)="goToPostpost()">Rediger</button>
+        </div>
+
+        <ledger-account-reconciliation style="font-size: .9rem"
             [customerBankAccounts]="(customer$ | async)?.Info?.BankAccounts"
             [disablePaymentToField]="true"
             [accountNumber]="(customer$ | async)?.CustomerNumber"

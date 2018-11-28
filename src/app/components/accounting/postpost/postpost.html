@@ -48,28 +48,22 @@
         </nav>
 
         <main class="splitview_detail customer-post-post-view" style="margin-top: 0 !important;">
-            <uni-tabs
-                [tabs]="tabs"
-                (tabClick)="onFilterClick($event)">
-            </uni-tabs>
-            <div class="toolbar" style="margin: 0 !important; width: 23%;">
-                <button title="Ctrl + M"
-                    class="good"
-                    [disabled]="!(postpost?.canAutoMark)"
-                    (click)="autoMark()">
-
-                    Automerking
-                </button>
+            <div style="display: flex; width: 100%;">
+                <uni-tabs
+                    [tabs]="tabs"
+                    (tabClick)="onFilterClick($event)">
+                </uni-tabs>
+                <button title="Ctrl + M" class="good" [disabled]="!(postpost?.canAutoMark)" (click)="autoMark()">Automerking </button>
             </div>
             <ledger-account-reconciliation
                 [customerID]="(customer$ | async)?.ID"
                 [accountNumber]="(current$ | async)?.AccountNumber"
                 [supplierID]="(supplier$ | async)?.ID"
                 [accountID]="(account$ | async)?.ID"
-                [pointInTime]="pointInTime$ | async"
                 [autoLocking]="autolocking"
                 [hideHeader]="true"
-                (allSelectedLocked)="onAllSelectedLocked($event)">
+                (selectionChanged)="onLedgerTableSelectionChanged($event)"
+                (automarkChecked)="autoMark()">
             </ledger-account-reconciliation>
         </main>
     </section>

@@ -123,14 +123,13 @@ export class UniSection {
         this.cd.markForCheck();
     }
 
-    public field(property: string, isMultivalue?: boolean): UniField {
+    public field(property: string, label?: string): UniField {
         return this.fieldElements.find((field: UniField) => {
-            if (isMultivalue) {
-                if (field.field.Options && field.field.Options.storeResultInProperty) {
-                    return field.field.Options.storeResultInProperty === property;
-                }
+            const labelCheck = !label ? true : label === field.field.Label;
+            if (field.field.Options && (field.field.Options.storeResultInProperty || field.field.Options.storeIdInProperty)) {
+                return (field.field.Options.storeResultInProperty === property || field.field.Options.storeIdInProperty === property) && labelCheck;
             }
-            return field.field.Property === property;
+            return field.field.Property === property && labelCheck;
         });
     }
 

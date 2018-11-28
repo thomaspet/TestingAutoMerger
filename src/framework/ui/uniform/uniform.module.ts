@@ -12,8 +12,8 @@ import {ColumnIndexesPipe} from '@uni-framework/ui/uniform/pipes/column-indexes.
 import {GetLegendPipe} from '@uni-framework/ui/uniform/pipes/get-legend.pipe';
 import {ByFieldsetPipe} from '@uni-framework/ui/uniform/pipes/by-fieldset.pipe';
 import {IsRequiredPipe} from '@uni-framework/ui/uniform/pipes/is-required.pipe';
+import { MarkLastFieldPipe } from '@uni-framework/ui/uniform/pipes/mark-last-field.pipe';
 
-import {UniSelect} from './controls/select/select';
 import {UniField} from './unifield/unifield';
 import {UniSection} from './unisection/unisection';
 import {CONTROLS} from './controls/index';
@@ -27,6 +27,7 @@ import {UniSearchModule} from '../unisearch/index';
 import {UniTooltipModule} from '../tooltip/tooltip.module';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/material';
+import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
 
 @NgModule({
     imports: [
@@ -38,11 +39,12 @@ import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/
         NgSelectModule,
         MatCheckboxModule,
         MatRadioModule,
-        MatSlideToggleModule
+        MatSlideToggleModule,
+        UniSelectModule
     ],
     declarations: [
         UniForm,
-        UniSelect,
+        // UniSelect,
         UniCalendar,
         UniField,
         UniSection,
@@ -58,14 +60,15 @@ import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/
         FieldsetIndexesPipe,
         ColumnIndexesPipe,
         UniformErrorTemplatePipe,
-        IsRequiredPipe
+        IsRequiredPipe,
+        MarkLastFieldPipe
     ],
     providers: [
         LayoutBuilder
     ],
     exports: [
         UniForm,
-        UniSelect,
+        UniSelectModule,
         UniCalendar,
         UniField,
         UniSection,

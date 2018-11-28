@@ -84,12 +84,12 @@ export class ProductDetails {
     public toolbarconfig: IToolbarConfig;
 
     public saveactions: IUniSaveAction[] = [
-         {
-             label: 'Lagre',
-             action: (completeEvent) => this.saveProduct(completeEvent),
-             main: true,
-             disabled: false
-         }
+        {
+            label: 'Lagre',
+            action: (completeEvent) => this.saveProduct(completeEvent),
+            main: true,
+            disabled: false
+        }
     ];
 
     public categoryFilter: ITag[] = [];
@@ -132,12 +132,12 @@ export class ProductDetails {
         // setup form
         if (!this.formIsInitialized) {
             Observable.forkJoin(
-                    this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
-                    this.projectService.GetAll(null),
-                    this.departmentService.GetAll(null),
-                    this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
-                    this.customDimensionService.getMetadata()
-                )
+                this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq 1'),
+                this.projectService.GetAll(null),
+                this.departmentService.GetAll(null),
+                this.companySettingsService.Get(1, ['DefaultSalesAccount.VatType']),
+                this.customDimensionService.getMetadata()
+            )
                 .subscribe((response: Array<any>) => {
                     this.vatTypes = response[0];
                     this.projects = response[1];
@@ -398,10 +398,10 @@ export class ProductDetails {
             },
             template: (vt: VatType) => vt ? `${vt.VatCode}: ${vt.VatPercent}% – ${vt.Name}` : '',
             events: {
-                    select: (model: Product) => {
-                        this.updateVatType(model);
-                    }
-                },
+                select: (model: Product) => {
+                    this.updateVatType(model);
+                }
+            },
             groupConfig: {
                 groupKey: 'VatCodeGroupingValue',
                 visibleValueKey: 'Visible',
@@ -471,19 +471,19 @@ export class ProductDetails {
         if (model && model.AccountID) {
             this.accountService.Get(model.AccountID, ['VatType'])
                 .subscribe(account => {
-                    if (account) {
-                        this.product$.getValue().Account = account;
-                        if (this.product$.getValue().Account.VatTypeID !== null) {
-                            this.product$.getValue().VatTypeID = this.product$.getValue().Account.VatTypeID;
-                            this.product$.getValue().VatType = this.product$.getValue().Account.VatType;
-                            this.calculateAndUpdatePrice();
+                        if (account) {
+                            this.product$.getValue().Account = account;
+                            if (this.product$.getValue().Account.VatTypeID !== null) {
+                                this.product$.getValue().VatTypeID = this.product$.getValue().Account.VatTypeID;
+                                this.product$.getValue().VatType = this.product$.getValue().Account.VatType;
+                                this.calculateAndUpdatePrice();
 
-                            this.product$.next(this.product$.getValue());
+                                this.product$.next(this.product$.getValue());
+                            }
                         }
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+                    },
+                    err => this.errorService.handle(err)
+                );
         }
     }
 
@@ -491,13 +491,13 @@ export class ProductDetails {
         if (model && model.VatTypeID) {
             this.vatTypeService.Get(model.VatTypeID)
                 .subscribe(vattype => {
-                    if (vattype) {
-                        this.product$.getValue().VatType = vattype;
-                        this.calculateAndUpdatePrice();
-                    }
-                },
-                err => this.errorService.handle(err)
-            );
+                        if (vattype) {
+                            this.product$.getValue().VatType = vattype;
+                            this.calculateAndUpdatePrice();
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
         }
     }
 

@@ -122,12 +122,14 @@ export class TradeItemHelper  {
         if (event.field === 'Product') {
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings);
 
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings);
                 if (currencyCodeID !== companySettings.BaseCurrencyCodeID && foreignVatType) {
                     newRow.VatType = foreignVatType;
                     newRow.VatTypeID = foreignVatType.ID;
                 }
+
+
             } else {
                 newRow['ProductID'] = null;
             }
@@ -216,6 +218,17 @@ export class TradeItemHelper  {
             const normalizedDisccount = this.round(discount * 100, 4);
             newRow['DiscountPercent'] = normalizedDisccount;
         }
+
+        if (!newRow.PriceIncVatCurrency) {
+            newRow.PriceIncVatCurrency = 0;
+        }
+        if (!newRow.PriceExVatCurrency) {
+            newRow.PriceExVatCurrency = 0;
+        }
+        if (!newRow.NumberOfItems) {
+            newRow.NumberOfItems = 0;
+        }
+
         this.calculateBaseCurrencyAmounts(newRow, currencyExchangeRate);
         this.calculateDiscount(newRow, currencyExchangeRate);
 
@@ -278,7 +291,7 @@ export class TradeItemHelper  {
             }
         } else {
             rowModel.VatTypeID = product.VatTypeID;
-            rowModel.VatType = productVatType;
+            rowModel.VatType = productVatType || product.VatType;
 
             if (!rowModel.VatTypeID && product.Account) {
                 rowModel.VatTypeID = product.Account.VatTypeID;
@@ -295,8 +308,16 @@ export class TradeItemHelper  {
         }
 
         if (currencyExchangeRate) {
+
             rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
-            rowModel.PriceIncVatCurrency = this.round(rowModel.PriceIncVat / currencyExchangeRate, 4);
+
+            const vatPercent = productVatType.VatPercent || 0;
+            const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
+            const taxPercentage = (100 + vatPercent) / 100;
+            const price = priceExVatCurrency * taxPercentage;
+            rowModel['PriceIncVatCurrency'] = this.round(price, 4);
+            rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
+
         } else {
             rowModel.PriceExVatCurrency = rowModel.PriceExVat;
             rowModel.PriceIncVatCurrency = rowModel.PriceIncVat;
@@ -375,6 +396,7 @@ export class TradeItemHelper  {
         const price = priceExVatCurrency * taxPercentage;
         rowModel['PriceIncVatCurrency'] = this.round(price, 4);
         rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
+
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {

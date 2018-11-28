@@ -2,30 +2,16 @@ import {ViewChild, Component, HostListener} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IToolbarConfig, IAutoCompleteConfig, IShareAction} from './../../common/toolbar/toolbar';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {LedgerAccountReconciliation} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
+import {LedgerAccountReconciliation, LedgerTableEmitValues} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
 import {Observable} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
-import {
-    Customer,
-    Supplier,
-    Account,
-    StatusCodeJournalEntryLine,
-    LocalDate
-} from '../../../unientities';
-import {
-    ErrorService,
-    AccountService,
-    StatisticsService,
-    JournalEntryLineService,
-    NumberFormat
-} from '../../../services/services';
+import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
+import {StatisticsService, NumberFormat} from '../../../services/services';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
@@ -38,34 +24,23 @@ export class PostPost {
     @ViewChild(LedgerAccountReconciliation)
     public postpost: LedgerAccountReconciliation;
 
-    @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
-            event.preventDefault();
-            this.autoMark();
-        }
-    }
-
-    // tslint:disable:member-ordering
-
-    // Save
-    public shareActions: IShareAction[];
-    public saveActions: IUniSaveAction[];
-
-    // Filter
-    public datefield: UniFieldLayout = new UniFieldLayout();
-
-    private registers: any[] = [
+    shareActions: IShareAction[];
+    saveActions: IUniSaveAction[];
+    registers: any[] = [
         {Register: 'customer', _DisplayName: 'Kunde'},
         {Register: 'supplier', _DisplayName: 'Leverandør'},
         {Register: 'account', _DisplayName: 'Hovedbok'}
     ];
 
-    public currentFilter: string = 'OPEN';
-    public tabs: IUniTab[] = [
+    currentFilter: string = 'OPEN';
+    tabs: IUniTab[] = [
         {name: 'Åpne poster', value: 'OPEN'},
         {name: 'Lukkede poster', value: 'MARKED'},
-        {name: 'Alle poster', value: 'ALL'}
+        {
+            name: 'Alle poster',
+            value: 'ALL',
+            tooltip: 'Om du skal lukke poster, velg Apne poster-fanen.'
+        }
     ];
 
     accountListfilters = [
@@ -77,43 +52,50 @@ export class PostPost {
 
     currentListFilter = this.accountListfilters[0];
 
-    public mainTabs: IUniTab[] = [];
-    public currentTab: IUniTab;
+    mainTabs: IUniTab[] = [];
+    currentTab: IUniTab;
     accountSearchFilterString: string = '';
     searchControl: FormControl = new FormControl('');
     scrollbar: PerfectScrollbar;
     activeAccount: number = 0;
-
-    // Detail view
-    public pointInTime$: BehaviorSubject<LocalDate> = new BehaviorSubject(null);
-    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
-    public supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
-    public account$: BehaviorSubject<Account> = new BehaviorSubject(null);
-    public current$: BehaviorSubject<any> = new BehaviorSubject(null);
-
+    customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
+    supplier$: BehaviorSubject<Supplier> = new BehaviorSubject(null);
+    account$: BehaviorSubject<Account> = new BehaviorSubject(null);
+    current$: BehaviorSubject<any> = new BehaviorSubject(null);
     accounts = [];
     filteredAccounts = [];
 
-    public toolbarconfig: IToolbarConfig;
-    public accountSearch: IAutoCompleteConfig;
-    public registerConfig: any;
-    private register: string = 'customer';
-    public autolocking: boolean = true;
+    toolbarconfig: IToolbarConfig;
+    accountSearch: IAutoCompleteConfig;
+    registerConfig: any;
+    autolocking: boolean = true;
     private canceled: boolean = false;
-    private allSelectedLocked: boolean = false;
+    private ledgerEmitValue: LedgerTableEmitValues = LedgerTableEmitValues.InitialValue;
+    private register: string = 'customer';
+
+    @HostListener('keydown', ['$event'])
+    public onKeyDown(event: KeyboardEvent) {
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
+            event.preventDefault();
+            this.autoMark();
+        }
+    }
 
     constructor(
         private tabService: TabService,
-        private errorService: ErrorService,
         private modalService: UniModalService,
-        private toastService: ToastService,
-        private accountService: AccountService,
         private statisticsService: StatisticsService,
-        private journalEntryLineService: JournalEntryLineService,
         private route: ActivatedRoute,
         private router: Router,
-        public numberFormatService: NumberFormat,
+        public numberFormatService: NumberFormat
     ) {
+
+        this.tabService.addTab({
+            url: '/accounting/postpost',
+            name: 'Åpne poster',
+            active: true,
+            moduleID: UniModules.PostPost
+        });
 
         this.route.queryParams.subscribe((params) => {
 
@@ -127,13 +109,11 @@ export class PostPost {
                 toolbarModeString = mode === 'kontoer' ? 'Leverandører' : 'Hovedbok';
             }
 
-            this.setupFilter();
             this.setMainTabs(mode || 'kunder');
             this.checkForDiff();
             this.setupShareActions();
             this.setupToolbarConfig(toolbarModeString);
             this.setupRegisterConfig();
-            this.setTabTitle();
             this.reloadRegister();
             this.setupSaveActions();
         });
@@ -233,26 +213,19 @@ export class PostPost {
         this.saveActions = [
             {
                 action: this.save.bind(this),
-                disabled: false,
+                disabled: this.currentFilter !== 'OPEN',
                 label: 'Lagre',
-                main: this.autolocking && this.currentFilter !== 'MARKED'
-                    && !this.allSelectedLocked && !(this.postpost && this.postpost.canAutoMark)
-            }, {
-                action: this.lock.bind(this),
-                disabled: false,
-                label: 'Lukk valgte',
-                main: !this.autolocking && this.currentFilter !== 'MARKED'
-                    && !this.allSelectedLocked && !(this.postpost && this.postpost.canAutoMark)
+                main: this.autolocking && this.ledgerEmitValue === LedgerTableEmitValues.MarkedPosts
             }, {
                 action: this.unlock.bind(this),
                 disabled: false,
                 label: 'Gjenåpne valgte',
-                main: this.currentFilter === 'MARKED' || this.allSelectedLocked
+                main: this.ledgerEmitValue === LedgerTableEmitValues.MarkedLocked,
             }, {
                 action: this.autoMark.bind(this),
-                disabled: false,
+                disabled: !(this.postpost && this.postpost.canAutoMark),
                 label: 'Automerk denne konto',
-                main: false,
+                main: this.ledgerEmitValue === LedgerTableEmitValues.InitialValue && (this.postpost && this.postpost.canAutoMark),
             }, {
                 action: this.autoMarkAll.bind(this),
                 disabled: false,
@@ -260,7 +233,7 @@ export class PostPost {
             }, {
                 action: this.cancel.bind(this),
                 disabled: false,
-                label: 'Angre'
+                label: 'Fjern alle markeringer'
             }, {
                 action: this.autolock.bind(this),
                 disabled: false,
@@ -303,11 +276,6 @@ export class PostPost {
 
             this.reloadRegister();
         });
-    }
-
-    private lock(done: (message: string) => void) {
-        this.postpost.markCheckedJournalEntries();
-        done('Lukket');
     }
 
     private unlock(done: (message: string) => void) {
@@ -354,16 +322,11 @@ export class PostPost {
                 || account.AccountNumber.toString().includes(this.accountSearchFilterString.toLowerCase())) {
                 return account;
             }
-        }).slice(0, 99);
+        }).slice(0, 100);
     }
 
     private compare(propName, rev) {
         return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? (-1 * rev) : (1 * rev);
-    }
-
-    private setupFilter() {
-        this.datefield.Property = 'PointInTime';
-        this.datefield.Placeholder = 'Til og med dato';
     }
 
     private setupToolbarConfig(register: string = '') {
@@ -379,15 +342,6 @@ export class PostPost {
             selectedItem: this.registers.find(x => x.Register === this.register),
             placeholder: 'Register'
         };
-    }
-
-    private setTabTitle() {
-        this.tabService.addTab({
-            url: '/accounting/postpost',
-            name: 'Åpne poster',
-            active: true,
-            moduleID: UniModules.PostPost
-        });
     }
 
     public onRowSelected(event) {
@@ -420,15 +374,10 @@ export class PostPost {
         });
     }
 
-    public onPointInTimeChanged(model) {
-        this.pointInTime$.next(model.PointInTime.currentValue);
-        this.reloadRegister();
-    }
-
     public onFilterClick(tab: IUniTab) {
         this.postpost.showHideEntries(tab.value);
+        this.currentFilter = tab.value;
         this.setupSaveActions();
-        //  this.reloadRegister();
     }
 
     public onCustomerFilterClick(tab: IUniTab) {
@@ -436,14 +385,9 @@ export class PostPost {
         this.reloadRegister();
     }
 
-    public onAllSelectedLocked(allLocked) {
-        this.allSelectedLocked = allLocked;
+    public onLedgerTableSelectionChanged(value) {
+        this.ledgerEmitValue = value;
         this.setupSaveActions();
-    }
-
-    private getDateFilter(): string {
-        const date = this.pointInTime$.getValue();
-        return date ? `and FinancialDate le '${date}'` : '';
     }
 
     private getStatusFilter(): string {
@@ -481,7 +425,7 @@ export class PostPost {
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
                 `filter=SubAccount.CustomerID gt ` +
-                `0 ${this.getStatusFilter()} ${this.getDateFilter()}` +
+                `0 ${this.getStatusFilter()}` +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,count(ID) as count,` +
@@ -507,7 +451,7 @@ export class PostPost {
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()} ${this.getDateFilter()}` +
+                `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()}` +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,count(ID) as count,` +
@@ -534,7 +478,7 @@ export class PostPost {
                              `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
                              `expand=Account&` +
                              `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
-                             ` ${this.getDateFilter()}&` +
+                             `&` +
                              `orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts = accounts;

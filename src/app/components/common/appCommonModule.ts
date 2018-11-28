@@ -44,8 +44,20 @@ import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
+import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {
-    MatProgressBarModule
+    WorkEditor,
+    UniTimeModal,
+    WorkitemTransferWizard,
+    WorkitemTransferWizardFilter,
+    WorkitemTransferWizardPreview,
+    WorkitemTransferWizardProducts,
+    InvoiceHours
+} from './timetrackingCommon';
+
+import {
+    MatProgressBarModule,
+    MatMenuModule
 } from '@angular/material';
 
 @NgModule({
@@ -56,7 +68,9 @@ import {
         HttpModule,
         RouterModule,
         UniFrameworkModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        MatMenuModule,
+        AppPipesModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -102,7 +116,15 @@ import {
 
         ApiKeyComponent,
         ApikeyLine,
-        ApikeyLineModal
+        ApikeyLineModal,
+
+        WorkEditor,
+        UniTimeModal,
+        WorkitemTransferWizard,
+        WorkitemTransferWizardFilter,
+        WorkitemTransferWizardPreview,
+        WorkitemTransferWizardProducts,
+        InvoiceHours
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -114,7 +136,9 @@ import {
         BookPaymentManualModal,
         VacationPaySettingsModal,
         ApikeyLineModal,
-        UniAutomarkModal
+        UniAutomarkModal,
+        UniTimeModal,
+        WorkitemTransferWizard
     ],
     exports: [
         PredefinedDescriptionList,
@@ -157,6 +181,14 @@ import {
         ApiKeyComponent,
         ApikeyLine,
         ApikeyLineModal,
+
+        WorkEditor,
+        UniTimeModal,
+        WorkitemTransferWizard,
+        WorkitemTransferWizardFilter,
+        WorkitemTransferWizardPreview,
+        WorkitemTransferWizardProducts,
+        InvoiceHours
     ]
 })
 export class AppCommonModule {}

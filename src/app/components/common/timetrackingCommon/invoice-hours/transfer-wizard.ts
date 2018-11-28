@@ -1,20 +1,25 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnInit, AfterViewInit} from '@angular/core';
-import {
-    UniModalService
-} from '@uni-framework/uni-modal/modalService';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ErrorService } from '@app/services/common/errorService';
-import { UserService, CustomerOrderService, CustomerService, FinancialYearService } from '@app/services/services';
 import { WorkitemTransferWizardFilter } from './transfer-wizard-filter';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { IWizardOptions, WizardSource, MergeByEnum } from './wizardoptions';
 import { WorkitemTransferWizardProducts } from './transfer-wizard-products';
 import { WorkitemTransferWizardPreview } from './transfer-wizard-preview';
-import { InvoiceHourService, ISumHours } from './invoice-hours.service';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { BehaviorSubject } from 'rxjs';
-import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
-import { roundTo, safeInt } from '@app/components/common/utils/utils';
+import { FieldType } from '@uni-framework/ui/uniform';
+import { roundTo } from '@app/components/common/utils/utils';
 import { LocalDate } from '@uni-entities';
+import {
+    UserService,
+    CustomerOrderService,
+    CustomerService,
+    FinancialYearService,
+    InvoiceHourService,
+    ISumHours
+} from '@app/services/services';
+
 
 @Component({
     selector: 'workitem-transfer-wizard',

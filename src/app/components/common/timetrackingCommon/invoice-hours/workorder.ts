@@ -1,6 +1,5 @@
 import { LocalDate, Customer } from '@uni-entities';
-import { roundTo } from '@app/components/common/utils/utils';
-import { createGuid } from '@app/services/services';
+import { roundTo, getNewGuid } from '@app/components/common/utils/utils';
 
 export class WorkOrder {
     public ID: number;
@@ -67,7 +66,8 @@ export class WorkOrder {
 
         if (merge) {
             const existing = this.Items.find( x => x.ProductID === item.ProductID
-                && x.ItemText === item.ItemText && x.PriceExVat === item.PriceExVat);
+                && x.ItemText === item.ItemText && x.PriceExVat === item.PriceExVat
+                && x.isWorkorderItem);
             if (existing) {
                 existing.merge(item);
                 return;
@@ -102,23 +102,28 @@ export class WorkOrder {
 }
 
 export class WorkOrderItem {
+    public ID: number;
     public ProductID: number;
     public ItemText: string;
     public Unit: string;
     public ItemSource: WorkItemSource;
     public NumberOfItems: number;
     public PriceExVat: number;
+    public PriceExVatCurrency: number;
     public SumTotalExVat: number;
+    public SumTotalExVatCurrency: number;
     public VatTypeID: number;
     public Dimensions: Dimensions;
+    public DiscountPercent: number;
     public _createguid: string;
+    public isWorkorderItem: boolean = true;
     public constructor(productId?: number, itemText?: string, numberOfItems?: number, priceExVat?: number ) {
         this.ProductID = productId;
         this.ItemText = itemText;
         this.NumberOfItems = numberOfItems;
         this.PriceExVat = priceExVat;
         this.ItemSource = new WorkItemSource();
-        this._createguid = createGuid();
+        this._createguid = getNewGuid();
     }
 
     public merge(item: WorkOrderItem) {
@@ -143,7 +148,7 @@ export class Dimensions {
     public DepartmentID: number;
     constructor(projectId?: number) {
         this.ProjectID = projectId;
-        this._createguid = createGuid();
+        this._createguid = getNewGuid();
     }
 }
 
@@ -151,7 +156,7 @@ export class WorkItemSource {
     public Details: Array<WorkItemSourceDetail> = [];
     public _createguid: string;
     constructor() {
-        this._createguid = createGuid();
+        this._createguid = getNewGuid();
     }
 }
 
@@ -165,13 +170,13 @@ export class WorkItemSourceDetail {
     public constructor(workItemID?: number, amount?: number) {
         this.SourceFK = workItemID || this.SourceFK;
         this.Amount = amount || this.Amount;
-        this._createguid = createGuid();
+        this._createguid = getNewGuid();
     }
 }
 
-    
+
 function max(v1, v2, invert = false) {
-    if (!v1) return v2;
-    if (!v2) return v1;
+    if (!v1) { return v2; }
+    if (!v2) { return v1; }
     return (invert ? v1 < v2 : v1 > v2) ? v1 : v2;
 }

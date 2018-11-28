@@ -4,11 +4,11 @@
         <td>
         <strong *ngIf="options.source != 1">Opprette {{orderList?.length}} ordre(r):</strong>
         <strong *ngIf="options.source == 1">Oppdatere {{orderList?.length}} ordre(r):</strong>
-        </td>        
+        </td>
         <td class="label">
             Tekst-gruppering:
         </td><td>
-            <select name="grouping" [(ngModel)]="mergeOption" (ngModelChange)="onMergeOptionChanged($event)" >
+            <select name="grouping" [(ngModel)]="mergeOption" (ngModelChange)="onMergeOptionChange()" >
                 <option value="0">Timeart + Tekst</option>
                 <option value="1">Timeart</option>
                 <option value="2">Produktnavn</option>
@@ -20,7 +20,9 @@
     <section [attr.aria-busy]="computing">
         <div class="workorder" *ngFor="let order of orderList">
             <h3 (click)="order._expand = !order._expand" >{{order.ID ? 'Ordre ' + order.ID + ' - ' : ''}}{{order.CustomerName}}
-                <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">{{order.TaxExclusiveAmount | unicurrency}}</span>
+                <span [class.error]="order?.TaxExclusiveAmount <= 0" style="float: right">
+                    {{order.TaxExclusiveAmount | unicurrency}}
+                </span>
             </h3>
             <div class="workorder-details" *ngIf="order._expand">
                 <table class="preview">

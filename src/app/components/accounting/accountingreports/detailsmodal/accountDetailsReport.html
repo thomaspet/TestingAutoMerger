@@ -45,6 +45,7 @@
         <ag-grid-wrapper
             class="transquery-grid-font-size"
             [resource]="transactionsLookupFunction"
+            (resourceChange)="onResourceChange($event)"
             [columnSumResolver]="columnSumResolver"
             [config]="uniTableConfigTransactions$ | async"
             (cellClick)="onCellClick($event)">

@@ -69,7 +69,9 @@ export class PostPostService extends BizHttp<PostPost> {
                             const match = items.find( x => x.ID === element.ID);
                             if (match) {
                                 match.RestAmount = element.RestAmount;
-                                match.StatusCode = element.StatusCode;
+                                match._originalRestAmount = element.OriginalRestAmount;
+                                match._rowSelected = true;
+                                match.Markings = element.Markings;
                             }
                         });
                     }

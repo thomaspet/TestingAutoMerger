@@ -28,45 +28,48 @@
 
     <section class="uni-container tradeitem-container">
         <header>Varelinjer
-            <i class="material-icons notification_important icon-orange" *ngIf="hoursOnOrder">notification_important</i>
-            <span class="orderHours" *ngIf="hoursOnOrder">
-                {{hoursOnOrder}}
-                <span class="notTransferredHours" *ngIf="notTransferedHoursOnOrder">({{notTransferedHoursOnOrder}} nye)</span>
-                timer på ordre
-            </span>
+            <ng-container *ngIf="hoursOnOrderCount && hasTimetrackingAccess">
+                <i class="material-icons notification_important icon-orange">notification_important</i>
+                <span class="orderHours">
+                    Du har <span class="boldHours">{{hoursOnOrderCount}}</span> timer knyttet til denne ordren
+                    <span class="orderHours" *ngIf="nonTransferredHoursOnOrderCount">({{nonTransferredHoursOnOrderCount}} ikke overført)</span>
+                    <a class="transferHours" (click)="openModal()">Vis/overfør timer</a>
+                </span>
+            </ng-container>
         </header>
 
-        <uni-tradeitem-table
-            *ngIf="order"
-            [configStoreKey]="'sales.order.tradeitemTable'"
-            [readonly]="readonly"
-            [defaultTradeItem]="newOrderItem"
-            [vatDate]="order.OrderDate"
-            [vatTypes]="vatTypes"
-            [projects]="projects"
-            [departments]="departments"
-            [(items)]="orderItems"
-            [dimensionTypes]="dimensionTypes"
-            [currencyCodeID]="currencyCodeID"
-            [currencyExchangeRate]="currencyExchangeRate"
-            (itemsChange)="recalcDebouncer.next($event)">
-        </uni-tradeitem-table>
+        <section class="tradeitem-container">
+            <uni-tradeitem-table
+                *ngIf="order"
+                [configStoreKey]="'sales.order.tradeitemTable'"
+                [readonly]="readonly"
+                [defaultTradeItem]="newOrderItem"
+                [vatDate]="order.OrderDate"
+                [vatTypes]="vatTypes"
+                [projects]="projects"
+                [departments]="departments"
+                [(items)]="orderItems"
+                [dimensionTypes]="dimensionTypes"
+                [currencyCodeID]="currencyCodeID"
+                [currencyExchangeRate]="currencyExchangeRate"
+                (itemsChange)="recalcDebouncer.next($event)">
+            </uni-tradeitem-table>
 
-        <section class="tof-summary">
-            <span class="currency-info">
-                {{currencyInfo}}
-            </span>
+            <section class="tof-summary">
+                <span class="currency-info">
+                    {{currencyInfo}}
+                </span>
 
-            <section class="vertical-summary" *ngIf="summaryLines?.length">
-                <section class="summary-line"
-                    *ngFor="let summaryLine of summaryLines"
-                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+                <section class="vertical-summary" *ngIf="summaryLines?.length">
+                    <section class="summary-line"
+                        *ngFor="let summaryLine of summaryLines"
+                        [ngClass]="{'total-sum': summaryLine.isTotalSum}">
 
-                    <label>{{summaryLine.label}}</label>
-                    <span>{{summaryLine.value}}</span>
+                        <label>{{summaryLine.label}}</label>
+                        <span>{{summaryLine.value}}</span>
+                    </section>
                 </section>
             </section>
         </section>
-
     </section>
 </section>

@@ -3,7 +3,7 @@ import {TimeSheet, TimesheetService, WorkerService} from '../../../../services/s
 import {ItemInterval, IFilter} from '../../../../services/timetracking/workerService';
 import {toIso} from '../../../common/utils/utils';
 import {ErrorService} from '../../../../services/services';
-import {UniTimeModal} from '../../components/popupeditor';
+import {UniTimeModal} from '@app/components/common/timetrackingCommon';
 import {IPreSaveConfig} from '../timeentry';
 import * as moment from 'moment';
 import {WorkItemGroup, WorkRelation} from '../../../../unientities';

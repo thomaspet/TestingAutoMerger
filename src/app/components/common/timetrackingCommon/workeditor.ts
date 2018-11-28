@@ -1,20 +1,19 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
-import {TimesheetService, TimeSheet, ValueItem} from '../../../services/timetracking/timesheetService';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {ErrorService, BrowserStorageService, EmploymentService} from '../../../services/services';
-import {safeDec, filterInput, getDeepValue} from '../../common/utils/utils';
+import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '@uni-framework/ui/unitable/index';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {safeDec, filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
-import {WorkType, WorkItem, LocalDate} from '../../../unientities';
-import * as moment from 'moment';
+import {WorkType, WorkItem, LocalDate} from '@uni-entities';
+import {
+    ErrorService,
+    BrowserStorageService,
+    EmploymentService,
+    TimesheetService,
+    TimeSheet,
+    ValueItem
+} from '@app/services/services';
 
-interface ICurrent {
-    workerID?: number;
-    workRelationID?: number;
-    startDate?: Date;
-    endDate?: Date;
-    isInitialized: boolean;
-}
+import * as moment from 'moment';
 
 @Component({
     selector: 'workeditor',
@@ -31,6 +30,8 @@ export class WorkEditor {
         this.timeSheet = value;
         this.tryInit();
     }
+    @Input() order: WorkItem;
+
     @Output() public valueChanged: EventEmitter<any> = new EventEmitter();
     @Output() public rowDeleted: EventEmitter<any> = new EventEmitter();
     @ViewChild(UniTable) private uniTable: UniTable;
@@ -167,6 +168,12 @@ export class WorkEditor {
                 this.timeSheet.setItemValue(new ValueItem('StartTime', newRow.StartTime, rowIndex
                 , undefined, undefined, true));
             }
+
+            if (this.order && event.field !== 'CustomerOrder') {
+                this.timeSheet.setItemValue(new ValueItem('CustomerOrder', newRow.CustomerOrder, rowIndex, undefined, undefined, true));
+                this.timeSheet.items[rowIndex].CustomerOrder = this.order;
+                this.timeSheet.items[rowIndex].CustomerOrderID = this.order.ID;
+            }
         }
 
         if (this.timeSheet.setItemValue(change)) {
@@ -179,7 +186,7 @@ export class WorkEditor {
     }
 
     private createTableConfig(): UniTableConfig {
-        const cfg = new UniTableConfig('timetracking.workeditor', true, true, 10);
+        const cfg = new UniTableConfig('timetracking.workeditor', true, true, 15);
         cfg.columns = [
             new UniTableColumn('ID', 'ID', UniTableColumnType.Number)
                 .setVisible(false)

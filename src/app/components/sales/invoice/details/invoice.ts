@@ -676,6 +676,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
+        if (this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) {
+            shouldGetCurrencyRate = false;
+        }
+
         // If not getting currencyrate, we're done
         if (!shouldGetCurrencyRate) {
             return;
@@ -1337,10 +1341,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 return reject('Forfallsdato må være lik eller senere enn fakturadato.');
             }
 
-            if (this.invoice.Items.filter(x => !x.VatTypeID && (x.PriceExVat > 0 || x.PriceIncVat > 0)).length > 0) {
-                return reject('Kan ikke lagre faktura, mvakode må velges på alle linjene med et beløp');
-            }
-
             this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
                 if (canSave) {
                     saveRequest.subscribe(
@@ -1720,19 +1720,63 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private sendEHF(doneHandler: (msg: string) => void = null) {
-        this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF' ).subscribe(
-            () => {
-                this.toastService.addToast('EHF sendt', ToastType.good, 3, 'Til ' + this.invoice.Customer.Info.Name);
-                if (doneHandler) {
-                    doneHandler('EHF sendt');
-                    this.invoice.PrintStatus = 300;
-                    this.updateSaveActions();
-                }
-            },
-            (err) => {
-                if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
-                this.errorService.handle(err);
-            });
+        let notEnoughInfoToCheckEhf: boolean = false;
+
+        if (this.invoice.Customer.PeppolAddress || this.invoice.Customer.OrgNumber) {
+            const peppoladdress =
+                this.invoice.Customer.PeppolAddress ?
+                    this.invoice.Customer.PeppolAddress :
+                    '9908:' + this.invoice.Customer.OrgNumber;
+
+            if (peppoladdress) {
+                this.ehfService.GetAction(
+                    null, 'is-ehf-receiver', 'peppoladdress=' + peppoladdress + '&entitytype=CustomerInvoice'
+                ).subscribe(enabled => {
+                    if (enabled) {
+                        this.reportService.distributeWithType(this.invoice.ID, 'Models.Sales.CustomerInvoice', 'EHF' ).subscribe(
+                            () => {
+                                this.toastService.addToast(
+                                    'Faktura lagt i kø for EHF-distribusjon',
+                                    ToastType.good,
+                                    ToastTime.medium,
+                                    'Status på sendingen oppdateres løpende under Nøkkeltall \\ Distribusjon');
+
+                                    if (doneHandler) {
+                                        doneHandler('EHF lagt i kø for distribusjon');
+                                        this.invoice.PrintStatus = 300;
+                                        this.updateSaveActions();
+                                    }
+                                },
+                                (err) => {
+                                    if (doneHandler) { doneHandler('En feil oppstod ved sending av EHF!'); }
+                                    this.errorService.handle(err);
+                                });
+                    } else {
+                        this.toastService.addToast(
+                            'Kan ikke sende faktura som EHF',
+                            ToastType.bad,
+                            ToastTime.long,
+                            'Mottakeren er ikke en gyldig EHF-mottaker'
+                        );
+                        doneHandler('Sending feilet');
+                    }
+                }, err => this.errorService.handle(err));
+            } else {
+                notEnoughInfoToCheckEhf = true;
+            }
+        } else {
+            notEnoughInfoToCheckEhf = true;
+        }
+
+        if (notEnoughInfoToCheckEhf) {
+            this.toastService.addToast(
+                'Kan ikke sende faktura som EHF',
+                ToastType.bad,
+                ToastTime.long,
+                'Ugylig Peppol adresse eller organisasjonsnr angitt på kunden'
+            );
+            doneHandler('Sending feilet');
+        }
     }
 
     private askSendEHF(doneHandler: (msg: string) => void = null) {
