@@ -126,8 +126,8 @@ export class UniSection {
     public field(property: string, label?: string): UniField {
         return this.fieldElements.find((field: UniField) => {
             const labelCheck = !label ? true : label === field.field.Label;
-            if (field.field.Options && field.field.Options.storeResultInProperty) {
-                return field.field.Options.storeResultInProperty === property && labelCheck;
+            if (field.field.Options && (field.field.Options.storeResultInProperty || field.field.Options.storeIdInProperty)) {
+                return (field.field.Options.storeResultInProperty === property || field.field.Options.storeIdInProperty === property) && labelCheck;
             }
             return field.field.Property === property && labelCheck;
         });

@@ -387,8 +387,8 @@ export class UniForm implements OnChanges, OnInit {
     public field(property: string, label?: string): UniField {
         const fieldLayout: UniFieldLayout = this._layout.Fields.find((f: UniFieldLayout) => {
             const labelCheck = !label ? true : label === f.Label;
-            if (f.Options && f.Options.storeResultInProperty) {
-                return f.Options.storeResultInProperty === property && labelCheck;
+            if (f.Options && (f.Options.storeResultInProperty || f.Options.storeIdInProperty)) {
+                return (f.Options.storeResultInProperty === property || f.Options.storeIdInProperty === property) && labelCheck;
             }
             return f.Property === property && labelCheck;
         });
