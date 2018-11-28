@@ -87,6 +87,7 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import { AccrualModal } from '@app/components/common/modals/accrualModal';
 
 declare const _;
 
@@ -1143,11 +1144,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
-        this.contextMenuItems.push(<IContextMenuItem>{
+        this.contextMenuItems = [(<IContextMenuItem>{
             label: 'Periodisering',
-            action: (item) => console.log('periodisering'),
+            action: (item) => {
+                const data = {
+                    accrualAmount: 0,
+                    accrualStartDate: this.invoice.InvoiceDate,
+                    journalEntryLineDraft: null,
+                    accrual: null,
+                    title: 'Periodisering av fakturaen'
+                };
+                this.openAccrualModal(data);
+            },
             disabled: () => false
-        });
+        }];
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
             subheads: this.getToolbarSubheads(),
@@ -1164,6 +1174,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.updateShareActions();
         this.toolbarconfig = toolbarconfig;
+    }
+
+    openAccrualModal(data) {
+        // Add the accounting lock date to the data object
+        if (this.companySettings.AccountingLockedDate) {
+            data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
+        }
+        this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
+            if (res && res.action === 'ok') {
+
+            } else if (res && res.action === 'deleted') {
+
+            }
+        });
     }
 
     private getToolbarSubheads() {

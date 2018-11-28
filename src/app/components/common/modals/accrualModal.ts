@@ -1,5 +1,5 @@
-import {Component, Input, Output, EventEmitter, SimpleChange} from '@angular/core';
-import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import { Component, Input, Output, EventEmitter, SimpleChange, ViewChild } from '@angular/core';
+import { UniFieldLayout, UniForm } from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
@@ -55,7 +55,7 @@ declare const _;
                     </table>
                 </section>
                 <section class="accrual-form">
-                    <uni-form
+                    <uni-form #form
                         [config]="formConfig$"
                         [fields]="fields$"
                         [model]="model$"
@@ -81,6 +81,8 @@ export class AccrualModal implements IUniModal {
 
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
+
+    @ViewChild('form') form: UniForm;
 
     public modalConfig: any = {
         mode: null,
@@ -370,23 +372,27 @@ export class AccrualModal implements IUniModal {
         this.fields$.next(this.getFields());
         this.modalConfig.modelJournalEntryModes = this.getAccrualJournalEntryModes();
         this.extendFormConfig();
+        setTimeout(() => {
+            const section = this.form.section(1);
+            if (section && !section.isOpen) {
+                this.form.section(1).toggle();
+            }
+            const model = this.model$.getValue();
+            model['BalanceAccountID'] = 266;
+            model['ResultAccountID'] = 358;
+            const validationMsg: string [] = this.validateAccrual(false);
+            if (validationMsg && validationMsg.length > 0) {
+                this.modalConfig.model['_isValid'] = false;
+                this.modalConfig.model['_validationMessage'] = validationMsg;
+            } else {
+                this.modalConfig.model['_isValid'] = true;
+                this.modalConfig.model['_validationMessage'] = null;
+            }
+            this.model$.next(model);
+        }, 200);
     }
 
     private extendFormConfig() {
-        const fields = this.fields$.getValue();
-
-        // this.setAccountingLockedPeriods();
-
-        const accrualJEMode: UniFieldLayout = fields.find(x => x.Property === 'AccrualJournalEntryMode');
-        accrualJEMode.ReadOnly = this.isAccrualAccrued();
-        accrualJEMode.Options = {
-            source: this.modalConfig.modelJournalEntryModes,
-            valueProperty: 'ID',
-            displayProperty: 'Name'
-        };
-
-        this.model$.next(this.modalConfig.model);
-
         if (this.isAccrualAccrued()) {
             this.toastService.addToast(
                 'Periodisering',
@@ -395,7 +401,6 @@ export class AccrualModal implements IUniModal {
                 'Denne periodiseringen er allerede periodisert, og kan ikke redigere ytterligere'
             );
         }
-        this.fields$.next(fields);
     }
 
     private resetAllChechBoxValues(): void {
@@ -682,28 +687,6 @@ export class AccrualModal implements IUniModal {
             },
             {
                 EntityType: 'Accrual',
-                Property: 'BalanceAccountID',
-                FieldType: FieldType.UNI_SEARCH,
-                Label: 'Balansekonto',
-                LineBreak: true,
-                Sectionheader: 'Selskapsoppsett',
-                Options: {
-                    uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
-                    valueProperty: 'ID'
-                }
-            },
-            {
-                EntityType: 'Accrual',
-                Property: 'AccrualJournalEntryMode',
-                FieldType: FieldType.AUTOCOMPLETE,
-                Label: 'Bilagsmodus',
-                FieldSet: 0,
-                Section: 0,
-                LineBreak: true,
-                Classes: ''
-            },
-            {
-                EntityType: 'Accrual',
                 Property: '_numberOfPeriods',
                 FieldType: FieldType.TEXT,
                 Label: 'Antall Perioder',
@@ -720,6 +703,32 @@ export class AccrualModal implements IUniModal {
                 FieldSet: 0,
                 Section: 0,
                 LineBreak: true,
+            },
+            {
+                EntityType: 'Accrual',
+                Property: 'BalanceAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Balansekonto',
+                LineBreak: true,
+                Sectionheader: 'Periodiseringskonto',
+                Section: 1,
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                EntityType: 'Accrual',
+                Property: 'ResultAccountID',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Resultatkonto',
+                LineBreak: true,
+                Sectionheader: 'Periodiseringskonto',
+                Section: 1,
+                Options: {
+                    uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
+                    valueProperty: 'ID'
+                }
             }
         ];
     }
