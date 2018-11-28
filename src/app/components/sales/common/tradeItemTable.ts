@@ -571,9 +571,9 @@ export class TradeItemTable {
                 searchPlaceholder: 'Velg avdeling',
                 lookupFunction: (query) => {
 
-                    return this.customDimensionService.getCustomDimensionListWithFilter(
+                    return this.customDimensionService.getCustomDimensionList(
                         type.Dimension,
-                        `filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                        `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
                     ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
                 }
             });
