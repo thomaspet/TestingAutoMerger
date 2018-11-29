@@ -614,6 +614,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
 
         if (isPercentageChanged) {
+            rowModel.VatDeductionPercent = rowModel.VatDeductionPercent || 0;
             return rowModel;
         }
 
@@ -696,8 +697,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             );
             this.setVatDeductionPercent(newRow);
         } else if (newRow.VatDeductionPercent &&
-            !((newRow.DebitAccount && !newRow.DebitAccount.UseVatDeductionGroupID)
-            || (newRow.CreditAccount && !newRow.CreditAccount.UseVatDeductionGroupID))
+            !((newRow.DebitAccount && newRow.DebitAccount.UseVatDeductionGroupID)
+            || (newRow.CreditAccount && newRow.CreditAccount.UseVatDeductionGroupID))
         ) {
             this.toastService.addToast(
                 'Fradragsprosent kan ikke angis',

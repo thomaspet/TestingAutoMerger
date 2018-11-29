@@ -49,7 +49,6 @@
             <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
             <div class="collapsable-content">
                 <reminder-settings
-                    *ngIf="showReminderSection"
                     [reminderSettings]="(customer$ | async)?.CustomerInvoiceReminderSettings"
                     (reminderSettingsChange)="onChange($event)">
                 </reminder-settings>

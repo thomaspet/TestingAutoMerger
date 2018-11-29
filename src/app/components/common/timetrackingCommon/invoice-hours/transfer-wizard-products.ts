@@ -5,8 +5,7 @@ import { ErrorService, InvoiceHourService } from '@app/services/services';
 
 @Component({
     selector: 'workitem-transfer-wizard-products',
-    template: `<uni-table [attr.aria-busy]="busy" *ngIf="initialized" [resource]="dataLookup" [config]="tableConfig"
-        (rowSelected)="onRowSelected($event)">
+    template: `<uni-table [attr.aria-busy]="busy" *ngIf="initialized" [resource]="dataLookup" [config]="tableConfig">
     </uni-table>`
 })
 export class WorkitemTransferWizardProducts {
