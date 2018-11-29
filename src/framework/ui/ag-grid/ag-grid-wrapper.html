@@ -59,6 +59,7 @@
         [suppressRowClickSelection]="selectionMode === 'multiple'"
         [isRowSelectable]="isRowSelectable"
         (selectionChanged)="onSelectionChange($event)"
+        (rowSelected)="onRowSelected($event)"
         (rowClicked)="onRowClick($event)"
         (cellClicked)="onCellClick($event)"
         (columnMoved)="columnMoveDebouncer$.next($event)"
