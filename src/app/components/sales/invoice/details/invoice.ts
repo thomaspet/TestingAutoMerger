@@ -1152,14 +1152,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             action: (item) => {
                 const data = {
                     accrualAmount: this.itemsSummaryData.SumTotalIncVat,
-                    accrualStartDate: this.invoice.InvoiceDate,
+                    accrualStartDate: new LocalDate(this.invoice.InvoiceDate.toString()),
                     journalEntryLineDraft: null,
                     accrual: null,
                     title: 'Periodisering av fakturaen'
                 };
                 this.openAccrualModal(data);
             },
-            disabled: () => false
+            disabled: () => !this.invoice.ID
         }];
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
