@@ -970,7 +970,11 @@ export class LedgerAccountReconciliation {
     private editPayment(paymentID: number) {
         this.paymentService.Get(paymentID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).switchMap(existingPayment => {
             return this.modalService.open(AddPaymentModal, {
-                data: { model: existingPayment },
+                data: {
+                    model: existingPayment,
+                    disablePaymentToField: this.disablePaymentToField,
+                    customerBankAccounts: this.customerBankAccounts
+                 },
                 header: 'Endre betaling',
                 buttonLabels: {accept: 'Oppdater betaling'}
             }).onClose;
