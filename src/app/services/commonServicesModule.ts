@@ -66,6 +66,7 @@ import {DimensionSettingsService} from './common/dimensionSettingsService';
 import {CustomDimensionService} from './common/customDimensionService';
 import {ApiKeyService} from './common/apikeyService';
 import {DistributionPlanService} from './common/distributionService';
+import { AccrualService } from '@app/services/common/accrualService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -207,6 +208,7 @@ export class CommonServicesModule {
                 CustomDimensionService,
                 ApiKeyService,
                 DistributionPlanService,
+                AccrualService
             ]
         };
     }

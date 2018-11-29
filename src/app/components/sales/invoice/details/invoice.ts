@@ -90,6 +90,8 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 import {UniReminderSendingModal} from '../../reminder/sending/reminderSendingModal';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import { AccrualModal } from '@app/components/common/modals/accrualModal';
+import { createGuid } from '@app/services/common/dimensionService';
+import { AccrualService } from '@app/services/common/accrualService';
 
 declare const _;
 
@@ -237,6 +239,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private modulusService: ModulusService,
+        private accrualService: AccrualService
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -1186,9 +1189,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
-
-            } else if (res && res.action === 'deleted') {
-
+                const accrual = res.model;
+                if (!accrual['_createguid']) {
+                    accrual['createguid'] = createGuid();
+                }
+                const accrualPromise = this.accrualService.Post(accrual).toPromise();
+                const journalEntyPromise = this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID).toPromise();
+                Promise.all([accrualPromise, journalEntyPromise]).then(([savedAccrual, createdJournalEntry]) => {
+                    if (createdJournalEntry.DraftLines && createdJournalEntry.DraftLines.length) {
+                        createdJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
+                        this.journalEntryService.Put(createdJournalEntry.ID, createdJournalEntry).subscribe(() => {
+                            this.toastService.addToast('periodisering gjort  med suksess', ToastType.good, 3);
+                        });
+                    }
+                });
             }
         });
     }
