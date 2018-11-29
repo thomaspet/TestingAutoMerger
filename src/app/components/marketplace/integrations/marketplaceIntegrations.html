@@ -1,4 +1,4 @@
-<section class="integration-main" [attr.aria-busy]="false">
+<section class="integration-main">
     <section class="header">
         <h1>Integrasjoner</h1>
     </section>
@@ -7,51 +7,65 @@
             <input [(ngModel)]="searchText" type="search" placeholder="Søk"/>
         </div>
     </section>
-    <section class="live-integration-items" [attr.aria-busy]="!activeIntegrations">
+
+    <section class="live-integration-items">
         <h3>Aktive</h3>
-        <section class="integration-item" *ngFor="let item of activeIntegrations | filterIntegrations: searchText">
-            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
-                <img src="{{item.iconReference}}" />
+        <section class="integration-grid">
+            <section class="integration-item" *ngFor="let item of activeIntegrations | filterIntegrations: searchText">
+                <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                    <img src="{{item.iconReference}}" />
+                </section>
+                <div class="title-container">
+                    <p class="title">{{item.label}}</p>
+                    <p class="sub-title">{{item.categoryName}}</p>
+                </div>
+                <p class="footer">
+                    <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
+                </p>
             </section>
-            <div class="title-container">
-                <p class="title">{{item.label}}</p>
-                <p class="sub-title">{{item.categoryName}}</p>
-            </div>
-            <p class="footer">
-                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
-            </p>
         </section>
     </section>
-    <section class="upcoming-integration-items" [attr.aria-busy]="!upcomingIntegrations">
-        <h3>Lanseres snart</h3>
-        <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
-            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
-                <img src="{{item.iconReference}}" />
+
+    <section class="future-integrations">
+        <section>
+            <h3>Lanseres snart</h3>
+            <section class="integration-grid">
+                <section class="integration-item" *ngFor="let item of upcomingIntegrations | filterIntegrations: searchText">
+                    <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                        <img src="{{item.iconReference}}" />
+                    </section>
+                    <div class="title-container">
+                        <p class="title">{{item.label}}</p>
+                        <p class="sub-title">{{item.categoryName}}</p>
+                    </div>
+                    <p class="footer">
+                        <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
+                    </p>
+                </section>
             </section>
-            <div class="title-container">
-                <p class="title">{{item.label}}</p>
-                <p class="sub-title">{{item.categoryName}}</p>
-            </div>
-            <p class="footer">
-                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
-            </p>
+        </section>
+
+        <section>
+            <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
+            <section class="integration-grid">
+
+                <section class="integration-item" *ngFor="let item of candidateIntegrations | filterIntegrations: searchText">
+                    <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
+                        <img src="{{item.iconReference}}" />
+                    </section>
+                    <div class="title-container">
+                        <p class="title">{{item.label}}</p>
+                        <p class="sub-title">{{item.categoryName}}</p>
+                    </div>
+                    <p class="footer">
+                        <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
+                    </p>
+                </section>
+            </section>
         </section>
     </section>
-    <section class="candidate-integration-items" [attr.aria-busy]="!candidateIntegrations">
-        <h3>Ønsker du integrasjon mot noen av disse? Vis din interesse</h3>
-        <section class="integration-item" *ngFor="let item of candidateIntegrations | filterIntegrations: searchText">
-            <section class="integration-icon" [style.background-color]="item.iconBackgroundColor">
-                <img src="{{item.iconReference}}" />
-            </section>
-            <div class="title-container">
-                <p class="title">{{item.label}}</p>
-                <p class="sub-title">{{item.categoryName}}</p>
-            </div>
-            <p class="footer">
-                <i class="material-icons">power</i> {{item.categoryName}} <a class="link" (click)="openSubscribeModal(item)">Les mer</a>
-            </p>
-        </section>
-    </section>
+
+
     <section class="more-info-container">
         <h3>Vil du vite mer?</h3>
         <p class="info-text">

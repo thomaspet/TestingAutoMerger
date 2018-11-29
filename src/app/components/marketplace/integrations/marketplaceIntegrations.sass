@@ -1,5 +1,8 @@
 @import '../marketplaceSharedStyles.sass'
 
+$integration-item-width: 20rem
+$integration-item-spacing: 1rem
+
 .integration-main
     background-color: $bg-color
     color: $dark-text-color
@@ -13,7 +16,7 @@
     width: 100%
     padding-left: 2rem
     h1
-        font-weight: 700
+        font-weight: 500
 
 h1,h2,h3
     width: 100%
@@ -37,34 +40,43 @@ h1,h2,h3
             font-size: 0.8rem
             font-weight: 600
 
+.integration-grid
+    display: grid
+    grid-template-columns: repeat(auto-fill, $integration-item-width)
+    grid-column-gap: $integration-item-spacing
+    grid-row-gap: $integration-item-spacing
+
 .live-integration-items
     background-color: $bg-darker-color
-    width: 100%
-
-.live-integration-items, .upcoming-integration-items, .candidate-integration-items
     display: flex
     flex-flow: row wrap
-    justify-content: flex-start
-    align-content: flex-start
-    padding-left: 2rem
+    width: 100%
+    padding: 1rem 5%
 
-@media (min-width: 1552px)
-    .live-integration-items
-        padding: 0 5%
-    .upcoming-integration-items, .candidate-integration-items
-        width: 50%
-    .upcoming-integration-items
-        padding-left: 5%
-    .candidate-integration-items
-        padding-right: 5%
+    .integration-grid
+        max-width: 100%
+        width: #{(4 * $integration-item-width) + (3 * $integration-item-spacing)}
+
+.future-integrations
+    display: flex
+    flex-wrap: wrap
+    width: 100%
+    padding: 1rem 5%
+
+    > section
+        flex: 0 0 #{(2 * $integration-item-width) + $integration-item-spacing}
+        & + section
+            margin-left: 1rem
+
+        @media (max-width: 1733px)
+            flex: 0 0 100%
+            margin-left: 0
 
 .integration-item
     background-color: white
-    width: 20rem
+    width: $integration-item-width
     height: 10rem
     padding: 1.4rem
-    margin-bottom: 1.5rem
-    margin-right: 1.5rem
     display: flex
     flex-flow: row wrap
     position: relative

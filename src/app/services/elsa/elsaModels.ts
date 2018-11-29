@@ -101,30 +101,32 @@ export interface ElsaPurchaseForUserLicense {
 }
 
 export interface ElsaProduct {
+    bundles: ElsaBundle[];
     buttonLabel: string;
     buttonLink: string;
-    id: number;
-    name: string;
-    label: string;
     categoryName?: string;
+    description: string;
+    htmlContent?: string;
+    iconBackgroundColor?: string;
+    iconReference?: string;
+    id: number;
+    imageReference?: string;
+    isBundle: boolean;
+    isMonthly: boolean;
+    isPerTransaction: boolean;
+    isPerUser: boolean;
+    label: string;
+    listOfRoles: string;
+    name: string;
+    parentProducts?: string[];
+    price: number;
     productKey: string;
     productStatus: ElsaProductStatusCode;
     productStatusName: string;
     productType: ElsaProductType;
     productTypeName: string;
-    description: string;
-    htmlContent?: string;
-    iconReference?: string;
-    iconBackgroundColor?: string;
-    imageReference?: string;
-    isMonthly: boolean;
-    isPerTransaction: boolean;
-    isPerUser: boolean;
-    price: number;
-    parentProductNames?: any;
-    listOfRoles: string;
     tags: string[];
-    subProducts?: ElsaProduct[]
+    subProducts?: ElsaProduct[];
 }
 
 

@@ -4,16 +4,10 @@ import {
     IUniModal,
     UniModalService,
     ManageProductsModal,
-    ConfirmActions,
-    UniActivateInvoicePrintModal,
-    UniActivateAPModal,
-    ActivateOCRModal
 } from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaProductType} from '@app/services/elsa/elsaModels';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {AuthService} from '@app/authService';
-
-import {CompanySettingsService, EHFService} from '@app/services/services';
 
 @Component({
     selector: 'uni-product-subscribe-modal',
@@ -39,8 +33,6 @@ export class SubscribeModal implements IUniModal, OnInit {
         private authService: AuthService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
-        private companySettingsService: CompanySettingsService,
-        private ehfService: EHFService,
     ) {
         this.authService.authentication$.take(1).subscribe(auth => {
             try {

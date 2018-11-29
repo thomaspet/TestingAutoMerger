@@ -17,7 +17,9 @@ import {
 
 import * as moment from 'moment';
 import {KeyCodes} from '@app/services/common/keyCodes';
-import {Observable} from 'rxjs';
+// Do not change this import! Since we don't use rx operators correctly
+// we depend on having at least one import getting EVERYTHING in rxjs
+import {Observable} from 'rxjs/Rx';
 import {Router} from '@angular/router';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
@@ -88,7 +90,7 @@ export class App {
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             const keyCode = event.which || event.keyCode;
             const character = String.fromCharCode(keyCode);
-            if (event.ctrlKey && event.altKey && character === "B") {
+            if (event.ctrlKey && event.altKey && character === 'B') {
                 this.router.navigateByUrl('/bureau');
             }
         });
@@ -150,7 +152,7 @@ export class App {
                 }
             })
             .onClose
-            .subscribe(()=>{});
+            .subscribe(() => {});
     }
 
     private showUserLicenseModal() {

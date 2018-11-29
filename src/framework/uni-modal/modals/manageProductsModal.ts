@@ -1,7 +1,7 @@
-import {Component, EventEmitter, ChangeDetectorRef} from '@angular/core';
+import {Component, EventEmitter, ChangeDetectorRef, Output, Input} from '@angular/core';
 import {ElsaPurchaseService} from '@app/services/elsa/elsaPurchasesService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs/Rx';
+import {Observable} from 'rxjs';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 import {IModalOptions, IUniModal} from '../interfaces';
@@ -27,7 +27,7 @@ interface UserLine   {
             <header>
                 <h1>Produkttilganger</h1>
             </header>
-            <article>
+            <article class="scrollable" style="padding-top: 0">
                 <p *ngIf="purchasesPerUser?.length === 0; else productTable">
                     Klarte ikke hente kjøpshistorikk. Har du tilgang til å kjøpe produkter?
                 </p>
@@ -65,8 +65,8 @@ interface UserLine   {
     `
 })
 export class ManageProductsModal implements IUniModal {
-    options: IModalOptions = {};
-    onClose: EventEmitter<string> = new EventEmitter<string>();
+    @Input() options: IModalOptions = {};
+    @Output() onClose: EventEmitter<any> = new EventEmitter();
 
     products: ElsaProduct[] = [];
     purchasesPerUser: UserLine[];
