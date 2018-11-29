@@ -16,8 +16,7 @@ import {BehaviorSubject} from 'rxjs';
 import {
     UniSearchAccountConfig
 } from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
-
-declare const _;
+import * as _ from 'lodash';
 
 @Component({
     selector: 'accrual-modal',
@@ -378,17 +377,24 @@ export class AccrualModal implements IUniModal {
                 this.form.section(1).toggle();
             }
             const model = this.model$.getValue();
-            model['BalanceAccountID'] = 266;
-            model['ResultAccountID'] = 358;
-            const validationMsg: string [] = this.validateAccrual(false);
-            if (validationMsg && validationMsg.length > 0) {
-                this.modalConfig.model['_isValid'] = false;
-                this.modalConfig.model['_validationMessage'] = validationMsg;
-            } else {
-                this.modalConfig.model['_isValid'] = true;
-                this.modalConfig.model['_validationMessage'] = null;
-            }
-            this.model$.next(model);
+            const searchAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
+            const defaultAccounts$ = Promise.all([
+                searchAccountConfig.lookupFn('2900').toPromise(),
+                searchAccountConfig.lookupFn('3900').toPromise()]);
+
+            defaultAccounts$.then(([balanceAccount, resultAccount]) => {
+                model['BalanceAccountID'] = balanceAccount[0] && balanceAccount[0].AccountNumber === 2900 ? balanceAccount[0].ID : null;
+                model['ResultAccountID'] = resultAccount[0] && resultAccount[0].AccountNumber === 3900 ? resultAccount[0].ID : null;
+                const validationMsg: string [] = this.validateAccrual(false);
+                if (validationMsg && validationMsg.length > 0) {
+                    this.modalConfig.model['_isValid'] = false;
+                    this.modalConfig.model['_validationMessage'] = validationMsg;
+                } else {
+                    this.modalConfig.model['_isValid'] = true;
+                    this.modalConfig.model['_validationMessage'] = null;
+                }
+                this.model$.next(model);
+            });
         }, 200);
     }
 

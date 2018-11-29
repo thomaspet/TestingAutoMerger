@@ -1151,7 +1151,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             label: 'Periodisering',
             action: (item) => {
                 const data = {
-                    accrualAmount: 0,
+                    accrualAmount: this.itemsSummaryData.SumTotalIncVat,
                     accrualStartDate: this.invoice.InvoiceDate,
                     journalEntryLineDraft: null,
                     accrual: null,
