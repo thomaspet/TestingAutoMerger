@@ -1,12 +1,10 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import { CustomerInvoice, JournalEntry } from '@uni-entities';
 import { CustomerInvoiceService } from '@app/services/services';
 import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig, UniTable } from '@uni-framework/ui/unitable';
 import { ErrorService } from '@app/services/common/errorService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
-import { JournalEntryData } from '@app/models/models';
 import { JournalEntryLineService } from '@app/services/accounting/journalEntryLineService';
 
 @Component({
@@ -14,7 +12,7 @@ import { JournalEntryLineService } from '@app/services/accounting/journalEntryLi
     template: `
         <section role="dialog" class="uni-modal large">
             <header>
-                <h1>Valg faktura</h1>
+                <h1>Velg faktura</h1>
             </header>
             <article>
                 <p>Beløp igjen for å distribuere: {{amountLeftToDistribute-sumOfSelectedRows}}
@@ -90,7 +88,7 @@ export class MatchCustomerInvoiceManual implements IUniModal {
                     });
                 } else {
                     this.toastService.addToast('Ingen bilag funnet', ToastType.bad, 0,
-                        'Kan ikke valger faktura manuelt siden ingen bilag ble funnet for denne betaling');
+                        'Kan ikke velge faktura manuelt siden det ikke ble funnet noen bilag for denne betalingen');
                     this.close(false);
                 }
             });
@@ -110,7 +108,7 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     }
 
     public close(emitValue?: boolean) {
-        let value: Array<number> = [];
+        const value: Array<number> = [];
         if (emitValue) {
             this.table.getSelectedRows().forEach(element => {
                 value.push(element.ID);

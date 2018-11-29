@@ -72,6 +72,7 @@ import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
+import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} from '@angular/material';
@@ -130,6 +131,7 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         BillPreviousView,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
+        EditSupplierInvoicePayments,
         UniAssignModal, MyStringFilterPipe,
         UniAddFileModal, NumberAsMoneyPipe,
 
@@ -171,6 +173,7 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         AccountDetailsReport,
         SelectJournalEntryLineModal,
         ConfirmCreditedJournalEntryWithDate,
+        EditSupplierInvoicePayments,
         NewAccountModal,
         UniAssignModal,
         UniAddFileModal,
