@@ -1147,7 +1147,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const reminderStopText = this.invoice.DontSendReminders ? 'Purrestopp' : '';
-        this.contextMenuItems = [(<IContextMenuItem>{
+        this.contextMenuItems = [<IContextMenuItem>{
             label: 'Periodisering',
             action: (item) => {
                 const data = {
