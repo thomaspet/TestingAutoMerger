@@ -1,12 +1,16 @@
 import {Component, ViewChild, Input, SimpleChanges, Output, EventEmitter} from '@angular/core';
-import {DomSanitizer} from '@angular/platform-browser';
 import {Router} from '@angular/router';
-import {StatusCodeJournalEntryLine,
-    LocalDate, JournalEntryLinePostPostData,
-    JournalEntryLine, Payment, BusinessRelation,
-    BankAccount, i18nModule, Customer, CompanySettings, Paycheck, PaymentCode} from '../../../../unientities';
 import {
-    UniTable,
+    StatusCodeJournalEntryLine,
+    LocalDate,
+    JournalEntryLinePostPostData,
+    JournalEntryLine,
+    Payment,
+    BusinessRelation,
+    Customer,
+    CompanySettings
+} from '../../../../unientities';
+import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
@@ -27,17 +31,23 @@ import {
     PaymentService,
     CustomerService,
     BankAccountService,
-    CompanySettingsService
+    CompanySettingsService,
+    TickerHistory
 } from '../../../../services/services';
-import {Observable} from 'rxjs';
+import {ColumnMenuNew} from '@uni-framework/ui/ag-grid/column-menu-modal';
+import {AddPaymentModal} from '@app/components/common/modals/addPaymentModal';
+import {RequestMethod} from '@angular/http';
+import {JournalEntryLineCouple} from '@app/services/accounting/postPostService';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {Observable, Subject} from 'rxjs';
 import * as moment from 'moment';
-import { JournalEntryData } from '@app/models/models';
-import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
-import { RequestMethod } from '@angular/http';
-import { JournalEntryLineCouple } from '@app/services/accounting/postPostService';
-import {UniAutomarkModal} from './uniAutomarkModal';
-import {Subject} from 'rxjs/Subject';
 declare var _;
+
+export enum LedgerTableEmitValues {
+    InitialValue = 1,
+    MarkedPosts = 2,
+    MarkedLocked = 3
+}
 
 
 @Component({
@@ -76,30 +86,36 @@ export class LedgerAccountReconciliation {
     public customerBankAccounts: any;
 
     @Output()
-    public allSelectedLocked: EventEmitter<boolean> = new EventEmitter();
+    public selectionChanged: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UniTable)
-    private table: UniTable;
+    @Output()
+    public automarkChecked: EventEmitter<any> = new EventEmitter();
 
-    public canAutoMark: boolean = false;
-    private showMarkedEntries: boolean = false;
-    public uniTableConfig: UniTableConfig;
-    public journalEntryLines: Array<any> = [];
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
+    showMarkedEntries: boolean = false;
+    uniTableConfig: UniTableConfig;
+    journalEntryLines: Array<any> = [];
     loading$: Subject<boolean> = new Subject();
+    itemsSummaryData: any = {};
+    validationResult: any;
+    summary: ISummaryConfig[];
+    public page: number = 1;
 
-    public itemsSummaryData: any = {};
+    currentMarkingSession: Array<any> = [];
+    selectedNotOpen: any[] = [];
+    allMarkingSessions: Array<JournalEntryLineCouple> = [];
+    currentSelectedRows: Array<any> = [];
+    journalEntryLinesDisplayed: any[] = [];
+    currentLead: any;
+    allSelected: boolean = false;
 
-    public validationResult: any;
-    public summary: ISummaryConfig[];
-
-    public currentMarkingSession: Array<any> = [];
-    private allMarkingSessions: Array<JournalEntryLineCouple> = [];
-    public currentSelectedRows: Array<any> = [];
-
-    public isDirty: boolean = false;
-    public busy: boolean = false;
-
-    private displayPostsOption: string = 'OPEN';
+    isDirty: boolean = false;
+    busy: boolean = false;
+    readyForManualMarkings: boolean = false;
+    displayPostsOption: string = 'OPEN';
+    canAutoMark = this.displayPostsOption === 'OPEN';
 
     public summaryData: any = {
         SumOpen: 0,
@@ -115,7 +131,6 @@ export class LedgerAccountReconciliation {
         private postPostService: PostPostService,
         private errorService: ErrorService,
         private numberFormatService: NumberFormat,
-        private sanitizer: DomSanitizer,
         private toastService: ToastService,
         private journalEntryService: JournalEntryService,
         private modalService: UniModalService,
@@ -123,29 +138,32 @@ export class LedgerAccountReconciliation {
         private customerService: CustomerService,
         private bankaccountService: BankAccountService,
         private companySettingsService: CompanySettingsService
-    ) {}
+    ) {
+        this.setupUniTable();
+    }
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['autoLocking'] && changes['autoLocking'].currentValue) {
-                if (this.currentMarkingSession.length >= 2) {
-                    let currentSessionSum = 0;
-                    this.currentMarkingSession.forEach(x => {
-                        currentSessionSum += x.RestAmount;
-                    });
-
-                    if (currentSessionSum === 0) {
-                        this.closeMarkingSession();
-                    }
-                }
+            if (this.currentMarkingSession.length >= 2) {
+                let currentSessionSum = 0;
+                this.currentMarkingSession.forEach(x => {
+                    currentSessionSum += x.RestAmount;
+                });
+            }
         }
 
         if (!changes['autoLocking']) {
+            this.journalEntryLines.map(row => {
+                row._rowSelected = false;
+                return row;
+            });
             this.loadData();
         }
     }
 
     private loadData() {
-        this.canAutoMark = false;
+        this.canAutoMark = this.displayPostsOption === 'OPEN';
+        this.readyForManualMarkings = false;
         if (this.customerID || this.supplierID || this.accountID) {
             this.busy = true;
             if (this.customerID || this.supplierID) {
@@ -153,13 +171,16 @@ export class LedgerAccountReconciliation {
                     if (res && res.Data && res.Data[0]) {
                         this.summaryData.SumBalance = res.Data[0].Saldo;
                     }
-                    this.setupUniTable();
+                    // this.setupUniTable();
+                    this.getTableData();
                 });
             } else {
-                this.setupUniTable();
+                // this.setupUniTable();
+                this.getTableData();
             }
         } else {
             this.journalEntryLines = [];
+            this.journalEntryLinesDisplayed = [];
         }
     }
 
@@ -169,7 +190,7 @@ export class LedgerAccountReconciliation {
         this.summaryData.SumOpen = 0;
 
         setTimeout(() => {
-            const posts = this.table.getTableData();
+            const posts = this.journalEntryLines;
 
             posts.forEach(x => {
                 if (x.StatusCode !== StatusCodeJournalEntryLine.Marked) {
@@ -178,156 +199,204 @@ export class LedgerAccountReconciliation {
                         this.summaryData.SumOpenDue += x.RestAmount;
                     }
                 }
+                if (x._rowSelected) {
+                    this.summaryData.SumChecked += x.RestAmount;
+                }
             });
 
             this.setSums();
         });
     }
 
-    public onRowSelected(data) {
-        if (data) {
-            const rowModel = data.rowModel;
-            if (!rowModel.Markings) {
-                rowModel.Markings = [];
+    public onRowSelect(line) {
+        this.summaryData.SumChecked = 0;
+        // No need to do any work on lines when user is not working on Open posts
+        if (this.displayPostsOption === 'OPEN') {
+            if (line._rowSelected) {
+                line.Markings = line.Markings || [];
+                line._originalRestAmount = line.RestAmount;
+
+                this.currentSelectedRows.push(line);
+
+                this.updateJournalEntryLinesOnTheFly(line);
+            } else {
+                if (this.currentSelectedRows.length === 1) {
+                    this.currentLead = null;
+                    this.currentSelectedRows.pop();
+                } else if (!line.Markings.length) {
+                    const index = this.currentSelectedRows.findIndex(row => row.ID === line.ID);
+                    this.currentSelectedRows.splice(index, 1);
+                    // If the removed line is the lead, find new lead or set as undefined
+                    if (this.currentLead && this.currentLead.ID === line.ID) {
+                        this.currentLead = this.currentSelectedRows.find(row => row.RestAmount !== 0);
+                    }
+                } else {
+                    line.RestAmount = line._originalRestAmount;
+                    const savedMarkings = [];
+
+                    // Loop all the lines that are marked against the deselected line
+                    for (let i = 0; i < line.Markings.length; i++) {
+                        const mLine = this.currentSelectedRows.find(row => row.ID === line.Markings[i].ID);
+
+                        // If mLine is not found in selected rows, it is previously saved, and should be ignored
+                        if (mLine) {
+                            mLine.RestAmount = mLine._originalRestAmount;
+                            mLine.Markings.splice(mLine.Markings.findIndex(row => row.ID === line.ID), 1);
+                            const pairIndex = this.allMarkingSessions.findIndex(row => {
+                                return (row.JournalEntryLineId1 === line.ID && row.JournalEntryLineId2 === mLine.ID
+                                    || (row.JournalEntryLineId1 === mLine.ID && row.JournalEntryLineId2 === line.ID));
+                            });
+
+                            this.allMarkingSessions.splice(pairIndex, 1);
+
+                            if (!mLine.Markings.length) {
+                                // Remove checkbox and line from selected lines array.
+                                this.currentSelectedRows.splice(this.currentSelectedRows.findIndex(row => row.ID === mLine.ID), 1);
+                                mLine._rowSelected = false;
+                            }
+
+                            // // If marked line has more markings left, recalculate restamount
+                            // if (mLine.Markings.length) {
+                            //     mLine.Markings.forEach((row) => {
+                            //         mLine.RestAmount += row._originalRestAmount ? row._originalRestAmount : row.RestAmount;
+                            //     });
+                            // } else {
+
+                            // }
+                        } else {
+                            savedMarkings.push(line.Markings[i]);
+                        }
+                    }
+
+                    line.Markings = savedMarkings;
+                    this.currentSelectedRows.splice(this.currentSelectedRows.findIndex(row => row.ID === line.ID), 1);
+
+                    this.currentLead = !this.currentLead || this.currentLead.ID === line.ID || !this.currentLead._rowSelected
+                        ? this.currentSelectedRows.find(row => row.RestAmount !== 0)
+                        : this.currentLead;
+
+                    this.calcRestAmount();
+                }
+            }
+            // Emit event to parant component to update save actions button
+            if (this.currentSelectedRows.length) {
+                this.selectionChanged.emit(LedgerTableEmitValues.MarkedPosts);
+            } else {
+                // If no posts are marked
+                this.selectionChanged.emit(LedgerTableEmitValues.InitialValue);
+            }
+        } else {
+            if (line._rowSelected) {
+                this.selectedNotOpen.push(line);
+            } else {
+                this.selectedNotOpen.splice(this.selectedNotOpen.findIndex(row => row.ID === line.ID), 1);
             }
 
-            const isSelected = rowModel._rowSelected;
+            this.selectionChanged.emit(this.selectedNotOpen.length || this.displayPostsOption !== 'OPEN'
+                ? LedgerTableEmitValues.MarkedLocked
+                : LedgerTableEmitValues.MarkedPosts);
+        }
+        this.currentSelectedRows.map(l => {
+            this.summaryData.SumChecked += l.RestAmount;
+            return l;
+        });
 
-            if (isSelected) {
-                const currentMarkingsWithDifferentCurrencyCode =
-                    this.currentMarkingSession.filter(x => x.CurrencyCodeID !== rowModel.CurrencyCodeID);
+        this.setSums();
 
-                if (currentMarkingsWithDifferentCurrencyCode.length > 0) {
-                    this.toastService.addToast(
-                        'Kan ikke markere rader med forskjellig valuta',
-                        ToastType.bad,
-                        ToastTime.medium,
-                        'Du kan bare markere rader som har samme valuta. '
-                        + 'Lag eventuelt motposteringer for å få riktig valuta og agiopostering'
-                    );
+    }
 
-                    rowModel._rowSelected = false;
-                    this.table.updateRow(rowModel._originalIndex, rowModel);
-
-                    return;
-                }
-
-                let currentSessionSum = 0;
-                this.currentMarkingSession.forEach(x => {
-                    currentSessionSum += x.RestAmount;
-                });
-
-                currentSessionSum += rowModel.RestAmount;
-
-                const sumPositive = _.sumBy(this.currentMarkingSession
-                    .filter(x => x.RestAmount > 0), x => x.RestAmount);
-                const sumNegative = _.sumBy(this.currentMarkingSession
-                    .filter(x => x.RestAmount < 0), x => x.RestAmount);
-                const countPositive = this.currentMarkingSession.filter(x => x.RestAmount > 0).length;
-                const countNegative = this.currentMarkingSession.filter(x => x.RestAmount < 0).length;
-
-                let didSwitchAfterLastSelection: boolean = false;
-
-                if (
-                    (sumPositive < Math.abs(sumNegative)
-                    && (sumPositive + rowModel.RestAmount) > Math.abs(sumNegative))
-                    || (sumPositive > Math.abs(sumNegative)
-                    && (sumPositive + rowModel.RestAmount) < Math.abs(sumNegative))
-                ) {
-                    didSwitchAfterLastSelection = true;
-                }
-
-                if (rowModel.StatusCode === StatusCodeJournalEntryLine.Marked) {
-                    // row is already marked, dont do anything else here - the user is probably going
-                    // to unmark a marked line. Let's help the user by selecting related rows for him
-                    if (rowModel.Markings && rowModel.Markings.length > 0) {
-                        const tableData = this.table.getTableData();
-
-                        rowModel.Markings.forEach(line => {
-                            const otherRow = tableData.find(x => x.ID === line.ID);
-
-                            if (otherRow && !otherRow._rowSelected) {
-                                otherRow._rowSelected = true;
-                                this.table.updateRow(otherRow._originalIndex, otherRow);
-                            }
-                        });
-                    }
-                } else if (countPositive === 0 && countNegative === 0 && rowModel.RestAmount === 0) {
-                    // user selected a row with 0 as RestAmount - just close it
-                    this.addToCurrentMarkingSession(rowModel);
-                    this.closeMarkingSession();
-                } else if (currentSessionSum === 0) {
-                    // TODO: Add some slack here - allow for e.g. differences of 5 kr ??
-                    this.addToCurrentMarkingSession(rowModel);
-                    if (this.autoLocking) {
-                        this.closeMarkingSession();
-                    }
-                } else if ((countPositive === 0 && rowModel.RestAmount < 0)
-                    || (countNegative === 0 && rowModel.RestAmount > 0)) {
-                    // Only negative or only positive amounts are crossed, so they don't balance.
-                    // Just add the item to the list and wait for next input from user
-                    this.addToCurrentMarkingSession(rowModel);
-                } else if (didSwitchAfterLastSelection) {
-                    // close marking with the selected item included, this will
-                    // cause a restamount on one of the selected lines
-                    this.addToCurrentMarkingSession(rowModel);
-                    this.closeMarkingSession();
-                } else if (
-                    ((countPositive === 0 && rowModel.RestAmount > 0)
-                    || (countPositive === 1 && rowModel.RestAmount < 0))
-                    && ((countNegative === 0 && rowModel.RestAmount < 0)
-                    || (countNegative === 1 && rowModel.RestAmount > 0))
-                ) {
-                    // One positive and one negative amount are crossed, but the don't balance.
-                    // Just add the item to the list and wait for next input from user
-                    this.addToCurrentMarkingSession(rowModel);
+    private updateJournalEntryLinesOnTheFly(line) {
+        if (line.RestAmount === 0) {
+            line.Markings = [line];
+            this.allMarkingSessions.push({
+                JournalEntryLineId1: line.ID,
+                JournalEntryLineId2: line.ID
+            });
+            return;
+        }
+        // Is this the first marked row or is the sum of others zero
+        if (!this.currentLead) {
+            this.currentLead = line;
+        } else if (
+            (line.RestAmount > 0 && this.currentLead.RestAmount > 0 ) || (line.RestAmount < 0 && this.currentLead.RestAmount < 0)) {
+            // Do nothing?
+        } else {
+            // If currentlead is bigger then 0
+            if (this.currentLead.RestAmount > 0) {
+                // If the RestAmount on the currentLead is bigger then the selected line
+                if (this.currentLead.RestAmount + line.RestAmount > 0) {
+                    this.currentLead.RestAmount += line.RestAmount;
+                    line.RestAmount = 0;
+                    line.Markings.push(this.currentLead);
+                    this.currentLead.Markings.push(line);
+                    this.allMarkingSessions.push({
+                        JournalEntryLineId1: line.ID,
+                        JournalEntryLineId2: this.currentLead.ID
+                    });
                 } else {
-                    if ((countPositive > 1 || (countPositive > 0 && rowModel.RestAmount > 0))
-                            && (countNegative > 1 || (countNegative > 0 && rowModel.RestAmount < 0))) {
-                        // make an assumption here, and just close the exising markings - we cannot have multiple Open
-                        // negative and positive amounts at the same time
-                        this.closeMarkingSession();
-                        this.addToCurrentMarkingSession(rowModel);
-                    } else {
-                        // we have just added more items to be mached, e.g. first 1000, then -250 and -300
-                        this.addToCurrentMarkingSession(rowModel);
+                    line.RestAmount += this.currentLead.RestAmount;
+                    this.currentLead.RestAmount = 0;
+                    line.Markings.push(this.currentLead);
+                    this.currentLead.Markings.push(line);
+                    this.allMarkingSessions.push({
+                        JournalEntryLineId1: line.ID,
+                        JournalEntryLineId2: this.currentLead.ID
+                    });
+                    // Find next lead if any...
+                    this.currentLead = this.currentSelectedRows.find(row => row.RestAmount !== 0);
+
+                    if (this.currentLead && this.currentLead.ID !== line.ID && line.RestAmount !== 0) {
+                        this.updateJournalEntryLinesOnTheFly(line);
                     }
                 }
             } else {
-                // If the row was in a markingsession, remove it if the user unselects the row.
-                // It could also be that the user had selected a row that was already marked - if so
-                // nothing will happen if it is deselected (the user needs to manually use the unlock
-                // button if that was the intent)
-                this.currentMarkingSession = this.currentMarkingSession.filter(x => x.ID !== rowModel.ID);
-                if (this.autoLocking) {
-                    let currentSessionSum = 0;
-                    this.currentMarkingSession.forEach(x => {
-                        currentSessionSum += x.RestAmount;
+                // Currentlead is a negative number!
+                // If restamount is bigger then line added
+                if (this.currentLead.RestAmount + line.RestAmount < 0) {
+                    this.currentLead.RestAmount += line.RestAmount;
+                    line.RestAmount = 0;
+                    line.Markings.push(this.currentLead);
+                    this.currentLead.Markings.push(line);
+                    this.allMarkingSessions.push({
+                        JournalEntryLineId1: line.ID,
+                        JournalEntryLineId2: this.currentLead.ID
                     });
+                } else {
+                    line.RestAmount += this.currentLead.RestAmount;
+                    this.currentLead.RestAmount = 0;
+                    line.Markings.push(this.currentLead);
+                    this.currentLead.Markings.push(line);
+                    this.allMarkingSessions.push({
+                        JournalEntryLineId1: line.ID,
+                        JournalEntryLineId2: this.currentLead.ID
+                    });
+                    // Find next lead if any...
+                    this.currentLead = this.currentSelectedRows.find(row => row.RestAmount !== 0);
 
-                    if (currentSessionSum === 0) {
-                        this.closeMarkingSession();
+                    if (this.currentLead && this.currentLead.ID !== line.ID && line.RestAmount !== 0) {
+                        this.updateJournalEntryLinesOnTheFly(line);
                     }
                 }
-
             }
         }
+    }
 
-        this.summaryData.SumChecked = 0;
+    public calcRestAmount() {
 
-        setTimeout(() => {
-            this.currentSelectedRows = this.table.getSelectedRows();
+        this.currentSelectedRows.map((line) => {
+            line.RestAmount = line._originalRestAmount || line.RestAmount;
+            return line;
+        });
 
-            this.allSelectedLocked.emit(
-                this.currentSelectedRows.length > 0
-                && this.currentSelectedRows.reduce((p, c) => c.Markings !== null && p, true)
-            );
+        this.currentSelectedRows.forEach((line) => {
+            const isPositive: boolean = line.RestAmount > 0;
 
-            this.currentSelectedRows.forEach(x => {
-                this.summaryData.SumChecked += x.RestAmount;
+            line.Markings.forEach((mark) => {
+                line.RestAmount += mark._originalRestAmount || mark.RestAmount;
+                if ((isPositive && line.RestAmount < 0) || (!isPositive && line.RestAmount > 0)) {
+                    line.RestAmount = 0;
+                }
             });
-
-            this.setSums();
         });
     }
 
@@ -389,276 +458,31 @@ export class LedgerAccountReconciliation {
 
     public autoMarkJournalEntries(criterias, done?: any) {
 
-        if (this.allMarkingSessions.length > 0) {
-            this.toastService.addToast('Kan ikke kjøre automerking',
-                ToastType.bad,
-                ToastTime.medium,
-                'Du har gjort endringer som ikke er lagret - lagre disse før du kjører automerking'
-            );
-            return;
-        }
+        this.allMarkingSessions = [];
         this.loading$.next(true);
-        // If call comes from postpost view (with criterias)
-        if (!!criterias) {
-            const tableData = this.table.getTableData();
 
-            this.canAutoMark = false;
+        this.canAutoMark = this.displayPostsOption === 'OPEN';
 
-            this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, criterias)
-                .then( result => {
-                    this.loading$.next(false);
+        this.postPostService.automarkAccount(this.journalEntryLines, this.customerID, this.supplierID, this.accountID, criterias)
+            .then( result => {
+                this.loading$.next(false);
+                if (result.length > 0) {
                     if (done) {
                         done('Merking fullført. Trykk lagre for å lukke merkede poster');
                     }
-                    if (result.length > 0) {
-                        this.allMarkingSessions = result;
-                        this.journalEntryLines = tableData;
-                        setTimeout(() => {
-                            this.calculateSums();
-                        });
-                        this.isDirty = true;
-                    }
-            });
-        } else {
-            this.modalService.open(UniAutomarkModal, {}).onClose.subscribe((res) => {
-                if (res) {
-                    const tableData = this.table.getTableData();
-
-                    this.canAutoMark = false;
-
-                    this.postPostService.automarkAccount(tableData, this.customerID, this.supplierID, this.accountID, res)
-                        .then( result => {
-                            this.loading$.next(false);
-                            if (done) {
-                                done('Merking fullført. Trykk lagre for å lukke merkede poster');
-                            }
-                            if (result.length > 0) {
-                                this.allMarkingSessions = result;
-                                this.journalEntryLines = tableData;
-                                setTimeout(() => {
-                                    this.calculateSums();
-                                });
-                                this.isDirty = true;
-                            }
+                    this.selectionChanged.emit(LedgerTableEmitValues.MarkedPosts);
+                    this.allMarkingSessions = result;
+                    this.currentSelectedRows = this.journalEntryLines.filter(row => row._rowSelected);
+                    setTimeout(() => {
+                        this.calculateSums();
                     });
-                }
-            });
-        }
-    }
-
-    private addToCurrentMarkingSession(model) {
-        this.currentMarkingSession.push(model);
-        // run calculation of SumChecked before we try to find matches
-        setTimeout(() => {
-            this.setLikelyMatchCandidates();
-        }, 100);
-    }
-
-    private setLikelyMatchCandidates() {
-        const tableData = this.table.getTableData();
-
-        tableData.forEach(row => {
-            if (row._isLikelyMatch) {
-                row._isLikelyMatch = false;
-                this.table.updateRow(row._originalIndex, row);
-            }
-
-            if (this.summaryData.SumChecked !== 0
-                && !row._rowSelected
-                && row.StatusCode !== StatusCodeJournalEntryLine.Marked
-                && row.RestAmount !== 0
-                && ((row.RestAmount < 0 && this.summaryData.SumChecked > 0)
-                        || (row.RestAmount > 0 && this.summaryData.SumChecked < 0))
-                && Math.abs(this.summaryData.SumChecked + row.RestAmount) < 10) {
-                row._isLikelyMatch = true;
-                this.table.updateRow(row._originalIndex, row);
-            }
-        });
-    }
-
-    private unlockLocalMarking(rowModel) {
-        // remove existing markings if this journalentry has been in a closed marking session
-        if (this.currentMarkingSession.find(x => x.ID === rowModel.ID)) {
-            this.currentMarkingSession = this.currentMarkingSession.filter(x => x.ID !== rowModel.ID);
-        } else if (
-            this.allMarkingSessions.find(x => x.JournalEntryLineId1 === rowModel.ID
-            || x.JournalEntryLineId2 === rowModel.ID)
-        ) {
-            const affectedMarkings = this.allMarkingSessions.filter(
-                x => x.JournalEntryLineId1 === rowModel.ID || x.JournalEntryLineId2 === rowModel.ID
-            );
-
-            // update unitable to remove bindings
-            const tableData = this.table.getTableData();
-
-            affectedMarkings.forEach(marking => {
-                tableData.forEach(row => {
-                    if (row.Markings && row.Markings.find(
-                        x => x.ID === marking.JournalEntryLineId1 || x.ID === marking.JournalEntryLineId2
-                    )) {
-                        row.Markings = [];
-                        if (row._originalStatusCode) {
-                            row.StatusCode = row._originalStatusCode;
-                        }
-                        if (row._originalRestAmount) {
-                            row.RestAmount = row._originalRestAmount;
-                        }
-                        row._rowSelected = false;
-                        row._isDirty = false;
-                        this.table.updateRow(row._originalIndex, row);
-                    }
-                });
-
-                rowModel._rowSelected = false;
-                rowModel._isDirty = false;
-                rowModel.Markings = [];
-                if (rowModel._originalStatusCode) {
-                    rowModel.StatusCode = rowModel._originalStatusCode;
-                }
-                if (rowModel._originalRestAmount) {
-                    rowModel.RestAmount = rowModel._originalRestAmount;
-                }
-                this.table.updateRow(rowModel._originalIndex, rowModel);
-            });
-
-            this.allMarkingSessions = this.allMarkingSessions.filter(
-                x => x.JournalEntryLineId1 !== rowModel.ID && x.JournalEntryLineId2 !== rowModel.ID
-            );
-
-            if (this.allMarkingSessions.length === 0) {
-                this.isDirty = false;
-            }
-        }
-
-        setTimeout(() => {
-            this.setLikelyMatchCandidates();
-        });
-    }
-
-    public closeMarkingSession(): boolean {
-
-        if (this.currentMarkingSession.length === 1 && this.currentMarkingSession[0].RestAmount === 0) {
-            // if only one item has been added, and that has 0 as RestAmount, just mark it against itself
-            // as a dummy - the API will handle this gracefully
-        } else if (this.currentMarkingSession.length < 2) {
-            this.toastService.addToast(
-                'Kan ikke merke postene', ToastType.bad, 10, 'Du må velge minst to poster som skal markeres'
-            );
-            return false;
-        } else if (this.currentMarkingSession.filter(
-            x => x.RestAmount > 0).length === 0
-            || this.currentMarkingSession.filter(x => x.RestAmount < 0).length === 0
-        ) {
-            this.toastService.addToast(
-                'Kan ikke merke postene', ToastType.bad,
-                ToastTime.medium, 'Du må velge både positive og negative beløp'
-            );
-            return false;
-        }
-
-        // find largest amount, either negative or positive
-        const sortedSessionList = this.currentMarkingSession.slice().sort((x, y) => x.RestAmount - y.RestAmount);
-
-        const smallestRestAmountLine = sortedSessionList[0];
-        const largestRestAmountLine = sortedSessionList[sortedSessionList.length - 1];
-
-        const baseLine = Math.abs(smallestRestAmountLine.RestAmount) > Math.abs(largestRestAmountLine.RestAmount) ?
-                            smallestRestAmountLine : largestRestAmountLine;
-
-        if (!baseLine.Markings) {
-            baseLine.Markings = [];
-        }
-
-        const originalBaseRestAmount = baseLine.RestAmount;
-        let baseRestAmount = baseLine.RestAmount;
-
-        if (this.currentMarkingSession.length === 1) {
-            const newMarking: JournalEntryLineCouple = {
-                JournalEntryLineId1: this.currentMarkingSession[0],
-                JournalEntryLineId2: this.currentMarkingSession[0]
-            };
-            this.allMarkingSessions.push(newMarking);
-        } else {
-            // update markings on table data based on currentMarkingSession
-            this.currentMarkingSession.forEach(x => {
-                if (!x.Markings) {
-                    x.Markings = [];
-                }
-
-                if (x.ID !== baseLine.ID) {
-                    if (baseLine.RestAmount !== 0) {
-                        const newMarking: JournalEntryLineCouple = {
-                            JournalEntryLineId1: baseLine.ID,
-                            JournalEntryLineId2: x.ID
-                        };
-                        this.allMarkingSessions.push(newMarking);
-
-                        baseRestAmount = baseRestAmount + x.RestAmount;
-
-                        // keep original values in case line is "unmarked"
-                        x._originalRestAmount = x.RestAmount;
-                        x._originalStatusCode = x.StatusCode;
-
-                        if ((baseRestAmount < 0 && originalBaseRestAmount > 0)
-                                || (baseRestAmount > 0 && originalBaseRestAmount < 0))  {
-                            // the base line is fully Marked, keep the restamount on the line
-                            baseLine.RestAmount = 0;
-
-                            x.RestAmount = baseRestAmount;
-                            x.StatusCode = StatusCodeJournalEntryLine.PartlyMarked;
-                        } else {
-                            x.RestAmount = 0;
-                            x.StatusCode = StatusCodeJournalEntryLine.Marked;
-                            baseLine.RestAmount = baseRestAmount;
-                        }
-
-                        // if the row is fully marked, deselect it. If it is not, keep it selected,
-                        // as the user will probably want to mark it against more items
-                        if (x.StatusCode === StatusCodeJournalEntryLine.Marked) {
-                            x._rowSelected = false;
-                        }
-
-                        x._isDirty = true;
-
-                        x.Markings.push(baseLine);
-                        this.table.updateRow(x._originalIndex, x);
-
-                        baseLine.Markings.push(_.cloneDeep(x));
-                    } else {
-                        // the base line is already full marked - no point in trying to do more here
-                        // but we will keep the row marked, in case the user wants to mark it against
-                        // another post
+                    this.isDirty = true;
+                } else {
+                    if (done) {
+                        done('Fant ingen poster å merke. Ingenting endret');
                     }
                 }
-            });
-        }
-
-        baseLine._originalRestAmount = originalBaseRestAmount;
-        baseLine._originalStatusCode = baseLine.StatusCode;
-
-        if (baseLine.RestAmount === 0) {
-            baseLine.StatusCode = StatusCodeJournalEntryLine.Marked;
-        } else {
-            baseLine.StatusCode = StatusCodeJournalEntryLine.PartlyMarked;
-        }
-
-        if (baseLine.StatusCode === StatusCodeJournalEntryLine.Marked) {
-            baseLine._rowSelected = false;
-        }
-
-        baseLine._isDirty = true;
-
-        this.table.updateRow(baseLine._originalIndex, baseLine);
-
-        this.isDirty = true;
-        this.currentMarkingSession =
-            this.currentMarkingSession.filter(x => x.StatusCode !== StatusCodeJournalEntryLine.Marked);
-
-        setTimeout(() => {
-            this.calculateSums();
         });
-
-        return true;
     }
 
     private setSums() {
@@ -709,7 +533,7 @@ export class LedgerAccountReconciliation {
 
     public unlockJournalEntries() {
         // check if any of the rows that are selected are serverside markings
-        let selectedRows = this.table.getSelectedRows();
+        const selectedRows = this.journalEntryLines.filter(row => row._rowSelected);
         if (selectedRows.length === 0) {
             this.toastService.addToast('Ingen rader valgt',
                 ToastType.warn,
@@ -741,18 +565,11 @@ export class LedgerAccountReconciliation {
                 return;
             }
 
-            // unmark local markings that are not yet marked on the server
-            selectedRows.forEach(row => {
-                if (row._isDirty && row.StatusCode !== StatusCodeJournalEntryLine.Open) {
-                    this.unlockLocalMarking(row);
-                }
-            });
-
             if (hasRemoteMarkedRowsSelected) {
                 setTimeout(() => {
                     // get selected rows after local rows has been updated
                     // - this is done to get items that needs to be unlocked through the api
-                    selectedRows = this.table.getSelectedRows();
+                    // selectedRows = this.table.getSelectedRows();
                     const journalEntryIDs: Array<number> = [];
 
                     selectedRows.forEach(row => {
@@ -798,27 +615,22 @@ export class LedgerAccountReconciliation {
         });
     }
 
-    private clearMarkings(reload = true) {
+    public clearMarkings(reload = true) {
+        this.currentLead = null;
         this.allMarkingSessions = [];
         this.currentMarkingSession = [];
         this.currentSelectedRows = [];
+        this.selectedNotOpen = [];
         this.isDirty = false;
-        if (reload) {this.loadData(); }
+
+        if (reload) {
+            this.loadData();
+        } else {
+            this.readyForManualMarkings = true;
+        }
     }
 
     public reconciliateJournalEntries(done?: any) {
-        // if at least 2 rows are marked but haven't been closed yet (because they dont match exactly),
-        // close them before saving
-        if (this.currentMarkingSession.length > 1) {
-            if (!this.closeMarkingSession()) {
-                this.toastService.addToast(
-                    'Lagring avbrutt', ToastType.bad, ToastTime.medium,
-                    'Fjern markeringene det er problemer med og forsøk igjen'
-                );
-                return;
-            }
-        }
-
         if (this.allMarkingSessions.length === 0) {
             this.toastService.addToast(
                 'Lagring avbrutt', ToastType.warn, ToastTime.medium, 'Du har ikke gjort noen endringer som kan lagres'
@@ -844,12 +656,6 @@ export class LedgerAccountReconciliation {
                 this.busy = false;
             }
         );
-    }
-
-    public markCheckedJournalEntries() {
-        // this is used to force a marking of the selected marked rows - even though they
-        // might not be an exact match
-        this.closeMarkingSession();
     }
 
     private editJournalEntry(journalEntryID, journalEntryNumber) {
@@ -970,7 +776,11 @@ export class LedgerAccountReconciliation {
     private editPayment(paymentID: number) {
         this.paymentService.Get(paymentID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount']).switchMap(existingPayment => {
             return this.modalService.open(AddPaymentModal, {
-                data: { model: existingPayment },
+                data: {
+                    model: existingPayment,
+                    disablePaymentToField: this.disablePaymentToField,
+                    customerBankAccounts: this.customerBankAccounts
+                 },
                 header: 'Endre betaling',
                 buttonLabels: {accept: 'Oppdater betaling'}
             }).onClose;
@@ -1021,56 +831,73 @@ export class LedgerAccountReconciliation {
         return new LocalDate(moment(result.setDate(result.getDate() + days)).toDate());
     }
 
-    private setupUniTable() {
-        this.loading$.next(true);
-        this.journalEntryLineService.getJournalEntryLinePostPostData(
-            this.displayPostsOption !== 'MARKED',
-            this.displayPostsOption !== 'OPEN',
-            this.customerID,
-            this.supplierID,
-            this.accountID,
-            this.pointInTime)
-            .subscribe(data => {
-                this.journalEntryLines = data;
-                this.loading$.next(false);
-                this.canAutoMark = data && data.length > 1 && this.displayPostsOption === 'OPEN';
-                setTimeout(() => {
-                    this.calculateSums();
-                    this.busy = false;
-                });
-            },
-            (err) => this.errorService.handle(err)
-        );
+    public getActions(item) {
+        const actions = [{
+            label: 'Rediger bilag',
+            name: 'EDIT'
+        }];
 
+        if (this.isOverpaid(item, this.customerID)) {
+            actions.push({
+                label: 'Tilbakebetal beløp',
+                name: 'RECLAIM'
+            });
+        }
+        return actions;
+    }
+
+    public actionClicked(action, item) {
+        if (action.name === 'RECLAIM') {
+            this.handleOverpayment(item);
+        } else {
+            this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber);
+        }
+    }
+
+    private setupUniTable() {
         const columns = [
             new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Link)
-                .setWidth('7rem').setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`),
+                .setWidth('7rem')
+                .setCls('table-link')
+                .setLinkResolver(row => `/accounting/transquery?JournalEntryNumber=${row.JournalEntryNumber}`),
             new UniTableColumn('JournalEntryType.Name', 'Type', UniTableColumnType.Text)
                 .setTemplate(x => x.JournalEntryTypeName)
                 .setVisible(false),
-            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate),
+            new UniTableColumn('FinancialDate', 'Dato', UniTableColumnType.LocalDate)
+                .setTemplate((row) => this.dateTemplate(row, 'FinancialDate')),
             new UniTableColumn('InvoiceNumber', 'Fakturanr', UniTableColumnType.Text),
-            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime).setVisible(false),
+            new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.DateTime)
+                .setTemplate((row) => this.dateTemplate(row, 'DueDate'))
+                .setVisible(false),
             new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money)
-                .setSortMode(UniTableColumnSortMode.Absolute),
+                .setSortMode(UniTableColumnSortMode.Absolute)
+                .setWidth('7rem')
+                .setCls('table-money')
+                .setTemplate((row) =>  this.numberFormatService.asMoney(row.Amount) ),
             new UniTableColumn('AmountCurrency', 'V-Beløp', UniTableColumnType.Money)
                 .setVisible(false)
-                .setSortMode(UniTableColumnSortMode.Absolute),
+                .setSortMode(UniTableColumnSortMode.Absolute)
+                .setTemplate((row) =>  this.numberFormatService.asMoney(row.AmountCurrency) ),
             new UniTableColumn('CurrencyCodeCode', 'Valuta', UniTableColumnType.Text)
                 .setVisible(false),
             new UniTableColumn('CurrencyExchangeRate', 'V-Kurs', UniTableColumnType.Number)
                 .setVisible(false),
             new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
-                .setSortMode(UniTableColumnSortMode.Absolute),
+                .setSortMode(UniTableColumnSortMode.Absolute)
+                .setTemplate((row) =>  this.numberFormatService.asMoney(row.RestAmount) )
+                .setWidth('7rem'),
             new UniTableColumn('RestAmountCurrency', 'V-Restbeløp', UniTableColumnType.Money)
                 .setVisible(false)
-                .setSortMode(UniTableColumnSortMode.Absolute),
-            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text).setVisible(false),
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text),
+                .setTemplate((row) =>  this.numberFormatService.asMoney(row.RestAmountCurrency) ),
+            new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text)
+                .setVisible(false),
+            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
+                .setWidth('7rem'),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
                 .setWidth('7rem')
                 .setTemplate(x => this.journalEntryLineService.getStatusText(x.StatusCode)),
-            new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text).setVisible(false)
+            new UniTableColumn('NumberOfPayments', 'Bet.', UniTableColumnType.Text)
+                .setVisible(false)
                 .setWidth('60px')
                 .setTemplate(
                     x => x.NumberOfPayments > 0
@@ -1089,25 +916,127 @@ export class LedgerAccountReconciliation {
             });
         });
 
-        this.uniTableConfig = new UniTableConfig('common.reconciliation.legderaccounts', false, true, 25)
+        let pageSize = window.innerHeight // Window size
+            - 144 // Form height
+            - 20 // Body margin and padding
+            - 32 // Application class margin
+            - 64 // Unitable pagination
+            - 150 // Unitabs x 2
+            - 100 // UniSummary
+            - 91; // Unitable filter and thead
+        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
+
+        this.uniTableConfig = new UniTableConfig('common.reconciliation.legderaccounts', false, true, pageSize < 20 ? 20 : pageSize)
             .setColumns(columns)
+            .setSortable(false)
             .setMultiRowSelect(this.showRowSelect)
-            .setColumnMenuVisible(true)
-            .setConditionalRowCls((row) => {
-                return (row.StatusCode === StatusCodeJournalEntryLine.Marked) ? 'reconciliation-marked-row' : '';
-            })
-            .setContextMenu([
-                {
-                    action: (item) => { this.editJournalEntry(item.JournalEntryID, item.JournalEntryNumber); },
-                    disabled: (item) => false,
-                    label: 'Rediger bilag'
-                },
-                {
-                    action: (item) => { this.handleOverpayment(item); },
-                    disabled: (item) => !this.isOverpaid(item, this.customerID),
-                    label: 'Tilbakebetal beløp'
+            .setColumnMenuVisible(true);
+    }
+
+    public dateTemplate(row, field) {
+        return moment(row[field]).format('DD.MM.YYYY');
+    }
+
+    private getTableData() {
+        this.loading$.next(true);
+        this.page = 1;
+        this.journalEntryLineService.getJournalEntryLinePostPostData(
+            this.displayPostsOption !== 'MARKED',
+            this.displayPostsOption !== 'OPEN',
+            this.customerID,
+            this.supplierID,
+            this.accountID,
+            this.pointInTime)
+            .subscribe(data => {
+                this.journalEntryLines = [...data];
+                this.setDisplayArray();
+                this.loading$.next(false);
+                this.canAutoMark = this.displayPostsOption === 'OPEN';
+                this.selectionChanged.emit(LedgerTableEmitValues.InitialValue);
+                setTimeout(() => {
+                    this.calculateSums();
+                    this.busy = false;
+                    this.clearMarkings(false);
+                });
+            },
+            (err) => this.errorService.handle(err)
+        );
+    }
+
+    public getVisibleFields() {
+        return this.uniTableConfig.columns.filter(col => col.visible);
+    }
+
+    public openColumnsModal() {
+        this.modalService.open(ColumnMenuNew, { data: { columns: this.uniTableConfig.columns } }).onClose.subscribe((result) => {
+            if (result) {
+                if (result.columns) {
+                    this.uniTableConfig.columns = result.columns;
+                } else {
+                    this.setupUniTable();
+                    this.getTableData();
                 }
-            ]);
+            }
+        });
+    }
+
+    public onPageChange(direction: string) {
+        switch (direction) {
+            case 'next':
+            case 'last':
+                if (this.page < this.getNumberOfPages()) {
+                    this.page = direction === 'next' ? ++this.page : this.getNumberOfPages();
+                    this.setDisplayArray();
+                }
+                break;
+            case 'prev':
+            case 'first':
+                if (this.page > 1) {
+                    this.page = direction === 'prev' ? --this.page : 1;
+                    this.setDisplayArray();
+                }
+                break;
+            default:
+                this.page = 1;
+                this.setDisplayArray();
+                break;
+        }
+    }
+
+    public setDisplayArray() {
+        this.journalEntryLinesDisplayed =
+            this.journalEntryLines.slice((this.page - 1)  * this.uniTableConfig.pageSize, this.page * this.uniTableConfig.pageSize);
+    }
+
+    public onPostpostRowSelect(row, index) {
+        row._rowSelected = !row._rowSelected;
+        this.onRowSelect(row);
+    }
+
+    public onCheckAllSelected(isCheckAll: boolean = false) {
+        if (isCheckAll) {
+            this.allSelected = !this.allSelected;
+            this.journalEntryLines.map(row => {
+                row._rowSelected = this.allSelected;
+                return row;
+            });
+
+            if (!this.allSelected) {
+                this.clearMarkings();
+            } else {
+                this.selectedNotOpen = [].concat(this.journalEntryLines);
+            }
+            this.selectionChanged.emit(this.selectedNotOpen.length
+                ? LedgerTableEmitValues.MarkedLocked
+                : LedgerTableEmitValues.MarkedPosts);
+        } else {
+            this.automarkChecked.emit(true);
+        }
+
+    }
+
+    public getNumberOfPages() {
+        return Math.ceil(this.journalEntryLines.length / this.uniTableConfig.pageSize);
     }
 
     private isOverpaid(item, customerID): boolean {

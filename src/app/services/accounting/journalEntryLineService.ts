@@ -8,6 +8,13 @@ import * as moment from 'moment';
 @Injectable()
 export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
 
+    public StatusTypes: Array<any> = [
+        { Code: 31001, Text: 'Åpen' },
+        { Code: 31002, Text: 'Delvis åpen' },
+        { Code: 31003, Text: 'Lukket' },
+        { Code: 31004, Text: 'Kreditert'}
+    ];
+
     constructor(http: UniHttp) {
         super(http);
 
@@ -58,23 +65,17 @@ export class JournalEntryLineService extends BizHttp<JournalEntryLine> {
             .map(response => response.json());
     }
 
-    public StatusTypes: Array<any> = [
-        { Code: '31001', Text: 'Åpen' },
-        { Code: '31002', Text: 'Delvis åpen' },
-        { Code: '31003', Text: 'Lukket' },
-        { Code: '31004', Text: 'Kreditert'}
-    ];
-
     public getStatusText = (statusCode: number) => {
-        var text = '';
+        let text = '';
         this.StatusTypes.forEach((status) => {
-            if (status.Code == statusCode) {
+
+            if (status.Code === statusCode) {
                 text = status.Text;
                 return;
             }
         });
         return text;
-    };
+    }
 
     public getBalance(customerNumber: number) {
         return this.http

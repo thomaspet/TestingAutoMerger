@@ -15,11 +15,10 @@ import {
     Supplier, SupplierInvoice, JournalEntry, JournalEntryLineDraft,
     StatusCodeSupplierInvoice, BankAccount, LocalDate,
     InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    Project, Department, User, ApprovalStatus, Approval,
+    User, ApprovalStatus, Approval,
     UserRole,
     TaskStatus,
     Dimensions,
-    BankData,
     VatDeduction
 } from '../../../../unientities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
@@ -78,15 +77,16 @@ import {
     UniFilesService,
     BankService,
     CustomDimensionService,
-    SupplierInvoiceItemService,
     FileService,
-    VatDeductionService
+    VatDeductionService,
+    PaymentService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
+import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
 declare var _;
 
 interface ITab {
@@ -247,7 +247,8 @@ export class BillView implements OnInit {
         private bankService: BankService,
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
-        private fileService: FileService
+        private fileService: FileService,
+        private paymentService: PaymentService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -1819,6 +1820,19 @@ export class BillView implements OnInit {
                 );
             }
 
+            // Slett og krediter betaling
+            if (it.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
+                it.StatusCode === StatusCodeSupplierInvoice.PartlyPayed) {
+                list.push(
+                    {
+                        label: 'Vis betalinger',
+                        action: (done) => this.viewPayments(done),
+                        main: false,
+                        disabled: false,
+                    }
+                );
+            }
+
             // Bokfør og Til betaling
             if (it.StatusCode === StatusCodeSupplierInvoice.Approved) {
                 const toPaymentAction =
@@ -1858,6 +1872,22 @@ export class BillView implements OnInit {
         });
     }
 
+    private viewPayments(done: any) {
+
+        const modal = this.modalService.open(EditSupplierInvoicePayments, {
+            data: this.currentID,
+            buttonLabels: {
+                cancel: 'Lukk'
+            },
+            header: 'Betalinger'
+        });
+
+        modal.onClose.subscribe(() => {
+            this.fetchInvoice(this.currentID, false).then(() => {
+                done();
+            });
+        });
+    }
 
     private newAction(label: string, itemKey: string, href: string, asMain = false, asDisabled = false): any {
         return {

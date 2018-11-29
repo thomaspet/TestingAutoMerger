@@ -56,7 +56,8 @@ import {
 } from './timetrackingCommon';
 
 import {
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatMenuModule
 } from '@angular/material';
 
 @NgModule({
@@ -68,6 +69,7 @@ import {
         RouterModule,
         UniFrameworkModule,
         MatProgressBarModule,
+        MatMenuModule,
         AppPipesModule
     ],
     declarations: [

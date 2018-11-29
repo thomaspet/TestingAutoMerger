@@ -64,6 +64,7 @@ export class AgGridWrapper {
     @Output() public rowChange: EventEmitter<IRowChangeEvent> = new EventEmitter(false); // TODO: typeme!
     @Output() public rowDelete: EventEmitter<any> = new EventEmitter(false);
     @Output() public rowSelectionChange: EventEmitter<any|any[]> = new EventEmitter(false);
+    @Output() public rowSelect: EventEmitter<any> = new EventEmitter(false);
     @Output() public filtersChange: EventEmitter<{filter: string}> = new EventEmitter(false);
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter(false);
     @Output() public cellClick: EventEmitter<ICellClickEvent> = new EventEmitter(false);
@@ -557,6 +558,10 @@ export class AgGridWrapper {
         }
     }
 
+    public onRowSelected(event) {
+        this.rowSelect.emit(event.data);
+    }
+
     private getAgColDefs(columns: UniTableColumn[]): ColDef[] {
         if (!columns) {
             return [];
@@ -716,11 +721,7 @@ export class AgGridWrapper {
 
     // Public functions for host components
     public getTableData() {
-        if (this.config.editable) {
-            return this.dataService.getTableData(true);
-        } else {
-            console.warn('getTableData() does nothing for readonly tables');
-        }
+        return this.dataService.getTableData(true);
     }
 
     public getSelectedRows() {
@@ -829,6 +830,10 @@ export class AgGridWrapper {
         if (nodeToDelete) {
             this.dataService.deleteRow(nodeToDelete.data);
         }
+    }
+
+    public clearSelection() {
+        this.agGridApi.deselectAll();
     }
 
     /**
