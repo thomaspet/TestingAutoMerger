@@ -710,13 +710,12 @@ export class BankComponent implements AfterViewInit {
             const modal = this.modalService.open(MatchCustomerManualModal, {
                 data: {model: row}
             });
-
             modal.onClose.subscribe((result) => {
-                if (result && result > 0) {
-                    this.journalEntryService.PutAction(null,
-                        'book-payment-against-customer',
-                        'customerID=' + result + '&paymentID=' + row.ID)
-                        .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
+                if (result && result.customerID > 0) {
+                     this.journalEntryService.PutAction(null,
+                         'book-payment-against-customer',
+                         'customerID=' + result.customerID + '&paymentID=' + row.ID + '&isBalanceKID=' + result.isBalanceKID)
+                         .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
                 }
             });
         });
