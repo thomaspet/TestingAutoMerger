@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import * as moment from 'moment';
 
 import {
@@ -1162,7 +1162,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 };
                 this.openAccrualModal(data);
             },
-            disabled: () => !this.invoice.ID
+            disabled: () => (!this.invoice.ID || this.invoice.InvoiceNumber > '42002')
         }];
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
@@ -1193,13 +1193,19 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 if (!accrual['_createguid']) {
                     accrual['createguid'] = createGuid();
                 }
-                const accrualPromise = this.accrualService.Post(accrual).toPromise();
-                const journalEntyPromise = this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID).toPromise();
-                Promise.all([accrualPromise, journalEntyPromise]).then(([savedAccrual, createdJournalEntry]) => {
-                    if (createdJournalEntry.DraftLines && createdJournalEntry.DraftLines.length) {
-                        createdJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
-                        this.journalEntryService.Put(createdJournalEntry.ID, createdJournalEntry).subscribe(() => {
-                            this.toastService.addToast('periodisering gjort  med suksess', ToastType.good, 3);
+                const accrual$ = this.accrualService.Post(accrual);
+                const journalEntry$ = this.invoice.JournalEntryID ?
+                    this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
+                    : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
+                forkJoin([accrual$, journalEntry$]).subscribe(([savedAccrual, currentJournalEntry]) => {
+                    if (currentJournalEntry.DraftLines && currentJournalEntry.DraftLines.length) {
+                        currentJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
+                        this.invoice.AccrualID = savedAccrual.ID;
+                        const saveInvoice$ = this.customerInvoiceService.Put(this.invoice.ID, this.invoice);
+                        const saveJournalEntry$ = this.journalEntryService.Put(currentJournalEntry.ID, currentJournalEntry);
+                        forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
+                            this.invoice = <CustomerInvoice>invoice;
+                            this.toastService.addToast('periodiseringen er oppdatert', ToastType.good, 3);
                         });
                     }
                 });
