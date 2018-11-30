@@ -169,11 +169,17 @@ export class MarketplaceModules implements AfterViewInit {
                         }
                         if (product.productType === ElsaProductType.Module) {
                             this.elsaCompanyLicenseService.PurchasesForUserLicense(this.companyKey)
+                                .catch(() => {
+                                    return Observable.of([]);
+                                })
                                 .subscribe((purchases: ElsaPurchasesForUserLicenseByCompany[]) => {
                                     product['_isBought'] = purchases.some(p => p.productID === product.id && p.isAssigned);
                             });
                         } else if (product.productType === ElsaProductType.Extension) {
                             this.elsaPurchaseService.GetAllByCompanyKey(this.companyKey)
+                                .catch(() => {
+                                    return Observable.of([]);
+                                })
                                 .subscribe((purchases: ElsaPurchase[]) => {
                                     product['_isBought'] = purchases.some(p => p.productID === product.id);
                                 });
