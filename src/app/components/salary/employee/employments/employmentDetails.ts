@@ -76,7 +76,7 @@ export class EmploymentDetails implements OnChanges {
             }
 
 
-            if (this.employment.JobCode) {
+            if (this.employment && this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
                     .GetAll(
                         'model=STYRKCode&select=styrk as styrk,'
