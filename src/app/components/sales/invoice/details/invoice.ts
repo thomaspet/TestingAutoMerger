@@ -1155,15 +1155,21 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             label: 'Periodisering',
             action: (item) => {
                 const data = {
-                    accrualAmount: this.itemsSummaryData.SumTotalIncVat,
+                    accrualAmount: this.itemsSummaryData.SumTotalExVat,
                     accrualStartDate: new LocalDate(this.invoice.InvoiceDate.toString()),
                     journalEntryLineDraft: null,
                     accrual: null,
                     title: 'Periodisering av fakturaen'
                 };
-                this.openAccrualModal(data);
+                if (!this.invoice.ID) {
+                    this.saveAsDraft(() => {
+                        this.openAccrualModal(data);
+                    });
+                } else {
+                    this.openAccrualModal(data);
+                }
             },
-            disabled: () => (!this.invoice.ID || this.invoice.InvoiceNumber > '42002')
+            disabled: () => this.invoice.InvoiceNumber > '42002'
         }];
         const toolbarconfig: IToolbarConfig = {
             title: invoiceText,
@@ -1742,11 +1748,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.router.navigateByUrl('sales/invoices/' + invoice.ID);
                 } else {
                     this.getInvoice(this.invoice.ID).subscribe(
-                        res => this.refreshInvoice(res),
-                        err => this.errorService.handle(err)
+                        res => {
+                            this.refreshInvoice(res);
+                            done('Lagring fullført');
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            done('Lagring feilet');
+                        }
                     );
                 }
-                done('Lagring fullført');
             } else {
                 done('Lagring feilet');
             }
