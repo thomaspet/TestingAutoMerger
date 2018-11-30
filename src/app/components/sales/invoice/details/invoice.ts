@@ -379,6 +379,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1')
                     ).subscribe((res) => {
                     const invoice = res[0];
+
                     this.companySettings = res[1];
                     this.currencyCodes = res[2];
                     this.paymentTerms = res[3];
@@ -1079,7 +1080,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.isDirty = false;
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly = !!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft;
+        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
         );
@@ -1205,6 +1206,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         const saveJournalEntry$ = this.journalEntryService.Put(currentJournalEntry.ID, currentJournalEntry);
                         forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
                             this.invoice = <CustomerInvoice>invoice;
+                            this.readonly = true;
                             this.toastService.addToast('periodiseringen er oppdatert', ToastType.good, 3);
                         });
                     }
