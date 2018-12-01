@@ -711,7 +711,7 @@ export class BankComponent implements AfterViewInit {
                 data: {model: row}
             });
             modal.onClose.subscribe((result) => {
-                if (result && result.customerID > 0) {
+                if (result && result.customerID) {
                      this.journalEntryService.PutAction(null,
                          'book-payment-against-customer',
                          'customerID=' + result.customerID + '&paymentID=' + row.ID + '&isBalanceKID=' + result.isBalanceKID)

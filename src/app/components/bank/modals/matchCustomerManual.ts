@@ -28,7 +28,7 @@ import { StatusCodePaymentInfoType } from '@uni-entities';
 
             <footer>
                 <button class="good" [disabled]="!selectedCustomerID" (click)="close(selectedCustomerID)">Bøkfor valgt rad</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button class="bad" (click)="close(null)">Avbryt</button>
             </footer>
         </section>
     `
@@ -76,7 +76,7 @@ export class MatchCustomerManualModal implements IUniModal {
         this.selectedCustomerID = customer.ID;
     }
 
-    public close(customerID: number) {
+    public close(customerID:  number | null) {
         this.onClose.emit({customerID, isBalanceKID: this.isBalanceKID});
     }
 
