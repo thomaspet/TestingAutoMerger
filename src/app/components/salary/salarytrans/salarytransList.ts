@@ -168,7 +168,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges 
         const wagetypenameCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text).setWidth('9rem');
         const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);
         const toDateCol = new UniTableColumn('ToDate', 'Til dato', UniTableColumnType.LocalDate);
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money);
+        const rateCol = new UniTableColumn(
+            'Rate',
+            'Sats',
+            UniTableColumnType.Money,
+            (row: SalaryTransaction) => !row.Wagetype || !row.Wagetype.DaysOnBoard);
         const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number).setWidth('5rem');
         const sumCol = new UniTableColumn('Sum', 'Sum', UniTableColumnType.Money, false);
         const employmentidCol = new UniTableColumn('employment', 'Arbeidsforhold', UniTableColumnType.Select)
