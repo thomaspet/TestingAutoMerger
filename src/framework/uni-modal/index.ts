@@ -18,11 +18,12 @@ import {SingleTextFieldModal} from './modals/singleTextFieldModal';
 import {CustomerLicenseAgreementModal} from './modals/customerLicenseAgreementModal';
 import {UserLicenseAgreementModal} from './modals/userLicenseAgreementModal';
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
-import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {UniBankModal} from './modals/bankModal';
 import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportModal';
 import {SubCompanyModal} from './modals/subCompanyModal';
 import {UniEditFieldModal} from './modals/editFieldModal';
+import {ProductPurchasesModal} from './modals/product-purchases-modal/product-purchases-modal';
+import {UniAutobankAgreementModal} from './modals/autobankAgreementModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -46,10 +47,11 @@ export * from './modals/singleTextFieldModal';
 export * from './modals/customerLicenseAgreementModal';
 export * from './modals/userLicenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
-export * from './modals/manageProductsModal';
 export * from './modals/bankModal';
 export * from './modals/choose-report-modal/chooseReportModal';
 export * from './modals/editFieldModal';
+export * from './modals/product-purchases-modal/product-purchases-modal';
+export * from './modals/autobankAgreementModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -72,10 +74,11 @@ export const MODALS = [
     CustomerLicenseAgreementModal,
     UserLicenseAgreementModal,
     UniBrRegModal,
-    ManageProductsModal,
     UniBankModal,
     UniChooseReportModal,
     SubCompanyModal,
     UniEditFieldModal,
+    ProductPurchasesModal,
+    UniAutobankAgreementModal
 ];
 

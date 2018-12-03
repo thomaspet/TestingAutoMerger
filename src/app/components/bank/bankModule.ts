@@ -17,9 +17,7 @@ import {bankRoutes} from './bankRoutes';
 import {
     UniPaymentEditModal,
     UniAutobankAgreementListModal,
-    UniAutobankAgreementModal,
     MatchCustomerInvoiceManual,
-    UniAgreementWarningModal,
     MatchCustomerManualModal
 } from './modals';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
@@ -47,8 +45,6 @@ import {
         BankComponent,
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchCustomerManualModal
@@ -56,8 +52,6 @@ import {
     entryComponents: [
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchCustomerManualModal

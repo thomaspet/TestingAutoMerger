@@ -5,7 +5,7 @@ import {
     ElsaPurchaseForLicense,
     ElsaUserLicense,
     ElsaPurchasesForUserLicenseByCompany
-} from '@app/services/elsa/elsaModels';
+} from '@app/models';
 
 @Injectable()
 export class ElsaCompanyLicenseService {

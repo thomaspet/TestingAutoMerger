@@ -46,20 +46,6 @@ export class NavbarUserDropdown {
     public openUserSettingsModal() {
         this.modalSerice.open(UserSettingsModal, {
             data: this.user
-        }).onClose.subscribe(updatedUser => {
-            if (updatedUser) {
-                this.saveUser(updatedUser);
-            }
         });
-    }
-
-    public saveUser(user) {
-        this.userService.Put(user.ID, user).subscribe(
-            res => {
-                console.log('Saved!', res);
-                this.userService.invalidateCache();
-            },
-            err => this.errorService.handle(err)
-        );
     }
 }

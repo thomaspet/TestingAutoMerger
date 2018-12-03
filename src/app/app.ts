@@ -111,29 +111,30 @@ export class App {
     }
 
     private showCustomerLicenseModal() {
-        this.modalService
-            .open(CustomerLicenseAgreementModal)
-            .onClose
-            .subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.uniHttp.asPOST()
-                        .usingBusinessDomain()
-                        .withEndPoint('users?action=accept-CustomerAgreement')
-                        .send()
-                        .map(res => res.json())
-                        .subscribe(
-                            success => this.toastService.addToast(
-                                'Suksess',
-                                ToastType.good,
-                                ToastTime.short,
-                                'Selskaps-Lisens godkjenning lagret',
-                            ),
-                            err => this.errorService.handle(err),
-                        );
-                } else {
-                    this.authService.clearAuthAndGotoLogin();
-                }
-            });
+        this.modalService.open(CustomerLicenseAgreementModal, {
+            hideCloseButton: true,
+            closeOnClickOutside: false,
+            closeOnEscape: false
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.uniHttp.asPOST()
+                    .usingBusinessDomain()
+                    .withEndPoint('users?action=accept-CustomerAgreement')
+                    .send()
+                    .map(res => res.json())
+                    .subscribe(
+                        success => this.toastService.addToast(
+                            'Suksess',
+                            ToastType.good,
+                            ToastTime.short,
+                            'Selskaps-Lisens godkjenning lagret',
+                        ),
+                        err => this.errorService.handle(err),
+                    );
+            } else {
+                this.authService.clearAuthAndGotoLogin();
+            }
+        });
     }
 
     private showCanNotAcceptCustomerLicenseModal(user: UserDto) {

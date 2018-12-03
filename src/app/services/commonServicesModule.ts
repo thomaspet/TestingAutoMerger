@@ -66,7 +66,8 @@ import {DimensionSettingsService} from './common/dimensionSettingsService';
 import {CustomDimensionService} from './common/customDimensionService';
 import {ApiKeyService} from './common/apikeyService';
 import {DistributionPlanService} from './common/distributionService';
-import { AccrualService } from '@app/services/common/accrualService';
+import {AccrualService} from './common/accrualService';
+import {UserRoleService} from './common/userRoleService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -134,6 +135,7 @@ export * from './common/dimensionSettingsService';
 export * from './common/customDimensionService';
 export * from './common/apikeyService';
 export * from './common/distributionService';
+export * from './common/userRoleService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -208,7 +210,8 @@ export class CommonServicesModule {
                 CustomDimensionService,
                 ApiKeyService,
                 DistributionPlanService,
-                AccrualService
+                AccrualService,
+                UserRoleService,
             ]
         };
     }

@@ -888,10 +888,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -1521,12 +1521,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;

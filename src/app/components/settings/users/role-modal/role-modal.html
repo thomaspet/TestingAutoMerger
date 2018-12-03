@@ -1,0 +1,39 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        <h1>{{user?.DisplayName}}</h1>
+    </header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <ul class="role-groups">
+            <li *ngFor="let group of roleGroups">
+                <section class="role-group-header">
+                    <span>{{group.label}}</span>
+                    <button *ngIf="canPurchaseProducts && group.product && !group.productPurchased"
+                        (click)="purchaseProduct(group)"
+                        class="activate-product">
+
+                        Aktiver dette produktet
+                    </button>
+                </section>
+
+                <mat-selection-list *ngIf="!group.product || group.productPurchased">
+                    <mat-list-option *ngFor="let role of group.roles"
+                        [checkboxPosition]="'before'"
+                        [selected]="role._checked"
+                        (click)="onRoleClick(group, role)">
+                        {{role.Label}}
+                    </mat-list-option>
+                </mat-selection-list>
+            </li>
+        </ul>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="saveRoles()">Lagre endringer</button>
+        <button (click)="onClose.emit(false)">Avbryt</button>
+    </footer>
+</section>

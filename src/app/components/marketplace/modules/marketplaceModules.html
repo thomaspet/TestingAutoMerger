@@ -19,9 +19,9 @@
             <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
                 <button
                     class="subscribe-button"
-                    (click)="module?._activationFunction?.click()"
+                    (click)="manageUserPurchases(module)"
                     [disabled]="!canPurchaseProducts">
-                    {{module?._activationFunction?.label}}
+                    {{module._isBought ? 'Velg brukere' : 'Abonner'}}
                 </button>
             </section>
 
@@ -47,9 +47,19 @@
             </section>
 
             <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
+                <!-- Buy -->
                 <button
                     class="subscribe-button"
-                    *ngIf="extension?._activationFunction"
+                    *ngIf="!extension._isBought"
+                    (click)="purchaseExtension(extension)"
+                    [disabled]="!canPurchaseProducts">
+                    Kjøp
+                </button>
+
+                <!-- Activate -->
+                <button
+                    class="subscribe-button"
+                    *ngIf="extension._isBought && extension?._activationFunction"
                     (click)="extension._activationFunction.click()"
                     [disabled]="!canPurchaseProducts">
                     {{extension?._activationFunction?.label}}

@@ -13,7 +13,7 @@ import {
     LocalDate
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
-import {JournalEntryData} from '../../../../models/models';
+import {JournalEntryData} from '@app/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';

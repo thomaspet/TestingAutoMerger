@@ -40,7 +40,10 @@ import {
     MatCheckboxModule,
     MatRadioModule,
     MatInputModule,
-    MatMenuModule
+    MatMenuModule,
+    MatProgressSpinnerModule,
+    MatStepperModule,
+    MatListModule
 } from '@angular/material';
 
 @NgModule({
@@ -52,6 +55,9 @@ import {
         MatRadioModule,
         MatInputModule,
         MatMenuModule,
+        MatProgressSpinnerModule,
+        MatStepperModule,
+        MatListModule,
 
         AppPipesModule,
         UniPipesModule,
@@ -115,7 +121,16 @@ import {
         UniAvatar,
 
         UniComponentLoader,
-        ClickOutsideDirective
+        ClickOutsideDirective,
+
+        // Material
+        MatCheckboxModule,
+        MatRadioModule,
+        MatInputModule,
+        MatMenuModule,
+        MatProgressSpinnerModule,
+        MatStepperModule,
+        MatListModule
     ]
 })
 export class UniFrameworkModule {}

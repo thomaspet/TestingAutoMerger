@@ -11,7 +11,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {Job} from '../../../models/admin/jobs/job';
 import {Trigger} from '../../../models/admin/jobs/trigger';
 import {JobRun} from '../../../models/admin/jobs/jobRun';
-import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProduct} from '@app/services/elsa/elsaModels';
+import {ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProduct} from '@app/models';
 
 export interface JobLogProgress {
     ID: number;

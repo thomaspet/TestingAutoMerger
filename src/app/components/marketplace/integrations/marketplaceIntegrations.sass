@@ -1,7 +1,7 @@
 @import '../marketplaceSharedStyles.sass'
 
 $integration-item-width: 20rem
-$integration-item-spacing: 1rem
+$integration-item-spacing: 2rem
 
 .integration-main
     background-color: $bg-color
@@ -18,8 +18,10 @@ $integration-item-spacing: 1rem
     h1
         font-weight: 500
 
-h1,h2,h3
+h3
     width: 100%
+    font-weight: 500
+    font-size: 20px
 
 .search
     display: flex
@@ -51,7 +53,7 @@ h1,h2,h3
     display: flex
     flex-flow: row wrap
     width: 100%
-    padding: 1rem 5%
+    padding: 1rem 5% 2rem
 
     .integration-grid
         max-width: 100%
@@ -65,12 +67,12 @@ h1,h2,h3
 
     > section
         flex: 0 0 #{(2 * $integration-item-width) + $integration-item-spacing}
-        & + section
-            margin-left: 1rem
+        &:first-of-type
+            margin-right: 2rem
 
         @media (max-width: 1733px)
             flex: 0 0 100%
-            margin-left: 0
+            margin-rigth: 0
 
 .integration-item
     background-color: white
@@ -105,9 +107,9 @@ h1,h2,h3
         width: 70%
 
     .title
-        color: black
+        color: #1D2B33
         font-weight: 500
-        margin: 0
+        margin: 0 0 2px 0
 
     .sub-title
         color: $light-text-color
@@ -117,21 +119,24 @@ h1,h2,h3
         margin: 0
 
     .footer
+        display: flex
         width: 100%
         font-size: 0.8rem
         color: $light-text-color
 
-        .material-icons
-            vertical-align: middle
-        .link
-            font-size: 1rem
-            float: right
-            font-weight: 600
+        span
+            margin: auto 0
+            .material-icons
+                vertical-align: middle
+                margin-bottom: 2px
+
+        a.read-more
+            margin: auto 0 auto auto
+            font: 500 14px 'Roboto', sans-serif
             text-decoration: none
             color: $primary-button-color
             &:hover
                 text-decoration: underline
-
 
 .more-info-container
     padding: 6rem 6rem 12rem

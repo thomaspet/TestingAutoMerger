@@ -1,0 +1,48 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+$lightblue: #2699fb
+$darkblue: #1565c0
+$red: #f53b57
+$green: #0be881
+$yellow: #ffdd59
+
+\:host
+    font-family: 'Roboto', sans-serif
+    ::ng-deep mat-selection-list .mat-list-text
+        font-weight: 500
+
+
+.uni-modal
+    width: 40rem
+    height: 48rem
+    max-height: 90vh // mobile
+    position: relative
+
+ul.role-groups
+    max-height: 100%
+    box-sizing: border-box
+    overflow-y: auto
+    list-style: none
+    margin: 0
+    padding: 0rem 1rem 0rem 0
+    // border: 1px solid #eee
+
+    > li
+        margin-bottom: 1rem
+
+    .role-group-header
+        display: flex
+        font-size: 14px
+        font-weight: 500
+        color: #8c96a9
+
+        span
+            margin: auto 0
+
+        .activate-product
+            color: $darkblue
+            margin: auto 0 auto auto
+            font-size: 14px
+
+    ul.role-list
+        list-style: none

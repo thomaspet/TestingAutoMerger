@@ -135,15 +135,15 @@ export class UniModalService {
             // Add close button
             if (!options || !options.hideCloseButton) {
                 const header = dialogElement.querySelector('header');
-                const headerButton = header && header.querySelector('button');
-                if (header && !headerButton) {
-                    const button = document.createElement('button');
-                    button.classList.add('modal-close-button');
-                    button.onclick = (event) => {
-                        this.forceClose(componentRef);
-                    };
 
-                    header.appendChild(button);
+                if (header && !header.querySelector('.close-button')) {
+                    const closeBtn = document.createElement('i');
+                    closeBtn.classList.add('material-icons', 'close-button');
+                    closeBtn.setAttribute('role', 'button');
+                    closeBtn.innerText = 'close';
+                    closeBtn.onclick = () => this.forceClose(componentRef);
+
+                    header.appendChild(closeBtn);
                 }
             }
 

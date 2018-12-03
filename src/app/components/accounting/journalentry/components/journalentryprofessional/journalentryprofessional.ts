@@ -37,7 +37,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';

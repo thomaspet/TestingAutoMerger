@@ -36,7 +36,7 @@ import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds} from '../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
     UniModalService,

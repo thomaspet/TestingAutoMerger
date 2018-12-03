@@ -88,6 +88,10 @@ const routes = [
         path: 'bank',
         loadChildren: './components/bank/bankModule#BankModule',
     },
+    {
+        path: 'contract-activation',
+        loadChildren: './components/contract-activation/contract-activation.module#ContractActivationModule'
+    },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {

@@ -19,7 +19,7 @@ import {
 } from '../../../../services/services';
 
 import * as moment from 'moment';
-import {JournalEntryData} from '../../../../models/models';
+import {JournalEntryData} from '@app/models';
 import { ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({

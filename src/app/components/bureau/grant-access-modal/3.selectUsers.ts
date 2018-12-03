@@ -2,7 +2,7 @@ import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 import {ElsaCompanyLicenseService} from '@app/services/elsa/elsaCompanyLicenseService';
 import {AuthService, IAuthDetails} from '@app/authService';
-import {ElsaUserLicense} from '@app/services/elsa/elsaModels';
+import {ElsaUserLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 
 @Component({

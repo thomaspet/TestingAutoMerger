@@ -3,7 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Bank} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {BankData} from '../../models/models';
+import {BankData} from '@app/models';
 
 @Injectable()
 export class BankService extends BizHttp<Bank> {

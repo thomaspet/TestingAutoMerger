@@ -8,8 +8,6 @@ $sidebar-text-color: $uni-color-scale2
 $active-section-background: #f7f7f7
 $link-hover-background: $uni-color-toolbar
 
-// Host is the selector to style the component itself instead of it's content
-// So this is styling uni-sidebar
 \:host
     position: relative
     height: 100%
@@ -22,9 +20,9 @@ $link-hover-background: $uni-color-toolbar
     color: $uni-color-negative
     font-family: 'Roboto', sans-serif
 
-    z-index: #{map-get($zindex, 'toolbar') + 1}
     box-shadow: 1px 0px 4px 0 rgba(0, 0, 0, 0.14)
     transition: all .25s ease
+    z-index: map-get($zindex, 'sidebar')
 
 #sidebar-container
     position: fixed

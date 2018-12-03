@@ -1,58 +1,52 @@
-<section class="users-splitview">
+<section class="users-container">
 
-    <section class ="uni-container user-list">
-        <section class="user-administration">
-            <form class="invite_users_form" [formGroup]="newUserForm" (ngSubmit)="sendInvite()" #f="ngForm">
-                <small class="validation error" *ngIf="errorMessage.length">{{errorMessage}}</small>
-                <input type="email"
-                    formControlName="Email"
-                    placeholder="Inviter bruker (e-post)"
-                />
-
-                <button [attr.aria-busy]="busy"
-                        [disabled]="!f.form.valid || busy"
-                        type="submit"
-                        class="c2a">
-                    Inviter
-                </button>
-            </form>
-
-            <span class="user-access" (click)="editPurchases()">
-                <i class="material-icons">vpn_key</i>
-                Administrer brukertilganger
-            </span>
+    <!-- List -->
+    <section class="user-list-container">
+        <section class="list-actions">
+            <button *ngIf="canPurchaseProducts" (click)="manageProductPurchases()">
+                <i class="material-icons">grid_on</i>
+                Administrer produkttilganger
+            </button>
+            <button (click)="openInviteUserModal()">
+                <i class="material-icons">person_add</i>
+                Inviter bruker
+            </button>
         </section>
 
-        <ag-grid-wrapper #usersTable
-            [config]="userTableConfig"
-            [resource]="users"
-            (rowSelectionChange)="onUserSelected($event)">
-        </ag-grid-wrapper>
+        <input [formControl]="searchControl" type="search" placeholder="Søk etter bruker">
+
+        <ul id="user-list">
+            <li *ngFor="let user of filteredUsers"
+                [ngClass]="{'selected': user.ID === selectedUser?.ID}"
+                (click)="onUserSelected(user)">
+
+                <div class="avatar">
+                    <uni-avatar [name]="user.DisplayName || user.Email"></uni-avatar>
+                    <span *ngIf="user._statusClass" class="status-indicator" [ngClass]="user._statusClass"></span>
+                </div>
+
+                <section class="user-info">
+                    <strong>{{user.DisplayName || user.Email}}</strong>
+
+                    <small *ngIf="user._isActive">
+                        {{user._isAdmin ? 'Administrator' : 'Standard bruker'}}
+                    </small>
+
+                    <small *ngIf="!user._isActive && user._statusText">
+                        {{user._statusText}}
+                    </small>
+                </section>
+            </li>
+        </ul>
     </section>
 
-    <section class= "uni-container user-detail">
-        <header>Brukerdetaljer</header>
+    <!-- Details -->
+    <user-details
+        [user]="selectedUser"
+        [users]="users"
+        (activateUser)="activateUser()"
+        (deactivateUser)="deactivateUser()"
+        (reloadUsers)="loadUsers(true)">
+    </user-details>
 
-        <section class="sharing-badges" *ngIf="selectedUser?.BankIntegrationUserName">
-            <span class="badge-available">Bankbruker</span>
-        </section>
-
-        <uni-form
-            [config]="formConfig$"
-            [fields]="formFields$"
-            [model]="formModel$"
-            (changeEvent)="onFormChange($event)">
-        </uni-form>
-
-        <uni-role-selector *ngIf="roles"
-            [role]="roles"
-            (roleSelected)="onRoleAdded($event)">
-        </uni-role-selector>
-
-        <uni-table *ngIf="userRoles?.length"
-                    [config]="roleTableConfig"
-                    [resource]="userRoles"
-                    (rowDeleted)="onRoleDeleted($event)">
-        </uni-table>
-    </section>
 </section>

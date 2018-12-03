@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        Velkommen til Uni Economy!
+    </header>
+
+    <article>
+        <h2>Hva vil du gjøre nå?</h2>
+
+        <ul>
+            <li (click)="navigate('/settings/users')">
+                <i class="material-icons">supervised_user_circle</i>
+                <section class="link-info">
+                    <strong>Administrer brukere</strong>
+                    <span>Legg til og rediger brukere, roller og rettigheter</span>
+                </section>
+            </li>
+            <li (click)="navigate('/settings/company')">
+                <i class="material-icons">settings_applications</i>
+                <section class="link-info">
+                    <strong>Firmainnstillinger</strong>
+                    <span>Oppsett og innstillinger for ditt firma</span>
+                </section>
+            </li>
+            <li (click)="navigate('/marketplace/modules')">
+                <i class="material-icons">developer_board</i>
+                <section class="link-info">
+                    <strong>Markedsplass</strong>
+                    <span>Oppdag og aktiver utvidelser og integrasjoner</span>
+                </section>
+            </li>
+        </ul>
+    </article>
+
+    <footer>
+        <button class="c2a rounded" (click)="onClose.emit()">Lukk</button>
+    </footer>
+</section>

@@ -5,12 +5,9 @@ import {IUniModal, ConfirmActions} from '../interfaces';
 @Component({
     selector: 'customer-license-agreement-modal',
     template: `
-        <section role="dialog" class="uni-modal"
-                (clickOutside)="reject()"
-                (keydown.esc)="reject()">
+        <section role="dialog" class="uni-modal">
             <header>
                 <h1>Selskapslisens</h1>
-                <button class="modal-close-button" (click)="reject()"></button>
             </header>
             <article>
                 <object data="https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf" type="application/pdf">

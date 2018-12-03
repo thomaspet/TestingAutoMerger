@@ -1913,38 +1913,19 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private isProductBought(name: string): Observable<boolean> {
-        return this.elsaProductService.FindProductByName(name)
-            .switchMap(product => {
-                return !product
-                    ? Observable.of(false)
-                    : this.elsaPurchasesService.GetAll()
-                        .map(purchases => {
-                            return purchases.some(purchase => purchase.productID === product.id);
-                        });
-        });
+        return this.elsaPurchasesService.getPurchaseByProductName(name).map(res => !!res);
     }
 
-    private activateProduct(name: string, activationModal: () => void) {
-        this.elsaProductService.FindProductByName(name).subscribe(product => {
-            if (product) {
-                this.elsaPurchasesService.GetAll()
-                .map(purchases => purchases.some(purchase => purchase.productID === product.id))
-                .subscribe(hasBought => {
-                    if (hasBought) {
-                        activationModal();
-                    } else {
-                        const marketplaceUrl = `/marketplace/modules?productName=${product.name}`;
-                        console.log('navigating to: ' + marketplaceUrl);
-                        this.router.navigateByUrl(marketplaceUrl);
-                    }
-                });
+    private activateProduct(productName: string, activationModal: () => void) {
+        this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
+            if (purchase) {
+                activationModal();
             } else {
-                this.toastService.addToast(`Produkt ${name} ikke tilgjengelig`, ToastType.bad, ToastTime.short);
+                const marketplaceUrl = `/marketplace/modules?productName=${productName}`;
+                this.router.navigateByUrl(marketplaceUrl);
             }
         });
     }
-
-
 
     private openActivateAPModal() {
         this.modalService.open(UniActivateAPModal).onClose.subscribe(

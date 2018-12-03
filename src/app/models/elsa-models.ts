@@ -1,5 +1,3 @@
-import {UserLicense} from '@app/unientities';
-
 export interface ElsaCustomer {
     id: number;
     name: string;
@@ -23,21 +21,15 @@ export interface ElsaCompanyLicense {
     companyKey: string;
     statusCode: number;
     orgNumber?: string;
-    companyPurchases?: ElsaPurchaseForCompany[];
+    companyPurchases?: any[];
     userLicenses?: ElsaUserLicense[];
 }
 
 export interface ElsaPurchase {
-    id: number;
-    contract?: ElsaContract;
-    contractID: number;
-    startDate: string;
-    endDate?: Date;
-    userLimit: number;
-    key: string;
-    product?: ElsaProduct;
-    productID: number;
-    companyPurchases?: ElsaPurchaseForCompany[];
+    ID: number;
+    ProductID: number;
+    GlobalIdentity?: string;
+    Deleted?: boolean;
 }
 
 export interface ElsaContract {
@@ -52,12 +44,11 @@ export interface ElsaContract {
     note?: any;
     limit: number;
     key: string;
-    purchases: ElsaPurchase[];
+    purchases: any[];
     companyLicenses?: ElsaPurchaseForLicense[];
 }
 
-export enum ElsaContractType
-{
+export enum ElsaContractType {
     Demo = 0,
     Internal = 1,
     Partner = 3,
@@ -77,27 +68,6 @@ export interface ElsaPurchasesForUserLicenseByCompany {
     purchaseForCompanyID: number;
     contractID: number;
     isAssigned: boolean;
-}
-
-export interface ElsaPurchaseForCompany {
-    id: number;
-    purchaseID: number;
-    purchase?: ElsaPurchase;
-    startDate: Date;
-    endDate?: Date;
-    companyLicenseID: number;
-    companyLicense?: ElsaPurchaseForLicense;
-    userPurchases?: ElsaPurchasesForUserLicenseByCompany[];
-}
-
-export interface ElsaPurchaseForUserLicense {
-    id: number;
-    purchaseForCompanyID: number;
-    companyPurchase?: ElsaPurchaseForCompany;
-    userLicenseID: number;
-    userLicense?: UserLicense;
-    startDate: Date;
-    endDate?: Date;
 }
 
 export interface ElsaProduct {
@@ -130,15 +100,13 @@ export interface ElsaProduct {
 }
 
 
-export enum ElsaProductStatusCode
-{
+export enum ElsaProductStatusCode {
     Live = 0,
     SoonToBeLaunched = 1,
     DevelopmentCandidate = 2
 }
 
-export enum ElsaProductType
-{
+export enum ElsaProductType {
     Module = 0,
     Bundle = 1,
     Integration = 2,
@@ -171,7 +139,7 @@ export interface ElsaUserLicense {
     userIdentity: string;
     statusCode: number;
     userLicenseType: number;
-    purchases?: ElsaPurchase[];
+    purchases?: any[];
     agreementAcceptances?: any;
 }
 

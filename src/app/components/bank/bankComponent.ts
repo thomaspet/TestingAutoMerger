@@ -15,10 +15,10 @@ import {
     UniModalService,
     UniSendPaymentModal,
     UniConfirmModalV2,
+    UniAutobankAgreementModal,
     ConfirmActions,
 } from '../../../framework/uni-modal';
 import {
-    UniAutobankAgreementModal,
     UniAutobankAgreementListModal,
     MatchCustomerManualModal
 } from './modals';
@@ -206,7 +206,6 @@ export class BankComponent implements AfterViewInit {
         private cdr: ChangeDetectorRef,
         private tabService: TabService,
         private modalService: UniModalService,
-        private statisticsService: StatisticsService,
         private paymentBatchService: PaymentBatchService,
         private errorService: ErrorService,
         private toastService: ToastService,
@@ -214,12 +213,15 @@ export class BankComponent implements AfterViewInit {
         private paymentService: PaymentService,
         private journalEntryService: JournalEntryService,
         private customerInvoiceService: CustomerInvoiceService,
-        private elsaProductService: ElsaProductService,
         private elsaPurchasesService: ElsaPurchaseService,
         private companySettingsService: CompanySettingsService,
     ) {
         this.updateTab();
-        this.checkAutobankAccess();
+
+        this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe(
+            res => this.hasAccessToAutobank = !!res,
+            err => console.error(err)
+        );
     }
 
     public ngAfterViewInit() {
@@ -281,28 +283,6 @@ export class BankComponent implements AfterViewInit {
             queryParams: { code: ticker.Code },
             skipLocationChange: false
         });
-    }
-
-    private checkAutobankAccess() {
-        // Replace purchases getAll with filtered request when filtering works..
-        Observable.forkJoin(
-            this.elsaProductService.GetAll(),
-            this.elsaPurchasesService.GetAll()
-        ).subscribe(
-            res => {
-                const [products, purchases] = res;
-
-                // TODO: fix this check when we know what to look for..
-                const autobank = products && products.find(product => {
-                    return product.name && product.name.toLowerCase() === 'autobank';
-                });
-
-                if (autobank && purchases.some(purchase => purchase.productID === autobank.id)) {
-                    this.hasAccessToAutobank = true;
-                }
-            },
-            err => console.error(err)
-        );
     }
 
     public onRowSelectionChanged(selectedRows) {

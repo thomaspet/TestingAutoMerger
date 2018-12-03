@@ -15,7 +15,9 @@ import { Observable } from 'rxjs';
             (keydown.esc)="cancel($event)">
             <header>
                 <h1 class="new">{{options.header}}</h1>
-                <button class="modal-close-button" (click)="cancel($event)"></button>
+                <i (click)="cancel($event)" class="material-icons close-button" role="button">
+                    close
+                </i>
             </header>
 
             <article>

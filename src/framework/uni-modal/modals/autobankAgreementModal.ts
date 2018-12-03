@@ -10,9 +10,7 @@ import {
     BankService
 } from '@app/services/services';
 import {Observable} from 'rxjs';
-import {BankAccount} from '@uni-entities';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {UniAgreementWarningModal} from '@app/components/bank/modals/agreement-warning.modal';
 
 export interface IAutoBankAgreementDetails {
     Orgnr: string;
@@ -286,9 +284,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     public move(direction: number) {
         if (this.steps === 1 && !this.haveReadAgreement) {
-            const modal = this.modalService.open(UniAgreementWarningModal);
             return;
         }
+
         this.steps += direction;
         if (this.steps === 1) {
             this.canMoveForward = true;

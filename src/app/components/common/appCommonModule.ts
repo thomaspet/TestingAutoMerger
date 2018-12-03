@@ -57,7 +57,8 @@ import {
 
 import {
     MatProgressBarModule,
-    MatMenuModule
+    MatMenuModule,
+    MatCheckboxModule
 } from '@angular/material';
 
 @NgModule({
@@ -68,9 +69,11 @@ import {
         HttpModule,
         RouterModule,
         UniFrameworkModule,
+        AppPipesModule,
+
         MatProgressBarModule,
         MatMenuModule,
-        AppPipesModule
+        MatCheckboxModule
     ],
     declarations: [
         PredefinedDescriptionList,

@@ -6,7 +6,7 @@ import {ToastService, ToastType} from '../../../../framework/uniToast/toastServi
 import {URLSearchParams} from '@angular/http';
 import {ActivatedRoute} from '@angular/router';
 import {Router} from '@angular/router';
-import {JournalEntryData} from '../../../models/models';
+import {JournalEntryData} from '@app/models';
 import {
     SupplierInvoice,
     StatusCodeSupplierInvoice,

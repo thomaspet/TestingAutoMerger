@@ -8,3 +8,4 @@ export * from './reportFormat';
 export * from './activationEnum';
 export * from './projectResponsibility';
 export * from './reportTypeEnum';
+export * from './elsa-models';
