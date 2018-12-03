@@ -187,23 +187,6 @@ export class UserDetails {
     }
 
     private registerBankUser() {
-        /*
-            Hacky fix to role system flaw
-            Since no roles has meant full access for a while a lot of users don't
-            have any roles. When activating autobank on a user they will automatically
-            get a bank role. If they didn't have any roles earlier they lose access to
-            most of the application.
-        */
-        if (!this.userRoles || !this.userRoles.length) {
-            this.toastService.addToast(
-                'Brukeren mangler roller',
-                ToastType.bad, 0,
-                'Brukeren må ha minimum én rolle knyttet til seg for å bli bankbruker'
-            );
-
-            return;
-        }
-
         this.modalService.open(ActivateAutobankModal, {
             data: this.user
         }).onClose.subscribe(activated => {
