@@ -33,7 +33,7 @@
         <uni-tradeitem-table
             *ngIf="invoice"
             [configStoreKey]="'sales.invoice.tradeitemTable'"
-            [readonly]="readonly"
+            [readonly]="readonly || readonlyDraft"
             [projects]="projects"
             [departments]="departments"
             [vatTypes]="vatTypes"
