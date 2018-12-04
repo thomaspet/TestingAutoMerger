@@ -14,7 +14,7 @@ import {
     ErrorService,
     NumberFormat,
     SalarySumsService,
-    YearService,
+    FinancialYearService,
     ReportDefinitionService,
     CompanySalaryService
 } from '../../../services/services';
@@ -80,7 +80,7 @@ export class AMeldingView implements OnInit {
         private _toastService: ToastService,
         private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private numberformat: NumberFormat,
         private router: Router,
         private errorService: ErrorService,
@@ -148,7 +148,8 @@ export class AMeldingView implements OnInit {
 
     public ngOnInit() {
         this.loadYearData();
-        this.yearService.selectedYear$.subscribe(year => {
+
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
             this.clearAMelding();
             this.loadYearData();
         });
@@ -186,13 +187,9 @@ export class AMeldingView implements OnInit {
     }
 
     private loadYearData() {
-        this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .take(1)
-            .do(year => this.activeYear = year)
-            .switchMap(financialYear => this._payrollService.getLatestSettledPeriod(1, financialYear))
+        this.activeYear = this.financialYearService.getActiveYear();
+
+        this._payrollService.getLatestSettledPeriod(1, this.activeYear)
             .subscribe(
                 (period) => {
                     this.currentPeriod = period;

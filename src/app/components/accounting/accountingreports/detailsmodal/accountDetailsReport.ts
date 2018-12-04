@@ -106,12 +106,12 @@ export class AccountDetailsReport {
 
         this.setupTransactionsTable();
 
+        this.activeFinancialYear = this.financialYearService.getActiveFinancialYear();
+
         Observable.forkJoin(
-            this.financialYearService.GetAll('orderby=Year desc'),
-            this.financialYearService.getActiveFinancialYear()
+            this.financialYearService.GetAll('orderby=Year desc')
         ).subscribe(data => {
             this.financialYears = data[0];
-            this.activeFinancialYear = data[1];
         });
     }
 
@@ -240,13 +240,11 @@ export class AccountDetailsReport {
             this.periodFilter1$.next(this.config.periodFilter1);
             this.periodFilter2$.next(this.config.periodFilter2);
             this.periodFilter3$.next(this.config.periodFilter1);
-        }
-        else {
-            let financialYear = null;
+        } else {
             // get default period filters
-            this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
+            this.periodFilter1$.next(this.periodFilterHelper.getFilter(1, null, null));
             this.periodFilter2$.next(this.periodFilterHelper.getFilter(2, this.periodFilter1$.getValue()));
-            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, financialYear));
+            this.periodFilter3$.next(this.periodFilterHelper.getFilter(1, null, null));
         }
 
         this.accountIDs = this.config.isSubAccount === true ? null : [this.config.accountID];

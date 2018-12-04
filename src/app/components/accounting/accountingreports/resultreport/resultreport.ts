@@ -85,8 +85,8 @@ export class ResultReport implements OnInit {
     }
 
     public ngOnInit() {
-        let financialYear;
-        this.financialYearService.getActiveYear().subscribe(year => financialYear = year);
+        const financialYear = this.financialYearService.getActiveYear();
+
         // get default period filters
         this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, financialYear);
         this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);

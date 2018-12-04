@@ -5,7 +5,6 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 
 export interface IChangeYear {
     year: number;
-    checkStandard: boolean;
 }
 
 @Component({
@@ -54,33 +53,23 @@ export class YearModal implements IUniModal {
         this.yearModel$ = new BehaviorSubject(this.modalConfig);
         this.fields$ = new BehaviorSubject<any>(1);
 
-        let inputYear = new UniFieldLayout();
+        const inputYear = new UniFieldLayout();
         inputYear.Label = 'År';
         inputYear.FieldType = FieldType.TEXT;
         inputYear.ReadOnly = false;
         inputYear.Property = 'chosen';
         inputYear.EntityType = 'config';
 
-        let fieldcheck = new UniFieldLayout();
-        fieldcheck.EntityType =  'config';
-        fieldcheck.Label = 'Standard regnskapsår';
-        fieldcheck.FieldType = FieldType.CHECKBOX;
-        fieldcheck.ReadOnly = false;
-        fieldcheck.LookupField = false;
-        fieldcheck.Property = 'checkStandard';
-
-        this.fields$.next([inputYear, fieldcheck]);
+        this.fields$.next([inputYear]);
     }
 
     public changeYear() {
         this.close({
-            checkStandard: this.modalConfig.checkStandard,
-            year: parseInt(this.modalConfig.chosen)
+            year: parseInt(this.modalConfig.chosen, 10)
         });
     }
 
     public close(chYr: IChangeYear = null): void {
         this.onClose.emit(chYr);
     }
-
 }

@@ -671,13 +671,6 @@ export class CompanySettingsComponent implements OnInit {
                         // fails, so the service will fail silently if the updated settings
                         // cant be synced
                         this.uniFilesService.syncUniEconomyCompanySettings();
-
-                        const currentFinancialYear = new FinancialYear();
-                        currentFinancialYear.Year = response.CurrentAccountingYear;
-                        // setting currentAccountingYear in dropdown as well, this triggers route change to '/'
-                        if (company.CurrentAccountingYear !== this.currentYear) {
-                            this.financialYearService.setActiveYear(currentFinancialYear);
-                        }
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');
@@ -907,14 +900,6 @@ export class CompanySettingsComponent implements OnInit {
             valueProperty: 'ID',
             displayProperty: 'Code',
             template: (obj: CurrencyCode) => obj ? `${obj.Code} - ${obj.Name}` : '',
-            debounceTime: 200
-        };
-
-        const currentAccountYear: UniFieldLayout = fields.find(x => x.Property === 'CurrentAccountingYear');
-        currentAccountYear.Options = {
-            source: this.accountYears,
-            valueProperty: 'Year',
-            displayProperty: 'YearString',
             debounceTime: 200
         };
 
@@ -1191,15 +1176,6 @@ export class CompanySettingsComponent implements OnInit {
                 Property: 'PeriodSeriesVatID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Mva perioder',
-                FieldSet: 1,
-                Section: 1,
-                Sectionheader: 'Selskapsoppsett'
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'CurrentAccountingYear',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Aktivt regnskapsår',
                 FieldSet: 1,
                 Section: 1,
                 Sectionheader: 'Selskapsoppsett'

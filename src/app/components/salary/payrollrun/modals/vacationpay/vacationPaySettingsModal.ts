@@ -5,7 +5,7 @@ import {
     UniTableConfig, UniTableColumnType, UniTableColumn
 } from '../../../../../../framework/ui/unitable/index';
 import {
-    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, YearService
+    CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, FinancialYearService
 } from '../../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
@@ -46,22 +46,20 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         private _accountService: AccountService,
         private errorService: ErrorService,
         private vacationPayLineService: VacationpayLineService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private modalService: UniModalService,
         private toastService: ToastService
     ) { }
 
     public ngOnInit() {
         this.busy = true;
-        this.yearService
-            .getActiveYear()
-            .do(yr => this.activeYear = yr || null)
-            .switchMap(yr =>
-                Observable.forkJoin(
-                    this._companysalaryService.getCompanySalary(),
-                    this._companyvacationRateService.GetAll(''),
-                    this._companyvacationRateService.getCurrentRates(yr)
-                ))
+        this.activeYear = this.financialYearService.getActiveYear();
+
+            Observable.forkJoin(
+                this._companysalaryService.getCompanySalary(),
+                this._companyvacationRateService.GetAll(''),
+                this._companyvacationRateService.getCurrentRates(this.activeYear)
+            )
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .finally(() => this.busy = false)
             .subscribe((response: any) => {

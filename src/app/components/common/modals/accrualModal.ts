@@ -137,7 +137,7 @@ export class AccrualModal implements IUniModal {
         private finacialYearService: FinancialYearService,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private yearService: FinancialYearService,
+        private financialYearService: FinancialYearService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private browserStorageService: BrowserStorageService,
         private journalEntryService: JournalEntryService
@@ -317,26 +317,24 @@ export class AccrualModal implements IUniModal {
         // value becomes standard value on accrualModal initialization
         this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem('BalanceAccountID');
         this.model$.next(this.modalConfig.model);
-        this.yearService.getActiveFinancialYear().subscribe(res => {
-            this.currentFinancialYear = res.Year;
-            this.periodService.GetAll<Period>(
-                'filter=AccountYear eq '
-                + this.currentFinancialYear
-                + ' and periodseries.seriestype eq 1',
-                ['PeriodSeries'])
-                    .subscribe(periods => {
-                        this.currentFinancialYearPeriods = periods;
-                        this.isLockedDate(periods);
-                        this.setupForm();
+        this.currentFinancialYear = this.financialYearService.getActiveYear();
 
-                        if (this.modalConfig.model) {
-                            this.checkboxEnabledState = this.isAccrualAccrued();
-                            this.setAccrualPeriodBasedOnAccrual();
-                            this.changeRecalculatePeriods();
-                        }
-                });
-        });
+        this.periodService.GetAll<Period>(
+            'filter=AccountYear eq '
+            + this.currentFinancialYear
+            + ' and periodseries.seriestype eq 1',
+            ['PeriodSeries'])
+                .subscribe(periods => {
+                    this.currentFinancialYearPeriods = periods;
+                    this.isLockedDate(periods);
+                    this.setupForm();
 
+                    if (this.modalConfig.model) {
+                        this.checkboxEnabledState = this.isAccrualAccrued();
+                        this.setAccrualPeriodBasedOnAccrual();
+                        this.changeRecalculatePeriods();
+                    }
+            });
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {

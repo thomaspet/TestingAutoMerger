@@ -34,16 +34,15 @@ export class BalanceReportFilterForm implements OnInit {
         orderBy: 'AccountNumber'
     });
 
-    constructor(private yearService: FinancialYearService) {}
+    constructor(private financialYearService: FinancialYearService) {}
 
     public ngOnInit() {
         this.config$.next(this.config);
         this.fields$.next(this.getComponentFields());
-        this.yearService.getActiveYear().subscribe(res => {
-            let model = this.model$.getValue();
-            model.journalYear = res;
-            this.model$.next(model);
-        });
+
+        const model = this.model$.getValue();
+        model.journalYear = this.financialYearService.getActiveYear();
+        this.model$.next(model);
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -119,15 +118,15 @@ export class BalanceReportFilterModal {
                         // add custom parameters - these are used in ODATA in the data retrieval, but
                         // are also sent to the report as individual parameters to make it easier to
                         // use them in the report
-                        let accountYearParam = new AttilasCustomReportDefinitionParameter();
+                        const accountYearParam = new AttilasCustomReportDefinitionParameter();
                         accountYearParam.Name = 'PeriodAccountYear';
                         accountYearParam.value = model$.getValue().journalYear;
 
-                        let periodFromParam = new AttilasCustomReportDefinitionParameter();
+                        const periodFromParam = new AttilasCustomReportDefinitionParameter();
                         periodFromParam.Name = 'PeriodFrom';
                         periodFromParam.value = model$.getValue().fromPeriod;
 
-                        let periodToParam = new AttilasCustomReportDefinitionParameter();
+                        const periodToParam = new AttilasCustomReportDefinitionParameter();
                         periodToParam.Name = 'PeriodTo';
                         periodToParam.value = model$.getValue().toPeriod;
 

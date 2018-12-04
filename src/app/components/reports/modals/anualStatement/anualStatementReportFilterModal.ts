@@ -3,7 +3,7 @@ import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../.
 import {BehaviorSubject} from 'rxjs';
 import {ReportDefinition, ReportDefinitionParameter, Employee} from '../../../../unientities';
 import {Observable} from 'rxjs';
-import {EmployeeService, YearService} from '../../../../services/services';
+import {EmployeeService, FinancialYearService} from '../../../../services/services';
 interface IField {
     Label: string;
     value?: any;
@@ -27,7 +27,7 @@ export class AnnualSatementReportFilterModalComponent implements OnInit, IUniMod
 
     constructor(
         private modalService: UniModalService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private employeeService: EmployeeService
     ) {}
 
@@ -54,16 +54,13 @@ export class AnnualSatementReportFilterModalComponent implements OnInit, IUniMod
     }
 
     private getDefaultValues(model: IField[]): Observable<IField[]> {
-        const yearObs = this.yearService
-            .selectedYear$
-            .take(1)
-            .do(year => {
-                const field = model.find(x => x.Label === YEAR);
-                if (!field) {
-                    return;
-                }
-                field.value = year;
-            });
+        const year = this.financialYearService.getActiveYear();
+
+        const field = model.find(x => x.Label === YEAR);
+        if (!field) {
+            return;
+        }
+        field.value = year;
 
         const empObs = this.employeeService
             .GetAll('orderby=EmployeeNumber desc&top=1')
@@ -73,7 +70,7 @@ export class AnnualSatementReportFilterModalComponent implements OnInit, IUniMod
                 toEmpField.value = emp.EmployeeNumber;
             });
 
-        return Observable.forkJoin(yearObs, empObs).map(() => model);
+        return Observable.forkJoin(empObs).map(() => model);
     }
 
     private submitValues(model: IField[]) {

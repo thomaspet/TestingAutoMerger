@@ -32,7 +32,7 @@ import {
     StatisticsService,
     StatusService,
     EmployeeLeaveService,
-    YearService,
+    FinancialYearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
     CustomDimensionService
@@ -127,7 +127,7 @@ export class UniTicker {
         private modalService: UniModalService,
         private tableUtils: TableUtils,
         private employeeLeaveService: EmployeeLeaveService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private customDimensionService: CustomDimensionService
@@ -457,15 +457,13 @@ export class UniTicker {
             filter = filter.replace(':currentaccountingyear', `${expFilterVal.Value}`);
             params.set('filter', filter);
         } else {
-            this.yearService.getActiveYear().subscribe(activeyear => {
-                const currentAccountingYear = activeyear.toString();
-                this.expressionFilters.push({
-                    Expression: 'currentaccountingyear',
-                    Value: currentAccountingYear
-                });
-                filter = filter.replace(':currentaccountingyear', currentAccountingYear);
-                params.set('filter', filter);
+            const currentAccountingYear = this.financialYearService.getActiveYear().toString();
+            this.expressionFilters.push({
+                Expression: 'currentaccountingyear',
+                Value: currentAccountingYear
             });
+            filter = filter.replace(':currentaccountingyear', currentAccountingYear);
+            params.set('filter', filter);
         }
     }
 

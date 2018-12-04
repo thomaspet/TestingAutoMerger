@@ -5,7 +5,7 @@ import {
     TaxType, StdWageType, GetRateFrom
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {WageTypeService, UniCacheService, ErrorService, YearService} from '../../../services/services';
+import {WageTypeService, UniCacheService, ErrorService, FinancialYearService} from '../../../services/services';
 import {WageTypeViewService} from './services/wageTypeViewService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -46,7 +46,7 @@ export class WageTypeView extends UniView implements OnDestroy {
         private tabService: TabService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private modalService: UniModalService,
         private wageTypeViewService: WageTypeViewService
     ) {
@@ -224,7 +224,7 @@ export class WageTypeView extends UniView implements OnDestroy {
         return super.getStateSubject(WAGETYPE_KEY)
         .take(1)
         .map(wt => this.wageTypeService.washWageType(wt))
-        .switchMap(wt => this.checkValidYearAndCreateNew(wt))
+        .map(wt => this.checkValidYearAndCreateNew(wt))
         .map(wageType => {
             if (wageType.WageTypeNumber === null) {
                 wageType.WageTypeNumber = 0;
@@ -256,26 +256,21 @@ export class WageTypeView extends UniView implements OnDestroy {
         });
     }
 
-    private checkValidYearAndCreateNew(wageType: WageType): Observable<WageType> {
-        return this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .take(1)
-            .map((year: number) => {
-                if (wageType.ValidYear !== year) {
-                    wageType.ID = 0;
-                    wageType.ValidYear = year;
-                    if (wageType.SupplementaryInformations) {
-                        wageType.SupplementaryInformations.forEach(supplement => {
-                            supplement.ID = 0;
-                            supplement.WageTypeID = 0;
-                        });
-                    }
-                }
+    private checkValidYearAndCreateNew(wageType: WageType): WageType {
+        const year = this.financialYearService.getActiveYear();
 
-                return wageType;
-            });
+        if (wageType.ValidYear !== year) {
+            wageType.ID = 0;
+            wageType.ValidYear = year;
+            if (wageType.SupplementaryInformations) {
+                wageType.SupplementaryInformations.forEach(supplement => {
+                    supplement.ID = 0;
+                    supplement.WageTypeID = 0;
+                });
+            }
+        }
+
+        return wageType;
     }
 
     private checkDirty() {

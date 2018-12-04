@@ -69,10 +69,10 @@ export class BrowserStorageService  {
 
     private saveOnCompanyGenericStorage(key: string, data: any, storage: Storage) {
         const companyKey = this.getCompanyKey();
-        const companyJonString = storage.getItem(companyKey);
+        const companyJsonString = storage.getItem(companyKey);
         let companyDict;
         try {
-            companyDict = this.unmarshal(companyJonString) || {};
+            companyDict = this.unmarshal(companyJsonString) || {};
         } catch (e) {
             companyDict = {};
         }
@@ -82,10 +82,10 @@ export class BrowserStorageService  {
     }
     private getFromCompanyGenericStorage(key: string, storage: Storage): any {
         const companyKey = this.getCompanyKey();
-        const companyJonString = storage.getItem(companyKey);
-        if (companyJonString !== null) {
+        const companyJsonString = storage.getItem(companyKey);
+        if (companyJsonString !== null) {
             try {
-                return this.unmarshal(companyJonString)[key];
+                return this.unmarshal(companyJsonString)[key];
             } catch (e) {
                 this.removeFromCompanyGenericStorage(key, storage);
                 return null;
@@ -95,9 +95,9 @@ export class BrowserStorageService  {
     }
     private removeFromCompanyGenericStorage(key: string, storage: Storage) {
         const companyKey = this.getCompanyKey();
-        const companyJonString = storage.getItem(companyKey);
+        const companyJsonString = storage.getItem(companyKey);
         try {
-            const companyDict = this.unmarshal(companyJonString) || {};
+            const companyDict = this.unmarshal(companyJsonString) || {};
             delete companyDict[key];
             const jsonString = this.marshal(companyDict);
             storage.setItem(companyKey, jsonString);

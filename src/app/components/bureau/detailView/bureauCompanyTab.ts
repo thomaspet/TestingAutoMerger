@@ -9,13 +9,13 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
 import {CompanySettings} from '../../../unientities';
 import {UniFilesService} from '../../../services/common/uniFilesService';
 import {ErrorService} from '../../../services/common/errorService';
+import {FinancialYearService} from '@app/services/services';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
 const BASE = environment.BASE_URL;
@@ -75,9 +75,9 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         private uniFilesService: UniFilesService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
-        yearService: YearService,
+        financialYearService: FinancialYearService,
     ) {
-        this.accountingYear = yearService.selectedYear$.getValue();
+        this.accountingYear = financialYearService.getActiveYear();
         this.authService.filesToken$.subscribe(token => this.authToken = token);
     }
 
@@ -112,7 +112,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
                                 this.errorService.handle(err);
                             }
                         },
-                    )
+                    );
             });
     }
 

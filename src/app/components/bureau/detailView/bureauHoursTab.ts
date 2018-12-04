@@ -9,7 +9,7 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
+import {FinancialYearService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {UniMath} from '../../../../framework/core/uniMath';
@@ -70,12 +70,12 @@ export class BureauHoursTab implements AfterViewInit, OnDestroy {
         private element: ElementRef,
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private authService: AuthService,
         public currentCompanyService: BureauCurrentCompanyService,
         private errorService: ErrorService,
     ) {
-        this.accountingYear = this.yearService.selectedYear$.getValue();
+        this.accountingYear = this.financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {

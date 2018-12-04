@@ -33,6 +33,13 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         });
     }
 
+    public createFinancialYear(year: number): Observable<FinancialYear> {
+        return this.GetAction(null, 'get-or-create-financial-year', `year=${year}`)
+                .switchMap(newYear => {
+                    return Observable.of(newYear);
+                });
+    }
+
     public setActiveYear(financialYear: FinancialYear) {
         this.lastSelectedFinancialYear$.next(financialYear);
     }
@@ -54,29 +61,18 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         }
     }
 
-    public getActiveYear(): Observable<number> {
-        return this.getActiveFinancialYear().map(x => x && x.Year);
+    public getActiveYear(): number {
+        const financialYear = this.getActiveFinancialYear();
+
+        return financialYear ? financialYear.Year : null;
     }
 
-    public getActiveFinancialYear(): Observable<FinancialYear> {
+    public getActiveFinancialYear(): FinancialYear {
         const cached = this.getYearInLocalStorage();
         if (cached) {
-            return Observable.of(cached);
+            return cached;
         } else {
-            return Observable.forkJoin(
-                this.companySettingsService.Get(1),
-                this.GetAll(null))
-                .map((res: [CompanySettings, FinancialYear[]]) => {
-                    const [companySettings, financialYears] = res;
-                    const fromCompanySettings = financialYears.find((year) => {
-                        return year.Year === companySettings.CurrentAccountingYear;
-                    });
-                    return fromCompanySettings || financialYears[financialYears.length - 1];
-                }, err => this.errorService.handle(err))
-                .map(financialYear => {
-                    this.setActiveYear(financialYear);
-                    return financialYear;
-                });
+            return { Year: new Date().getFullYear() } as FinancialYear;
         }
     }
 }

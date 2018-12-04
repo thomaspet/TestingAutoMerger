@@ -146,33 +146,30 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public ngOnInit() {
         this.journalEntrySettings = this.journalEntryService.getJournalEntrySettings(this.mode);
+        this.currentFinancialYear = this.financialYearService.getActiveFinancialYear();
 
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYear(),
             this.vatDeductionService.GetAll(null),
             this.companySettingsService.Get(1),
-            this.vatTypeService.GetAll('orderby=VatCode')
+            this.vatTypeService.GetAll('orderby=VatCode'),
+            this.numberSeriesService.getActiveNumberSeries('JournalEntry', this.currentFinancialYear.Year)
         ).subscribe(data => {
                 this.financialYears = data[0];
-                this.currentFinancialYear = data[1];
-                this.vatDeductions = data[2];
-                this.companySettings = data[3];
-                this.vatTypes = data[4];
+                this.vatDeductions = data[1];
+                this.companySettings = data[2];
+                this.vatTypes = data[3];
 
-                this.numberSeriesService.getActiveNumberSeries(
-                    'JournalEntry', this.currentFinancialYear.Year
-                ).subscribe((series) => {
-                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(series);
-                    if (!this.hasLoadedData) {
-                        this.loadData();
-                    }
-                    this.setSums();
-                    this.setupSubscriptions();
+                const series = data[4];
+                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(series);
+                if (!this.hasLoadedData) {
+                    this.loadData();
+                }
+                this.setSums();
+                this.setupSubscriptions();
 
-                    setTimeout(() => {
-                        this.componentInitialized.emit();
-                    });
+                setTimeout(() => {
+                    this.componentInitialized.emit();
                 });
             },
             err => this.errorService.handle(err)

@@ -992,12 +992,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
             .setVisible(false)
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 

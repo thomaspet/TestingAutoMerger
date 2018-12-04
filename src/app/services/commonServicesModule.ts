@@ -47,7 +47,6 @@ import {UniSearchEmployeeConfig} from './common/uniSearchConfig/uniSearchEmploye
 import {UniSearchProductConfig} from './common/uniSearchConfig/uniSearchProductConfig';
 import {CurrencyOverridesService} from './common/currencyOverridesService';
 import {ApiModelService} from './common/apiModelService';
-import {YearService} from './common/yearService';
 import {Lookupservice} from './common/lookupService';
 import {AgreementService} from './common/agreementService';
 import {ModulusService} from './common/modulusService';
@@ -110,7 +109,6 @@ export * from './common/dimensionService';
 export * from './common/emailService';
 export * from './common/currencyOverridesService';
 export * from './common/apiModelService';
-export * from './common/yearService';
 export * from './common/lookupService';
 export * from './common/agreementService';
 export * from './common/modulusService';
@@ -191,7 +189,6 @@ export class CommonServicesModule {
                 CurrencyCodeService,
                 UniTickerService,
                 ApiModelService,
-                YearService,
                 Lookupservice,
                 AgreementService,
                 ModulusService,

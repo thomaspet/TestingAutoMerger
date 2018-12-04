@@ -13,7 +13,7 @@ import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionSe
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineService';
 import {StatisticsService} from '../../common/statisticsService';
-import {YearService} from '../../common/yearService';
+import {FinancialYearService} from '../../accounting/financialYearService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {RequestMethod} from '@angular/http';
@@ -55,7 +55,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private salaryBalanceService: SalarybalanceService,
         private salaryBalanceLineService: SalaryBalanceLineService,
         private browserStorage: BrowserStorageService,
@@ -120,33 +120,28 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getEarliestOpenRun(setYear?: number): Observable<PayrollRun> {
-        return Observable
-            .of(setYear)
-            .switchMap(year => year
-                ? Observable.of(year)
-                : this.yearService.getActiveYear())
-            .switchMap(year => super.GetAll(
+
+        const year = setYear ? setYear : this.financialYearService.getActiveYear();
+
+        return super.GetAll(
                 `filter=(StatusCode eq null or StatusCode le 1) and year(PayDate) eq ${year}`
                 + `&top=1`
-                + `&orderby=PayDate ASC`))
+                + `&orderby=PayDate ASC`)
             .map(result => result[0]);
     }
 
     public getLatestSettledRun(year?: number): Observable<PayrollRun> {
-        return super.GetAll(`filter=StatusCode ge 1 ${year
-            ? 'and year(PayDate) eq ' + year
-            : ''}&top=1&orderby=PayDate DESC`)
+        return super.GetAll(`filter=StatusCode ge 1 ${
+            year ? 'and year(PayDate) eq ' + year
+            : ''
+            }&top=1&orderby=PayDate DESC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getEarliestOpenRunOrLatestSettled(setYear?: number): Observable<PayrollRun> {
-        let currYear = setYear;
-        return Observable
-            .of(setYear)
-            .switchMap(year => year
-                ? Observable.of(year)
-                : this.yearService.getActiveYear())
-            .do((year) => currYear = year)
+        const currYear = setYear ? setYear : this.financialYearService.getActiveYear();
+
+        return Observable.of(currYear)
             .switchMap(year => this.getEarliestOpenRun(year))
             .switchMap(run => run
                 ? Observable.of(run)
@@ -300,28 +295,24 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
     }
 
     public getAll(queryString: string, includePayments: boolean = false): Observable<PayrollRun[]> {
-        return this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .take(1)
-            .switchMap(year => {
-                let queryList = queryString.split('&');
-                let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
-                filter = filter.toLowerCase();
-                queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
-                if (!filter.toLowerCase().includes('year(paydate)')) {
-                    filter = 'filter='
-                        + (filter ? `(${filter.replace('filter=', '')}) and ` : '')
-                        + `(year(PayDate) eq ${year})`;
-                }
+        const year = this.financialYearService.getActiveYear();
 
-                queryList.push(filter);
-                if (includePayments) {
-                    queryList.push('includePayments=true');
-                }
-                return this.GetAll(queryList.join('&'));
-            })
+        let queryList = queryString.split('&');
+        let filter = queryList.filter(x => x.toLowerCase().includes('filter'))[0] || '';
+        filter = filter.toLowerCase();
+        queryList = queryList.filter(x => !x.toLowerCase().includes('filter'));
+        if (!filter.toLowerCase().includes('year(paydate)')) {
+            filter = 'filter='
+                + (filter ? `(${filter.replace('filter=', '')}) and ` : '')
+                + `(year(PayDate) eq ${year})`;
+        }
+
+        queryList.push(filter);
+        if (includePayments) {
+            queryList.push('includePayments=true');
+        }
+
+        return this.GetAll(queryList.join('&'))
             .map(payrollRuns => this.setPaymentStatusOnPayrollList(payrollRuns));
     }
 

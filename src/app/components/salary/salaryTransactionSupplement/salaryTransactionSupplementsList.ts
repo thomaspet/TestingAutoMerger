@@ -5,7 +5,7 @@ import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {
     PayrollrunService, EmployeeService, ErrorService,
-    SalaryTransactionService, YearService, SupplementService
+    SalaryTransactionService, FinancialYearService, SupplementService
 } from '../../../services/services';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {
@@ -46,7 +46,7 @@ export class SalaryTransactionSupplementList implements OnInit {
         private salaryTransactionService: SalaryTransactionService,
         private employeeService: EmployeeService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private supplementService: SupplementService,
         private tabService: TabService,
         private route: ActivatedRoute,
@@ -61,16 +61,13 @@ export class SalaryTransactionSupplementList implements OnInit {
         });
 
         this.route.params.subscribe(params => {
-            let payrollRunID = +params['runID'] || undefined;
-            this.yearService
-                .selectedYear$
-                .asObservable()
-                .filter(year => !!year)
-                .subscribe( year => {
-                if ((!this.model$ || !payrollRunID)) {
-                    this.model$ = this.getModel(payrollRunID, year);
-                }
-            });
+            const year = this.financialYearService.getActiveYear();
+
+            const payrollRunID = +params['runID'] || undefined;
+
+            if ((!this.model$ || !payrollRunID)) {
+                this.model$ = this.getModel(payrollRunID, year);
+            }
         });
     }
 

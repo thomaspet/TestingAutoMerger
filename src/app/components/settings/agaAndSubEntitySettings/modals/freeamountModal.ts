@@ -2,7 +2,7 @@ import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable/index';
 import {
-    GrantService, SubEntityService, ErrorService, YearService, PayrollrunService, AgaSumService
+    GrantService, SubEntityService, ErrorService, FinancialYearService, PayrollrunService, AgaSumService
 } from '../../../../services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -36,7 +36,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
         private _subentityService: SubEntityService,
         private _grantService: GrantService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private payrollRunService: PayrollrunService,
         private agaSumService: AgaSumService
     ) {}
@@ -69,10 +69,10 @@ export class FreeAmountModal implements OnInit, IUniModal {
     }
 
     private setTableConfig() {
-        let subentityCol = new UniTableColumn('_name', 'Virksomhet', UniTableColumnType.Text);
-        let maxCol = new UniTableColumn('MaxFreeAmount', 'Maks fribeløp', UniTableColumnType.Money);
-        let usedCol = new UniTableColumn('UsedFreeAmount', 'Brukt fribeløp', UniTableColumnType.Money);
-        let grantCol = new UniTableColumn('GrantSum', 'Tilskudd', UniTableColumnType.Money);
+        const subentityCol = new UniTableColumn('_name', 'Virksomhet', UniTableColumnType.Text);
+        const maxCol = new UniTableColumn('MaxFreeAmount', 'Maks fribeløp', UniTableColumnType.Money);
+        const usedCol = new UniTableColumn('UsedFreeAmount', 'Brukt fribeløp', UniTableColumnType.Money);
+        const grantCol = new UniTableColumn('GrantSum', 'Tilskudd', UniTableColumnType.Money);
 
         const configStoreKey = 'settings.agaAndSubEntitySettings.freeAmountModal';
         this.freeamountTableConfig = new UniTableConfig(configStoreKey, false, true, 10)
@@ -80,7 +80,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
     }
 
     private setFormConfig() {
-        let totalFreeamountField = new UniFieldLayout();
+        const totalFreeamountField = new UniFieldLayout();
         totalFreeamountField.FieldSet = 0;
         totalFreeamountField.Section = 0;
         totalFreeamountField.Combo = 0;

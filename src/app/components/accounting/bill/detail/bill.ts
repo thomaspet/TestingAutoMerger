@@ -412,20 +412,29 @@ export class BillView implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'PaymentDueDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'DeliveryDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
-                Section: 0
+                Section: 0,
+                Options: {
+                    useLastMonthsPreviousYearUntilMonth: 4
+                }
             },
             <any> {
                 Property: 'InvoiceNumber',

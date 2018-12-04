@@ -1,7 +1,7 @@
 import {Component, OnInit, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import {A06Options, AltinnReceipt, Maaned, ReportType} from '@uni-entities';
-import {AltinnIntegrationService, ErrorService, YearService} from '@app/services/services';
+import {AltinnIntegrationService, ErrorService, FinancialYearService} from '@app/services/services';
 import {AltinnErrorHandlerService} from '@app/components/salary/sharedServices/altinnErrorHandlerService';
 import {UniFieldLayout, FieldType, UniForm, UniField} from '@uni-framework/ui/uniform';
 
@@ -22,20 +22,17 @@ export class ReconciliationRequestComponent implements OnInit {
     constructor(
         private altinnIntegrationService: AltinnIntegrationService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private altinnErrorService: AltinnErrorHandlerService
     ) { }
 
     public ngOnInit() {
-        this.yearService
-            .selectedYear$
-            .take(1)
-            .do(year => {
-                const model = this.model$.getValue();
-                model.Year = year;
-                this.model$.next(model);
-            })
-            .subscribe(year => this.fields$.next(this.getFields(year)));
+        const year = this.financialYearService.getActiveYear();
+
+        const model = this.model$.getValue();
+        model.Year = year;
+        this.model$.next(model);
+        this.fields$.next(this.getFields(year));
     }
 
     private getStandardOption(): A06Options {
