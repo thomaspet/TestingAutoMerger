@@ -175,9 +175,16 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Distribusjon",
-            "Field": "sum(casewhen(isnull(Sharing.EntityType,'') eq 'CustomerInvoice',1,0))",
-            "Alias": "SharingInvoiceCount",
+            "Header": "Siste distribusjon",
+            "Field": "getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)",
+            "Alias": "SharingType",
+            "width": "40px"
+        },
+        {
+            "Header": "Status distribusjon",
+            "Field": "getlatestsharingstatus('CustomerInvoice',CustomerInvoice.ID)",
+            "Alias": "SharingStatusCode",
+            "Format": "SharingStatus",
             "width": "40px"
         }
     ],

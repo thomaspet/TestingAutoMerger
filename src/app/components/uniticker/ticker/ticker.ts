@@ -55,6 +55,7 @@ import {saveAs} from 'file-saver';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 export const SharingTypeText = [
+    {ID: 0, Title: 'Bruk distribusjonsplan'},
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
@@ -852,7 +853,8 @@ export class UniTicker {
                     // set up templates based on rules for e.g. fieldname
                     if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
                         || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
-                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
+                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')
+                        || (column.Alias && column.Alias.toLocaleLowerCase().endsWith('statuscode'))) {
                         col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
                     }
 
@@ -860,7 +862,8 @@ export class UniTicker {
                         col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                     }
 
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')
+                        || (column.Alias && column.Alias.toLocaleLowerCase() === 'sharingtype')) {
                         col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                     }
 

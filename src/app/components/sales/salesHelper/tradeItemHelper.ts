@@ -311,7 +311,7 @@ export class TradeItemHelper  {
 
             rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
 
-            const vatPercent = productVatType.VatPercent || 0;
+            const vatPercent = productVatType ? productVatType.VatPercent || 0 : 0;
             const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
             const taxPercentage = (100 + vatPercent) / 100;
             const price = priceExVatCurrency * taxPercentage;
