@@ -1081,7 +1081,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.isDirty = false;
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
+        this.readonly =
+            (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
         this.readonlyDraft = !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
@@ -1659,7 +1660,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.journalEntryService.getTaxableIncomeLast12Months(this.invoice.DeliveryDate || this.invoice.InvoiceDate)
                     .subscribe(existingAmount => {
                         const linesWithVatCode6 =
-                            this.invoice.Items.filter(x => x.VatType && x.VatType.VatCode === '6');
+                            this.invoiceItems.filter(x => x.VatType && x.VatType.VatCode === '6');
 
                         // income is negative amounts in the journalentries, switch to positive amounts
                         // to make it easier to calculate the values here
