@@ -457,6 +457,10 @@ export class AgaAndSubEntitySettings implements OnInit {
                     ID: CompanySalaryBaseOptions.SpesialDeductionForMaritim,
                     Name: 'Særskilt fradrag for sjøfolk'
                 },
+                {
+                    ID: CompanySalaryBaseOptions.NettoPayment,
+                    Name: 'Netto lønn',
+                }
             ],
             valueProperty: 'ID',
             labelProperty: 'Name',
