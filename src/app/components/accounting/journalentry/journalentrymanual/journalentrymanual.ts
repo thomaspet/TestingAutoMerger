@@ -385,7 +385,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             this.setJournalEntryData(data);
 
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
-            this.journalEntryService.setSessionData(this.mode, data, this.selectedNumberSeries.ID);
+            this.journalEntryService.setSessionData(this.mode, data, this.selectedNumberSeries ? this.selectedNumberSeries.ID : null);
         }
     }
 
@@ -498,7 +498,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             });
 
             // save journalentries to sessionStorage - this is done in case the user switches tabs while entering
-            this.journalEntryService.setSessionData(this.mode, data, this.selectedNumberSeries.ID);
+            this.journalEntryService.setSessionData(this.mode, data, this.selectedNumberSeries ? this.selectedNumberSeries.ID : null);
 
             this.validateJournalEntryData(data);
 
