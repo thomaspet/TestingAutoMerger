@@ -357,7 +357,10 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
                                 }
                             }
                         };
-                        this.customerService.Put(this.entity.CustomerID, customer).subscribe();
+                        this.customerService.Put(this.entity.CustomerID, customer).subscribe(updatedcustomer => {
+                            this.entity.Customer = updatedcustomer;
+                            this.entityChange.emit(this.entity);
+                        });
                     }
                 });
                 this.entityChange.emit(this.entity);
