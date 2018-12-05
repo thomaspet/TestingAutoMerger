@@ -98,8 +98,9 @@ export class TradeItemHelper  {
         event, currencyCodeID: number, currencyExchangeRate: number,
         companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate
     ) {
-        const newRow = event.rowModel;
 
+
+        const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
 
@@ -307,7 +308,7 @@ export class TradeItemHelper  {
             rowModel.PriceIncVat = product.PriceIncVat;
         }
 
-        if (currencyExchangeRate) {
+        if (currencyExchangeRate !== 1) {
 
             rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
 
@@ -315,14 +316,13 @@ export class TradeItemHelper  {
             const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
             const taxPercentage = (100 + vatPercent) / 100;
             const price = priceExVatCurrency * taxPercentage;
-            rowModel['PriceIncVatCurrency'] = this.round(price, 4);
-            rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
+            rowModel.PriceIncVatCurrency = this.round(price, 4);
+            rowModel.PriceIncVat = rowModel.PriceExVatCurrency * currencyExchangeRate;
 
         } else {
             rowModel.PriceExVatCurrency = rowModel.PriceExVat;
             rowModel.PriceIncVatCurrency = rowModel.PriceIncVat;
         }
-
         rowModel.PriceSetByUser = false;
 
         if (!rowModel.Dimensions) {

@@ -592,7 +592,7 @@ export class TableDataService {
                 const month = dateSplit[1] || new Date().getMonth() + 1; // getMonth is 0 indexed
                 const year = dateSplit[2] || new Date().getFullYear().toString();
 
-                const momentDate = moment(`${month}-${day}-${year}`);
+                const momentDate = moment(`${year}-${month}-${day}`);
                 if (momentDate.isValid()) {
                     dateString = momentDate.format('YYYY-MM-DD');
                 }
