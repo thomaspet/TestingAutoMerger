@@ -42,8 +42,8 @@
     <PageOf>av</PageOf>
     <PreviousPage>Forrige side</PreviousPage>
     <PrintContinue>Klikk print for å fortsette</PrintContinue>
-    <PrintReport>Print</PrintReport>
-    <PrintToPdf>Print til PDF</PrintToPdf>
+    <PrintReport>Skriv ut</PrintReport>
+    <PrintToPdf>Skriv ut PDF</PrintToPdf>
     <PrintToXps>Print til XPS</PrintToXps>
     <PrintWithoutPreview>Print uten forhåndsvisning</PrintWithoutPreview>
     <PrintWithPreview>Print med forhåndsvisning</PrintWithPreview>

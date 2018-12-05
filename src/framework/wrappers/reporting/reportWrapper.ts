@@ -125,6 +125,11 @@ export class StimulsoftReportWrapper {
         this.viewer.showProcessIndicator();
         this.viewer.renderHtml('reportContainer');
 
+        const printMenu = this.viewer.jsObject.controls.menus.printMenu.firstChild;
+        const printWithPreviewOption = printMenu.children[1];
+        const printWithoutPreviewOption = printMenu.children[2];
+        printMenu.removeChild(printWithPreviewOption);
+        printMenu.removeChild(printWithoutPreviewOption);
     }
 
     public showReport(template: string, reportData: Object, parameters: Array<any>, localization: string, caller: any) {
