@@ -658,6 +658,16 @@ export class LedgerAccountReconciliation {
         );
     }
 
+    public sortJournalEntryLines(col) {
+        this.journalEntryLines = this.journalEntryLines.sort(this.compare(col.field, col._reverseMultiplier));
+        this.setDisplayArray();
+        col._reverseMultiplier *= -1;
+    }
+
+    private compare(propName, rev) {
+        return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? (-1 * rev) : (1 * rev);
+    }
+
     private editJournalEntry(journalEntryID, journalEntryNumber) {
         const data = this.journalEntryService.getSessionData(0);
 
@@ -911,6 +921,7 @@ export class LedgerAccountReconciliation {
         ];
 
         columns.forEach(x => {
+            x['_reverseMultiplier'] = 1;
             x.setConditionalCls((model) => {
                 return this.getCssClasses(model, x.field);
             });
@@ -935,6 +946,13 @@ export class LedgerAccountReconciliation {
 
     public dateTemplate(row, field) {
         return moment(row[field]).format('DD.MM.YYYY');
+    }
+
+    public onLinkClick(col, row) {
+        if (!col.linkResolver) {
+            return;
+        }
+        this.router.navigateByUrl(col.linkResolver(row));
     }
 
     private getTableData() {

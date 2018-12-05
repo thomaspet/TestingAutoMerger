@@ -1,4 +1,4 @@
-import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+import {Component, ViewChild, Input, Output, EventEmitter, HostListener} from '@angular/core';
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../../framework/uni-modal';
 import {
@@ -68,7 +68,10 @@ import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../
                 <button (click)="close('cancel')" class="bad" *ngIf="!onCompleteBoolean">Avbryt</button>
             </footer>
         </section>
-`
+    `,
+    host: {
+        '(document:keydown)': 'keyDownHandler($event)'
+}
 })
 
 export class UniAutomarkModal implements IUniModal {
@@ -151,6 +154,17 @@ export class UniAutomarkModal implements IUniModal {
         });
         this.setupUniTable();
      }
+
+    public keyDownHandler(event) {
+        if (event.keyCode === 13) {
+            event.preventDefault();
+            this.close('mark');
+        }
+        if (event.keyCode === 27) {
+            event.preventDefault();
+            this.close('cancel');
+        }
+    }
 
     public close(buttonClicked: string) {
         if (buttonClicked === 'mark') {
