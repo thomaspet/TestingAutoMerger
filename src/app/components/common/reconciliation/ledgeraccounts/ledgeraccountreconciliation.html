@@ -12,7 +12,7 @@
                     <i *ngIf="displayPostsOption === 'OPEN'" class="material-icons" title="Automerk konto" (click)="onCheckAllSelected()">select_all</i>
                     <i *ngIf="displayPostsOption !== 'OPEN'" class="material-icons" title="Merk alle linjer" (click)="onCheckAllSelected(true)">{{ allSelected ? 'check_box' : 'check_box_outline_blank' }}</i>
                 </td>
-                <td *ngFor="let col of getVisibleFields()"  [ngClass]="col.cls"> {{ col.header }} </td>
+                <td *ngFor="let col of getVisibleFields()"  [ngClass]="col.cls" (click)="sortJournalEntryLines(col)"> {{ col.header }} </td>
                 <td>
                     <i class="material-icons" (click)="openColumnsModal()"> settings </i>
                 </td>
@@ -27,7 +27,7 @@
                 <td *ngFor="let col of getVisibleFields()"
                     [ngClass]="col.conditionalCls ? col.conditionalCls(row) : col.cls ? col.cls : ''">
 
-                    <span *ngIf="!col.template"> {{ row[col.field] }} </span>
+                    <span *ngIf="!col.template" (click)="onLinkClick(col, row)"> {{ row[col.field] }} </span>
                     <span *ngIf="col.template"> {{ col.template(row) }} </span>
                 </td>
                 <td [matMenuTriggerFor]="contextMenu">
