@@ -1,6 +1,6 @@
 <section role="dialog" class="uni-modal">
     <header>
-        <h1>{{user?.DisplayName}}</h1>
+        <h1>{{user?.DisplayName || user?.Email}}</h1>
     </header>
 
     <article>
@@ -8,28 +8,46 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <ul class="role-groups">
-            <li *ngFor="let group of roleGroups">
-                <section class="role-group-header">
-                    <span>{{group.label}}</span>
-                    <button *ngIf="canPurchaseProducts && group.product && !group.productPurchased"
-                        (click)="purchaseProduct(group)"
-                        class="activate-product">
+        <mat-accordion multi="true">
+            <mat-expansion-panel #panel
+                *ngFor="let group of roleGroups; let idx = index"
+                [expanded]="!group.product || group.productPurchased"
+                [hideToggle]="true">
 
-                        Aktiver dette produktet
-                    </button>
+                <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
+                    <mat-panel-title>{{group.label}}</mat-panel-title>
+
+                    <i *ngIf="!group.product || group.productPurchased" class="material-icons panel-toggle">
+                        {{panel.expanded ? 'expand_less' : 'expand_more'}}
+                    </i>
+
+                    <section
+                        *ngIf="group.product && !group.productPurchased"
+                        class="panel-right"
+                        [matTooltip]="canPurchaseProducts ? '' : 'Du har ikke tilgang til å kjøpe produkter'">
+
+                        <button
+                            [disabled]="!canPurchaseProducts"
+                            (click)="purchaseProduct(group)">
+
+                            Kjøp produkt
+                        </button>
+                    </section>
+                </mat-expansion-panel-header>
+
+                <section>
+                    <mat-selection-list>
+                        <mat-list-option *ngFor="let role of group.roles"
+                            [disabled]="group.product && !group.productPurchased"
+                            [checkboxPosition]="'before'"
+                            [selected]="role._checked"
+                            (click)="onRoleClick(group, role)">
+                            {{role.Label}}
+                        </mat-list-option>
+                    </mat-selection-list>
                 </section>
-
-                <mat-selection-list *ngIf="!group.product || group.productPurchased">
-                    <mat-list-option *ngFor="let role of group.roles"
-                        [checkboxPosition]="'before'"
-                        [selected]="role._checked"
-                        (click)="onRoleClick(group, role)">
-                        {{role.Label}}
-                    </mat-list-option>
-                </mat-selection-list>
-            </li>
-        </ul>
+            </mat-expansion-panel>
+        </mat-accordion>
     </article>
 
     <footer class="center">

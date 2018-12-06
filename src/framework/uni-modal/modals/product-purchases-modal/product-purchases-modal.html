@@ -1,5 +1,8 @@
 <section role="dialog" class="uni-modal">
-    <header>Produkttilganger {{singleProductMode ? ' - ' + products[0]?.label : ''}}</header>
+    <header>
+        Produkttilganger
+        <span *ngIf="singleProductMode && products"> - {{products[0]?.label}}</span>
+    </header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">

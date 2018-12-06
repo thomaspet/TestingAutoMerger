@@ -141,6 +141,10 @@ export class UserManagement {
             data: {
                 users: this.users,
             }
+        }).onClose.subscribe(changesMade => {
+            if (changesMade) {
+                this.loadUsers();
+            }
         });
     }
 

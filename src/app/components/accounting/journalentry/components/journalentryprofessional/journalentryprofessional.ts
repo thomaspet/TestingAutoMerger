@@ -405,6 +405,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmountAndNetAmountCurrency(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency && rowModel.AmountCurrency !== 0) {
+            rowModel.CurrencyExchangeRate = rowModel.Amount / rowModel.AmountCurrency;
             if (rowModel.DebitAccount && rowModel.DebitVatType && !rowModel.DebitVatType.DirectJournalEntryOnly) {
                 const calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.DebitAccount,
@@ -1725,6 +1726,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
                 // calculate the Amount that was paid in the base currency - the diff between this and
@@ -1806,7 +1808,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
-                Amount: customerInvoice.RestAmount, //UniMath.round(customerInvoice.RestAmountCurrency * customerInvoice.CurrencyExchangeRate, 2),
+                Amount: customerInvoice.RestAmount,
                 AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: customerInvoice.CurrencyCodeID,
@@ -1837,6 +1839,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     resolve(journalEntryRow);
                 }
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
                 // the Amount that was paid in the base currency - the diff between this and what
@@ -1844,7 +1847,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 // will be balanced using an agio line
                 const higherPrecisionExchangeRate = customerInvoice.RestAmount / customerInvoice.RestAmountCurrency;
                 journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * higherPrecisionExchangeRate //paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate
                 );
 
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;

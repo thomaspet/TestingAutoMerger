@@ -53,6 +53,7 @@ export class UniRoleModal implements IUniModal {
     public ngOnInit() {
         this.user = this.options.data.user;
 
+        this.busy = true;
         forkJoin(
             this.elsaProductService.GetAll(),
             this.elsaPurchaseService.getAll()
@@ -63,7 +64,8 @@ export class UniRoleModal implements IUniModal {
 
                 this.getGroupedRoles().subscribe(groups => this.roleGroups = groups);
             },
-            err => this.errorService.handle(err)
+            err => this.errorService.handle(err),
+            () => this.busy = false
         );
     }
 
@@ -74,7 +76,21 @@ export class UniRoleModal implements IUniModal {
                 ProductID: group.product.id,
                 GlobalIdentity: this.user.GlobalIdentity
             }]).subscribe(
-                () => group.productPurchased = true,
+                () => {
+                    group.productPurchased = true;
+                    const hasRoleInGroup = group.roles.some(role => role['_checked']);
+                    if (!hasRoleInGroup) {
+                        let roleToActivate = group.product.listOfRoles && group.roles.find(role => {
+                            return group.product.listOfRoles.includes(role.Name);
+                        });
+
+                        if (!roleToActivate) {
+                            roleToActivate = group.roles[0];
+                        }
+
+                        roleToActivate['_checked'] = true;
+                    }
+                },
                 err => this.errorService.handle(err)
             );
         }
@@ -107,7 +123,7 @@ export class UniRoleModal implements IUniModal {
     }
 
     onRoleClick(group: IRoleGroup, role: Role) {
-        if (group.productPurchased) {
+        if (!group.product || group.productPurchased) {
             role['_checked'] = !role['_checked'];
         }
     }
@@ -118,7 +134,7 @@ export class UniRoleModal implements IUniModal {
         const removeRoles: Partial<UserRole>[] = [];
 
         this.roleGroups.forEach(group => {
-            if (group.productPurchased) {
+            if (!group.product || group.productPurchased) {
                 group.roles.forEach(role => {
                     if (role['_checked'] && !role['_userRole']) {
                         addRoles.push({

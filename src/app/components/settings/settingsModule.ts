@@ -51,6 +51,7 @@ import {
     MatListModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    MatTooltipModule
 } from '@angular/material';
 
 @NgModule({
@@ -72,6 +73,7 @@ import {
         MatListModule,
         MatProgressSpinnerModule,
         MatMenuModule,
+        MatTooltipModule
     ],
     declarations: [
         Settings,

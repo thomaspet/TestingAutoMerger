@@ -556,16 +556,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Jobs
                     },
                     {
-                        name: 'Modeller',
-                        url: '/admin/models',
-                        moduleID: UniModules.Models
-                    },
-                    {
-                        name: 'Roller',
-                        url: '/admin/roles',
-                        moduleID: UniModules.Roles
-                    },
-                    {
                         name: 'GDPR',
                         url: '/admin/gdpr',
                         moduleID: UniModules.GDPRList
