@@ -21,7 +21,7 @@ export class UserRoleService extends BizHttp<UserRole> {
         return super.GetAll('filter=UserID eq ' + id);
     }
 
-    bulkUpdate(addRoles: Partial<UserRole>[], removeRoles: Partial<UserRole>[]) {
+    bulkUpdate(addRoles: Partial<UserRole>[], removeRoles?: Partial<UserRole>[]) {
         super.invalidateCache();
 
         let addRequest = observableOf(true);
