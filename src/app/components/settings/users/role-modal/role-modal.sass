@@ -9,40 +9,42 @@ $yellow: #ffdd59
 \:host
     font-family: 'Roboto', sans-serif
     ::ng-deep mat-selection-list .mat-list-text
-        font-weight: 500
-
+        font-size: 15px
 
 .uni-modal
     width: 40rem
-    height: 48rem
+    height: 50rem
     max-height: 90vh // mobile
     position: relative
 
-ul.role-groups
-    max-height: 100%
-    box-sizing: border-box
-    overflow-y: auto
-    list-style: none
-    margin: 0
-    padding: 0rem 1rem 0rem 0
-    // border: 1px solid #eee
+mat-expansion-panel
+    box-shadow: none !important
+    border: 1px solid $uni-color-scale9
+    border-radius: 0 !important
+    margin-bottom: 16px
 
-    > li
-        margin-bottom: 1rem
+    ::ng-deep .mat-expansion-panel-body
+        padding: 0 10px 10px
+        border-top: 1px solid $uni-color-scale9
 
-    .role-group-header
-        display: flex
-        font-size: 14px
-        font-weight: 500
-        color: #8c96a9
+mat-expansion-panel-header
+    border-radius: 0
+    padding-right: 10px
 
-        span
-            margin: auto 0
+    .panel-toggle
+        margin-right: 5px
 
-        .activate-product
+    .panel-right
+        margin: auto 0 auto auto
+        button
+            padding: 1px 10px 0
+            margin: 0
             color: $darkblue
-            margin: auto 0 auto auto
             font-size: 14px
 
-    ul.role-list
-        list-style: none
+            &[disabled]
+                background-color: unset
+
+mat-panel-title
+    margin: auto 0
+

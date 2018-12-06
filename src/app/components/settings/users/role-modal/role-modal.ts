@@ -53,6 +53,7 @@ export class UniRoleModal implements IUniModal {
     public ngOnInit() {
         this.user = this.options.data.user;
 
+        this.busy = true;
         forkJoin(
             this.elsaProductService.GetAll(),
             this.elsaPurchaseService.getAll()
@@ -63,7 +64,8 @@ export class UniRoleModal implements IUniModal {
 
                 this.getGroupedRoles().subscribe(groups => this.roleGroups = groups);
             },
-            err => this.errorService.handle(err)
+            err => this.errorService.handle(err),
+            () => this.busy = false
         );
     }
 
