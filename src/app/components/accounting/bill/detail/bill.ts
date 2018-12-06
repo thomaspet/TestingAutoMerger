@@ -309,8 +309,14 @@ export class BillView implements OnInit {
                 } else if (id > 0) {
                     this.fetchInvoice(id, true);
                 } else {
-                    this.newInvoice(true);
-                    this.checkPath();
+                    const getSupplier = +params['supplierID']
+                        ? this.supplierService.Get(+params['supplierID'], ['Info.BankAccounts'])
+                        : Observable.of(null);
+
+                    getSupplier.subscribe(supplier => {
+                        this.newInvoice(true, supplier);
+                        this.checkPath();
+                    });
                 }
 
                 this.vatDeductions = res[4];
@@ -1688,13 +1694,19 @@ export class BillView implements OnInit {
             });
     }
 
-    private newInvoice(isInitial: boolean) {
+    private newInvoice(isInitial: boolean, supplier?: Supplier) {
         const current = new SupplierInvoice();
         current.StatusCode = 0;
         current.SupplierID = null;
         current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
         current.CurrencyExchangeRate = 1;
         current.DefaultDimensions = new Dimensions();
+
+        if (supplier) {
+            current.SupplierID = supplier.ID;
+            current.Supplier = supplier;
+            this.uniSearchConfig.initialItem$.next(current.Supplier);
+        }
 
         this.current.next(current);
 
