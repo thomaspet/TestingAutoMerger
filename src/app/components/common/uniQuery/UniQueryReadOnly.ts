@@ -12,6 +12,7 @@ import {StatisticsService, UniQueryDefinitionService, StatusService, ErrorServic
 import {AuthService} from '../../../authService';
 import {UniQueryDefinition, UniQueryField, UniQueryFilter} from '../../../../app/unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 declare var _;
 
@@ -201,8 +202,15 @@ export class UniQueryReadOnly implements OnChanges {
         } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
             if (title === 'Invoice') {
                 this.buttonTitle = 'Nytt fakturamottak';
-                navigateURL = `/accounting/bills/0;projectID=${this.externalID}`;
+                navigateURL = `/accounting/bills/0`;
             }
+
+            if (this.queryDefinition.ModuleID === UniModules.Projects) {
+                navigateURL += `;projectID=${this.externalID}`;
+            } else {
+                navigateURL += `;supplierID=${this.externalID}`;
+            }
+
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else {
             this.buttonTitle = '';
