@@ -104,6 +104,17 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.json());
     }
 
+    public sendForPaymentWithData(supplierInvoiceId: number, invoicePaymentData?: InvoicePaymentData) {
+        super.invalidateCache();
+        return this.http
+            .asPOST()
+            .withBody(invoicePaymentData)
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${supplierInvoiceId}?action=sendForPaymentWithPaymentData`)
+            .send()
+            .map(response => response.json());
+    }
+
     public creditInvoiceJournalEntry(supplierInvoiceId: number) {
         super.invalidateCache();
         return this.http
