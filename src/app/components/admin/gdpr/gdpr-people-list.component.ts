@@ -11,21 +11,6 @@ import { BrowserStorageService } from '@uni-framework/core/browserStorageService
 @Component({
     selector: 'uni-gdpr-people-list',
     templateUrl: 'uni-gdpr-people-list.html',
-    encapsulation: ViewEncapsulation.None,
-    styles: [
-        `
-            uni-gdpr-people-list .ag-body  {
-                max-height: 70vh !important;
-                overflow-y: auto;
-            }
-            uni-gdpr-people-list .application input[type=search] {
-                margin: 1vh 0;
-            }
-            uni-gdpr-people-list .application > p {
-                text-align: center;
-            }
-        `
-    ]
 })
 export class UniGdprPeopleList {
     public tableConfig: IUniTableConfig;
