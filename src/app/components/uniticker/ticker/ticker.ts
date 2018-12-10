@@ -107,6 +107,7 @@ export class UniTicker {
     public newWithEntityAction: TickerAction;
 
     public unitableFilter: string;
+    public publicParams: URLSearchParams;
 
     public busy: boolean = false;
 
@@ -134,6 +135,7 @@ export class UniTicker {
         private customDimensionService: CustomDimensionService
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
+            this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
@@ -1281,7 +1283,7 @@ export class UniTicker {
             || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
         // use both predefined filters and additional unitable filters if applicable
-        let params = new URLSearchParams();
+        let params = this.publicParams;
         if (this.unitableFilter) {
             params.set('filter', this.unitableFilter);
         }
