@@ -80,7 +80,8 @@ import {
     CustomDimensionService,
     FileService,
     VatDeductionService,
-    StatisticsService
+    StatisticsService,
+    PaymentService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
@@ -152,6 +153,7 @@ export class BillView implements OnInit {
     public files: Array<any> = [];
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
+    private invoicePayments: Array<Payment> = [];
     private supplierIsReadOnly: boolean = false;
     public commentsConfig: ICommentsConfig;
     private formReady: boolean;
@@ -249,7 +251,8 @@ export class BillView implements OnInit {
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private paymentService: PaymentService
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -294,7 +297,9 @@ export class BillView implements OnInit {
                 this.currencyCodeService.GetAll(null),
                 this.customDimensionService.getMetadata(),
                 this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid),
-                this.vatDeductionService.GetAll(null)
+                this.vatDeductionService.GetAll(null),
+                this.getBankPayments(id),
+                this.getRegisteredPayments(id)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
@@ -321,6 +326,8 @@ export class BillView implements OnInit {
                 }
 
                 this.vatDeductions = res[4];
+
+                this.invoicePayments = res[5].concat(res[6]);
 
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
@@ -393,6 +400,36 @@ export class BillView implements OnInit {
             this.checkLockStatus();
             this.loadingForm = false;
         }
+    }
+
+    private getBankPayments(id: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
+        + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`
+        + `payment.amount as Amount,payment.amountCurrency as AmountCurrency,`
+        + `payment.description as Description,businessrelation.name as Name,`
+        + `payment.paymentID as PaymentID,bankaccount.accountnumber as AccountNumber,`
+        + `payment.statusCode as StatusCode,payment.paymentdate as PaymentDate,`
+        + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
+        + `payment.JournalEntryID as JournalEntryID,CurrencyCode.Code as CurrencyCode`
+        + `&filter=SourceEntityName eq 'SupplierInvoice' and `
+        + `SourceInstanceID eq ${id} and Payment.ID gt 0`
+        + `&join=Tracelink.DestinationInstanceId eq Payment.ID and `
+        + `Payment.BusinessRelationID eq BusinessRelation.ID and `
+        + `Payment.ToBankAccountID eq BankAccount.ID and Payment.JournalEntryID eq JournalEntry.ID and `
+        + `Payment.CurrencyCodeID eq CurrencyCode.ID`
+        );
+    }
+
+    private getRegisteredPayments(id: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
+        + `&select=id,postpost.amount as Amount,postpost.date as PaymentDate,`
+        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
+        + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
+        + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
+        + `&join= JournalEntryline.AccountID eq Account.ID and `
+        + `JournalEntryLine.ID eq PostPost.JournalEntryLine1ID and `
+        + `PostPost.CurrencyCodeID eq CurrencyCode.ID`
+        );
     }
 
     private addTab(id: number = 0) {
@@ -1855,7 +1892,7 @@ export class BillView implements OnInit {
             if (it._links.transitions.sendForPayment) {
                 list.push(
                     {
-                        label: 'Legg til betaling',
+                        label: 'Til betalingsliste (delbetaling)',
                         action: (done) => this.addPayment(done),
                         main: true,
                         disabled: false
@@ -1927,8 +1964,14 @@ export class BillView implements OnInit {
         });
 
         modal.onClose.subscribe(() => {
-            this.fetchInvoice(this.currentID, false).then(() => {
-                done();
+            Observable.forkJoin(
+            this.getBankPayments(this.currentID),
+            this.getRegisteredPayments(this.currentID)
+            ).subscribe(res => {
+                this.invoicePayments = res[0].concat(res[1]);
+                this.fetchInvoice(this.currentID, false).then(() => {
+                    done();
+                });
             });
         });
     }
@@ -2266,9 +2309,15 @@ export class BillView implements OnInit {
                     this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
                     .finally(() => this.busy = false)
                     .subscribe(() => {
-                        this.fetchInvoice(this.currentID, false);
-                        this.userMsg(lang.payment_ok, null, 3, true);
-                        done();
+                        Observable.forkJoin(
+                        this.getBankPayments(this.currentID),
+                        this.getRegisteredPayments(this.currentID)
+                        ).subscribe(res => {
+                            this.invoicePayments = res[0].concat(res[1]);
+                            this.fetchInvoice(this.currentID, false);
+                            this.userMsg(lang.payment_ok, null, 3, true);
+                            done();
+                        });
                     }, err => {
                         this.errorService.handle(err);
                         done();
@@ -3292,9 +3341,9 @@ export class BillView implements OnInit {
         const current = this.current.getValue();
         const statustrack: IStatus[] = [];
         const activeStatus = current.StatusCode;
-
         this.supplierInvoiceService.statusTypes.forEach((status) => {
             let _state: STATUSTRACK_STATES;
+            const _substatuses: IStatus[] = [];
             let _addIt = status.isPrimary;
             if (status.Code > activeStatus) {
                 _state = STATUSTRACK_STATES.Future;
@@ -3306,16 +3355,35 @@ export class BillView implements OnInit {
                     _state = STATUSTRACK_STATES.Obsolete;
                 }
                 _addIt = true;
+
+                this.invoicePayments.sort((payment1, payment2) =>
+                    new Date(<any> payment1.PaymentDate).getTime() - new Date(<any> payment2.PaymentDate).getTime()
+                    );
+
+                this.invoicePayments.forEach(payment => {
+                    _substatuses.push({
+                        title: payment.Amount.toFixed(2) + ' ' + payment.CurrencyCode,
+                        subtitle: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
+                        ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
+                        state: STATUSTRACK_STATES.Completed,
+                        timestamp: new Date(<any> payment.PaymentDate),
+                        data: payment,
+                        formatDateTime: 'L' // Use moment.js date time format
+                    });
+                });
             }
             if (_addIt) {
                 statustrack.push({
                     title: status.Text,
                     state: _state,
-                    code: status.Code
+                    code: status.Code,
+                    badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
+                    && this.invoicePayments.length > 0 ? this.invoicePayments.length + '' : null,
+                    substatusList: _substatuses,
+                    forceSubstatus: _state === STATUSTRACK_STATES.Active && this.invoicePayments.length > 0
                 });
             }
         });
-
         return statustrack;
     }
 

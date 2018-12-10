@@ -107,7 +107,7 @@ export const billStatusflowLabels = {
 
     'payInvoice': 'Sett betalt beløp',
     'sendForPayment': 'Til Betalingsliste',
-    'pay': 'Registrere betaling',
+    'pay': 'Sett til betalt',
 
     'assign': 'Tildel',
     'cancelApprovement': 'Tilbakestill',
