@@ -33,15 +33,20 @@
             </uni-information>
         </section>
 
-        <ag-grid-wrapper
-            [resource]="vacationpayBasis"
-            [config]="tableConfig"
-            (rowChange)="rowChanged($event)"
-            (rowSelectionChange)="onRowSelectionChange($event)"
-            (dataLoaded)="updatetotalPay()">
-        </ag-grid-wrapper>
+        <section class="uniTable">
+            <ag-grid-wrapper
+                [resource]="vacationpayBasis"
+                [config]="tableConfig"
+                (rowChange)="rowChanged($event)"
+                (rowSelectionChange)="onRowSelectionChange($event)"
+                (dataLoaded)="updatetotalPay()">
+            </ag-grid-wrapper>
+        </section>
 
-        <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
+        <section class="sum">
+            <h4 style="text-align:right">Totalsum utbetales {{totalPayout | unicurrency}}</h4>
+        </section>
+
     </article>
 
     <footer>
