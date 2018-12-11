@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer, SellerLink, SharingType, StatusCodeSharing, Address} from '../../../unientities';
 import {UniAddressModal} from '../../../../framework/uni-modal/modals/addressModal';
@@ -63,7 +63,7 @@ import * as _ from 'lodash';
         </label>
     `
 })
-export class TofCustomerCard implements AfterViewInit, OnChanges {
+export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
     private searchInput: HTMLElement;
 
     @Input() readonly: boolean;
@@ -122,8 +122,16 @@ export class TofCustomerCard implements AfterViewInit, OnChanges {
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private statusService: StatusService
-    ) {
-        this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
+    ) { }
+
+    ngOnInit() {
+        // Recurring invoice does not have functionality for creating customers when saving
+        // so we create them when selecting from 1880
+        if (this.entityType === 'RecurringInvoice') {
+            this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
+        } else {
+            this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
+        }
     }
 
     ngAfterViewInit() {

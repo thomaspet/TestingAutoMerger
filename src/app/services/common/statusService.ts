@@ -10,6 +10,7 @@ import {CustomerQuoteService} from '../sales/customerQuoteService';
 import {CustomerInvoiceItemService} from '../sales/customerInvoiceItemService';
 import {CustomerOrderItemService} from '../sales/customerOrderItemService';
 import {CustomerQuoteItemService} from '../sales/customerQuoteItemService';
+import {RecurringInvoiceService} from '../sales/recurringInvoiceService';
 import {PaymentService} from '../accounting/paymentService';
 import {PaymentBatchService} from '../accounting/paymentBatchService';
 
@@ -27,13 +28,14 @@ export class StatusService {
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private customerOrderItemService: CustomerOrderItemService,
         private customerQuoteItemService: CustomerQuoteItemService,
+        private recurringInvoiceService: RecurringInvoiceService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
     ) {}
 
     public getStatusText(statusCode: number): string {
         if (this.statusDictionary) {
-            let status = this.statusDictionary[statusCode];
+            const status = this.statusDictionary[statusCode];
             return status ? status.name : '';
         }
 
@@ -41,10 +43,10 @@ export class StatusService {
     }
 
     public getStatusCodesForEntity(entityType: string): Array<StatusCode> {
-        let statusCodes: Array<StatusCode> = [];
+        const statusCodes: Array<StatusCode> = [];
         if (this.statusDictionary) {
             Object.keys(this.statusDictionary).forEach(x => {
-                let status = this.statusDictionary[x];
+                const status = this.statusDictionary[x];
                 if (status.entityType === entityType) {
                     statusCodes.push({
                         statusCode: +x,
@@ -83,6 +85,9 @@ export class StatusService {
                                         break;
                                     case 'CustomerOrderItem':
                                         name = this.customerOrderItemService.getStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'RecurringInvoice':
+                                        name = this.recurringInvoiceService.getStatusText(item.StatusStatusCode);
                                         break;
                                     case 'Payment':
                                         name = this.paymentService.getStatusText(item.StatusStatusCode);
@@ -134,14 +139,16 @@ export class StatusService {
         return Observable.forkJoin(
             this.userService.GetAll(null),
             this.statisticsService.GetAll(
-                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
+                `model=StatusLog&filter=EntityType eq '${entityType}' and EntityID eq ${entityID} and ToStatus eq ${toStatus}` +
+                `&select=StatusLog.CreatedAt as CreatedAt,StatusLog.CreatedBy as CreatedBy,StatusLog.FromStatus as FromStatus,` +
+                `ToStatus as ToStatus,StatusLog.EntityID as StatusLogEntityID,StatusLog.EntityType as StatusLogEntityType`),
             this.loadStatusCache()
         ).map(responses => {
-                let users: Array<User> = responses[0];
-                let data = responses[1].Data ? responses[1].Data : [];
+                const users: Array<User> = responses[0];
+                const data = responses[1].Data ? responses[1].Data : [];
                 data.forEach(item => {
                     item.FromStatusText = this.getStatusText(item.FromStatus);
-                    let createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
+                    const createdByUser = users.find(x => x.GlobalIdentity === item.CreatedBy);
                     item.CreatedByName = createdByUser ? createdByUser.DisplayName : '';
                 });
                 return data;

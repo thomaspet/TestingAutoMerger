@@ -238,6 +238,11 @@
             "Url": "/sales/products/:ID"
         },
         {
+            "Name": "RecurringInvoice",
+            "Translated": "Repeterende faktura",
+            "Url": "/sales/recurringinvoice/:ID"
+        },
+        {
             "Name": "Contact",
             "Translated": "Kontakt",
             "Url": "/contacts/:ID"

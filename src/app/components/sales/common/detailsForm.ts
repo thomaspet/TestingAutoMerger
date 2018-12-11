@@ -184,6 +184,18 @@ export class TofDetailsForm {
                 });
             }
 
+            if (this.entityType === 'RecurringInvoice') {
+                // If its details view for recurring invoice, dont show dates, they are in recurring settings view
+                fields.splice(0, 2);
+
+                // All fields are never read only in this view
+                fields.map(f => {
+                    f.ReadOnly = false;
+                    return f;
+                });
+
+            }
+
             this.fields$.next(fields);
         }
     }
