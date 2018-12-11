@@ -77,9 +77,10 @@ export class AccountList implements OnInit, AfterViewInit {
         };
 
         // Define columns to use in the table
-        const accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Text)
+        const accountNumberCol = new UniTableColumn('AccountNumber', 'Kontonr',  UniTableColumnType.Link)
             .setWidth('5rem')
-            .setFilterOperator('startswith');
+            .setFilterOperator('startswith')
+            .setLinkResolver(row => `/accounting/accountquery?account=${row.AccountNumber}`);
 
         const accountNameCol = new UniTableColumn('AccountName', 'Kontonavn',  UniTableColumnType.Text)
             .setFilterOperator('contains');
