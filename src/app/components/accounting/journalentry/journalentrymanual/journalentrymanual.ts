@@ -877,7 +877,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
         }, {
             value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.SumCredit || 0) : null,
-            title: 'Sum kreditt',
+            title: 'Sum kredit',
             description: showCurrencyCode && this.itemsSummaryData.BaseCurrencyCodeCode
         }, {
             value: this.itemsSummaryData ? this.numberFormat.asMoney(this.itemsSummaryData.Differance || 0) : null,
