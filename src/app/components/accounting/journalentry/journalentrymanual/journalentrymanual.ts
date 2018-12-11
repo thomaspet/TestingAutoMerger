@@ -438,11 +438,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
         this.calculateItemSums(lines);
 
-        if (!this.currentFinancialYear) {
+        if (!this.currentFinancialYear || !this.financialYears) {
             // wait a moment before trying to validate the data
             // because the currentyears have not been retrieved yet
             setTimeout(() => {
-                if (this.currentFinancialYear) {
+                if (this.currentFinancialYear && this.financialYears) {
                     this.validateJournalEntryData(lines);
                 }
             }, 1000);
