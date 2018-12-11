@@ -6,7 +6,6 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
     "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [
