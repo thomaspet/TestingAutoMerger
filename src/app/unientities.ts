@@ -4145,8 +4145,8 @@ export class Task extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Model: Model;
     public Approvals: Array<Approval>;
+    public Model: Model;
     public User: User;
     public CustomFields: any;
 }
@@ -5826,8 +5826,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -6598,9 +6598,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8007,7 +8007,7 @@ export enum StdWageType{
     Contribution = 8,
     Garnishment = 9,
     Outlay = 10,
-    SourceTaxPension = 11,
+    SourceTaxPension = 11
 }
 
 
