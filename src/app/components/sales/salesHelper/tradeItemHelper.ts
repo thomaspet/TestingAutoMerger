@@ -90,13 +90,18 @@ export class TradeItemHelper  {
             DiscountPercent: 0,
             AccountID: null,
             Account: null,
-            SumVat: 0
+            SumVat: 0,
+            // Recurring Invoice fields
+            PricingSource: null,
+            TimeFactor: null,
+            ReduceIncompletePeriod: false
         };
     }
 
     public tradeItemChangeCallback(
         event, currencyCodeID: number, currencyExchangeRate: number,
-        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate
+        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate,
+        pricingSourceLabels, priceFactor
     ) {
 
 
@@ -138,6 +143,14 @@ export class TradeItemHelper  {
 
         if (event.field === 'VatType') {
             newRow.VatTypeID = !!newRow.VatType ? newRow.VatType.ID : null;
+        }
+
+        if (event.field === 'PricingSource') {
+            newRow.PricingSource = pricingSourceLabels.findIndex(res => res === event.newValue);
+        }
+
+        if (event.field === 'TimeFactor') {
+            newRow.TimeFactor = priceFactor.findIndex(res => res === event.newValue);
         }
 
         if (newRow.VatTypeID && !newRow.VatType) {
@@ -264,6 +277,10 @@ export class TradeItemHelper  {
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
+
+        // Set recurring invoice item defaults when selecting item..
+        rowModel.PricingSource = 0;
+        rowModel.TimeFactor = 0;
 
         const productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
 

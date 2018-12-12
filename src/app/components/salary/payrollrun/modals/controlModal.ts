@@ -26,7 +26,8 @@ interface PaylistSection {
 
 @Component({
     selector: 'control-modal',
-    templateUrl: './controlModal.html'
+    templateUrl: './controlModal.html',
+    styleUrls: ['./controlModal.sass']
 })
 
 export class ControlModal implements OnInit, IUniModal {

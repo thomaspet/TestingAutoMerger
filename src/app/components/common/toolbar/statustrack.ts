@@ -12,6 +12,7 @@ export enum STATUSTRACK_STATES {
 
 export interface IStatus {
     title: string;
+    subtitle?: string;
     state: STATUSTRACK_STATES;
     code?: number;
     badge?: string;
@@ -20,6 +21,7 @@ export interface IStatus {
     data?: any;
     logEntries?: any[];
     forceSubstatus?: boolean;
+    formatDateTime?: string;
 }
 
 @Component({
@@ -44,9 +46,10 @@ export interface IStatus {
                         <i *ngIf="isActiveSubStatus(substatus)" class="checkmark material-icons">check_circle</i>
 
                         <time [attr.datetime]="substatus.timestamp?.toDateString()">
-                            {{formatTime(substatus.timestamp)}}
+                            {{formatTime(substatus.timestamp, substatus.formatDateTime)}}
                         </time>
 
+                        <i *ngIf="substatus.subtitle">{{substatus.subtitle}}</i>
                     </li>
                 </ol>
 
@@ -97,12 +100,14 @@ export class StatusTrack {
                         .subscribe(statuschanges => {
                             status.logEntries = statuschanges;
                         });
+                } else {
+                    status.logEntries = null;
                 }
             }
         }
     }
-    public formatTime(datetime) {
+    public formatTime(datetime, formatDateTime?: string) {
         if (!datetime) { return; }
-        return moment(datetime).format('lll');
+        return moment(datetime).format(formatDateTime ? formatDateTime : 'lll');
     }
 }

@@ -2,7 +2,6 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {
     CompanySettings,
-    Account,
     LocalDate,
     InvoicePaymentData,
     Payment
@@ -43,7 +42,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Registrer betaling</button>
+                <button class="good" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
                 <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
         </section>
@@ -67,6 +66,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private companySettings: CompanySettings;
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
+    public isRegisterButtonDisabled: boolean = false;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -86,6 +86,9 @@ export class UniRegisterPaymentModal implements IUniModal {
             this.config.entityName === 'JournalEntryLine') {
             Math.abs(UniMath.round(this.config.currencyExchangeRate = paymentData.Amount / paymentData.AmountCurrency, 4));
         }
+
+        this.isRegisterButtonDisabled = paymentData.Amount === 0;
+
         this.companySettingsService.Get(1, [
             'AgioGainAccount',
             'AgioLossAccount',
@@ -116,15 +119,20 @@ export class UniRegisterPaymentModal implements IUniModal {
                 return;
             }
 
-            let payment: Payment = this.formModel$.getValue();
+            const payment: Payment = this.formModel$.getValue();
             payment.CurrencyExchangeRate = this.paymentCurrencyExchangeRate;
-            let diffCurrencyExchangeRate = Math.abs(
+            const diffCurrencyExchangeRate = Math.abs(
                 this.config.currencyExchangeRate - payment.CurrencyExchangeRate
             );
 
-            let diffPercent = UniMath.round(
+            const diffPercent = UniMath.round(
                 (diffCurrencyExchangeRate * 100 / (this.config.currencyExchangeRate || 1)), 2
             );
+
+            if (payment.CurrencyExchangeRate === 1 || payment.CurrencyExchangeRate === 0) {
+                payment.AmountCurrency = payment.Amount;
+                payment.CurrencyExchangeRate = 1;
+            }
 
             if (diffPercent < 15) {
                 this.onClose.emit(payment);
@@ -173,8 +181,8 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     private SetAgioAccount(payment: InvoicePaymentData, previousValue: number): InvoicePaymentData {
         if (payment.AgioAccountID
-            && payment.AgioAccountID != this.companySettings.AgioGainAccountID
-            && payment.AgioAccountID != this.companySettings.AgioLossAccountID) {
+            && payment.AgioAccountID !== this.companySettings.AgioGainAccountID
+            && payment.AgioAccountID !== this.companySettings.AgioLossAccountID) {
             return payment;
         }
 
@@ -185,7 +193,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                 0,
                 'Du må sette Agio kontoer i firmainnstillingene hvis vi skal sette dette for deg når du fører agio'
             );
-        } else if (!payment.AgioAccountID || (Math.sign(payment.AgioAmount) != Math.sign(previousValue))) {
+        } else if (!payment.AgioAccountID || (Math.sign(payment.AgioAmount) !== Math.sign(previousValue))) {
             payment.AgioAccountID = (payment.AgioAmount < 0)
                 ? this.companySettings.AgioGainAccountID
                 : this.companySettings.AgioLossAccountID;
@@ -207,11 +215,11 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     private calculateAgio4CustomerInvoice(payment: InvoicePaymentData) {
         const sign = this.config.isDebit ? 1 : -1;
-        let previousAgioAmount = payment.AgioAmount;
+        const previousAgioAmount = payment.AgioAmount;
 
-        let ledgerLineAmount = UniMath.round(payment.AmountCurrency * this.config.currencyExchangeRate, 2);
+        const ledgerLineAmount = UniMath.round(payment.AmountCurrency * this.config.currencyExchangeRate, 2);
 
-        let agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment), 2);
+        const agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment), 2);
         payment.AgioAmount = UniMath.round(
             (payment.Amount - payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
         , 2);
@@ -220,9 +228,9 @@ export class UniRegisterPaymentModal implements IUniModal {
     }
 
     private calculateAgio4SupplierInvoice(model: InvoicePaymentData) {
-        let previousAgioAmount = model.AgioAmount;
+        const previousAgioAmount = model.AgioAmount;
 
-        let ledgerLineAmount = UniMath.round(
+        const ledgerLineAmount = UniMath.round(
             model.AmountCurrency * this.config.currencyExchangeRate
         ); // Calculated in the same exchange rate as the invoice
 
@@ -253,29 +261,32 @@ export class UniRegisterPaymentModal implements IUniModal {
         if (this.config.invoiceRestAmountCurrency > payment.AmountCurrency &&
             deltaPaid <= acceptableDelta4CustomerPaymentCurrency) {
             // Pay LESS then invoice - but within delta
-            let delta = UniMath.round(this.config.invoiceRestAmountCurrency - payment.AmountCurrency);
-            let ledgerlineAmount = UniMath.round(deltaPaid * this.config.currencyExchangeRate);
-            let paymentlineAmount = UniMath.round(deltaPaid * this.paymentCurrencyExchangeRate);
+            const delta = UniMath.round(this.config.invoiceRestAmountCurrency - payment.AmountCurrency);
+            const ledgerlineAmount = UniMath.round(deltaPaid * this.config.currencyExchangeRate);
+            const paymentlineAmount = UniMath.round(deltaPaid * this.paymentCurrencyExchangeRate);
             agioAmount = paymentlineAmount - ledgerlineAmount;
         }
 
         if (this.config.invoiceRestAmountCurrency < payment.AmountCurrency &&
             deltaPaid <= acceptableDelta4CustomerPaymentCurrency) {
-            //Pay MORE then invoice - but within delta
-            let delta = UniMath.round(this.config.invoiceRestAmountCurrency - payment.AmountCurrency);
-            let ledgerlineAmount = UniMath.round(deltaPaid * this.config.currencyExchangeRate);
-            let paymentlineAmount = UniMath.round(deltaPaid * this.paymentCurrencyExchangeRate);
+            // Pay MORE then invoice - but within delta
+            const delta = UniMath.round(this.config.invoiceRestAmountCurrency - payment.AmountCurrency);
+            const ledgerlineAmount = UniMath.round(deltaPaid * this.config.currencyExchangeRate);
+            const paymentlineAmount = UniMath.round(deltaPaid * this.paymentCurrencyExchangeRate);
             agioAmount = ledgerlineAmount - paymentlineAmount;
         }
         return UniMath.round(agioAmount);
     }
 
     public onFormChange(changes): void {
+
+        const payment: InvoicePaymentData = this.formModel$.getValue();
+        this.isRegisterButtonDisabled = !payment.Amount || payment.Amount === 0;
+
         if (this.isMainCurrency) {
             return;
         }
 
-        let payment: InvoicePaymentData = this.formModel$.getValue();
         if (changes['PaymentDate']) {
             this.calculateAmount(payment).subscribe((result) => {
                 this.calculateAgio(result);
@@ -296,7 +307,9 @@ export class UniRegisterPaymentModal implements IUniModal {
     }
 
     private getFormFields(): UniFieldLayout[] {
-        const paymentLabel = this.config.entityName === 'CustomerInvoice' ? 'Innbetalt' : 'Betalt';
+        const paymentLabel = this.config.entityName === 'CustomerInvoice' ? 'Innbetalt'
+        : this.config.isSendForPayment ? 'Betal' : 'Betalt';
+
         const fields = [
             <any> {
                 EntityType: 'InvoicePaymentData',

@@ -460,6 +460,10 @@ export class AgaAndSubEntitySettings implements OnInit {
                 {
                     ID: CompanySalaryBaseOptions.NettoPayment,
                     Name: 'Netto lønn',
+                },
+                {
+                    ID: CompanySalaryBaseOptions.NettoPaymentForMaritim,
+                    Name: 'Netto lønn for sjøfolk',
                 }
             ],
             valueProperty: 'ID',

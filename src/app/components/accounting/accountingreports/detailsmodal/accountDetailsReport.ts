@@ -1,5 +1,6 @@
 import {Component, Input, ViewChild} from '@angular/core';
 import {URLSearchParams, Response} from '@angular/http';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {
@@ -79,6 +80,8 @@ export class AccountDetailsReport {
         private tabService: TabService,
         private modalService: UniModalService,
         private periodFilterHelper: PeriodFilterHelper,
+        private route: ActivatedRoute,
+        private router: Router
     ) {
 
         this.config = {
@@ -117,19 +120,29 @@ export class AccountDetailsReport {
 
     public ngOnInit() {
         if (!this.config.modalMode) {
-            this.updateToolbar();
-            this.addTab();
+            this.route.queryParams.subscribe(params => {
+                const accountParam = +params['account'];
 
-            this.accountService.searchAccounts('Visible eq 1', 1).subscribe(data => {
-                const account = data[0];
-                this.setAccountConfig(account);
+                this.accountService.searchAccounts(accountParam ? 'AccountNumber eq ' + accountParam : 'Visible eq 1', 1)
+                .subscribe(data => {
+                    // Failcheck if routeparam is wrong / no account found. Just route to same view without params..
+                    if ((!data || !data.length) && accountParam) {
+                        this.router.navigateByUrl('/accounting/accountquery');
+                        return;
+                    }
+                    const account = data[0];
+                    this.setAccountConfig(account);
+                    this.updateToolbar();
+                    this.addTab(accountParam);
 
-                this.searchConfig.initialItem$.next(account);
-                if (this.searchElement) {
-                    this.searchElement.focus();
-                }
+                    this.searchConfig.initialItem$.next(account);
+                    if (this.searchElement) {
+                        this.searchElement.focus();
+                    }
 
-                this.loadData();
+                    this.loadData();
+                });
+
             });
         } else {
             this.loadData();
@@ -141,7 +154,7 @@ export class AccountDetailsReport {
             this.setAccountConfig(account);
             this.loadData();
             this.setupLookupTransactions();
-
+            this.addTab(account.AccountNumber);
             setTimeout(() => {
                 if (this.searchElement) {
                     this.searchElement.focus();
@@ -190,10 +203,10 @@ export class AccountDetailsReport {
         };
     }
 
-    public addTab() {
+    public addTab(number?: number) {
         this.tabService.addTab({
             name: 'Forespørsel konto',
-            url: '/accounting/accountquery',
+            url: `/accounting/accountquery${ !!number ? '?account=' + number : '' }`,
             moduleID: UniModules.AccountQuery,
             active: true
         });

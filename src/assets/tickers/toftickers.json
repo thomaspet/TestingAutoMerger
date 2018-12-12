@@ -6,7 +6,6 @@
     "IsTopLevelTicker": true,
     "Group": "Salg",
     "Model": "CustomerInvoice",
-    "Joins": "CustomerInvoice.ID eq Sharing.EntityID",
     "Expand": "",
     "OrderBy": "ID DESC",
     "Columns": [
@@ -1841,6 +1840,197 @@
             "Header": "Kommentar",
             "Field": "Comment",
             "Size": "medium"
+        }
+    ]
+}, {
+    "Name": "Repeterende faktura",
+    "Code": "recurring_invoice_list",
+    "RequiredUIPermissions": ["ui_sales_invoices"],
+    "Type": "Table",
+    "IsTopLevelTicker": true,
+    "Group": "Salg",
+    "Model": "RecurringInvoice",
+    "Expand": "",
+    "OrderBy": "ID DESC",
+    "Columns": [
+        {
+            "Header": "Faktura ID",
+            "Field": "ID",
+            "Type": "Link",
+            "LinkNavigationProperty": "ID",
+            "Width": 80,
+            "FilterOperator": "eq"
+        },
+        {
+            "Header": "Kundenr.",
+            "Field": "Customer.CustomerNumber",
+            "Type": "Link",
+            "LinkNavigationProperty": "Customer.ID",
+            "ExternalModel": "Customer",
+            "Width": 80,
+            "FilterOperator": "startswith"
+        },
+        {
+            "Header": "Kundenavn",
+            "Field": "Customer.Info.Name",
+            "ExternalModel": "Customer",
+            "FilterOperator": "contains",
+            "Width": 300
+        },
+        {
+            "Header": "Startdato",
+            "Field": "StartDate",
+            "FilterOperator": "gt",
+            "Width": 100
+        },
+        {
+            "Header": "Neste fakturadato",
+            "Field": "NextInvoiceDate",
+            "FilterOperator": "gt",
+            "Width": 100
+        },
+        {
+            "Header": "Leveringsdato",
+            "Field": "DeliveryDate",
+            "FilterOperator": "gt",
+            "Width": 100,
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Vår referanse",
+            "Field": "OurReference"
+        },
+        {
+            "Header": "Deres referanse",
+            "Field": "YourReference",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Valuta",
+            "Field": "CurrencyCode.Code",
+            "Width": "65px",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Sum eks. mva",
+            "Field": "TaxExclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true
+        },
+        {
+            "Header": "Sum inkl. mva",
+            "Field": "TaxInclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true,
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Sum inkl. mva [BASECURRENCY]",
+            "Field": "TaxInclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
+        },
+        {
+            "Header": "Sum eks. mva [BASECURRENCY]",
+            "Field": "TaxExclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
+        },
+        {
+            "Header": "Hovedselger",
+            "Field": "DefaultSeller.Name",
+            "DefaultHidden": false
+        },
+        {
+            "Header": "Status",
+            "Field": "StatusCode",
+            "Width": "125px"
+        },
+        {
+            "Header": "Utskrift",
+            "Field": "PrintStatus",
+            "Width": "125px",
+            "DefaultHidden": true
+        }
+    ],
+    "ParentFilter": {
+        "Field": "CustomerID",
+        "Operator": "eq",
+        "Value": "ID"
+    },
+    "Actions": [
+        {
+            "Name": "Ny faktura",
+            "Code": "new_invoice",
+            "ExecuteWithoutSelection": true,
+            "Type": "new"
+        },
+        {
+            "Name": "Vis fakturalog",
+            "Code": "recurring_invoice_showlog",
+            "Type": "action",
+            "DisplayInContextMenu": true,
+            "DisplayInActionBar": false,
+            "NeedsActionOverride": true
+        }
+    ],
+    "Filters": [
+        {
+            "Name": "Alle",
+            "Code": "all_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "Deleted",
+                            "Operator": "ne",
+                            "Value": "true"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "Aktive",
+            "Code": "active_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "46002"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "Inaktive",
+            "Code": "active_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "46001"
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

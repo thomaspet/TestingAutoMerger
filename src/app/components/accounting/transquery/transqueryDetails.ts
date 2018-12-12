@@ -358,7 +358,7 @@ export class TransqueryDetails implements OnInit {
                 title: 'Sum debet',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumCredit || 0) : null,
-                title: 'Sum kreditt',
+                title: 'Sum kredit',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumLedger || 0) : null,
                 title: 'Sum reskontro',

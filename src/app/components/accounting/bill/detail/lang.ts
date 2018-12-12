@@ -45,7 +45,6 @@ export const billViewLanguage = {
 
     journaled_ok: 'Bokføring fullført',
     payment_ok: 'Betaling registrert',
-    ask_register_payment: 'Registrere betaling for leverandør-faktura: ',
     ready_for_payment: 'Status endret til "Klar for betaling"',
 
     err_missing_journalEntries: 'Kontering mangler!',
@@ -59,6 +58,8 @@ export const billViewLanguage = {
     ask_approve_and_journal_title: 'Godkjenne og bokføre fakturamottak fra ',
     ask_approve_and_journal_and_topayment_title: 'Godkjenne, bokføre og til betaling av fakturamottak fra ',
     ask_journal_and_topayment_title: 'Bokføre og til betaling av fakturamottak fra ',
+    ask_register_payment: 'Registrere betaling for leverandør-faktura: ',
+    ask_register_payment_for_outgoing_payment: 'Legg til i betalingsliste for leverandør-faktura: ',
     warning_action_not_reversable: 'Merk! Dette steget er det ikke mulig å reversere.',
 
     ask_delete: 'Vil du virkelig slette faktura ',
@@ -104,9 +105,9 @@ export const billStatusflowLabels = {
     'smartbooking': 'Foreslå kontering',
     'journal': 'Bokfør',
 
-    'payInvoice': 'Registrere betaling',
-    'sendForPayment': 'Til betalingsliste',
-    'pay': 'Registrere betaling',
+    'payInvoice': 'Sett betalt beløp',
+    'sendForPayment': 'Til Betalingsliste',
+    'pay': 'Sett til betalt',
 
     'assign': 'Tildel',
     'cancelApprovement': 'Tilbakestill',

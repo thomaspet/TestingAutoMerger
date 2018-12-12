@@ -118,7 +118,9 @@ export class EditSupplierInvoicePayments implements IUniModal {
                     const columns = [
                         new UniTableColumn('Name', 'Betales til', UniTableColumnType.Text),
                         new UniTableColumn('AccountNumber', 'Konto til', UniTableColumnType.Number),
-                        new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money),
+                        new UniTableColumn('AmountCurrency', 'Valutabeløp', UniTableColumnType.Money)
+                            .setTemplate(line => line.AmountCurrency)
+                            .setIsSumColumn(true),
                         new UniTableColumn('Amount', 'Beløp', UniTableColumnType.Money),
                         new UniTableColumn('PaymentDate', 'Betalingsdato', UniTableColumnType.LocalDate),
                         new UniTableColumn('ID', 'ID', UniTableColumnType.Number)
@@ -140,6 +142,7 @@ export class EditSupplierInvoicePayments implements IUniModal {
                     this.uniTableConfig = new UniTableConfig('common.modal.editSupplierInvoicePayments', false, true, 25)
                         .setMultiRowSelect(false)
                         .setColumns(columns)
+                        .setEntityType('Payment')
                         .setColumnMenuVisible(true)
                         .setContextMenu(contextMenuItems)
                         .setSearchable(true);
