@@ -254,8 +254,7 @@ export class UniRecurringInvoice implements OnInit {
                     invoice.ProduceAs = 1;
                     invoice.StartDate = new LocalDate();
 
-                    const next = moment(new Date(moment().year(), moment().month(), moment().date() + 14));
-                    invoice.NextInvoiceDate = new LocalDate(next.toDate());
+                    invoice.NextInvoiceDate = new LocalDate(moment().toDate());
 
                     this.currentUser = res[1];
                     invoice.OurReference = this.currentUser.DisplayName;
@@ -821,7 +820,7 @@ export class UniRecurringInvoice implements OnInit {
         }
         this.tabService.addTab({
             url: '/sales/recurringinvoice/' + invoice.ID,
-            name: invoice.ID ? 'Repeterende fakturanr. ' + invoice.ID : 'Ny repeterence faktura',
+            name: invoice.ID ? 'Repeterende fakturanr. ' + invoice.ID : 'Ny repeterende faktura',
             active: true,
             moduleID: UniModules.RecurringInvoice
         });

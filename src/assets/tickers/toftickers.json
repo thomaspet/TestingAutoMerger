@@ -1990,9 +1990,43 @@
                     "UseAllCriterias": false,
                     "FieldFilters": [
                         {
-                            "Field": "StatusCode",
+                            "Field": "Deleted",
                             "Operator": "ne",
-                            "Value": "42001"
+                            "Value": "true"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "Aktive",
+            "Code": "active_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "46002"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "Name": "Inaktive",
+            "Code": "active_invoices",
+            "UseAllCriterias": true,
+            "FilterGroups": [
+                {
+                    "UseAllCriterias": false,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "46001"
                         }
                     ]
                 }

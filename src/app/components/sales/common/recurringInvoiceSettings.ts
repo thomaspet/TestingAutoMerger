@@ -115,6 +115,7 @@ export class UniRecurringInvoiceSettingsView implements OnInit {
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Neste fakturadato',
                 Section: 0,
+                Classes: 'next-invoice-highlighted'
             },
             <any> {
                 FieldSet: 1,
