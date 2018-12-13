@@ -106,7 +106,7 @@ export const billStatusflowLabels = {
     'journal': 'Bokfør',
 
     'payInvoice': 'Sett betalt beløp',
-    'sendForPayment': 'Til Betalingsliste',
+    'sendForPayment': 'Til betalingsliste',
     'pay': 'Sett til betalt',
 
     'assign': 'Tildel',

@@ -432,6 +432,16 @@ export class BillView implements OnInit {
         );
     }
 
+    private updateInvoicePayments() {
+        return Observable.forkJoin(
+            this.getBankPayments(this.currentID),
+            this.getRegisteredPayments(this.currentID)
+            ).subscribe(res => {
+                this.invoicePayments = res[0].concat(res[1]);
+                this.fetchInvoice(this.currentID, false);
+            });
+    }
+
     private addTab(id: number = 0) {
         const label = id > 0 ? trimLength(this.toolbarConfig.title, 12) : lang.title_new;
         this.tabService.addTab({
@@ -1819,7 +1829,7 @@ export class BillView implements OnInit {
             const hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
             const filter = [];
             let mainFirst = true;
-            if (it.StatusCode === StatusCodeSupplierInvoice.ToPayment || it.StatusCode === StatusCodeSupplierInvoice.PartlyPayed) {
+            if (this.invoicePayments.length > 0) {
                 filter.push('sendForPayment');
                 mainFirst = false;
                 list.forEach(x => x.main = false);
@@ -1888,11 +1898,11 @@ export class BillView implements OnInit {
                 );
             }
 
-            // Legg til betaling
+            // Legg til delbetaling
             if (it._links.transitions.sendForPayment) {
                 list.push(
                     {
-                        label: 'Til betalingsliste (delbetaling)',
+                        label: 'Til betalingsliste(delbetaling)',
                         action: (done) => this.addPayment(done),
                         main: true,
                         disabled: false
@@ -1964,15 +1974,7 @@ export class BillView implements OnInit {
         });
 
         modal.onClose.subscribe(() => {
-            Observable.forkJoin(
-            this.getBankPayments(this.currentID),
-            this.getRegisteredPayments(this.currentID)
-            ).subscribe(res => {
-                this.invoicePayments = res[0].concat(res[1]);
-                this.fetchInvoice(this.currentID, false).then(() => {
-                    done();
-                });
-            });
+            this.updateInvoicePayments().add(done());
         });
     }
 
@@ -2125,8 +2127,7 @@ export class BillView implements OnInit {
             case 'sendForPayment':
                 this.sendForPayment()
                 .subscribe(() => {
-                    this.fetchInvoice(current.ID, false);
-                    done();
+                    this.updateInvoicePayments().add(done());
                 });
                 return true;
 
@@ -2219,8 +2220,7 @@ export class BillView implements OnInit {
                                     : Observable.of(false);
                             })
                             .subscribe(result => {
-                                this.fetchInvoice(current.ID, false);
-                                done(result ? 'Godkjent, bokført og til betaling' : '');
+                                this.updateInvoicePayments().add(done(result ? 'Godkjent, bokført og til betaling' : ''));
                             });
                     } else {
                         done('Ikke mulig å godkjenne');
@@ -2242,8 +2242,7 @@ export class BillView implements OnInit {
                             : Observable.of(false);
                     })
                     .subscribe(result => {
-                        this.fetchInvoice(current.ID, false);
-                        done(result ? 'Bokført og til betaling' : '');
+                        this.updateInvoicePayments().add(done(result ? 'Bokført og til betaling' : ''));
                     });
 
                 return true;
@@ -2309,12 +2308,7 @@ export class BillView implements OnInit {
                     this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
                     .finally(() => this.busy = false)
                     .subscribe(() => {
-                        Observable.forkJoin(
-                        this.getBankPayments(this.currentID),
-                        this.getRegisteredPayments(this.currentID)
-                        ).subscribe(res => {
-                            this.invoicePayments = res[0].concat(res[1]);
-                            this.fetchInvoice(this.currentID, false);
+                        this.updateInvoicePayments().add(() => {
                             this.userMsg(lang.payment_ok, null, 3, true);
                             done();
                         });
