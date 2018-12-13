@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {User} from '@app/unientities';
+import {UserDto} from '@app/unientities';
 import {UserService, ErrorService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';
@@ -11,7 +11,7 @@ import {UserSettingsModal} from './user-settings-modal';
     styleUrls: ['./user-dropdown.sass']
 })
 export class NavbarUserDropdown {
-    public user: User;
+    public user: UserDto;
     public licenseRole: string;
 
     constructor(
@@ -20,22 +20,26 @@ export class NavbarUserDropdown {
         private authService: AuthService,
         private errorService: ErrorService
     ) {
-        this.userService.getCurrentUser().subscribe(user => {
-            this.user = user;
+        this.authService.authentication$.subscribe(auth => {
+            if (auth && auth.user) {
+                const user = auth.user;
 
-            const licenseRoles: string[] = [];
-            if (user['License'] && user['License'].ContractType) {
-                if (user['License'].ContractType.TypeName) {
-                    licenseRoles.push(user['License'].ContractType.TypeName);
+                const licenseRoles: string[] = [];
+                if (user['License'] && user['License'].ContractType) {
+                    if (user['License'].ContractType.TypeName) {
+                        licenseRoles.push(user['License'].ContractType.TypeName);
+                    }
                 }
-            }
-            if (user['License'] && user['License'].UserType) {
-                if (user['License'].UserType.TypeName) {
-                    licenseRoles.push(user['License'].UserType.TypeName);
-                }
-            }
 
-            this.licenseRole = licenseRoles.join('/');
+                if (user['License'] && user['License'].UserType) {
+                    if (user['License'].UserType.TypeName) {
+                        licenseRoles.push(user['License'].UserType.TypeName);
+                    }
+                }
+
+                this.user = user;
+                this.licenseRole = licenseRoles.join('/');
+            }
         });
     }
 
@@ -55,10 +59,7 @@ export class NavbarUserDropdown {
 
     public saveUser(user) {
         this.userService.Put(user.ID, user).subscribe(
-            res => {
-                console.log('Saved!', res);
-                this.userService.invalidateCache();
-            },
+            () => this.userService.invalidateCache(),
             err => this.errorService.handle(err)
         );
     }
