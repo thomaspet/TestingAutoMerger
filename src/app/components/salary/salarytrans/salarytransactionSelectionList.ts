@@ -32,6 +32,10 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
 declare var _;
 const PAYROLL_RUN_KEY = 'payrollRun';
 
+class EmployeeWithError extends Employee {
+    _errors: string;
+}
+
 @Component({
     selector: 'salarytrans',
     templateUrl: './salarytransactionSelectionList.html'
@@ -80,8 +84,12 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
                 .do(() => this.selectedIndex = 0)
                 .do(employees => this.linkMenu$
                     .next(this.generateLinkMenu(this.payrollRun, employees[this.selectedIndex])))
-                .subscribe((employees: Employee[]) => {
-                    this.employeeList = _.cloneDeep(employees) || [];
+                .subscribe((employees: EmployeeWithError[]) => {
+                    const employeeListWithErrors = employees.map(employee => {
+                        employee._errors = this.generateEmployeeError(employee);
+                        return employee;
+                    });
+                    this.employeeList = _.cloneDeep(employeeListWithErrors) || [];
 
                     if (this.employeeList && this.employeeList.length) {
                         this.focusRow(0);
@@ -136,23 +144,28 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     public tableConfig() {
         const employeenumberCol = new UniTableColumn('EmployeeNumber', '#')
             .setWidth('3rem');
-        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn')
+        const nameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn');
+        const errorsCol = new UniTableColumn('_errors', 'Feil')
+            .setTemplate(row => row._errors ?  ' ' : '')
+            .setWidth('2rem')
+            .setFilterable(true)
             .setTooltipResolver(rowModel => {
-                const error = this.generateEmployeeError(rowModel);
-                if (error) {
+                if (rowModel._errors) {
                     return {
                         type: 'bad',
-                        text: error,
+                        text: rowModel._errors,
                     };
                 }
             });
 
         this.salarytransSelectionTableConfig = new UniTableConfig('salary.salarytrans.selectionList', false)
             .setColumnMenuVisible(false)
+            .setSearchable(true)
             .setDefaultOrderBy('EmployeeNumber', 1)
             .setColumns([
                 employeenumberCol,
                 nameCol,
+                errorsCol,
             ]);
     }
 
