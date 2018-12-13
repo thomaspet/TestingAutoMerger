@@ -131,7 +131,7 @@ export class AgGridWrapper {
     public ngOnDestroy() {
         this.rowSelectionDebouncer$.complete();
         this.columnMoveDebouncer$.complete();
-        this.resizeDebouncer$.complete();
+        this.colResizeDebouncer$.complete();
     }
 
     public ngOnChanges(changes) {
