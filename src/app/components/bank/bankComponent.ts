@@ -112,7 +112,8 @@ export class BankComponent implements AfterViewInit {
         },
         {
             Code: 'download_payment_file',
-            ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows)
+            ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44001
         },
         {
             Code: 'edit_payment',
