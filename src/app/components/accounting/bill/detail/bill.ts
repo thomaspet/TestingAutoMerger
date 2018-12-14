@@ -30,8 +30,7 @@ import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
 import {billViewLanguage as lang, billStatusflowLabels as workflowLabels} from './lang';
 import {BillHistoryView} from './history/history';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniImageSize, UniImage} from '../../../../../framework/uniImage/uniImage';
+import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {IUniSearchConfig} from '../../../../../framework/ui/unisearch/index';
 import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniAddFileModal} from './addFileModal';
@@ -854,23 +853,6 @@ export class BillView implements OnInit {
     ///     FILES AND OCR
 
     /// =============================
-
-    public onImageClicked(file: any) {
-        const current = this.current.getValue();
-        const data = {
-            entity: 'SupplierInvoice',
-            entityID: current.ID || 0,
-            fileIDs: null,
-            showFileID: file.ID,
-            readonly: true,
-            size: UniImageSize.large
-        };
-
-        if (data.entityID <= 0) {
-            data.fileIDs = this.files.map(f => f.ID);
-        }
-        this.modalService.open(ImageModal, { data: data });
-    }
 
     public onImageDeleted(file: any) {
         const index = this.files.findIndex(f => f.ID === file.ID);

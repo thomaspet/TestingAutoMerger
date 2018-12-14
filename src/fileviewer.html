@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Uni Economy - Filvisning</title>
+    <link rel="icon" type="image/x-icon" href="favicon.png?v=1">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <style>
+        body {
+            background: #d9d9d9;
+            margin: 0;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            display: flex;
+            width: 100vw;
+            height: 3rem;
+            padding: 0 38px 0 25px;
+            box-sizing: border-box;
+            background: #d9d9d9;
+            color: #0f4880;
+            user-select: none;
+        }
+
+        header img {
+            height: 28px;
+            margin: auto auto auto 0;
+        }
+
+        header span {
+            font: 600 15px Arial;
+            margin: auto 10px
+        }
+
+        header i.material-icons {
+            margin: auto 0;
+            cursor: pointer;
+            margin-left: 8px;
+            font-size: 26px;
+        }
+
+        main {
+            box-sizing: border-box;
+            padding: 3.5rem 25px 25px;
+        }
+
+        #image-container {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        #image-container img {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            box-shadow: 0px 1px 4px 0 rgba(0, 0, 0, 0.14);
+        }
+
+        #image-container img + img {
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header class="zoom-control">
+        <img src="./assets/economy-logo.png" alt="Uni Economy logo">
+        <span id="zoom-level-info"></span>
+        <i id="zoom-in" class="material-icons">add_circle</i>
+        <i id="zoom-out" class="material-icons">remove_circle</i>
+    </header>
+
+    <main>
+        <section id="image-container"></section>
+    </main>
+</body>
+
+<script type="application/javascript">
+    window.moveTo(0, 8);
+    let zoomLevel = 70;
+
+    const zoomLevelInfo = document.getElementById('zoom-level-info');
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const imageContainer = document.getElementById('image-container');
+
+    const updateImageZoom = () => {
+        if (zoomLevelInfo) {
+            zoomLevelInfo.innerText = zoomLevel + '%';
+        }
+
+        const images = imageContainer.querySelectorAll('img');
+        images.forEach(img => {
+            img.style.maxWidth = zoomLevel + '%';
+        });
+
+        localStorage.setItem('fileviewer-zoom', zoomLevel);
+    }
+
+    const zoomIn = () => {
+        if (imageContainer && zoomLevel < 100) {
+            zoomLevel += 10;
+            updateImageZoom();
+        }
+
+        window.innerHeight = 500;
+    }
+
+    const zoomOut = () => {
+        if (imageContainer && zoomLevel > 10) {
+            zoomLevel -= 10;
+            updateImageZoom();
+        }
+    }
+
+    zoomInBtn.onclick = () => zoomIn();
+    zoomOutBtn.onclick = () => zoomOut();
+
+    window.addEventListener('keydown', (event) => {
+        const key = event.which || event.keyCode;
+        if (key === 107) {
+            zoomIn();
+        } else if (key === 109) {
+            zoomOut();
+        }
+    });
+
+    const loadImages = function(jsonData) {
+        let imageUrls;
+        try {
+            imageUrls = JSON.parse(jsonData) || [];
+        } catch (err) {
+            imageUrls = [];
+            console.error(err);
+        }
+
+        let imageContainer = document.getElementById('image-container');
+        imageContainer.innerHTML = '';
+
+        imageUrls.forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.maxWidth = zoomLevel + '%';
+            zoomLevelInfo.innerText = zoomLevel + '%';
+
+            imageContainer.appendChild(img);
+        });
+    }
+
+    window.onload = function() {
+        const data = localStorage.getItem('fileviewer-data');
+        const zoom = localStorage.getItem('fileviewer-zoom');
+        if (zoom && parseInt(zoom)) {
+            zoomLevel = parseInt(zoom);
+        }
+
+        if (data) {
+            loadImages(data);
+        }
+    }
+
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'fileviewer-data' && event.newValue && event.oldValue !== event.newValue) {
+            loadImages(event.newValue);
+        }
+    });
+</script>
+
+</html>

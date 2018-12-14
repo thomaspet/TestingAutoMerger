@@ -177,6 +177,15 @@ export class UniImage {
         }
     }
 
+    openFileViewer() {
+        const baseUrl = window.location.href.split('/#/')[0];
+        window.open(
+            baseUrl + '/fileviewer.html',
+            'Fileviewer',
+            'menubar=0,height=950,width=965,left=0,top=8'
+        );
+    }
+
     public setOcrData(ocrResult) {
         if (ocrResult.OcrRawData) {
             const rawData = JSON.parse(ocrResult.OcrRawData);
@@ -218,6 +227,20 @@ export class UniImage {
         this.ocrMenu.closeMenu();
     }
 
+    private setFileViewerData(files: File[]) {
+        if (files && files.length) {
+            const imgUrls = [];
+            files.forEach(file => {
+                const numberOfPages = file.Pages || 1;
+                for (let pageIndex = 1; pageIndex <= numberOfPages; pageIndex++) {
+                    imgUrls.push(this.generateImageUrl(file, UniImageSize.large, pageIndex));
+                }
+            });
+
+            localStorage.setItem('fileviewer-data', JSON.stringify(imgUrls));
+        }
+    }
+
     public refreshFiles() {
         if (!this.token || !this.activeCompany) {
             return;
@@ -231,6 +254,7 @@ export class UniImage {
                 .subscribe((res) => {
                     this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
+                    this.setFileViewerData(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
                         this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -248,6 +272,7 @@ export class UniImage {
                 .subscribe((res) => {
                     this.files = res.json().filter(x => x !== null);
                     this.fileListReady.emit(this.files);
+                    this.setFileViewerData(this.files);
                     if (this.files.length) {
                         this.currentPage = 1;
                         this.currentFileIndex = this.showFileID ? this.getChosenFileIndex() : 0;
@@ -598,9 +623,15 @@ export class UniImage {
         this.cdr.markForCheck();
     }
 
-    private generateImageUrl(file: File, width: number): string {
-        const url =
-            `${this.baseUrl}/api/image/?key=${this.activeCompany.Key}&token=${this.token}&id=${file.StorageReference}&width=${width}&page=${this.currentPage}&t=${Date.now()}`;
+    private generateImageUrl(file: File, width: number, pageOverride?: number): string {
+        const url = `${this.baseUrl}/api/image`
+            + `?key=${this.activeCompany.Key}`
+            + `&token=${this.token}`
+            + `&id=${file.StorageReference}`
+            + `&width=${width}`
+            + `&page=${pageOverride || this.currentPage}`
+            + `&t=${Date.now()}`;
+
         return encodeURI(url);
     }
 
@@ -688,6 +719,7 @@ export class UniImage {
                     .subscribe(newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
+                        this.setFileViewerData(this.files);
                         this.currentFileIndex = this.files.length - 1;
                         this.currentPage = 1;
                         this.removeHighlight();

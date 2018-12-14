@@ -29,11 +29,7 @@ import {
     FileService
 } from '../../../services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {ImageModal} from '../../common/modals/ImageModal';
-import {
-  UniImageSize,
-  UniImage
-} from '../../../../framework/uniImage/uniImage';
+import {UniImage} from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import { FieldType } from '../../../../framework/ui/uniform/field-type.enum';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -372,16 +368,6 @@ export class BillsView implements OnInit {
 
         // also refresh the list, because we will most likely have multiple new files now
         this.refreshList(this.currentFilter);
-    }
-
-    public onImageClicked(file: any) {
-        const data = {
-            fileIDs: [file.ID],
-            readonly: true,
-            size: UniImageSize.large
-        };
-
-        this.modalService.open(ImageModal, { data: data });
     }
 
     public assignSupplierInvoices(done: any) {

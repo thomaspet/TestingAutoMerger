@@ -11,8 +11,6 @@ import {
     SupplierInvoiceService,
     ErrorService
 } from '../../../../services/services';
-import {UniImageSize} from '../../../../../framework/uniImage/uniImage';
-import {ImageModal} from '../../../common/modals/ImageModal';
 import {UniTable} from '../../../../../framework/ui/unitable/index';
 import {KeyCodes} from '../../../../../app/services/common/keyCodes';
 
@@ -39,7 +37,6 @@ import {KeyCodes} from '../../../../../app/services/common/keyCodes';
                         [readonly]="true"
                         [uploadWithoutEntity]="true"
                         [fileIDs]="fileID"
-                        (imageClicked)="onImageClicked($event)"
                         (fileListReady)="onFileListReady($event)">
                     </uni-image>
                 </article>
@@ -181,22 +178,6 @@ export class UniAddFileModal implements OnInit, IUniModal {
 
     public onCloseAction() {
         this.onClose.emit(null);
-    }
-
-    public onImageClicked(file: any) {
-        const data = {
-            entity: 'SupplierInvoice',
-            entityID: this.currentFiles[0].ID || 0,
-            fileIDs: null,
-            showFileID: file.ID,
-            readonly: true,
-            size: UniImageSize.large
-        };
-
-        if (this.currentFiles) {
-            data.fileIDs = this.currentFiles.map(f => f.FileID);
-        }
-        this.modalService.open(ImageModal, { data: data });
     }
 
     private previewDocument(item) {
