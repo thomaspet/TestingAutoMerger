@@ -153,7 +153,6 @@ export class UniModalService {
             }
         }
 
-        componentRootNode.style.margin = '0 auto';
         const backdrop = this.createBackdrop(options);
         backdrop.appendChild(componentRootNode);
 
