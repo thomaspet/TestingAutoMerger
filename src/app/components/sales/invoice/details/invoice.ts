@@ -1081,8 +1081,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.isDirty = false;
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-        this.readonly =
-            (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
+        this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
         this.readonlyDraft = !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
@@ -1169,7 +1168,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.openAccrualModal(data);
                     });
                 } else {
-                    this.openAccrualModal(data);
+                    if (this.invoice.Accrual) {
+                        data.accrual = this.invoice.Accrual;
+                        this.openAccrualModal(data);
+                    } else {
+                        const accrual$ = this.invoice.AccrualID ? this.accrualService.Get(this.invoice.AccrualID, ['Periods'])
+                            : Observable.of(null);
+                        accrual$.subscribe(accrual => {
+                            data.accrual = accrual;
+                            this.openAccrualModal(data);
+                        });
+                    }
                 }
             },
             disabled: () => this.invoice.InvoiceNumber > '42002'
@@ -1200,10 +1209,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 const accrual = res.model;
-                if (!accrual['_createguid']) {
+                if (!accrual['_createguid'] && !accrual.ID) {
                     accrual['createguid'] = createGuid();
                 }
-                const accrual$ = this.accrualService.Post(accrual);
+                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual): this.accrualService.Post(accrual);
                 const journalEntry$ = this.invoice.JournalEntryID ?
                     this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
                     : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
