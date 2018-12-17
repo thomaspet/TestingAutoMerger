@@ -106,8 +106,9 @@ export class AgGridWrapper {
 
     public ngOnInit() {
         this.rowSelectionDebouncer$
-            .debounceTime(200)
+            .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
+                this.agGridApi.refreshHeader();
                 this.rowSelectionChange.emit(event.api.getSelectedRows());
             });
 
@@ -240,7 +241,7 @@ export class AgGridWrapper {
                     }
 
                     if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
-                        event.api.selectAll();
+                        this.selectAll();
                     }
 
                     this.isInitialLoad = false;
@@ -259,7 +260,7 @@ export class AgGridWrapper {
                 }
 
                 if (this.config.multiRowSelect && this.config.multiRowSelectDefaultValue) {
-                    event.api.selectAll();
+                    this.selectAll();
                 }
 
                 this.isInitialLoad = false;
@@ -400,6 +401,16 @@ export class AgGridWrapper {
         });
     }
 
+    selectAll() {
+        if (this.config && this.config.multiRowSelect) {
+            if (this.rowModelType === 'infinite') {
+                this.agGridApi.forEachNode(row => row.setSelected(true));
+            } else {
+                this.agGridApi.selectAll();
+            }
+        }
+    }
+
     public paginate(action: 'next' | 'prev' | 'first' | 'last') {
         switch (action) {
             case 'next':
@@ -428,16 +439,9 @@ export class AgGridWrapper {
         };
     }
 
-    public onFiltersChange(event) { // TODO: typeme
+    public onFiltersChange(event) {
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
-            // Remove the checkmark in header checkbox
-            if (this.wrapperElement && this.wrapperElement.nativeElement) {
-                const headerCheckbox = this.wrapperElement.nativeElement.querySelector('.header-checkbox');
-                if (headerCheckbox) {
-                    headerCheckbox.classList.remove('checked');
-                }
-            }
         }
 
         this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
@@ -648,7 +652,8 @@ export class AgGridWrapper {
 
         if (this.config.multiRowSelect) {
             colDefs.unshift({
-                headerCheckboxSelection: true,
+                // headerCheckboxSelection: true,
+                headerComponent: CellRenderer.getHeaderCheckbox(),
                 checkboxSelection: true,
                 width: 38,
                 suppressSizeToFit: true,
