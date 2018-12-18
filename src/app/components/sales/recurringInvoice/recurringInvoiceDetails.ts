@@ -280,6 +280,10 @@ export class UniRecurringInvoice implements OnInit {
                     this.distributionPlans = res[15];
                     this.reports = res[16];
 
+                    this.selectConfig = this.numberSeriesService.getSelectConfig(
+                        this.invoiceID, this.numberSeries, 'Customer Invoice number series'
+                    );
+
                     if (!!customerID && res[2] && res[2]['Distributions'] && res[2]['Distributions'].CustomerInvoiceDistributionPlanID) {
                         invoice.DistributionPlanID = res[2]['Distributions'].CustomerInvoiceDistributionPlanID;
                     } else if (this.companySettings['Distributions']) {
@@ -318,7 +322,12 @@ export class UniRecurringInvoice implements OnInit {
                     this.dimensionsSettingsService.GetAll(null),
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
-                    this.reportDefinitionService.GetAll('filter=ReportType eq 1')
+                    this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
+                    this.numberSeriesService.GetAll(
+                        `filter=NumberSeriesType.Name eq 'Customer Invoice number `
+                        + `series' and Empty eq false and Disabled eq false`,
+                        ['NumberSeriesType']
+                    )
                     ).subscribe((res) => {
                     const invoice = res[0];
                     this.companySettings = res[1];
@@ -333,6 +342,11 @@ export class UniRecurringInvoice implements OnInit {
                     this.paymentInfoTypes = res[10];
                     this.distributionPlans = res[11];
                     this.reports = res[12];
+                    this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(res[13]);
+
+                    this.selectConfig = this.numberSeriesService.getSelectConfig(
+                        0, this.numberSeries, 'Customer Invoice number series'
+                    );
 
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
@@ -952,8 +966,6 @@ export class UniRecurringInvoice implements OnInit {
                     saveRequest.subscribe(
                         res => {
                             this.updateTab(res);
-
-                            if (res.InvoiceNumber) { this.selectConfig = undefined; }
                             resolve(res);
                             done('Lagring fullført');
                         },
