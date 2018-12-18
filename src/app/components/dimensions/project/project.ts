@@ -181,10 +181,11 @@ export class Project {
 
     private getFilteredProjects() {
         return this.allProjects.filter((project: ProjectModel) => {
-            if (project.Name.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())
-                || project.ProjectNumber.toLowerCase().includes(this.projectSearchFilterString.toLowerCase())) {
-                return project;
-            }
+            const projectName = (project.Name || '').toLowerCase();
+            const projectNumber = (project.ProjectNumber || '').toLowerCase();
+            const filterString = (this.projectSearchFilterString || '').toLowerCase();
+
+            return projectName.includes(filterString) || projectNumber.includes(filterString);
         }).slice(0, 99);
     }
 

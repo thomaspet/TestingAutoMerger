@@ -1,0 +1,57 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header><h1>Aktiver autobank for {{user?.DisplayName}}</h1></header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <p *ngFor="let message of errorMessages" role="alert" class="bad">
+            {{message}}
+        </p>
+
+        <form class="uni-html-form" [formGroup]="autobankData">
+            <label>
+                <span>Ditt autobank passord</span>
+                <input formControlName="AdminPassword" type="text" class="password" autofocus>
+            </label>
+
+            <fieldset>
+                <legend>Brukerinfo</legend>
+                <small>
+                    For å registrere bankbruker trenger vi et passord å knytte til brukeren.
+                    Brukeren kan selv endre dette senere via brukerinnstillingene oppe til høyre
+                    i applikasjonen.
+                    <br><br>
+                    Det jobbes med en bedre flyt, der brukeren fyller ut registreringsinfo selv.
+                    Dette vil være tilgjengelig om kort tid.
+                </small>
+
+                <label>
+                    <span>Passord</span>
+                    <input formControlName="Password" type="text" class="password">
+                </label>
+
+                <label>
+                    <span>Bekreft passord</span>
+                    <input formControlName="ConfirmPassword" type="text" class="password">
+                </label>
+
+                <label>
+                    <span>Telefon</span>
+                    <input formControlName="Phone" type="tel">
+                </label>
+
+                <label>
+                    <span>Autobank administrator</span>
+                    <mat-checkbox formControlName="IsAdmin"></mat-checkbox>
+                </label>
+            </fieldset>
+        </form>
+
+        <footer class="center">
+            <button (click)="submit()" class="c2a rounded">Registrer bankbruker</button>
+            <button (click)="close()">Avbryt</button>
+        </footer>
+    </article>
+</section>

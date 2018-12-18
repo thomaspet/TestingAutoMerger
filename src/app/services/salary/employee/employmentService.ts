@@ -9,6 +9,7 @@ import {
 import {Observable, ReplaySubject} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -67,6 +68,7 @@ export class EmploymentService extends BizHttp<Employment> {
     constructor(
         protected http: UniHttp,
         private companySalaryService: CompanySalaryService,
+        private toastService: ToastService,
         ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
@@ -94,6 +96,21 @@ export class EmploymentService extends BizHttp<Employment> {
         };
     }
 
+    public checkTypeOfEmployment(typeOfEmployment: TypeOfEmployment) {
+        if (typeOfEmployment !== TypeOfEmployment.MaritimeEmployment) {
+            return;
+        }
+        this.companySalaryService
+            .getCompanySalary()
+            .filter(compSal => !compSal.Base_SpesialDeductionForMaritim)
+            .subscribe(() => this.toastService
+                .addToast(
+                        'Advarsel',
+                        ToastType.warn,
+                        ToastTime.long,
+                        'Firmaet må settes opp med skatte- og avgiftsregelen "Særskilt fradrag for sjøfolk"'
+                        + ' for å kunne sette opp arbeidsforholdet korrekt'));
+    }
     public clearCache() {
         this.subEntities$ = new ReplaySubject(1);
         this.departments$ = new ReplaySubject(1);

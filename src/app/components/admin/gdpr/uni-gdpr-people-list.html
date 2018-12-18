@@ -1,14 +1,19 @@
 <uni-toolbar [config]="{title: 'Personopplysninger', hideBreadcrumbs: true}"></uni-toolbar>
 <section class="application">
-    <input [formControl]="searchControl" type="search" placeholder="Filter" class="unitableSearch_input"/>
+    <input type="search"
+        [formControl]="searchControl"
+        placeholder="Filter"
+        class="unitableSearch_input"
+        style="margin: 1rem 0;"
+    />
+
     <span *ngIf="hasMoreThan50">
         Søket ditt returnerer veldig mange treff. Vennligst gjør et mer spesifikt søk.
     </span>
     <ag-grid-wrapper
-        [attr.aria-busy]="busy"
         [config]="tableConfig"
         [resource]="data"
         (rowSelectionChange)="onRowSelected($event)">
     </ag-grid-wrapper>
-    <p *ngIf="showNoDataMessage">Vi fant ingen personopplysninger relatert til søket ditt</p>
+    <p *ngIf="showNoDataMessage" style="text-align: center;">Vi fant ingen personopplysninger relatert til søket ditt</p>
 </section>

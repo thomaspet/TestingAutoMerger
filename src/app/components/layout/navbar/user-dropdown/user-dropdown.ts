@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
 import {UserDto} from '@app/unientities';
-import {UserService, ErrorService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UserSettingsModal} from './user-settings-modal';
@@ -15,10 +14,8 @@ export class NavbarUserDropdown {
     public licenseRole: string;
 
     constructor(
-        private userService: UserService,
         private modalSerice: UniModalService,
         private authService: AuthService,
-        private errorService: ErrorService
     ) {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
@@ -50,17 +47,6 @@ export class NavbarUserDropdown {
     public openUserSettingsModal() {
         this.modalSerice.open(UserSettingsModal, {
             data: this.user
-        }).onClose.subscribe(updatedUser => {
-            if (updatedUser) {
-                this.saveUser(updatedUser);
-            }
         });
-    }
-
-    public saveUser(user) {
-        this.userService.Put(user.ID, user).subscribe(
-            () => this.userService.invalidateCache(),
-            err => this.errorService.handle(err)
-        );
     }
 }

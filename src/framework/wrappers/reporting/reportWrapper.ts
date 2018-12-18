@@ -87,7 +87,7 @@ export class StimulsoftReportWrapper {
         report.load(template);
 
         // remove connections specified in the template file
-        report.dictionary.databases.clear();
+        // report.dictionary.databases.clear();
         // add variables based on parameters
         if (parameters) {
             for (let i = 0; i < parameters.length; i++) {

@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
-import {ElsaCompanyLicense, ElsaProduct, ElsaUserLicense} from '@app/services/elsa/elsaModels';
+import {ElsaCompanyLicense, ElsaProduct, ElsaUserLicense} from '@app/models';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
 import {Observable} from 'rxjs';
 

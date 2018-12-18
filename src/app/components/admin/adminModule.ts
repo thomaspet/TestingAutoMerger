@@ -14,9 +14,6 @@ import {UniQueryModule} from '../uniquery/uniqueryModule';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
-import {UniModels} from './models/models';
-import {UniRoles} from './roles/roles';
-import {PermissionSelector} from './roles/permissionSelector';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
@@ -48,9 +45,6 @@ import { SaftExportModal } from './jobs/saft/saftexportmodal';
         JobList,
         JobDetails,
         JobLog,
-        UniModels,
-        UniRoles,
-        PermissionSelector,
         ApprovalThresholds,
         ApprovalThresholdRules,
         SaftExportView,
@@ -66,9 +60,6 @@ import { SaftExportModal } from './jobs/saft/saftexportmodal';
         JobList,
         JobDetails,
         JobLog,
-        UniModels,
-        UniRoles,
-        PermissionSelector,
         ApprovalThresholds,
         UniGdprPeopleList
     ]

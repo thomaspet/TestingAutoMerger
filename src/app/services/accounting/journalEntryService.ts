@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
-import {Account, VatType, Dimensions, FinancialYear, VatDeduction,
-    JournalEntryPaymentData, Payment, CustomerInvoice, InvoicePaymentData} from '../../unientities';
-import {JournalEntryData, JournalEntryExtended} from '../../models/models';
+import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData} from '../../unientities';
+import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/mergeMap';
@@ -116,8 +115,24 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return null;
     }
 
-    public setSessionData(mode: number, data: Array<JournalEntryData>) {
+    public getSessionNumberSeries() {
+        const numberSeriesID = this.storageService.getSessionItemFromCompany('Numberseries_journalEntry');
+
+        return +numberSeriesID || null;
+    }
+
+    public setSessionData(mode: number, data: Array<JournalEntryData>, numberSeriesID?: number) {
         this.storageService.setSessionItemOnCompany(`${this.JOURNAL_ENTRIES_SESSIONSTORAGE_KEY}_${mode}`, data);
+        // Remove stored session numberseries when setting empty array
+        if (!data) {
+            this.setSessionNumberSeries(null);
+        } else {
+            this.setSessionNumberSeries(numberSeriesID);
+        }
+    }
+
+    public setSessionNumberSeries(data) {
+        this.storageService.setSessionItemOnCompany(`Numberseries_journalEntry`, data);
     }
 
     public getLastJournalEntryNumber(): Observable<any> {

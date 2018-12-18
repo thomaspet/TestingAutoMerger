@@ -64,9 +64,9 @@ export class UniSendVippsInvoiceModal implements IUniModal {
 
     public initFormModel() {
         this.customLabel = "Sjekker tilgjengelighet hos Vipps..."
-        let model: Object = this.options.data || {Text:"", InvoiceID:""};
+        let model = { InvoiceID: this.options.data, Subject: '' };
         this.formModel$.next(model);
-        this.customerInvoiceService.validateVippsCustomer(this.formModel$.getValue()["InvoiceID"]).subscribe((res) => {
+        this.customerInvoiceService.validateVippsCustomer(this.options.data).subscribe((res) => {
             this.isValidCustomer = res
             this.isLoading = false
             if (res) {
@@ -85,7 +85,7 @@ export class UniSendVippsInvoiceModal implements IUniModal {
     public onGoodClick() {
         const model = this.formModel$.getValue();
 
-        if (model["Text"]) {
+        if (model['Subject']) {
             this.customLabel = "Behandling..."
             this.isLoading = true
             this.isShowing = true
@@ -102,12 +102,12 @@ export class UniSendVippsInvoiceModal implements IUniModal {
                 this.errorService.handle(err);
                 this.onClose.emit();
             });
-        } else{
+        } else {
             this.invalidMessage = true;
         }
     }
 
-    public onBadClick(){
+    public onBadClick() {
         this.onClose.emit();
     }
 
@@ -115,7 +115,7 @@ export class UniSendVippsInvoiceModal implements IUniModal {
         return [
             <any>{
                 EntityType: '',
-                Property: 'Text',
+                Property: 'Subject',
                 FieldType: FieldType.TEXT,
                 Label: 'Melding'
             }

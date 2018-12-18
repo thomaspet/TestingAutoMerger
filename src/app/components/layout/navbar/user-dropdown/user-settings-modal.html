@@ -1,0 +1,57 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        <h1>Brukerinnstillinger</h1>
+    </header>
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <form class="uni-html-form" *ngIf="userDetailsForm" [formGroup]="userDetailsForm">
+            <label>
+                <span>Visningsnavn</span>
+                <input formControlName="DisplayName" type="text">
+            </label>
+
+            <label>
+                <span>Telefonnummer</span>
+                <input formControlName="PhoneNumber" type="tel">
+            </label>
+
+            <label>
+                <span>E-post</span>
+                <input disabled formControlName="Email" type="email">
+            </label>
+        </form>
+
+        <!-- Change autobank password -->
+        <ng-container *ngIf="user?.BankIntegrationUserName">
+            <form class="uni-html-form" *ngIf="autobankPasswordForm" [formGroup]="autobankPasswordForm" autocomplete="off">
+                <fieldset>
+                    <legend>Endre autobank passord</legend>
+
+                    <label>
+                        <span>Nåværende passord</span>
+                        <input formControlName="currentPassword" type="text" class="password">
+                    </label>
+
+                    <label>
+                        <span>Nytt passord</span>
+                        <input formControlName="newPassword" type="text" class="password">
+                    </label>
+
+                    <label>
+                        <span>Bekreft passord</span>
+                        <input formControlName="confirmNewPassword" type="text" class="password">
+                    </label>
+                </fieldset>
+            </form>
+            <small>Glemt passord? Autobank administrator kan nullstille fra Innstillinger > Brukere</small>
+        </ng-container>
+    </article>
+
+    <footer class="center">
+        <button class="c2a rounded" (click)="save()">Lagre</button>
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>

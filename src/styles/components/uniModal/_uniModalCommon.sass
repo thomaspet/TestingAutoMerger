@@ -99,7 +99,8 @@ body.modal-open
     right: 0
     transition: opacity 300ms ease
     opacity: 1
-    background: transparentize($uni-color-scale4, .4)
+    // background: transparentize($uni-color-scale4, .4)
+    background: rgba(0,0,0,.25)
     overflow: auto
     z-index: map-get($zindex, modal)
 
@@ -115,7 +116,7 @@ body.modal-open
 
     > *:first-child
         display: block !important
-        margin: auto auto !important
+        margin: auto auto
         padding: 1rem 0 !important
 
 .uni-modal
@@ -123,7 +124,7 @@ body.modal-open
     margin: 0 auto
     background: #fff
     color: $uni-color-positive
-    box-shadow: 0 0 1rem transparentize($uni-color-positive, .9)
+    box-shadow: 0 11px 15px -7px rgba(0,0,0,.2), 0 24px 38px 3px rgba(0,0,0,.14), 0 9px 46px 8px rgba(0,0,0,.12)
     box-sizing: border-box
     border-radius: pxToRem(5)
     overflow: visible
@@ -153,33 +154,22 @@ body.modal-open
     header
         background: $uni-color-toolbar
         border-radius: pxToRem(4) pxToRem(4) 0 0
+        color: #fff
 
         h1
             font-size: 16px
             font-weight: 400
             width: calc(100% - 4rem)
-            color: $uni-color-negative
             line-height: 1
             padding: 0 1rem
             display: inline-block
             box-sizing: border-box
 
-        button.modal-close-button
-            @extend %hideText
-            float: right
-            height: 2.25rem
-            width: 2rem
-            margin: 0 1rem
-            padding: 0
-            box-shadow: none
-            border: none
-            background: transparent unicon-close($uni-color-negative) center no-repeat
-            background-size: .7rem
-            display: inline-block
-
-            &:hover
-                background: transparent unicon-close($uni-color-scale1) center no-repeat
-                background-size: .7rem
+        i.close-button
+            font-size: 21px
+            vertical-align: middle
+            margin-top: -5px
+            cursor: pointer
 
     > article
         box-sizing: border-box

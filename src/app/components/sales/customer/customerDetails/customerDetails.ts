@@ -1214,7 +1214,6 @@ export class CustomerDetails implements OnInit {
             }
         }
 
-        this.form.validateForm();
         this.setupSaveActions();
         this.customer$.next(customer);
     }

@@ -1,0 +1,54 @@
+.uni-redesign .uni-html-form
+    font-size: 15px
+    label:not(.mat-checkbox-layout)
+        display: flex
+        margin-bottom: 1rem
+
+        > span
+            flex: 0 0 200px
+            margin: auto 0
+
+        input, textarea
+            flex: 1
+
+    // Label sizes
+    &.label-xs label > span
+        flex-basis: 100px
+
+    &.label-sm label > span
+        flex-basis: 150px
+
+    &.label-md label > span
+        flex-basis: 200px
+
+    &.label-lg label > span
+        flex-basis: 250px
+
+    &.label-xl label > span
+        flex-basis: 300px
+
+
+    fieldset
+        border: 0
+        padding: 4rem 0 .5rem
+
+        // Reset uniform styling
+        width: unset
+        min-width: unset
+        max-width: unset
+        flex-basis: unset
+        margin: 0
+        box-shadow: none
+
+        legend
+            font: 500 16px 'Roboto', sans-serif
+            line-height: unset
+            height: unset
+            border: 0
+            padding: 0
+            margin-top: 1rem
+
+input.password
+    text-security: disc
+    -webkit-text-security: disc
+    -mox-text-security: disc

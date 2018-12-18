@@ -17,12 +17,14 @@ import {bankRoutes} from './bankRoutes';
 import {
     UniPaymentEditModal,
     UniAutobankAgreementListModal,
-    UniAutobankAgreementModal,
     MatchCustomerInvoiceManual,
-    UniAgreementWarningModal,
     MatchCustomerManualModal
 } from './modals';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
+
+import {
+    MatCheckboxModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
@@ -30,7 +32,7 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-
+        MatCheckboxModule,
         RouterModule.forChild(bankRoutes),
 
         UniFrameworkModule,
@@ -43,8 +45,6 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
         BankComponent,
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchCustomerManualModal
@@ -52,8 +52,6 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
     entryComponents: [
         UniPaymentEditModal,
         UniAutobankAgreementListModal,
-        UniAutobankAgreementModal,
-        UniAgreementWarningModal,
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchCustomerManualModal

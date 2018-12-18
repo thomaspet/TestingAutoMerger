@@ -1,10 +1,9 @@
 ﻿import {Component, ViewChild, SimpleChange} from '@angular/core';
-import {UniModalService, UniAddressModal} from '@uni-framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
-import {BehaviorSubject} from 'rxjs';
-import {ProjectResponsibility} from '../../../../models/models';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {ProjectResponsibility} from '@app/models';
 import {Project, Address, User, Country} from '@app/unientities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {

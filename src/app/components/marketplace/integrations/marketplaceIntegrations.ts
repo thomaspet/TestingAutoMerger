@@ -3,7 +3,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
-import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/services/elsa/elsaModels';
+import {ElsaProduct, ElsaProductType, ElsaProductStatusCode} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 
 @Pipe({name: 'filterIntegrations'})

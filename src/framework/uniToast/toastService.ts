@@ -15,6 +15,21 @@ export enum ToastTime {
     forever = 0
 }
 
+export interface IToastAction {
+    label: string;
+    click: () => void;
+    displayInHeader?: boolean;
+}
+
+export interface IToastOptions {
+    title: string;
+    message?: string;
+    duration?: number;
+    type?: ToastType;
+    action?: IToastAction;
+    centered?: boolean;
+}
+
 export interface IToast {
     id: number;
     type: ToastType;
@@ -22,6 +37,8 @@ export interface IToast {
     message?: string;
     duration: number;
     count: number;
+    action?: IToastAction;
+    centered?: boolean;
 }
 
 @Injectable()
@@ -35,11 +52,24 @@ export class ToastService {
         this.toasts$ = new ReplaySubject<IToast[]>(1);
     }
 
+    toast(options: IToastOptions) {
+        this.addToast(
+            options.title,
+            options.type || ToastType.bad,
+            options.duration || 0,
+            options.message,
+            options.action,
+            options.centered
+        );
+    }
+
     public addToast(
         title: string,
         type?: ToastType,
         durationInSeconds?: number,
-        message?: string
+        message?: string,
+        action?: IToastAction,
+        centered?: boolean
     ): number {
         let toastID: number;
         const sanitizedMessage = this.domSanitizer.sanitize(SecurityContext.HTML, message);
@@ -47,7 +77,6 @@ export class ToastService {
             return toast.title === title
                 && toast.message === (sanitizedMessage || '');
         });
-
 
         if (duplicate) {
             toastID = duplicate.id;
@@ -58,7 +87,9 @@ export class ToastService {
                 title: duplicate.title,
                 message: duplicate.message,
                 duration: duplicate.duration,
-                count: duplicate.count + 1
+                count: duplicate.count + 1,
+                action: action,
+                centered: centered
             };
         } else {
             toastID = this.nextId++;
@@ -68,7 +99,9 @@ export class ToastService {
                 title: title,
                 message: sanitizedMessage || '',
                 duration: durationInSeconds || 0,
-                count: 1
+                count: 1,
+                action: action,
+                centered: centered
             });
         }
 

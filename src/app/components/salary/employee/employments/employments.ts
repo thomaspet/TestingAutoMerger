@@ -7,7 +7,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import {Employee, Employment, SubEntity, Project, Department, EmploymentValidValues} from '../../../../unientities';
 import {UniCacheService, ErrorService} from '../../../../services/services';
-import {ReplaySubject} from 'rxjs';
+import {ReplaySubject, Subscription} from 'rxjs';
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -24,6 +24,7 @@ export class Employments extends UniView implements OnInit, OnDestroy {
     public employee: Employee;
     public employments: Employment[] = [];
     private selectedIndex: number;
+    private subs: Subscription[] = [];
     public tableConfig: UniTableConfig;
     public employeeID: number;
     public selectedEmployment$: ReplaySubject<Employment> = new ReplaySubject(1);
@@ -51,50 +52,55 @@ export class Employments extends UniView implements OnInit, OnDestroy {
 
 
     public ngOnInit() {
-        Observable.combineLatest(
-            this.route.parent.params,
-            this.route.queryParams
-        ).subscribe(res => {
-            const [params, queryParams] = res;
+        this.subs
+            .push(Observable
+                .combineLatest(
+                this.route.parent.params,
+                this.route.queryParams
+                )
+                .do(res => {
+                    const [params, queryParams] = res;
+                    super.updateCacheKey(this.router.url);
+                    this.employeeID = +params['id'];
+                    this.selectedIndex = undefined;
+                })
+                .switchMap(res => {
+                    const [params, queryParams] = res;
+                    return Observable.forkJoin(
+                        super.getStateSubject('employee')
+                        .do(employee => this.employee = employee, err => this.errorService.handle(err)),
+                        super.getStateSubject('employments')
+                        .do((employments: Employment[]) => {
+                            this.employments = employments || [];
+                            if (employments && employments.length) {
+                                const employmentID = +queryParams['EmploymentID'];
 
-            super.updateCacheKey(this.router.url);
-            this.employeeID = +params['id'];
-            this.selectedIndex = undefined;
+                                if (this.selectedIndex >= 0) {
+                                    this.selectedEmployment$.next(employments[this.selectedIndex]);
+                                } else {
+                                    let index;
+                                    if (employmentID) {
+                                        index = employments.findIndex(e => e.ID === employmentID);
+                                    } else {
+                                        index = employments.findIndex(e => e.Standard);
+                                    }
 
-            super.getStateSubject('employee')
-                .subscribe(employee => this.employee = employee, err => this.errorService.handle(err));
+                                    this.selectedIndex = index >= 0 ? index : 0;
+                                    this.selectedEmployment$.next(employments[this.selectedIndex]);
 
-            super.getStateSubject('employments').subscribe((employments: Employment[]) => {
-                this.employments = employments || [];
-
-                if (employments && employments.length) {
-                    const employmentID = +queryParams['EmploymentID'];
-
-                    if (this.selectedIndex >= 0) {
-                        this.selectedEmployment$.next(employments[this.selectedIndex]);
-                    } else {
-                        let index;
-                        if (employmentID) {
-                            index = employments.findIndex(e => e.ID === employmentID);
-                        } else {
-                            index = employments.findIndex(e => e.Standard);
-                        }
-
-                        this.selectedIndex = index >= 0 ? index : 0;
-                        this.selectedEmployment$.next(employments[this.selectedIndex]);
-
-                        setTimeout(() => {
-                            if (this.table) {
-                                this.table.focusRow(this.selectedIndex);
+                                    setTimeout(() => {
+                                        if (this.table) {
+                                            this.table.focusRow(this.selectedIndex);
+                                        }
+                                    });
+                                }
+                            } else {
+                                this.newEmployment();
                             }
-                        });
-                    }
-                } else {
-                    this.newEmployment();
-                }
-            });
-
-        });
+                        })
+                    );
+                })
+                .subscribe());
     }
 
     public ngOnDestroy() {
@@ -104,27 +110,8 @@ export class Employments extends UniView implements OnInit, OnDestroy {
             const isDirty = employments.some(emp => emp['_isDirty']);
             super.updateState('employments', employments, isDirty);
         }
+        this.subs.forEach(sub => sub.unsubscribe());
     }
-
-    private focusRow(employmentID: number) {
-        if (isNaN(employmentID)) {
-            employmentID = undefined;
-        }
-        if (this.selectedIndex === undefined && this.employments.length) {
-            let focusIndex = this.employments.findIndex(employment => employmentID !== undefined
-                ? employment.ID === employmentID
-                : employment.Standard);
-
-            if (focusIndex === -1) {
-                focusIndex = 0;
-            }
-
-            if (this.table) {
-                this.table.focusRow(focusIndex);
-            }
-        }
-    }
-
 
     public newEmployment() {
         this.employmentService

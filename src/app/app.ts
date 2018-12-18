@@ -17,7 +17,9 @@ import {
 
 import * as moment from 'moment';
 import {KeyCodes} from '@app/services/common/keyCodes';
-import {Observable} from 'rxjs';
+// Do not change this import! Since we don't use rx operators correctly
+// we depend on having at least one import getting EVERYTHING in rxjs
+import {Observable} from 'rxjs/Rx';
 import {Router} from '@angular/router';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
@@ -88,7 +90,7 @@ export class App {
         Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             const keyCode = event.which || event.keyCode;
             const character = String.fromCharCode(keyCode);
-            if (event.ctrlKey && event.altKey && character === "B") {
+            if (event.ctrlKey && event.altKey && character === 'B') {
                 this.router.navigateByUrl('/bureau');
             }
         });
@@ -109,29 +111,30 @@ export class App {
     }
 
     private showCustomerLicenseModal() {
-        this.modalService
-            .open(CustomerLicenseAgreementModal)
-            .onClose
-            .subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.uniHttp.asPOST()
-                        .usingBusinessDomain()
-                        .withEndPoint('users?action=accept-CustomerAgreement')
-                        .send()
-                        .map(res => res.json())
-                        .subscribe(
-                            success => this.toastService.addToast(
-                                'Suksess',
-                                ToastType.good,
-                                ToastTime.short,
-                                'Selskaps-Lisens godkjenning lagret',
-                            ),
-                            err => this.errorService.handle(err),
-                        );
-                } else {
-                    this.authService.clearAuthAndGotoLogin();
-                }
-            });
+        this.modalService.open(CustomerLicenseAgreementModal, {
+            hideCloseButton: true,
+            closeOnClickOutside: false,
+            closeOnEscape: false
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.uniHttp.asPOST()
+                    .usingBusinessDomain()
+                    .withEndPoint('users?action=accept-CustomerAgreement')
+                    .send()
+                    .map(res => res.json())
+                    .subscribe(
+                        success => this.toastService.addToast(
+                            'Suksess',
+                            ToastType.good,
+                            ToastTime.short,
+                            'Selskaps-Lisens godkjenning lagret',
+                        ),
+                        err => this.errorService.handle(err),
+                    );
+            } else {
+                this.authService.clearAuthAndGotoLogin();
+            }
+        });
     }
 
     private showCanNotAcceptCustomerLicenseModal(user: UserDto) {
@@ -150,7 +153,7 @@ export class App {
                 }
             })
             .onClose
-            .subscribe(()=>{});
+            .subscribe(() => {});
     }
 
     private showUserLicenseModal() {

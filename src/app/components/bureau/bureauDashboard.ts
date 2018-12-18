@@ -7,14 +7,11 @@ import {IUniSaveAction} from '../../../framework/save/save';
 import {UniNewCompanyModal} from './newCompanyModal';
 import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
-import {BureauPreferences, BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
-import {SingleTextFieldModal} from '../../../framework/uni-modal/modals/singleTextFieldModal';
+import {BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
 import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
-import {isNullOrUndefined} from 'util';
 import {AuthService} from '../../authService';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
-import {ManageProductsModal} from '@uni-framework/uni-modal/modals/manageProductsModal';
 import {SubCompanyModal} from '@uni-framework/uni-modal/modals/subCompanyModal';
 import {Subscription} from 'rxjs';
 import {ErrorService, CompanyService, BrowserStorageService} from '@app/services/services';
@@ -287,16 +284,16 @@ export class BureauDashboard {
             ])
             .setContextMenu([
                 {
-                    label: 'Administrer produkter',
-                    action: item => this.editPurchases(item)
+                    label: 'Administrer brukertilganger',
+                    action: company => this.redirectToCompanyUrl(company, '/settings/users')
                 },
                 {
                     label: 'Opprett som kunde',
-                    action: item => this.createCustomer(item)
+                    action: company => this.createCustomer(company)
                 },
                 {
                     label: 'Rediger klientnr',
-                    action: item => this.editClientNumber(item)
+                    action: company => this.editClientNumber(company)
                 }
             ]);
     }
@@ -441,14 +438,6 @@ export class BureauDashboard {
     private setCurrentCompany(company: KpiCompany) {
         this.highlightedCompany = company;
         this.currentCompanyService.setCurrentCompany(company);
-    }
-
-
-    public editPurchases(company: KpiCompany) {
-        this.modalService.open(ManageProductsModal, {
-            header: `Velg hvilke brukere som skal ha hvilke produkter i ${company.Name}`,
-            data: {companyKey: company.Key},
-        });
     }
 
     public createCustomer(company: KpiCompany) {

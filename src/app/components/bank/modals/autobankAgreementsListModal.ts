@@ -4,9 +4,9 @@ import {
     IModalOptions,
     IUniModal,
     UniConfirmModalV2,
-    ConfirmActions
+    ConfirmActions,
+    UniAutobankAgreementModal
 } from '@uni-framework/uni-modal';
-import {UniAutobankAgreementModal} from './autobankAgreementModal';
 import {BankService} from '@app/services/accounting/bankService';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 

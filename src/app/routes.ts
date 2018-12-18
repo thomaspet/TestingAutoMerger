@@ -1,5 +1,6 @@
 import {RouterModule} from '@angular/router';
 import {AuthGuard} from './authGuard';
+import {CompanyKeyRouteGuard} from './companyKeyRouteGuard';
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 
@@ -87,6 +88,10 @@ const routes = [
         path: 'bank',
         loadChildren: './components/bank/bankModule#BankModule',
     },
+    {
+        path: 'contract-activation',
+        loadChildren: './components/contract-activation/contract-activation.module#ContractActivationModule'
+    },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {
@@ -112,7 +117,7 @@ export const APP_ROUTES = RouterModule.forRoot([
     // everything else does
     {
         path: '',
-        canActivate: [AuthGuard],
+        canActivate: [AuthGuard, CompanyKeyRouteGuard],
         canActivateChild: [RoutePermissionGuard],
         children: routes
     }

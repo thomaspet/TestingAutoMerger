@@ -4,10 +4,11 @@ import {Http, Headers} from '@angular/http';
 import {Observable} from 'rxjs';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto} from './unientities';
-import {ReplaySubject} from 'rxjs';
-import {Subject} from 'rxjs';
+import {ReplaySubject, BehaviorSubject} from 'rxjs';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import 'rxjs/add/operator/map';
 
+import * as moment from 'moment';
 import * as $ from 'jquery';
 import * as jwt_decode from 'jwt-decode';
 
@@ -15,6 +16,7 @@ export interface IAuthDetails {
     token: string;
     activeCompany: Company;
     user: UserDto;
+    hasActiveContract: boolean;
 }
 
 const PUBLIC_ROOT_ROUTES = [
@@ -29,7 +31,7 @@ const PUBLIC_ROOT_ROUTES = [
     'marketplace',
     'predefined-descriptions',
     'gdpr',
-    'test'
+    'contract-activation'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -40,18 +42,18 @@ export class AuthService {
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$: ReplaySubject<IAuthDetails> = new ReplaySubject<IAuthDetails>(1);
+    // public trialExpired$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     public filesToken$: ReplaySubject<string> = new ReplaySubject(1);
     public jwt: string;
     public jwtDecoded: any;
     public activeCompany: any;
-    public companySettings: any;
+    public currentUser: UserDto;
     public filesToken: string;
 
     private headers: Headers = new Headers({
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     });
-
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
     private storage = {
@@ -74,8 +76,8 @@ export class AuthService {
 
     constructor(
         private router: Router,
-        private route: ActivatedRoute,
-        private http: Http
+        private http: Http,
+        private toastService: ToastService
     ) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
@@ -85,20 +87,28 @@ export class AuthService {
 
         if (this.jwt && this.activeCompany) {
             this.setLoadIndicatorVisibility(true);
-            this.verifyAuthentication().subscribe(
+            this.loadCurrentSession().subscribe(
                 res => {
                     this.authentication$.next(res);
                     this.filesToken$.next(this.filesToken);
+
+                    if (!res.hasActiveContract) {
+                        this.router.navigateByUrl('contract-activation');
+                    }
+
                     // Give the app a bit of time to initialise before we remove spinner
                     // (less visual noise on startup)
-                    setTimeout(() => this.setLoadIndicatorVisibility(false), 250);
+                    setTimeout(() => {
+                        this.setLoadIndicatorVisibility(false);
+                    }, 250);
                 },
                 err => {
                     this.setLoadIndicatorVisibility(false);
                     this.authentication$.next({
                         activeCompany: undefined,
                         token: undefined,
-                        user: undefined
+                        user: undefined,
+                        hasActiveContract: false,
                     });
 
                     this.clearAuthAndGotoLogin();
@@ -108,7 +118,8 @@ export class AuthService {
             this.authentication$.next({
                 activeCompany: undefined,
                 token: undefined,
-                user: undefined
+                user: undefined,
+                hasActiveContract: false
             });
         }
 
@@ -206,9 +217,14 @@ export class AuthService {
                 this.activeCompany = activeCompany;
                 this.companyChange.emit(activeCompany);
 
-                this.verifyAuthentication().take(1).subscribe(
+                this.loadCurrentSession().take(1).subscribe(
                     authDetails => {
                         this.authentication$.next(authDetails);
+
+                        if (authDetails.user && !authDetails.hasActiveContract) {
+                            redirect = 'contract-activation';
+                        }
+
                         setTimeout(() => {
                             this.router.navigateByUrl(redirect || '');
                             this.setLoadIndicatorVisibility(false);
@@ -239,7 +255,7 @@ export class AuthService {
         return safeUrl || '';
     }
 
-    private verifyAuthentication(): Observable<IAuthDetails> {
+    loadCurrentSession(): Observable<IAuthDetails> {
         const headers = new Headers({
             'Content-Type': 'application/json',
             'Accept': 'application/json',
@@ -252,10 +268,18 @@ export class AuthService {
             + 'users?action=current-session';
 
         return this.http.get(url, {headers: headers}).map(res => {
+            const user = res.json();
+            this.currentUser = user;
+
+            // Just set this to true for now, since the endpoint
+            // is not ready in time for release..
+            const hasActiveContract = user && true; // !this.isTrialExpired(user);
+
             return {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
-                user: res.json()
+                user: user,
+                hasActiveContract: hasActiveContract
             };
         });
     }
@@ -308,7 +332,12 @@ export class AuthService {
      */
     public clearAuthAndGotoLogin(): void  {
         if (this.isAuthenticated()) {
-            this.authentication$.next({token: undefined, activeCompany: undefined, user: undefined});
+            this.authentication$.next({
+                token: undefined,
+                activeCompany: undefined,
+                user: undefined,
+                hasActiveContract: false
+            });
             this.filesToken$.next(undefined);
 
             const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
@@ -445,4 +474,47 @@ export class AuthService {
 
         return 'ui_' + urlParts.join('_');
     }
+
+    /*
+        Dont remove this!
+        Will be "turned on" as soon as the backend endpoint
+        is in a working state.
+    */
+
+    // isTrialExpired(user): boolean {
+    //     const contract = (user.License && user.License.ContractType) || {};
+    //     if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
+    //         const daysRemaining = moment(contract.TrialExpiration).diff(moment(), 'days');
+    //         if (daysRemaining > 0) {
+    //             const daysWording = daysRemaining === 1 ? 'dag' : 'dager';
+    //             // Timeout so app init doesnt clear the toast immediately
+    //             setTimeout(() => {
+    //                 this.toastService.toast({
+    //                     title: `Prøveperiode slutter om ${daysRemaining} ${daysWording}`,
+    //                     type: ToastType.good,
+    //                     centered: true,
+    //                     duration: 10,
+    //                     action: {
+    //                         label: 'Aktiver nå',
+    //                         click: () => this.router.navigateByUrl('contract-activation'),
+    //                         displayInHeader: true
+    //                     }
+    //                 });
+    //             });
+    //         } else {
+    //             // Timeout so app init doesnt clear the toast immediately
+    //             setTimeout(() => {
+    //                 this.toastService.toast({
+    //                     title: `Din prøveperiode på UniEconomy er over`,
+    //                     type: ToastType.bad,
+    //                     centered: true,
+    //                 });
+    //             });
+
+    //             return true;
+    //         }
+    //     }
+
+    //     return false;
+    // }
 }

@@ -10,6 +10,9 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 export interface IBrRegCompanyInfo {
     navn: string;
     orgnr: string;
+    nkode1: string;
+    nkode2: string;
+    nkode3: string;
     forretningsadr: string;
     forradrpostnr: string;
     forradrpoststed: string;

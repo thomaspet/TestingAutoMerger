@@ -1,6 +1,6 @@
 import {Component, Output, EventEmitter, Input, SimpleChanges} from '@angular/core';
 import {ElsaContractService} from '@app/services/elsa/elsaContractService';
-import {ElsaCompanyLicense} from '@app/services/elsa/elsaModels';
+import {ElsaCompanyLicense} from '@app/models';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from '@app/components/bureau/grant-access-modal/grant-access-modal';
 

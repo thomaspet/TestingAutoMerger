@@ -1,0 +1,23 @@
+<section role="dialog" class="uni-modal">
+    <header>Inviter bruker</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <input type="email" #emailInput
+            [formControl]="emailControl"
+            [ngClass]="{'invalid': invalidInput}"
+            (keydown.enter)="send()"
+            placeholder="Epost adresse"
+        />
+
+        <small *ngIf="invalidInput">Ugyldig e-post adresse</small>
+    </article>
+
+    <footer class="center">
+        <button (click)="send()" class="c2a rounded">Send invitasjon</button>
+        <button (click)="onClose.emit()">Avbryt</button>
+    </footer>
+</section>

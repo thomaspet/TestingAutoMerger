@@ -37,7 +37,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds} from '../../../../../models/models';
+import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -1719,23 +1719,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 }
 
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
                 // calculate the Amount that was paid in the base currency - the diff between this and
                 // what is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
-                const higherPrecisionExchangeRate = postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency;
+                const higherPrecisionExchangeRate = Math.abs(postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency);
                 journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * higherPrecisionExchangeRate // postPostJournalEntryLine.CurrencyExchangeRate
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate
                 );
 
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                journalEntryRow.CurrencyExchangeRate = postPostJournalEntryLine.CurrencyExchangeRate;
+                journalEntryRow.CurrencyExchangeRate = higherPrecisionExchangeRate;
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
                     if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
                         journalEntryRow.CreditAccount = null;
                         journalEntryRow.CreditAccountID = null;
@@ -1756,6 +1757,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             : null;
                     }
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
+                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
                         this.addJournalEntryLines([oppositeRow, agioRow]);
                         resolve(journalEntryRow);
@@ -1800,7 +1804,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         return new Promise(resolve => {
             const paymentData: InvoicePaymentData = {
-                Amount: customerInvoice.RestAmount, //UniMath.round(customerInvoice.RestAmountCurrency * customerInvoice.CurrencyExchangeRate, 2),
+                Amount: customerInvoice.RestAmount,
                 AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,
                 CurrencyCodeID: customerInvoice.CurrencyCodeID,
@@ -1831,30 +1835,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     resolve(journalEntryRow);
                 }
                 journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
                 // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
                 // the Amount that was paid in the base currency - the diff between this and what
                 // is registerred as a payment on the opposite account (normally a bankaccount)
                 // will be balanced using an agio line
-                const higherPrecisionExchangeRate = customerInvoice.RestAmount / customerInvoice.RestAmountCurrency;
-                journalEntryRow.Amount = UniMath.round(
-                    paymentData.AmountCurrency * higherPrecisionExchangeRate //paymentData.AmountCurrency * customerInvoice.CurrencyExchangeRate
-                );
-
+                journalEntryRow.Amount = paymentData.Amount;
                 journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
                 journalEntryRow.NetAmount = journalEntryRow.Amount;
                 journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                journalEntryRow.CurrencyExchangeRate = customerInvoice.CurrencyExchangeRate;
                 journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
                 journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
+                journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
 
                 if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
                     const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
                     journalEntryRow.DebitAccount = null;
                     journalEntryRow.DebitAccountID = null;
 
+
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
                         agioRow.CustomerInvoiceID = customerInvoice.ID;
+                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
                         resolve(journalEntryRow);
                         setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
@@ -2535,6 +2541,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
+            if (!data.VatDeductionPercent) {
+                data.VatDeductionPercent = 100;
+            }
         });
         this.journalEntryService.postJournalEntryData(tableData)
             .subscribe(data => {

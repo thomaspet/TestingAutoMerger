@@ -371,6 +371,16 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
+    public createInvoiceJournalEntryDraftAction(id: number): Observable<any> {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=create-invoice-journalentrydraft`)
+            .send()
+            .map(response => response.json());
+    }
+
     public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {
         super.invalidateCache();
         return this.http

@@ -906,6 +906,11 @@
                 "Width": "5rem"
             },
             {
+                "Header": "Ansatt",
+                "Field": "Employee.BusinessRelationInfo.Name",
+                "Type": "text"
+            },
+            {
                 "Header": "Tekst",
                 "Field": "Text"
             },

@@ -190,7 +190,6 @@ export class UniForm implements OnChanges, OnInit {
     public onFocusHandler(event) {
         this.currentComponent = event;
         this.focusEvent.emit(event);
-        this.validateForm();
     }
 
     public focusFirstElement() {

@@ -271,6 +271,9 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         if (validates) {
             for (let i = 0; i < transes.length; i++) {
                 const trans = transes[i];
+                if (!trans.Sum) {
+                    continue;
+                }
                 if (!trans.Account) {
                     this.toastService
                         .addToast('Konto mangler',

@@ -38,10 +38,7 @@ downloadColumn
         });
         fs.saveAs(blob, filename);
     }))
-    .setLinkResolver(rowModel => {
-        return '';
-    })
-    .setTemplate((rowModel) => 'Download');
+    .setTemplate(() => 'Download');
 
 export const tableConfig =  new UniTableConfig(configStoreKey, false, false)
     .setSearchable(false)

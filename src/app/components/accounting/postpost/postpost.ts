@@ -17,7 +17,10 @@ import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({
     selector: 'postpost',
-    templateUrl: './postpost.html'
+    templateUrl: './postpost.html',
+    host: {
+        '(document:keydown)': 'checkForSaveKey($event)'
+    }
 })
 export class PostPost {
 
@@ -34,20 +37,24 @@ export class PostPost {
 
     currentFilter: string = 'OPEN';
     tabs: IUniTab[] = [
-        {name: 'Åpne poster', value: 'OPEN'},
+        {
+            name: 'Åpne poster',
+            value: 'OPEN',
+            tooltip: 'Ctrl + A for å automerke, Ctrl + M for å fjerne alle markeringer'
+        },
         {name: 'Lukkede poster', value: 'MARKED'},
         {
             name: 'Alle poster',
             value: 'ALL',
-            tooltip: 'Om du skal lukke poster, velg Apne poster-fanen.'
+            tooltip: 'Om du skal lukke poster, velg Åpne poster-fanen.'
         }
     ];
 
     accountListfilters = [
-        { name: 'Kontonummer', value: 'AccountNumber' },
-        { name: 'Navn', value: 'AccountName' },
-        { name: 'Sum åpne poster', value: 'SumAmount' },
-        { name: 'Antall poster', value: 'count' }
+        { name: 'Kontonummer', value: 'AccountNumber', multiplier: 1, initialMulitplier: 1 },
+        { name: 'Navn', value: 'AccountName', multiplier: 1, initialMulitplier: 1 },
+        { name: 'Sum poster', value: 'SumAmount', multiplier: -1, initialMulitplier: 1 },
+        { name: 'Antall poster', value: 'count', multiplier: -1, initialMulitplier: 1 }
     ];
 
     currentListFilter = this.accountListfilters[0];
@@ -72,14 +79,6 @@ export class PostPost {
     private canceled: boolean = false;
     private ledgerEmitValue: LedgerTableEmitValues = LedgerTableEmitValues.InitialValue;
     private register: string = 'customer';
-
-    @HostListener('keydown', ['$event'])
-    public onKeyDown(event: KeyboardEvent) {
-        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
-            event.preventDefault();
-            this.autoMark();
-        }
-    }
 
     constructor(
         private tabService: TabService,
@@ -130,6 +129,18 @@ export class PostPost {
             });
     }
 
+    public checkForSaveKey(event) {
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 65) {
+            event.preventDefault();
+            this.autoMark();
+        }
+
+        if ((event.ctrlKey || event.metaKey) && event.keyCode === 77) {
+            event.preventDefault();
+            this.cancel(() => {}, false);
+        }
+    }
+
     public ngAfterViewInit() {
         this.scrollbar = new PerfectScrollbar('#role-info');
     }
@@ -154,15 +165,22 @@ export class PostPost {
     }
 
     private setMainTabs(name: string, hidden: boolean = true) {
-        this.mainTabs = [
-            {name: 'Alle ' +  name, value: 'ALL'},
-            {
-                name: `${(name.substr(0, 1).toUpperCase()) + (name.substr(1, name.length - 1))} med differanse`,
-                value: 'DIFF',
-                hidden: hidden,
-                tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
-            }
-        ];
+        this.mainTabs = [ {name: 'Alle ' +  name + ' med åpne poster', value: 'ALL'} ];
+
+        if (name !== 'kontoer') {
+            this.mainTabs.unshift({name: 'Alle ' + name, value: 'EVERY'});
+        }
+
+        if (!hidden) {
+            this.mainTabs.push(
+                {
+                    name: `${(name.substr(0, 1).toUpperCase()) + (name.substr(1, name.length - 1))} med differanse`,
+                    value: 'DIFF',
+                    hidden: hidden,
+                    tooltip: 'Kunder som har differanse mellom åpne poster og saldo på konto i regnskapet. Sjekk åpne poster'
+                }
+            );
+        }
         if (!this.currentTab) {
             this.currentTab = this.mainTabs[0];
         }
@@ -184,9 +202,9 @@ export class PostPost {
     }
 
     public onActiveFilterChange(filter) {
-        const reverseMultiplier = filter.value === this.currentListFilter.value ? -1 : 1;
         this.currentListFilter = filter;
-        this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, reverseMultiplier));
+        this.filteredAccounts = this.filteredAccounts.sort(this.compare(filter.value, filter.multiplier * filter.initialMulitplier));
+        filter.initialMulitplier *= -1;
     }
 
     // Share actions
@@ -283,8 +301,8 @@ export class PostPost {
         done('Gjenåpnet');
     }
 
-    private cancel(done: (message: string) => void) {
-        this.postpost.abortMarking();
+    private cancel(done: (message: string) => void, ask: boolean = true) {
+        this.postpost.abortMarking(ask);
         done('Angret');
     }
 
@@ -317,6 +335,23 @@ export class PostPost {
     }
 
     private getFilteredAccounts() {
+        // Let user search for smaller/bigger than SumAmount by starting querystring with < or > and then a number..
+        if (this.accountSearchFilterString.startsWith('>')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount > parseInt(searchString.trim(), 10));
+            }
+        } else if (this.accountSearchFilterString.startsWith('<')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount < parseInt(searchString.trim(), 10));
+            }
+        } else if (this.accountSearchFilterString.startsWith('=')) {
+            const searchString = this.accountSearchFilterString.substr(1, this.accountSearchFilterString.length);
+            if (searchString.length && !isNaN(parseInt(searchString.trim(), 10))) {
+                return this.accounts.filter(acc => acc.SumAmount === parseInt(searchString.trim(), 10));
+            }
+        }
         return this.accounts.filter((account: any) => {
             if (account.AccountName.toLowerCase().includes(this.accountSearchFilterString.toLowerCase())
                 || account.AccountNumber.toString().includes(this.accountSearchFilterString.toLowerCase())) {
@@ -424,8 +459,8 @@ export class PostPost {
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
                 `expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&` +
-                `filter=SubAccount.CustomerID gt ` +
-                `0 ${this.getStatusFilter()}` +
+                `filter=SubAccount.CustomerID gt 0 ` +
+                (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Customer.CustomerNumber`
             : 'model=JournalEntryLine&' +
                 `select=Customer.ID as ID,Customer.CustomerNumber as AccountNumber,count(ID) as count,` +
@@ -451,7 +486,8 @@ export class PostPost {
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,` +
                 `Info.Name as AccountName,sum(RestAmount) as SumAmount,count(ID) as count&` +
                 `expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&` +
-                `filter=SubAccount.SupplierID gt 0 ${this.getStatusFilter()}` +
+                `filter=SubAccount.SupplierID gt 0 ` +
+                (this.currentTab.value === 'ALL' ? `${this.getStatusFilter()}` : '')  +
                 `&orderby=Supplier.SupplierNumber`
             :   `model=JournalEntryLine&` +
                 `select=Supplier.ID as ID,Supplier.SupplierNumber as AccountNumber,count(ID) as count,` +
@@ -472,14 +508,12 @@ export class PostPost {
     }
 
     private loadAccounts() {
-        this.statisticsService
-            .GetAllUnwrapped(`model=JournalEntryLine&` +
-                             `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
-                             `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&` +
-                             `expand=Account&` +
-                             `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
-                             `&` +
-                             `orderby=Account.AccountNumber`)
+        this.statisticsService.GetAllUnwrapped
+        (`model=JournalEntryLine&` +
+        `select=Account.ID as ID,Account.AccountNumber as AccountNumber,count(ID) as count,` +
+        `Account.AccountName as AccountName,sum(RestAmount) as SumAmount&expand=Account&` +
+        `filter=Account.UsePostPost eq 1 and Account.AccountGroupID gt 0 ${this.getStatusFilter()}` +
+        `&orderby=Account.AccountNumber`)
             .subscribe(accounts => {
                 this.accounts = accounts;
                 this.filteredAccounts = this.getFilteredAccounts();

@@ -455,6 +455,179 @@ export class CampaignTemplate extends UniEntity {
 }
 
 
+export class RecurringInvoiceLog extends UniEntity {
+    public static RelativeUrl = 'RecurringInvoicelogs';
+    public static EntityType = 'RecurringInvoiceLog';
+
+    public _createguid: string;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreationDate: LocalDate;
+    public Deleted: boolean;
+    public ID: number;
+    public InvoiceDate: LocalDate;
+    public InvoiceID: number;
+    public IterationNumber: number;
+    public NotifiedOrdersPrepared: boolean;
+    public NotifiedRecurringEnds: boolean;
+    public OrderID: number;
+    public RecurringInvoiceID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class RecurringInvoiceItem extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'RecurringInvoiceItem';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public Discount: number;
+    public DiscountCurrency: number;
+    public DiscountPercent: number;
+    public ID: number;
+    public ItemText: string;
+    public NumberOfItems: number;
+    public PriceExVat: number;
+    public PriceExVatCurrency: number;
+    public PriceIncVat: number;
+    public PriceSetByUser: boolean;
+    public PricingSource: PricingSource;
+    public ProductID: number;
+    public RecurringInvoiceID: number;
+    public ReduceIncompletePeriod: boolean;
+    public SortIndex: number;
+    public StatusCode: number;
+    public SumTotalExVat: number;
+    public SumTotalExVatCurrency: number;
+    public SumTotalIncVat: number;
+    public SumTotalIncVatCurrency: number;
+    public SumVat: number;
+    public SumVatCurrency: number;
+    public TimeFactor: RecurringPeriod;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VatDate: LocalDate;
+    public VatPercent: number;
+    public VatTypeID: number;
+    public Product: Product;
+    public VatType: VatType;
+    public Dimensions: Dimensions;
+    public Account: Account;
+    public CurrencyCode: CurrencyCode;
+    public CustomFields: any;
+}
+
+
+export class RecurringInvoice extends UniEntity {
+    public static RelativeUrl = 'recurringinvoices';
+    public static EntityType = 'RecurringInvoice';
+
+    public _createguid: string;
+    public AmountRegards: string;
+    public Comment: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CreditDays: number;
+    public CurrencyCodeID: number;
+    public CurrencyExchangeRate: number;
+    public CustomerID: number;
+    public CustomerName: string;
+    public CustomerOrgNumber: string;
+    public CustomerPerson: string;
+    public DefaultDimensionsID: number;
+    public DefaultSellerID: number;
+    public Deleted: boolean;
+    public DeliveryDate: LocalDate;
+    public DeliveryMethod: string;
+    public DeliveryName: string;
+    public DeliveryTerm: string;
+    public DeliveryTermsID: number;
+    public DistributionPlanID: number;
+    public EmailAddress: string;
+    public EndDate: LocalDate;
+    public FreeTxt: string;
+    public ID: number;
+    public InternalNote: string;
+    public Interval: number;
+    public InvoiceAddressLine1: string;
+    public InvoiceAddressLine2: string;
+    public InvoiceAddressLine3: string;
+    public InvoiceCity: string;
+    public InvoiceCountry: string;
+    public InvoiceCountryCode: string;
+    public InvoiceNumberSeriesID: number;
+    public InvoicePostalCode: string;
+    public InvoiceReceiverName: string;
+    public MaxIterations: number;
+    public NextInvoiceDate: LocalDate;
+    public NoCreditDays: boolean;
+    public NotifyUser: string;
+    public NotifyWhenOrdersArePrepared: boolean;
+    public NotifyWhenRecurringEnds: boolean;
+    public OurReference: string;
+    public PayableRoundingAmount: number;
+    public PayableRoundingCurrencyAmount: number;
+    public Payment: string;
+    public PaymentInformation: string;
+    public PaymentInfoTypeID: number;
+    public PaymentTerm: string;
+    public PaymentTermsID: number;
+    public PreparationDays: number;
+    public PrintStatus: number;
+    public ProduceAs: RecurringResult;
+    public Requisition: string;
+    public SalesPerson: string;
+    public ShippingAddressLine1: string;
+    public ShippingAddressLine2: string;
+    public ShippingAddressLine3: string;
+    public ShippingCity: string;
+    public ShippingCountry: string;
+    public ShippingCountryCode: string;
+    public ShippingPostalCode: string;
+    public StartDate: LocalDate;
+    public StatusCode: number;
+    public SupplierOrgNumber: string;
+    public TaxExclusiveAmount: number;
+    public TaxExclusiveAmountCurrency: number;
+    public TaxInclusiveAmount: number;
+    public TaxInclusiveAmountCurrency: number;
+    public TimePeriod: RecurringPeriod;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UseReportID: number;
+    public VatTotalsAmount: number;
+    public VatTotalsAmountCurrency: number;
+    public YourReference: string;
+    public PaymentTerms: Terms;
+    public DeliveryTerms: Terms;
+    public Customer: Customer;
+    public CurrencyCode: CurrencyCode;
+    public InvoiceNumberNumberSeries: NumberSeries;
+    public Items: Array<RecurringInvoiceItem>;
+    public DefaultDimensions: Dimensions;
+    public DefaultSeller: Seller;
+    public Sellers: Array<SellerLink>;
+    public PaymentInfoType: PaymentInfoType;
+    public DistributionPlan: DistributionPlan;
+    public CustomFields: any;
+}
+
+
 export class DebtCollectionSettings extends UniEntity {
     public static RelativeUrl = 'debtcollectionsettings';
     public static EntityType = 'DebtCollectionSettings';
@@ -715,10 +888,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -776,6 +949,7 @@ export class Customer extends UniEntity {
     public CurrencyCodeID: number;
     public CustomerInvoiceReminderSettingsID: number;
     public CustomerNumber: number;
+    public CustomerNumberKidAlias: string;
     public DefaultCustomerInvoiceReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
@@ -825,6 +999,7 @@ export class CustomerInvoice extends UniEntity {
     public static EntityType = 'CustomerInvoice';
 
     public _createguid: string;
+    public AccrualID: number;
     public AmountRegards: string;
     public BankAccountID: number;
     public CollectorStatusCode: number;
@@ -914,6 +1089,7 @@ export class CustomerInvoice extends UniEntity {
     public Items: Array<CustomerInvoiceItem>;
     public InvoiceReference: CustomerInvoice;
     public DefaultDimensions: Dimensions;
+    public Accrual: Accrual;
     public DefaultSeller: Seller;
     public CustomerInvoiceReminders: Array<CustomerInvoiceReminder>;
     public Sellers: Array<SellerLink>;
@@ -979,6 +1155,7 @@ export class CustomerOrder extends UniEntity {
     public static EntityType = 'CustomerOrder';
 
     public _createguid: string;
+    public AccrualID: number;
     public Comment: string;
     public CreatedAt: Date;
     public CreatedBy: string;
@@ -1045,6 +1222,7 @@ export class CustomerOrder extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
+    public Accrual: Accrual;
     public PaymentTerms: Terms;
     public DeliveryTerms: Terms;
     public DefaultDimensions: Dimensions;
@@ -1343,12 +1521,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
-    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2304,6 +2482,7 @@ export class WageType extends UniEntity {
     public Benefit: string;
     public CreatedAt: Date;
     public CreatedBy: string;
+    public DaysOnBoard: boolean;
     public Deleted: boolean;
     public Description: string;
     public FixedSalaryHolidayDeduction: boolean;
@@ -5123,10 +5302,12 @@ export class Accrual extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public JournalEntryLineDraftID: number;
+    public ResultAccountID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public BalanceAccount: Account;
+    public ResultAccount: Account;
     public JournalEntryLineDraft: JournalEntryLineDraft;
     public JournalEntryLines: Array<JournalEntryLine>;
     public Periods: Array<AccrualPeriod>;
@@ -6077,20 +6258,17 @@ export class VippsInvoice extends UniEntity {
 
     public _createguid: string;
     public Amount: number;
+    public BankAccountNumber: string;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
-    public DueDate: string;
+    public Due: string;
     public ID: number;
-    public InvoiceHotelID: string;
     public InvoiceID: string;
-    public MerchantSerialNumber: string;
+    public InvoiceRef: string;
     public MobileNumber: string;
-    public Receipt: string;
-    public RequestID: string;
     public StatusCode: number;
-    public Text: string;
-    public TimeStamp: string;
+    public Subject: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -6375,9 +6553,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7376,6 +7554,17 @@ export class JournalEntryPeriodData extends UniEntity {
 }
 
 
+export class VippsUpdateStatus extends UniEntity {
+    public InvoiceID: string;
+    public StatusCode: number;
+}
+
+
+export class VippsUser extends UniEntity {
+    public PhoneNumber: string;
+}
+
+
 export class LedgerSuggestion extends UniEntity {
     public BusinessType: string;
     public IndustryCode: string;
@@ -7442,6 +7631,28 @@ export enum FieldType{
     URL = 15,
     TEXTAREA = 16,
     LOCAL_DATE_PICKER = 17,
+}
+
+
+export enum PricingSource{
+    None = 0,
+    LookupProduct = 1,
+}
+
+
+export enum RecurringPeriod{
+    None = 0,
+    Days = 1,
+    Weeks = 2,
+    Month = 3,
+    Quarter = 4,
+    Year = 5,
+}
+
+
+export enum RecurringResult{
+    Order = 0,
+    Invoice = 1,
 }
 
 
@@ -8019,6 +8230,20 @@ export enum SuggestionSource{
 }
 
 
+export enum StatusCodeRecurringInvoiceLog{
+    Draft = 46101,
+    InProgress = 46102,
+    Failed = 46103,
+    Completed = 46104,
+}
+
+
+export enum StatusCodeRecurringInvoice{
+    InActive = 46001,
+    Active = 46002,
+}
+
+
 export enum StatusCodePaymentInfoType{
     Active = 42400,
     Disabled = 42401,
@@ -8159,10 +8384,13 @@ export enum StatusCodeSupplierInvoice{
 
 
 export enum VippsProcessStatus{
-    Pending = 45000,
-    Processed = 46000,
-    Failed = 47000,
-    Paid = 48000,
+    Created = 41000,
+    Rejected = 42000,
+    Pending = 43000,
+    Expired = 44000,
+    Approved = 45000,
+    Deleted = 46000,
+    Revoked = 47000,
 }
 
 

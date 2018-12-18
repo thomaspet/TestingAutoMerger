@@ -1,0 +1,70 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+\:host
+    font-family: 'Roboto', sans-serif
+
+.uni-modal
+    width: 50vw
+
+    header, article
+        padding: 0 5rem
+
+    header
+        font: 500 22px 'Roboto', sans-serif
+        line-height: 4rem
+
+    article
+        display: flex
+        flex-direction: column
+
+        h2
+            font: 300 18px 'Roboto', sans-serif
+            margin: 0 0 2rem 2px
+
+        ul
+            list-style: none
+            margin: 2rem auto 2rem
+            width: 40rem
+            max-width: 100%
+
+            li
+                display: flex
+                height: 90px
+                width: 100%
+                cursor: pointer
+                border: 1px solid rgba(0,0,0,.12)
+                border-radius: 5px
+                padding: 1rem 2rem
+                margin-bottom: 1rem
+
+                &:hover
+                    box-shadow: 0 2px 1px -1px rgba(0,0,0,.1), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12)
+
+                i.material-icons
+                    flex: 0 0 auto
+                    margin: auto 0
+                    color: #F5A623
+                    font-size: 48px
+
+                .link-info
+                    flex: 1
+                    display: flex
+                    flex-direction: column
+                    justify-content: center
+                    margin-left: 2rem
+
+                    strong
+                        display: block
+                        font-weight: 500
+                        font-size: 18px
+                    span
+                        display: block
+                        font-weight: 300
+                        font-size: 17px
+
+    footer
+        padding: 0 4rem
+        button
+            width: 8rem
+            height: 2.5rem
+            border-radius: 20px

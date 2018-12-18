@@ -1,18 +1,16 @@
 import {Routes} from '@angular/router';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
-import {Users} from './users/users';
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
 import {AltinnSettings} from './altinnSettings/altinnSettings';
-import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {Settings} from './settings';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTerms} from './terms/terms';
-import {UniBankSettings} from './bank/bankSettings';
 import {UniDistributionSettings} from './distribution/distribution';
 import {UniDimensionSettings} from './dimension/dimension';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
+import {UserManagement} from '@app/components/settings/users/users';
 
 export const settingsRoutes: Routes = [{
     path: '',
@@ -45,7 +43,7 @@ export const settingsRoutes: Routes = [{
         },
         {
             path: 'users',
-            component: Users
+            component: UserManagement
         },
         {
             path: 'altinn',

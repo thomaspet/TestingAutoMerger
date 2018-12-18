@@ -1,79 +1,82 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, EventEmitter} from '@angular/core';
+import {FormGroup, FormControl} from '@angular/forms';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {UserService, ErrorService} from '@app/services/services';
 import {User} from '@app/unientities';
-
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '@app/services/common/keyCodes';
+import {forkJoin} from 'rxjs';
 
 @Component({
-    selector: 'uni-user-modal',
-    template: `
-        <section role="dialog" class="uni-modal">
-            <header>
-                <h1>Brukerinnstillinger</h1>
-            </header>
-            <article>
-                <uni-form
-                    [config]="{autofocus: true}"
-                    [fields]="formFields$"
-                    [model]="formModel$">
-                </uni-form>
-            </article>
-
-            <footer>
-                <button class="good" (click)="close(true)">Lagre</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
-            </footer>
-        </section>
-    `
+    selector: 'user-settings-modal',
+    templateUrl: './user-settings-modal.html',
+    styleUrls: ['./user-settings-modal.sass']
 })
 export class UserSettingsModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    options: IModalOptions = {};
+    onClose: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    busy: boolean;
+    user: User;
+    userDetailsForm: FormGroup;
+    autobankPasswordForm: FormGroup;
 
-    public formModel$: BehaviorSubject<User> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
+    constructor(
+        private errorService: ErrorService,
+        private userService: UserService
+    ) {}
 
     public ngOnInit() {
-        const user = this.options.data || {};
-        this.formModel$.next(user);
-        this.formFields$.next(this.getFormFields());
+        this.user = this.options.data || {};
+
+        this.userDetailsForm = new FormGroup({
+            DisplayName: new FormControl(this.user.DisplayName),
+            PhoneNumber: new FormControl(this.user.PhoneNumber),
+            Email: new FormControl(this.user.Email)
+        });
+
+        this.autobankPasswordForm = new FormGroup({
+            currentPassword: new FormControl(''),
+            newPassword: new FormControl(''),
+            confirmNewPassword: new FormControl('')
+        });
     }
 
-    public close(emitValue?: boolean) {
-        if (emitValue) {
-            this.onClose.emit(this.formModel$.getValue());
-        } else {
-            this.onClose.emit(null);
+    save() {
+        const saveRequests = [];
+
+        if (this.userDetailsForm.dirty) {
+            const model = this.userDetailsForm.value;
+
+            this.user.DisplayName = model.DisplayName;
+            this.user.PhoneNumber = model.PhoneNumber;
+            this.user.Email = model.Email;
+
+            saveRequests.push(this.userService.Put(this.user.ID, this.user));
         }
-    }
 
-    private getFormFields(): Partial<UniFieldLayout>[] {
-        return [
-            {
-                EntityType: 'User',
-                Property: 'DisplayName',
-                FieldType: FieldType.TEXT,
-                Label: 'Visningsnavn',
-            },
-            {
-                EntityType: 'User',
-                Property: 'PhoneNumber',
-                FieldType: FieldType.TEXT,
-                Label: 'Telefonnummer',
-            },
-            {
-                EntityType: 'User',
-                Property: 'Email',
-                FieldType: FieldType.TEXT,
-                ReadOnly: true,
-                Label: 'E-post',
+        if (this.autobankPasswordForm.dirty) {
+            const model = this.autobankPasswordForm.value;
+            const passwordsMatch = model.newPassword === model.confirmNewPassword;
+
+            // TODO: should probably have validation here (length etc)
+            if (passwordsMatch) {
+                saveRequests.push(this.userService.changeAutobankPassword({
+                    Password: model.currentPassword,
+                    NewPassword: model.newPassword
+                }));
             }
-        ];
+        }
+
+        this.busy = true;
+        if (saveRequests.length) {
+            forkJoin(saveRequests).subscribe(
+                () => this.onClose.emit(true),
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                }
+            );
+        } else {
+            this.onClose.emit(false);
+        }
     }
 }

@@ -83,8 +83,8 @@ export class AgGridWrapper {
     private agColDefs: ColDef[];
     public rowClassResolver: (params) => string;
 
-    private resizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
-    private resizeInProgress: string;
+    private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
+    private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
 
@@ -115,7 +115,13 @@ export class AgGridWrapper {
             .debounceTime(1000)
             .subscribe((event: ColumnMovedEvent) => this.onColumnMove(event));
 
-        this.resizeDebouncer$
+        this.gridSizeChangeDebouncer$
+            .debounceTime(200)
+            .subscribe(event => {
+                this.onGridSizeChange(event);
+            });
+
+        this.colResizeDebouncer$
             .debounceTime(200)
             .subscribe(event => {
                 this.onColumnResize(event);
@@ -280,6 +286,17 @@ export class AgGridWrapper {
                 api.doLayout();
                 api.sizeColumnsToFit();
             });
+        }
+    }
+
+    onGridSizeChange(event: GridSizeChangedEvent) {
+        try {
+            const body = this.wrapperElement.nativeElement.querySelector('.ag-body-container');
+            if (body.clientWidth < event.clientWidth) {
+                this.agGridApi.sizeColumnsToFit();
+            }
+        } catch (e) {
+            console.error(e);
         }
     }
 

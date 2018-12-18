@@ -1,10 +1,11 @@
 <section class="marketplace-modules" [attr.aria-busy]="false">
     <section class="header">
-        <h1 class="top-heading">Produkter</h1>
+        <h1>Produkter</h1>
     </section>
 
     <section class="modules">
-        <section class="module" *ngFor="let module of modules">
+        <h3>Moduler</h3>
+        <section class="product-card" *ngFor="let module of modules">
             <section class="price-info">
                 <span class="price">{{module.price}} kr</span><span class="type"> {{priceText(module)}}</span>
             </section>
@@ -15,16 +16,24 @@
                 <i *ngIf="module._isBought" class="material-icons purchase-indicator">check_circle</i>
             </section>
 
-            <button class="more-button" (click)="openSubscribeModal(module)">
-                Les mer
-            </button>
+            <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
+                <button
+                    class="subscribe-button"
+                    (click)="manageUserPurchases(module)"
+                    [disabled]="!canPurchaseProducts">
+                    {{module._isBought ? 'Velg brukere' : 'Abonner'}}
+                </button>
+            </section>
+
+            <a (click)="openSubscribeModal(module)" class="read-more">Les mer</a>
         </section>
     </section>
 
     <section *ngIf="extensions?.length" class="extensions">
-        <h3 class="top-heading">Utvidelser</h3>
+        <h3>Utvidelser</h3>
+        <uni-tabs [tabs]="tabs" (tabClick)="onTabChange($event)"></uni-tabs>
 
-        <section class="module" *ngFor="let extension of extensions">
+        <section class="product-card" *ngFor="let extension of filteredExtensions">
             <section class="price-info">
                 <span class="price">{{extension.price}} kr</span><span class="type"> {{priceText(extension)}}</span>
             </section>
@@ -37,10 +46,27 @@
                 </i>
             </section>
 
-            <button class="more-button" (click)="openSubscribeModal(extension)">
-                Les mer
-            </button>
-        </section>
+            <section class="subscribe" [matTooltip]="cannotPurchaseProductsText">
+                <!-- Buy -->
+                <button
+                    class="subscribe-button"
+                    *ngIf="!extension._isBought"
+                    (click)="purchaseExtension(extension)"
+                    [disabled]="!canPurchaseProducts">
+                    Kjøp
+                </button>
 
+                <!-- Activate -->
+                <button
+                    class="subscribe-button"
+                    *ngIf="extension._isBought && extension?._activationFunction"
+                    (click)="extension._activationFunction.click()"
+                    [disabled]="!canPurchaseProducts">
+                    {{extension?._activationFunction?.label}}
+                </button>
+            </section>
+
+            <a (click)="openSubscribeModal(extension)" class="read-more">Les mer</a>
+        </section>
     </section>
 </section>

@@ -1,0 +1,77 @@
+$borderStyle: 1px solid rgba(0,0,0,.12)
+
+.uni-modal
+    width: unset
+    max-width: 95vw
+
+    header
+        font-size: 20px
+
+    article
+        overflow: auto
+        padding-top: 0
+
+        > small
+            display: block
+            margin-bottom: 1.5rem
+
+mat-selection-list
+    max-height: 30rem
+    overflow: auto
+    padding-top: 0
+    border: $borderStyle
+
+    mat-list-option:not(:last-of-type)
+        border-bottom: $borderStyle
+
+table.purchases-matrix
+    display: inline-block
+    max-height: calc(100vh - 24rem)
+    overflow: auto
+    border: $borderStyle
+    border-collapse: collapse
+    font-size: 15px
+    user-select: none
+
+    tr
+        border-bottom: $borderStyle
+        height: 48px
+
+    thead tr
+        height: 50px
+
+    tbody tr:hover
+        background: #f5f5f5
+
+    tbody tr:last-of-type
+        border-bottom: none
+
+    th, td
+        text-align: center
+        &:first-of-type
+            text-align: left
+            padding-right: 20px
+
+    th
+        position: sticky
+        top: 0
+        background: #fff
+        padding: 0 15px
+        min-width: 5rem
+        font-size: 14px
+        font-weight: 500
+
+    td
+        padding: 0
+        &:first-of-type
+            padding-left: 15px
+
+        i.material-icons
+            display: block
+            padding: 10px 0
+            vertical-align: middle
+            cursor: pointer
+            color: rgba(0,0,0,.55)
+
+            &.active
+                color: lighten(#0f4880, 5%)

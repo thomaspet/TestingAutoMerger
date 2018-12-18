@@ -12,7 +12,7 @@ export class UserService extends BizHttp<User> {
         super(http);
         this.relativeURL = User.RelativeUrl;
         this.entityType = User.EntityType;
-        this.DefaultOrderBy = null;
+        this.DefaultOrderBy = 'DisplayName';
 
         this.http.authService.authentication$.subscribe((auth) => {
             this.userObservable = undefined;

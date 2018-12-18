@@ -5,14 +5,13 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {
     JournalEntryService,
     ErrorService,
-    JournalEntryLineService,
     NumberSeriesService,
     StatisticsService,
 } from '../../../../services/services';
 import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {NumberSeriesTask, NumberSeries, JournalEntry, JournalEntryLineDraft, LocalDate} from '../../../../unientities';
+import {NumberSeries, JournalEntry, LocalDate} from '../../../../unientities';
 import {
     UniModalService,
     UniConfirmModalV2,
@@ -21,7 +20,6 @@ import {
 import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
-import { JournalEntryData } from '@app/models/models';
 
 @Component({
     selector: 'journalentries',
@@ -46,10 +44,15 @@ export class JournalEntries {
     public currentJournalEntryID: number;
     public editmode: boolean = false;
     public creditDate: LocalDate = null;
+    public numberSeriesIDFromParam = null;
     public selectedNumberSeries: NumberSeries;
-    private selectedNumberSeriesID: number;
-    private selectedNumberSeriesTaskID: number;
     public selectConfig: any;
+    private tab = {
+        name: 'Bilagsregistrering',
+        url: '',
+        moduleID: UniModules.Accounting,
+        active: true
+    };
 
     constructor(
         private route: ActivatedRoute,
@@ -58,35 +61,26 @@ export class JournalEntries {
         private toastService: ToastService,
         private errorService: ErrorService,
         private journalEntryService: JournalEntryService,
-        private journalEntryLineService: JournalEntryLineService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
         private statisticsService: StatisticsService
     ) {
-        this.tabService.addTab({
-            name: 'Bilagsregistrering',
-            url: '/accounting/journalentry/manual',
-            moduleID: UniModules.Accounting,
-            active: true
-        });
-
         this.route.params.subscribe(params => {
+            let tabUrl = `/accounting/journalentry/manual`;
             const journalEntryID = +params['journalEntryID'];
             const journalEntryNumber = params['journalEntryNumber'];
+            this.numberSeriesIDFromParam = +params['numberseriesID'];
+            tabUrl += this.numberSeriesIDFromParam ? ';numberseriesID=' + this.numberSeriesIDFromParam : '';
 
             if (journalEntryID) {
                 this.currentJournalEntryID = journalEntryID;
-                let tabUrl = `/accounting/journalentry/manual;journalEntryID=${journalEntryID}`;
+                tabUrl += `;journalEntryID=${journalEntryID}`;
 
                 if (journalEntryNumber) {
                     this.currentJournalEntryNumber = journalEntryNumber;
                     tabUrl += `;journalEntryNumber=${journalEntryNumber}`;
-                    this.tabService.addTab({
-                        name: 'Bilagsregistrering',
-                        url: tabUrl,
-                        moduleID: UniModules.Accounting,
-                        active: true
-                    });
+                    this.tab.url = tabUrl;
+                    this.tabService.addTab(this.tab);
                 }
 
                 this.editmode = false;
@@ -95,12 +89,8 @@ export class JournalEntries {
                         .subscribe(journalEntry => {
                             this.currentJournalEntryNumber = journalEntry.JournalEntryNumber;
                             tabUrl += `;journalEntryNumber=${journalEntry.JournalEntryNumber}`;
-                            this.tabService.addTab({
-                                name: 'Bilagsregistrering',
-                                url: tabUrl,
-                                moduleID: UniModules.Accounting,
-                                active: true
-                            });
+                            this.tab.url = tabUrl;
+                            this.tabService.addTab(this.tab);
 
                             if (params['editmode']) {
                                 this.editJournalEntry(journalEntry);
@@ -111,6 +101,8 @@ export class JournalEntries {
                 this.editmode = false;
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
+                this.tab.url = tabUrl;
+                this.tabService.addTab(this.tab);
             }
 
 
@@ -196,9 +188,11 @@ export class JournalEntries {
     }
 
     public journalEntryManualInitialized() {
-        this.selectedNumberSeries = this.journalEntryManual.numberSeries[0];
-        this.selectedNumberSeriesID =  this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
-        this.selectedNumberSeriesTaskID = this.selectedNumberSeries !== null ? this.selectedNumberSeries.NumberSeriesTaskID : 0;
+        const id = this.numberSeriesIDFromParam || this.journalEntryService.getSessionNumberSeries();
+
+        this.selectedNumberSeries = id
+            ? this.journalEntryManual.numberSeries.find(serie => serie.ID === id)
+            : this.journalEntryManual.numberSeries[0];
 
         this.setupToolBarconfig();
     }
@@ -260,7 +254,7 @@ export class JournalEntries {
 
     public numberSeriesChanged(selectedNumberSerie) {
         if (this.journalEntryManual) {
-            if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeriesID) {
+            if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeries.ID) {
                 const currentData = this.journalEntryManual.getJournalEntryData();
 
                 if (currentData.length > 0) {
@@ -274,26 +268,22 @@ export class JournalEntries {
                         }
                     }).onClose.subscribe(response => {
                         if (response === ConfirmActions.ACCEPT) {
-                            // set the selectedNumberSeriesID based on the selected numberseries,
-                            // this will be databound to the journalentrymanual and journalentryprofessional
-                            this.selectedNumberSeriesID = selectedNumberSerie.ID;
-                            currentData.forEach(data => { data.NumberSeriesID = this.selectedNumberSeriesID; });
-                        } else {
-                            // reset the selected task object to the previous task because
-                            // the user doesnt want to change it anyway
-                            this.selectedNumberSeries = this.journalEntryManual.numberSeries
-                                .find(ns => ns.ID === this.selectedNumberSeriesID);
-
-                            this.setupToolBarconfig();
+                            // Update current selected numberseries. Set to data, tab and sessionstorage
+                            this.selectedNumberSeries = selectedNumberSerie;
+                            currentData.forEach(data => { data.NumberSeriesID = selectedNumberSerie.ID; });
+                            const url = this.router.url;
+                            this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                            this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
                         }
                     });
                 } else {
-                    this.selectedNumberSeriesID = selectedNumberSerie.ID;
+                    // Update current selected numberseries. Set to tab and sessionstorage
+                    this.selectedNumberSeries = selectedNumberSerie;
+                    const url = this.router.url;
+                    this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
+                    this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
                 }
             }
-
-            this.selectedNumberSeries = selectedNumberSerie;
-            this.selectedNumberSeriesTaskID = selectedNumberSerie.NumberSeriesTaskID;
         }
     }
 
@@ -351,8 +341,11 @@ export class JournalEntries {
         this.statisticsService.GetAll(
             'model=JournalEntry&' +
             'distinct=true&' +
-            'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
-            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0 and isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne \'00000000-0000-0000-0000-000000000000\'&' +
+            'select=min(JournalEntry.CreatedAt,) as MinJournalEntryCreatedAt,JournalEntry.JournalEntryDraftGroup' +
+            ' as JournalEntryDraftGroup,JournalEntry.Description,user.DisplayName&' +
+            'filter=isnull(JournalEntryNumberNumeric,-1) eq -1 and isnull(SupplierInvoice.Id,0) eq 0 and ' +
+            'isnull(JournalEntry.JournalEntryDraftGroup,\'00000000-0000-0000-0000-000000000000\') ne' +
+            ' \'00000000-0000-0000-0000-000000000000\'&' +
             'join=JournalEntry.CreatedBy eq User.GlobalIdentity and JournalEntry.Id eq SupplierInvoice.JournalEntryId'
         )
             .subscribe(journalEntries => {

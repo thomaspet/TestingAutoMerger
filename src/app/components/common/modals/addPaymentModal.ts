@@ -247,7 +247,6 @@ export class AddPaymentModal implements IUniModal {
             linkProperty: 'ID',
             storeIdInProperty: 'ToBankAccountID',
             storeResultInProperty: 'ToBankAccount',
-            allowAddValue: !this.options.data.disablePaymentToField,
             editor: (bankaccount) => {
                 if (!bankaccount || !bankaccount.ID) {
                     bankaccount = bankaccount || new BankAccount();
@@ -255,15 +254,11 @@ export class AddPaymentModal implements IUniModal {
                     bankaccount.BankAccountType = this.accountType;
                 }
                 bankaccount['_saveBankAccountInModal'] = true;
-                if (this.options && this.options.data.disablePaymentToField && !this.options.data.customerBankAccounts[0]) {
-                    return Promise.resolve();
-                } else {
-                    const modal = this.modalService.open(UniBankAccountModal, {
-                        data: bankaccount
-                    });
+                const modal = this.modalService.open(UniBankAccountModal, {
+                    data: bankaccount
+                });
 
-                    return modal.onClose.take(1).toPromise();
-                }
+                return modal.onClose.take(1).toPromise();
             }
         };
     }
@@ -348,7 +343,25 @@ export class AddPaymentModal implements IUniModal {
                 Label: 'Konto til',
                 FieldSet: 0,
                 Section: 0,
+                Hidden: this.options.data.disablePaymentToField,
                 Options: this.getBankAccountsOptions(),
+                Validations: [this.validateToAccountNumber.bind(this)]
+            },
+            {
+                EntityType: 'Payment',
+                Property: 'ToBankAccountID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Konto til',
+                FieldSet: 0,
+                Section: 0,
+                Hidden: !this.options.data.disablePaymentToField,
+                Options: {
+                    source: this.options.data.customerBankAccounts,
+                    valueProperty: 'ID',
+                    storeIdInProperty: 'ToBankAccountID',
+                    storeResultInProperty: 'ToBankAccount',
+                    template: (item) => item.AccountNumber || ''
+                },
                 Validations: [this.validateToAccountNumber.bind(this)]
             },
             {

@@ -52,6 +52,10 @@ export class NumberFormat {
     }
 
     private formatter(value: number, options: INumberOptions) {
+        if (!value) {
+            return '';
+        }
+
         let stringValue = value.toString().replace(',', '.');
         stringValue = parseFloat(stringValue).toFixed(options.decimalLength);
 

@@ -47,7 +47,7 @@ export class EmploymentDetails implements OnChanges {
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
     ) {}
 
     public ngOnChanges(change: SimpleChanges) {
@@ -76,7 +76,7 @@ export class EmploymentDetails implements OnChanges {
             }
 
 
-            if (this.employment.JobCode) {
+            if (this.employment && this.employment.JobCode) {
                 this.jobCodeInitValue = this.statisticsService
                     .GetAll(
                         'model=STYRKCode&select=styrk as styrk,'
@@ -240,6 +240,10 @@ export class EmploymentDetails implements OnChanges {
     public onFormChange(changes: SimpleChanges) {
 
         const employment = this.employment$.getValue();
+
+        if (changes['TypeOfEmployment']) {
+            this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
+        }
 
         if (changes['JobCode'] && employment.JobCode) {
             this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
