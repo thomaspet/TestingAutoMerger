@@ -461,6 +461,9 @@ export class AgaAndSubEntitySettings implements OnInit {
                     ID: CompanySalaryBaseOptions.NettoPayment,
                     Name: 'Netto lønn',
                 },
+                {   ID: CompanySalaryBaseOptions.PayAsYouEarnTaxOnPensions,
+                    Name: 'Kildeskatt for pensjonister',
+                },
                 {
                     ID: CompanySalaryBaseOptions.NettoPaymentForMaritim,
                     Name: 'Netto lønn for sjøfolk',
