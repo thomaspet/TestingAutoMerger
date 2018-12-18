@@ -101,7 +101,7 @@
                     <section class="ocr-value-picker" (click)="$event.stopPropagation()">
                         <p>Valgt verdi: <strong>{{currentClickedWord?.text}}</strong></p>
                         <strong>Bruk verdi som</strong>
-
+                        <button mat-menu-item (click)="selectOCRWord(1, $event)">Organisasjonsnr</button>
                         <button mat-menu-item (click)="selectOCRWord(7, $event)">Fakturadato</button>
                         <button mat-menu-item (click)="selectOCRWord(8, $event)">Forfallsdato</button>
                         <button mat-menu-item (click)="selectOCRWord(5, $event)">Fakturanummer</button>
