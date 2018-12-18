@@ -706,8 +706,9 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             if (companySettings && companySettings.VatLockedDate) {
                 const invalidVatDates = journalDataEntries.filter(
-                    x => !x.StatusCode && x.FinancialDate
-                    && moment(x.FinancialDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                    x => !x.StatusCode && x.VatDate
+                    && moment(x.VatDate).isSameOrBefore(moment(companySettings.VatLockedDate))
+                    && (x.DebitVatType || x.CreditVatType)
                 );
 
                 if (invalidVatDates.length > 0) {
