@@ -1,6 +1,7 @@
 <section class="salarytrans-splitview">
     <section class="uni-container salarytrans-list">
         <ag-grid-wrapper
+            [attr.aria-busy]="busy"
             [config]="salarytransSelectionTableConfig"
             [resource]="employeeList"
             (rowSelectionChange)="rowSelected($event)"

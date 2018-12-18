@@ -1139,6 +1139,18 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     }
 
+    public setBusyOnChildren(busy) {
+        if (this.selectionList) {
+            this.selectionList.setEditable(!busy);
+            this.selectionList.busy = busy;
+            if (busy) {
+                this.saveActions = this.saveActions.map(x => {x.disabled = true; return x; });
+            } else {
+                this.saveActions = this.getSaveActions(this.payrollrun$.value);
+            }
+        }
+    }
+
     public savePayrollrun(payrollRun: PayrollRun, done: (message: string) => void = null): Observable<PayrollRun> {
         if (!payrollRun.ID) {
             payrollRun.ID = 0;

@@ -67,7 +67,8 @@
             *ngIf="tags"
             [tags]="tags"
             [config]="tagConfig"
-            (tagsChange)="tagsChangeEvent($event)">
+            (tagsChange)="tagsChangeEvent($event)"
+            (tagsBusy)="tagsBusyEvent($event)">
         </uni-tags>
     </section>
 </section>

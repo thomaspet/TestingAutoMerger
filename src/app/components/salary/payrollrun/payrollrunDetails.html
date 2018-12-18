@@ -6,7 +6,8 @@
     [tags]="categoryFilter"
     [tagConfig]="tagConfig"
     [searchConfig]="searchConfig$ | async"
-    (tagsChange)="filterChange($event)">
+    (tagsChange)="filterChange($event)"
+    (tagsBusy)="setBusyOnChildren($event)">
 </uni-toolbar>
 
 <section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
