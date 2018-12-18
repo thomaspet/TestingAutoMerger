@@ -30,7 +30,7 @@ import {
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
     FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
-    SalarySumsService
+    SalarySumsService, StatisticsService
 } from '../../../services/services';
 import {PayrollRunDetailsService} from './services/payrollRunDetailsService';
 import {PaycheckSenderModal} from './sending/paycheckSenderModal';
@@ -39,6 +39,11 @@ declare var _;
 import * as moment from 'moment';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
+
+interface IFromToFilter {
+    from: number;
+    to: number;
+}
 
 @Component({
     selector: 'payrollrun-details',
@@ -117,7 +122,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private modalService: UniModalService,
         private payrollRunDetailsService: PayrollRunDetailsService,
         private supplementService: SupplementService,
-        private salarySumsService: SalarySumsService
+        private salarySumsService: SalarySumsService,
+        private statisticsService: StatisticsService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -406,25 +412,59 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.payrollrunID = undefined;
     }
 
-    private updateTax(employees: Employee[]) {
-        let filter: string = 'filter=';
-        const employeeFilterTable: string[] = [];
-
-        const financialYear = this.financialYearService.getActiveYear();
-
-        employees.forEach(employee => {
-            employeeFilterTable.push('EmployeeID eq ' + employee.ID);
+    private getFromToFilter(employees: Employee[]): IFromToFilter[] {
+        let from = 0;
+        const ret: IFromToFilter[] = [];
+        if (!employees.length) {
+            return ret;
+        }
+        employees.forEach((emp, i) => {
+            if (!from) {
+                from = emp.ID;
+            } else if (i > 0 && employees[i - 1].ID + 1 !== emp.ID) {
+                ret.push({from: from, to: employees[i - 1].ID});
+                from = emp.ID;
+            }
         });
-        filter += '(' + employeeFilterTable.join(' or ') + ') ';
-        filter += `and Year le ${financialYear}&orderby=Year DESC`;
-        filter += `&expand=${this._employeeTaxCardService.taxExpands()}`;
 
-        (employeeFilterTable.length
-            ? this._employeeTaxCardService.GetAll(filter)
-            : Observable.of([])
-        ).subscribe((taxCards: EmployeeTaxCard[]) => {
+        ret.push({from: from, to: employees[employees.length - 1].ID});
+
+        return ret;
+    }
+
+    private updateTax(employees: Employee[]) {
+        const financialYear = this.financialYearService.getActiveYear();
+        const taxCardObservables = [];
+        const empRanges = this.getFromToFilter(employees);
+        let removeIdx = 50;
+
+        for (let i = 0;  i < empRanges.length; i += 50) {
+            let filter = 'filter=';
+            const max50Ranges = empRanges.slice(i, removeIdx);
+
+            filter += '(' + max50Ranges.map(({from, to}) => {
+                if (from !== to) {
+                    return `(EmployeeID ge ${from} and EmployeeID le ${to})`;
+                }
+                return `EmployeeID eq ${from}`;
+            }).join(' or ') + ') ';
+            filter += `and Year le ${financialYear}&orderby=Year DESC`;
+            filter += `&expand=${this._employeeTaxCardService.taxExpands()}`;
+
+            taxCardObservables.push(this._employeeTaxCardService.GetAll(filter));
+
+            removeIdx += 50;
+        }
+
+        Observable.forkJoin(
+            taxCardObservables.length
+                ? taxCardObservables
+                : Observable.of([])
+        ).subscribe(taxCards => {
+            const taxCardArray = [].concat(...taxCards);
+
             employees.map(employee => {
-                const taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
+                const taxCard = taxCardArray.find(x => x.EmployeeID === employee.ID);
                 employee.TaxCards = taxCard ? [taxCard] : [];
             });
             super.updateState('employees', employees, false);
