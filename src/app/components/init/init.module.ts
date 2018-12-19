@@ -16,6 +16,7 @@ import {UniPasswordGuide} from './password-guide';
 import {RECAPTCHA_SETTINGS, RecaptchaSettings, RecaptchaLoaderService, RecaptchaModule, } from 'ng-recaptcha';
 import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
 import {environment} from 'src/environments/environment';
+import { MatTooltipModule } from '@angular/material';
 
 @NgModule({
     imports: [
@@ -25,6 +26,7 @@ import {environment} from 'src/environments/environment';
         HttpModule,
         RouterModule,
 
+        MatTooltipModule,
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,

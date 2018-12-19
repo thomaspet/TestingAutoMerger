@@ -9,7 +9,6 @@ import {JournalEntryLineService} from './accounting/journalEntryLineService';
 import {JournalEntryService} from './accounting/journalEntryService';
 import {PeriodSeriesService} from './accounting/periodSeriesService';
 import {PeriodService} from './accounting/periodService';
-import {SupplierInvoiceItemService} from './accounting/supplierInvoiceItemService';
 import {SupplierInvoiceService} from './accounting/supplierInvoiceService';
 import {SupplierService} from './accounting/supplierService';
 import {VatDeductionService} from './accounting/vatDeductionService';
@@ -36,7 +35,6 @@ export * from './accounting/journalEntryLineService';
 export * from './accounting/journalEntryService';
 export * from './accounting/periodSeriesService';
 export * from './accounting/periodService';
-export * from './accounting/supplierInvoiceItemService';
 export * from './accounting/supplierInvoiceService';
 export * from './accounting/supplierService';
 export * from './accounting/vatDeductionService';
@@ -69,7 +67,6 @@ export class AccountingServicesModule {
                 JournalEntryService,
                 PeriodSeriesService,
                 PeriodService,
-                SupplierInvoiceItemService,
                 SupplierInvoiceService,
                 SupplierService,
                 VatDeductionService,

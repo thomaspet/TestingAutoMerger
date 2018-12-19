@@ -38,7 +38,7 @@ export const settingsRoutes: Routes = [{
         },
         {
             path: 'webhooks',
-            component: IntegrationSettings, // WebHookSettings,
+            component: IntegrationSettings,
             canDeactivate: [CanDeactivateGuard]
         },
         {

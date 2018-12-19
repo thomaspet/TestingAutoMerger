@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
-    WorkingHoursScheme, Department, Project, Company, CompanySalary,
+    WorkingHoursScheme, Department, Project, CompanySalary,
     ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity,
 } from '../../../unientities';
 import {Observable, ReplaySubject} from 'rxjs';

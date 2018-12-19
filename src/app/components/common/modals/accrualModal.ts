@@ -25,7 +25,15 @@ import { of } from 'rxjs/Observable/of';
     template: `
         <section role="dialog" class="uni-modal" style="width: 60vw">
             <header><h1>{{options?.data.title}}</h1></header>
-            <article>
+            <article class="accrual-split-view">
+                <section class="accrual-form">
+                    <uni-form #form
+                        [config]="formConfig$"
+                        [fields]="fields$"
+                        [model]="model$"
+                        (changeEvent)="onFormChange($event)">
+                    </uni-form>
+                </section>
                 <section class="accrual-periods"
                     *ngIf="modalConfig && modalConfig.model && modalConfig?.model['_periodYears'] && currentFinancialYearPeriods">
                     <table cols=4>
@@ -55,15 +63,7 @@ import { of } from 'rxjs/Observable/of';
                         </tr>
                     </table>
                 </section>
-                <section class="accrual-form">
-                    <uni-form #form
-                        [config]="formConfig$"
-                        [fields]="fields$"
-                        [model]="model$"
-                        (changeEvent)="onFormChange($event)">
-                    </uni-form>
-                </section>
-                <div style="clear: both;"></div>
+
             </article>
             <footer>
                 <button (click)="close('ok')" [disabled]="lockedDateSelected" class="good">Ok</button>

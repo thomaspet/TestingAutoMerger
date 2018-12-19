@@ -6,7 +6,6 @@ import {Observable} from 'rxjs';
 import {UserService} from '../common/userService';
 import {URLSearchParams} from '@angular/http';
 import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';
-import {ErrorService} from '../common/errorService';
 import * as moment from 'moment';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
@@ -54,7 +53,6 @@ export class WorkerService extends BizHttp<Worker> {
     constructor(
         http: UniHttp,
         private userService: UserService,
-        private errorService: ErrorService,
         private browserStorage: BrowserStorageService,
     ) {
         super(http);
@@ -86,10 +84,6 @@ export class WorkerService extends BizHttp<Worker> {
         });
     }
 
-    public getWorkers(): Observable<Array<Worker>> {
-        return super.GetAll<Worker>('', ['info']);
-    }
-
     public getCurrentUserId(): Promise<number> {
         return new Promise( (resolve, reject) => {
             this.userService.getCurrentUser().subscribe( usr => {
@@ -114,10 +108,6 @@ export class WorkerService extends BizHttp<Worker> {
 
     public get<T>(route: string, params?: any): Observable<T> {
         return this.GET(route, params);
-    }
-
-    public post<T>(route: string, body?: any): Observable<T> {
-        return this.POST(route, undefined, body);
     }
 
     public createInitialWorkRelation(workerId: number, profile: WorkProfile): Observable<WorkRelation> {
@@ -292,10 +282,6 @@ export class WorkerService extends BizHttp<Worker> {
         return bigLabel;
     }
 
-    private getLastWorkDayName(): string {
-        return capitalizeFirstLetter(moment(this.getLastWorkDay()).format('dddd'));
-    }
-
     public getWorkItems(workRelationID: number, intervalFilter: string = ''): Observable<WorkItem[]> {
         let filter = 'WorkRelationID eq ' + workRelationID;
         if (intervalFilter.length > 0) {
@@ -305,10 +291,6 @@ export class WorkerService extends BizHttp<Worker> {
             expand: 'WorkType,Dimensions,Dimensions.Project,Dimensions.Department,CustomerOrder'
                 + ',Customer,Customer.Info',
             orderBy: 'StartTime' });
-    }
-
-    public getWorkItemById(id: number): Observable<WorkItem> {
-        return this.GET('workitems/' + id, { expand: 'WorkType'});
     }
 
     public saveWorkItem(item: WorkItem): Observable<WorkItem> {

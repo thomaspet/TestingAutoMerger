@@ -21,10 +21,6 @@ export class ProductCategoryService extends BizHttp<ProductCategory> {
         this.DefaultOrderBy = null;
     }
 
-    public setNew() {
-        this.currentProductGroup.next(new ProductCategory);
-    }
-
     public searchCategories(query: string, ignoreFilter: string): Observable<ProductCategory[]> {
         return this
             .GetAll(`filter=contains(Name,'${query}')${ignoreFilter ? ' and (' + ignoreFilter + ')' : ''}&top=50`);

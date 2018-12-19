@@ -31,7 +31,6 @@ import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
-import {Editable} from './utils/editable/editable';
 import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
@@ -104,7 +103,6 @@ import {
         ContactDetails,
         Contacts,
 
-        Editable,
         IsoTimePipe,
         HoursPipe,
         NumberPipe,
@@ -169,7 +167,6 @@ import {
         ContactDetails,
         Contacts,
 
-        Editable,
         IsoTimePipe,
         MinutesToHoursPipe,
         HoursPipe,

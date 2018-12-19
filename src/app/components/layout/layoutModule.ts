@@ -14,7 +14,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniTabs} from './uniTabs/uniTabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
-import {UniHelpText} from './helpText/helpText';
 import {NavbarLinkService} from './navbar/navbar-link-service';
 
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
@@ -74,7 +73,6 @@ import {
         NavbarUserDropdown,
         UserSettingsModal,
         YearModal,
-        UniHelpText,
         UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem
@@ -97,7 +95,6 @@ import {
         NavbarCreateNew,
         UniCompanyDropdown,
         YearModal,
-        UniHelpText
     ]
 })
 export class LayoutModule {

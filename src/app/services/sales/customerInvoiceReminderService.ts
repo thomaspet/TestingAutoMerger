@@ -5,7 +5,6 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {RequestMethod} from '@angular/http';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
-import {ErrorService} from '../common/errorService';
 
 @Injectable()
 export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceReminder> {

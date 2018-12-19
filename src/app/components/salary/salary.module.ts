@@ -48,8 +48,6 @@ import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
-import {SalarytransFilterContent} from './salarytrans/salarytransFilter';
-import {SalarytransFilter} from './salarytrans/salarytransFilter';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
 import {SalaryTransViewService} from './sharedServices/salaryTransViewService';
 
@@ -180,8 +178,6 @@ import {
 
         // Salarytrans
         SalaryTransactionSelectionList,
-        SalarytransFilterContent,
-        SalarytransFilter,
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,
@@ -237,7 +233,6 @@ import {
         VacationPayModal,
         ControlModal,
         PostingSummaryModal,
-        SalarytransFilterContent,
         AmeldingTypePickerModal,
         SalarybalanceLine,
         PaycheckSenderModal,
@@ -303,8 +298,6 @@ import {
 
         // Salarytrans
         SalaryTransactionSelectionList,
-        SalarytransFilterContent,
-        SalarytransFilter,
         SalaryTransactionEmployeeList,
         SalaryTransactionSupplementList,
         SalaryTransSupplementsModal,

@@ -1,4 +1,3 @@
-import {Http} from '@angular/http';
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
@@ -12,15 +11,10 @@ export enum ReportNames {
 }
 
 @Injectable()
-export class ReportDefinitionService extends BizHttp<ReportDefinition>{
-    private baseHttp: Http;
+export class ReportDefinitionService extends BizHttp<ReportDefinition> {
 
-    constructor(
-        private uniHttp: UniHttp,
-
-    ) {
+    constructor(private uniHttp: UniHttp) {
         super(uniHttp);
-        this.baseHttp = this.uniHttp.http;
         this.relativeURL = ReportDefinition.RelativeUrl;
         this.entityType = ReportDefinition.EntityType;
         this.DefaultOrderBy = 'Category';

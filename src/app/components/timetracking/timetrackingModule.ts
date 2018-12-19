@@ -26,7 +26,6 @@ import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {SideMenu} from './sidemenu/sidemenu';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-import {DayBrowser} from './components/daybrowser';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
@@ -72,7 +71,6 @@ import {MatMenuModule} from '@angular/material';
         VacationView,
         WorkBalancesView,
         SideMenu,
-        DayBrowser,
         UniTemplateModal,
         TeamworkReport,
         TimeApproveModal,

@@ -30,7 +30,6 @@ import {UniDimensionModal} from './dimension/dimensionModal';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeamountModal';
-import {WebHookSettings} from './webHookSettings/webHookSettings';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
 import {ActivateAutobankModal} from './users/activate-autobank-modal/activate-autobank-modal';
@@ -95,7 +94,6 @@ import {
         GrantModal,
         FreeAmountModal,
         ChangeCompanySettingsPeriodSeriesModal,
-        WebHookSettings,
         ActivateAutobankModal,
         ResetAutobankPasswordModal,
         UniDimensionModal,

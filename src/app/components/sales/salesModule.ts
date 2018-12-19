@@ -8,7 +8,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {salesRoutes} from './salesRoutes';
 import {Customer} from './customer/customer';
-import {CustomerDetailsModal} from './customer/customerDetails/customerDetailsModal';
 import {CustomerDetails} from './customer/customerDetails/customerDetails';
 import {CustomerProductsSold} from './customer/customerDetails/customerProductsSold';
 import {CustomerList} from './customer/list/customerList';
@@ -88,7 +87,6 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
     declarations: [
         UniSales,
         Customer,
-        CustomerDetailsModal,
         CustomerDetails,
         CustomerProductsSold,
         CustomerList,
@@ -149,7 +147,6 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
         UniReminderSendingModal,
         ReminderSending,
         InvoiceReminders,
-        CustomerDetailsModal,
         UniTofSelectModal,
         UniProductDetailsModal,
         KidModalComponent,
@@ -164,7 +161,6 @@ import {MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule} fr
     exports: [
         UniSales,
         Customer,
-        CustomerDetailsModal,
         CustomerDetails,
         CustomerProductsSold,
         CustomerList,

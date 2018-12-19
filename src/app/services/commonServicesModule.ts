@@ -7,7 +7,6 @@ import {CompanyTypeService} from './common/companyTypeService';
 import {CurrencyService} from './common/currencyService';
 import {ContactService} from './common/contactService';
 import {CurrencyCodeService} from './common/currencyCodeService';
-import {DebtCollectionAutomationService} from './common/debtCollectionAutomationService';
 import {DepartmentService} from './common/departmentService';
 import {GuidService} from './common/guidService';
 import {IntegrationServerCaller} from './common/integrationServerCaller';
@@ -35,7 +34,6 @@ import {AgaSumService} from './common/agaSumService';
 import {MunicipalService} from './common/municipalsService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniCacheService} from './common/cacheService';
-import {StaticRegisterService} from './common/staticRegisterService';
 import {DimensionService} from './common/dimensionService';
 import {EmailService} from './common/emailService';
 import {UmhService} from './common/UmhService';
@@ -76,7 +74,6 @@ export * from './common/companyTypeService';
 export * from './common/contactService';
 export * from './common/currencyCodeService';
 export * from './common/currencyService';
-export * from './common/debtCollectionAutomationService';
 export * from './common/departmentService';
 export * from './common/guidService';
 export * from './common/integrationServerCaller';
@@ -104,7 +101,6 @@ export * from './common/agaSumService';
 export * from './common/municipalsService';
 export * from '../../framework/core/browserStorageService';
 export * from './common/cacheService';
-export * from './common/staticRegisterService';
 export * from './common/dimensionService';
 export * from './common/emailService';
 export * from './common/currencyOverridesService';
@@ -149,7 +145,6 @@ export class CommonServicesModule {
                 CompanyTypeService,
                 ContactService,
                 CurrencyService,
-                DebtCollectionAutomationService,
                 DepartmentService,
                 GuidService,
                 IntegrationServerCaller,
@@ -175,7 +170,6 @@ export class CommonServicesModule {
                 MunicipalService,
                 BrowserStorageService,
                 UniCacheService,
-                StaticRegisterService,
                 DimensionService,
                 EmailService,
                 UmhService,

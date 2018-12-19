@@ -51,7 +51,7 @@
         <timetracking-timetable
             *ngIf="activeTabIndex === 1"
             [lazy]="true"
-            [workrelation]="this.timeSheet?.currentRelation"
+            [workrelation]="timeSheet?.currentRelation"
             [eventcfg]="preSaveConfig">
         </timetracking-timetable>
 
@@ -60,14 +60,14 @@
         <regtimebalance
             [hidden]="activeTabIndex !== 3"
             [eventcfg]="preSaveConfig"
-            [workrelation]="this.timeSheet?.currentRelation"
+            [workrelation]="timeSheet?.currentRelation"
             (valueChange)="onBalanceChanged($event)" >
         </regtimebalance>
 
         <vacation
             *ngIf="activeTabIndex === 4"
             (saved)="reloadFlex()"
-            [workrelationid]="timeSheet.currentRelation.ID">
+            [workrelationid]="timeSheet?.currentRelation?.ID">
         </vacation>
 
         <teamwork-report *ngIf="activeTabIndex === 5"></teamwork-report>

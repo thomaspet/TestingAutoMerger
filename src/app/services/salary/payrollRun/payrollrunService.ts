@@ -3,7 +3,7 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Tracelink, Payment, LocalDate, WorkItemToSalary, PostingSummary
+    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummary
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {ErrorService} from '../../common/errorService';

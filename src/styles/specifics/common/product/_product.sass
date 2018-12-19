@@ -2,45 +2,5 @@ product-details
     .collapsable-content
         padding-top: 1rem
 
-    label
-        span
-            display: inline-block
-            line-height: 2rem
-
-        textarea, uni-image
-            width: calc(100% - 12.5rem)
-            float: right
-            margin-bottom: pxToRem(20px)
-
     uni-image
         width: 80%
-
-.node-content-wrapper, .tree-children
-  position: relative
-
-.node-content-wrapper::before, .tree-children::after
-  content: ""
-  position: absolute
-
-.node-content-wrapper::before
-  border-bottom: 1px solid lightgrey
-  border-left: 1px solid lightgrey
-  height: 28px
-  top: -17px
-  width: 20px
-  left: -28px
-
-.tree-node-leaf > .node-wrapper > .node-content-wrapper::before
-  width: 25px
-
-.tree-children::after
-  border-left: 1px solid lightgrey
-  height: 100%
-  top: -15px
-  left: -15px
-
-treenode:last-child > .tree-node > .tree-children::after
-  border-left: none
-
-.toggle-children
-  z-index: 1

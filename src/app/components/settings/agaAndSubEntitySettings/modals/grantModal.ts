@@ -131,7 +131,7 @@ export class GrantModal implements OnInit, IUniModal {
             .setDeleteButton({
                     deleteHandler: (rowModel: Grant) => {
                         if (isNaN(rowModel.ID)) { return true; }
-                        return this._grantService.delete(rowModel.ID);
+                        return this._grantService.Remove(rowModel.ID);
                     }
                 })
             .setColumns([subentCol, dateCol, descCol, amountCol, agaCol])

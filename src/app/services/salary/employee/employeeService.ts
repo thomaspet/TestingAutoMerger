@@ -1,15 +1,13 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, Operator, EmployeeCategory, Municipal, CompanySettings, SubEntity} from '../../../unientities';
+import {Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity} from '../../../unientities';
 import {Observable} from 'rxjs';
-import {ErrorService} from '../../common/errorService';
 import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';
 import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
-import {UserService} from '../../common/userService';
 import {ModulusService} from '@app/services/common/modulusService';
 
 @Injectable()
@@ -35,8 +33,6 @@ export class EmployeeService extends BizHttp<Employee> {
 
     constructor(
         http: UniHttp,
-        private errorService: ErrorService,
-        private userService: UserService,
         private municipalService: MunicipalService,
         private companySettingsService: CompanySettingsService,
         private subEntityService: SubEntityService,
@@ -141,15 +137,6 @@ export class EmployeeService extends BizHttp<Employee> {
             }
             return super.Get(id, this.defaultExpands);
         }
-    }
-
-    public getEmployeeLeave() {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('EmployeeLeave')
-            .send()
-            .map(response => response.json());
     }
 
     public getNext(employeeNumber: number, expand: string[] = null) {

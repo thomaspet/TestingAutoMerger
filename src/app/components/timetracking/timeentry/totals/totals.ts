@@ -1,7 +1,6 @@
 ﻿import {Component, ElementRef, ViewChild} from '@angular/core';
 import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
-import {ICol, Column, ColumnType} from '../../../common/utils/editable/interfaces';
 import {ErrorService} from '../../../../services/services';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -38,7 +37,6 @@ export class RegtimeTotals {
     // public CUSTOM_COLORS = ['#FFCC66', '#FF9966', '#FF6666', '#FF3366', '#FF0066', '#990066', '#996666', '#999966',
     //     '#99CC66', '#99FF66', '#33FF66', '#33CC66', '#339966 ', '#336666', '#333366', '#330066'];
     private timesheet: TimeSheet;
-    public config: { columns: Array<ICol>; items: Array<any>; sums: any };
     public busy: boolean = true;
     public showChart: boolean = true;
     private myChart: any;
@@ -162,55 +160,6 @@ export class RegtimeTotals {
         }, 100);
     }
 
-
-    private showData(items: Array<any>) {
-        const cols: ICol[] = [];
-
-        // Extract keys (since it has been pivoted with values as columnnames)
-        if (items && items.length > 0) {
-            for (const key in items[0]) {
-                if (items[0].hasOwnProperty(key)) {
-                    const col = new Column(key, key, ColumnType.Integer);
-                    switch (key) {
-                        case this.currentSource.pivotResultColName:
-                            break;
-                        default:
-                            cols.push(col);
-                            break;
-                    }
-                }
-            }
-        }
-
-        // Make sums
-        const lineSum: any = {};
-        for (let i = 0; i < items.length; i++) {
-            let sum = 0;
-            for (let c = 0; c < cols.length; c++) {
-                const col = cols[c];
-                const value = items[i][col.name];
-                const itemSum = value ? parseInt(value, 10) : 0;
-                sum += itemSum;
-                lineSum[col.name] = (lineSum[col.name] || 0) + itemSum;
-            }
-            lineSum.Total = (lineSum.sum || 0) + sum;
-            items[i].Total = sum;
-        }
-        lineSum[this.currentSource.pivotResultColName] = 'Total';
-
-        this.config = {
-            columns: cols,
-            items: items,
-            sums: lineSum
-        };
-
-        if (this.showChart) {
-            setTimeout(() => {
-                this.buildChart();
-            });
-        }
-    }
-
     private queryTotals() {
         const src = this.currentSource;
         if (!src.pivotResultColName) {
@@ -230,11 +179,14 @@ export class RegtimeTotals {
             this.busy = false;
             if (result) {
                 if (result.Success) {
-                    this.showData(result.Data);
+                    if (this.showChart) {
+                        setTimeout(() => {
+                            this.buildChart();
+                        });
+                    }
+
                     this.tableData = result.Data;
                     this.buildTableConfig();
-                } else {
-                    this.showData([{'label': result.Message}]);
                 }
             }
         }, err => this.errorService.handle(err));

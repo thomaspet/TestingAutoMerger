@@ -20,10 +20,6 @@ export class EmployeeLeaveService extends BizHttp<EmployeeLeave> {
         this.entityType = EmployeeLeave.EntityType;
     }
 
-    public getTypes() {
-        return this.leaveTypes;
-    }
-
     public getOnlyNewTypes() {
         return this.leaveTypes.filter(x => x.ID !== Leavetype.Leave);
     }
