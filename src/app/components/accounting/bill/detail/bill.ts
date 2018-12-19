@@ -1893,14 +1893,12 @@ export class BillView implements OnInit {
             }
 
             // Vis betalinger
-            if (it.StatusCode === StatusCodeSupplierInvoice.ToPayment ||
-                it.StatusCode === StatusCodeSupplierInvoice.PartlyPayed ||
-                it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
+            if (this.invoicePayments.length > 0) {
                 list.push(
                     {
                         label: 'Vis betalinger',
                         action: (done) => this.viewPayments(done),
-                        main: false,
+                        main: true,
                         disabled: false,
                     }
                 );
@@ -2263,7 +2261,8 @@ export class BillView implements OnInit {
         + `&select=sum(payment.Amount) as Amount,`
         + `sum(payment.AmountCurrency) as AmountCurrency`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and Payment.ID gt 0 and `
-        + `SourceInstanceID eq ${this.currentID} and payment.StatusCode ne 44003 and `
+        + `SourceInstanceID eq ${this.currentID} and DestinationEntityName eq 'Payment' `
+        + `and payment.StatusCode ne 44003 and `
         + `payment.StatusCode ne 44004 and payment.StatusCode ne 44006 and `
         + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
         + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
