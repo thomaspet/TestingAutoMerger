@@ -51,7 +51,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.BureauDashboard
                     },
                     {
-                        name: 'Mine oppgaver',
+                        name: 'Godkjenninger',
                         url: '/assignments',
                         moduleID: UniModules.Assignments
                     },
@@ -498,23 +498,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     url: '/dimensions/projects/hours',
                     moduleID: UniModules.Projects
                 },
-            ]
-        }]
-    },
-
-    // DIMENSJONER
-    {
-        name: 'Dimensjoner',
-        url: '',
-        icon: 'dimension',
-        mdIcon: 'developer_board',
-        linkGroups: [{
-            name: '',
-            links: [
-                {
-                    name: '',
-                    url: ''
-                }
             ]
         }]
     },
