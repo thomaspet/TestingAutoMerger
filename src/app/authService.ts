@@ -221,6 +221,11 @@ export class AuthService {
                     authDetails => {
                         this.authentication$.next(authDetails);
 
+                        const permissions = authDetails.user['Permissions'] || [];
+                        if (permissions.length === 1 && permissions[0] === 'ui_approval_accounting') {
+                            redirect = '/assignments/approvals';
+                        }
+
                         if (authDetails.user && !authDetails.hasActiveContract) {
                             redirect = 'contract-activation';
                         }

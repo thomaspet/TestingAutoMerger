@@ -2,7 +2,7 @@ import {Component, AfterViewInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
-import {forkJoin} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {ElsaProduct, ElsaProductType} from '@app/models';
 import {
@@ -72,7 +72,9 @@ export class MarketplaceModules implements AfterViewInit {
     ngAfterViewInit() {
         forkJoin(
             this.companySettingsService.Get(1),
-            this.paymentBatchService.checkAutoBankAgreement(),
+            this.paymentBatchService.checkAutoBankAgreement()
+                .catch(() => Observable.of([])), // fail silently
+
             this.elsaProductService.GetAll(),
             this.elsaPurchaseService.getAll(),
         ).subscribe(
