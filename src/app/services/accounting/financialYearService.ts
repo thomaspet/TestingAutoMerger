@@ -26,6 +26,11 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
         this.entityType = FinancialYear.EntityType;
         this.DefaultOrderBy = null;
 
+        // set the next to nofify other components at startup what year is active - this
+        // will set the active year either based on localStorage (previous selected year)
+        // or based on the current date
+        this.lastSelectedFinancialYear$.next(this.getActiveFinancialYear());
+
         this.lastSelectedFinancialYear$.subscribe(financialYear => {
             if (financialYear && financialYear.Year) {
                 this.browserStorage.setItemOnCompany(this.ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY, financialYear);
