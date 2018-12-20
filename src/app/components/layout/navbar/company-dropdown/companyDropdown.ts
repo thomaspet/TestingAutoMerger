@@ -105,7 +105,7 @@ export class UniCompanyDropdown {
                         .subscribe(years => {
                             // refresh years before checking if this is actually a new year, someone
                             // else might have created it already after you logged in (or it may have been
-                            // automatically create when booking a journalentry)
+                            // automatically created when booking a journalentry)
                             this.financialYears = years;
                             const foundSecondAttempt = this.financialYears.find(v => v.Year.toString() === newSelectedYear.toString());
 
@@ -113,7 +113,7 @@ export class UniCompanyDropdown {
                                 && foundSecondAttempt.Year.toString() !== this.activeYear.toString()) {
                                 this.selectYear = this.getYearComboSelection(newSelectedYear);
                                 this.activeYear = newSelectedYear;
-                            } else {
+                            } else if (!foundSecondAttempt) {
                                 this.promptToCreateNewYear(newSelectedYear, previousSelectedYear);
                             }
                         });
