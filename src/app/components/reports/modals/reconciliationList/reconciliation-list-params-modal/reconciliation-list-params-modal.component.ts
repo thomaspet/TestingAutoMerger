@@ -3,7 +3,7 @@ import {IUniModal, UniModalService, ConfirmActions, IModalOptions} from '../../.
 import {BehaviorSubject} from 'rxjs';
 import {ReportDefinition, ReportDefinitionParameter, Employee} from '../../../../../unientities';
 import {Observable} from 'rxjs';
-import {EmployeeService, YearService, StatisticsService, ReportDefinitionParameterService} from '../../../../../services/services';
+import {EmployeeService, FinancialYearService, StatisticsService, ReportDefinitionParameterService} from '../../../../../services/services';
 import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
 
 @Component({

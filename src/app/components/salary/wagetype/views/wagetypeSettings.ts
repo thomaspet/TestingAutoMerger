@@ -32,7 +32,8 @@ export class WageTypeSettings extends UniView {
         { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
         { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
         { ID: StdWageType.Garnishment, Name: 'Påleggstrekk' },
-        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' }
+        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' },
+        { ID: StdWageType.SourceTaxPension, Name: 'Forskuddstrekk kildeskatt på pensjon' }
     ];
 
     private specialAgaRule: { ID: SpecialAgaRule, Name: string }[] = [

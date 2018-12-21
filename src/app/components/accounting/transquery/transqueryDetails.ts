@@ -111,16 +111,15 @@ export class TransqueryDetails implements OnInit {
     }
 
     public ngOnInit() {
+        this.activeFinancialYear = this.financialYearService.getActiveFinancialYear();
 
         // setup unitable and router parameter subscriptions
         Observable.forkJoin(
             this.financialYearService.GetAll(null),
-            this.financialYearService.getActiveFinancialYear(),
             this.customDimensionService.getMetadata()
         ).subscribe(data => {
             this.financialYears = data[0];
-            this.activeFinancialYear = data[1];
-            this.dimensionTypes = data[2];
+            this.dimensionTypes = data[1];
 
             // set default value for filtering
             const searchParams: ISearchParams = {
@@ -359,7 +358,7 @@ export class TransqueryDetails implements OnInit {
                 title: 'Sum debet',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumCredit || 0) : null,
-                title: 'Sum kreditt',
+                title: 'Sum kredit',
             }, {
                 value: this.summaryData ? this.numberFormat.asMoney(this.summaryData.SumLedger || 0) : null,
                 title: 'Sum reskontro',

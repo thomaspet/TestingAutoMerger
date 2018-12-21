@@ -10,7 +10,10 @@
 
     <section class="uni-container salarytrans-details">
         <header *ngIf="employeeList?.length && employeeList[selectedIndex] && agaZone">
-            {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}&ensp;|&ensp;
+            <a [routerLink]="['/salary/employees/' + employeeList[selectedIndex].ID]">
+                {{employeeList[selectedIndex].EmployeeNumber}} - {{employeeList[selectedIndex].BusinessRelationInfo?.Name}}
+            </a>
+            &ensp;|&ensp;
             Virksomhet: {{employeeList[selectedIndex].SubEntity?.BusinessRelationInfo?.Name}}&ensp;|&ensp;
             <abbr title="Arbeidsgiveravgift">Aga</abbr>-sone: {{agaZone.ZoneName}}
 

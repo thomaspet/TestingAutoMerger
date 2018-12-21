@@ -20,7 +20,8 @@
               "src/assets",
               "src/favicon.png",
               "src/robots.txt",
-              "src/security.txt"
+              "src/security.txt",
+              "src/fileviewer.html"
             ],
             "styles": [
               "src/styles.sass",

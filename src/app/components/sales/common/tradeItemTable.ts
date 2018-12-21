@@ -64,6 +64,8 @@ export class TradeItemTable {
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
     private defaultProject: Project;
+    pricingSourceLabels = ['Fast', 'Produkt'];
+    priceFactor = [ 'Fast', 'Pr. dag', 'Pr. uke', 'Pr. måned', 'Pr. kvartal', 'Pr. år'];
 
     constructor(
         private productService: ProductService,
@@ -414,6 +416,38 @@ export class TradeItemTable {
                 postfix: undefined
             });
 
+        const pricingSourceCol = new UniTableColumn('PricingSource', 'Priskilde.')
+            .setType(UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row) => {
+                if (row && (row.PricingSource || row.PricingSource === 0)) {
+                    return this.pricingSourceLabels[row.PricingSource];
+                } else {
+                    return '';
+                }
+            })
+            .setOptions({
+                itemTemplate: rowModel => rowModel,
+                resource: this.pricingSourceLabels
+            });
+
+        // const reduceCol = new UniTableColumn('ReduceIncompletePeriod', 'Reduser ufullstendig periode', UniTableColumnType.Boolean);
+
+        const timefactorCol = new UniTableColumn('TimeFactor', 'Prisfaktor')
+            .setType(UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row) => {
+                if (row && (row.TimeFactor || row.TimeFactor === 0)) {
+                    return this.priceFactor[row.TimeFactor];
+                } else {
+                    return '';
+                }
+            })
+            .setOptions({
+                itemTemplate: rowModel => rowModel,
+                resource: this.priceFactor
+            });
+
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
             .setTemplate((row) => {
@@ -591,12 +625,18 @@ export class TradeItemTable {
             'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, true
         );
 
+        const allCols = [
+            sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
+            exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
+            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
+        ].concat(dimensionCols);
+
+        if (this.configStoreKey === 'sales.recurringinvoice.tradeitemTable') {
+            allCols.splice(6, 0, pricingSourceCol, timefactorCol);
+        }
+
         this.tableConfig = new UniTableConfig(this.configStoreKey, !this.readonly)
-            .setColumns([
-                sortIndexCol, productCol, itemTextCol, numItemsCol, unitCol,
-                exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-                projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
-            ].concat(dimensionCols))
+            .setColumns(allCols)
             .setColumnMenuVisible(true)
             .setDefaultRowData(this.defaultTradeItem)
             .setDeleteButton(!this.readonly)
@@ -610,7 +650,9 @@ export class TradeItemTable {
                     this.settings,
                     this.vatTypes,
                     this.foreignVatType,
-                    this.vatDate
+                    this.vatDate,
+                    this.pricingSourceLabels,
+                    this.priceFactor
                 );
 
                 updatedRow['_isDirty'] = true;

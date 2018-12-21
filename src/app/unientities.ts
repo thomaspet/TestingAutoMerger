@@ -816,6 +816,7 @@ export class SellerLink extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public Percent: number;
+    public RecurringInvoiceID: number;
     public SellerID: number;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -888,10 +889,10 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultProductReminderFee: Product;
     public DefaultProductInterestFee: Product;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -1521,12 +1522,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -1840,6 +1841,7 @@ export class EmployeeTaxCard extends UniEntity {
     public Table: string;
     public TaxcardId: number;
     public Tilleggsopplysning: string;
+    public ufoereYtelserAndreID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public Year: number;
@@ -1849,6 +1851,7 @@ export class EmployeeTaxCard extends UniEntity {
     public loennTilUtenrikstjenestemann: TaxCard;
     public loennKunTrygdeavgiftTilUtenlandskBorger: TaxCard;
     public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger: TaxCard;
+    public ufoereYtelserAndre: TaxCard;
     public CustomFields: any;
 }
 
@@ -2014,6 +2017,7 @@ export class TaxBasis extends UniEntity {
     public JanMayenBasis: number;
     public PensionBasis: number;
     public PensionSourcetaxBasis: number;
+    public SailorBasis: number;
     public SalaryTransactionID: number;
     public StatusCode: number;
     public SvalbardBasis: number;
@@ -2208,7 +2212,7 @@ export class CompanySalary extends UniEntity {
     public Base_JanMayenAndBiCountries: boolean;
     public Base_NettoPayment: boolean;
     public Base_NettoPaymentForMaritim: boolean;
-    public Base_PayAsYouEarnOnPensions: boolean;
+    public Base_PayAsYouEarnTaxOnPensions: boolean;
     public Base_SpesialDeductionForMaritim: boolean;
     public Base_Svalbard: boolean;
     public CalculateFinancialTax: boolean;
@@ -3756,7 +3760,6 @@ export class CompanySettings extends UniEntity {
     public CompanyTypeID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
-    public CurrentAccountingYear: number;
     public CustomerAccountID: number;
     public CustomerCreditDays: number;
     public CustomerInvoiceReminderSettingsID: number;
@@ -4142,8 +4145,8 @@ export class Task extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public Model: Model;
     public Approvals: Array<Approval>;
+    public Model: Model;
     public User: User;
     public CustomFields: any;
 }
@@ -5343,6 +5346,48 @@ export class BankIntegrationAgreement extends UniEntity {
 }
 
 
+export class Budget extends UniEntity {
+    public static RelativeUrl = 'budgets';
+    public static EntityType = 'Budget';
+
+    public _createguid: string;
+    public AccountingYear: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Entries: Array<BudgetEntry>;
+    public CustomFields: any;
+}
+
+
+export class BudgetEntry extends UniEntity {
+    public static RelativeUrl = 'budgetentries';
+    public static EntityType = 'BudgetEntry';
+
+    public _createguid: string;
+    public AccountID: number;
+    public Amount: number;
+    public BudgetID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public ID: number;
+    public PeriodNumber: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Budget: Budget;
+    public Account: Account;
+    public CustomFields: any;
+}
+
+
 export class CompanyBankAccount extends UniEntity {
     public static RelativeUrl = 'companybankaccounts';
     public static EntityType = 'CompanyBankAccount';
@@ -5781,8 +5826,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -7211,6 +7256,7 @@ export class SendEmail extends UniEntity {
 
 export class SendEmailAttachment extends UniEntity {
     public Attachment: string;
+    public FileID: number;
     public FileName: string;
 }
 
@@ -7284,6 +7330,51 @@ export class EHFActivate extends UniEntity {
     public orgphone: string;
     public outgoingInvoice: boolean;
     public outgoingInvoicePrint: boolean;
+}
+
+
+export class ReportRow extends UniEntity {
+    public AccountName: string;
+    public AccountNumber: number;
+    public AccountYear: number;
+    public BudgetSum: number;
+    public BudPeriod1: number;
+    public BudPeriod10: number;
+    public BudPeriod11: number;
+    public BudPeriod12: number;
+    public BudPeriod2: number;
+    public BudPeriod3: number;
+    public BudPeriod4: number;
+    public BudPeriod5: number;
+    public BudPeriod6: number;
+    public BudPeriod7: number;
+    public BudPeriod8: number;
+    public BudPeriod9: number;
+    public GroupName: string;
+    public GroupNumber: number;
+    public ID: number;
+    public IsSubTotal: boolean;
+    public Period1: number;
+    public Period10: number;
+    public Period11: number;
+    public Period12: number;
+    public Period2: number;
+    public Period3: number;
+    public Period4: number;
+    public Period5: number;
+    public Period6: number;
+    public Period7: number;
+    public Period8: number;
+    public Period9: number;
+    public PrecedingBalance: number;
+    public SubGroupName: string;
+    public SubGroupNumber: number;
+    public Sum: number;
+    public SumLastYear: number;
+    public SumPeriod: number;
+    public SumPeriodAccumulated: number;
+    public SumPeriodLastYear: number;
+    public SumPeriodLastYearAccumulated: number;
 }
 
 
@@ -7916,6 +8007,7 @@ export enum StdWageType{
     Contribution = 8,
     Garnishment = 9,
     Outlay = 10,
+    SourceTaxPension = 11
 }
 
 

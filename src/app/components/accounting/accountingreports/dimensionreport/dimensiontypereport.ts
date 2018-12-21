@@ -63,29 +63,22 @@ export class DimensionTypeReport {
     }
 
     public ngOnInit() {
-
         this.getDimensions();
 
         if (!this.presetDimType) {
             this.currentDimension = this.dimensionTypes[0];
         }
 
-        this.financialYearService.getActiveYear()
-            .subscribe( year => {
+        this.financialYear = this.financialYearService.getActiveYear();
 
-                this.financialYear = year;
+        this.filter = {
+            ShowPreviousAccountYear: true,
+            Decimals: 0,
+            ShowPercent: true
+        };
 
-                this.filter = {
-                    ShowPreviousAccountYear: true,
-                    Decimals: 0,
-                    ShowPercent: true
-                };
-
-                this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, this.financialYear);
-                this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
-
-            });
-
+        this.periodFilter1 = this.periodFilterHelper.getFilter(1, null, this.financialYear);
+        this.periodFilter2 = this.periodFilterHelper.getFilter(2, this.periodFilter1);
     }
 
     private getDimensions() {

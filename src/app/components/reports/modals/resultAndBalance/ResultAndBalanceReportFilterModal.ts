@@ -63,11 +63,9 @@ export class ResultAndBalanceReportFilterForm implements OnInit {
     public ngOnInit() {
         this.config$.next(this.config);
         this.fields$.next(this.getComponentFields());
-        this.yearService.getActiveYear().subscribe(res => {
-            let model = this.model$.getValue();
-            model.ReportYear = res;
-            this.model$.next(model);
-        });
+        const model = this.model$.getValue();
+        model.ReportYear = this.yearService.getActiveYear();
+        this.model$.next(model);
     }
 
     private getComponentFields(): UniFieldLayout[] {
@@ -198,32 +196,32 @@ export class ResultAndBalanceReportFilterModal {
                         }
 
                         // Add report parameters
-                        let periodFromParam = new CustomReportDefinitionParameter();
+                        const periodFromParam = new CustomReportDefinitionParameter();
                         periodFromParam.Name = 'PeriodFrom';
                         periodFromParam.value = model$.getValue().fromPeriod;
 
-                        let periodToParam = new CustomReportDefinitionParameter();
+                        const periodToParam = new CustomReportDefinitionParameter();
                         periodToParam.Name = 'PeriodTo';
                         periodToParam.value = model$.getValue().toPeriod;
 
                         // Project
-                        let projectNoFromParam = new CustomReportDefinitionParameter();
+                        const projectNoFromParam = new CustomReportDefinitionParameter();
                         projectNoFromParam.Name = 'ProjectNoFrom';
                         projectNoFromParam.value = model$.getValue().fromProjectNo;
 
-                        let projectNoToParam = new CustomReportDefinitionParameter();
+                        const projectNoToParam = new CustomReportDefinitionParameter();
                         projectNoToParam.Name = 'ProjectNoTo';
                         projectNoToParam.value = model$.getValue().toProjectNo;
 
-                        let departmentNoFromParam = new CustomReportDefinitionParameter();
+                        const departmentNoFromParam = new CustomReportDefinitionParameter();
                         departmentNoFromParam.Name = 'DepartmentNoFrom';
                         departmentNoFromParam.value = model$.getValue().fromDepartmentNo;
 
-                        let departmentNoToParam = new CustomReportDefinitionParameter();
+                        const departmentNoToParam = new CustomReportDefinitionParameter();
                         departmentNoToParam.Name = 'DepartmentNoTo';
                         departmentNoToParam.value = model$.getValue().toDepartmentNo;
 
-                        let unallocatedParam = new CustomReportDefinitionParameter();
+                        const unallocatedParam = new CustomReportDefinitionParameter();
                         unallocatedParam.Name = 'showUnallocated';
                         unallocatedParam.value = model$.getValue().showUnallocated;
 

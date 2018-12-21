@@ -4,7 +4,7 @@ import {AuthService} from '../../../authService';
 import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as moment from 'moment';
-import {YearService} from '@app/services/services';
+import {FinancialYearService} from '@app/services/services';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 enum PayrollRunPaymentStatus {
@@ -75,7 +75,7 @@ export class UniTransactionsWidget implements AfterViewInit {
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
         private router: Router,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private browserStorage: BrowserStorageService,
     ) { }
 
@@ -130,7 +130,7 @@ export class UniTransactionsWidget implements AfterViewInit {
         if (this.widget.config.dashboard === 'Sale') {
             this.items = this.getSalesTransactionItems();
         } else if (this.widget.config.dashboard === 'Salary') {
-            this.items = this.getSalaryTransactionItems(this.yearService.selectedYear$.getValue());
+            this.items = this.getSalaryTransactionItems(this.financialYearService.getActiveYear());
         } else if (this.widget.config.dashboard === 'Accounting') {
             this.items = this.getAccountingTransactionItems();
         }

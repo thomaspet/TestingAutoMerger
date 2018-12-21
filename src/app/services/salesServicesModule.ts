@@ -14,6 +14,7 @@ import {CustomerInvoiceReminderSettingsService} from './sales/customerInvoiceRem
 import {CustomerInvoiceReminderRuleService} from './sales/customerInvoiceReminderRuleService';
 import {SellerService} from './sales/sellerService';
 import {SellerLinkService} from './sales/sellerLinkService';
+import {RecurringInvoiceService} from './sales/recurringInvoiceService';
 import {PaymentInfoTypeService} from './sales/paymentInfoTypeService';
 import { DebtCollectionSettingsService } from '@app/services/sales/debtCollectionSettingsService';
 
@@ -34,6 +35,7 @@ export * from './sales/debtCollectionSettingsService';
 export * from './sales/sellerService';
 export * from './sales/sellerLinkService';
 export * from './sales/paymentInfoTypeService';
+export * from './sales/recurringInvoiceService';
 
 @NgModule({
     // providers: [
@@ -61,6 +63,7 @@ export class SalesServicesModule {
                 AddressService,
                 BusinessRelationService,
                 CustomerInvoiceService,
+                RecurringInvoiceService,
                 CustomerInvoiceItemService,
                 CustomerOrderItemService,
                 CustomerOrderService,

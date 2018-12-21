@@ -112,7 +112,8 @@ export class BankComponent implements AfterViewInit {
         },
         {
             Code: 'download_payment_file',
-            ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows)
+            ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44001
         },
         {
             Code: 'edit_payment',
@@ -735,7 +736,7 @@ export class BankComponent implements AfterViewInit {
         this.toastService.addToast('Laster opp kvitteringsfil..', ToastType.good, 10,
         'Dette kan ta litt tid, vennligst vent...');
 
-        this.paymentBatchService.registerReceiptFileCamt054(file)
+        this.paymentBatchService.registerReceiptFile(file)
             .subscribe(paymentBatch => {
                 this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
                     'Betalinger og bilag er oppdatert');

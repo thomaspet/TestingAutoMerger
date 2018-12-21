@@ -32,7 +32,7 @@ import {
     StatisticsService,
     StatusService,
     EmployeeLeaveService,
-    YearService,
+    FinancialYearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
     CustomDimensionService
@@ -55,6 +55,7 @@ import {saveAs} from 'file-saver';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
 export const SharingTypeText = [
+    {ID: 0, Title: 'Bruk distribusjonsplan'},
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
@@ -106,6 +107,7 @@ export class UniTicker {
     public newWithEntityAction: TickerAction;
 
     public unitableFilter: string;
+    public publicParams: URLSearchParams;
 
     public busy: boolean = false;
 
@@ -127,12 +129,13 @@ export class UniTicker {
         private modalService: UniModalService,
         private tableUtils: TableUtils,
         private employeeLeaveService: EmployeeLeaveService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private customDimensionService: CustomDimensionService
     ) {
         this.lookupFunction = (urlParams: URLSearchParams) => {
+            this.publicParams = urlParams;
             const params = this.getSearchParams(urlParams);
             if (this.ticker.Model) {
                 return this.statisticsService
@@ -457,15 +460,13 @@ export class UniTicker {
             filter = filter.replace(':currentaccountingyear', `${expFilterVal.Value}`);
             params.set('filter', filter);
         } else {
-            this.yearService.getActiveYear().subscribe(activeyear => {
-                const currentAccountingYear = activeyear.toString();
-                this.expressionFilters.push({
-                    Expression: 'currentaccountingyear',
-                    Value: currentAccountingYear
-                });
-                filter = filter.replace(':currentaccountingyear', currentAccountingYear);
-                params.set('filter', filter);
+            const currentAccountingYear = this.financialYearService.getActiveYear().toString();
+            this.expressionFilters.push({
+                Expression: 'currentaccountingyear',
+                Value: currentAccountingYear
             });
+            filter = filter.replace(':currentaccountingyear', currentAccountingYear);
+            params.set('filter', filter);
         }
     }
 
@@ -854,7 +855,8 @@ export class UniTicker {
                     // set up templates based on rules for e.g. fieldname
                     if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')
                         || column.SelectableFieldName.toLowerCase().endsWith('tostatus')
-                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')) {
+                        || column.SelectableFieldName.toLowerCase().endsWith('fromstatus')
+                        || (column.Alias && column.Alias.toLocaleLowerCase().endsWith('statuscode'))) {
                         col.template = (rowModel) => this.statusCodeToText(rowModel[column.Alias]);
                     }
 
@@ -862,7 +864,8 @@ export class UniTicker {
                         col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                     }
 
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')) {
+                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')
+                        || (column.Alias && column.Alias.toLocaleLowerCase() === 'sharingtype')) {
                         col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                     }
 
@@ -1280,7 +1283,7 @@ export class UniTicker {
             || this.ticker.Columns.map(x => x.Header !== PAPERCLIP ? x.Header : 'Vedlegg').join(',');
 
         // use both predefined filters and additional unitable filters if applicable
-        let params = new URLSearchParams();
+        let params = this.publicParams;
         if (this.unitableFilter) {
             params.set('filter', this.unitableFilter);
         }

@@ -29,7 +29,7 @@ import {
 import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    WageTypeService, YearService, BankAccountService, EmployeeCategoryService,
+    WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
     ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
@@ -166,7 +166,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private http: UniHttp,
         private employeeTaxCardService: EmployeeTaxCardService,
         private wageTypeService: WageTypeService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private bankaccountService: BankAccountService,
         private employeeCategoryService: EmployeeCategoryService,
         private modulusService: ModulusService,
@@ -181,11 +181,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         this.childRoutes = this.getPaths();
 
-        this.subscriptions
-            .push(this.yearService
-                .getActiveYear()
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe((year) => this.activeYear$.next(year)));
+        this.activeYear$.next(this.financialYearService.getActiveYear());
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];

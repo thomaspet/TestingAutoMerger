@@ -21,8 +21,8 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
         return super.PutAction(null, 'generate-payment-file', `ID=${paymentBatchID}`);
     }
 
-    public registerReceiptFileCamt054(file: File): Observable<any> {
-        return super.PutAction(null, 'register-receipt-file-camt054', `fileID=${file.ID}`);
+    public registerReceiptFile(file: File): Observable<any> {
+        return super.PutAction(null, 'register-receipt-file', `fileID=${file.ID}`);
     }
     // OLD
     public registerCustomerPaymentFile(file: File): Observable<any> {

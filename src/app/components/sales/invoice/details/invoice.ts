@@ -123,6 +123,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     private deletables: SellerLink[] = [];
 
     readonly: boolean;
+    readonlyDraft: boolean;
     invoice: CustomerInvoice;
     invoiceItems: CustomerInvoiceItem[];
     newInvoiceItem: CustomerInvoiceItem;
@@ -1081,6 +1082,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
         this.readonly = (!!invoice.ID && !!invoice.StatusCode && invoice.StatusCode !== StatusCodeCustomerInvoice.Draft) || !!invoice.AccrualID;
+        this.readonlyDraft = !!invoice.AccrualID;
         this.invoiceItems = invoice.Items.sort(
             function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
         );
@@ -1166,7 +1168,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         this.openAccrualModal(data);
                     });
                 } else {
-                    this.openAccrualModal(data);
+                    if (this.invoice.Accrual) {
+                        data.accrual = this.invoice.Accrual;
+                        this.openAccrualModal(data);
+                    } else {
+                        const accrual$ = this.invoice.AccrualID ? this.accrualService.Get(this.invoice.AccrualID, ['Periods'])
+                            : Observable.of(null);
+                        accrual$.subscribe(accrual => {
+                            data.accrual = accrual;
+                            this.openAccrualModal(data);
+                        });
+                    }
                 }
             },
             disabled: () => this.invoice.InvoiceNumber > '42002'
@@ -1197,10 +1209,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 const accrual = res.model;
-                if (!accrual['_createguid']) {
+                if (!accrual['_createguid'] && !accrual.ID) {
                     accrual['createguid'] = createGuid();
                 }
-                const accrual$ = this.accrualService.Post(accrual);
+                const accrual$ = accrual.ID ? this.accrualService.Put(accrual.ID, accrual): this.accrualService.Post(accrual);
                 const journalEntry$ = this.invoice.JournalEntryID ?
                     this.journalEntryService.Get(this.invoice.JournalEntryID, ['DraftLines'])
                     : this.customerInvoiceService.createInvoiceJournalEntryDraftAction(this.invoice.ID);
@@ -1208,11 +1220,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     if (currentJournalEntry.DraftLines && currentJournalEntry.DraftLines.length) {
                         currentJournalEntry.DraftLines[0].AccrualID = savedAccrual.ID;
                         this.invoice.AccrualID = savedAccrual.ID;
+                        this.invoice.JournalEntryID = currentJournalEntry.ID;
                         const saveInvoice$ = this.customerInvoiceService.Put(this.invoice.ID, this.invoice);
                         const saveJournalEntry$ = this.journalEntryService.Put(currentJournalEntry.ID, currentJournalEntry);
                         forkJoin([saveInvoice$, saveJournalEntry$]).subscribe(([invoice, journalEntry]) => {
                             this.invoice = <CustomerInvoice>invoice;
-                            this.readonly = true;
+                            this.readonlyDraft = true;
                             this.toastService.addToast('periodiseringen er oppdatert', ToastType.good, 3);
                         });
                     }
@@ -1656,7 +1669,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 this.journalEntryService.getTaxableIncomeLast12Months(this.invoice.DeliveryDate || this.invoice.InvoiceDate)
                     .subscribe(existingAmount => {
                         const linesWithVatCode6 =
-                            this.invoice.Items.filter(x => x.VatType && x.VatType.VatCode === '6');
+                            this.invoiceItems.filter(x => x.VatType && x.VatType.VatCode === '6');
 
                         // income is negative amounts in the journalentries, switch to positive amounts
                         // to make it easier to calculate the values here

@@ -16,7 +16,7 @@ import {
     ErrorService,
     GuidService,
     StatisticsService,
-    YearService,
+    FinancialYearService,
     NumberSeriesService,
     NumberSeriesTypeService,
     NumberSeriesTaskService,
@@ -65,7 +65,7 @@ export class NumberSeries {
         private errorService: ErrorService,
         private guidService: GuidService,
         private statisticsService: StatisticsService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private toastService: ToastService,
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTypeService: NumberSeriesTypeService,
@@ -78,9 +78,9 @@ export class NumberSeries {
         this.initAccountingTableConfig();
         this.updateSaveActions();
 
-        this.yearService.selectedYear$.subscribe(year => {
-            this.currentYear = year;
-            this.checkSave(true).then( ok => { if (ok) {
+        this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
+            this.currentYear = year.Year;
+            this.checkSave(true).then(ok => { if (ok) {
                this.requestNumberSerie();
             }});
         });

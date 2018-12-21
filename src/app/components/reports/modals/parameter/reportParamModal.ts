@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { StatisticsResponse } from '@app/models/StatisticsResponse';
 import {
     ErrorService,
-    YearService,
+    FinancialYearService,
     ReportDefinitionParameterService,
     StatisticsService,
     BrowserStorageService,
@@ -100,7 +100,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private uniModalService: UniModalService,
         private toastService: ToastService,
     ) { }
@@ -197,7 +197,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                         fields[i] = this.generateFields(params[paramsIdx]);
                         paramsIdx++;
                     }
-                    this.fields$.next(fields.filter( x => x));
+                    this.fields$.next(fields);
 
                     const model = this.model$.getValue();
                     params.map(param => {
@@ -239,7 +239,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
 
                 // This should be set as standard for reports?
                 if (parameter.Name === 'System_PeriodAccountYear' || parameter.Name === 'PeriodAccountYear' || parameter.Name === 'yr') {
-                    this.yearService.getActiveYear().subscribe(year => params[i].value = '' + year);
+                    params[i].value = '' + this.financialYearService.getActiveYear();
                 }
 
                 parameter.SourceIndex = topSourceIndex;
@@ -357,7 +357,13 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 };
             case 'comment':
                 this.commentConfig = this.commentConfig || { filter: param.DefaultValueLookupType };
-                break;
+                return <UniFieldLayout>{
+                    Property: param.Name,
+                    Label: param.Label,
+                    FieldType: FieldType.TEXTAREA,
+                    Hidden: true,
+                    Options: undefined,
+                };
             default:
                 param.value = param.value ? param.value.toString() : undefined;
                 return <UniFieldLayout>{
@@ -377,7 +383,7 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
                 .switchMap(loadedParams => this.resolveParamValues(loadedParams, true))
                 .subscribe(resolvedParams => {
                     this.report.parameters = resolvedParams;
-                    this.fields$.next(resolvedParams.map(param => this.generateFields(param)).filter(x => x));                    
+                    this.fields$.next(resolvedParams.map(param => this.generateFields(param)));
                     const model = this.model$.getValue();
                     resolvedParams.map(param => {
                         model[param.Name] = param.value;

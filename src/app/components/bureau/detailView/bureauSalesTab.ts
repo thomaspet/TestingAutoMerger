@@ -10,7 +10,7 @@ import {
 import {KpiCompany} from '../kpiCompanyModel';
 import {environment} from 'src/environments/environment';
 import {BureauCustomHttpService} from '../bureauCustomHttpService';
-import {YearService} from '../../../services/common/yearService';
+import {FinancialYearService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
@@ -74,12 +74,12 @@ export class BureauSalesTab implements AfterViewInit, OnDestroy {
         private element: ElementRef,
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private authService: AuthService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
     ) {
-        this.accountingYear = this.yearService.selectedYear$.getValue();
+        this.accountingYear = this.financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {
@@ -125,7 +125,7 @@ export class BureauSalesTab implements AfterViewInit, OnDestroy {
             + `&filter=year(invoicedate) eq ${year} and statuscode ge 42002`,
             companyKey
         )
-            .map(this.customHttpService.singleStatisticsExtractor)
+        .map(this.customHttpService.singleStatisticsExtractor);
     }
 
     public getDueSalesInvoices(companyKey: string): Observable<number> {

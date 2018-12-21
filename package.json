@@ -39,8 +39,7 @@
     "@angular/platform-browser": "~7.0.0",
     "@angular/platform-browser-dynamic": "~7.0.0",
     "@angular/router": "~7.0.0",
-    "@ng-select/ng-select": "^2.11.0",
-    "@types/lodash": "^4.14.118",
+    "@ng-select/ng-select": "^2.13.1",
     "ag-grid-angular": "^19.0.0",
     "ag-grid-community": "^19.0.0",
     "angular-tree-component": "^7.0.1",
@@ -57,13 +56,16 @@
     "raygun4js": "^2.13.3",
     "rxjs": "6.3.3",
     "rxjs-compat": "6.3.3",
-    "zone.js": "^0.8.26"
+    "zone.js": "^0.8.26",
+    "applicationinsights-js": "1.0.20"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.10.2",
     "@angular/cli": "^7.0.2",
     "@angular/compiler-cli": "^7.0.0",
     "@angular/language-service": "^7.0.0",
+    "@types/lodash": "^4.14.118",
+    "@types/applicationinsights-js": "1.0.9",
     "archiver": "^3.0.0",
     "codelyzer": "^4.5.0",
     "jasmine-core": "~2.99.1",

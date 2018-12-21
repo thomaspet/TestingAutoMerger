@@ -14,9 +14,8 @@ import {
 import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
-import {UniImage, UniImageSize} from '../../../../../framework/uniImage/uniImage';
+import {UniImage} from '../../../../../framework/uniImage/uniImage';
 import {UniModalService} from '../../../../../framework/uni-modal';
-import {ImageModal} from '../../../common/modals/ImageModal';
 import {Subscription} from 'rxjs';
 
 const SAVING_KEY = 'viewSaving';
@@ -207,21 +206,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         this.salarybalanceChange.emit(model);
         if (this.useExternalChangeDetection === false) {
             super.updateState('salarybalance', model, true);
-        }
-    }
-
-    public onImageClicked(file) {
-        if (this.salarybalanceID > 0) {
-            const data = {
-                entity: 'SalaryBalance',
-                entityID: this.salarybalanceID,
-                fileIDs: null,
-                showFileID: file.ID,
-                readonly: true,
-                size: UniImageSize.large
-            };
-
-            this.modalService.open(ImageModal, {data: data});
         }
     }
 

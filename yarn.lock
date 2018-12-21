@@ -276,9 +276,9 @@
     lodash "^4.17.10"
     to-fast-properties "^2.0.0"
 
-"@ng-select/ng-select@^2.11.0":
-  version "2.11.0"
-  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.11.0.tgz#53eeb457c364c9f829a95a8e27bb25a8eb3f3025"
+"@ng-select/ng-select@^2.13.1":
+  version "2.13.1"
+  resolved "https://registry.yarnpkg.com/@ng-select/ng-select/-/ng-select-2.13.1.tgz#2a9a615b3a720393386317c02b0f49ea6d850824"
   dependencies:
     tslib "^1.9.0"
 
@@ -310,6 +310,10 @@
     rxjs "6.3.3"
     semver "5.5.1"
     semver-intersect "1.4.0"
+
+"@types/applicationinsights-js@1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@types/applicationinsights-js/-/applicationinsights-js-1.0.9.tgz#791581118068517ecd0bc29fd4590239a577a489"
 
 "@types/concat-stream@^1.6.0":
   version "1.6.0"
@@ -676,6 +680,10 @@ append-transform@^1.0.0:
   resolved "https://registry.yarnpkg.com/append-transform/-/append-transform-1.0.0.tgz#046a52ae582a228bd72f58acfbe2967c678759ab"
   dependencies:
     default-require-extensions "^2.0.0"
+
+applicationinsights-js@1.0.20:
+  version "1.0.20"
+  resolved "https://registry.yarnpkg.com/applicationinsights-js/-/applicationinsights-js-1.0.20.tgz#e0519a2c043e9b4683d32d327a06c3f18c63d5ca"
 
 aproba@^1.0.3, aproba@^1.1.1:
   version "1.2.0"

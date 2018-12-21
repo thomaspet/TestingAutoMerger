@@ -875,7 +875,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             // inline function that checks if the sum
             const vatSummaryCheck = () => {
-                if (companySettings.TaxMandatoryType === 2) {
+                if (companySettings && companySettings.TaxMandatoryType === 2) {
                     // get sum of items where vatcode is used - if the sum is larger than limit, add warning
                     let sumNewRowsWithVatCode6 = 0;
                     sortedJournalEntries.forEach(x => {

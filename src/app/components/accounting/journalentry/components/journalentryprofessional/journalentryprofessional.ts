@@ -992,12 +992,18 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
             .setVisible(false)
-            .setOptions({defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear()});
+            .setOptions({
+                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
+                useLastMonthsPreviousYearUntilMonth: 4
+            });
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 
@@ -2027,7 +2033,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
                 `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
-                `or (Account.AccountNumber eq ${searchValue} ` +
+                `or (Account.AccountNumber eq '${parseInt(searchValue, 10)}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             }
         }
@@ -2103,6 +2109,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             if (item.JournalEntryDataAccrual) {
                 const data = {
+                    item: item,
                     accrualAmount: null,
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2112,6 +2119,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.openAccrualModal(data, item);
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
                 const data = {
+                    item: item,
                     accrualAmount: item['NetAmountCurrency'],
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2141,6 +2149,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public onModalChanged(item, modalval) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
         item.JournalEntryDataAccrual = modalval;
         // if the item is already booked, just add the payment through the API now
         /* if (item.StatusCode) {

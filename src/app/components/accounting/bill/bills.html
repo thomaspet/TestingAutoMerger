@@ -17,7 +17,7 @@
             class="uni-progress-bar"
             mode="indeterminate">
         </mat-progress-bar>
-    </section>    
+    </section>
 
     <section class="bill-container">
         <!-- List -->
@@ -30,7 +30,7 @@
                 [model]="searchParams$"
                 (changeEvent)="onFormFilterChange($event)">
             </uni-autocomplete-input>
-            
+
 
             <uni-table
                 [resource]="listOfInvoices"
@@ -63,7 +63,6 @@
                 [uploadWithoutEntity]="true"
                 [readonly]="true"
                 [fileIDs]="fileID"
-                (imageClicked)="onImageClicked($event)"
                 (fileListReady)="onFileListReady($event)"
                 (fileSplitCompleted)="onFileSplitCompleted()">
             </uni-image>

@@ -163,6 +163,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/sales/kidsettings',
                         moduleID: UniModules.KIDSettings,
                     },
+                    // {
+                    //     name: 'Repeterende faktura',
+                    //     url: '/sales/recurringinvoice',
+                    //     moduleID: UniModules.RecurringInvoice,
+                    // },
                 ]
             },
             {

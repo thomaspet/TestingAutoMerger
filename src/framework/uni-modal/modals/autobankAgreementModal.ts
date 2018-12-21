@@ -56,7 +56,7 @@ export interface IAutoBankAgreementDetails {
             </article>
             <article [hidden]="steps !== 1" class="uni-autobank-agreement-modal-body checkbox_step" id="step1">
                 <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf">
-                    <embed src="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf" />
+                    <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
                 </object>
                 <br>
                 <label class="checkbox-label" for="agreementCheckbox">

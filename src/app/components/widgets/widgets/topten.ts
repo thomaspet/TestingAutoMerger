@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router} from '@angular/router/';
-import {YearService} from '../../../services/common/yearService';
+import {FinancialYearService} from '@app/services/services';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
 
@@ -64,17 +64,15 @@ export class UniTopTenWidget {
     };
 
     constructor(
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private dataService: WidgetDataService,
         private router: Router
     ) {
-        this.yearService.getActiveYear().subscribe((year) => {
-            this.currentYear = year;
-            this.previousYear = year - 1;
-            this.dataService.getData(this.getEndPoint()).subscribe((res) => {
-                res.forEach(item => item.showContextMenu = false);
-                this.data = res;
-            });
+        this.currentYear = this.financialYearService.getActiveYear();
+        this.previousYear = this.currentYear - 1;
+        this.dataService.getData(this.getEndPoint()).subscribe((res) => {
+            res.forEach(item => item.showContextMenu = false);
+            this.data = res;
         });
     }
 

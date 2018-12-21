@@ -216,8 +216,13 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Forespørsel bilg',
+                    label: 'Forespørsel bilag',
                     link: '/accounting/transquery',
+                    urlToNew: ''
+                },
+                {
+                    label: 'Forespørsel konto',
+                    link: '/accounting/accountquery',
                     urlToNew: ''
                 },
                 {
@@ -240,6 +245,11 @@ export const SHORTCUT_LISTS = [
                     link: '/accounting/suppliers',
                     urlToNew: '/accounting/suppliers/0'
                 },
+                {
+                    link: '/reports?category=Accounting',
+                    label: 'Rapport - Regnskap',
+                    urlToNew: ''
+                }
             ]
         }
     },

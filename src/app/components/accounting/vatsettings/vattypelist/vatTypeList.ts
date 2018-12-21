@@ -1,7 +1,7 @@
 import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {VatType} from '@uni-entities';
-import {VatTypeService, ErrorService, YearService} from '@app/services/services';
+import {VatTypeService, ErrorService, FinancialYearService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import * as moment from 'moment';
@@ -22,15 +22,13 @@ export class VatTypeList implements OnInit, AfterViewInit {
         private vatTypeService: VatTypeService,
         private errorService: ErrorService,
         private elementRef: ElementRef,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) {
     }
 
     public ngOnInit() {
-        this.yearService.getActiveYear().subscribe(activeYear => {
-            this.activeYear = activeYear;
-            this.setupTable();
-        });
+        this.activeYear = this.financialYearService.getActiveYear();
+        this.setupTable();
     }
 
     public ngAfterViewInit() {

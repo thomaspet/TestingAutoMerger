@@ -8,7 +8,7 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {
     ReportDefinitionParameterService,
-    YearService,
+    FinancialYearService,
     ErrorService,
     PayrollrunService
 } from '../../../../services/services';
@@ -36,18 +36,14 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     public currentYear: number;
     constructor(
         private payrollRunService: PayrollrunService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) { }
 
     public ngOnInit() {
         this.config$.next(this.config);
-        const subscription = this.yearService
-            .selectedYear$
-            .asObservable()
-            .filter(year => !!year)
-            .do(year => this.currentYear = year)
-            .switchMap(year => this.payrollRunService.getLatestSettledRun(year))
-            .finally(() => subscription.unsubscribe())
+        this.currentYear = this.financialYearService.getActiveYear();
+
+        this.payrollRunService.getLatestSettledRun(this.currentYear)
             .subscribe(payrollRun => {
                 this.fields$.next(this.getLayout(payrollRun));
                 this.model$.next({ RunID: payrollRun ? payrollRun.ID : 0, DimensionGrouping: true });

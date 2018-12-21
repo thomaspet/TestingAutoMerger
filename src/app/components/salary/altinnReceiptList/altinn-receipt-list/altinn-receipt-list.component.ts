@@ -1,5 +1,5 @@
 import {Component, OnInit, OnChanges, Input, Output, SimpleChanges, EventEmitter} from '@angular/core';
-import {AltinnReceiptService, ErrorService, YearService} from '../../../../services/services';
+import {AltinnReceiptService, ErrorService, FinancialYearService} from '../../../../services/services';
 import {AltinnReceipt} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
@@ -25,7 +25,7 @@ export class AltinnReceiptListComponent implements OnInit, OnChanges {
     constructor(
         private altinnReceiptService: AltinnReceiptService,
         private errorService: ErrorService,
-        private yearService: YearService
+        private financialYearService: FinancialYearService
     ) { }
 
     public ngOnInit() {}

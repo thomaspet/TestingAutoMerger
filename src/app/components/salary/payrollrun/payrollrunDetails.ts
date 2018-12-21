@@ -28,7 +28,7 @@ import 'rxjs/add/observable/forkJoin';
 import {
     PayrollrunService, UniCacheService, SalaryTransactionService, EmployeeService, WageTypeService,
     ReportDefinitionService, CompanySalaryService, ProjectService, DepartmentService, EmployeeTaxCardService,
-    YearService, ErrorService, EmployeeCategoryService, FileService,
+    FinancialYearService, ErrorService, EmployeeCategoryService, FileService,
     JournalEntryService, PayrollRunPaymentStatus, SupplementService,
     SalarySumsService
 } from '../../../services/services';
@@ -110,7 +110,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private _projectService: ProjectService,
         private _departmentService: DepartmentService,
         private _employeeTaxCardService: EmployeeTaxCardService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private employeeCategoryService: EmployeeCategoryService,
         private fileService: FileService,
         private journalEntryService: JournalEntryService,
@@ -410,27 +410,25 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         let filter: string = 'filter=';
         const employeeFilterTable: string[] = [];
 
-        this.yearService
-            .getActiveYear()
-            .switchMap(financialYear => {
-                employees.forEach(employee => {
-                    employeeFilterTable.push('EmployeeID eq ' + employee.ID);
-                });
-                filter += '(' + employeeFilterTable.join(' or ') + ') ';
-                filter += `and Year le ${financialYear}&orderby=Year DESC`;
-                filter += `&expand=${this._employeeTaxCardService.taxExpands()}`;
+        const financialYear = this.financialYearService.getActiveYear();
 
-                return employeeFilterTable.length
-                    ? this._employeeTaxCardService.GetAll(filter)
-                    : Observable.of([]);
-            })
-            .subscribe((taxCards: EmployeeTaxCard[]) => {
-                employees.map(employee => {
-                    const taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
-                    employee.TaxCards = taxCard ? [taxCard] : [];
-                });
-                super.updateState('employees', employees, false);
+        employees.forEach(employee => {
+            employeeFilterTable.push('EmployeeID eq ' + employee.ID);
+        });
+        filter += '(' + employeeFilterTable.join(' or ') + ') ';
+        filter += `and Year le ${financialYear}&orderby=Year DESC`;
+        filter += `&expand=${this._employeeTaxCardService.taxExpands()}`;
+
+        (employeeFilterTable.length
+            ? this._employeeTaxCardService.GetAll(filter)
+            : Observable.of([])
+        ).subscribe((taxCards: EmployeeTaxCard[]) => {
+            employees.map(employee => {
+                const taxCard = taxCards.find(x => x.EmployeeID === employee.ID);
+                employee.TaxCards = taxCard ? [taxCard] : [];
             });
+            super.updateState('employees', employees, false);
+        });
     }
 
     private accountOnTransesSet(): boolean {
@@ -649,6 +647,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private getPayrollRun() {
+        this.activeYear = this.financialYearService.getActiveYear();
+
         if (this.payrollrunID) {
             this.payrollrunService.get(this.payrollrunID).
                 subscribe((payroll: PayrollRun) => {
@@ -665,14 +665,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             Observable.forkJoin(
                 this.payrollrunService.get(this.payrollrunID),
                 this.payrollrunService.getLatest(),
-                this._companySalaryService.getCompanySalary(),
-                this.yearService.getActiveYear()
+                this._companySalaryService.getCompanySalary()
             ).subscribe((dataSet: any) => {
-                const [payroll, last, salaries, activeYear] = dataSet;
+                const [payroll, last, salaries] = dataSet;
                 this.setDefaults(payroll);
                 const latest: PayrollRun = last;
                 const companysalary: CompanySalary = salaries;
-                this.activeYear = activeYear;
 
                 if (payroll && payroll.ID === 0) {
                     payroll.ID = null;

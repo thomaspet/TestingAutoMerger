@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter, PayrollRun, Employee} from '../../../../unientities';
 import {
     ReportDefinitionParameterService,
-    YearService,
+    FinancialYearService,
     ErrorService,
     PayrollrunService,
     EmployeeService
@@ -49,38 +49,35 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
 
     constructor(
         private payrollRunService: PayrollrunService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private employeeService: EmployeeService,
         private errorService: ErrorService) { }
 
     public ngOnInit() {
+        this.currentYear = this.financialYearService.getActiveYear();
         this.config$.next(this.config);
-        this.subscriptions.push(this.yearService
-            .selectedYear$
-            .asObservable()
-            .do(year => this.currentYear = year)
-            .switchMap(year => {
-                return Observable.forkJoin(
-                    this.employeeService.GetAll('orderby=EmployeeNumber DESC&top=1')
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                        .map(emps => emps[0]),
-                    this.payrollRunService.getLatestSettledRun(year)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs)));
-            })
-            .subscribe((result: [Employee, PayrollRun]) => {
-                const [employee, payrollRun] = result;
-                this.selectedPayrollRun = payrollRun;
-                this.fields$
-                    .next(this.getLayout(payrollRun));
 
-                this.model$
-                    .next({
-                        EmpFrom: 1,
-                        EmpTo: employee.EmployeeNumber || 1,
-                        RunID: payrollRun.ID,
-                        Grouping: false,
-                    });
-            }));
+        Observable.forkJoin([
+            this.employeeService.GetAll('orderby=EmployeeNumber DESC&top=1')
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                .map(emps => emps[0]),
+            this.payrollRunService.getLatestSettledRun(this.currentYear)
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+        ])
+        .subscribe((result: [Employee, PayrollRun]) => {
+            const [employee, payrollRun] = result;
+            this.selectedPayrollRun = payrollRun;
+            this.fields$
+                .next(this.getLayout(payrollRun));
+
+            this.model$
+                .next({
+                    EmpFrom: 1,
+                    EmpTo: employee.EmployeeNumber || 1,
+                    RunID: payrollRun.ID,
+                    Grouping: false,
+                });
+        });
     }
 
     public ngOnDestroy() {

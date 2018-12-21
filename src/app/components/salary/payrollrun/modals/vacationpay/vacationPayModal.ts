@@ -7,7 +7,7 @@ import {
 } from '../../../../../../framework/ui/unitable/index';
 import {
     SalaryTransactionService, BasicAmountService, PayrollrunService,
-    VacationpayLineService, YearService, ErrorService, CompanySalaryService,
+    VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService,
     CompanyVacationRateService, NumberFormat, VacationRateEmployeeService
 } from '../../../../../../app/services/services';
 import {VacationPaySettingsModal} from '../../modals/vacationpay/vacationPaySettingsModal';
@@ -29,7 +29,8 @@ interface IVacationPayHeader {
 
 @Component({
     selector: 'vacation-pay-modal',
-    templateUrl: './vacationPayModal.html'
+    templateUrl: './vacationPayModal.html',
+    styleUrls: ['./vacationPayModal.sass']
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
@@ -69,7 +70,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         private vacationpaylineService: VacationpayLineService,
         private toastService: ToastService,
         private errorService: ErrorService,
-        private yearService: YearService,
+        private financialYearService: FinancialYearService,
         private companysalaryService: CompanySalaryService,
         private companyVacationrateService: CompanyVacationRateService,
         private modalService: UniModalService,
@@ -80,20 +81,20 @@ export class VacationPayModal implements OnInit, IUniModal {
         this.totalPayout = 0;
         this.saveactions = this.getSaveactions(this.saveIsActive, this.createTransesIsActive);
 
+        this.currentYear = this.financialYearService.getActiveYear();
+
         Observable
             .forkJoin(
             this.companysalaryService.getCompanySalary(),
-            this.basicamountService.getBasicAmounts(),
-            this.yearService.getActiveYear())
+            this.basicamountService.getBasicAmounts())
             .finally(() => this.busy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do((response: any) => {
-                const [comp, basics, financial] = response;
+                const [comp, basics] = response;
                 this.basicamounts = basics;
                 this.basicamounts.sort((a, b) => {
                     return  new Date(a.FromDate).getFullYear() - new Date(b.FromDate).getFullYear();
                 });
-                this.currentYear = financial;
                 this.companysalary = comp;
                 this.companysalary['_wagedeductionText'] = this.vacationpaylineService
                     .WageDeductionDueToHolidayArray[this.companysalary.WageDeductionDueToHoliday].name;

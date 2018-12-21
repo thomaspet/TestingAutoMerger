@@ -397,11 +397,15 @@ export class WageTypeService extends BizHttp<WageType> {
 
 
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
-        const ret = [this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard)];
-        if (companySalary.Base_SpesialDeductionForMaritim) {
-            ret.push(this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.SpesialDeductionForMaritim));
-        }
-        return ret;
+        return [
+                this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard),
+                ...Object
+                .keys(companySalary)
+                .filter(key => key.startsWith('Base') && companySalary[key])
+                .map(key => key.substring(5))
+                .map(key => this.specialTaxAndContributionsRule
+                    .find(rule => rule.ID === SpecialTaxAndContributionsRule[key]))
+            ];
     }
 
     public specialSettingsLayout(layoutID: string, wageTypes$: Observable<WageType[]>) {

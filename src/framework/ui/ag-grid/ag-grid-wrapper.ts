@@ -130,6 +130,8 @@ export class AgGridWrapper {
 
     public ngOnDestroy() {
         this.rowSelectionDebouncer$.complete();
+        this.columnMoveDebouncer$.complete();
+        this.colResizeDebouncer$.complete();
     }
 
     public ngOnChanges(changes) {
@@ -348,7 +350,17 @@ export class AgGridWrapper {
         if (index >= 0) {
             const col = this.columns.splice(index, 1)[0];
             this.columns.splice(event.toIndex, 0, col);
+            this.columns = [...this.columns];
+
             this.tableUtils.saveColumnSetup(this.config.configStoreKey, this.columns);
+            this.columnsChange.emit(this.columns);
+            this.agColDefs = this.getAgColDefs(this.columns);
+            this.cdr.markForCheck();
+            setTimeout(() => {
+                if (this.agGridApi) {
+                    this.agGridApi.sizeColumnsToFit();
+                }
+            });
         }
     }
 

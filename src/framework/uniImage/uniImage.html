@@ -52,6 +52,10 @@
                 <i class="material-icons">redo</i>
             </a>
 
+            <a (click)="openFileViewer()">
+                <i class="material-icons">open_in_new</i>
+            </a>
+
             <a *ngIf="files.length > 1 || (files[currentFileIndex] && files[currentFileIndex].Pages > 1)"
                 class="next"
                 (click)="next()">
@@ -70,7 +74,7 @@
         <picture
             #imageContainer
             [ngClass]="{'clickable': currentClicked}"
-            (click)="onImageClick()">
+            (click)="openFileViewer()">
 
             <source
                 [attr.srcset]="imageUrl2x"

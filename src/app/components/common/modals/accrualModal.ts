@@ -1,5 +1,5 @@
-import { Component, Input, Output, EventEmitter, SimpleChange, ViewChild } from '@angular/core';
-import { UniFieldLayout, UniForm } from '../../../../framework/ui/uniform/index';
+import {Component, Input, Output, EventEmitter, SimpleChange, ViewChild} from '@angular/core';
+import {UniForm} from '../../../../framework/ui/uniform/index';
 import {Accrual, AccrualPeriod, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
@@ -17,6 +17,8 @@ import {
     UniSearchAccountConfig
 } from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import * as _ from 'lodash';
+import { createGuid } from '@app/services/common/dimensionService';
+import { of } from 'rxjs/Observable/of';
 
 @Component({
     selector: 'accrual-modal',
@@ -137,7 +139,7 @@ export class AccrualModal implements IUniModal {
         private finacialYearService: FinancialYearService,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private yearService: FinancialYearService,
+        private financialYearService: FinancialYearService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private browserStorageService: BrowserStorageService,
         private journalEntryService: JournalEntryService
@@ -213,8 +215,8 @@ export class AccrualModal implements IUniModal {
 
             if (Number(event['_numberOfPeriods'].currentValue) !== NaN) {
                 this.numberOfPeriods = event['_numberOfPeriods'].currentValue;
-                if (this.numberOfPeriods < 2) {
-                    this.numberOfPeriods = 2;
+                if (this.numberOfPeriods < 1) {
+                    this.numberOfPeriods = 1;
                 }
             }
 
@@ -315,28 +317,30 @@ export class AccrualModal implements IUniModal {
 
         // changing BalanceAccountID on model to localStorage so that your newest selected
         // value becomes standard value on accrualModal initialization
-        this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem('BalanceAccountID');
+        let key = document.querySelector('uni-bill') ? 'InvoiceBalanceAccountID' : 'BillBalanceAccountID';
+        if (document.querySelector('journalentries')) {
+            key = 'JournalEntriesBalanceAccount';
+        }
+        this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem(key);
         this.model$.next(this.modalConfig.model);
-        this.yearService.getActiveFinancialYear().subscribe(res => {
-            this.currentFinancialYear = res.Year;
-            this.periodService.GetAll<Period>(
-                'filter=AccountYear eq '
-                + this.currentFinancialYear
-                + ' and periodseries.seriestype eq 1',
-                ['PeriodSeries'])
-                    .subscribe(periods => {
-                        this.currentFinancialYearPeriods = periods;
-                        this.isLockedDate(periods);
-                        this.setupForm();
+        this.currentFinancialYear = this.financialYearService.getActiveYear();
 
-                        if (this.modalConfig.model) {
-                            this.checkboxEnabledState = this.isAccrualAccrued();
-                            this.setAccrualPeriodBasedOnAccrual();
-                            this.changeRecalculatePeriods();
-                        }
-                });
-        });
+        this.periodService.GetAll<Period>(
+            'filter=AccountYear eq '
+            + this.currentFinancialYear
+            + ' and periodseries.seriestype eq 1',
+            ['PeriodSeries'])
+                .subscribe(periods => {
+                    this.currentFinancialYearPeriods = periods;
+                    this.isLockedDate(periods);
+                    this.setupForm();
 
+                    if (this.modalConfig.model) {
+                        this.checkboxEnabledState = this.isAccrualAccrued();
+                        this.setAccrualPeriodBasedOnAccrual();
+                        this.changeRecalculatePeriods();
+                    }
+            });
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {
@@ -378,13 +382,32 @@ export class AccrualModal implements IUniModal {
             }
             const model = this.model$.getValue();
             const searchAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
-            const defaultAccounts$ = Promise.all([
-                searchAccountConfig.lookupFn('2900').toPromise(),
-                searchAccountConfig.lookupFn('3900').toPromise()]);
+            let promises = [];
+            const uniBillElement = document.querySelector('uni-bill');
+            const journalEntryElement = document.querySelector('journalentries');
+            if (uniBillElement || journalEntryElement) {
+                promises = [
+                    searchAccountConfig.lookupFn('1749').toPromise(),
+                    of(0).toPromise()
+                ];
+            } else {
+                promises = [
+                    searchAccountConfig.lookupFn('2900').toPromise(),
+                    searchAccountConfig.lookupFn('3900').toPromise()
+                ];
+            }
+
+            const defaultAccounts$ = Promise.all(promises);
 
             defaultAccounts$.then(([balanceAccount, resultAccount]) => {
-                model['BalanceAccountID'] = balanceAccount[0] && balanceAccount[0].AccountNumber === 2900 ? balanceAccount[0].ID : null;
-                model['ResultAccountID'] = resultAccount[0] && resultAccount[0].AccountNumber === 3900 ? resultAccount[0].ID : null;
+                const hasResultBalanceAccount = balanceAccount && balanceAccount[0];
+                const hasResultResultAccount = resultAccount && resultAccount[0];
+                if (!model['BalanceAccountID']) {
+                    model['BalanceAccountID'] = hasResultBalanceAccount ? balanceAccount[0].ID : null;
+                }
+                if (!model['ResultAccountID']) {
+                    model['ResultAccountID'] = hasResultResultAccount ? resultAccount[0].ID : null;
+                }
                 const validationMsg: string [] = this.validateAccrual(false);
                 if (validationMsg && validationMsg.length > 0) {
                     this.modalConfig.model['_isValid'] = false;
@@ -655,8 +678,22 @@ export class AccrualModal implements IUniModal {
         }
 
 
+        const newAccrualPeriods = accrualPeriods.filter(period => {
+            return !this.modalConfig.model.Periods.find(x => {
+                return period.AccountYear === x.AccountYear
+                    && period.PeriodNo === x.PeriodNo;
+            });
+        });
 
-        this.modalConfig.model.Periods = accrualPeriods;
+        // remove those periods that are not selected
+        this.modalConfig.model.Periods = this.modalConfig.model.Periods.filter(period => {
+            return accrualPeriods.find(x => {
+                return period.AccountYear === x.AccountYear
+                    && period.PeriodNo === x.PeriodNo;
+            });
+        });
+        newAccrualPeriods.forEach(period => period['_createguid'] = createGuid());
+        this.modalConfig.model.Periods = this.modalConfig.model.Periods.concat(newAccrualPeriods);
 
         this.modalConfig.model['_numberOfPeriods'] = accrualPeriods.length;
         this.modalConfig.model['_periodAmount'] =
@@ -731,6 +768,7 @@ export class AccrualModal implements IUniModal {
                 LineBreak: true,
                 Sectionheader: 'Periodiseringskonto',
                 Section: 1,
+                Hidden: document.querySelector('uni-bill') || document.querySelector('journalentries'),
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
                     valueProperty: 'ID'
