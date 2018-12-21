@@ -2149,6 +2149,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public onModalChanged(item, modalval) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
         item.JournalEntryDataAccrual = modalval;
         // if the item is already booked, just add the payment through the API now
         /* if (item.StatusCode) {
