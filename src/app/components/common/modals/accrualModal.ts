@@ -385,18 +385,10 @@ export class AccrualModal implements IUniModal {
             let promises = [];
             const uniBillElement = document.querySelector('uni-bill');
             const journalEntryElement = document.querySelector('journalentries');
-            if (uniBillElement) {
-                promises = [
-                    searchAccountConfig.lookupFn('1700').toPromise(),
-                    of(null).toPromise()
-                ];
-            } else if (journalEntryElement) {
-                const hasDebitAccount = this.options && this.options.data
-                    && this.options.data.item && this.options.data.item.DebitAccount;
-                const debitAccount = hasDebitAccount ? this.options.data.item.DebitAccount.AccountNumber.toString(10) : null;
+            if (uniBillElement || journalEntryElement) {
                 promises = [
                     searchAccountConfig.lookupFn('1749').toPromise(),
-                    searchAccountConfig.lookupFn(debitAccount).toPromise()
+                    of(0).toPromise()
                 ];
             } else {
                 promises = [
@@ -776,6 +768,7 @@ export class AccrualModal implements IUniModal {
                 LineBreak: true,
                 Sectionheader: 'Periodiseringskonto',
                 Section: 1,
+                Hidden: document.querySelector('uni-bill') || document.querySelector('journalentries'),
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
                     valueProperty: 'ID'
