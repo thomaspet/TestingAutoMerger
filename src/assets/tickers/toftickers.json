@@ -1854,7 +1854,7 @@
     "OrderBy": "ID DESC",
     "Columns": [
         {
-            "Header": "Faktura ID",
+            "Header": "Avtalenr.",
             "Field": "ID",
             "Type": "Link",
             "LinkNavigationProperty": "ID",

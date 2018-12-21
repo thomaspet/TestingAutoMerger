@@ -102,7 +102,7 @@ export class UniRecurringInvoiceLogModal implements IUniModal, OnInit {
                     this.close();
                 })
                 .setWidth(100),
-            new UniTableColumn('RecurringInvoiceID', 'Repeterende fakturanr.', UniTableColumnType.Link)
+            new UniTableColumn('RecurringInvoiceID', 'Avtalenr.', UniTableColumnType.Link)
                 .setLinkClick(row => {
                     this.router.navigateByUrl(`/sales/recurringinvoice/${row.RecurringInvoiceID}`);
                     this.close();
