@@ -73,7 +73,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
 
-    private employees: Employee[];
+    public saving: boolean;
+    public employees: Employee[];
     private salaryTransactions: SalaryTransaction[];
     private wagetypes: WageType[];
     private projects: Project[];
@@ -98,7 +99,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
     };
 
-    private paymentSum: number;
+    public paymentSum: number;
 
     constructor(
         private route: ActivatedRoute,
@@ -1078,6 +1079,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             return;
         }
 
+        this.saving = true;
         this.setEditableOnChildren(false);
         super.getStateSubject(PAYROLL_RUN_KEY)
             .asObservable()
@@ -1096,7 +1098,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
                 return this.getSalaryTransactionsObservable();
             })
-            .finally(() => this.setEditableOnChildren(true))
+            .finally(() => {
+                this.saving = false;
+                this.setEditableOnChildren(true);
+            })
             .subscribe((salaryTransactions: SalaryTransaction[]) => {
                 if (salaryTransactions !== undefined) {
                     super.updateState('salaryTransactions', salaryTransactions, false);
@@ -1192,7 +1197,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         return this.payrollrunService
             .savePayrollRun(payrollRun)
             .do(ret => this.supplementService.checkForChangedSupplements(ret))
-            .catch((err, obs) => this.handleError(err, obs, done));
+            .catch((err, obs) => {
+                this.saving = false;
+                return this.handleError(err, obs, done);
+            });
     }
 
     private handleError(err, obs, done: (message: string) => void = null) {

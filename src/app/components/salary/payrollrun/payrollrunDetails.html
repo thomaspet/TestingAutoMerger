@@ -1,41 +1,46 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [contextmenu]="contextMenuItems"
-    [saveactions]="saveActions"
-    [statustrack]="getStatustrackConfig()"
-    [tags]="categoryFilter"
-    [tagConfig]="tagConfig"
-    [searchConfig]="searchConfig$ | async"
-    (tagsChange)="filterChange($event)"
-    (tagsBusy)="setBusyOnChildren($event)">
-</uni-toolbar>
+<section class="coverView" [attr.aria-busy]="saving">
 
-<section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
-    <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)"></uni-form>
-</section>
+    <uni-toolbar
+        [config]="toolbarconfig"
+        [contextmenu]="contextMenuItems"
+        [saveactions]="saveActions"
+        [statustrack]="getStatustrackConfig()"
+        [tags]="categoryFilter"
+        [tagConfig]="tagConfig"
+        [searchConfig]="searchConfig$ | async"
+        (tagsChange)="filterChange($event)"
+        (tagsBusy)="setBusyOnChildren($event)">
+    </uni-toolbar>
 
-<section class="application" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
-    <section class="payroll-info" *ngIf="payrollrun$ | async as payrollrun">
-        <span>
-            <i class="material-icons">date_range</i>
-            Periode: <strong>{{payrollrun.FromDate | unidateformat}} - {{payrollrun.ToDate | unidateformat}}</strong>
-        </span>
-
-        <span>
-            <i class="material-icons">date_range</i>
-            Utbetalingsdato: <strong>{{payrollrun.PayDate | unidateformat}}</strong>
-        </span>
-
-        <span>
-            <i class="material-icons">people</i>
-            {{employees?.length || 0}} ansatte i lønnsavregningen
-        </span>
-
-        <span>
-            <i class="material-icons">attach_money</i>
-            Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
-        </span>
+    <section class="entityDetails" [attr.aria-expanded]="detailsActive" *ngIf="payrollrun$.getValue()">
+        <uni-form [config]="config$" [fields]="fields$" [model]="payrollrun$" (changeEvent)="change($event)"></uni-form>
     </section>
 
-    <salarytrans></salarytrans>
+    <section class="application" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
+        <section class="payroll-info" *ngIf="payrollrun$ | async as payrollrun">
+            <span>
+                <i class="material-icons">date_range</i>
+                Periode: <strong>{{payrollrun.FromDate | unidateformat}} - {{payrollrun.ToDate | unidateformat}}</strong>
+            </span>
+
+            <span>
+                <i class="material-icons">date_range</i>
+                Utbetalingsdato: <strong>{{payrollrun.PayDate | unidateformat}}</strong>
+            </span>
+
+            <span>
+                <i class="material-icons">people</i>
+                {{employees?.length || 0}} ansatte i lønnsavregningen
+            </span>
+
+            <span>
+                <i class="material-icons">attach_money</i>
+                Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
+            </span>
+        </section>
+
+        <salarytrans></salarytrans>
+    </section>
+
+
 </section>
