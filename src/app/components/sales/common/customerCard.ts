@@ -350,19 +350,26 @@ export class TofCustomerCard implements AfterViewInit, OnChanges, OnInit {
                     }
                 }).onClose.subscribe(response => {
                     if (response === ConfirmActions.ACCEPT) {
+                        const newaddress = {
+                            AddressLine1: updatedInvoiceAddress.AddressLine1,
+                            AddressLine2: updatedInvoiceAddress.AddressLine2,
+                            AddressLine3: updatedInvoiceAddress.AddressLine3,
+                            PostalCode: updatedInvoiceAddress.PostalCode,
+                            City: updatedInvoiceAddress.City,
+                            Country: updatedInvoiceAddress.Country
+                        }
+
+                        if (this.entity.Customer.Info.InvoiceAddressID) {
+                            newaddress['ID'] = this.entity.Customer.Info.InvoiceAddressID;
+                        } else {
+                            newaddress['_createguid'] = this.addressService.getNewGuid();
+                        }
+
                         const customer = <Customer>{
                             ID: this.entity.CustomerID,
                             Info: {
                                 ID: this.entity.Customer.BusinessRelationID,
-                                InvoiceAddress: {
-                                    ID: this.entity.Customer.Info.InvoiceAddressID,
-                                    AddressLine1: updatedInvoiceAddress.AddressLine1,
-                                    AddressLine2: updatedInvoiceAddress.AddressLine2,
-                                    AddressLine3: updatedInvoiceAddress.AddressLine3,
-                                    PostalCode: updatedInvoiceAddress.PostalCode,
-                                    City: updatedInvoiceAddress.City,
-                                    Country: updatedInvoiceAddress.Country
-                                }
+                                InvoiceAddress: newaddress
                             }
                         };
                         this.customerService.Put(this.entity.CustomerID, customer).subscribe(updatedcustomer => {
