@@ -28,17 +28,19 @@ uni-field
     min-height: 3rem
     max-width: pxToRem(650)
 
-    label > span
-        display: inline-block
-        line-height: $inputHeight
-        width: $labelLength
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+    label
+        position: relative
+        > span
+            display: inline-block
+            line-height: $inputHeight
+            width: $labelLength
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
 
-        & + *
-            width: calc(100% - #{$labelLength})
-            float: right
+            & + *
+                width: calc(100% - #{$labelLength})
+                float: right
 
 uni-button-input button
     margin: 1.5rem 0 0
