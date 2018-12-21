@@ -70,15 +70,15 @@ export const salesRoutes: Routes = [
         component: OrderDetails,
         canDeactivate: [CanDeactivateGuard]
     },
-    {
-        path: 'recurringinvoice',
-        component: RecurringInvoiceList
-    },
-    {
-        path: 'recurringinvoice/:id',
-        component: UniRecurringInvoice,
-        canDeactivate: [CanDeactivateGuard]
-    },
+    // {
+    //     path: 'recurringinvoice',
+    //     component: RecurringInvoiceList
+    // },
+    // {
+    //     path: 'recurringinvoice/:id',
+    //     component: UniRecurringInvoice,
+    //     canDeactivate: [CanDeactivateGuard]
+    // },
     {
         path: 'reminders',
         component: Reminder,
