@@ -149,9 +149,11 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     }
 
     public close() {
-        this.isOpen = false;
-        this.filter = '';
-        this.focusedRow = this.selectedRow;
+        if (this.isOpen) {
+            this.isOpen = false;
+            this.filter = '';
+            this.focusedRow = this.selectedRow;
+        }
     }
 
     public clearSelection() {

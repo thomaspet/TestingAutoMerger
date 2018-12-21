@@ -4,10 +4,11 @@ import {
 } from '@angular/core';
 import * as _ from 'lodash';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
-import { Observable } from 'rxjs';
+import { Observable, fromEvent, Subject } from 'rxjs';
 import {UniFormError} from '@uni-framework/ui/uniform/interfaces/uni-form-error.interface';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces/uni-field-layout.interface';
 import {FieldType} from '../field-type.enum';
+import { BaseControl } from '../controls/baseControl';
 
 @Component({
     selector: 'uni-field',
@@ -36,8 +37,9 @@ export class UniField {
     public touched = false;
     public errorMessages = [];
     public componentResolver: any;
-    public keyDownSubscription;
-    public elementReference;
+
+    private componentDestroyed$: Subject<any> = new Subject();
+
     public get Component() {
         return new Promise(resolve => {
             if (this.component) {
@@ -58,29 +60,27 @@ export class UniField {
 
     constructor(public ref: ChangeDetectorRef, public elementRef: ElementRef) {
         this.readyEvent.subscribe(() => {
-            const input = this.elementRef.nativeElement.querySelector('input');
+            const input: HTMLInputElement = this.elementRef.nativeElement.querySelector('input');
             if (input) {
-                input.addEventListener('blur', event => this.eventHandler(event.type, event));
-                input.addEventListener('focus', event => this.eventHandler(event.type, event));
+                fromEvent(input, 'focus')
+                    .takeUntil(this.componentDestroyed$)
+                    .subscribe(event => this.eventHandler(event.type, event));
+
+                fromEvent(input, 'blur')
+                    .takeUntil(this.componentDestroyed$)
+                    .subscribe(event => this.eventHandler(event.type, event));
             }
         });
     }
 
     public ngOnDestroy() {
-        if (this.keyDownSubscription) {
-            this.keyDownSubscription.unsubscribe();
-        }
-    }
-
-    public ngOnChanges() {
-        if (this.elementReference !== this.elementRef) {
-            if (this.keyDownSubscription) {
-                this.keyDownSubscription.unsubscribe();
-            }
-            this.keyDownSubscription = Observable.fromEvent(this.elementRef.nativeElement, 'keydown')
-                .subscribe(this.keyDownHandler.bind(this));
-            this.elementReference = this.elementRef;
-        }
+        this.componentDestroyed$.next();
+        this.componentDestroyed$.complete();
+        try {
+            // Complete readonly subject from here.
+            // Because if the control has a onDestroy hook then the one in BaseControl wont run..
+            (<BaseControl> this.component).readOnly$.complete();
+        } catch (e) {}
     }
 
     public onFocusHandler(event) {
@@ -223,11 +223,13 @@ export class UniField {
         this.moveForwardEvent.emit(action);
     }
 
+    @HostListener('keydown', ['$event'])
     public keyDownHandler(event: KeyboardEvent) {
         const key: string = KeyCodes[event.which || event.keyCode];
         const ctrl: boolean = event.ctrlKey;
         const shift: boolean = event.shiftKey;
         const combination: string[] = [];
+
         if (ctrl) {
             combination.push('ctrl');
         }
@@ -245,6 +247,7 @@ export class UniField {
                 return;
             }
         }
+
         if (combination.length === 1 && (combination[0] === 'enter' || combination[0] === 'tab')) {
             if (!this.field.isLast) {
                 event.preventDefault();

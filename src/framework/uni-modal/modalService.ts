@@ -5,12 +5,11 @@ import {
     ComponentFactoryResolver,
     EmbeddedViewRef,
     Injector,
-    EventEmitter,
     Type
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniConfirmModalV2} from './modals/confirmModal';
-import {Observable} from 'rxjs';
+import {Observable, fromEvent} from 'rxjs';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Injectable()
@@ -188,13 +187,14 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside) {
-            backdrop.addEventListener('click', (event: MouseEvent) => {
+            const eventSubscription = fromEvent(backdrop, 'click').subscribe(event => {
                 event.stopPropagation();
                 const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,
                 // only clicks directly on the backdrop
                 if (target === backdrop) {
+                    eventSubscription.unsubscribe();
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
                 }

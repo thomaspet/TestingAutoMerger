@@ -35,18 +35,7 @@ export class UniNewSupplierModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<Supplier> = new EventEmitter();
 
-    private keyListener: any;
-
-    constructor(private errorService: ErrorService) {
-        this.keyListener = document.addEventListener('keyup', (event: KeyboardEvent) => {
-            const key = event.which || event.keyCode;
-            // esc to close
-            if (key === 27) {
-                this.close(false);
-                document.removeEventListener('keydown', this.keyListener);
-            }
-        });
-    }
+    constructor(private errorService: ErrorService) {}
 
     public ngOnInit() {
         this.supplierDetails.openInModalMode(0, this.options.data);

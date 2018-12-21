@@ -19,6 +19,7 @@ import {IUniSearchConfig} from './IUniSearchConfig';
                 [disabled]="disabled"
                 [title]="getTitle()"
                 tabindex="-1"
+                (focus)="onFocus($event)"
             />
 
             <button class="searchBtn"
@@ -57,6 +58,12 @@ export class UniSearch {
     }
 
     constructor(private componentElement: ElementRef, private cd: ChangeDetectorRef) {
+    }
+
+    onFocus(event) {
+        try {
+            event.target.select();
+        } catch (e) {}
     }
 
     public setValue(value) {

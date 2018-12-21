@@ -13,6 +13,7 @@ import {
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {BaseControl} from '../baseControl';
+import {Subject, fromEvent} from 'rxjs';
 import * as lodash from 'lodash';
 
 type eventListenerRemover = () => void;
@@ -36,7 +37,8 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     private previousModelValue: any;
     public currentModelValue: any;
     private input: HTMLInputElement;
-    private eventRemovers: eventListenerRemover[] = [];
+
+    private componentDestroyed$: Subject<any> = new Subject();
 
     constructor(private elementRef: ElementRef) {
         super();
@@ -50,17 +52,18 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
 
     public ngAfterViewInit() {
         this.input = this.elementRef.nativeElement.querySelector('input');
-        this.eventRemovers.push(
-            this.addEvent(this.input, 'focus', () => this.focusEvent.emit(this)),
-            this.addEvent(this.input, 'blur', () => {})
-        );
+        if (this.input) {
+            fromEvent(this.input, 'focus')
+                .takeUntil(this.componentDestroyed$)
+                .subscribe(() => this.focusEvent.emit(this));
+        }
 
         this.readyEvent.emit(this);
     }
 
-    private addEvent(element: HTMLElement, eventName: string, fn: () => void): eventListenerRemover {
-        element.addEventListener(eventName, fn);
-        return () => element.removeEventListener(eventName, fn);
+    public ngOnDestroy() {
+        this.componentDestroyed$.next();
+        this.componentDestroyed$.complete();
     }
 
     public ngOnChanges(change: SimpleChanges) {
@@ -114,9 +117,5 @@ export class UniSearchWrapper extends BaseControl implements OnInit, AfterViewIn
     public focus() {
         this.input.focus();
         this.input.select();
-    }
-
-    public ngOnDestroy() {
-        this.eventRemovers.forEach(eventRemover => eventRemover());
     }
 }

@@ -93,8 +93,10 @@ export class LocalDatePickerInput extends BaseControl implements OnChanges, Afte
     }
 
     public close() {
-        this.calendarOpen = false;
-        this.cd.markForCheck();
+        if (this.calendarOpen) {
+            this.calendarOpen = false;
+            this.cd.markForCheck();
+        }
     }
 
     public toggle() {

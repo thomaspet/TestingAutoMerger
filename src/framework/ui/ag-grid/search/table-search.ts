@@ -132,9 +132,6 @@ export class TableSearch implements OnChanges, AfterViewInit {
     @Output()
     public filtersChange: EventEmitter<any> = new EventEmitter();
 
-    @Output()
-    public upOrDownArrows: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
-
     public allowGroupFilter: boolean;
     public filterableColumns: UniTableColumn[];
 
@@ -243,13 +240,6 @@ export class TableSearch implements OnChanges, AfterViewInit {
             .subscribe((value: string) => {
                 this.buildBasicSearchFilter(value);
             });
-
-        Observable.fromEvent(this.elementRef.nativeElement.querySelector('input'), 'keydown')
-            .filter((event: KeyboardEvent) => {
-                const key = (event.keyCode || event.which);
-                return key === KeyCodes.UP_ARROW || key === KeyCodes.DOWN_ARROW;
-            })
-            .subscribe((event: KeyboardEvent) => this.upOrDownArrows.next(event));
     }
 
     public ngOnChanges(changes) {

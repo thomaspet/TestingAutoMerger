@@ -132,6 +132,9 @@ export class AgGridWrapper {
         this.rowSelectionDebouncer$.complete();
         this.columnMoveDebouncer$.complete();
         this.colResizeDebouncer$.complete();
+        this.gridSizeChangeDebouncer$.complete();
+        this.dataService.sumRow$.complete();
+        this.dataService.localDataChange$.complete();
     }
 
     public ngOnChanges(changes) {
@@ -441,17 +444,6 @@ export class AgGridWrapper {
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it
         this.filtersChange.emit({filter: this.dataService.filterString});
-    }
-
-    public onFilterInputUpOrDownArrows(event: KeyboardEvent) {
-        const key = (event.keyCode || event.which);
-        if (key === 38) {
-            // TODO: focus prev
-            console.log('TODO: focus prev');
-        } else if (key === 40) {
-            // TODO: focus next
-            console.log('TODO: focus next');
-        }
     }
 
     public onEditorChange(event) {
