@@ -2109,6 +2109,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             if (item.JournalEntryDataAccrual) {
                 const data = {
+                    item: item,
                     accrualAmount: null,
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2118,6 +2119,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.openAccrualModal(data, item);
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
                 const data = {
+                    item: item,
                     accrualAmount: item['NetAmountCurrency'],
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,

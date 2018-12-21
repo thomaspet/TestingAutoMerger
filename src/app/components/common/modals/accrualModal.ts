@@ -317,7 +317,10 @@ export class AccrualModal implements IUniModal {
 
         // changing BalanceAccountID on model to localStorage so that your newest selected
         // value becomes standard value on accrualModal initialization
-        const key = document.querySelector('uni-bill') ? 'InvoiceBalanceAccountID' : 'BillBalanceAccountID';
+        let key = document.querySelector('uni-bill') ? 'InvoiceBalanceAccountID' : 'BillBalanceAccountID';
+        if (document.querySelector('journalentries')) {
+            key = 'JournalEntriesBalanceAccount';
+        }
         this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem(key);
         this.model$.next(this.modalConfig.model);
         this.currentFinancialYear = this.financialYearService.getActiveYear();
@@ -381,24 +384,32 @@ export class AccrualModal implements IUniModal {
             const searchAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
             let promises = [];
             const uniBillElement = document.querySelector('uni-bill');
-            if (!uniBillElement) {
-                promises = [
-                    searchAccountConfig.lookupFn('2900').toPromise(),
-                    searchAccountConfig.lookupFn('3900').toPromise()
-                ];
-            } else {
+            const journalEntryElement = document.querySelector('journalentries');
+            if (uniBillElement) {
                 promises = [
                     searchAccountConfig.lookupFn('1700').toPromise(),
                     of(null).toPromise()
+                ];
+            } else if (journalEntryElement) {
+                const hasDebitAccount = this.options && this.options.data
+                    && this.options.data.item && this.options.data.item.DebitAccount;
+                const debitAccount = hasDebitAccount ? this.options.data.item.DebitAccount.AccountNumber.toString(10) : null;
+                promises = [
+                    searchAccountConfig.lookupFn('1749').toPromise(),
+                    searchAccountConfig.lookupFn(debitAccount).toPromise()
+                ];
+            } else {
+                promises = [
+                    searchAccountConfig.lookupFn('2900').toPromise(),
+                    searchAccountConfig.lookupFn('3900').toPromise()
                 ];
             }
 
             const defaultAccounts$ = Promise.all(promises);
 
             defaultAccounts$.then(([balanceAccount, resultAccount]) => {
-                const hasResultBalanceAccount = balanceAccount && balanceAccount[0]
-                    && (balanceAccount[0].AccountNumber === 2900 || balanceAccount[0].AccountNumber === 1700);
-                const hasResultResultAccount = resultAccount && resultAccount[0] && resultAccount[0].AccountNumber === 3900;
+                const hasResultBalanceAccount = balanceAccount && balanceAccount[0];
+                const hasResultResultAccount = resultAccount && resultAccount[0];
                 if (!model['BalanceAccountID']) {
                     model['BalanceAccountID'] = hasResultBalanceAccount ? balanceAccount[0].ID : null;
                 }
