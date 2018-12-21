@@ -25,7 +25,7 @@ export class ElsaPurchaseService {
     }
 
     getAll(filter?: string, companyKeyOverride?: string): Observable<ElsaPurchase[]> {
-        let endpoint = 'api/purchases';
+        let endpoint = 'api/elsa/purchases';
         if (filter) {
             endpoint += '?' + filter;
         }
@@ -66,7 +66,7 @@ export class ElsaPurchaseService {
         return this.uniHttp
             .asPUT()
             .usingEmptyDomain()
-            .withEndPoint('api/purchases')
+            .withEndPoint('api/elsa/purchases')
             .withBody(updates)
             .send()
             .map(res => res.status === 200);
