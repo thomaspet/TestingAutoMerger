@@ -342,7 +342,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Manuelt bokføring",
+                "Name": "Manuell bokføring",
                 "Code": "book_manual",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
