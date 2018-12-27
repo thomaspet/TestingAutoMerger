@@ -65,7 +65,7 @@ export const SHORTCUT_LISTS = [
                     icon: 'search'
                 },
                 {
-                    label: 'Rapporter',
+                    label: 'Resultat og balanse',
                     url: '/accounting/accountingreports/result',
                     icon: 'insert_chart'
                 },

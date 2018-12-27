@@ -47,6 +47,7 @@ accounting-reports, accounting-details-report
 
     .amount
         text-align: right !important
+        min-width: 6em;
 
     .percentage
         text-align: right !important
@@ -170,6 +171,9 @@ accounting-reports, accounting-details-report
 
             &:nth-of-type(odd)
                 background: mix($uni-color-scale9, $uni-color-negative, 30%)
+
+            &:nth-of-type(even)
+                background: $uni-color-negative
 
             &:hover
                 background: mix($uni-color-c2a, $uni-color-negative, 15%)

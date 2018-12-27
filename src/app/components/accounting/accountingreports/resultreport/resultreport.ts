@@ -58,6 +58,7 @@ export class ResultReport implements OnInit {
 
     public filter$: BehaviorSubject<any> = new BehaviorSubject({
         ShowPreviousAccountYear: true,
+        ShowBudget: true,
         Decimals: 0,
         ShowPercent: true
     });
@@ -167,31 +168,31 @@ export class ResultReport implements OnInit {
 
     private setupFilterForm() {
         // Dimension filters
-        const project = new UniFieldLayout();
-        project.Property = 'ProjectID';
+        const project = <any>new UniFieldLayout();
+        project.Property = 'ProjectNumber';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
         project.Legend = 'Filter';
         project.FieldSet = 1;
-        project.Placeholder = 'Projekt';
+        project.Placeholder = 'Prosjekt';
         project.Options = {
             source: this.projects,
-            valueProperty: 'ID',
+            valueProperty: 'ProjectNumber',
             template: (item) => {
                 return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
             },
             debounceTime: 200
         };
 
-        const department = new UniFieldLayout();
-        department.Property = 'DepartmentID';
+        const department = <any>new UniFieldLayout();
+        department.Property = 'DepartmentNumber';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
         department.Legend = 'Filter';
         department.FieldSet = 1;
         department.Options = {
             source: this.departments,
-            valueProperty: 'ID',
+            valueProperty: 'DepartmentNumber',
             template: (item) => {
                 return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
             },
@@ -224,11 +225,18 @@ export class ResultReport implements OnInit {
         const showpercent = new UniFieldLayout();
         showpercent.Property = 'ShowPercent';
         showpercent.FieldType = FieldType.CHECKBOX;
-        showpercent.Label = 'Vis prosent';
+        showpercent.Label = 'Vis prosent av salg';
         showpercent.Legend = 'Visning';
         showpercent.FieldSet = 2;
 
-        this.fields$.next([project, department, decimals, showprevyear, showpercent]);
+        const showBudget = <any>new UniFieldLayout();
+        showBudget.Property = 'ShowBudget';
+        showBudget.FieldType = FieldType.CHECKBOX;
+        showBudget.Label = 'Vis budsjett';
+        showBudget.Legend = 'Filter';
+        showBudget.FieldSet = 1;
+
+        this.fields$.next([project, department, showBudget, decimals, showprevyear, showpercent]);
     }
 
     public onFilterChange(event) {
