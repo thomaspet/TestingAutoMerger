@@ -7,7 +7,7 @@
         <fieldset>
             <legend>Detaljer</legend>
 
-            <button (click)="updateReceipt()" [attr.aria-busy]="busy">Oppdater</button>
+            <button (click)="updateReceipt()" [attr.aria-busy]="busy" [disabled]="!selectedReceipt$.value?.ReceiptID">Oppdater</button>
             <uni-altinn-overview-details
                 [receipt]="selectedReceipt$ | async">
             </uni-altinn-overview-details>
