@@ -187,14 +187,13 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside) {
-            const eventSubscription = fromEvent(backdrop, 'click').subscribe(event => {
+            backdrop.addEventListener('click', (event: MouseEvent) => {
                 event.stopPropagation();
                 const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,
                 // only clicks directly on the backdrop
                 if (target === backdrop) {
-                    eventSubscription.unsubscribe();
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
                 }
