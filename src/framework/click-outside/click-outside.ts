@@ -23,7 +23,9 @@ export class ClickOutsideDirective {
     }
 
     ngOnDestroy() {
-        this.eventSubscription.unsubscribe();
+        if (this.eventSubscription && this.eventSubscription.unsubscribe) {
+            this.eventSubscription.unsubscribe();
+        }
     }
 
     public onClick(event: MouseEvent) {
