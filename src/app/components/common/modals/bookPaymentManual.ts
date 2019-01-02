@@ -21,7 +21,7 @@ import { Observable } from 'rxjs';
                 <label>Vis:
                     <select style='width:300px'
                         (change)="onShowPostsFilterChange($event.target.value)">
-                        <option value="showOpen">kun åpen poster</option>
+                        <option value="showOpen">kun åpne kreditposter</option>
                         <option value="showMarked">alle poster</option>
                     </select>
                 </label>
@@ -149,7 +149,12 @@ export class BookPaymentManualModal implements IUniModal {
             this.supplierID,
             this.accountID,
             this.pointInTime)
-            .subscribe(data => {
+            .subscribe((data: Array<any>) => {
+                // Only show entries with negative amount
+                if (!this.showMarkedPosts) {
+                    data = data.filter(x => x.Amount < 0);
+                }
+
                 this.journalEntryLines = data;
                 const columns = [
                     new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text)

@@ -663,6 +663,7 @@ export class BankComponent implements AfterViewInit {
                     this.journalEntryService.bookJournalEntryAgainstPayment(result, row.ID)
                     .subscribe(() => {
                         this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        this.toastService.addToast('Manuell betaling fullført', ToastType.good, 3);
                     });
                 }
             });
