@@ -187,7 +187,7 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside) {
-            backdrop.addEventListener('click', (event: MouseEvent) => {
+            const eventSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
                 event.stopPropagation();
                 const target = event.target || event.srcElement;
 
@@ -196,6 +196,7 @@ export class UniModalService {
                 if (target === backdrop) {
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
+                    eventSubscription.unsubscribe();
                 }
             });
         }
