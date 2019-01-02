@@ -15,14 +15,23 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         this.entityType = EmployeeTaxCard.EntityType;
     }
 
+    public expandOptionsNewTaxcardEntity: Array<string> = [
+        'loennFraHovedarbeidsgiver',
+        'loennFraBiarbeidsgiver',
+        'pensjon',
+        'loennTilUtenrikstjenestemann',
+        ',loennKunTrygdeavgiftTilUtenlandskBorger',
+        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger',
+        'ufoereYtelserAndre'
+    ];
+
     public GetEmployeeTaxCard(employeeID: number, activeYear: number): Observable<EmployeeTaxCard> {
         return this.GetAll(
             'filter=EmployeeID eq ' + employeeID
             + ' and Year le ' + activeYear
             + '&orderby=Year DESC'
             + '&top=1'
-            + '&expand=loennFraHovedarbeidsgiver,loennFraBiarbeidsgiver,pensjon,loennTilUtenrikstjenestemann'
-            + ',loennKunTrygdeavgiftTilUtenlandskBorger,loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger')
+            + '&expand=' + this.taxExpands())
             .map(response => response[0]);
     }
 
@@ -36,24 +45,14 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     }
 
     public taxExpands(): string {
-        return 'loennFraHovedarbeidsgiver,loennFraBiarbeidsgiver,pensjon,loennTilUtenrikstjenestemann'
-        + ',loennKunTrygdeavgiftTilUtenlandskBorger,loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger';
+        return this.expandOptionsNewTaxcardEntity.toString();
     }
-
-    private expandOptionsNewTaxcardEntity: Array<string> = [
-        'loennFraHovedarbeidsgiver',
-        'loennFraBiarbeidsgiver',
-        'pensjon',
-        'loennTilUtenrikstjenestemann',
-        ',loennKunTrygdeavgiftTilUtenlandskBorger',
-        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
-    ];
 
     public isEmployeeTaxcard2018Model(employeetaxcard: EmployeeTaxCard): boolean {
-        return !!(employeetaxcard && employeetaxcard.loennFraHovedarbeidsgiver)
+        return !!(employeetaxcard && employeetaxcard.loennFraHovedarbeidsgiver);
     }
 
-    public updateModelTo2018(employeetaxcard: EmployeeTaxCard, employeeID: number) : Observable<EmployeeTaxCard> {
+    public updateModelTo2018(employeetaxcard: EmployeeTaxCard, employeeID: number): Observable<EmployeeTaxCard> {
         return super.GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
             .switchMap((emptaxcard: EmployeeTaxCard) => {
                 emptaxcard.EmployeeID = employeeID;
@@ -63,8 +62,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                     emptaxcard.loennFraBiarbeidsgiver.Table = employeetaxcard.Table;
                     emptaxcard.loennFraBiarbeidsgiver.Percent = employeetaxcard.Percent;
                     emptaxcard.loennFraBiarbeidsgiver.NonTaxableAmount = employeetaxcard.NonTaxableAmount;
-                }
-                else {
+                } else {
                     emptaxcard.loennFraHovedarbeidsgiver.Table = employeetaxcard.Table;
                     emptaxcard.loennFraHovedarbeidsgiver.Percent = employeetaxcard.Percent;
                     emptaxcard.loennFraHovedarbeidsgiver.NonTaxableAmount = employeetaxcard.NonTaxableAmount;
@@ -91,14 +89,18 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                 employeeTaxCard.pensjon.Percent = employeeTaxCard.pensjon.Percent || 0;
             }
             if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger) {
-                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent || 0;
+                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent
+                = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorger.Percent || 0;
             }
             if (!!employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger) {
-                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
+                employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent
+                = employeeTaxCard.loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger.Percent || 0;
+            }
+            if (!!employeeTaxCard.ufoereYtelserAndre) {
+                employeeTaxCard.ufoereYtelserAndre.Percent = employeeTaxCard.ufoereYtelserAndre.Percent || 0;
             }
 
-        }
-        else {
+        } else {
             if (!!employeeTaxCard.Percent) {
                 employeeTaxCard.Percent = employeeTaxCard.Percent || 0;
             }
@@ -216,7 +218,8 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                                 { id: 1, statusname: 'skattekortopplysningerOK', name: 'Skattekort OK' },
                                 { id: 1, statusname: 'ugyldigOrganisasjonsnummer', name: 'Ugyldig orgnr' },
                                 { id: 1, statusname: 'ugyldigFoedselsEllerDnummer', name: 'Ugyldig f-nr/d-nr' },
-                                { id: 1, statusname: 'utgaattDnummerSkattekortForFoedselsnummerErLevert', name: 'Utgått d-nr, skattekort for f-nr er levert' }
+                                { id: 1, statusname: 'utgaattDnummerSkattekortForFoedselsnummerErLevert',
+                                    name: 'Utgått d-nr, skattekort for f-nr er levert' }
                             ],
                             template: (obj) => `${obj.id} - ${obj.name}`,
                             valueProperty: 'statusname',
@@ -460,6 +463,32 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
                         FieldType: FieldType.NUMERIC,
                         Label: 'Antall måneder trekk',
                         FieldSet: 6,
+                        Section: 0,
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'ufoereYtelserAndre.Percent',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Prosent',
+                        FieldSet: 7,
+                        Legend: 'Uføreytelser fra andre',
+                        Section: 0,
+                        openByDefault: true,
+                        Options: {
+                            format: 'Money',
+                            decimalLength: 2
+                        }
+                    },
+                    {
+                        EntityType: 'EmployeeTaxCard',
+                        Property: 'ufoereYtelserAndre.AntallMaanederForTrekk',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Antall måneder trekk',
+                        FieldSet: 7,
                         Section: 0,
                         Options: {
                             format: 'Money',
