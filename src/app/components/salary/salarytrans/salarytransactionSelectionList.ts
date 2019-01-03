@@ -2,24 +2,19 @@ import {Component, ViewChild, Output, EventEmitter, AfterViewInit} from '@angula
 import {Router, ActivatedRoute} from '@angular/router';
 import {
     UniTableConfig,
-    UniTableColumnType,
     UniTableColumn
 } from '@uni-framework/ui/unitable/index';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {UniHttp} from '@uni-framework/core/http/http';
 import {
     Employee, AGAZone, SalaryTransactionSums,
-    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel, TaxCard
+    PayrollRun, EmployeeTaxCard, SalBalType, ValidationLevel,
 } from '../../../unientities';
 import {ISummaryConfig} from '../../common/summary/summary';
 import {UniView} from '../../../../framework/core/uniView';
 import {SalaryTransactionEmployeeList} from './salarytransList';
 import {ILinkMenuItem} from '../../common/linkMenu/linkMenu';
-import {ReplaySubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {ReplaySubject, Observable} from 'rxjs';
 import {
-    EmployeeService,
-    PayrollrunService,
     UniCacheService,
     AgaZoneService,
     NumberFormat,
@@ -29,7 +24,7 @@ import {
 } from '../../../services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
-declare var _;
+import * as _ from 'lodash';
 const PAYROLL_RUN_KEY = 'payrollRun';
 
 class EmployeeWithError extends Employee {
@@ -58,9 +53,6 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
     @Output() public salaryTransSelectionListReady: EventEmitter<any> = new EventEmitter<any>(true);
 
     constructor(
-        private uniHttpService: UniHttp,
-        private _employeeService: EmployeeService,
-        private _payrollRunService: PayrollrunService,
         private _agaZoneService: AgaZoneService,
         private _salarySumsService: SalarySumsService,
         private numberFormat: NumberFormat,
@@ -298,10 +290,6 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
 
     public hasDirty(): boolean {
         return this.transList ? this.transList.hasDirty() : false;
-    }
-
-    public updateSums() {
-        this.setSummarySource();
     }
 
     public setEditable(isEditable: boolean) {
