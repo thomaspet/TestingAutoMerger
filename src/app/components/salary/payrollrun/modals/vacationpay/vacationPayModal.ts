@@ -30,7 +30,6 @@ interface IVacationPayHeader {
 @Component({
     selector: 'vacation-pay-modal',
     templateUrl: './vacationPayModal.html',
-    styleUrls: ['./vacationPayModal.sass']
 })
 
 export class VacationPayModal implements OnInit, IUniModal {
