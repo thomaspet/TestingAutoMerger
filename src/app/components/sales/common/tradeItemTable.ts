@@ -65,7 +65,14 @@ export class TradeItemTable {
     public settings: CompanySettings;
     private defaultProject: Project;
     pricingSourceLabels = ['Fast', 'Produkt'];
-    priceFactor = [ 'Fast', 'Pr. dag', 'Pr. uke', 'Pr. måned', 'Pr. kvartal', 'Pr. år'];
+    priceFactor = [
+        { value: 0, label: 'Fast' },
+        { value: 1, label: 'Pr. dag' },
+        // { value: 2, label: 'Pr. uke' },
+        { value: 3, label: 'Pr måned' },
+        { value: 4, label: 'Pr. kvartal' },
+        { value: 5, label: 'Pr. år' }
+    ];
 
     constructor(
         private productService: ProductService,
@@ -438,15 +445,17 @@ export class TradeItemTable {
             .setWidth('15%')
             .setTemplate((row) => {
                 if (row && (row.TimeFactor || row.TimeFactor === 0)) {
-                    return this.priceFactor[row.TimeFactor];
-                } else {
-                    return '';
-                }
-            })
-            .setOptions({
-                itemTemplate: rowModel => rowModel,
+                        // Find factor in array and display label. Make sure factor exists just in case
+                        const factor = this.priceFactor.find(fac => fac.value === row.TimeFactor);
+                        return factor ? factor.label : '';
+                 } else {
+                       return '';
+                 }
+           })
+           .setOptions({
+                itemTemplate: rowModel => rowModel.label,
                 resource: this.priceFactor
-            });
+           });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
