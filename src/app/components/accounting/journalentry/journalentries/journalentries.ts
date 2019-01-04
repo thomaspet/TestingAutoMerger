@@ -194,6 +194,39 @@ export class JournalEntries {
             ? this.journalEntryManual.numberSeries.find(serie => serie.ID === id)
             : this.journalEntryManual.numberSeries[0];
 
+        if (!this.selectedNumberSeries) {
+            // the numberseries that was used is not found - this indicates that the user
+            // has changed year, so the previsous used numberseries is not valid anymore.
+            // Set the first available numberseries - this will ask the user to update
+            // existing journalentries if any
+            if (id) {
+                // get the numberseries based on the id, and find the corresponding
+                // numberseries for this year
+                this.numberSeriesService.Get(id)
+                    .subscribe(currentNumberSeries => {
+                        if (currentNumberSeries) {
+                            // try to find a valid numberseries based on the type and taskid
+                            const validNumberSeries =
+                                this.journalEntryManual.numberSeries
+                                    .find(x => x.NumberSeriesTypeID === currentNumberSeries.NumberSeriesTypeID
+                                        && x.NumberSeriesTaskID === currentNumberSeries.NumberSeriesTaskID);
+
+                            if (validNumberSeries) {
+                                // we found one with the same type/task, use that one
+                                this.numberSeriesChanged(validNumberSeries, false);
+                            } else {
+                                // no valid found, just use the first in the list then..
+                                this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                            }
+                        }
+                    }, err => {
+                        // we couldnt find any numberseries based on the set id, it has probably
+                        // been deleted, so just set the first one we have..
+                        this.numberSeriesChanged(this.journalEntryManual.numberSeries[0], false);
+                    });
+            }
+        }
+
         this.setupToolBarconfig();
     }
 
@@ -252,12 +285,12 @@ export class JournalEntries {
         this.toolbarConfig = toolbarConfig;
     }
 
-    public numberSeriesChanged(selectedNumberSerie) {
+    public numberSeriesChanged(selectedNumberSerie, askBeforeChanging: boolean) {
         if (this.journalEntryManual) {
-            if (selectedNumberSerie && selectedNumberSerie.ID !== this.selectedNumberSeries.ID) {
+            if (selectedNumberSerie && (!this.selectedNumberSeries || selectedNumberSerie.ID !== this.selectedNumberSeries.ID)) {
                 const currentData = this.journalEntryManual.getJournalEntryData();
 
-                if (currentData.length > 0) {
+                if (askBeforeChanging && currentData && currentData.length > 0) {
                     this.modalService.open(UniConfirmModalV2, {
                         header: 'Bekreft endring',
                         message: 'Du har allerede lagt til bilag - '
@@ -270,11 +303,13 @@ export class JournalEntries {
                         if (response === ConfirmActions.ACCEPT) {
                             // Update current selected numberseries. Set to data, tab and sessionstorage
                             this.selectedNumberSeries = selectedNumberSerie;
+
                             currentData.forEach(data => { data.NumberSeriesID = selectedNumberSerie.ID; });
                             const url = this.router.url;
                             this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
                             this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
                         }
+                        this.setupToolBarconfig();
                     });
                 } else {
                     // Update current selected numberseries. Set to tab and sessionstorage
@@ -282,6 +317,7 @@ export class JournalEntries {
                     const url = this.router.url;
                     this.tabService.currentActiveTab.url = url + ';numberseriesID=' + this.selectedNumberSeries.ID;
                     this.journalEntryService.setSessionNumberSeries(this.selectedNumberSeries.ID);
+                    this.setupToolBarconfig();
                 }
             }
         }
