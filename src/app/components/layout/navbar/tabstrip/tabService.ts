@@ -56,6 +56,7 @@ export enum UniModules {
     Departments     = 313,
     CurrencyExchange = 314,
     CurrencyOverride = 315,
+    Budget          = 316,
 
     Bank            = 450,
     Payment         = 451,

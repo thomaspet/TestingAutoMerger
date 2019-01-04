@@ -263,6 +263,7 @@ export class SmartSearchDataService {
     }
 
     public openReportModal(report) {
+        console.log(report);
         this.uniModalService.open(UniReportParamsModal,
             {   data: report,
                 header: report.Name,

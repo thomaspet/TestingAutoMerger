@@ -75,14 +75,26 @@ import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJourn
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
-import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} from '@angular/material';
+import {UniBudgetView} from './budget/budgetview';
+import {UniBudgetEntryEditModal} from './budget/budgetEntryEditModal';
+import {UniBudgetEditModal} from './budget/budgetEditModal';
+import {
+    MatTabsModule,
+    MatSelectModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatMenuModule
+} from '@angular/material';
 
 @NgModule({
     imports: [
         MatTabsModule,
         MatSelectModule,
         MatIconModule,
+        MatTooltipModule,
         MatProgressBarModule,
+        MatMenuModule,
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
@@ -118,6 +130,9 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         SupplierList,
         SupplierDetails,
         UniNewSupplierModal,
+        UniBudgetView,
+        UniBudgetEntryEditModal,
+        UniBudgetEditModal,
 
         // journalentry
         JournalEntryProfessional,
@@ -180,7 +195,9 @@ import {MatTabsModule, MatSelectModule, MatIconModule, MatProgressBarModule} fro
         UniNewSupplierModal,
         AccountDetailsReportModal,
         SelectDraftLineModal,
-        DraftLineDescriptionModal
+        DraftLineDescriptionModal,
+        UniBudgetEntryEditModal,
+        UniBudgetEditModal
     ],
     exports: [
         AccountSettings,
