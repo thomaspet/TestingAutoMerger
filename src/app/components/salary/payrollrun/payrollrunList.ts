@@ -27,12 +27,13 @@ export class PayrollrunList implements OnInit {
         private tabSer: TabService,
         private payrollService: PayrollrunService,
         private errorService: ErrorService
-    ) { }
+    ) {
+        this.addTab();
+     }
 
     public ngOnInit() {
         this.createTableConfig();
         this.loadData();
-        this.addTab();
     }
 
     private createTableConfig() {
