@@ -254,6 +254,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         expands: ['Supplier']
                     },
                     {
+                        name: 'Budsjett',
+                        url: '/accounting/budget',
+                        moduleID: UniModules.Budget
+                    },
+                    {
                         name: 'Åpne poster',
                         url: '/accounting/postpost',
                         moduleID: UniModules.PostPost
