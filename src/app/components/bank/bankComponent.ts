@@ -20,7 +20,7 @@ import {
 } from '../../../framework/uni-modal';
 import {
     UniAutobankAgreementListModal,
-    MatchCustomerManualModal
+    MatchSubAccountManualModal
 } from './modals';
 import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
 import {saveAs} from 'file-saver';
@@ -149,7 +149,12 @@ export class BankComponent implements AfterViewInit {
         },
         {
             Code: 'select_customer',
-            ExecuteActionHandler: (selectedRows) => this.selectCustomerForPayment(selectedRows),
+            ExecuteActionHandler: (selectedRows) => this.selectAccountForPayment(selectedRows, false),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
+            Code: 'select_supplier',
+            ExecuteActionHandler: (selectedRows) => this.selectAccountForPayment(selectedRows, true),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
@@ -686,18 +691,20 @@ export class BankComponent implements AfterViewInit {
         });
     }
 
-    public selectCustomerForPayment(selectedRows: any) {
+    public selectAccountForPayment(selectedRows: any, isSupplier: boolean) {
         return new Promise(() => {
             const row = selectedRows[0];
-            const modal = this.modalService.open(MatchCustomerManualModal, {
-                data: {model: row}
+            const modal = this.modalService.open(MatchSubAccountManualModal, {
+                header: isSupplier ? 'Velg leverandør manuelt' : 'Velg kunde manuelt',
+                data: { model: row, isSupplier: isSupplier }
             });
             modal.onClose.subscribe((result) => {
-                if (result && result.customerID) {
-                     this.journalEntryService.PutAction(null,
-                         'book-payment-against-customer',
-                         'customerID=' + result.customerID + '&paymentID=' + row.ID + '&isBalanceKID=' + result.isBalanceKID)
-                         .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
+                if (result && result.subAccountID) {
+                    this.journalEntryService.PutAction(null,
+                        isSupplier ? 'book-payment-against-supplier' : 'book-payment-against-customer',
+                        (isSupplier ? 'supplierID=' : 'customerID=') + result.subAccountID
+                        + '&paymentID=' + row.ID + '&isBalanceKID=' + result.isBalanceKID)
+                        .subscribe(() => this.tickerContainer.mainTicker.reloadData()); // refresh table);
                 }
             });
         });
