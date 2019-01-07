@@ -7,6 +7,8 @@ import {UniRecurringInvoiceLogModal} from './recurringInvoiceLogModal';
 import {
     UniModalService
 } from '@uni-framework/uni-modal';
+import { IUniSaveAction } from '../../../../framework/save/save';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'recurring-invoice-list',
@@ -15,6 +17,11 @@ import {
 export class RecurringInvoiceList implements OnInit {
 
     @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+
+    public createNewAction: IUniSaveAction = {
+        label: 'Ny repeterende faktura',
+        action: () => this.router.navigateByUrl('/sales/recurringinvoice/0')
+    };
 
     public tickercode: string = 'recurring_invoice_list';
     public actionOverrides: Array<ITickerActionOverride> = [
@@ -27,7 +34,8 @@ export class RecurringInvoiceList implements OnInit {
 
     constructor(
         private tabService: TabService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private router: Router
     ) { }
 
     public ngOnInit() {

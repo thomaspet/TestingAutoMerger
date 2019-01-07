@@ -140,15 +140,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     @ViewChild(UniToolbar) public toolbar: UniToolbar;
 
-    private expandOptionsNewTaxcardEntity: Array<string> = [
-        'loennFraHovedarbeidsgiver',
-        'loennFraBiarbeidsgiver',
-        'pensjon',
-        'loennTilUtenrikstjenestemann',
-        ',loennKunTrygdeavgiftTilUtenlandskBorger',
-        'loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjenger'
-    ];
-
     constructor(
         private route: ActivatedRoute,
         private employeeService: EmployeeService,
@@ -585,7 +576,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 return taxCard
                     ? Observable.of(taxCard)
                     : this.employeeTaxCardService
-                        .GetNewEntity(this.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
+                        .GetNewEntity(this.employeeTaxCardService.expandOptionsNewTaxcardEntity, EMPLOYEE_TAX_KEY)
                         .map((response: EmployeeTaxCard) => {
                             response.EmployeeID = this.employeeID;
                             response.Year = year;
@@ -1059,8 +1050,12 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     employeeTaxCard.Year = year;
                 }
                 this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
+
                 if (employeeTaxCard.ID === 0 || !employeeTaxCard.ID) {
                     employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
+                }
+                if (employeeTaxCard.ufoereYtelserAndre && !employeeTaxCard.ufoereYtelserAndreID) {
+                    employeeTaxCard.ufoereYtelserAndre['_createguid'] = this.employeeTaxCardService.getNewGuid();
                 }
 
                 if (employeeTaxCard) {
