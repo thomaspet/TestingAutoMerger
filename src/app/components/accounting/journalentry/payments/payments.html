@@ -8,11 +8,12 @@
 <section class="uni-container">
     <header>Ubetalte fakturaer</header>
     <section class="payment-invoice-data">
-        <p>Registrer betalinger ved å legge inn fakturanr i tabellen over, eller kryss av for hvilke fakturaer som skal registreres som betalt i tabellen under. Data lagres ikke før du trykker Lagre og bokfør.</p>
-        <uni-table
+        <p>Registrer betalinger ved å legge inn fakturanr i tabellen over, eller trykk på faktura som skal registreres som betalt i tabellen under. Data lagres ikke før du trykker Lagre og bokfør.</p>
+        <ag-grid-wrapper
+        class="transquery-grid-font-size"
             [resource]="lookupFunction"
             [config]="invoiceTable"
-            (rowSelectionChanged)="onRowSelectionChanged($event ? $event.rowModel : null)">
-        </uni-table>
+            (rowClick)="rowSelected($event)">
+        </ag-grid-wrapper>
     </section>
 </section>
