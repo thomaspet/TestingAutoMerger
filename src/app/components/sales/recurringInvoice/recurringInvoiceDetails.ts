@@ -115,6 +115,7 @@ export class UniRecurringInvoice implements OnInit {
     deliveryTerms: Terms[];
     paymentTerms: Terms[];
     selectConfig: any;
+    hasWarned: boolean = false;
 
     sellers: Seller[];
     dimensionTypes: any[];
@@ -147,6 +148,8 @@ export class UniRecurringInvoice implements OnInit {
         'PaymentTerms',
         'Items',
         'Items.Product',
+        'Items.Product.VatType',
+        'Items.VatType',
         'Items.Dimensions',
         'Items.Dimensions.Project',
         'Items.Dimensions.Department',
@@ -206,6 +209,9 @@ export class UniRecurringInvoice implements OnInit {
             if (invoiceItems.length) {
                 this.recalcItemSums(invoiceItems);
                 this.isDirty = invoiceItems.some(item => item._isDirty);
+                if (this.isDirty) {
+                    this.updateSaveActions();
+                }
             }
         });
 
@@ -826,6 +832,7 @@ export class UniRecurringInvoice implements OnInit {
         this.updateTab();
         this.updateToolbar();
         this.updateSaveActions();
+        this.checkIfActiveAndNoDistributionPlan();
     }
 
     private updateTab(invoice?: RecurringInvoice) {
@@ -842,7 +849,7 @@ export class UniRecurringInvoice implements OnInit {
 
     private updateToolbar() {
         const toolbarconfig: IToolbarConfig = {
-            title: 'Repeterende faktura',
+            title: this.invoice && this.invoice.ID ? 'Repeterende fakturanr. ' + this.invoice.ID : 'Ny repeterende faktura',
             subheads: [],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -1035,6 +1042,26 @@ export class UniRecurringInvoice implements OnInit {
         }
 
         this.errorService.handle(error);
+    }
+
+    private checkIfActiveAndNoDistributionPlan() {
+        // Dont spam toast warning
+        if (this.hasWarned) {
+            return;
+        }
+
+        // If the recurring invoice is active and the client has not activated auto distribution in company settings
+        if (this.invoice.StatusCode === 46002 && !this.companySettings.AutoDistributeInvoice) {
+            this.toastService.addToast('Automatisk distribusjon avslått', ToastType.warn, 15,
+            'Du har ikke aktivert automatisk distribusjon. Det vil ikke sendes noe før du aktiverer det under firmainnstillinger.' +
+            '<br/><a href="/#/settings/company">Gå til firmainnstillinger</a>');
+            this.hasWarned = true;
+        } else if (this.invoice.StatusCode === 46002 && !this.invoice.DistributionPlanID) {
+            this.toastService.addToast('Distribusjonsplan mangler', ToastType.warn, 15,
+            'Det er ikke definert en distribusjonsplan på denne repeterende faktura. Gå til fanen "Distribusjon" for å velge en,' +
+            ' eller gå til Innstillinger -> Distribusjon for å lage en ny plan.');
+            this.hasWarned = true;
+        }
     }
 
     private nextInvoice() {
