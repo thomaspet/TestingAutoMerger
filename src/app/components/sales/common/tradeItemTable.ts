@@ -67,7 +67,7 @@ export class TradeItemTable {
     pricingSourceLabels = ['Fast', 'Produkt'];
     priceFactor = [
         { value: 0, label: 'Fast' },
-        { value: 1, label: 'Pr. dag' },
+        // { value: 1, label: 'Pr. dag' },
         // { value: 2, label: 'Pr. uke' },
         { value: 3, label: 'Pr måned' },
         { value: 4, label: 'Pr. kvartal' },

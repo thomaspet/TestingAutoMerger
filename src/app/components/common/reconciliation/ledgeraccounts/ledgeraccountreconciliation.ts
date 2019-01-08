@@ -821,7 +821,7 @@ export class LedgerAccountReconciliation {
         return this.customerService.Get(id, ['Info', 'Info.DefaultBankAccount']).map(customer => {
             payment.ToBankAccount = customer.Info.DefaultBankAccount;
             payment.ToBankAccountID = customer.Info.DefaultBankAccountID;
-            payment.BusinessRelationID = customer.ID;
+            payment.BusinessRelationID = customer.BusinessRelationID;
             payment.BusinessRelation = this.getBusinessRelationDataFromCustomerSearch(customer);
             return payment;
         });
@@ -829,7 +829,7 @@ export class LedgerAccountReconciliation {
 
     private getBusinessRelationDataFromCustomerSearch(customerData: Customer): BusinessRelation {
         const br = new BusinessRelation();
-        br.ID = customerData.ID;
+        br.ID = customerData.BusinessRelationID;
         br.Name = customerData.Info.Name;
         br.DefaultBankAccountID = customerData.Info.DefaultBankAccountID;
         br.DefaultBankAccount = customerData.Info.DefaultBankAccount;

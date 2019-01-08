@@ -14,6 +14,7 @@ import {IUniSearchConfig} from './IUniSearchConfig';
                 autocomplete="false"
                 aria-autocomplete="inline"
                 uni-search-attr
+                (clickOutside)="onClickOutside()"
                 (changeEvent)="onChangeEvent($event)"
                 [config]="config"
                 [disabled]="disabled"
@@ -64,6 +65,10 @@ export class UniSearch {
         try {
             event.target.select();
         } catch (e) {}
+    }
+
+    onClickOutside() {
+        this.uniSearchAttr.closeSearchResult();
     }
 
     public setValue(value) {

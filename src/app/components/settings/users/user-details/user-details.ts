@@ -16,6 +16,12 @@ import {ActivateAutobankModal} from '../activate-autobank-modal/activate-autoban
 import {ResetAutobankPasswordModal} from '../reset-autobank-password-modal/reset-autobank-password-modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
+enum UserStatus {
+    Draft = 110000,
+    Active = 110001,
+    InActive = 110002,
+}
+
 @Component({
     selector: 'user-details',
     templateUrl: './user-details.html',
@@ -29,6 +35,7 @@ export class UserDetails {
     @Output() activateUser: EventEmitter<any> = new EventEmitter();
     @Output() deactivateUser: EventEmitter<any> = new EventEmitter();
     @Output() reloadUsers: EventEmitter<any> = new EventEmitter();
+    @Output() resendInvite: EventEmitter<User> = new EventEmitter<User>();
 
     scrollbar: PerfectScrollbar;
     roles: Role[];
@@ -55,13 +62,12 @@ export class UserDetails {
         if (this.user && this.users) {
             this.loadRoles();
 
-            this.elsaPurchaseService.getPurchaseByProductName('Autobank').subscribe(
-                res => {
-                    this.companyHasAutobank = !!res;
-                    this.initUserActions();
-                },
-                err => console.error(err)
-            );
+            this.elsaPurchaseService.getPurchaseByProductName('Autobank')
+                .finally(() => this.initUserActions())
+                .subscribe(
+                    res => this.companyHasAutobank = !!res,
+                    err => console.error(err)
+                );
         }
     }
 
@@ -80,16 +86,23 @@ export class UserDetails {
     private initUserActions() {
         const actions = [];
 
+        // Invited user
+        if (this.user.StatusCode === UserStatus.Draft) {
+            actions.push({
+                label: 'Send ny invitasjon',
+                action: () => this.resendInvite.emit(this.user),
+            });
+        }
+
         // Deactivated user
-        if (this.user.StatusCode === 110002) {
+        if (this.user.StatusCode === UserStatus.InActive) {
             actions.push({
                 label: 'Aktiver bruker',
                 action: () => this.activateUser.emit()
             });
         }
 
-        // Active user
-        if (this.user.StatusCode === 110001) {
+        if (this.user.StatusCode === UserStatus.Active) {
             if (this.companyHasAutobank) {
                 if (this.user.BankIntegrationUserName) {
                     const authenticatedUser = this.authService.currentUser;

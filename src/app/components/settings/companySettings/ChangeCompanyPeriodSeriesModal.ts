@@ -81,7 +81,7 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     public periodSeriesAccountList: Array<PeriodSeries>;
     public periodSeriesVatList: Array<PeriodSeries>;
 
-    private isSaving: boolean = false;
+    public isSaving: boolean = false;
 
     constructor(
         private errorService: ErrorService,

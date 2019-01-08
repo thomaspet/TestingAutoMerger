@@ -2116,6 +2116,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         } else {
             if (item.JournalEntryDataAccrual) {
                 const data = {
+                    item: item,
                     accrualAmount: null,
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2125,6 +2126,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 this.openAccrualModal(data, item);
             } else if (item.AmountCurrency && item.AmountCurrency !== 0 && item.FinancialDate) {
                 const data = {
+                    item: item,
                     accrualAmount: item['NetAmountCurrency'],
                     accrualStartDate: new LocalDate(item.FinancialDate.toString()),
                     journalEntryLineDraft: null,
@@ -2154,6 +2156,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public onModalChanged(item, modalval) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
         item.JournalEntryDataAccrual = modalval;
         // if the item is already booked, just add the payment through the API now
         /* if (item.StatusCode) {

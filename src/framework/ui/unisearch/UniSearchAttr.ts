@@ -120,13 +120,6 @@ export class UniSearchAttr implements OnInit, OnChanges {
         } catch (e) {}
     }
 
-    onClickOutside() {
-        if (this.expanded) {
-            this.handleUnfinishedValue(this.componentElement.nativeElement.value);
-            this.closeSearchResult();
-        }
-    }
-
     public ngOnChanges(changes: SimpleChanges) {
         if (changes['config'] && changes['config'].currentValue) {
             this.hasExternalSearch = !!this.config.externalLookupFn;
@@ -213,19 +206,28 @@ export class UniSearchAttr implements OnInit, OnChanges {
         );
     }
 
-    private toggleSearchType() {
+    private toggleSearchType(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.currentSearchType = this.currentSearchType === SearchType.INTERNAL
             ? SearchType.EXTERNAL
             : SearchType.INTERNAL;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
-    public toggleSearchCompanies() {
+    public toggleSearchCompanies(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.searchCompanies = !this.searchCompanies;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
 
-    public toggleSearchPersons() {
+    public toggleSearchPersons(event?) {
+        if (event) {
+            event.stopPropagation();
+        }
         this.searchPersons = !this.searchPersons;
         this.performLookup(this.componentElement.nativeElement.value || '');
     }
@@ -278,7 +280,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                 }
                 break;
             case KeyCodes.TAB:
-                this.handleUnfinishedValue(this.componentElement.nativeElement.value);
+                this.handleUnfinishedValue();
                 this.closeSearchResult();
                 break;
             case KeyCodes.ENTER:
@@ -379,7 +381,8 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
     }
 
-    private handleUnfinishedValue(val: string) {
+    private handleUnfinishedValue() {
+        const val = this.componentElement.nativeElement.value;
         if (val && this.config.unfinishedValueFn && this.expanded) {
             this.config
                 .unfinishedValueFn(val)
@@ -387,8 +390,9 @@ export class UniSearchAttr implements OnInit, OnChanges {
         }
     }
 
-    private closeSearchResult() {
+    public closeSearchResult() {
         if (this.expanded) {
+            this.handleUnfinishedValue();
             this.currentSearchType = SearchType.INTERNAL;
             this.expanded = false;
             this.container.nativeElement.scrollTop = 0;

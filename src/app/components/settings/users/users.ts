@@ -12,6 +12,8 @@ import {
 
 import PerfectScrollbar from 'perfect-scrollbar';
 import {AuthService} from '@app/authService';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'user-management',
@@ -35,6 +37,8 @@ export class UserManagement {
         private errorService: ErrorService,
         private userService: UserService,
         private userRoleService: UserRoleService,
+        private uniHttp: UniHttp,
+        private toastService: ToastService,
     ) {
         this.authService.authentication$.take(1).subscribe(auth  => {
             const license: any = (auth.user && auth.user.License) || {};
@@ -169,5 +173,25 @@ export class UserManagement {
             () => this.loadUsers(),
             err => this.errorService.handle(err)
         );
+    }
+
+    resendInvite(user: User) {
+        this.uniHttp.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications')
+            .withBody({
+                Email: user.Email,
+                CompanyId: this.authService.activeCompany.ID,
+            })
+            .send()
+            .subscribe(
+                () => this.toastService.addToast(
+                    'Invitasjon sent',
+                    ToastType.good,
+                    ToastTime.short,
+                    `Sente en mail til ${user.Email} med en invitasjons link`
+                ),
+                err => this.errorService.handle(err),
+            );
     }
 }

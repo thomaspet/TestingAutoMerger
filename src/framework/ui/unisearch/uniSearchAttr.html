@@ -3,28 +3,27 @@
     role="listbox"
     tabindex="-1"
     [ngClass]="{new_button_padding: hasExternalSearch || hasCreateNewButton}"
-    [attr.aria-expanded]="expanded"
-    (clickOutside)="onClickOutside()">
+    [attr.aria-expanded]="expanded">
     <div class="action_buttons">
         <a *ngIf="hasCreateNewButton"
             (click)="createNewItem()"
             class="action_button">Legg til ny (F3)
         </a>
         <a *ngIf="hasExternalSearch"
-            (click)="toggleSearchType()"
+            (click)="toggleSearchType($event)"
             class="action_button">
             Søk {{currentSearchType === SearchTypeEnum.INTERNAL ? 'i 1880' : 'internt'}} (F6)
         </a>
         <span
             class="action_button"
             *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
-            (click)="toggleSearchCompanies()">
+            (click)="toggleSearchCompanies($event)">
                 Firmasøk <input class="action_button" type="checkbox" [(ngModel)]="searchCompanies">
         </span>
         <span
             class="action_button"
             *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
-            (click)="toggleSearchPersons()">
+            (click)="toggleSearchPersons($event)">
                 Personsøk <input class="action_button" type="checkbox" [(ngModel)]="searchPersons">
         </span>
     </div>

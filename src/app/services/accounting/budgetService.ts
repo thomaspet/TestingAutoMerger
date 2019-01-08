@@ -112,16 +112,20 @@ export class BudgetService extends BizHttp<Budget> {
                 groupSumLine['BudPeriod' + i] = groupSumLine['BudPeriod' + i] || 0;
                 groupSumLine['BudPeriod' + i] += group['BudPeriod' + i];
                 groupSumLine['cls' + i] = groupSumLine['BudPeriod' + i] < 0 ? 'good' : 'bad';
+                group['cls' + i] = ((group.GroupNumber === 3 && group['BudPeriod' + i] < 0)
+                || (group.GroupNumber !== 3 && group['BudPeriod' + i] < 0)) ? 'good' : 'bad';
             }
+            group['cls13'] = ((group.GroupNumber === 3 && group.BudgetSum < 0)
+                || (group.GroupNumber !== 3 && group.BudgetSum < 0)) ? 'good' : 'bad';
 
             groupSumLine.BudgetSum += group.BudgetSum;
 
             // Add profit/loss text to last line text + correct class to numbers
             if (groupSumLine.BudgetSum < 0) {
-                groupSumLine.GroupName = 'Resultat    (Overskudd)';
+                groupSumLine.GroupName = 'RESULTAT    (Overskudd)';
                 groupSumLine['cls13'] = 'good';
             } else {
-                groupSumLine.GroupName = 'Resultat    (Underskudd)';
+                groupSumLine.GroupName = 'RESULTAT    (Underskudd)';
                 groupSumLine['cls13'] = 'bad';
             }
 
@@ -129,7 +133,20 @@ export class BudgetService extends BizHttp<Budget> {
                 for (let i = 1; i <= 12; i++) {
                     child.BudgetSum += child['BudPeriod' + i];
                     child.PeriodTotal += child['Period' + i];
+                    child['cls' + i] = ((child.GroupNumber === 3 && child['BudPeriod' + i] < 0)
+                        || (child.GroupNumber !== 3 && child['BudPeriod' + i] < 0)) ? 'good' : 'bad';
                 }
+                child['cls13'] = ((child.GroupNumber === 3 && child.BudgetSum < 0)
+                            || (child.GroupNumber !== 3 && child.BudgetSum < 0)) ? 'good' : 'bad';
+
+                child.data.forEach((item) => {
+                    for (let i = 1; i <= 12; i++) {
+                        item['cls' + i] = ((item.GroupNumber === 3 && item['BudPeriod' + i] < 0)
+                            || (item.GroupNumber !== 3 && item['BudPeriod' + i] < 0)) ? 'good' : 'bad';
+                    }
+                    item['cls13'] = ((item.GroupNumber === 3 && item.BudgetSum < 0)
+                            || (item.GroupNumber !== 3 && item.BudgetSum < 0)) ? 'good' : 'bad';
+                });
             });
         });
         formattedBudget.push(groupSumLine);
@@ -150,10 +167,7 @@ export class BudgetService extends BizHttp<Budget> {
         for (let i = 1; i <= 12; i++) {
             obj['BudPeriod' + i] = line['BudPeriod' + i];
             obj['Period' + i] = line['Period' + i];
-            obj['cls' + i] = (line.GroupNumber === 3 && line['BudPeriod' + i] < 0) ? 'good' : 'bad';
         }
-
-        obj['cls13'] = (line.GroupNumber === 3 && line.BudgetSum < 0) ? 'good' : 'bad';
 
         obj.children = [ this.getNewSubGroupItem(line) ];
 
@@ -173,10 +187,8 @@ export class BudgetService extends BizHttp<Budget> {
         for (let i = 1; i <= 12; i++) {
             obj['BudPeriod' + i] = line['BudPeriod' + i];
             obj['Period' + i] = line['Period' + i];
-            obj['cls' + i] = (line.GroupNumber === 3 && line['BudPeriod' + i] < 0) ? 'good' : 'bad';
         }
 
-        obj['cls13'] = (line.GroupNumber === 3 && line.BudgetSum < 0) ? 'good' : 'bad';
         obj.data = [line];
         return obj;
     }
