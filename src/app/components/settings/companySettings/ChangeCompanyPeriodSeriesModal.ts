@@ -17,7 +17,7 @@ declare const _; // lodash
 
     <section role="dialog" class="uni-modal">
 
-        <header>Endre periodeoppsett:</header>
+        <header><h1>Endre periodeoppsett</h1></header>
         <article class="change-companysettings-periodseries-form">
 
             <span>
@@ -25,7 +25,7 @@ declare const _; // lodash
                 Alle bilag som faller inn under endringene vil bli
                 endret til å peke mot de nye periodene som opprettes.
                 <BR/><BR/>
-                Det er ikke mulig å endre på periode oppsett for mva dersom det er
+                Det er ikke mulig å endre på periodeoppsett for mva dersom det er
                 opprettet mva meldinger innenfor regnskapsåret som velges.
                 Disse må da fjernes før endringer i periodeoppsettet kan gjøres.
                 <BR/><BR/>
@@ -53,8 +53,15 @@ declare const _; // lodash
         </article>
 
         <footer>
-            <button [disabled]="!isPeriodSeriesChanged" (click)="close('save')" class="good">Utfør</button>
-            <button (click)="close('cancel')" class="bad">Avbryt</button>
+            <button
+                [disabled]="!isPeriodSeriesChanged || isSaving"
+                [attr.aria-busy]="isSaving"
+                (click)="close('save')"
+                class="good">Utfør</button>
+            <button
+                [disabled]="isSaving"
+                (click)="close('cancel')"
+                class="bad">Avbryt</button>
         </footer>
 
     </section>
@@ -73,6 +80,8 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     public companySettings: CompanySettings;
     public periodSeriesAccountList: Array<PeriodSeries>;
     public periodSeriesVatList: Array<PeriodSeries>;
+
+    private isSaving: boolean = false;
 
     constructor(
         private errorService: ErrorService,
@@ -144,11 +153,16 @@ export class ChangeCompanySettingsPeriodSeriesModal implements OnInit, IUniModal
     }
 
     private changeCompanySettingsPeriodSeriesAndClose() {
+        this.isSaving = true;
         this.companySettingsService
             .changeCompanySettingsPeriodSeriesSettings(this.periodSeriesVat.ID, this.currentAccountYear)
                 .subscribe(res => {
+                    this.isSaving = false;
                     this.onClose.emit(false);
-                }, err => this.errorService.handle(err)
+                }, err => {
+                    this.isSaving = false;
+                    this.errorService.handle(err);
+                }
             );
     }
 
