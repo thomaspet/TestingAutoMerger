@@ -8,7 +8,7 @@ import {DimensionSettings} from '../../../unientities';
 import {DimensionSettingsService} from '../../../services/common/dimensionSettingsService';
 
 @Component({
-    selector: 'uni-template-modal',
+    selector: 'uni-dimension-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 40vw;">
             <header><h1>{{ options.header }}</h1></header>
