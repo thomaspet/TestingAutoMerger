@@ -58,7 +58,8 @@ export interface ITagAutoComplete {
                         <uni-autocomplete-input *ngIf="autoCompleteField"
                             [attr.aria-busy]="searchBusy"
                             [field]="autoCompleteField"
-                            [model]="autoCompleteModel">
+                            [model]="autoCompleteModel"
+                            (readyEvent)="searchReady()">
                         </uni-autocomplete-input>
                     </label>
                 </section>
@@ -94,9 +95,9 @@ export class UniTags implements OnChanges {
             this.autoCompleteField.Options = {
                 template: this.config.autoCompleteConfig.template,
                 source: this.config.autoCompleteConfig.source,
-                search: (query) => this.config.autoCompleteConfig.search(query, this.ignoreFilter),
+                search: (query: string) => this.config.autoCompleteConfig.search(query, this.ignoreFilter),
                 valueProperty: this.config.autoCompleteConfig.valueProperty,
-                events: { select: (model, value) => this.add(value) }
+                events: { select: (model: any, value: any) => this.add(value) }
             };
         }
 
@@ -105,6 +106,10 @@ export class UniTags implements OnChanges {
         }
 
         this.helpText = this.getHelpText(this.config, this.tags);
+    }
+
+    public searchReady() {
+        this.autoComplete.focus();
     }
 
     public tagsSummary(): string {
@@ -174,6 +179,7 @@ export class UniTags implements OnChanges {
             this.tags.push(tag);
             this.tagsChange.emit(this.tags);
             this.buildNewIgnoreFilter(this.tags);
+            this.autoComplete.control.setValue('');
         }
     }
 

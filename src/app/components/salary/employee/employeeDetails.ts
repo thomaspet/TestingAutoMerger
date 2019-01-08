@@ -20,7 +20,7 @@ import {
 
 import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniView} from '../../../../framework/core/uniView';
+import {UniView, ISaveObject} from '../../../../framework/core/uniView';
 import {TaxCardModal} from './modals/taxCardModal';
 import {
     UniModalService,
@@ -51,12 +51,6 @@ const SELECTED_KEY = '_rowSelected';
 interface IEmployeeSaveConfig {
     done: (message) => void;
     ignoreRefresh?: boolean;
-}
-
-interface ISaveObject {
-    state: any;
-    key: string;
-    dirty: boolean;
 }
 
 @Component({
@@ -846,18 +840,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             this.getSaveObject(RECURRING_POSTS_KEY),
             this.getSaveObject(SALARYBALANCES_KEY)
         ]);
-    }
-
-    private getSaveObject(key: string): Observable<ISaveObject> {
-        if (!super.exist(key)) {
-            return Observable.of({
-                state: null,
-                key: key,
-                dirty: false
-            });
-        }
-
-        return super.getStateSubject(key).take(1).map(state => ({state: _.cloneDeep(state), key: key, dirty: super.isDirty(key)}));
     }
 
     private saveAllObs(config: IEmployeeSaveConfig, saveObjects: ISaveObject[]): Observable<any[]> {
