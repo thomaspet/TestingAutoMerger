@@ -140,19 +140,19 @@
                                             {{ child.SubGroupName }}
                                         </span>
                                     </div>
-                                    <div [ngClass]="group.cls1"> {{ budgetNumberFormat(child.BudPeriod1) }} </div>
-                                    <div [ngClass]="group.cls2"> {{ budgetNumberFormat(child.BudPeriod2) }} </div>
-                                    <div [ngClass]="group.cls3"> {{ budgetNumberFormat(child.BudPeriod3) }} </div>
-                                    <div [ngClass]="group.cls4"> {{ budgetNumberFormat(child.BudPeriod4) }} </div>
-                                    <div [ngClass]="group.cls5"> {{ budgetNumberFormat(child.BudPeriod5) }} </div>
-                                    <div [ngClass]="group.cls6"> {{ budgetNumberFormat(child.BudPeriod6) }} </div>
-                                    <div [ngClass]="group.cls7"> {{ budgetNumberFormat(child.BudPeriod7) }} </div>
-                                    <div [ngClass]="group.cls8"> {{ budgetNumberFormat(child.BudPeriod8) }} </div>
-                                    <div [ngClass]="group.cls9"> {{ budgetNumberFormat(child.BudPeriod9) }} </div>
-                                    <div [ngClass]="group.cls10"> {{ budgetNumberFormat(child.BudPeriod10) }} </div>
-                                    <div [ngClass]="group.cls11"> {{ budgetNumberFormat(child.BudPeriod11) }} </div>
-                                    <div [ngClass]="group.cls12"> {{ budgetNumberFormat(child.BudPeriod12) }} </div>
-                                    <div [ngClass]="group.cls13"> {{ budgetNumberFormat(child.BudgetSum) }} </div>
+                                    <div [ngClass]="child.cls1"> {{ budgetNumberFormat(child.BudPeriod1) }} </div>
+                                    <div [ngClass]="child.cls2"> {{ budgetNumberFormat(child.BudPeriod2) }} </div>
+                                    <div [ngClass]="child.cls3"> {{ budgetNumberFormat(child.BudPeriod3) }} </div>
+                                    <div [ngClass]="child.cls4"> {{ budgetNumberFormat(child.BudPeriod4) }} </div>
+                                    <div [ngClass]="child.cls5"> {{ budgetNumberFormat(child.BudPeriod5) }} </div>
+                                    <div [ngClass]="child.cls6"> {{ budgetNumberFormat(child.BudPeriod6) }} </div>
+                                    <div [ngClass]="child.cls7"> {{ budgetNumberFormat(child.BudPeriod7) }} </div>
+                                    <div [ngClass]="child.cls8"> {{ budgetNumberFormat(child.BudPeriod8) }} </div>
+                                    <div [ngClass]="child.cls9"> {{ budgetNumberFormat(child.BudPeriod9) }} </div>
+                                    <div [ngClass]="child.cls10"> {{ budgetNumberFormat(child.BudPeriod10) }} </div>
+                                    <div [ngClass]="child.cls11"> {{ budgetNumberFormat(child.BudPeriod11) }} </div>
+                                    <div [ngClass]="child.cls12"> {{ budgetNumberFormat(child.BudPeriod12) }} </div>
+                                    <div [ngClass]="child.cls13"> {{ budgetNumberFormat(child.BudgetSum) }} </div>
                                 </div>
                                 <div *ngIf="child.showData">
                                     <div *ngFor="let item of child.data">
@@ -162,19 +162,19 @@
                                                     {{ item.AccountNumber }} - {{ item.AccountName }}
                                                 </span>
                                             </div>
-                                            <div [ngClass]="group.cls1"> {{ budgetNumberFormat(item.BudPeriod1) }} </div>
-                                            <div [ngClass]="group.cls2"> {{ budgetNumberFormat(item.BudPeriod2) }} </div>
-                                            <div [ngClass]="group.cls3"> {{ budgetNumberFormat(item.BudPeriod3) }} </div>
-                                            <div [ngClass]="group.cls4"> {{ budgetNumberFormat(item.BudPeriod4) }} </div>
-                                            <div [ngClass]="group.cls5"> {{ budgetNumberFormat(item.BudPeriod5) }} </div>
-                                            <div [ngClass]="group.cls6"> {{ budgetNumberFormat(item.BudPeriod6) }} </div>
-                                            <div [ngClass]="group.cls7"> {{ budgetNumberFormat(item.BudPeriod7) }} </div>
-                                            <div [ngClass]="group.cls8"> {{ budgetNumberFormat(item.BudPeriod8) }} </div>
-                                            <div [ngClass]="group.cls9"> {{ budgetNumberFormat(item.BudPeriod9) }} </div>
-                                            <div [ngClass]="group.cls10"> {{ budgetNumberFormat(item.BudPeriod10) }} </div>
-                                            <div [ngClass]="group.cls11"> {{ budgetNumberFormat(item.BudPeriod11) }} </div>
-                                            <div [ngClass]="group.cls12"> {{ budgetNumberFormat(item.BudPeriod12) }} </div>
-                                            <div [ngClass]="group.cls13"> {{ budgetNumberFormat(item.BudgetSum) }} </div>
+                                            <div [ngClass]="item.cls1"> {{ budgetNumberFormat(item.BudPeriod1) }} </div>
+                                            <div [ngClass]="item.cls2"> {{ budgetNumberFormat(item.BudPeriod2) }} </div>
+                                            <div [ngClass]="item.cls3"> {{ budgetNumberFormat(item.BudPeriod3) }} </div>
+                                            <div [ngClass]="item.cls4"> {{ budgetNumberFormat(item.BudPeriod4) }} </div>
+                                            <div [ngClass]="item.cls5"> {{ budgetNumberFormat(item.BudPeriod5) }} </div>
+                                            <div [ngClass]="item.cls6"> {{ budgetNumberFormat(item.BudPeriod6) }} </div>
+                                            <div [ngClass]="item.cls7"> {{ budgetNumberFormat(item.BudPeriod7) }} </div>
+                                            <div [ngClass]="item.cls8"> {{ budgetNumberFormat(item.BudPeriod8) }} </div>
+                                            <div [ngClass]="item.cls9"> {{ budgetNumberFormat(item.BudPeriod9) }} </div>
+                                            <div [ngClass]="item.cls10"> {{ budgetNumberFormat(item.BudPeriod10) }} </div>
+                                            <div [ngClass]="item.cls11"> {{ budgetNumberFormat(item.BudPeriod11) }} </div>
+                                            <div [ngClass]="item.cls12"> {{ budgetNumberFormat(item.BudPeriod12) }} </div>
+                                            <div [ngClass]="item.cls13"> {{ budgetNumberFormat(item.BudgetSum) }} </div>
                                         </div>
                                     </div>
                                 </div>
