@@ -1,6 +1,6 @@
 ﻿import {Component, ViewChild, ElementRef} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Project, Customer, LocalDate} from '../../../../unientities';
+import {Project, Customer} from '../../../../unientities';
 import {
     ProjectService,
     CustomerService,
@@ -59,7 +59,6 @@ export class ProjectOverview {
     public projectHoursTotal: number;
     public projectHoursInvoiced: number;
     orderReserve: string = '0,00';
-    unpayedBills: string = '0,00';
     resultSoFar: string = '0,00';
     currentChartData: any;
 
@@ -193,13 +192,6 @@ export class ProjectOverview {
             `(statuscode eq 41002 or statuscode eq 41003))&expand=items,DefaultDimensions`) : Observable.of(null)
         );
 
-        // Get sum of unpayed bills
-        queries.push( this.projectService.hasSupplierInvoiceModule ? this.statisticsService.GetAll(
-            `model=supplierinvoice&select=sum(Restamount) as sum` +
-            `&filter=DefaultDimensions.ProjectID eq ${this.project.ID} and ` +
-            `(statuscode lt 30107 and statuscode ne 30104)&expand=DefaultDimensions`) : Observable.of(null)
-        );
-
         if (this.project.ProjectCustomerID) {
             queries.push(this.customerService.Get(this.project.ProjectCustomerID));
             this.customerService.Get(this.project.ProjectCustomerID).subscribe((customer: Customer) => {
@@ -218,12 +210,8 @@ export class ProjectOverview {
                 this.orderReserve = this.numberFormat.asMoney(res[0].Data[0].sum || 0);
             }
 
-            if (res[1] ) {
-                this.unpayedBills = this.numberFormat.asMoney(res[1].Data[0].sum || 0);
-            }
-
-            if (res[2]) {
-                this.customerName = res[2].Info.Name;
+            if (res[1]) {
+                this.customerName = res[1].Info.Name;
             } else {
                 this.customerName = 'Kunde ikke valgt';
             }
