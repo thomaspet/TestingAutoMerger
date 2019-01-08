@@ -7,7 +7,7 @@ export enum CompanySalaryBaseOptions {
     NettoPayment = 0,
     SpesialDeductionForMaritim = 1,
     Svalbard = 2,
-    PayAsYouEarnOnPensions = 3,
+    PayAsYouEarnTaxOnPensions = 3,
     JanMayenAndBiCountries = 4,
     NettoPaymentForMaritim = 6,
 }
@@ -33,7 +33,7 @@ export class CompanySalaryService extends BizHttp<CompanySalary> {
     public getBaseOptions(compSal: CompanySalary): CompanySalaryBaseOptions[] {
         return Object
             .keys(CompanySalaryBaseOptions)
-            .filter(key => compSal['Base_' + key])
+            .filter(key => compSal && compSal['Base_' + key])
             .map(key => CompanySalaryBaseOptions[key]);
     }
 

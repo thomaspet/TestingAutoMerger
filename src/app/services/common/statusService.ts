@@ -9,7 +9,6 @@ import {CustomerOrderService} from '../sales/customerOrderService';
 import {CustomerQuoteService} from '../sales/customerQuoteService';
 import {CustomerInvoiceItemService} from '../sales/customerInvoiceItemService';
 import {CustomerOrderItemService} from '../sales/customerOrderItemService';
-import {CustomerQuoteItemService} from '../sales/customerQuoteItemService';
 import {RecurringInvoiceService} from '../sales/recurringInvoiceService';
 import {PaymentService} from '../accounting/paymentService';
 import {PaymentBatchService} from '../accounting/paymentBatchService';
@@ -27,7 +26,6 @@ export class StatusService {
         private customerQuoteService: CustomerQuoteService,
         private customerInvoiceItemService: CustomerInvoiceItemService,
         private customerOrderItemService: CustomerOrderItemService,
-        private customerQuoteItemService: CustomerQuoteItemService,
         private recurringInvoiceService: RecurringInvoiceService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,

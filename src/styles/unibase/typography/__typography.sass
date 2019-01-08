@@ -31,12 +31,6 @@ p
 @import 'headlines'
 @import 'links'
 @import 'lists'
-@import 'address'
-
-
-.lede
-  font-size: 1.2rem
-  line-height: 1.5rem
 
 b, strong
   font-weight: 600
@@ -53,52 +47,6 @@ abbr[title]
   &.acronym
     speak-as: normal
 
-blockquote
-  border-left: .5rem solid $uni-color-scale9
-  background: transparentize($uni-color-scale9, .5)
-  padding-left: .5rem
-  display: block
-
-  & cite:before
-    content: '– '
-
-mark
-  background: transparentize($uni-color-c2a, .9)
-  color: $uni-color-c2a
-  border-radius: .2rem
-  font-weight: 400
-
-kbd
-  display: inline-block
-  border: 1px solid $uni-color-scale9
-  background: transparentize($uni-color-scale9, .5)
-  border-radius: .2rem
-  font-family: $uni-stack
-  font-weight: 400
-  padding: 0 .5rem
-
-code
-  font: normal .9rem/1.5rem $uni-stack-mono
-  color: $uni-color-scale2
-
-  & pre
-    display: block
-    background: repeating-linear-gradient(to bottom, transparentize($uni-color-scale9, .5) 0, transparentize($uni-color-scale9, .5) 1.5rem, transparent 1.5rem, transparent 3rem)
-    background-size: 100% 3rem
-    padding: 0 1.5rem
-    border: 1px solid $uni-color-scale9
-    border-radius: .2rem
-    overflow: auto
-
-del
-  background: transparentize($uni-color-bad, .8)
-  color: $uni-color-bad
-  border-radius: .2rem
-
-  &.strike
-    background: transparent
-    color: $uni-color-positive
-    border-radius: 0
 hr
   border: none
   border-bottom: .05555555rem solid $uni-color-scale9

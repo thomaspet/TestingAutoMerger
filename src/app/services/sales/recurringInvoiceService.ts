@@ -32,9 +32,13 @@ export class RecurringInvoiceService extends BizHttp<RecurringInvoice> {
     public getLog(id: number) {
         return this.http
             .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`recurringinvoicelogs?filter=RecurringInvoiceID eq ${id}&orderby=InvoiceID DESC`)
+            .usingStatisticsDomain()
+            .withEndPoint('?model=recurringinvoicelog&select=customerorder.ordernumber as OrderNumber' +
+            ',customerinvoice.InvoiceNumber as InvoiceNumber,recurringinvoicelog.*&filter=recurringinvoiceid eq ' + id +
+            '&join=recurringinvoicelog.invoiceid eq customerinvoice.id and recurringinvoicelog.orderid eq customerorder.id' +
+            '&top=&orderby=id desc&wrap=false ')
             .send()
             .map(res => res.json());
+
     }
 }

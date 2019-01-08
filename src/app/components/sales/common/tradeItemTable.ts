@@ -65,7 +65,7 @@ export class TradeItemTable {
     public settings: CompanySettings;
     private defaultProject: Project;
     pricingSourceLabels = ['Fast', 'Produkt'];
-    priceFactor = [ 'Fast', 'Pr. dag', 'Pr. uke', 'Pr. måned', 'Pr. kvartal', 'Pr. år'];
+    priceFactor = [ 'Fast', /*'Pr. dag', 'Pr. uke',*/ 'Pr. måned', 'Pr. kvartal', 'Pr. år'];
 
     constructor(
         private productService: ProductService,

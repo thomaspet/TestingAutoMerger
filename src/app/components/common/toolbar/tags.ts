@@ -44,7 +44,7 @@ export interface ITagAutoComplete {
                 <p *ngIf="config?.helpText" style="margin-top: 0;">
                     {{config.helpText}}
                 </p>
-                <ul class="tag-list">
+                <ul class="tag-list" [attr.aria-busy]="removeBusy">
                     <li *ngFor="let tag of tags">
                         {{tag.title}}
                         <i class="material-icons" *ngIf="config && !config.readOnly" (click)="remove(tag)">
@@ -70,6 +70,7 @@ export class UniTags implements OnChanges {
     @Input() public config: IUniTagsConfig;
     @Input() public tags: ITag[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
+    @Output() public tagsBusy: EventEmitter<boolean> = new EventEmitter();
     @ViewChild(UniAutocompleteInput) public autoComplete: UniAutocompleteInput;
 
     public isOpen: boolean = false;
@@ -77,6 +78,7 @@ export class UniTags implements OnChanges {
     public autoCompleteModel: any = null;
     private autoCompleteField: UniFieldLayout;
     private searchBusy: boolean;
+    private removeBusy: boolean;
     private ignoreFilter: string;
 
     constructor(private errorService: ErrorService) {}
@@ -113,22 +115,25 @@ export class UniTags implements OnChanges {
     public remove(tag: ITag): void {
         const config = this.config.autoCompleteConfig;
         if (config && config.deleteCallback) {
-            config.deleteCallback(tag).subscribe(
-                () => {
-                    this.tags.splice(
-                        this.tags.findIndex(tg => tg.linkID ? tg.linkID === tag.linkID : tg.title === tag.title), 1
-                    );
-                    this.tagsChange.emit(this.tags);
-                    this.buildNewIgnoreFilter(this.tags);
-                },
-                err => this.errorService.handle(err)
+            this.setRemoveBusy(true);
+            config.deleteCallback(tag)
+                .finally(() => this.setRemoveBusy(false))
+                .subscribe(
+                    () => {
+                        this.tags.splice(
+                            this.tags.findIndex(tg => tg.linkID ? tg.linkID === tag.linkID : tg.title === tag.title), 1
+                        );
+                        this.tagsChange.emit(this.tags);
+                        this.buildNewIgnoreFilter(this.tags);
+                    },
+                    err => this.errorService.handle(err)
             );
         }
     }
 
     public add(tag: any) {
         const config = this.config.autoCompleteConfig;
-        this.searchBusy = true;
+        this.setSearchBusy(true);
 
         const saveObservable = config && config.saveCallback
             ? config.saveCallback(tag)
@@ -137,8 +142,18 @@ export class UniTags implements OnChanges {
         saveObservable.subscribe(
             res => this.handleNewTags(res),
             err => this.errorService.handle(err),
-            () => this.searchBusy = false
+            () => this.setSearchBusy(false)
         );
+    }
+
+    private setSearchBusy(busy: boolean) {
+        this.searchBusy = busy;
+        this.tagsBusy.next(this.searchBusy || this.removeBusy);
+    }
+
+    private setRemoveBusy(busy: boolean) {
+        this.removeBusy = busy;
+        this.tagsBusy.next(this.searchBusy || this.removeBusy);
     }
 
     private getHelpText(config: IUniTagsConfig, tag: ITag[]): string {

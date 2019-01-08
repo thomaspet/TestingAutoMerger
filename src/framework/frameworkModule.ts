@@ -20,17 +20,16 @@ import {UniAvatar} from './avatar/uniAvatar';
 import {UniCommentInput} from './comments/commentInput';
 import {UniCommentList} from './comments/commentList';
 
+import {ClickOutsideModule} from './click-outside/click-outside.module';
 import {UniSearchModule} from './ui/unisearch/UniSearch.module';
 import {UniFormModule} from './ui/uniform/uniform.module';
 import {UniTableModule} from './ui/unitable/unitableModule';
 
-import {ClickOutsideDirective} from './core/clickOutside';
 import {UniHttp} from './core/http/http';
 import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
 
-import {ToastService} from './uniToast/toastService';
 import {UniModalService, MODALS} from './uni-modal';
 
 import {UniTooltipModule} from './ui/tooltip/tooltip.module';
@@ -59,6 +58,7 @@ import {
         MatStepperModule,
         MatListModule,
 
+        ClickOutsideModule,
         AppPipesModule,
         UniPipesModule,
         UniSearchModule,
@@ -69,7 +69,6 @@ import {
     ],
     declarations: [
         UniComponentLoader,
-        ClickOutsideDirective,
         UniModal,
         UniSave,
         UniUploadFileSaveAction,
@@ -105,6 +104,7 @@ import {
         UniTableModule,
         UniTooltipModule,
         AgGridWrapperModule,
+        ClickOutsideModule,
 
         // Components
         UniModal,
@@ -121,7 +121,6 @@ import {
         UniAvatar,
 
         UniComponentLoader,
-        ClickOutsideDirective,
 
         // Material
         MatCheckboxModule,

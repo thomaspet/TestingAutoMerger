@@ -180,6 +180,15 @@
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
                 "NeedsActionOverride": true
+            },
+            {
+                "Name": "Velg leverandør manuelt",
+                "Code": "select_supplier",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
             }
         ],
         "SubTickersCodes": ["payment_details", "post_in_file", "payment_status_log"]
@@ -342,7 +351,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Manuelt bokføring",
+                "Name": "Manuell bokføring",
                 "Code": "book_manual",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,

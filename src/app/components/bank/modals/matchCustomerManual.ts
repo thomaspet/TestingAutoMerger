@@ -1,7 +1,7 @@
 import { IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { IModalOptions } from '@uni-framework/uni-modal';
 import { Input, EventEmitter, Output, Component } from '@angular/core';
-import { UniSearchCustomerConfig, PaymentInfoTypeService } from '@app/services/services';
+import { UniSearchCustomerConfig, UniSearchSupplierConfig, PaymentInfoTypeService } from '@app/services/services';
 import { IUniSearchConfig } from '../../../../framework/ui/unisearch/index';
 import { StatusCodePaymentInfoType } from '@uni-entities';
 
@@ -10,13 +10,13 @@ import { StatusCodePaymentInfoType } from '@uni-entities';
     template: `
         <section role="dialog" class="uni-modal">
             <header>
-                <h1>Velg kunde manuelt</h1>
+                <h1>{{ options.header }}</h1>
             </header>
             <article style="min-height: 12rem;">
-                <p>Velg en kunde for betaling</p>
+                <p>Velg en {{ options.data.isSupplier ? 'leverandør' : 'kunde'}} for betaling</p>
                 <uni-search
                     [config]="uniSearchConfig"
-                    (changeEvent)="customerSelected($event)"
+                    (changeEvent)="subaccountSelected($event)"
                     [disabled]="false">
                 </uni-search>
                 <div *ngIf="isBalanceKIDCheckboxVisible" class="rememberForm">
@@ -27,21 +27,20 @@ import { StatusCodePaymentInfoType } from '@uni-entities';
             </article>
 
             <footer>
-                <button class="good" [disabled]="!selectedCustomerID" (click)="close(selectedCustomerID)">Bøkfor valgt rad</button>
+                <button class="good" [disabled]="!selectedID" (click)="close(selectedID)">Bøkfor valgt rad</button>
                 <button class="bad" (click)="close(null)">Avbryt</button>
             </footer>
         </section>
     `
 })
-export class MatchCustomerManualModal implements IUniModal {
+export class MatchSubAccountManualModal implements IUniModal {
     @Input()
     public options: IModalOptions = {};
 
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public customers: any[];
-    public selectedCustomerID: number;
+    public selectedID: number;
     public uniSearchConfig: IUniSearchConfig;
     private customerExpands: string[] = [
         'Info.Addresses',
@@ -54,12 +53,21 @@ export class MatchCustomerManualModal implements IUniModal {
     public isBalanceKIDCheckboxVisible: boolean = false;
     public isBalanceKID: boolean = false;
 
-    constructor( private uniSearchCustomerConfig: UniSearchCustomerConfig, private paymentTypeService: PaymentInfoTypeService) { }
+    constructor(
+        private uniSearchCustomerConfig: UniSearchCustomerConfig,
+        private paymentTypeService: PaymentInfoTypeService,
+        private USSC: UniSearchSupplierConfig
+    ) { }
 
     public ngOnInit() {
         this.uniSearchConfig = this.uniSearchCustomerConfig.generateForBank(this.customerExpands);
-        /* get all kid types with same length, if one of them is balancekid set isBalanceKID to true
-        if more are found give user the option to override */
+
+        if (this.options.data.isSupplier) {
+            this.uniSearchConfig = this.USSC.generate( ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount']);
+        }
+
+        // Get all kid types with same length, if one of them is balancekid set isBalanceKID to true
+        // if more are found give user the option to override
         this.paymentData = this.options.data.model;
         if (this.paymentData.PaymentPaymentID) {
             this.paymentTypeService.GetAll(`filter=Length eq '${this.paymentData.PaymentPaymentID.length}'
@@ -72,12 +80,12 @@ export class MatchCustomerManualModal implements IUniModal {
         }
     }
 
-    public customerSelected(customer) {
-        this.selectedCustomerID = customer.ID;
+    public subaccountSelected(account) {
+        this.selectedID = account.ID;
     }
 
-    public close(customerID:  number | null) {
-        this.onClose.emit({customerID, isBalanceKID: this.isBalanceKID});
+    public close(subAccountID:  number | null) {
+        this.onClose.emit({subAccountID, isBalanceKID: this.isBalanceKID});
     }
 
 }

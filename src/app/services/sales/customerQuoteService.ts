@@ -87,55 +87,8 @@ export class CustomerQuoteService extends BizHttp<CustomerQuote> {
         this.defaultExpand = ['Customer'];
     }
 
-    public next(currentID: number): Observable<CustomerQuote> {
-        return super.GetAction(currentID, 'next');
-    }
-
-    public previous(currentID: number): Observable<CustomerQuote> {
-        return super.GetAction(currentID, 'previous');
-    }
-
     public setPrintStatus(quoteId: number, printStatus: string): Observable<any> {
         return super.PutAction(quoteId, 'set-customer-quote-printstatus', 'ID=' + quoteId + '&printStatus=' + printStatus);
-    }
-
-    public newCustomerQuote(): Promise<CustomerQuote> {
-        return new Promise(resolve => {
-            this.GetNewEntity([], CustomerQuote.EntityType).subscribe((quote: CustomerQuote) => {
-                quote.QuoteDate = new LocalDate(new Date());
-                quote.ValidUntilDate = new LocalDate(moment().add(1, 'month').toDate());
-
-                resolve(quote);
-            }, err => this.errorService.handle(err));
-        });
-    }
-
-    public getGroupCounts() {
-        const route = '?model=customerquote&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
-        return this.http.asGET()
-            .usingStatisticsDomain()
-            .withEndPoint(route)
-            .send()
-            .map((res) => {
-                const data = (res.json() || {}).Data || [];
-                return data.reduce((counts, group) => {
-                    if (group.CustomerQuoteStatusCode) {
-                        counts[group.CustomerQuoteStatusCode] = group.countid;
-                    }
-                    return counts;
-                }, {});
-            });
-    }
-
-    public calculateQuoteSummary(quoteItems: Array<CustomerQuoteItem>): Observable<any> {
-        super.invalidateCache();
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withBody(quoteItems)
-            .withEndPoint(this.relativeURL + '?action=calculate-quote-summary')
-            .send()
-            .map(response => response.json());
     }
 
     public getStatusText(statusCode: number): string {

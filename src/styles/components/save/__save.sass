@@ -73,35 +73,3 @@ uni-save
     padding-left: 6rem
 .sidebar-hidden .uni-save-status
     padding-left: 6.5%
-
-
-// Non-toolbar uni-save styling
-// Remove when we get rid of this (settings, customer modalmode)
-uni-save.fixed-position
-    display: block
-    position: fixed
-    left: 0
-    right: 0
-    bottom: 0
-    background: rgba(208,230,213,0.9)
-    backdrop-filter: blur(.2rem)
-    border-top: pxToRem(1) solid $uni-color-scale9
-    height: 3.5rem
-    z-index: map-get($zindex, picker) - 1
-
-    .toolbar-print,
-    .toolbar-email,
-    .toolbar-save-toggle
-        display: none
-
-    .toolbar-save
-        position: fixed
-        bottom: 1.5rem
-        right: 6.25%
-        height: 3.5rem
-        min-width: 10rem
-
-    .uni-save-status
-        padding-bottom: 1rem
-        background: transparent
-        color: $uni-color-scale4

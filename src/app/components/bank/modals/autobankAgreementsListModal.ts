@@ -40,7 +40,6 @@ import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-pa
                             <td class="text-right-in-table"> {{ getStatusText(agreement.StatusCode) }} </td>
                             <td class="text-right-in-table" [attr.aria-busy]="busy">
                                 <i class="material-icons" (click)="refreshStatus(agreement)">refresh</i>
-                                <!-- <span class="agreement-edit" (click)="editAgreements(agreement)" title="Rediger avtale"> </span>
                                 <span class="agreement-delete" (click)="deleteAgreements(agreement)" title="Slett avtale"> </span> -->
                             </td>
                         </tr>
@@ -106,11 +105,6 @@ export class UniAutobankAgreementListModal implements IUniModal, OnInit {
                 break;
         }
         return statusText;
-    }
-
-    public editAgreements(agreement) {
-        // this.editmode = true;
-        this.modalService.open(UniAutobankAgreementModal, { data: agreement });
     }
 
     public deleteAgreements(agreement) {

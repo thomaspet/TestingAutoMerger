@@ -231,27 +231,6 @@ export class TimeSheet {
         return true;
     }
 
-    public copyValueAbove(colName: string, rowIndex: number) {
-        if (rowIndex < 1) {  return; }
-        const src = this.items[rowIndex - 1];
-        let lookupIItem: any;
-        let value = src.hasOwnProperty(colName) ? src[colName] : 0;
-        switch (colName) {
-            case 'CustomerOrderID':
-                lookupIItem = src.CustomerOrder;
-                break;
-            case 'WorkTypeID':
-                lookupIItem = src.Worktype;
-                break;
-            case 'Dimensions.ProjectID':
-                value = src.Dimensions ? src.Dimensions.ProjectID : value;
-                lookupIItem = src.Dimensions ? src.Dimensions.Project : undefined;
-                break;
-        }
-        const item = new ValueItem(colName, value, rowIndex, lookupIItem);
-        this.setItemValue(item);
-    }
-
     public removeRow(index: number) {
         const item = this.getRowByIndex(index);
         if (item.ID > 0) {
@@ -262,13 +241,6 @@ export class TimeSheet {
         }
         this.items.splice(index, 1);
         this.analyzeItems(this.items);
-    }
-
-    public ensureRowCount(rows: number) {
-        const n = this.items.length;
-        for (let i = n; i < rows; i++) {
-            this.addRow();
-        }
     }
 
     public addRow() {

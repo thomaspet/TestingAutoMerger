@@ -10,7 +10,6 @@ $navbarActive: $uni-color-toolbar
     border-radius: 0 0 pxToRem(3) pxToRem(3)
 
 @import 'tabs'
-@import 'search'
 @import 'company'
 
 %navbarText
@@ -81,15 +80,6 @@ uni-navbar
     cursor: pointer
     vertical-align: middle
 
-.nav-link-container
-    color: white
-    padding: 0 .5rem
-    cursor: pointer
-    &.router-link-active
-        background-color: $uni-color-toolbar
-    i
-        line-height: 40px
-
 navbar-create-new
     display: block
     height: 2.5rem
@@ -102,14 +92,8 @@ navbar-create-new
         line-height: 2.5rem
         vertical-align: middle
 
-// uni-hamburger-menu
-//     flex-grow: 0
-
 uni-tabstrip
     flex-grow: 1
-
-uni-navbar-search
-    flex-basis: 16rem
 
 uni-company-dropdown
     height: 2.5rem
@@ -153,15 +137,6 @@ uni-company-dropdown
 
         li
             min-width: 1.5rem
-
-
-// Mobile styling
-@include media(small, max-width)
-    // .hamburger
-    //     padding: 0 .5rem !important
-
-    uni-navbar-search
-        display: none
 
 @media screen and (max-width: 768px)
     uni-notifications

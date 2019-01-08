@@ -34,7 +34,6 @@ export class ProjectEditmode {
     public config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public project$: BehaviorSubject<Project> = new BehaviorSubject(null);
-    public actionLabel: string = '';
     public uniSearchConfig: IUniSearchConfig;
     public addressChanged: any;
     private customerExpandOptions: Array<string> = ['Info.Name'];
@@ -73,10 +72,6 @@ export class ProjectEditmode {
 
             project.WorkPlaceAddress = project.WorkPlaceAddress || new Address();
             project.WorkPlaceAddress.ID = project.WorkPlaceAddressID || 0;
-
-            this.actionLabel = project && project.ID
-                ? 'Rediger prosjekt - '
-                + project.Name + ':' : 'Nytt prosjekt:';
 
             this.project$.next(project);
             this.project = project;

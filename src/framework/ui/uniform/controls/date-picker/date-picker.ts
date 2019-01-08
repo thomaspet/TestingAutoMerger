@@ -93,8 +93,10 @@ export class DateTimePickerInput extends BaseControl implements OnChanges, After
     }
 
     public close() {
-        this.calendarOpen = false;
-        this.cd.markForCheck();
+        if (this.calendarOpen) {
+            this.calendarOpen = false;
+            this.cd.markForCheck();
+        }
     }
 
     public toggle() {

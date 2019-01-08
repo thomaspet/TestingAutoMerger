@@ -1716,7 +1716,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 modalConfig: {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
-                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate
+                    currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
+                    isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
                 }
             });
             paymentModal.onClose.subscribe((paymentData) => {
@@ -1763,8 +1764,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             : null;
                     }
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
-                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
-                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
+
+                        if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                            agioSign *= -1;
+                        }
+
+                        journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
                         journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
                         this.addJournalEntryLines([oppositeRow, agioRow]);
@@ -1923,7 +1929,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData
     ): Promise<JournalEntryData> {
         const agioRow = new JournalEntryData();
-        const isCredit = invoicePaymentData.AgioAmount < 0;
+        const isCredit = (invoicePaymentData.AgioAmount < 0 && journalEntryData.DebitAccount && journalEntryData.DebitAccount.UsePostPost)
+            || (invoicePaymentData.AgioAmount > 0 && journalEntryData.CreditAccount && journalEntryData.CreditAccount.UsePostPost);
 
         agioRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
         agioRow.CustomerInvoice = journalEntryData.CustomerInvoice;

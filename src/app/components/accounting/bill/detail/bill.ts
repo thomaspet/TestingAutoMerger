@@ -950,46 +950,50 @@ export class BillView implements OnInit {
             });
     }
 
+    private setSupplierBasedOnOrgno(orgNo: string, ocr) {
+        this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
+            .subscribe((result: Supplier[]) => {
+                if (!result || !result.length) {
+                    this.findSupplierViaPhonebook(
+                        orgNo,
+                        true,
+                        ocr.BankAccountCandidates.length > 0
+                            ? ocr.BankAccountCandidates[0]
+                            : null
+                    );
+
+                    return;
+                }
+
+                const supplier = result[0];
+
+                if (ocr.BankAccountCandidates.length > 0) {
+                    let bankAccount: BankAccount;
+
+                    for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
+                        const candidate = ocr.BankAccountCandidates[i];
+
+                        const existingAccount = supplier.Info.BankAccounts
+                            .find(x => x.AccountNumber === candidate);
+
+                        if (existingAccount) {
+                            bankAccount = existingAccount;
+                        }
+                    }
+
+                    this.setOrCreateBankAccount(bankAccount, supplier, ocr.BankAccount);
+                }
+
+                this.setSupplier(supplier);
+            },
+            err => this.errorService.handle(err));
+    }
+
     private handleOcrResult(ocr: OcrValuables) {
         if (ocr.Orgno) {
             if (!this.hasValidSupplier()) {
                 const orgNo = filterInput(ocr.Orgno);
-                this.supplierService.GetAll(`filter=contains(OrgNumber,'${orgNo}')`, ['Info.BankAccounts'])
-                    .subscribe((result: Supplier[]) => {
-                        if (!result || !result.length) {
-                            this.findSupplierViaPhonebook(
-                                orgNo,
-                                true,
-                                ocr.BankAccountCandidates.length > 0
-                                    ? ocr.BankAccountCandidates[0]
-                                    : null
-                            );
-
-                            return;
-                        }
-
-                        const supplier = result[0];
-
-                        if (ocr.BankAccountCandidates.length > 0) {
-                            let bankAccount: BankAccount;
-
-                            for (let i = 0; i < ocr.BankAccountCandidates.length && !bankAccount; i++) {
-                                const candidate = ocr.BankAccountCandidates[i];
-
-                                const existingAccount = supplier.Info.BankAccounts
-                                    .find(x => x.AccountNumber === candidate);
-
-                                if (existingAccount) {
-                                    bankAccount = existingAccount;
-                                }
-                            }
-
-                            this.setOrCreateBankAccount(bankAccount, supplier, ocr.BankAccount);
-                        }
-
-                        this.setSupplier(supplier);
-                    },
-                    err => this.errorService.handle(err));
+                this.setSupplierBasedOnOrgno(orgNo, ocr);
             }
         }
 
@@ -1093,6 +1097,17 @@ export class BillView implements OnInit {
                         item.forradrpostnr, item.forradrpoststed, bankAccount
                     );
                 }
+            } else {
+                this.toast.addToast(
+                    'Ingen leverandør funnet',
+                    ToastType.warn,
+                    ToastTime.long,
+                    'Det finnes ikke noen leverandør med orgnr ' + orgNo + ' ' +
+                    'blant registrerte leverandører eller hos 1881. ' +
+                    'Vennligst velg leverandør eller legg til en ny manuelt'
+                );
+
+                this.setSupplier(null, true);
             }
         }, err => this.errorService.handle(err));
     }
@@ -1166,6 +1181,11 @@ export class BillView implements OnInit {
         let property = null;
 
         switch (event.field.Property) {
+            case 'Supplier':
+                property = this.ocrData.InterpretedProperties.find(
+                    x => x.OcrProperty.PropertyType === OcrPropertyType.OfficialNumber
+                );
+                break;
             case 'InvoiceDate':
                 property = this.ocrData.InterpretedProperties.find(
                     x => x.OcrProperty.PropertyType === OcrPropertyType.InvoiceDate
@@ -1238,6 +1258,16 @@ export class BillView implements OnInit {
         let value = event.word.text;
 
         switch (event.propertyType) {
+            case OcrPropertyType.OfficialNumber:
+                if (this.validationService.isStringWithOnlyNumbers(value) && value.length === 9) {
+                    const orgNo = filterInput(value);
+                    const ocrData = new OcrValuables(this.ocrData);
+                    console.log('orgNo ' + orgNo + ', ocrData', ocrData);
+                    this.setSupplierBasedOnOrgno(orgNo, ocrData);
+                } else {
+                    isValid = false;
+                }
+                break;
             case OcrPropertyType.CustomerIdentificationNumber:
                 if (this.validationService.isKidNumber(value)) {
                     invoice.PaymentID = value;
@@ -1647,23 +1677,29 @@ export class BillView implements OnInit {
 
     private setSupplier(result: Supplier, updateCombo = true) {
         const current: SupplierInvoice = this.current.value;
-        this.currentSupplierID = result.ID;
+        this.currentSupplierID = result ? result.ID : null;
         current.Supplier = result;
 
-        if (current.SupplierID !== result.ID) {
+        if (!result) {
+            current.SupplierID = null;
+            current.BankAccount = null;
+            current.BankAccountID = null;
+        } else if (current.SupplierID !== result.ID) {
             current.SupplierID = result.ID;
         }
 
-        if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
-            (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
-            current.BankAccountID = result.Info.DefaultBankAccountID;
-            current.BankAccount = result.Info.DefaultBankAccount;
-        }
+        if (result) {
+            if (!current.BankAccountID && result.Info.DefaultBankAccountID ||
+                (current.BankAccount && current.BankAccount.BusinessRelationID !== result.BusinessRelationID)) {
+                current.BankAccountID = result.Info.DefaultBankAccountID;
+                current.BankAccount = result.Info.DefaultBankAccount;
+            }
 
-        if (result.CurrencyCodeID) {
-            current.CurrencyCodeID = result.CurrencyCodeID;
-        } else {
-            current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            if (result.CurrencyCodeID) {
+                current.CurrencyCodeID = result.CurrencyCodeID;
+            } else {
+                current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
         }
 
         // make uniform update itself to show correct values for bankaccount/currency

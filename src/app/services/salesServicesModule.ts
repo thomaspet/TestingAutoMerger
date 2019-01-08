@@ -16,7 +16,6 @@ import {SellerService} from './sales/sellerService';
 import {SellerLinkService} from './sales/sellerLinkService';
 import {RecurringInvoiceService} from './sales/recurringInvoiceService';
 import {PaymentInfoTypeService} from './sales/paymentInfoTypeService';
-import { DebtCollectionSettingsService } from '@app/services/sales/debtCollectionSettingsService';
 
 export * from './sales/addressService';
 export * from './sales/businessRelationService';
@@ -31,30 +30,12 @@ export * from './sales/phoneService';
 export * from './sales/customerInvoiceReminderService';
 export * from './sales/customerInvoiceReminderSettingsService';
 export * from './sales/customerInvoiceReminderRuleService';
-export * from './sales/debtCollectionSettingsService';
 export * from './sales/sellerService';
 export * from './sales/sellerLinkService';
 export * from './sales/paymentInfoTypeService';
 export * from './sales/recurringInvoiceService';
 
-@NgModule({
-    // providers: [
-    //     AddressService,
-    //     BusinessRelationService,
-    //     CustomerInvoiceService,
-    //     CustomerInvoiceItemService,
-    //     CustomerOrderItemService,
-    //     CustomerOrderService,
-    //     CustomerQuoteItemService,
-    //     CustomerQuoteService,
-    //     CustomerService,
-    //     PhoneService,
-    //     CustomerInvoiceReminderService,
-    //     CustomerInvoiceReminderSettingsService,
-    //     CustomerInvoiceReminderRuleService,
-    //     DebtCollectionSettingsService
-    // ]
-})
+@NgModule({})
 export class SalesServicesModule {
     static forRoot(): ModuleWithProviders {
         return {
@@ -74,7 +55,6 @@ export class SalesServicesModule {
                 CustomerInvoiceReminderService,
                 CustomerInvoiceReminderSettingsService,
                 CustomerInvoiceReminderRuleService,
-                DebtCollectionSettingsService,
                 SellerService,
                 SellerLinkService,
                 PaymentInfoTypeService,

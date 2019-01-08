@@ -1,25 +1,17 @@
 $labelLength: pxToRem(200)
 $inputHeight: 2rem
 
-// %formWidth
-//     max-width: pxToRem(1340)
-//     margin: 0 auto
-
-//     @include media('650px', 'max-width')
-//         max-width: pxToRem(650)
-
 @import 'labels'
 @import 'inputButtons'
 @import 'textInputs'
 @import 'checkboxes'
 @import 'formSection'
 @import 'fieldset'
-@import 'comboField'
 @import 'linebreaks'
 @import 'select'
 @import 'validation'
-@import 'helpText'
 @import 'password'
+@import 'labelLength'
 
 uni-form
     display: block
@@ -37,17 +29,19 @@ uni-field
     min-height: 3rem
     max-width: pxToRem(650)
 
-    label > span
-        display: inline-block
-        line-height: $inputHeight
-        width: $labelLength
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
+    label
+        position: relative
+        > span
+            display: inline-block
+            line-height: $inputHeight
+            width: $labelLength
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
 
-        & + *
-            width: calc(100% - #{$labelLength})
-            float: right
+            & + *
+                width: calc(100% - #{$labelLength})
+                float: right
 
 uni-button-input button
     margin: 1.5rem 0 0
@@ -67,35 +61,5 @@ uni-button-input
         line-height: 0
         min-width: 8rem
 
-// Mixin for overrriding the labellength for forms with shorter labels
-@mixin labelLength($newLength)
-    label>span
-        width: $newLength
-        & + *
-            width: calc(100% - #{$newLength})
-
-    input[type=checkbox]
-        &+label
-            width: calc(#{$newLength} + 2rem)
-
-            &.toggle
-                width: calc(#{$newLength} + 3.2rem)
-
-            &:before
-                left: calc(#{$newLength} - .3rem)
-
-            &:after
-                left: calc(#{$newLength} + .3rem)
-
-
-        &+label.toggle:after
-            left: calc(#{$newLength} + .14rem)
-
-        &:checked+label.toggle:after
-            left: calc(#{$newLength} + 1.8rem)
-
-    uni-button-input
-        button
-            margin: 0 0 .5rem #{$newLength} !important
 uni-static-text-input
     line-height: 2rem

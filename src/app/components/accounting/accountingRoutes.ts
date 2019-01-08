@@ -14,6 +14,7 @@ import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PostPost} from './postpost/postpost';
 import {TransqueryDetails} from './transquery/transqueryDetails';
+import {UniBudgetView} from './budget/budgetview';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
@@ -86,6 +87,11 @@ export const accountingRoutes: Routes = [
     {
         path: 'postpost',
         component: PostPost,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'budget',
+        component: UniBudgetView,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

@@ -63,10 +63,6 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
             .map(resultSet => resultSet[0]);
     }
 
-    public saveCategory(category: EmployeeCategory) {
-        return super.Post(category);
-    }
-
     public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,

@@ -101,4 +101,8 @@ export class BaseControl implements IBaseControl {
     public ngAfterViewInit() {
         this.readyEvent.emit(this);
     }
+
+    public ngOnDestroy() {
+        this.readOnly$.complete();
+    }
 }

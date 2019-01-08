@@ -90,13 +90,13 @@ export class UniRecurringInvoiceLogModal implements IUniModal, OnInit {
 
     private generateUniTableConfig(): UniTableConfig {
         const columns = [
-            new UniTableColumn('InvoiceID', 'Faktura.', UniTableColumnType.Link)
+            new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Link)
                 .setLinkClick(row => {
                     this.router.navigateByUrl(`/sales/invoices/${row.InvoiceID}`);
                     this.close();
                 })
                 .setWidth(100),
-            new UniTableColumn('OrderID', 'Ordre.', UniTableColumnType.Link)
+            new UniTableColumn('OrderNumber', 'Ordrenr.', UniTableColumnType.Link)
                 .setLinkClick(row => {
                     this.router.navigateByUrl(`/sales/orders/${row.OrderID}`);
                     this.close();

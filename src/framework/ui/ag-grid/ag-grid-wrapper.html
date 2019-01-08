@@ -3,14 +3,12 @@
     [tableConfig]="config"
     [columns]="columns"
     [configFilters]="dataService?.advancedSearchFilters"
-    (filtersChange)="onFiltersChange($event)"
-    (upOrDownArrows)="onFilterInputUpOrDownArrows($event)">
+    (filtersChange)="onFiltersChange($event)">
 </table-search>
 
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
-    [ngStyle]="{'height': tableHeight}"
-    (clickOutside)="clearEmptyRowsAndEmit()">
+    [ngStyle]="{'height': tableHeight}">
 
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"

@@ -25,7 +25,15 @@ import { of } from 'rxjs/Observable/of';
     template: `
         <section role="dialog" class="uni-modal" style="width: 60vw">
             <header><h1>{{options?.data.title}}</h1></header>
-            <article>
+            <article class="accrual-split-view">
+                <section class="accrual-form">
+                    <uni-form #form
+                        [config]="formConfig$"
+                        [fields]="fields$"
+                        [model]="model$"
+                        (changeEvent)="onFormChange($event)">
+                    </uni-form>
+                </section>
                 <section class="accrual-periods"
                     *ngIf="modalConfig && modalConfig.model && modalConfig?.model['_periodYears'] && currentFinancialYearPeriods">
                     <table cols=4>
@@ -55,15 +63,7 @@ import { of } from 'rxjs/Observable/of';
                         </tr>
                     </table>
                 </section>
-                <section class="accrual-form">
-                    <uni-form #form
-                        [config]="formConfig$"
-                        [fields]="fields$"
-                        [model]="model$"
-                        (changeEvent)="onFormChange($event)">
-                    </uni-form>
-                </section>
-                <div style="clear: both;"></div>
+
             </article>
             <footer>
                 <button (click)="close('ok')" [disabled]="lockedDateSelected" class="good">Ok</button>
@@ -148,9 +148,9 @@ export class AccrualModal implements IUniModal {
     public close(action: string) {
         if (action === 'ok') {
             if (this.modalConfig.model['_validationMessage']
-            && this.modalConfig.model['_validationMessage'].length > 0) {
+                && this.modalConfig.model['_validationMessage'].length > 0) {
                 this.modalConfig.model['_validationMessage'].forEach(msg => {
-                this.toastService.addToast('Periodisering', ToastType.bad, 10, msg);
+                    this.toastService.addToast('Periodisering', ToastType.bad, 10, msg);
                 });
             } else {
                 this.modalConfig.model.Periods.forEach(item => {
@@ -330,16 +330,16 @@ export class AccrualModal implements IUniModal {
             + this.currentFinancialYear
             + ' and periodseries.seriestype eq 1',
             ['PeriodSeries'])
-                .subscribe(periods => {
-                    this.currentFinancialYearPeriods = periods;
-                    this.isLockedDate(periods);
-                    this.setupForm();
+            .subscribe(periods => {
+                this.currentFinancialYearPeriods = periods;
+                this.isLockedDate(periods);
+                this.setupForm();
 
-                    if (this.modalConfig.model) {
-                        this.checkboxEnabledState = this.isAccrualAccrued();
-                        this.setAccrualPeriodBasedOnAccrual();
-                        this.changeRecalculatePeriods();
-                    }
+                if (this.modalConfig.model) {
+                    this.checkboxEnabledState = this.isAccrualAccrued();
+                    this.setAccrualPeriodBasedOnAccrual();
+                    this.changeRecalculatePeriods();
+                }
             });
     }
 
@@ -354,20 +354,20 @@ export class AccrualModal implements IUniModal {
         }
         periodes.forEach((period, index) => {
             this.allCheckBoxEnabledValues[index].period1 = new Date(this.lockDate) >= new Date(
-                this.modalConfig.model._periodYears[0],
-                new Date(period.FromDate).getMonth(),
-                new Date(period.FromDate).getDate()
-            );
+                    this.modalConfig.model._periodYears[0],
+                    new Date(period.FromDate).getMonth(),
+                    new Date(period.FromDate).getDate()
+                );
             this.allCheckBoxEnabledValues[index].period2 = new Date(this.lockDate) >= new Date(
-                this.modalConfig.model._periodYears[1],
-                new Date(period.FromDate).getMonth(),
-                new Date(period.FromDate).getDate()
-            );
+                    this.modalConfig.model._periodYears[1],
+                    new Date(period.FromDate).getMonth(),
+                    new Date(period.FromDate).getDate()
+                );
             this.allCheckBoxEnabledValues[index].period3 = new Date(this.lockDate) >= new Date(
-                this.modalConfig.model._periodYears[2],
-                new Date(period.FromDate).getMonth(),
-                new Date(period.FromDate).getDate()
-            );
+                    this.modalConfig.model._periodYears[2],
+                    new Date(period.FromDate).getMonth(),
+                    new Date(period.FromDate).getDate()
+                );
         });
     }
 
@@ -607,7 +607,7 @@ export class AccrualModal implements IUniModal {
     }
 
     private getAccrualJournalEntryModes (): Array<AccrualJournalEntryMode> {
-    return [{ID: 0, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
+        return [{ID: 0, Name: 'Per år'}, {ID: 2, Name: 'Per måned'}];
     }
 
 
@@ -776,7 +776,6 @@ export class AccrualModal implements IUniModal {
             }
         ];
     }
-
 }
 
  export class AccrualJournalEntryMode {

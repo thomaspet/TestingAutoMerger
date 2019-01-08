@@ -1,5 +1,5 @@
 import {Router, ActivatedRoute} from '@angular/router';
-import {Component, Input, ViewChild, Output, EventEmitter, SimpleChanges, OnInit} from '@angular/core';
+import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -85,15 +85,12 @@ const isNumber = (value) => _.reduce(value, (res, letter) => {
     templateUrl: './customerDetails.html'
 })
 export class CustomerDetails implements OnInit {
-    @Input() public modalMode: boolean;
-    @Output() public customerUpdated: EventEmitter<Customer> = new EventEmitter<Customer>();
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(SubCompanyComponent) private subCompany: SubCompanyComponent;
 
     private customerID: any;
-    private allowSearchCustomer: boolean = true;
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public showReminderSection: boolean = false; // used in template
@@ -265,56 +262,54 @@ export class CustomerDetails implements OnInit {
         ];
 
         this.setupSaveActions();
-        if (!this.modalMode) {
-            this.route.params.subscribe((params) => {
-                this.customerID = +params['id'];
+        this.route.params.subscribe((params) => {
+            this.customerID = +params['id'];
 
-                this.commentsConfig = {
-                    entityType: 'Customer',
-                    entityID: this.customerID
-                };
+            this.commentsConfig = {
+                entityType: 'Customer',
+                entityID: this.customerID
+            };
 
-                this.selectConfig = this.numberSeriesService.getSelectConfig(
-                    this.customerID, this.numberSeries, 'Customer number series'
-                );
-                this.setup();
+            this.selectConfig = this.numberSeriesService.getSelectConfig(
+                this.customerID, this.numberSeries, 'Customer number series'
+            );
+            this.setup();
 
-                this.tabs = [
-                    {name: 'Detaljer'},
-                    {name: 'Åpne poster'},
-                    {name: 'Produkter solgt'},
-                    {name: 'Dokumenter'},
-                    {name: 'Selskap'}
-                ];
+            this.tabs = [
+                {name: 'Detaljer'},
+                {name: 'Åpne poster'},
+                {name: 'Produkter solgt'},
+                {name: 'Dokumenter'},
+                {name: 'Selskap'}
+            ];
 
-                if (!!this.customerID) {
-                    // Add check to see if user has access to the TOF-modules before adding the tabs
-                    this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                        const mySections = linkSections.filter(sec => sec.name === 'Salg');
-                        if (mySections.length) {
-                            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                                links => {
-                                    this.reportLinks = links;
-                                    const addLinks = [];
-                                    links.forEach((link) => {
-                                        mySections[0].linkGroups.forEach((group) => {
-                                            group.links.forEach( (li) => {
-                                                if (li.name === link.name) {
-                                                    addLinks.push(link);
-                                                }
-                                            });
+            if (!!this.customerID) {
+                // Add check to see if user has access to the TOF-modules before adding the tabs
+                this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                    const mySections = linkSections.filter(sec => sec.name === 'Salg');
+                    if (mySections.length) {
+                        this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                            links => {
+                                this.reportLinks = links;
+                                const addLinks = [];
+                                links.forEach((link) => {
+                                    mySections[0].linkGroups.forEach((group) => {
+                                        group.links.forEach( (li) => {
+                                            if (li.name === link.name) {
+                                                addLinks.push(link);
+                                            }
                                         });
                                     });
+                                });
 
-                                    this.tabs = this.tabs.concat([], ...addLinks);
-                                },
-                                err => this.errorService.handle(err)
-                            );
-                        }
-                    });
-                }
-            });
-        }
+                                this.tabs = this.tabs.concat([], ...addLinks);
+                            },
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                });
+            }
+        });
     }
 
     private activateCustomer(customerID: number) {
@@ -435,9 +430,6 @@ export class CustomerDetails implements OnInit {
     }
 
     private setTabTitle() {
-        if (this.modalMode) {
-            return;
-        }
         const customer = this.customer$.getValue();
         const tabTitle = customer.CustomerNumber ? 'Kundenr. ' + customer.CustomerNumber : 'Ny kunde';
         this.tabService.addTab({
@@ -503,25 +495,6 @@ export class CustomerDetails implements OnInit {
         if (tab.name === 'Selskap') {
             this.subCompany.activate();
         }
-    }
-
-    public reset() {
-        this.customerID = 0;
-        this.isDirty = false;
-        this.hasErrors = false;
-        this.setup();
-        this.formIsInitialized = true;
-        this.showReportWithID = null;
-    }
-
-    public openInModalMode(id?: number) {
-        this.customerID = id ? id : 0;
-        this.allowSearchCustomer = false;
-        this.setup();
-    }
-
-    public showSearch(customerID): boolean {
-        return isNaN(customerID);
     }
 
     public setup() {
@@ -918,7 +891,6 @@ export class CustomerDetails implements OnInit {
         const customerName: UniFieldLayout = fields.find(x => x.Property === 'Info.Name');
 
         if (
-            !this.allowSearchCustomer ||
             this.customerID > 0 ||
             (customer && customer.Info.Name !== null && customer.Info.Name !== '')
         ) {
@@ -1065,20 +1037,17 @@ export class CustomerDetails implements OnInit {
                 this.hasErrors = false;
                 this.selectConfig = undefined;
                 doneCallback('Kunde lagret');
-                if (this.modalMode) {
-                    this.customerUpdated.next(res);
+
+                // Reload if customer already existed, navigate if not
+                if (this.customerID) {
+                    this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
+                        this.setMainContact(updatedCustomer);
+                        this.customer$.next(updatedCustomer);
+                        this.subCompany.refresh();
+                        this.setTabTitle();
+                    });
                 } else {
-                    // Reload if customer already existed, navigate if not
-                    if (this.customerID) {
-                        this.customerService.Get(res.ID, this.expandOptions).subscribe(updatedCustomer => {
-                            this.setMainContact(updatedCustomer);
-                            this.customer$.next(updatedCustomer);
-                            this.subCompany.refresh();
-                            this.setTabTitle();
-                        });
-                    } else {
-                        this.router.navigateByUrl('/sales/customer/' + res.ID);
-                    }
+                    this.router.navigateByUrl('/sales/customer/' + res.ID);
                 }
             },
             err => {

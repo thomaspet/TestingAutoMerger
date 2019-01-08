@@ -50,7 +50,11 @@ export class UniRecurringInvoiceSettingsView implements OnInit {
     public onFormChange(changes) {
         const keys = Object.keys(changes);
         keys.forEach(key => {
-            _.set(this.entity, key, changes[key].currentValue);
+            if (key === 'PreparationDays' && !changes[key].currentValue) {
+                _.set(this.entity, key, 0);
+            } else {
+                _.set(this.entity, key, changes[key].currentValue);
+            }
         });
         this.entityChange.emit(this.entity);
     }

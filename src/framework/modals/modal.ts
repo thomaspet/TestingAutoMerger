@@ -34,12 +34,6 @@ export class UniModal implements AfterViewInit {
     private modal: any;
 
     constructor(public creator: ComponentCreator<any>, private elementRef: ElementRef) {
-        document.addEventListener('keyup', (e: any) => {
-            if (e.keyCode === 27) {
-                this.close(true);
-            }
-        });
-
         this.component = new Promise(resolve => this.componentResolver = resolve);
     }
 

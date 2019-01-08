@@ -3,7 +3,8 @@
     role="listbox"
     tabindex="-1"
     [ngClass]="{new_button_padding: hasExternalSearch || hasCreateNewButton}"
-    [attr.aria-expanded]="expanded">
+    [attr.aria-expanded]="expanded"
+    (clickOutside)="onClickOutside()">
     <div class="action_buttons">
         <a *ngIf="hasCreateNewButton"
             (click)="createNewItem()"

@@ -7,7 +7,8 @@ import {
     ElementRef,
     ChangeDetectorRef,
     ChangeDetectionStrategy,
-    SimpleChanges
+    SimpleChanges,
+    HostListener
 } from '@angular/core';
 
 import {Observable} from 'rxjs';
@@ -77,6 +78,12 @@ export class UniAutocompleteInput extends BaseControl {
     constructor(private el: ElementRef, private cd: ChangeDetectorRef) {
         super();
         this.guid = 'autocomplete-' + performance.now();
+    }
+
+    ngOnDestroy() {
+        this.busy$.complete();
+        this.isExpanded$.complete();
+        this.cleanSubscriptions();
     }
 
     public cleanSubscriptions() {
@@ -180,8 +187,8 @@ export class UniAutocompleteInput extends BaseControl {
                         }
                     }
                 });
-            let eventSubscription = Observable.fromEvent(this.el.nativeElement, 'keydown').subscribe(this.onKeyDown.bind(this));
-            this.subscriptions.push(itemsSubscription, eventSubscription);
+            // let eventSubscription = Observable.fromEvent(this.el.nativeElement, 'keydown').subscribe(this.onKeyDown.bind(this));
+            this.subscriptions.push(itemsSubscription); // , eventSubscription
         });
     }
 
@@ -199,10 +206,12 @@ export class UniAutocompleteInput extends BaseControl {
     }
 
     public onClickOutside() {
-        this.isExpanded$.next(false);
-        this.selectedIndex = -1;
-        this.selectedItem = null;
-        this.preventSearch = true;
+        if (this.isExpanded$.getValue()) {
+            this.isExpanded$.next(false);
+            this.selectedIndex = -1;
+            this.selectedItem = null;
+            this.preventSearch = true;
+        }
         // this.control.setValue(this.initialDisplayValue, {onlySelf: true, emitEvent: false});
     }
 
@@ -367,6 +376,7 @@ export class UniAutocompleteInput extends BaseControl {
         return result;
     }
 
+    @HostListener('keydown', ['$event'])
     public onKeyDown(event: KeyboardEvent) {
         switch (event.keyCode) {
             case KeyCodes.TAB:

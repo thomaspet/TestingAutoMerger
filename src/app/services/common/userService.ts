@@ -51,26 +51,6 @@ export class UserService extends BizHttp<User> {
             .map(res => res.json());
     }
 
-
-    private getPermissionKey(url: string): string {
-        if (!url) {
-            return '';
-        }
-
-        // Remove query params first
-        let noQueryParams = url.split('?')[0];
-        noQueryParams = noQueryParams.split(';')[0];
-
-
-        let urlParts = noQueryParams.split('/');
-        urlParts = urlParts.filter(part => {
-            // Remove empty url parts and numeric url parts (ID params)
-            return part !== '' && isNaN(parseInt(part));
-        });
-
-        return 'ui_' + urlParts.join('_');
-    }
-
     public changeAutobankPassword(body: any) {
         return this.http
             .asPUT()

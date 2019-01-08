@@ -61,19 +61,7 @@
     </form>
 
     <form #step2="ngForm" *ngIf="confirmationCode" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
-        <uni-helptext>
-            <ng-template>
-                Brukernavn kan inneholde
-                <ul>
-                    <li>Bokstaver</li>
-                    <li>Tall</li>
-                    <li>Bindestrek</li>
-                    <li>Understrek</li>
-                    <li>Punktom</li>
-                </ul>
-            </ng-template>
-        </uni-helptext>
-
+        <i class="material-icons username-tooltip" matTooltip="Brukernavn kan inneholde bokstaver, tall, bindestrek, understrek og punktom">help_outline</i>
         <label for="usernameInput">Brukernavn</label>
         <input id="usernameInput"
             type="text"

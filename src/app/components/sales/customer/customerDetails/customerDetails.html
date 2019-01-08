@@ -1,5 +1,4 @@
 <uni-toolbar
-    *ngIf="!modalMode"
     [config]="toolbarconfig"
     [saveactions]="saveactions"
     [subheads]="toolbarSubheads"
@@ -108,5 +107,3 @@
     </section>
 
 </section>
-
-<uni-save *ngIf="modalMode" [actions]="saveactions" class="fixed-position uni_save_modal_mode"></uni-save>

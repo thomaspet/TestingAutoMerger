@@ -7,7 +7,6 @@ import {
     StatusCodeCustomerInvoice,
     LocalDate,
     InvoicePaymentData,
-    ReportDefinition,
     StatusCodeCustomerInvoiceReminder,
     JournalEntry,
 } from '../../unientities';
@@ -15,7 +14,6 @@ import { SendEmail } from '../../models/sendEmail';
 import { ToastService, ToastType } from '../../../framework/uniToast/toastService';
 import { ITickerActionOverride } from '../../services/common/uniTickerService';
 import { CompanySettingsService } from '../common/companySettingsService';
-import { EHFService } from '../common/EHFService';
 import { EmailService } from '../common/emailService';
 import { UniModalService } from '../../../framework/uni-modal/modalService';
 import { UniSendEmailModal } from '../../../framework/uni-modal/modals/sendEmailModal';
@@ -23,7 +21,6 @@ import { UniRegisterPaymentModal } from '../../../framework/uni-modal/modals/reg
 import { BizHttp } from '../../../framework/core/http/BizHttp';
 import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
-import * as moment from 'moment';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { ReportDefinitionService} from '../../services/reports/reportDefinitionService';
 import {ReportDefinitionParameterService} from '../../services/reports/reportDefinitionParameterService';
@@ -86,35 +83,10 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         private emailService: EmailService,
         private reportDefinitionService: ReportDefinitionService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
-        private ehfService: EHFService
     ) {
         super(http);
         this.relativeURL = CustomerInvoice.RelativeUrl;
         this.entityType = CustomerInvoice.EntityType;
-    }
-
-    public createInvoice() {
-        this.router.navigateByUrl('/sales/invoices/0');
-    }
-
-    public onReminder() {
-        // TODO: Legg inn mulighet for eksterne linker i filtre? Litt sært..
-
-        this.router.navigateByUrl('/sales/reminders');
-    }
-
-    public onAfterPrintInvoice(selectedRows: Array<any>): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const invoice = selectedRows[0];
-            this.setPrintStatus(invoice.ID, this.printStatusPrinted)
-                .subscribe((printStatus) => {
-                    resolve();
-                }, err => {
-                    reject(err);
-                    this.errorService.handle(err);
-                }
-            );
-        });
     }
 
     public onCheckRegisterPaymentDisabled(selectedRow: any): boolean {
@@ -344,32 +316,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
-    public getGroupCounts() {
-        const route = '?model=customerinvoice&select=count(id),statuscode&filter=isnull(deleted,0) eq 0';
-        return this.http.asGET()
-            .usingStatisticsDomain()
-            .withEndPoint(route)
-            .send()
-            .map((res) => {
-                const data = (res.json() || {}).Data || [];
-                return data.reduce((counts, group) => {
-                    if (group.CustomerInvoiceStatusCode) {
-                        counts[group.CustomerInvoiceStatusCode] = group.countid;
-                    }
-                    return counts;
-                }, {});
-            });
-    }
-
-    public newCustomerInvoice(): Promise<CustomerInvoice> {
-        return new Promise(resolve => {
-            this.GetNewEntity([], CustomerInvoice.EntityType).subscribe((invoice: CustomerInvoice) => {
-                invoice.InvoiceDate = new LocalDate(Date());
-
-                resolve(invoice);
-            }, err => this.errorService.handle(err));
-        });
-    }
 
     public createInvoiceJournalEntryDraftAction(id: number): Observable<any> {
         super.invalidateCache();
@@ -377,17 +323,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=create-invoice-journalentrydraft`)
-            .send()
-            .map(response => response.json());
-    }
-
-    public calculateInvoiceSummary(invoiceItems: Array<CustomerInvoiceItem>): Observable<any> {
-        super.invalidateCache();
-        return this.http
-            .asPOST()
-            .usingBusinessDomain()
-            .withBody(invoiceItems)
-            .withEndPoint(this.relativeURL + '?action=calculate-invoice-summary')
             .send()
             .map(response => response.json());
     }
@@ -407,22 +342,6 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             .usingBusinessDomain()
             .withBody(invoice)
             .withEndPoint(this.relativeURL + '?action=send-invoice-to-vipps')
-            .send()
-            .map(response => response.json());
-    }
-
-    public getInvoiceByInvoiceNumber(invoiceNumber: string): Observable<any> {
-        return this.GetAll(
-            'filter=InvoiceNumber eq ' + invoiceNumber,
-            ['JournalEntry', 'JournalEntry.Lines', 'JournalEntry.Lines.Account', 'JournalEntry.Lines.SubAccount']
-        );
-    }
-
-    public getInvoiceSummary(odatafilter: string): Observable<any> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + '?action=get-customer-invoice-summary&odataFilter=' + odatafilter)
             .send()
             .map(response => response.json());
     }

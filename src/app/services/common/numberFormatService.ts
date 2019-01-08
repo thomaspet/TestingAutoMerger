@@ -52,7 +52,7 @@ export class NumberFormat {
     }
 
     private formatter(value: number, options: INumberOptions) {
-        if (!value) {
+        if (!value && value !== 0) {
             return '';
         }
 

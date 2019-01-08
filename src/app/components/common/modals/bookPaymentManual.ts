@@ -1,14 +1,11 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {BehaviorSubject} from 'rxjs';
 import { UniTableColumn, UniTableColumnType, UniTableColumnSortMode, UniTableConfig } from '@uni-framework/ui/unitable';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
-import { AccountService } from '@app/services/accounting/accountService';
 import { JournalEntryLineService } from '@app/services/accounting/journalEntryLineService';
-import { PostPostService } from '@app/services/accounting/postPostService';
 import { ErrorService } from '@app/services/common/errorService';
-import { LocalDate, StatusCodeJournalEntryLine, Payment, JournalEntry, BusinessRelation } from '@uni-entities';
-import { JournalEntryService, BusinessRelationService, PaymentService, StatisticsService } from '@app/services/services';
+import { LocalDate } from '@uni-entities';
+import { PaymentService, StatisticsService } from '@app/services/services';
 import { Observable } from 'rxjs';
 
 
@@ -20,15 +17,15 @@ import { Observable } from 'rxjs';
                 <h1>Bøkfor manuelt</h1>
             </header>
             <article>
-                <p>Valg enn mot post for betaling</p>
+                <p>Velg en motpost for betalingen</p>
                 <label>Vis:
                     <select style='width:300px'
                         (change)="onShowPostsFilterChange($event.target.value)">
-                        <option value="showOpen">kun åpen poster</option>
+                        <option value="showOpen">kun åpne kreditposter</option>
                         <option value="showMarked">alle poster</option>
                     </select>
                 </label>
-                <label>fra:
+                <label> Fra:
                     <select style='width:300px'
                         [(ngModel)]="selectedBusinessRelationID"
                         (change)="onBusinesRelationFilterChange($event.target.value)">
@@ -77,10 +74,8 @@ export class BookPaymentManualModal implements IUniModal {
 
     constructor(
         private journalEntryLineService: JournalEntryLineService,
-        private postPostService: PostPostService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private businessRelationService: BusinessRelationService,
         private paymentService: PaymentService,
         private statisticsService: StatisticsService
 
@@ -107,7 +102,7 @@ export class BookPaymentManualModal implements IUniModal {
             const br = this.businessRelations.find(x => x.ID === this.selectedBusinessRelationID);
             this.customerID = br.customerID;
             this.supplierID = br.supplierID;
-            this.accountID = br. accountID;
+            this.accountID = br.accountID;
             this.setUpTable();
         },
         err => this.errorService.handle(err)
@@ -133,7 +128,7 @@ export class BookPaymentManualModal implements IUniModal {
         if (br) {
             this.customerID = br.customerID;
             this.supplierID = br.supplierID;
-             this.accountID = br. accountID;
+             this.accountID = br.accountID;
         } else {
             this.customerID = null;
             this.supplierID = null;
@@ -154,7 +149,12 @@ export class BookPaymentManualModal implements IUniModal {
             this.supplierID,
             this.accountID,
             this.pointInTime)
-            .subscribe(data => {
+            .subscribe((data: Array<any>) => {
+                // Only show entries with negative amount
+                if (!this.showMarkedPosts) {
+                    data = data.filter(x => x.Amount < 0);
+                }
+
                 this.journalEntryLines = data;
                 const columns = [
                     new UniTableColumn('JournalEntryNumber', 'Bilagsnr', UniTableColumnType.Text)

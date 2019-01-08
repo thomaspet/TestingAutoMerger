@@ -226,6 +226,7 @@ export class TofDeliveryForm implements OnInit {
                 Label: 'Leveringsdato',
                 Section: 0,
                 ReadOnly: this.readonly,
+                Hidden: this.entityType === 'RecurringInvoice'
             },
             <any> {
                 FieldSet: 1,
@@ -266,7 +267,7 @@ export class TofDeliveryForm implements OnInit {
         }
 
         // Add KID to the form when entity is Order or Invoice!
-        if (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice') {
+        if (this.entityType === 'CustomerOrder' || this.entityType === 'CustomerInvoice' || this.entityType === 'RecurringInvoice') {
             fields.splice(3, 0, <any> {
                 FieldSet: 1,
                 FieldSetColumn: 1,
@@ -286,8 +287,8 @@ export class TofDeliveryForm implements OnInit {
                     debounceTime: 200,
                     addEmptyValue: true
                 },
-                ReadOnly: this.readonly || this.entity.StatusCode === 41004,
-                Hidden: this.entity.StatusCode && this.entity.StatusCode > 42001
+                ReadOnly: (this.readonly || this.entity.StatusCode === 41004) && this.entityType !== 'RecurringInvoice',
+                Hidden: this.entity.StatusCode && this.entity.StatusCode > 42001 && this.entityType !== 'RecurringInvoice'
             },
             <any> {
                 FieldSet: 1,
@@ -298,7 +299,7 @@ export class TofDeliveryForm implements OnInit {
                 Label: 'KID',
                 Section: 0,
                 ReadOnly: true,
-                Hidden: this.entity.StatusCode < 42002 || this.entity.StatusCode === null,
+                Hidden: this.entity.StatusCode < 42002 || this.entity.StatusCode === null || this.entityType === 'RecurringInvoice',
                 MaxLength: 100,
             });
         }

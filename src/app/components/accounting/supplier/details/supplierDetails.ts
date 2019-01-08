@@ -59,7 +59,7 @@ declare const _; // lodash
 
 @Component({
     selector: 'supplier-details',
-    templateUrl: './supplierDetails.html'
+    templateUrl: './supplierDetails.html',
 })
 export class SupplierDetails implements OnInit {
     @Input()
@@ -1158,6 +1158,19 @@ export class SupplierDetails implements OnInit {
                     Property: 'GLN',
                     Label: 'GLN-nummer',
                     FieldType: FieldType.TEXT
+                },
+                // Fieldset 6 (self-employed)
+                {
+                    FieldSet: 6,
+                    Classes: 'selfEmployed',
+                    Legend: 'Innrapportering selvstendig næringsdrivende',
+                    EntityType: 'Supplier',
+                    Property: 'SelfEmployed',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Selvstendig næringsdrivende uten fast kontoradresse',
+                    Tooltip: {
+                        Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapportering vil fungere fra og med inntektsår 2019.'
+                    },
                 },
             ]
         };

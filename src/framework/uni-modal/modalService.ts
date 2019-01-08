@@ -5,12 +5,11 @@ import {
     ComponentFactoryResolver,
     EmbeddedViewRef,
     Injector,
-    EventEmitter,
     Type
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniConfirmModalV2} from './modals/confirmModal';
-import {Observable} from 'rxjs';
+import {Observable, fromEvent} from 'rxjs';
 import { ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Injectable()
@@ -188,7 +187,7 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside) {
-            backdrop.addEventListener('click', (event: MouseEvent) => {
+            const eventSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
                 event.stopPropagation();
                 const target = event.target || event.srcElement;
 
@@ -197,6 +196,7 @@ export class UniModalService {
                 if (target === backdrop) {
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
+                    eventSubscription.unsubscribe();
                 }
             });
         }
