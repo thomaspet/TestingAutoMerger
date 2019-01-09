@@ -4,11 +4,12 @@ import {Bank} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
+import {StatisticsService} from '../common/statisticsService';
 
 @Injectable()
 export class BankService extends BizHttp<Bank> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
         this.relativeURL = Bank.RelativeUrl;
@@ -91,5 +92,48 @@ export class BankService extends BizHttp<Bank> {
             .withEndPoint(`bank-agreements/${id}?action=update-status`)
             .send()
             .map(res => res.json());
+    }
+
+    public getBankPayments(id: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
+        + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`
+        + `payment.amount as Amount,payment.amountCurrency as AmountCurrency,`
+        + `payment.description as Description,businessrelation.name as Name,`
+        + `payment.paymentID as PaymentID,bankaccount.accountnumber as AccountNumber,`
+        + `payment.statusCode as StatusCode,payment.paymentdate as PaymentDate,`
+        + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
+        + `payment.JournalEntryID as JournalEntryID,CurrencyCode.Code as CurrencyCode`
+        + `&filter=SourceEntityName eq 'SupplierInvoice' and `
+        + `SourceInstanceID eq ${id} and Payment.ID gt 0`
+        + `&join=Tracelink.DestinationInstanceId eq Payment.ID and `
+        + `Payment.BusinessRelationID eq BusinessRelation.ID and `
+        + `Payment.ToBankAccountID eq BankAccount.ID and Payment.JournalEntryID eq JournalEntry.ID and `
+        + `Payment.CurrencyCodeID eq CurrencyCode.ID`
+        );
+    }
+
+    public getRegisteredPayments(id: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
+        + `&select=id,postpost.amount as Amount,postpost.date as PaymentDate,`
+        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
+        + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
+        + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
+        + `&join= JournalEntryline.AccountID eq Account.ID and `
+        + `JournalEntryLine.ID eq PostPost.JournalEntryLine1ID and `
+        + `PostPost.CurrencyCodeID eq CurrencyCode.ID`
+        );
+    }
+
+    public getSumOfPayments(id: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
+        + `&select=sum(payment.Amount) as Amount,`
+        + `sum(payment.AmountCurrency) as AmountCurrency`
+        + `&filter=SourceEntityName eq 'SupplierInvoice' and Payment.ID gt 0 and `
+        + `SourceInstanceID eq ${id} and DestinationEntityName eq 'Payment' `
+        + `and payment.StatusCode ne 44003 and `
+        + `payment.StatusCode ne 44004 and payment.StatusCode ne 44006 and `
+        + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
+        + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
+        + `&join=Tracelink.DestinationInstanceID eq Payment.ID`);
     }
 }

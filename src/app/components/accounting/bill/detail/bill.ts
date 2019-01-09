@@ -53,8 +53,6 @@ import {
 import {
     SupplierInvoiceService,
     SupplierService,
-    UniCacheService,
-    VatTypeService,
     BankAccountService,
     CurrencyCodeService,
     CurrencyService,
@@ -69,9 +67,7 @@ import {
     ProjectService,
     DepartmentService,
     Lookupservice,
-    AccountService,
     JournalEntryService,
-    NumberFormat,
     UserService,
     ValidationService,
     UniFilesService,
@@ -79,7 +75,6 @@ import {
     CustomDimensionService,
     FileService,
     VatDeductionService,
-    StatisticsService,
     PaymentService
 } from '../../../../services/services';
 import {BehaviorSubject} from 'rxjs';
@@ -153,6 +148,8 @@ export class BillView implements OnInit {
     private unlinkedFiles: Array<number> = [];
     private documentsInUse: number[] = [];
     private invoicePayments: Array<Payment> = [];
+    // Sum of amount and amount currency
+    private sumOfPayments: any;
     private supplierIsReadOnly: boolean = false;
     public commentsConfig: ICommentsConfig;
     private formReady: boolean;
@@ -220,8 +217,6 @@ export class BillView implements OnInit {
         private supplierInvoiceService: SupplierInvoiceService,
         private toast: ToastService,
         private route: ActivatedRoute,
-        private cache: UniCacheService,
-        private vatTypeService: VatTypeService,
         private supplierService: SupplierService,
         private router: Router,
         private location: Location,
@@ -241,16 +236,13 @@ export class BillView implements OnInit {
         private lookup: Lookupservice,
         private userService: UserService,
         private commentService: CommentService,
-        private accountService: AccountService,
         private journalEntryService: JournalEntryService,
-        private numberFormat: NumberFormat,
         private validationService: ValidationService,
         private uniFilesService: UniFilesService,
         private bankService: BankService,
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
-        private statisticsService: StatisticsService,
         private paymentService: PaymentService
     ) {
         this.actions = this.rootActions;
@@ -297,8 +289,9 @@ export class BillView implements OnInit {
                 this.customDimensionService.getMetadata(),
                 this.fileService.getLinkedEntityID('SupplierInvoice', pageParams.fileid),
                 this.vatDeductionService.GetAll(null),
-                this.getBankPayments(id),
-                this.getRegisteredPayments(id)
+                this.bankService.getBankPayments(id),
+                this.bankService.getRegisteredPayments(id),
+                this.bankService.getSumOfPayments(id)
             ).subscribe((res) => {
                 this.companySettings = res[0];
                 this.currencyCodes = res[1];
@@ -327,6 +320,8 @@ export class BillView implements OnInit {
                 this.vatDeductions = res[4];
 
                 this.invoicePayments = res[5].concat(res[6]);
+
+                this.sumOfPayments = res[7][0];
 
                 this.extendFormConfig();
             }, err => this.errorService.handle(err));
@@ -401,42 +396,14 @@ export class BillView implements OnInit {
         }
     }
 
-    private getBankPayments(id: number): Observable<any> {
-        return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
-        + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`
-        + `payment.amount as Amount,payment.amountCurrency as AmountCurrency,`
-        + `payment.description as Description,businessrelation.name as Name,`
-        + `payment.paymentID as PaymentID,bankaccount.accountnumber as AccountNumber,`
-        + `payment.statusCode as StatusCode,payment.paymentdate as PaymentDate,`
-        + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
-        + `payment.JournalEntryID as JournalEntryID,CurrencyCode.Code as CurrencyCode`
-        + `&filter=SourceEntityName eq 'SupplierInvoice' and `
-        + `SourceInstanceID eq ${id} and Payment.ID gt 0`
-        + `&join=Tracelink.DestinationInstanceId eq Payment.ID and `
-        + `Payment.BusinessRelationID eq BusinessRelation.ID and `
-        + `Payment.ToBankAccountID eq BankAccount.ID and Payment.JournalEntryID eq JournalEntry.ID and `
-        + `Payment.CurrencyCodeID eq CurrencyCode.ID`
-        );
-    }
-
-    private getRegisteredPayments(id: number): Observable<any> {
-        return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
-        + `&select=id,postpost.amount as Amount,postpost.date as PaymentDate,`
-        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
-        + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
-        + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
-        + `&join= JournalEntryline.AccountID eq Account.ID and `
-        + `JournalEntryLine.ID eq PostPost.JournalEntryLine1ID and `
-        + `PostPost.CurrencyCodeID eq CurrencyCode.ID`
-        );
-    }
-
     private updateInvoicePayments() {
         return Observable.forkJoin(
-            this.getBankPayments(this.currentID),
-            this.getRegisteredPayments(this.currentID)
+            this.bankService.getBankPayments(this.currentID),
+            this.bankService.getRegisteredPayments(this.currentID),
+            this.bankService.getSumOfPayments(this.currentID)
             ).subscribe(res => {
                 this.invoicePayments = res[0].concat(res[1]);
+                this.sumOfPayments = res[2][0];
                 this.fetchInvoice(this.currentID, false);
             });
     }
@@ -1922,7 +1889,7 @@ export class BillView implements OnInit {
                     {
                         label: 'Til betalingsliste(delbetaling)',
                         action: (done) => this.addPayment(done),
-                        main: true,
+                        main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
                         disabled: false
                     }
                 );
@@ -2293,49 +2260,37 @@ export class BillView implements OnInit {
             PaymentID: null
         };
 
-        this.statisticsService.GetAllUnwrapped(`model=Tracelink`
-        + `&select=sum(payment.Amount) as Amount,`
-        + `sum(payment.AmountCurrency) as AmountCurrency`
-        + `&filter=SourceEntityName eq 'SupplierInvoice' and Payment.ID gt 0 and `
-        + `SourceInstanceID eq ${this.currentID} and DestinationEntityName eq 'Payment' `
-        + `and payment.StatusCode ne 44003 and `
-        + `payment.StatusCode ne 44004 and payment.StatusCode ne 44006 and `
-        + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
-        + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
-        + `&join=Tracelink.DestinationInstanceID eq Payment.ID`)
-        .subscribe(data => {
-            if (data && data.length > 0) {
-                paymentData.AmountCurrency = Math.max(paymentData.AmountCurrency -= data[0].AmountCurrency, 0);
-                paymentData.Amount = Math.max(paymentData.Amount -= data[0].Amount, 0);
+        if (this.sumOfPayments && this.sumOfPayments.Amount && this.sumOfPayments.AmountCurrency) {
+            paymentData.AmountCurrency = Math.max(paymentData.AmountCurrency -= this.sumOfPayments.AmountCurrency, 0);
+            paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
+        }
+
+        const modal = this.modalService.open(UniRegisterPaymentModal, {
+            header: lang.ask_register_payment_for_outgoing_payment + (bill.InvoiceNumber || ''),
+            data: paymentData,
+            modalConfig: {
+                entityName: 'SupplierInvoice',
+                currencyCode: bill.CurrencyCode.Code,
+                currencyExchangeRate: bill.CurrencyExchangeRate,
+                isSendForPayment: true
             }
+        });
 
-            const modal = this.modalService.open(UniRegisterPaymentModal, {
-                header: lang.ask_register_payment_for_outgoing_payment + (bill.InvoiceNumber || ''),
-                data: paymentData,
-                modalConfig: {
-                    entityName: 'SupplierInvoice',
-                    currencyCode: bill.CurrencyCode.Code,
-                    currencyExchangeRate: bill.CurrencyExchangeRate,
-                    isSendForPayment: true
-                }
-            });
-
-            modal.onClose.subscribe((payment: Payment) => {
-                if (payment) {
-                    this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
-                    .finally(() => this.busy = false)
-                    .subscribe(() => {
-                        this.updateInvoicePayments().add(() => {
-                            this.userMsg(lang.payment_ok, null, 3, true);
-                            done();
-                        });
-                    }, err => {
-                        this.errorService.handle(err);
+        modal.onClose.subscribe((payment: Payment) => {
+            if (payment) {
+                this.supplierInvoiceService.sendForPaymentWithData(this.currentID, payment)
+                .finally(() => this.busy = false)
+                .subscribe(() => {
+                    this.updateInvoicePayments().add(() => {
+                        this.userMsg(lang.payment_ok, null, 3, true);
                         done();
                     });
-                }
-                done();
-            });
+                }, err => {
+                    this.errorService.handle(err);
+                    done();
+                });
+            }
+            done();
         });
     }
 
