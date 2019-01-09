@@ -36,6 +36,7 @@ export class UniRoleModal implements IUniModal {
 
     roleGroups: IRoleGroup[];
     busy: boolean;
+    hasPurchasedProduct: boolean;
 
     constructor(
         private modalService: UniModalService,
@@ -68,27 +69,38 @@ export class UniRoleModal implements IUniModal {
 
     purchaseProduct(group: IRoleGroup) {
         if (group.product) {
+            this.busy = true;
+
             this.elsaPurchaseService.massUpdate([{
                 ID: null,
                 ProductID: group.product.id,
                 GlobalIdentity: this.user.GlobalIdentity
             }]).subscribe(
                 () => {
+                    this.hasPurchasedProduct = true;
                     group.productPurchased = true;
-                    const hasRoleInGroup = group.roles.some(role => role['_checked']);
-                    if (!hasRoleInGroup) {
-                        let roleToActivate = group.product.listOfRoles && group.roles.find(role => {
-                            return group.product.listOfRoles.includes(role.Name);
-                        });
+                    if (!group.roles.some(role => role['_checked'])) {
+                        let roleToActivate;
 
-                        if (!roleToActivate) {
-                            roleToActivate = group.roles[0];
+                        try {
+                            const defaultRoleName = group.product.listOfRoles.split(',')[0]
+                                .trim()
+                                .toLowerCase();
+
+                            roleToActivate = defaultRoleName && group.roles.find(role => {
+                                return (role.Name || '').toLowerCase() === defaultRoleName;
+                            });
+                        } catch (e) {}
+
+                        roleToActivate = roleToActivate || group.roles[0];
+
+                        if (roleToActivate) {
+                            roleToActivate['_checked'] = true;
                         }
-
-                        roleToActivate['_checked'] = true;
                     }
                 },
-                err => this.errorService.handle(err)
+                err => this.errorService.handle(err),
+                () => this.busy = false
             );
         }
     }
@@ -110,7 +122,7 @@ export class UniRoleModal implements IUniModal {
                     }
                 });
 
-                return this.groupRolesByModule(roles);
+                return this.groupRolesByProducts(roles, this.elsaProducts);
             }),
             catchError(err => {
                 this.errorService.handle(err);
@@ -159,28 +171,44 @@ export class UniRoleModal implements IUniModal {
                 }
             );
         } else {
-            this.onClose.emit(false);
+            this.onClose.emit(this.hasPurchasedProduct);
         }
     }
 
-    private groupRolesByModule(roles: Role[]): IRoleGroup[] {
-        const products = this.elsaProducts.filter(product => {
-            return product.name === 'Accounting'
-                || product.name === 'Sales'
-                || product.name === 'Payroll'
-                || product.name === 'Timetracking';
+    private groupRolesByProducts(roles: Role[], products: ElsaProduct[]): IRoleGroup[] {
+        // Create groups based on products (of type Module)
+        const filteredProducts = (products || []).filter(product => {
+            return product.productTypeName === 'Module'
+                && product.name !== 'Complete';
         });
 
-        const moduleRoleGroups: IRoleGroup[] = products.map(product => {
-            const isPurchased = this.elsaPurchases.some(purchase => {
+        // This can be removed when Complete is gone as a product in prod
+        const completeProduct = products.find(product => product.name === 'Complete');
+        const userHasComplete = !!completeProduct && this.elsaPurchases.some(purchase => {
+            return purchase.GlobalIdentity === this.user.GlobalIdentity
+                && purchase.ProductID === completeProduct.id;
+        });
+        // end of removable block
+
+        const groups: IRoleGroup[] = filteredProducts.map(product => {
+            let isPurchased = this.elsaPurchases.some(purchase => {
                 return purchase.ProductID === product.id
                     && purchase.GlobalIdentity === this.user.GlobalIdentity;
             });
 
-            // Hack to allow assigning roles to unregistrered users (invited)
-            // so they dont get full access to the system after completing
-            // registration. Should be removed once we support product
-            // purchase and role assignment on invite!
+            // This can be removed when Complete is gone as a product in prod
+            if (!isPurchased) {
+                isPurchased = userHasComplete && (
+                    product.name === 'Accounting'
+                    || product.name === 'Sales'
+                    || product.name === 'Payroll'
+                    || product.name === 'Timetracking'
+                );
+            }
+            // end of removable block
+
+            // Allow assigning roles to unregistrered users (invited)
+            // so they dont get full access to the system by default
             const userStatusInvited = this.user.StatusCode === 110000;
 
             return {
@@ -191,22 +219,35 @@ export class UniRoleModal implements IUniModal {
             };
         });
 
-        const othersGroup = {
-            label: 'Diverse',
+        // Add a group for roles that are not connected to a product
+        const otherGroup = {
+            label: 'Annet',
             roles: []
         };
 
+        // Fill the groups with roles
         roles.forEach(role => {
-            const productName = role.Name.split('.')[0];
-            const group = moduleRoleGroups.find(grp => grp.product.name === productName);
+            const roleNameLowerCase = (role.Name || '').toLowerCase();
 
-            if (group) {
-                group.roles.push(role);
+            const groupsThatShouldHaveRole = groups.filter(group => {
+                const listOfRoles = group.product && group.product.listOfRoles;
+                if (listOfRoles) {
+                    return listOfRoles.split(',').some(roleName => {
+                        return roleName && roleName.toLowerCase() === roleNameLowerCase;
+                    });
+                }
+            });
+
+            if (groupsThatShouldHaveRole.length) {
+                groupsThatShouldHaveRole.forEach(group => {
+                    group.roles.push(role);
+                });
             } else {
-                othersGroup.roles.push(role);
+                otherGroup.roles.push(role);
             }
         });
 
-        return [...moduleRoleGroups, othersGroup];
+        groups.push(otherGroup);
+        return groups.filter(group => group.roles && group.roles.length);
     }
 }

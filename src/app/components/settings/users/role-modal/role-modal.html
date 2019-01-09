@@ -21,8 +21,9 @@
                         {{panel.expanded ? 'expand_less' : 'expand_more'}}
                     </i>
 
-                    <section *ngIf="group.product && !group.productPurchased" class="panel-right">
-                        <button (click)="purchaseProduct(group)">
+                    <section class="panel-right">
+                        <button class="outline-c2a" *ngIf="group.product && !group.productPurchased"
+                            (click)="purchaseProduct(group)">
                             Kjøp produkt
                         </button>
                     </section>

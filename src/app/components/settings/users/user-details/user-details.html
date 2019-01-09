@@ -49,7 +49,7 @@
 
     <mat-accordion multi="true">
 
-        <mat-expansion-panel *ngFor="let group of roleGroups; let idx = index" [expanded]="idx === 0">
+        <mat-expansion-panel *ngFor="let group of userRoleGroups; let idx = index" [expanded]="idx === 0">
             <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
                 <mat-panel-title>{{group.label}}</mat-panel-title>
             </mat-expansion-panel-header>
@@ -61,7 +61,7 @@
                         <th>Tiltelt</th>
                         <th>Tildelt av</th>
                     </tr>
-                    <tr *ngFor="let role of group.roles">
+                    <tr *ngFor="let role of group.userRoles">
                         <td>{{role.SharedRoleName}}</td>
                         <td>{{role._assignedDate}}</td>
                         <td>{{role._assignedBy}}</td>

@@ -92,18 +92,24 @@ export class ProductPurchasesModal implements IUniModal {
                 if (purchase['_active'] && !purchase.ID) {
                     updates.push(purchase);
 
-                    // If the user doesn't already have a role for this product
-                    // we also need to give them the default role for it
                     const product = this.products.find(p => p.id === purchase.ProductID);
+                    const rolesOnProduct: string[] = product && product.listOfRoles
+                        ? product.listOfRoles.split(',')
+                        : [];
+
+                    // Check if the user already has a role for the activated product
                     const hasRoleForProduct = this.userRoles.find(role => {
                         const sharedRoleName = (role.SharedRoleName || '').toLowerCase();
-                        const productName = (product && product.name || '').toLowerCase();
-                        return role.UserID === entry.userID && sharedRoleName.includes(productName);
+                        return role.UserID === entry.userID && rolesOnProduct.some(roleName => {
+                            return roleName.trim().toLowerCase() === sharedRoleName;
+                        });
                     });
 
-                    if (!hasRoleForProduct) {
+                    // If the above check is false we need to assign them the default role for said product
+                    if (!hasRoleForProduct && rolesOnProduct.length) {
+                        const defaultRoleName = rolesOnProduct[0].trim().toLowerCase();
                         const defaultRole = this.roles.find(role => {
-                            return product.listOfRoles && product.listOfRoles.includes(role.Name);
+                            return (role.Name || '').toLowerCase() === defaultRoleName;
                         });
 
                         if (defaultRole) {
