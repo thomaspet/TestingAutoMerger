@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core'
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
-import {AccountService, BankService, ErrorService, BankAccountService} from '../../../app/services/services';
+import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService} from '../../../app/services/services';
 import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {Observable} from 'rxjs';
@@ -10,6 +10,7 @@ import {BehaviorSubject} from 'rxjs';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
+import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 
 @Component({
     selector: 'uni-bankaccount-modal',
@@ -64,7 +65,8 @@ export class UniBankAccountModal implements IUniModal {
         private errorService: ErrorService,
         private toastService: ToastService,
         private elementRef: ElementRef,
-        private bankAccountService: BankAccountService
+        private bankAccountService: BankAccountService,
+        private statisticsService: StatisticsService
     ) {}
 
     public ngOnInit() {
@@ -162,18 +164,16 @@ export class UniBankAccountModal implements IUniModal {
          }
     }
 
-
-
     public onFormChange(changes) {
         this.isDirty = true;
         this.validAccount = true;
         this.hasChanges = true;
 
+
         if (changes['AccountNumber']) {
             this.toastService.clear();
             this.validAccount = false;
             const account = this.formModel$.value;
-
             this.validateAccountNumber(account);
         }
         if (changes['_manualAccountNumber']) {
@@ -200,6 +200,31 @@ export class UniBankAccountModal implements IUniModal {
                 this.accountAndIBANSearch(changes['_ibanAccountSearch'].currentValue).subscribe((res) => {
                     this.busy = false;
                     this.toastService.removeToast(toastSearchBankAccount);
+                    this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
+                        let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
+                        res2.Data.forEach(function (ba) {
+                            let baMessage = '';
+                            switch (ba.BankAccountBankAccountType.toLowerCase()) {
+                                case 'supplier':
+                                    baMessage = ' - Leverandør ' + ba.Name;
+                                    break;
+                                case 'customer':
+                                    baMessage = ' - Kunde ' + ba.Name;
+                                    break;
+                                case 'company':
+                                    baMessage = ' - Driftskonto i firmainnstillinger';
+                                    break;
+                                case 'salarybank':
+                                    baMessage = ' - Lønnskonto i firmainnstilinger';
+                                    break;
+                            }
+                                bankAccountUsesMessages += baMessage + '<br>';
+                        });
+                        this.toastService.addToast('Bankkonto i bruk', ToastType.warn, 60, bankAccountUsesMessages);
+
+                    }, err => this.errorService.handle(err));
+
+
                 }, (err) => { this.busy = false; this.toastService.removeToast(toastSearchBankAccount); this.errorService.handle(err); });
             }
         }
@@ -215,6 +240,15 @@ export class UniBankAccountModal implements IUniModal {
             this.validAccount = false;
             return;
         }
+    }
+
+    private isAccountNumberAlreadyRegistered(account: BankAccount): Observable<StatisticsResponse> {
+        const qryString = 'model=BankAccount&select=BankAccount.ID,BankAccount.BankAccountType,' +
+        'BankAccount.CompanySettingsID,BankAccount.BusinessRelationID,BusinessRelation.Name as Name' +
+        '&filter=BankAccount.AccountNumber eq ' + account.AccountNumber +
+        '&join=BankAccount.BusinessRelationID eq BusinessRelation.ID';
+
+        return this.statisticsService.GetAll(qryString);
     }
 
     private accountAndIBANSearch(searchValue: string) {
