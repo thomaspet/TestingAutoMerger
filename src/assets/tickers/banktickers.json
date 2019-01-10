@@ -74,6 +74,13 @@
                 "FilterOperator": "contains",
                 "DefaultHidden": true,
                 "SelectRequired": true
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "FilterOperator": "contains",
+                "DefaultHidden": true,
+                "SelectRequired": true
             }
         ],
         "Filters": [
