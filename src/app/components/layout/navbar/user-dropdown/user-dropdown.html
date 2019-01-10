@@ -4,7 +4,7 @@
 
 <mat-menu #userMenu="matMenu" yPosition="below" [overlapTrigger]="false">
     <ng-template matMenuContent>
-        <section class="navbar-user-dropdown">
+        <section class="navbar-user-dropdown" (click)="$event.stopPropagation()">
             <section class="info-section">
                 <h2>{{user?.DisplayName}}</h2>
             </section>
