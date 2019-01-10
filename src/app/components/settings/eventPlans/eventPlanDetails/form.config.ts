@@ -170,7 +170,18 @@ export default function createFormConfig(models, jobs) {
                         return [];
                     }
                     const labels = model.split(',');
-                    return labels.map(x => items.find(it => it[config.Options.bindLabel] === x));
+                    return labels.map(x => {
+                        let item = items.find(it => it[config.Options.bindLabel] === x);
+                        if (item) {
+                            return item;
+                        }
+                        item = {
+                            ID: items[items.length - 1].ID + 1,
+                            Name: x
+                        };
+                        items.push(item);
+                        return item;
+                    });
                 },
             }
         },
