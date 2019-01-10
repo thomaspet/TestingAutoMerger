@@ -82,7 +82,7 @@ export class TransqueryDetails implements OnInit {
     private activeFinancialYear: FinancialYear;
 
     public toolbarconfig: IToolbarConfig = {
-        title: 'Forespørsel på bilag'
+        title: 'Søk på bilag'
     };
 
     private COLUMN_VISIBILITY_LOCALSTORAGE_KEY: string = 'TransqueryDetailsColumnVisibility';
@@ -103,7 +103,7 @@ export class TransqueryDetails implements OnInit {
         private customDimensionService: CustomDimensionService
     ) {
         this.tabService.addTab({
-            'name': 'Forespørsel bilag',
+            'name': 'Søk på bilag',
             url: '/accounting/transquery',
             moduleID: UniModules.TransqueryDetails,
             active: true

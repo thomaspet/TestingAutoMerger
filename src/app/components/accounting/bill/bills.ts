@@ -192,14 +192,14 @@ export class BillsView implements OnInit {
     ];
 
     public saveActions: IUniSaveAction[] = [{
-        label: 'Nytt fakturamottak',
+        label: 'Nytt leverandørfaktura',
         action: (completeEvent) => setTimeout(() => this.onAddNew()),
         main: true,
         disabled: false
     }];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Fakturamottak',
+        title: 'Leverandørfaktura',
         omitFinalCrumb: true
     };
 
@@ -220,7 +220,7 @@ export class BillsView implements OnInit {
         private fileService: FileService
     ) {
         tabService.addTab({
-            name: 'Fakturamottak',
+            name: 'Leverandørfaktura',
             url: '/accounting/bills',
             moduleID: UniModules.Bills,
             active: true
@@ -293,7 +293,7 @@ export class BillsView implements OnInit {
         this.saveActions = [];
 
         this.saveActions.push ({
-            label: 'Nytt fakturamottak',
+            label: 'Ny leverandørfaktura',
             action: (completeEvent) => setTimeout(() => this.onAddNew()),
             main: false,
             disabled: false
@@ -986,7 +986,7 @@ export class BillsView implements OnInit {
                     if (links.length > 0) {
                         const completedModal = this.modalService.open(UniConfirmModalV2, {
                             header: 'Bekreft fjerning fra innboks',
-                            message: 'Det finnes fakturamottak på ' + row.Name + ', fjerne fra innboksen?'
+                            message: 'Det finnes leverandørfaktura på ' + row.Name + ', fjerne fra innboksen?'
                         });
 
                         completedModal.onClose.subscribe(response => {

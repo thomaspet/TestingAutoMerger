@@ -420,7 +420,7 @@
         }
     },
     {
-        "Name": "Fakturamottak",
+        "Name": "Leverandørfaktura",
         "Code": "supplierinvoice_list",
         "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
@@ -539,7 +539,7 @@
         },
         "Actions": [
             {
-                "Name": "Nytt fakturamottak",
+                "Name": "Ny leverandørfaktura",
                 "Code": "new_supplierinvoice",
                 "ExecuteWithoutSelection": true,
                 "Type": "new"

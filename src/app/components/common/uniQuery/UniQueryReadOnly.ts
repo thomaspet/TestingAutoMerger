@@ -218,7 +218,7 @@ export class UniQueryReadOnly implements OnChanges {
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
             if (title === 'Invoice') {
-                this.buttonTitle = 'Nytt fakturamottak';
+                this.buttonTitle = 'Ny leverandørfaktura';
                 navigateURL = `/accounting/bills/0`;
             }
 

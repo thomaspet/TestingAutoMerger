@@ -300,7 +300,7 @@ export class BillView implements OnInit {
 
                 if (links.length > 0) {
                     if (links.length > 1) {
-                        this.toast.addToast('Flere fakturamottak knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
+                        this.toast.addToast('Flere leverandørfaktura knyttet til filen, viser siste', ToastType.warn, ToastTime.medium);
                     }
                     this.currentID = links[0].entityID;
                     this.router.navigateByUrl('/accounting/bills/' + this.currentID);
@@ -409,9 +409,8 @@ export class BillView implements OnInit {
     }
 
     private addTab(id: number = 0) {
-        const label = id > 0 ? trimLength(this.toolbarConfig.title, 12) : lang.title_new;
         this.tabService.addTab({
-            name: label,
+            name: 'Leverandørfaktura',
             url : '/accounting/bills/' + id,
             moduleID: UniModules.Bills,
             active: true

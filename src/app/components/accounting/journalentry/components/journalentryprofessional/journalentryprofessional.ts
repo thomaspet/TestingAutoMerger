@@ -1392,7 +1392,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
-            // SupplierInvoice == "Fakturamottak"
+            // SupplierInvoice == "Leverandørfaktura"
             tableName = 'accounting.journalEntry.supplierinvoice';
 
             if (this.defaultRowData) {

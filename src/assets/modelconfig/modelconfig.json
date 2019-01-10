@@ -254,7 +254,7 @@
         },
         {
             "Name": "SupplierInvoice",
-            "Translated": "Fakturamottak",
+            "Translated": "Leverandørfaktura",
             "Url": "/accounting/bills/:ID"
         },
         {
