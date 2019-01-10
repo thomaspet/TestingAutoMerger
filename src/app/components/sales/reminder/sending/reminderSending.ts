@@ -64,10 +64,11 @@ export class ReminderSending implements OnInit {
         + 'CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,'
         + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
         + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
-        + 'CustomerInvoiceReminder.RestAmountCurrency as RestAmountCurrency,'
+        + 'add(sum(isnull(restamountcurrency,0)),max(customerinvoice.restamountcurrency)) as RestAmountCurrency,'
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
-        + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter=';
+        + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter='
+        + 'isnull(statuscode,0) ne 41204 and (customerinvoice.collectorstatuscode ne 42505 or isnull(customerinvoice.collectorstatuscode,0) eq 0) and ';
 
     currentRunNumber: number = 0;
     currentRunNumberData: IRunNumberData;
