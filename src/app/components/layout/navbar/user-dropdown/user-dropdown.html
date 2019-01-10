@@ -5,12 +5,33 @@
 <mat-menu #userMenu="matMenu" yPosition="below" [overlapTrigger]="false">
     <ng-template matMenuContent>
         <section class="navbar-user-dropdown">
-            <h2>{{user?.DisplayName}}</h2>
+            <section class="info-section">
+                <h2>{{user?.DisplayName}}</h2>
+            </section>
 
-            <p>{{user?.Email}}</p>
-            <p>{{user?.PhoneNumber}}</p>
+            <section class="info-section">
+                <section class="info-field">
+                    <span>Brukernavn:</span>
+                    <span>{{user?.UserName}}</span>
+                </section>
 
-            <span class="user-license">Lisens: {{licenseRole}}</span>
+                <section class="info-field">
+                    <span>Telefon:</span>
+                    <span>{{user?.PhoneNumber}}</span>
+                </section>
+
+                <section class="info-field">
+                    <span>Epost:</span>
+                    <span>{{user?.Email}}</span>
+                </section>
+            </section>
+
+            <section class="info-section">
+                <section class="info-field">
+                    <span>Lisens:</span>
+                    <span>{{licenseRole}}</span>
+                </section>
+            </section>
 
             <a (click)="openUserSettingsModal()">
                 <i class="material-icons">settings</i>
