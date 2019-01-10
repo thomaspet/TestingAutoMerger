@@ -768,7 +768,7 @@ export class AccrualModal implements IUniModal {
                 LineBreak: true,
                 Sectionheader: 'Periodiseringskonto',
                 Section: 1,
-                Hidden: document.querySelector('uni-bill') || document.querySelector('journalentries'),
+                Hidden: !!document.querySelector('uni-bill') || !!document.querySelector('journalentries'),
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
                     valueProperty: 'ID'
