@@ -30,7 +30,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
@@ -127,7 +127,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             template: (obj: EmployeeCategory) => obj ? obj.Name : '',
             valueProperty: 'Name',
             saveCallback: (cat: EmployeeCategory) => this.employeeService.saveEmployeeTag(this.employeeID, cat),
-            deleteCallback: (tag) => this.employeeService.deleteEmployeeTag(this.employeeID, tag),
+            deleteCallback: (tag) => this.employeeOnCategoryService.deleteEmployeeTag(this.employeeID, tag),
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter)
         }
     };
@@ -161,6 +161,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private salaryBalanceViewService: SalaryBalanceViewService,
         private salaryBalanceLineService: SalaryBalanceLineService,
         private payrollRunService: PayrollrunService,
+        private employeeOnCategoryService: EmployeeOnCategoryService,
     ) {
         super(router.url, cacheService);
 

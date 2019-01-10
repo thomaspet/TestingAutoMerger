@@ -89,7 +89,7 @@ export class CategoryDetail extends UniView implements OnDestroy {
                     return x;
                 })),
                 map(runs => runs.filter(run => run.PayDate.getFullYear() === this.yearService.getActiveYear())),
-                map(runs => runs.sort((run1, run2) => run1.PayDate > run2.PayDate ? -1 : 1) ),
+                map(runs => runs.sort((run1, run2) => run1.PayDate > run2.PayDate ? -1 : 1)),
                 catchError((err, obs) => this.errorService.handleRxCatch(err, obs))
             )
             .subscribe( catOnPayrolls => this.categoriesUsedInPayrollruns = catOnPayrolls);

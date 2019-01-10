@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {EmployeeCategory, EmployeeCategoryLink} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {EmployeeCategoryService, UniCacheService, ErrorService, EmployeeService} from '../../../services/services';
+import {EmployeeCategoryService, UniCacheService, ErrorService, EmployeeService, EmployeeOnCategoryService} from '../../../services/services';
 import {CategoryViewService} from './services/categoryViewService';
 import {ToastService} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -44,7 +44,8 @@ export class CategoryView extends UniView implements OnDestroy {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private categoryViewService: CategoryViewService,
-        private employeeService: EmployeeService
+        private employeeService: EmployeeService,
+        private employeeOnCategoryService: EmployeeOnCategoryService,
     ) {
 
         super(router.url, cacheService);
@@ -217,10 +218,11 @@ export class CategoryView extends UniView implements OnDestroy {
         return forkJoin(
             ...empLinksToCreate.map(link =>
                 this.employeeService.saveEmployeeCategory(link.Employee.ID, category).pipe(map(() => link))),
-            ...empLinksToDelete.map(link => this.employeeService
-                    .deleteEmployeeCategory(link.Employee.ID, category.ID)
-                    .pipe(map(() => link)))
-        ).pipe(tap(() => this.getEmployeeCategoryLinks(category.ID)));
+            this.employeeOnCategoryService.deleteAllAndAskForForceDelete(category.ID, empLinksToDelete.map(link => link.Employee.ID))
+        ).pipe(
+            map((result: any[]) => result.reduce((acc, curr) => Array.isArray(curr) ? [...acc, ...curr] : [...acc, curr], [])),
+            finalize(() => this.getEmployeeCategoryLinks(category.ID)),
+        );
     }
 
     private saveCategoryObs(category: EmployeeCategory): Observable<EmployeeCategory> {
