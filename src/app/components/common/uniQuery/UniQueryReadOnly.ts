@@ -29,6 +29,7 @@ export class UniQueryReadOnly implements OnChanges {
     @Input() public customerID: number;
     @Input() public hidden: boolean;
     @Input() public projectID: number;
+    @Input() public parentModel: string;
 
     @ViewChild(UniTable) public table: UniTable;
 
@@ -71,16 +72,18 @@ export class UniQueryReadOnly implements OnChanges {
             params.set('model', this.queryDefinition.MainModelName);
             params.set('select', this.selects);
 
-            params.set('filter', 'Project.ID eq ' + this.externalID + ' or Dimensions.ProjectID eq ' + this.externalID);
+            if (this.parentModel === 'project') {
+                params.set('filter', 'Project.ID eq ' + this.externalID + ' or Dimensions.ProjectID eq ' + this.externalID);
 
-            const mainModelName = this.queryDefinition.MainModelName;
+                const mainModelName = this.queryDefinition.MainModelName;
 
-            if (mainModelName === 'SupplierInvoice' || mainModelName === 'CustomerInvoice') {
-                params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
-                + `and JournalEntryLineDraft.DimensionsID eq Dimensions.ID`);
-            } else if (mainModelName === 'CustomerOrder' || mainModelName === 'CustomerQuote') {
-                params.set('join', mainModelName + `.ID eq ` + mainModelName + `Item.` + mainModelName + `ID and ` +
-                mainModelName + `Item.DimensionsID eq Dimensions.ID`);
+                if (mainModelName === 'SupplierInvoice' || mainModelName === 'CustomerInvoice') {
+                    params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
+                    + `and JournalEntryLineDraft.DimensionsID eq Dimensions.ID`);
+                } else if (mainModelName === 'CustomerOrder' || mainModelName === 'CustomerQuote') {
+                    params.set('join', mainModelName + `.ID eq ` + mainModelName + `Item.` + mainModelName + `ID and ` +
+                    mainModelName + `Item.DimensionsID eq Dimensions.ID`);
+                }
             }
 
             if (this.expands) {

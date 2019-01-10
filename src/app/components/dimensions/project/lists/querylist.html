@@ -4,7 +4,8 @@
         [hidden]="false"
         [queryDefinitionID]="reportID"
         [externalID]="projectID"
-        [customerID]="customerID">
+        [customerID]="customerID"
+        [parentModel]="'project'">
     </uni-query-read-only>
 
     <uni-summary *ngIf="projectID" [configs]="summary"></uni-summary>
