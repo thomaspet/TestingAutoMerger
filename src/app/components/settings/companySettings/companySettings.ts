@@ -320,9 +320,13 @@ export class CompanySettingsComponent implements OnInit {
     }
 
     private setupCompanySettingsData(companySettings: CompanySettings) {
-        companySettings['Addresses'] = companySettings.DefaultAddress ? [companySettings.DefaultAddress] : [];
-        companySettings['Phones'] = companySettings.DefaultPhone ? [companySettings.DefaultPhone] : [];
-        companySettings['Emails'] = companySettings.DefaultEmail ? [companySettings.DefaultEmail] : [];
+        companySettings.DefaultAddress = companySettings.DefaultAddress
+        ? companySettings.DefaultAddress : this.emptyAddress;
+        companySettings['Addresses'] = [companySettings.DefaultAddress];
+        companySettings.DefaultPhone = companySettings.DefaultPhone ? companySettings.DefaultPhone : this.emptyPhone;
+        companySettings['Phones'] = [companySettings.DefaultPhone];
+        companySettings.DefaultEmail = companySettings.DefaultEmail ? companySettings.DefaultEmail : this.emptyEmail;
+        companySettings['Emails'] = [companySettings.DefaultEmail];
         companySettings.FactoringEmail = companySettings.FactoringEmail ? companySettings.FactoringEmail : this.emptyEmail;
         companySettings['FactoringEmails'] = [companySettings.FactoringEmail];
         return companySettings;
@@ -746,7 +750,7 @@ export class CompanySettingsComponent implements OnInit {
 
         const defaultAddress: UniFieldLayout = fields.find(x => x.Property === 'DefaultAddress');
         defaultAddress.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultAddress,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Address,
             listProperty: 'Addresses',
@@ -770,7 +774,7 @@ export class CompanySettingsComponent implements OnInit {
         const phones: UniFieldLayout = fields.find(x => x.Property === 'DefaultPhone');
 
         phones.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultPhone,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Phone,
             listProperty: 'Phones',
@@ -791,7 +795,7 @@ export class CompanySettingsComponent implements OnInit {
         const emails: UniFieldLayout = fields.find(x => x.Property === 'DefaultEmail');
 
         emails.Options = {
-            allowAddValue: !this.companySettings$.getValue().DefaultEmail,
+            allowAddValue: false,
             allowDeleteValue: true,
             entity: Email,
             listProperty: 'Emails',

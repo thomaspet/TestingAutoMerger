@@ -74,7 +74,6 @@ export class UniBankAccountModal implements IUniModal {
         const fields = this.getFormFields();
         if (accountInfo._initValue && fields[0] && !accountInfo[fields[0].Property]) {
             accountInfo[fields[0].Property] = accountInfo._initValue;
-            this.validateAccountNumber(accountInfo);
         }
         if (accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;

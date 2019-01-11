@@ -27,7 +27,7 @@ import {LayoutBuilder} from './services/index';
 import {UniSearchModule} from '../unisearch/index';
 import {UniTooltipModule} from '../tooltip/tooltip.module';
 import {NgSelectModule} from '@ng-select/ng-select';
-import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule} from '@angular/material';
+import {MatCheckboxModule, MatRadioModule, MatSlideToggleModule, MatTooltipModule} from '@angular/material';
 import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
 
 @NgModule({
@@ -41,6 +41,7 @@ import { UniSelectModule } from '@uni-framework/ui/uni-select/select.module';
         MatCheckboxModule,
         MatRadioModule,
         MatSlideToggleModule,
+        MatTooltipModule,
         UniSelectModule,
         ClickOutsideModule
     ],
