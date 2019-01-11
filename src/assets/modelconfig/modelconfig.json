@@ -273,6 +273,16 @@
             "Url": "/timetracking/workers/:ID"
         },
         {
+            "Name": "WorkType",
+            "Translated": "Timeart",
+            "Url": "/timetracking/worktypes/:ID"
+        },
+        {
+            "Name": "WorkProfile",
+            "Translated": "Stillingsmaler",
+            "Url": "/timetracking/workprofiles/:ID"
+        },
+        {
             "Name": "Employee",
             "Translated": "Ansatt",
             "Url": "/salary/employees/:ID"

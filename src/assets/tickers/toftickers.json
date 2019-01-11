@@ -194,12 +194,6 @@
     },
     "Actions": [
         {
-            "Name": "Ny faktura",
-            "Code": "new_invoice",
-            "ExecuteWithoutSelection": true,
-            "Type": "new"
-        },
-        {
             "Name": "Åpne faktura",
             "Code": "open_invoice",
             "Type": "details",
@@ -881,12 +875,6 @@
     },
     "Actions": [
         {
-            "Name": "Nytt tilbud",
-            "Code": "new_quote",
-            "ExecuteWithoutSelection": true,
-            "Type": "new"
-        },
-        {
             "Name": "Åpne tilbud",
             "Code": "open_quote",
             "Type": "details",
@@ -1432,12 +1420,6 @@
     },
     "Actions": [
         {
-            "Name": "Ny ordre",
-            "Code": "new_order",
-            "ExecuteWithoutSelection": true,
-            "Type": "new"
-        },
-        {
             "Name": "Åpne ordre",
             "Code": "open_order",
             "Type": "details",
@@ -1965,12 +1947,6 @@
         "Value": "ID"
     },
     "Actions": [
-        {
-            "Name": "Ny repterende faktura",
-            "Code": "new_invoice",
-            "ExecuteWithoutSelection": true,
-            "Type": "new"
-        },
         {
             "Name": "Vis fakturalog",
             "Code": "recurring_invoice_showlog",

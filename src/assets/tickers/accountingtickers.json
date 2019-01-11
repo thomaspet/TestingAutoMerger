@@ -561,12 +561,6 @@
         },
         "Actions": [
             {
-                "Name": "Ny leverandørfaktura",
-                "Code": "new_supplierinvoice",
-                "ExecuteWithoutSelection": true,
-                "Type": "new"
-            },
-            {
                 "Name": "Åpne faktura",
                 "Code": "open_supplierinvoice",
                 "Type": "details",
@@ -861,12 +855,6 @@
             }
         ],
         "Actions": [
-            {
-                "Name": "Ny leverandør",
-                "Code": "new_supplier",
-                "ExecuteWithoutSelection": true,
-                "Type": "new"
-            },
             {
                 "Name": "Åpne leverandør",
                 "Code": "open_supplier",

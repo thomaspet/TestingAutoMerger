@@ -22,7 +22,7 @@ export class AccountSettings {
         title: 'Kontoplan',
         navigation: {
             add: {
-                label: 'Ny konto',
+                label: 'Opprett ny',
                 action: () => this.account = new Account()
             }
         }

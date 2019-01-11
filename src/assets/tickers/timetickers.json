@@ -53,6 +53,110 @@
                 "ExecuteWithoutSelection": true
             }
         ]
+    }, 
+    {
+        "Name": "Personer",
+        "Code": "worker_main_list",
+        "RequiredUIPermissions": ["ui_timetracking_workers"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Time",
+        "Model": "Worker",
+        "Expand": "Info",
+        "OrderBy": "ID ASC",
+        "Columns": [
+            {
+                "Header": "Nr.",
+                "Field": "ID",
+                "Width": 100,
+                "Type": "link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Worker.Info.Name",
+                "Width": 500
+            }
+        ]
+    },
+    {
+        "Name": "Timearter",
+        "Code": "worktype_list",
+        "RequiredUIPermissions": ["ui_timetracking_workers"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Time",
+        "Model": "WorkType",
+        "Expand": "Product",
+        "OrderBy": "ID ASC",
+        "Columns": [
+            {
+                "Header": "Nr.",
+                "Field": "ID",
+                "Width": 50,
+                "Type": "link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Name",
+                "Width": 250,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Type",
+                "Field": "SystemType",
+                "Width": 150
+            },
+            {
+                "Header": "Produktnr.",
+                "Field": "Product.PartName",
+                "Width": 100,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Pris",
+                "Field": "Price",
+                "Width": 100,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Beskrivelse",
+                "Field": "Description",
+                "Width": 200,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Lønnsart",
+                "Field": "WagetypeNumber",
+                "Width": 100,
+                "FilterOperator": "startswith"
+            }
+        ]
+    },
+    {
+        "Name": "Stillingsmaler",
+        "Code": "workprofile_list",
+        "RequiredUIPermissions": ["ui_timetracking_workers"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Time",
+        "Model": "WorkProfile",
+        "OrderBy": "ID ASC",
+        "Columns":[
+            {
+                "Header": "Nr",
+                "Field": "ID",
+                "Width": 100,
+                "Type": "link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Navn",
+                "Field": "Name",
+                "Width": 500,
+                "FilterOperator": "startswith"
+            }
+        ]
     }
-
 ]

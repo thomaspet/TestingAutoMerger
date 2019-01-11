@@ -8,6 +8,7 @@ import {
     ErrorService,
     CompanySettingsService,
 } from '../../../../services/services';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'invoice-list',
@@ -54,11 +55,19 @@ export class InvoiceList implements OnInit {
     private companySettings: CompanySettings;
     private baseCurrencyCode: string;
 
+    public toolbarActions = [{
+        label: 'Ny faktura',
+        action: this.newInvoice.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private customerInvoiceService: CustomerInvoiceService,
         private tabService: TabService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
+        private router: Router
     ) { }
 
     public ngOnInit() {
@@ -77,5 +86,9 @@ export class InvoiceList implements OnInit {
             active: true,
             moduleID: UniModules.Invoices
         });
+    }
+
+    private newInvoice() {
+        this.router.navigateByUrl('/sales/invoices/' + 0);
     }
 }

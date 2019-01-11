@@ -1,42 +1,37 @@
-import {Component} from '@angular/core';
-import {IViewConfig} from '../genericview/list';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { Component, ViewChild, OnInit } from '@angular/core';
+import { UniModules, TabService } from '../../layout/navbar/tabstrip/tabService';
+import { UniTickerWrapper } from '@app/components/uniticker/tickerWrapper/tickerWrapper';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'workprofiles',
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
+    templateUrl: './workprofiles.html'
 })
-export class WorkprofileListview {
+export class WorkprofileListview implements OnInit {
 
-    public viewconfig: IViewConfig;
+    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
 
-    constructor() {
-        this.viewconfig = this.createConfig();
+    public tickercode: string = 'workprofile_list';
+
+    public toolbarActions = [{
+        label: 'Ny stillingsmal',
+        action: this.newWorkProfile.bind(this),
+        main: true,
+        disabled: false
+    }];
+
+    constructor(private router: Router, private tabService: TabService) {}
+
+    public ngOnInit(): void {
+        this.tabService.addTab({
+            url: '/timetracking/workprofiles',
+            name: 'Stillingsmaler',
+            active: true,
+            moduleID: UniModules.WorkProfiles
+        });
     }
 
-    private createConfig(): IViewConfig {
-        return {
-            moduleID: UniModules.WorkProfiles,
-            baseUrl: '/timetracking/workprofiles',
-            title: 'Stillingsmaler',
-            data: {
-                route: 'workprofiles',
-            },
-            tableConfig: this.createTableConfig()
-        };
-    }
-
-    private createTableConfig(): UniTableConfig {
-        const cols = [
-            new UniTableColumn(
-                'ID', 'Nr.', UniTableColumnType.Number
-            ).setWidth('10%').setFilterOperator('startswith'),
-            new UniTableColumn(
-                'Name', 'Navn', UniTableColumnType.Text
-            ).setWidth('40%').setFilterOperator('startswith')
-        ];
-
-        return new UniTableConfig('timetracking.workprofiles.list', false, true).setSearchable(true).setColumns(cols);
+    private newWorkProfile() {
+        this.router.navigateByUrl('/timetracking/workprofiles/' + 0);
     }
 }
