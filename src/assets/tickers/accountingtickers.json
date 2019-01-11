@@ -143,13 +143,83 @@
                 "DefaultHidden": true
             },
             {
-                "Header": "Avdeling",
+                "Header": "Prosjektnr.",
+                "Field": "Dimensions.Project.ProjectNumber",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Prosjektnavn",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnr.",
+                "Field": "Dimensions.Department.DepartmentNumber",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Avdelingsnavn",
                 "Field": "Dimensions.Department.Name",
                 "DefaultHidden": true
             },
             {
-                "Header": "Prosjekt",
-                "Field": "Dimensions.Project.Name",
+                "Header": "Dim5no",
+                "Field": "Dimensions.Dimension5.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim5",
+                "Field": "Dimensions.Dimension5.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim6no",
+                "Field": "Dimensions.Dimension6.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim6",
+                "Field": "Dimensions.Dimension6.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim7no",
+                "Field": "Dimensions.Dimension7.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim7",
+                "Field": "Dimensions.Dimension7.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim8no",
+                "Field": "Dimensions.Dimension8.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim8",
+                "Field": "Dimensions.Dimension8.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim9no",
+                "Field": "Dimensions.Dimension9.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim9",
+                "Field": "Dimensions.Dimension9.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim10no",
+                "Field": "Dimensions.Dimension10.Number",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Dim10",
+                "Field": "Dimensions.Dimension10.Name",
                 "DefaultHidden": true
             },
             {
@@ -179,54 +249,6 @@
                 "Type": "attachment",
                 "Width": "40px",
                 "ExternalModel": "JournalEntry"
-            },
-            {
-                "Header": "Dim5",
-                "Field": "Dimensions.Info.Dimension5Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension5Name"
-                }]
-            },
-            {
-                "Header": "Dim6",
-                "Field": "Dimensions.Info.Dimension6Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension6Name"
-                }]
-            },
-            {
-                "Header": "Dim7",
-                "Field": "Dimensions.Info.Dimension7Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension7Name"
-                }]
-            },
-            {
-                "Header": "Dim8",
-                "Field": "Dimensions.Info.Dimension8Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension8Name"
-                }]
-            },
-            {
-                "Header": "Dim9",
-                "Field": "Dimensions.Info.Dimension9Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension9Name"
-                }]
-            },
-            {
-                "Header": "Dim10",
-                "Field": "Dimensions.Info.Dimension10Number",
-                "DefaultHidden": true,
-                "SubFields": [{
-                    "Field": "Dimensions.Info.Dimension10Name"
-                }]
             }
         ],
         "Actions": [
