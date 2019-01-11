@@ -6,6 +6,10 @@
     (filtersChange)="onFiltersChange($event)">
 </table-search>
 
+<section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
+    Antall rader: {{dataService?.totalRowCount$ | async}}
+</section>
+
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
     [ngStyle]="{'height': tableHeight}">

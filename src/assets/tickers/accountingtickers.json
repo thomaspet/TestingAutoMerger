@@ -80,7 +80,8 @@
                 "Header": "Beløp",
                 "Field": "Amount",
                 "Width": "120px",
-                "Format": "NumberPositiveNegative"
+                "Format": "NumberPositiveNegative",
+                "SumColumn": true
             },
             {
                 "Header": "V-beløp",

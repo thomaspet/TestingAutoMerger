@@ -1134,6 +1134,7 @@ export class UniTicker {
             .setSearchListVisible(true)
             .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
+            .setShowTotalRowCount(true)
             .setDataMapper((data) => {
                 if (this.ticker.Model) {
                     const tmp = data !== null ? data.Data : [];
