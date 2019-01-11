@@ -288,6 +288,19 @@ export class SupplierDetails implements OnInit {
             this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
         }
 
+        if (changes['OrgNumber']) {
+            this.supplierService.getSuppliers(changes['OrgNumber'].currentValue).subscribe(res => {
+                if (res.Data.length > 0) {
+                    let orgNumberUses = 'Dette org.nummeret er i bruk hos leverandør: <br><br>';
+                    res.Data.forEach(function (ba) {
+                        orgNumberUses += ba.SupplierNumber + ' ' + ba.Name + ' <br>';
+                    });
+                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                }
+
+            }, err => this.errorService.handle(err));
+        }
+
         if (changes['_SupplierSearchResult']) {
             const supplier = changes['_SupplierSearchResult'].currentValue;
 

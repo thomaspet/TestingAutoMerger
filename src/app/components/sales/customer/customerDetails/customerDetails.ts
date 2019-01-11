@@ -1119,6 +1119,18 @@ export class CustomerDetails implements OnInit {
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
         this.isDirty = true;
+        if (customer.OrgNumber) {
+            this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
+                if (res.Data.length > 0) {
+                    let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
+                    res.Data.forEach(function (ba) {
+                        orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                    });
+                    this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                }
+
+            }, err => this.errorService.handle(err));
+        }
 
         if (changes['Info.InvoiceAddress']
             && changes['Info.InvoiceAddress'].currentValue

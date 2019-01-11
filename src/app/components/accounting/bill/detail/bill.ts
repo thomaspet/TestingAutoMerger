@@ -1406,6 +1406,10 @@ export class BillView implements OnInit {
 
         if (change['Supplier'])  {
             const supplier = change['Supplier'].currentValue;
+
+
+
+
             if (model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -1420,6 +1424,18 @@ export class BillView implements OnInit {
                     }
                     return;
                 });
+            }
+
+            if (supplier.ID === 0 || !supplier.ID) {
+                this.supplierService.getSuppliers(supplier.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede leverandør med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.SupplierNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toast.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
             }
 
             if (supplier.ID) {

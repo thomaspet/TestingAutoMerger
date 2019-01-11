@@ -2,12 +2,14 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Supplier} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {StatisticsService} from '../common/statisticsService';
 import {Observable} from 'rxjs';
+import { StatisticsResponse } from '@app/models/StatisticsResponse';
 
 @Injectable()
 export class SupplierService extends BizHttp<Supplier> {
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 
         // TODO: should resolve this from configuration based on type (IVatType)? Frank is working on something..
@@ -26,6 +28,14 @@ export class SupplierService extends BizHttp<Supplier> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=delete&ID=${id}`)
             .send();
+    }
+
+    public getSuppliers(organizationNumber: string): Observable<StatisticsResponse> {
+        const qry = '' +
+        'model=Supplier&select=Supplier.SupplierNumber as SupplierNumber,Info.Name as Name' +
+        '&filter=Supplier.OrgNumber eq ' + organizationNumber +
+        '&expand=Info';
+        return this.statisticsService.GetAll(qry);
     }
 
      public activateSupplier(id: any): any {

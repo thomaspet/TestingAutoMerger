@@ -479,6 +479,17 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         const customerChanged = this.didCustomerChange(quote);
 
         if (customerChanged) {
+            if ((!quote.Customer.ID || quote.Customer.ID === 0) && quote.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(quote.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
             if (quote.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -768,6 +779,10 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (!this.currentCustomer && !quote.Customer) {
             return false;
+        }
+
+        if (!this.currentCustomer && quote.Customer.ID === 0) {
+            change = true;
         }
 
         if (quote.Customer && this.currentCustomer) {
