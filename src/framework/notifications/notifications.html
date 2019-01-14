@@ -8,9 +8,10 @@
 
 <span class="notification_view" (clickOutside)="close()" [attr.aria-expanded]="isOpen">
     <h2>Varsler</h2>
-    <ol class="notification_list">
-        <li class="notification_list_item"
-            *ngFor="let notification of notifications"
+
+    <cdk-virtual-scroll-viewport class="notification_list" itemSize="95" maxBufferPx="500" minBufferPx="500">
+        <section class="notification_list_item"
+            *cdkVirtualFor="let notification of notifications"
             [ngClass]="{
                 'unread': notification.StatusCode === 900010,
                 'marked': notification.StatusCode === 900030
@@ -39,8 +40,9 @@
                 (click)="deleteNotification(notification)">
                 Slett notifikasjon
             </button>
-        </li>
-    </ol>
+        </section>
+    </cdk-virtual-scroll-viewport>
+
     <footer class="notification_footer">
         <a (click)="markAllAsRead()">Marker alle som lest</a>
     </footer>
