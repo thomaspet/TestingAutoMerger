@@ -25,6 +25,13 @@ export class ProductGroups {
     public toolbarconfig: IToolbarConfig;
     public selectedGroup: ProductCategory;
 
+    public toolbarActions = [{
+        label: 'Ny produktgruppe',
+        action: (done) => this.createGroup(null, done),
+        main: true,
+        disabled: false
+    }];
+
     treeControl: NestedTreeControl<any>;
     treeDataSource: MatTreeNestedDataSource<any>;
     hasNestedChild = (level, node) => node._children && node._children.length;
@@ -104,7 +111,7 @@ export class ProductGroups {
         }
     }
 
-    createGroup(parentGroup?: ProductCategory) {
+    createGroup(parentGroup?: ProductCategory, done?) {
         const guid = this.productCategoryService.getNewGuid();
         const newGroup: any = {
             ID: 0,
@@ -122,6 +129,9 @@ export class ProductGroups {
         this.treeDataSource.data = null;
         this.treeDataSource.data = this.nodes;
         this.selectGroup(newGroup);
+        if (done) {
+            done();
+        }
     }
 
     saveGroup(): Observable<boolean> {

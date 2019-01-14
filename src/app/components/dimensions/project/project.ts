@@ -133,7 +133,7 @@ export class Project {
                         }
                         if (li.moduleID === 312) {
                             this.projectService.hasSupplierInvoiceModule = true;
-                            this.childRoutes.push( { name: 'Inng. faktura', path: 'supplierinvoices'} );
+                            this.childRoutes.push( { name: 'Leverandørfaktura', path: 'supplierinvoices'} );
                         }
                     });
                 });
