@@ -6,6 +6,7 @@
     [cols]="field?.Options?.cols || 100"
     [rows]="field?.Options?.rows || 10"
     [placeholder]="field?.Placeholder || ''"
+    [class]="field?.Options?.class || ''"
     (blur)="blurHandler($event)"
     (focus)="focusHandler()"
     [title]="control?.value || ''"

@@ -351,6 +351,9 @@ export class EmployeeService extends BizHttp<Employee> {
                     Label: '',
                     FieldSet: 4,
                     Legend: 'Fritekst',
+                    Options: {
+                        class: 'freeTextFieldEmployee'
+                    },
                     Section: 0,
                 },
             ]
