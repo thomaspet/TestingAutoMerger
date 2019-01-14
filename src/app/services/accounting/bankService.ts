@@ -114,8 +114,8 @@ export class BankService extends BizHttp<Bank> {
 
     public getRegisteredPayments(id: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
-        + `&select=id,postpost.amount as Amount,postpost.date as PaymentDate,`
-        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
+        + `&select=id,postpost.amount as Amount,postpost.amountCurrency as AmountCurrency,`
+        + `postpost.date as PaymentDate,CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
         + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
         + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
         + `&join= JournalEntryline.AccountID eq Account.ID and `

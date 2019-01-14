@@ -3343,7 +3343,7 @@ export class BillView implements OnInit {
 
                 this.invoicePayments.forEach(payment => {
                     _substatuses.push({
-                        title: payment.Amount.toFixed(2) + ' ' + payment.CurrencyCode,
+                        title: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
                         subtitle: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
                         ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
                         state: STATUSTRACK_STATES.Completed,
