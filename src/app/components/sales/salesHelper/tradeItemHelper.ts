@@ -152,7 +152,7 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'TimeFactor') {
-            newRow.TimeFactor = priceFactor.findIndex(res => res === event.newValue);
+            newRow.TimeFactor = event.newValue.value;
         }
 
         if (newRow.VatTypeID && !newRow.VatType) {
