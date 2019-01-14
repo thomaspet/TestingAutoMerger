@@ -9,7 +9,7 @@ import {
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
     IToolbarConfig,
@@ -36,6 +36,7 @@ import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
 import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
+import {tap} from 'rxjs/operators';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';
@@ -1066,7 +1067,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
     private saveEmploymentsObs(config: IEmployeeSaveConfig, emps: Employment[], employee: Employee): Observable<Employment[]> {
         this.employmentService.invalidateCache();
-        return Observable.of(emps)
+        return Observable
+            .of(emps)
             .switchMap((employments: Employment[]) => {
                 const changes = [];
                 let hasStandard = false;
@@ -1128,7 +1130,39 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     .map((emp: Employee) => {
                         return emp.Employments;
                     });
-            });
+            })
+            .pipe(
+                tap(employments => {
+
+                    if (!employments.some(emp => !!emp.StartDate)) {
+                        return;
+                    }
+                    if (!employee.SocialSecurityNumber) {
+                        this.toastService
+                            .addToast('Mangler fødselsnummer', ToastType.warn, ToastTime.long, 'Fødselsnummer mangler på ansatt');
+                    }
+                    const employmentsMissingType = employments
+                        .filter(emp => !emp.TypeOfEmployment);
+
+                    if (employmentsMissingType.length) {
+                        let message = `Arbeidsforhold `;
+                        let last: Employment = null;
+                        if (employmentsMissingType.length > 1) {
+                            last = employmentsMissingType.pop();
+                        }
+                        message += `${employmentsMissingType.map(emp => `"${emp.ID} - ${emp.JobName}"`).join(`, `)}`
+                            + `${last ? ` og "${last.ID} - ${last.JobName}"` : ''}`;
+                        this.toastService
+                            .addToast(
+                                'Mangler informasjon om type arbeidsforhold',
+                                ToastType.warn,
+                                ToastTime.long,
+                                `${message} mangler informasjon om type arbeidsforhold. `
+                                + `Dette medfører at a-melding vil bli avvist. `
+                                + `Vennligst fyll ut informasjon i feltet`);
+                    }
+                })
+            );
     }
 
     private saveSalarybalancesObs(config: IEmployeeSaveConfig, salBals: SalaryBalance[], employee: Employee): Observable<SalaryBalance[]> {
