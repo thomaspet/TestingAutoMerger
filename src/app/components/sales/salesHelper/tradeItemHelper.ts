@@ -152,7 +152,7 @@ export class TradeItemHelper  {
         }
 
         if (event.field === 'TimeFactor') {
-            newRow.TimeFactor = event.newValue.value; 
+            newRow.TimeFactor = event.newValue.value;
         }
 
         if (newRow.VatTypeID && !newRow.VatType) {
@@ -321,7 +321,7 @@ export class TradeItemHelper  {
 
         // if vat is not used/not defined, set PriceIncVat to PriceExVat
 
-        if ((rowModel.VatType === null || rowModel.VatType.VatPercent === 0)) {
+        if (!rowModel.VatType || rowModel.VatType.VatPercent === 0) {
             rowModel.PriceExVat = product.PriceExVat;
             rowModel.PriceIncVat = product.PriceExVat;
         } else {

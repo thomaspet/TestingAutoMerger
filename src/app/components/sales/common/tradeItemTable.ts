@@ -445,14 +445,14 @@ export class TradeItemTable {
             .setWidth('15%')
             .setTemplate((row) => {
                 if (row && (row.TimeFactor || row.TimeFactor === 0)) {
-                        // Find factor in array and display label. Make sure factor exists just in case
-                        const factor = this.priceFactor.find(fac => fac.value === row.TimeFactor);
-                        return factor ? factor.label : '';
-                 } else {
-                       return '';
-                 }
-           })
-           .setOptions({
+                    // Find factor in array and display label. Make sure factor exists just in case
+                    const factor = this.priceFactor.find(fac => fac.value === row.TimeFactor);
+                    return factor ? factor.label : '';
+                } else {
+                    return '';
+                }
+            })
+            .setOptions({
                 itemTemplate: rowModel => rowModel.label,
                 resource: this.priceFactor
            });
