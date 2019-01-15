@@ -22,7 +22,7 @@ export const INFO_SHORTCUTS = [
         config: {
             text: 'Se våre opplæringsvideoer slik at du blir god og trygg på Uni Economy',
             link: '',
-            externalLink: 'http://app.cimple.no/unimicro/',
+            externalLink: 'https://app.cimple.no/unimicro/',
             imageLink: '../../../assets/info_shortcut_movie_img.jpg',
         }
     },
