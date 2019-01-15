@@ -45,7 +45,7 @@ interface IUniFormTabEvent {
     templateUrl: './wagetypeDetails.html'
 })
 export class WagetypeDetail extends UniView {
-    private aMeldingHelp: string = 'http://veiledning-amelding.smartlearn.no/Veiledn_Generell'
+    private aMeldingHelp: string = 'https://veiledning-amelding.smartlearn.no/Veiledn_Generell'
         + '/index.html#!Documents/lnnsinntekterrapportering.htm';
     public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;

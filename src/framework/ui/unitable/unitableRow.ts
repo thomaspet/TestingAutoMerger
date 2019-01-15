@@ -142,10 +142,10 @@ export class UniTableRow implements OnChanges {
             event.stopPropagation();
             if (url.includes('mailto:')) {
                 window.location.href = url;
-            } else if (url.includes('http') || url.includes('www')) {
+            } else if (url.includes('https') || url.includes('http') || url.includes('www')) {
                 if (window.confirm('Du forlater nå Uni Economy')) {
                     if (!url.includes('http')) {
-                        url = 'http://' + url;
+                        url = 'https://' + url;
                     }
                     window.open(url, '_blank');
                 }

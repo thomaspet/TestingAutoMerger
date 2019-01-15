@@ -61,7 +61,7 @@ export class UniUrlInput extends BaseControl implements OnChanges, AfterViewInit
 
         let newUrl = this.control.value;
         if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://') && newUrl !== '') {
-            newUrl = 'http://' + newUrl;
+            newUrl = 'https://' + newUrl;
         }
 
         if (this.validateURL(newUrl) || newUrl === '') {

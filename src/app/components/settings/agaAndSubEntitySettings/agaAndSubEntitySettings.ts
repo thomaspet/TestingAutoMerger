@@ -41,7 +41,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
 
-    private agaSoneOversiktUrl: string = 'http://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
+    private agaSoneOversiktUrl: string = 'https://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
