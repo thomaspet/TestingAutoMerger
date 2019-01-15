@@ -105,6 +105,7 @@ export class StatisticsService extends BizHttp<string> {
         params.set('select', selects);
         params.set('expand', expands);
         params.set('headings', headings);
+        params.set('distinct', 'false');
 
         // remove empty filters, causes problem on backend
         if (filters && filters !== '') {
