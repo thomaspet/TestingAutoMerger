@@ -125,12 +125,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         helpText: 'Kategorier på ansatt',
         truncate: 20,
         autoCompleteConfig: {
-            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            template: (obj: EmployeeCategory) => obj ? `${obj.ID} - ${obj.Name}` : '',
             valueProperty: 'Name',
             saveCallback: (cat: EmployeeCategory) => this.employeeService.saveEmployeeTag(this.employeeID, cat),
             deleteCallback: (tag) => this.employeeOnCategoryService.deleteEmployeeTag(this.employeeID, tag),
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter)
-        }
+        },
+        template: tag => `${tag.linkID} - ${tag.title}`
     };
 
     @ViewChild(UniToolbar) public toolbar: UniToolbar;

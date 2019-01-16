@@ -91,12 +91,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         helpTextOnEmpty: 'Ingen kategorier valgt for denne lønnsavregningen',
         truncate: 20,
         autoCompleteConfig: {
-            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            template: (obj: EmployeeCategory) => obj ? `${obj.ID} - ${obj.Name}` : '',
             valueProperty: 'Name',
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter),
             saveCallback: (cat: EmployeeCategory) => this.payrollrunService.savePayrollTag(this.payrollrunID, cat),
             deleteCallback: (tag) => this.payrollrunService.deletePayrollTag(this.payrollrunID, tag)
-        }
+        },
+        template: tag => `${tag.linkID} - ${tag.title}`
     };
 
     public paymentSum: number;
