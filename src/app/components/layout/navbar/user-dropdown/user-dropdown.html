@@ -15,7 +15,7 @@
                     <span>{{user?.UserName}}</span>
                 </section>
 
-                <section class="info-field">
+                <section class="info-field" *ngIf="user?.PhoneNumber">
                     <span>Telefon:</span>
                     <span>{{user?.PhoneNumber}}</span>
                 </section>
