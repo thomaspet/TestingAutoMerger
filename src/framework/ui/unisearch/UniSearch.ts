@@ -8,13 +8,12 @@ import {IUniSearchConfig} from './IUniSearchConfig';
 @Component({
     selector: 'uni-search',
     template: `
-        <section class="uni_search">
+        <section class="uni_search" (clickOutside)="onClickOutside()">
             <input class="input"
                 role="combobox"
                 autocomplete="false"
                 aria-autocomplete="inline"
                 uni-search-attr
-                (clickOutside)="onClickOutside()"
                 (changeEvent)="onChangeEvent($event)"
                 [config]="config"
                 [disabled]="disabled"
