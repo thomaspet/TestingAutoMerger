@@ -11,6 +11,7 @@ import {
     AccountService,
     StatisticsService
 } from '../../../../services/services';
+import {filter, take} from 'rxjs/operators';
 declare var _;
 
 @Component({
@@ -91,7 +92,12 @@ export class EmploymentDetails implements OnChanges {
 
             this.employment$.next(change['employment'].currentValue);
             this.employmentService.updateDefaults(change['employment'].currentValue);
-            this.updateAmeldingTooltips();
+            this.fields$
+                .pipe(
+                    filter(fields => !!fields && !!fields.length),
+                    take(1),
+                )
+                .subscribe(fields => this.updateAmeldingTooltips(change['employment'].currentValue, fields));
         }
     }
 
@@ -143,10 +149,7 @@ export class EmploymentDetails implements OnChanges {
         }, err => this.errorService.handle(err));
     }
 
-    public updateAmeldingTooltips() {
-        const employment = this.employment$.getValue();
-        const fields: any[] = this.fields$.getValue();
-
+    public updateAmeldingTooltips(employment: Employment, fields: any[]) {
         fields.forEach(field => {
             if (field.Tooltip && field.Tooltip._isAmeldingValidationTooltip) {
                 field.Tooltip = undefined;
@@ -160,7 +163,7 @@ export class EmploymentDetails implements OnChanges {
         if (employment.TypeOfEmployment === TypeOfEmployment.notSet
             || employment.TypeOfEmployment === TypeOfEmployment.PensionOrOtherNonEmployedBenefits
         ) {
-            this.fields$.next(fields);
+            setTimeout(() => this.fields$.next(fields));
             return;
         }
 
