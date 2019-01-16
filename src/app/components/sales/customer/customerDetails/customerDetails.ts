@@ -1119,7 +1119,7 @@ export class CustomerDetails implements OnInit {
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
         this.isDirty = true;
-        if (customer.OrgNumber) {
+        if (changes['OrgNumber'] && customer.OrgNumber) {
             this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
                 if (res.Data.length > 0) {
                     let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';
