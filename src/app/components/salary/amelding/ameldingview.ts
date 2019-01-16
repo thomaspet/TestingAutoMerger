@@ -518,7 +518,7 @@ export class AMeldingView implements OnInit {
     private setStatusFromAvvik(avvikIamld: any[] = null) {
         let statusSet: boolean = false;
         this.periodStatus = '';
-        const alleAvvik = !avvikIamld ? avvikIamld : this.alleAvvikStatuser;
+        const alleAvvik = avvikIamld != null ? avvikIamld : this.alleAvvikStatuser;
 
         alleAvvik.forEach(avvik => {
             if (!statusSet) {
