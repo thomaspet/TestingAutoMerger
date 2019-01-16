@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AmeldingData} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
@@ -217,7 +218,61 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public getLeveranserIAmeldingen(): any[] {
-        return this.mottattLeveranserIPerioden;
+        return this.mottattLeveranserIPerioden.sort((curr, next) => {
+            const periodDiff = curr.periode - next.periode;
+            if (periodDiff) {
+                return periodDiff < 0 ? -1 : 1;
+            }
+            const timediff = new Date(next.tidsstempelFraAltinn).getTime() - new Date(curr.tidsstempelFraAltinn).getTime();
+            return timediff < 0 ? -1 : 1;
+        });
+    }
+
+    public attachMessageIDsToLeveranser(leveranser: any[], ameldinger: AmeldingData[] = []): Observable<any[]> {
+        const missingMessageIDs = leveranser
+            .map(leveranse => [leveranse.meldingsId, leveranse.erstatterMeldingsId])
+            .reduce((acc, lev) => [...acc, ...lev], [])
+            .filter(id => !ameldinger.some(amld => amld.messageID === id))
+            .filter((id, index, arr) => index === arr.findIndex(arrID => arrID === id));
+
+        const obs = missingMessageIDs
+            ? this.GetAll(`filter=${missingMessageIDs.map(id => `messageID eq '${id}'`).join(' or ')}`)
+            : of([]);
+        return obs
+            .pipe(
+                map(amld => [...amld, ...ameldinger]),
+                map(amld => this.getLeveranserWithErstattMessageID(
+                    this.getLeveranserWithMessageID(leveranser, amld),
+                    amld))
+            );
+    }
+
+    private getLeveranserWithMessageID(leveranser: any[], ameldinger: AmeldingData[]): any[] {
+        return leveranser.map(leveranse => {
+            let mldID = 0;
+            ameldinger.forEach(amelding => {
+                if (leveranse.meldingsId === amelding.messageID) {
+                    mldID = amelding.ID;
+                    return;
+                }
+            });
+            leveranse['_messageID'] = mldID ? mldID : leveranse.meldingsId;
+            return leveranse;
+        });
+    }
+
+    private getLeveranserWithErstattMessageID(leveranser: any[], ameldinger: AmeldingData[]): any[] {
+        return leveranser.map(leveranse => {
+            let mldID = 0;
+            ameldinger.forEach(amelding => {
+                if (leveranse.erstatterMeldingsId === amelding.messageID) {
+                    mldID = amelding.ID;
+                    return;
+                }
+            });
+            leveranse['_replaceMessageID'] = mldID ? mldID : leveranse.erstatterMeldingsId;
+            return leveranse;
+        });
     }
 
     private getAvvikRec(obj, period: number) {

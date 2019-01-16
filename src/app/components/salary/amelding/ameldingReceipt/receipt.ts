@@ -38,7 +38,9 @@ export class AmeldingReceiptView {
                 const feedback = this.currentAMelding.feedBack;
                 if (feedback !== null) {
                     this. alleAvvikNoder = this._ameldingService.getAvvikIAmeldingen(this.currentAMelding);
-                    this.mottattLeveranserIPerioden = this._ameldingService.getLeveranserIAmeldingen();
+                    this._ameldingService
+                        .attachMessageIDsToLeveranser(this._ameldingService.getLeveranserIAmeldingen(), this.aMeldingerInPeriod)
+                        .subscribe(leveranser => this.mottattLeveranserIPerioden = leveranser);
                     this.groupAvvik();
                     this.showFeedback = true;
                 } else {
@@ -72,16 +74,9 @@ export class AmeldingReceiptView {
 
     private setupMottakTable() {
         const refCol = new UniTableColumn('altinnReferanse', 'Altinn referanse', UniTableColumnType.Text);
-        const meldingCol = new UniTableColumn('meldingsId', 'MeldingsID', UniTableColumnType.Text)
-            .setTemplate((dataItem) => {
-                let mldID = 0;
-                this.aMeldingerInPeriod.forEach(amelding => {
-                    if (dataItem.meldingsId === amelding.messageID) {
-                        mldID = amelding.ID;
-                    }
-                });
-                return mldID === 0 ? dataItem.meldingsId : mldID;
-            });
+        const meldingCol = new UniTableColumn('_messageID', 'MeldingsID', UniTableColumnType.Text);
+        const meldingRefCol = new UniTableColumn('meldingsId', 'Altinn meldingsid', UniTableColumnType.Text)
+            .setVisible(false);
         const statusCol = new UniTableColumn('mottakstatus', 'Status', UniTableColumnType.Text);
         const tidCol = new UniTableColumn('tidsstempelFraAltinn', 'Tid i altinn', UniTableColumnType.Text)
             .setTemplate((dataItem) => {
@@ -90,16 +85,7 @@ export class AmeldingReceiptView {
         const antallCol = new UniTableColumn(
             'antallInntektsmottakere', 'Antall inntektsmottakere', UniTableColumnType.Text
         );
-        const replaceCol = new UniTableColumn('erstatterMeldingsId', 'Erstatter ID', UniTableColumnType.Text)
-            .setTemplate((dataItem) => {
-                let replID = 0;
-                this.aMeldingerInPeriod.forEach(amelding => {
-                    if (dataItem.erstatterMeldingsId === amelding.messageID) {
-                        replID = amelding.ID;
-                    }
-                });
-                return replID === 0 ? dataItem.erstatterMeldingsId : replID;
-            });
+        const replaceCol = new UniTableColumn('_replaceMessageID', 'Erstatter ID', UniTableColumnType.Text);
         const agaCol = new UniTableColumn(
             'mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift', 'Aga', UniTableColumnType.Money
         );
@@ -111,7 +97,7 @@ export class AmeldingReceiptView {
             'mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn', 'Finansskatt', UniTableColumnType.Money);
 
         const columns: UniTableColumn[] = [
-            meldingCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
+            meldingCol, meldingRefCol, periodeCol, refCol, tidCol, statusCol, antallCol, replaceCol, agaCol, ftrekkCol
         ];
         if (this.companySalary && this.companySalary.CalculateFinancialTax) {
             columns.push(financialTaxCol);
