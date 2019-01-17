@@ -1,3 +1,31 @@
-<section class="application">
-    <h1>it works!</h1>
+<uni-toolbar
+    [saveactions]="saveActions"
+    [config]="toolbarconfig"
+></uni-toolbar>
+
+<section class="splitview">
+    <nav class ="splitview_list">
+        <p>List</p>
+        <!-- <uni-cost-allocation-list
+            [selectedIndex]="selectedIndex"
+            [data]="data"
+            (eventplanSelected)="onEventplanSelected($event)"
+            (eventplanDeleted)="onDeleteEventplan($event)"
+        ></uni-cost-allocation-list>
+        -->
+    </nav>
+    <main class="splitview_detail">
+        <p>Details</p>
+        <!-- <uni-cost-allocation-list
+            [eventplan]="currentEventplan"
+            [isTouched]="areDetailsTouched"
+            (saveEventplan)="onSaveEventplan($event)"
+            (deleteEventplan)="onDeleteEventplan($event)"
+            (addSubscriber)="onAddSubscriber()"
+            (updateSubscriber)="onUpdateSubscriber()"
+            (deleteSubscriber)="onDeleteSubscriber()"
+            (touched)="onDetailsTouched($event)"
+        ></uni-cost-allocation-list>
+        -->
+    </main>
 </section>

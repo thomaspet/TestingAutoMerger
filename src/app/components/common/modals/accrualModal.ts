@@ -18,7 +18,7 @@ import {
 } from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import * as _ from 'lodash';
 import { createGuid } from '@app/services/common/dimensionService';
-import { of } from 'rxjs/Observable/of';
+import { of } from 'rxjs/observable/of';
 
 @Component({
     selector: 'accrual-modal',
