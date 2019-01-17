@@ -25,6 +25,7 @@ import {PaymentBatchService} from './accounting/paymentBatchService';
 import {PostPostService} from './accounting/postPostService';
 import {BankFileDownloadService} from './accounting/bankFileDownloadService';
 import {BudgetService} from './accounting/budgetService';
+import {CostAllocationService} from './accounting/costAllocationService';
 
 export * from './accounting/accountGroupService';
 export * from './accounting/accountGroupSetService';
@@ -52,6 +53,7 @@ export * from './accounting/paymentBatchService';
 export * from './accounting/postPostService';
 export * from './accounting/bankFileDownloadService';
 export * from './accounting/budgetService';
+export * from './accounting/costAllocationService';
 
 @NgModule()
 export class AccountingServicesModule {
@@ -84,7 +86,8 @@ export class AccountingServicesModule {
                 PaymentBatchService,
                 PostPostService,
                 BankFileDownloadService,
-                BudgetService
+                BudgetService,
+                CostAllocationService
             ]
         };
     }
