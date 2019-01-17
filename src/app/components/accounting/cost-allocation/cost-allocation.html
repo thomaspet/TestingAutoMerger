@@ -5,14 +5,12 @@
 
 <section class="splitview">
     <nav class ="splitview_list">
-        <p>List</p>
-        <!-- <uni-cost-allocation-list
+        <uni-cost-allocation-list
             [selectedIndex]="selectedIndex"
-            [data]="data"
-            (eventplanSelected)="onEventplanSelected($event)"
-            (eventplanDeleted)="onDeleteEventplan($event)"
+            [data]="costAllocationItems"
+            (costAllocationSelected)="onCostAllocationSelected($event)"
+            (eventplanDeleted)="onDeleteCostAllocation($event)"
         ></uni-cost-allocation-list>
-        -->
     </nav>
     <main class="splitview_detail">
         <p>Details</p>

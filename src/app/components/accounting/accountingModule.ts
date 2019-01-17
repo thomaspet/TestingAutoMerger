@@ -87,6 +87,7 @@ import {
     MatMenuModule
 } from '@angular/material';
 import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
+import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 
 @NgModule({
     imports: [
@@ -184,6 +185,7 @@ import { UniCostAllocation } from '@app/components/accounting/cost-allocation/co
 
         // Cost Allocation
         UniCostAllocation,
+        UniCostAllocationList
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -202,7 +204,8 @@ import { UniCostAllocation } from '@app/components/accounting/cost-allocation/co
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
-        UniCostAllocation
+        UniCostAllocation,
+        UniCostAllocationList
     ],
     exports: [
         AccountSettings,
@@ -258,7 +261,8 @@ import { UniCostAllocation } from '@app/components/accounting/cost-allocation/co
         PostPost,
 
         // CostAllocation
-        UniCostAllocation
+        UniCostAllocation,
+        UniCostAllocationList
     ],
     providers: [
         PeriodFilterHelper,
