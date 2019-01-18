@@ -298,9 +298,9 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    public getAmldWithFeedback(amldID: number) {
+    public getAmldWithFeedback(amldID: number, validate: boolean = false) {
         this._ameldingService
-            .getAMeldingWithFeedback(amldID)
+            .getAMeldingWithFeedback(amldID, validate)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((amldWithFeedback: AmeldingData) => {
                 this.refresh(amldWithFeedback);
@@ -556,7 +556,8 @@ export class AMeldingView implements OnInit {
                 .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
                 .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
-                        this.getAmldWithFeedback(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID);
+                        const current = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1];
+                        this.getAmldWithFeedback(current.ID, current.status  > 1 ? false : true);
                     } else {
                         this.initialized = true;
                         this.updateToolbar();
