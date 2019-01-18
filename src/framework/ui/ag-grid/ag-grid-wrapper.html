@@ -47,6 +47,7 @@
         [rowDragManaged]="true"
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
+        [blockLoadDebounceMillis]="250"
 
         [pagination]="usePagination"
         [paginationPageSize]="config?.pageSize"
