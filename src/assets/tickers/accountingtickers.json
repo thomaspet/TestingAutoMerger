@@ -11,6 +11,11 @@
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
         "Columns": [
             {
+                "Header": null,
+                "Field": "ID",
+                "Type": "dontdisplay"
+            },
+            {
                 "Header": "Bnr.",
                 "Field": "JournalEntryNumberNumeric",
                 "Width": "100px",

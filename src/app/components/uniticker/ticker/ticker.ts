@@ -1276,6 +1276,15 @@ export class UniTicker {
             });
         }
 
+        // add "dontdisplay" columns to query as well, needed to make some of the
+        // lists distinct if sum is used
+        this.ticker.Columns.forEach((col)  => {
+            if (col.Type === 'dontdisplay') {
+                stringSelect.push(col.SelectableFieldName + ' as ' + col.Alias);
+                headers.push(col.Header);
+            }
+        });
+
         const selectedFieldString = stringSelect.join(',');
 
         // Remove code after test!
