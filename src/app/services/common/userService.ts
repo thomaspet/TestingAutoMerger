@@ -60,4 +60,12 @@ export class UserService extends BizHttp<User> {
             .send()
             .map(res => res.json());
     }
+
+    public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {
+        if (GUIDs.length === 0) {
+            return Observable.of([]);
+        }
+        const query = `filter=GlobalIdentity eq '` + GUIDs.join(`' OR ID eq '`) + `'`;
+        return this.GetAll(query);
+    }
 }

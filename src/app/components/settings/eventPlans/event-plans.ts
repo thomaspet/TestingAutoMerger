@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Eventplan } from '@app/unientities';
-import { EventplanService } from '@app/components/settings/eventPlans/eventplan.service';
+import { EventplanService } from '@app/services/common/eventplan.service';
 
 import { ErrorService } from '@app/services/common/errorService';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';

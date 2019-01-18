@@ -1,0 +1,125 @@
+@import '~src/styles/uni-redesign/_color.sass'
+
+%ease
+    -webkit-transition: .25s ease-in-out !important
+    -moz-transition: .25s ease-in-out !important
+    -o-transition: .25s ease-in-out !important
+    transition: .25s ease-in-out !important
+
+*:not(.material-icons),h1,h2,h3
+    font-family: 'Roboto', sans-serif !important
+
+.template-search
+    position: relative
+
+    input
+        border: 1px solid $redesign-scale4
+        padding: 20px 45px
+        width: 100%
+        margin-bottom: 30px
+        &::-webkit-input-placeholder
+            color: $redesign-scale3
+            opacity: 0.5
+        &:-moz-placeholder
+            color: $redesign-scale3
+            opacity: 0.5
+        &::-moz-placeholder
+            color: $redesign-scale3
+            opacity: 0.5
+        &:-ms-input-placeholder
+            color: $redesign-scale3
+            opacity: 0.5
+
+    i
+        position: absolute
+        top: 9px
+        left: 30px
+        color: $redesign-scale3
+        opacity: 0.5
+
+.flow-temp-wrapper
+    background-color: #fff
+    border-radius: 3px
+    height: 100%
+    position: relative
+
+    @extend %ease
+
+    &:hover
+        box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
+
+    .icon-wrap
+        background-color: $redesign-scale4
+        height: 100px
+        width: 100%
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-direction: row
+
+        .center-icon
+            color: $redesign-scale2
+            margin: 1rem
+        .not-center-icon
+            font-size: 3rem
+            padding: 0.8rem
+            background: white
+            color: $redesign-c2a
+            border-radius: 5px
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2)
+
+    .desc
+        padding: 15px
+        margin-bottom: 3rem
+        h3
+            color: $redesign-scale2
+            font-weight: 700
+            margin-top: 0
+        p
+            color: $redesign-scale3
+            font-size: 0.875rem
+            line-height: 20px
+
+    .action-block
+        padding: 15px
+        display: flex
+        align-items: center
+        justify-content: space-between
+        bottom: 0
+        width: 100%
+        position: absolute
+
+        button
+            background-color: $redesign-c2a
+            color: #fff
+            border-radius: 2rem
+            height: 2rem
+            text-shadow: none
+            font-size: 1rem
+            line-height: 0
+            margin: 0
+            cursor: pointer
+            @extend %ease
+
+            &:hover
+                background-color: $redesign-c2a - 30%
+
+        a
+            font-size: 0.625rem
+            color: $redesign-light-blue
+            text-transform: uppercase
+            text-decoration: none
+            @extend %ease
+
+            &:hover
+                color: $redesign-c2a - 20%
+
+
+.icon-wrap
+    span
+        width: 70px
+        height: 70px
+        border-radius: 3px
+        margin: 0 12px
+        background-color: #fff
+        box-shadow: 0 0 13px -6px black

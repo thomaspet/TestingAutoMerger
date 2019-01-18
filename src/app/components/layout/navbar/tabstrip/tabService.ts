@@ -88,7 +88,8 @@ export enum UniModules {
     Dimensions      = 705,
     About           = 706,
     Versions        = 707,
-    GDPRList        = 708
+    GDPRList        = 708,
+    Flow            = 709,
 }
 
 @Injectable()
