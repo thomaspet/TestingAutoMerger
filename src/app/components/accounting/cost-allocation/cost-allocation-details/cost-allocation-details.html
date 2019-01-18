@@ -1,0 +1,19 @@
+<section class="uni-container">
+    <header>
+        <span>{{costallocation?.Name || 'Ny Fordelingsnøkler'}}</span>
+        <button class="good save-eventplan-button" (click)="onClickSaveEventplanButton()" [disabled]="!isTouched">Lagre Fordelingsnøkler</button>
+    </header>
+    <uni-form
+        [config]="formConfig"
+        [fields]="fields$ | async"
+        [model]="costAllocation"
+        (inputEvent)="onFormInput()">
+    </uni-form>
+
+    <ag-grid-wrapper
+        [config]="tableConfig"
+        [(resource)]="costallocation?.Items"
+        (rowChange)="onRowChange($event)"
+        (rowDelete)="onRowDeleted($event)">
+    </ag-grid-wrapper>
+</section>
