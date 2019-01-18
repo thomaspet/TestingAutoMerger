@@ -174,13 +174,22 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
-    public getAmeldingSumUp(id: number) {
+    public getAmeldingSumUp(id: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(`ameldingsums/${id}?action=get-sumup`)
             .send()
             .map(response => response.json());
+    }
+
+    public getValidations(entity: any): string[] {
+        return entity
+            .employees
+            .map(emp => emp.arbeidsforhold)
+            .reduce((acc, curr) => [...acc, ...curr])
+            .map(empl => empl.validations)
+            .reduce((acc, curr) => [...acc, ...curr]);
     }
 
     public getAvvikIAmeldingen(amelding: any): any[] {
