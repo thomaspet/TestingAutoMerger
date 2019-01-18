@@ -1,4 +1,4 @@
-<!-- <section class="uni-container"> -->
+<section class="uni-container">
 <dl class="amelding_summary_overview" *ngIf="currentAMelding">
     <dt>A-melding ID</dt>
     <dd>{{currentAMelding.replacesID > 0 ? currentAMelding.ID + ' (Erstatter ID ' + currentAMelding.replacesID + ')' : currentAMelding.ID}}</dd>
@@ -12,7 +12,11 @@
     <dt>Status</dt>
     <dd>{{statusText}}</dd>
 </dl>
-
+<dl class="amelding_summary_overview" *ngIf="showXMLValidationError">
+    <dt style="color: red">Validering av xml feilet</dt>
+    <dd id="amelding_mainfile_validation_error_text">{{currentAMelding.xmlValidationErrors}}</dd>
+</dl>
+</section>
 
 <ul class="amelding_summary_sections" *ngIf="entitiesWithData">
 

@@ -98,8 +98,16 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         return helpText;
     }
 
-    public getAMeldingWithFeedback(id: number | string): Observable<any> {
+    public getAMeldingWithFeedback(id: number | string, validate: boolean = false): Observable<any> {
         if (id !== 0) {
+            if (validate) {
+                return this.http
+                    .asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint(this.relativeURL + `/${id}?validate=true`)
+                    .send()
+                    .map(response => response.json());
+            }
             return this.Get(id);
         }
     }

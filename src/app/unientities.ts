@@ -1790,6 +1790,7 @@ export class AmeldingData extends UniEntity {
     public type: AmeldingType;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public xmlValidationErrors: string;
     public year: number;
     public log: Array<AmeldingLog>;
     public CustomFields: any;

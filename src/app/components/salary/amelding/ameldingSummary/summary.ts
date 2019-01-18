@@ -23,6 +23,7 @@ export class AmeldingSummaryView implements OnChanges {
     public statusText: string;
     public validations: string[];
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
+    public showXMLValidationError: boolean;
 
     constructor(
         private ameldingService: AMeldingService
@@ -50,6 +51,7 @@ export class AmeldingSummaryView implements OnChanges {
                 this.sentDate = moment(this.currentAMelding.sent)
                     .format('DD.MM.YYYY HH:mm');
             }
+            this.showXMLValidationError = !!this.currentAMelding.xmlValidationErrors ? true : false;
         }
 
         if (this.currentSumUp && this.currentAMelding) {
