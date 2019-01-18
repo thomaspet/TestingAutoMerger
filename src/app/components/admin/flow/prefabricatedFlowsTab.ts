@@ -28,9 +28,9 @@ import {FlowStoredEventplansService} from '@app/components/admin/flow/flowStored
             <div class="col-lg-4" *ngFor="let template of predefinedTemplates">
                 <div class="flow-temp-wrapper">
                     <div class="icon-wrap">
-                        <i class="material-icons not-center-icon">{{template.MaterialIcon1}}</i>
+                        <i [style.color]="template.Color" class="material-icons not-center-icon">{{template.MaterialIcon1}}</i>
                         <i class="material-icons center-icon">add</i>
-                        <i class="material-icons not-center-icon">{{template.MaterialIcon2}}</i>
+                        <i [style.color]="template.Color" class="material-icons not-center-icon">{{template.MaterialIcon2}}</i>
                     </div>
                     <div class="desc">
                         <h3>{{template.Label.no}}</h3>
@@ -38,7 +38,7 @@ import {FlowStoredEventplansService} from '@app/components/admin/flow/flowStored
                     </div>
                     <div class="action-block">
                         <a href="#">{{template.TemplateName}}</a>
-                        <button class="btn-round" data-toggle="modal" data-target=".flow-activation" (click)="openTemplateModal(template)">activate</button>
+                        <button class="btn-round" data-toggle="modal" data-target=".flow-activation" (click)="openTemplateModal(template)">Opprett</button>
                     </div>
                 </div>
             </div>
@@ -59,11 +59,10 @@ export class FlowPrefabricatedTab {
         private guidService: GuidService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private flowStoredEventplansService: FlowStoredEventplansService,
     ) {}
 
     ngOnInit() {
-        this.flowStoredEventplansService.getEventplans().subscribe(
+        this.eventPlanService.GetAll().subscribe(
             eventPlans => this.existingFlows = eventPlans,
             err => this.errorService.handle(err),
         );

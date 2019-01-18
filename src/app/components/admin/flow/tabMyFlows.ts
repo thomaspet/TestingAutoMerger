@@ -51,7 +51,7 @@ export class FlowMyFlowTab {
         private errorService: ErrorService,
         private userService: UserService,
         private modalService: UniModalService,
-        private flowStoredEventplansService: FlowStoredEventplansService,
+        private eventplanService: EventplanService,
     ) {}
 
     ngOnInit() {
@@ -60,7 +60,7 @@ export class FlowMyFlowTab {
             return a;
         }
 
-        this.flowStoredEventplansService.getEventplans()
+        this.eventplanService.GetAll()
             .switchMap(eventPlans => this.userService
                 .getUsersByGUIDs(eventPlans.map(e => e.UpdatedBy || e.CreatedBy).reduce(removeDuplicates, []))
                 .map(users => eventPlans.map(eventPlan => {
@@ -99,10 +99,8 @@ export class FlowMyFlowTab {
             .onClose
             .filter(response => response === ConfirmActions.ACCEPT)
             .switchMap(() => this.eventPlanService.delete(eventPlanToDelete))
-            .subscribe(
-                () => this.flowStoredEventplansService.setEventplans(
-                    this.storedEventplans = this.storedEventplans.filter(t => t !== eventPlanToDelete)
-                ),
+            .subscribe( () =>
+                this.storedEventplans = this.storedEventplans.filter(t => t !== eventPlanToDelete),
                 err => this.errorService.handle(err),
             );
     }

@@ -24,7 +24,7 @@ import {AuthService} from '@app/authService';
                 </section>
             </article>
             <footer class="center">
-                <button class="c2a rounded"
+                <button class="rounded"
                         (click)="close()">
                     Avbryt
                 </button>

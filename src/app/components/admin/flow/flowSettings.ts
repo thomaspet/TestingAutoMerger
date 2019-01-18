@@ -7,7 +7,6 @@ import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import {FlowPrefabricatedTab} from '@app/components/admin/flow/prefabricatedFlowsTab';
 import {FlowMyFlowTab} from '@app/components/admin/flow/tabMyFlows';
 import {Observable} from 'rxjs';
-import {FlowStoredEventplansService} from '@app/components/admin/flow/flowStoredEventplansService';
 import {ErrorService} from '@app/services/common/errorService';
 
 export const FLOW_ROUTES = [
@@ -35,7 +34,7 @@ export const FLOW_SETTINGS_TABS = [
     selector: 'flow-settings',
     template: `
         <uni-toolbar [config]="toolbarConfig"></uni-toolbar>
-        <uni-tabs [tabs]="tabs"></uni-tabs>
+        <uni-tabs [useRouterLinkTabs]="true" [tabs]="tabs"></uni-tabs>
         <router-outlet></router-outlet>
     `,
 })
@@ -56,7 +55,6 @@ export class FlowSettings {
     constructor(
         private modalService: UniModalService,
         private eventPlanService: EventplanService,
-        private flowStoredEventplansService: FlowStoredEventplansService,
         private errorService: ErrorService,
     ) {}
 
@@ -67,7 +65,7 @@ export class FlowSettings {
             .switchMap(eventPlan => Observable.fromPromise(this.eventPlanService.save(eventPlan)))
             .finally(() => done())
             .subscribe(
-                eventPlan => this.flowStoredEventplansService.addEventplan(eventPlan),
+                eventPlan => this.eventPlanService.Post(eventPlan),
                 err => this.errorService.handle(err),
             );
     }

@@ -29,7 +29,7 @@ export class EventplanService extends BizHttp<Eventplan> {
             const ht = eventplan.ID ? this.http.asPUT() : this.http.asPOST();
             const route = eventplan.ID ? 'eventplans/' + eventplan.ID : 'eventplans';
 
-            const subscribers = eventplan.Subscribers
+            const subscribers = eventplan.Subscribers && eventplan.Subscribers
                 .filter(row => !row['_isEmpty'])
                 .map(s => {
                     if (!s.ID) {

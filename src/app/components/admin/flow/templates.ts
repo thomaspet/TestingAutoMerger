@@ -3,6 +3,7 @@ export interface FlowTemplateInterface {
     TemplateName: string;
     MaterialIcon1: string;
     MaterialIcon2: string;
+    Color?: string;
     Label: {
         no: string;
         en: string;
@@ -31,11 +32,12 @@ export interface FlowInput {
 export const templates: FlowTemplateInterface[] = [
     {
         TemplateName: "AutoAssignIncomingFiles",
-        MaterialIcon1: "query_builder",
-        MaterialIcon2: "question_answer",
+        MaterialIcon1: "attach_file",
+        MaterialIcon2: "thumb_up",
+        Color: "teal",
         Label: {
-            no: "Dokumentflyt",
-            en: "Document flow"
+            no: "Autotildeling av leverandørfaktura",
+            en: "Autoassign supplier-invoices"
         },
         TemplateComment: {
             no: "Automatisk oppretting, tolkning, kontering og tildeling av inngående faktura",
@@ -79,15 +81,16 @@ export const templates: FlowTemplateInterface[] = [
     },
     {
         TemplateName: "SupplierSync",
-        MaterialIcon1: "perm_media",
-        MaterialIcon2: "perm_identity",
+        MaterialIcon1: "perm_identity",
+        MaterialIcon2: "swap_vert",
+        Color: "sienna",
         Label: {
-            no: "Synkronisering av leverandører mellom selskaper",
-            en: "Synchronizing suppliers between companies",
+            no: "Leverandørsynkronisering",
+            en: "Suppliersynchronization",
         },
         TemplateComment: {
-            no: "Aktiveres bare på hovedselskapet. Kun leverandører med organisasjonsnummer blir synkronisert",
-            en: "Activate only on main-company. Only suppliers with org.number will be synchronized",
+            no: "Synkronisering av leverandører mellom selskaper. Aktiveres bare på hovedselskapet. Kun leverandører med organisasjonsnummer blir synkronisert",
+            en: "Synchronizing suppliers between companies. Activate only on main-company. Only suppliers with org.number will be synchronized",
         },
         Input: null,
         Eventplan: <Eventplan>{
@@ -96,6 +99,37 @@ export const templates: FlowTemplateInterface[] = [
             ModelFilter: "Supplier",
             PlanType: EventplanType.Custom,
             JobNames: "SupplierSync",
+        }
+    },
+    {
+        TemplateName: "BankChangeWarning",
+        MaterialIcon1: "attach_money",
+        MaterialIcon2: "warning",
+        Color: "#e80",
+        Label: {
+            no: "Bankkonto endringsvarsel",
+            en: "Bankaccount change-warning",
+        },
+        TemplateComment: {
+            no: "Sender epost-varsel dersom en bankkonto endres på en leverandør. Husk å sette opp epost-mottaker for varslingen.",
+            en: "Sends mail when a suppliers bankaccount changes. Remember to setup email-receiver for the warnings.",
+        },
+        Input: [{
+            Placeholder: "$AssignToEmail",
+            Name: "Mottaker",
+            Label: {
+                no: "Epost sendes til",
+                en: "Send email to"
+            },
+            Type: "Email",
+            DefaultValue: "@@user_email"
+        }],
+        Eventplan: <Eventplan>{
+            Name: "Varsel ved endring av bankkonto",
+            OperationFilter: "CUD",
+            ModelFilter: "Supplier,BankAccount",
+            PlanType: EventplanType.Custom,
+            JobNames: "BankChange",
         }
     }
 ];
