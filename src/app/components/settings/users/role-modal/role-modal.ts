@@ -180,11 +180,17 @@ export class UniRoleModal implements IUniModal {
                     && purchase.GlobalIdentity === this.user.GlobalIdentity;
             });
 
+            // Hack to allow assigning roles to unregistrered users (invited)
+            // so they dont get full access to the system after completing
+            // registration. Should be removed once we support product
+            // purchase and role assignment on invite!
+            const userStatusInvited = this.user.StatusCode === 110000;
+
             return {
                 label: product.label,
                 roles: [],
                 product: product,
-                productPurchased: isPurchased
+                productPurchased: isPurchased || userStatusInvited
             };
         });
 

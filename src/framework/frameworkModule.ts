@@ -44,6 +44,7 @@ import {
     MatStepperModule,
     MatListModule
 } from '@angular/material';
+import {ScrollingModule} from '@angular/cdk/scrolling';
 
 @NgModule({
     imports: [
@@ -57,6 +58,7 @@ import {
         MatProgressSpinnerModule,
         MatStepperModule,
         MatListModule,
+        ScrollingModule,
 
         ClickOutsideModule,
         AppPipesModule,
