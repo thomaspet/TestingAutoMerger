@@ -89,10 +89,19 @@ export class HistoricVatReportModal implements IUniModal {
             .setPageSize(10)
             .setSearchable(false)
             .setColumns([
-                new UniTableColumn('VatReportType_Name', 'Type', UniTableColumnType.Text).setWidth('25%'),
-                new UniTableColumn('TerminPeriod_AccountYear', 'År', UniTableColumnType.Text).setWidth('15%'),
-                new UniTableColumn('TerminPeriod_No', 'Termin', UniTableColumnType.Text).setWidth('5%'),
-                new UniTableColumn('TerminPeriod_Name', 'Periode', UniTableColumnType.Text).setWidth('30%')
+                new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text)
+                    .setWidth('25%')
+                    .setAlias('VatReportType_Name'),
+
+                new UniTableColumn('TerminPeriod.AccountYear', 'År', UniTableColumnType.Text)
+                    .setAlias('TerminPeriod_AccountYear')
+                    .setWidth('15%'),
+                new UniTableColumn('TerminPeriod.No', 'Termin', UniTableColumnType.Text)
+                    .setWidth('5%')
+                    .setAlias('TerminPeriod_No'),
+                new UniTableColumn('TerminPeriod.Name', 'Periode', UniTableColumnType.Text)
+                    .setWidth('30%')
+                    .setAlias('TerminPeriod_Name')
                     .setTemplate((vatReport: any) => {
                         return this.periodDateFormat.transform(<Period>{
                             FromDate: vatReport.TerminPeriod_FromDate,
@@ -109,7 +118,9 @@ export class HistoricVatReportModal implements IUniModal {
                             ? vatReport.CreatedAt.toString()
                             : vatReport.UpdatedAt.toString();
                     }),
-                new UniTableColumn('auditlogAction', 'Status Altinn', UniTableColumnType.Text).setWidth('15%')
+                new UniTableColumn('auditlog.Action', 'Status Altinn', UniTableColumnType.Text)
+                    .setWidth('15%')
+                    .setAlias('auditlogAction')
                     .setTemplate((vatReport: any) => {
                         return (vatReport.auditlogAction === 'approveManually')
                             ? 'Manuelt godkjent'
