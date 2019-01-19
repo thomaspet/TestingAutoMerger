@@ -65,7 +65,7 @@ export class FlowSettings {
             .switchMap(eventPlan => Observable.fromPromise(this.eventPlanService.save(eventPlan)))
             .finally(() => done())
             .subscribe(
-                eventPlan => this.eventPlanService.Post(eventPlan),
+                eventPlan => {},
                 err => this.errorService.handle(err),
             );
     }

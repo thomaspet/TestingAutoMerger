@@ -5,10 +5,13 @@ import { UniHttp } from '@uni-framework/core/http/http';
 import { ErrorService } from '@app/services/common/errorService';
 import { GuidService } from '@app/services/common/guidService';
 import {HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, BehaviorSubject} from 'rxjs';
 
 @Injectable()
 export class EventplanService extends BizHttp<Eventplan> {
+
+    public Notifier = new BehaviorSubject({ plans: undefined, changes: false })
+
     constructor(
         public http: UniHttp,
         public guidService: GuidService,
@@ -47,7 +50,10 @@ export class EventplanService extends BizHttp<Eventplan> {
                 .withEndPoint(route)
                 .send().map(response => response.json())
                 .subscribe(
-                    result => resolve(<Eventplan>result),
+                    result => { 
+                        this.Notifier.next({ plans: [result], changes: true });  
+                        resolve(<Eventplan>result); 
+                    },
                     error => {
                         resolve(false);
                         this.errorService.handle(error);

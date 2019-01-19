@@ -23,7 +23,6 @@ import {SaftExportModal} from './jobs/saft/saftexportmodal';
 import {MatAutocompleteModule, MatSlideToggleModule} from '@angular/material';
 import {FlowSettings, FLOW_SETTINGS_TABS} from '@app/components/admin/flow/flowSettings';
 import {FlowModal, FLOW_MODAL_PAGES} from '@app/components/admin/flow/flowModals/flowModal';
-import {FlowStoredEventplansService} from '@app/components/admin/flow/flowStoredEventplansService';
 import {FlowGenericInputModal} from '@app/components/admin/flow/flowGenericInputModal/flowGenericInputModal';
 
 @NgModule({
@@ -67,7 +66,6 @@ import {FlowGenericInputModal} from '@app/components/admin/flow/flowGenericInput
     providers: [
         PeopleService,
         GdprFileWriter,
-        FlowStoredEventplansService,
     ],
     exports: [
         JobList,

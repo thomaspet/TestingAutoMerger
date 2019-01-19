@@ -11,13 +11,12 @@ import {Subject} from 'rxjs';
 import {GuidService} from '@app/services/common/guidService';
 import {ErrorService} from '@app/services/common/errorService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {FlowStoredEventplansService} from '@app/components/admin/flow/flowStoredEventplansService';
 
 @Component({
     selector: 'flow-prefabricated-tab',
     template: `
     <div class="container">
-        <div class="row">
+        <div style="display: none" class="row">
             <div class="col-lg-12 template-search">
                 <i class="material-icons">search</i>
                 <input placeholder="Search for Templates" type="text">
