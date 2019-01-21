@@ -560,9 +560,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     onInvoiceChange(invoice: CustomerInvoice) {
         this.isDirty = true;
         let shouldGetCurrencyRate: boolean = false;
-
         const customerChanged: boolean = this.didCustomerChange(invoice);
         if (customerChanged) {
+            if ((!invoice.Customer.ID || invoice.Customer.ID === 0) && invoice.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(invoice.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
+
             if (invoice.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -821,6 +832,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
         if (!this.currentCustomer && !invoice.Customer) {
             return false;
+        }
+
+        if (!this.currentCustomer && invoice.Customer.ID === 0) {
+            change = true;
         }
 
         if (invoice.Customer && this.currentCustomer) {

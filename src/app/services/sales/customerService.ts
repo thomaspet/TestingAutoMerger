@@ -4,6 +4,7 @@ import {Customer} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
 import {Observable} from 'rxjs';
+import { StatisticsResponse } from '@app/models/StatisticsResponse';
 
 @Injectable()
 export class CustomerService extends BizHttp<Customer> {
@@ -50,6 +51,14 @@ export class CustomerService extends BizHttp<Customer> {
             .usingBusinessDomain()
             .withEndPoint(`${this.relativeURL}?action=deactivate&ID=${id}`)
             .send();
+    }
+
+    public getCustomers(organizationNumber: string): Observable<StatisticsResponse> {
+        const qry = '' +
+        'model=Customer&select=Customer.CustomerNumber as CustomerNumber,Info.Name as Name' +
+        '&filter=Customer.OrgNumber eq ' + organizationNumber +
+        '&expand=Info';
+        return this.statisticsService.GetAll(qry);
     }
 
     public getCustomerOrderStatistics(customerID: number): Observable<CustomerStatisticsData> {

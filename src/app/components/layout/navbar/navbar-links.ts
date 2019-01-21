@@ -238,13 +238,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Accounting
                     },
                     {
-                        name: 'Fakturamottak',
+                        name: 'Leverandørfaktura',
                         url: '/accounting/bills',
                         moduleID: UniModules.Bills,
                         isSuperSearchComponent: true,
                         moduleName: 'SupplierInvoice',
-                        shortcutName: 'Nytt fakturamottak',
-                        prefix: ['fakturamottak'],
+                        shortcutName: 'Ny leverandørfaktura',
+                        prefix: ['lf', 'leverandørfaktura'],
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'InvoiceNumber', isNumeric: true},
@@ -317,12 +317,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Valuta',
                         url: '/currency/exchange',
                         moduleID: UniModules.CurrencyExchange
-                    },
-                    {
-                        name: 'Betaling',
-                        url: '/accounting/journalentry/payments',
-                        moduleID: UniModules.Payments
-                    },
+                    }
                 ]
             }
         ]

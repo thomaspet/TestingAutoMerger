@@ -2,24 +2,23 @@
     [config]="config$"
     [fields]="fields$"
     [model]="currentCategory$"
-    (changeEvent)="change($event)"
-    (toggleEvent)="toggle($event)">
+    (inputEvent)="formChange($event)">
 </uni-form>
 
-<h2 *ngIf="categoriesUsedInEmployees.length > 0">
+<h2>
     Ansatte tilknyttet kategorien
 </h2>
-<uni-table
-    *ngIf="categoriesUsedInEmployees.length > 0"
+<ag-grid-wrapper
     [config]="categoriesUsedInEmployeesConfig"
-    [resource]="categoriesUsedInEmployees">
-</uni-table>
+    [(resource)]="categoriesUsedInEmployees"
+    (resourceChange)="employeeResourceChange()">
+</ag-grid-wrapper>
 
 <h2 *ngIf="categoriesUsedInPayrollruns.length > 0">
     Lønnsavregninger tilknyttet kategorien
 </h2>
-<uni-table
+<ag-grid-wrapper
     *ngIf="categoriesUsedInPayrollruns.length > 0"
     [config]="categoriesUsedInPayrollrunConfig"
     [resource]="categoriesUsedInPayrollruns">
-</uni-table>
+</ag-grid-wrapper>

@@ -55,12 +55,12 @@ export const SHORTCUT_LISTS = [
                     icon: 'chrome_reader_mode'
                 },
                 {
-                    label: 'Fakturamottak',
+                    label: 'Leverandørfaktura',
                     url: '/accounting/bills',
                     icon: 'description'
                 },
                 {
-                    label: 'Bilagssøk',
+                    label: 'Søk på bilag',
                     url: '/accounting/transquery',
                     icon: 'search'
                 },
@@ -206,7 +206,7 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Fakturamottak',
+                    label: 'Leverandørfaktura',
                     link: '/accounting/bills',
                     urlToNew: '/accounting/bills/0'
                 },
@@ -216,12 +216,12 @@ export const SHORTCUT_LISTS = [
                     urlToNew: ''
                 },
                 {
-                    label: 'Forespørsel bilag',
+                    label: 'Søk på bilag',
                     link: '/accounting/transquery',
                     urlToNew: ''
                 },
                 {
-                    label: 'Forespørsel konto',
+                    label: 'Søk på konto',
                     link: '/accounting/accountquery',
                     urlToNew: ''
                 },

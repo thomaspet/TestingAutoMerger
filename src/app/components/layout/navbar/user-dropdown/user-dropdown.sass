@@ -4,12 +4,17 @@
     display: block
     height: 2.5rem
     width: 2rem
+
     i.material-icons
         line-height: 2.5rem
         vertical-align: middle
         cursor: pointer
 
 .navbar-user-dropdown
+    font-family: 'Roboto'
+    font-size: 15px
+
+    width: 18rem
     box-sizing: border-box
     padding: 8px 0
 
@@ -17,17 +22,31 @@
         padding: 0 1.25rem
 
     h2
+        line-height: 25px
         margin: 0
         font-weight: normal
     p
         margin: 0
 
-    span.user-license
+    .info-section
         display: block
-        padding: .5rem 1rem
-        margin: .75rem 0
-        border-top: 1px solid $uni-color-scale9
+        padding: .75rem 1rem
         border-bottom: 1px solid $uni-color-scale9
+
+        &:first-of-type
+            margin: 0
+            padding: .5rem 1rem 1rem
+
+        .info-field
+            display: flex
+
+            & .info-field
+                margin-top: 5px
+
+            span
+                margin-right: 5px
+                &:first-of-type
+                    font-weight: 500
 
     a
         display: block

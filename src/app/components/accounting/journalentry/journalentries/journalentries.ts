@@ -30,7 +30,7 @@ export class JournalEntries {
     public contextMenuItems: IContextMenuItem[] = [];
 
     public toolbarConfig: IToolbarConfig = {
-        title: 'Bilagsregistrering',
+        title: 'Bilagsføring',
         omitFinalCrumb: true,
         navigation: {
             prev: () => this.showPrevious(),
@@ -48,7 +48,7 @@ export class JournalEntries {
     public selectedNumberSeries: NumberSeries;
     public selectConfig: any;
     private tab = {
-        name: 'Bilagsregistrering',
+        name: 'Bilagsføring',
         url: '',
         moduleID: UniModules.Accounting,
         active: true
@@ -104,85 +104,6 @@ export class JournalEntries {
                 this.tab.url = tabUrl;
                 this.tabService.addTab(this.tab);
             }
-
-
-            // if (params['journalEntryNumber'] && params['journalEntryID']) {
-            //     this.tabService.addTab({
-            //         name: 'Bilagsregistrering',
-            //         url: `/accounting/journalentry/manual;journalEntryNumber=${params['journalEntryNumber']};`
-            //             + `journalEntryID=${params['journalEntryID']}`,
-            //         moduleID: UniModules.Accounting,
-            //         active: true
-            //     });
-
-            //     this.editmode = false;
-            //     if (params['editmode']) {
-            //         this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
-            //             .subscribe(journalEntry => {
-            //                 this.editmode = params['editmode'];
-            //                 this.editJournalEntry(journalEntry);
-            //             }
-            //         );
-            //     }
-
-            //     this.currentJournalEntryNumber = params['journalEntryNumber'];
-            //     this.currentJournalEntryID = params['journalEntryID'];
-            // } else if (params['journalEntryID'] && params['journalEntryID'] !== '0') {
-            //     this.currentJournalEntryID = params['journalEntryID'];
-            //     this.journalEntryService.Get(params['journalEntryID'])
-            //         .subscribe(journalEntry => {
-            //             const journalEntryNumber = journalEntry.JournalEntryNumber;
-            //             this.tabService.addTab({
-            //                 name: 'Bilagsregistrering',
-            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-            //                     + `journalEntryID=${params['journalEntryID']}`,
-            //                 moduleID: UniModules.Accounting,
-            //                 active: true
-            //             });
-
-            //             this.editmode = false;
-            //             if (params['editmode']) {
-            //                 this.editmode = params['editmode'];
-            //                 setTimeout(() => this.editJournalEntry(journalEntry));
-            //             }
-
-            //             this.currentJournalEntryNumber = journalEntryNumber;
-
-            //         });
-            // }
-            // } else if (params['journalEntryLineID'] && params['journalEntryLineID'] !== '0') {
-            //     this.journalEntryLineService.Get(params['journalEntryLineID'])
-            //         .subscribe(journalEntryLine => {
-            //             const journalEntryNumber = journalEntryLine.JournalEntryNumber;
-            //             this.tabService.addTab({
-            //                 name: 'Bilagsregistrering',
-            //                 url: `/accounting/journalentry/manual;journalEntryNumber=${journalEntryNumber};`
-            //                     + `journalEntryID=${params['journalEntryLineID']}`,
-            //                 moduleID: UniModules.Accounting,
-            //                 active: true
-            //             });
-
-            //             this.editmode = false;
-            //             if (params['editmode']) {
-            //                 this.editmode = params['editmode'];
-            //                 setTimeout(() => this.editJournalEntry());
-            //             }
-
-            //             this.currentJournalEntryNumber = journalEntryNumber;
-            //             this.currentJournalEntryID = journalEntryLine.JournalEntryID;
-            //         });
-            // } else {
-            //     this.tabService.addTab({
-            //         name: 'Bilagsregistrering',
-            //         url: '/accounting/journalentry/manual',
-            //         moduleID: UniModules.Accounting,
-            //         active: true
-            //     });
-
-            //     this.editmode = false;
-            //     this.currentJournalEntryNumber = null;
-            //     this.currentJournalEntryID = 0;
-            // }
             this.setupToolBarconfig();
         });
     }
@@ -261,7 +182,7 @@ export class JournalEntries {
         ];
 
         const toolbarConfig: IToolbarConfig = {
-            title: 'Bilagsregistrering',
+            title: 'Bilagsføring',
             omitFinalCrumb: true,
             navigation: {
                 prev: () => this.showPrevious(),

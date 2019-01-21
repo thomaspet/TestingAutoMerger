@@ -187,12 +187,45 @@ export class DrilldownResultReportPart implements OnChanges {
         return children;
     }
 
-    private loadData() { 
+    private mapDimTypeToModel(dimType: number): { model: string, filterModel?: string, fld: string } {
+        switch (dimType) {
+            case 1:
+                return { model: 'project', fld: 'ProjectNumber' }
+            case 2:
+                return { model: 'department', fld: 'DepartmentNumber' }
+            case 3:
+                return { model: 'responsible', fld: 'NameOfResponsible' }
+            case 4:
+                return { model: 'region', fld: 'RegionCode' }
+            default:
+                return { model: `dimension${dimType}`, filterModel: `dim${dimType}`, fld: 'Number' }
+        }
+    }
+
+    private loadData(dimfilter = "") { 
         this.busy = true;
+
+        if (this.dimensionType && this.dimensionId && dimfilter === "") {
+            // Lookup the 'number' from the 'id' since the report-action doesnt support ID's
+            const dimMap = this.mapDimTypeToModel(parseInt(this.dimensionType.toString()));
+            this.statisticsService.GetAll(`model=${dimMap.model}&select=${dimMap.fld} as value&filter=id eq ${this.dimensionId}`)
+                .subscribe( x => {
+                    if (x && x.Success && x.Data.length > 0) {
+                        var value = x.Data[0].value;
+                        this.loadData(`&${dimMap.filterModel || dimMap.model}='${value}'-'${value}'`);
+                        return;
+                    }
+                    this.busy = false;
+                }, err => { this.busy = false; this.errorService.handle(err); });
+            return;
+        }
+
         const filter = `&financialyear=${this.periodFilter1.year}`
             + `&period=${this.periodFilter1.fromPeriodNo}-${this.periodFilter1.toPeriodNo}`
-            + ( this.filter && this.filter.ProjectNumber ? `&dim1='${this.filter.ProjectNumber}'-'${this.filter.ProjectNumber}'` : '')
-            + ( this.filter && this.filter.DepartmentNumber ? `&dim2='${this.filter.DepartmentNumber}'-'${this.filter.DepartmentNumber}'` : '');
+            + dimfilter ||
+            ( ( this.filter && this.filter.ProjectNumber ? `&dim1='${this.filter.ProjectNumber}'-'${this.filter.ProjectNumber}'` : '')
+            + ( this.filter && this.filter.DepartmentNumber ? `&dim2='${this.filter.DepartmentNumber}'-'${this.filter.DepartmentNumber}'` : '') );
+
         this.http.usingBusinessDomain().asGET()
             .withEndPoint("accounts?action=profit-and-loss-periodical" + filter).send()
                 .map( x => x.json())                

@@ -630,8 +630,8 @@ export class UniTransactionsWidget implements AfterViewInit {
     private getAccountingTransactionItems() {
         return [
             {
-                label: 'Fakturamottak',
-                header: 'Siste fakturamottak',
+                label: 'Leverandørfaktura',
+                header: 'Siste leverandørfaktura',
                 dataEndPoint: '/api/statistics/?model=SupplierInvoice&select=id as ID,statuscode as StatusCode,'
                 + 'Supplier.SupplierNumber,Info.Name,paymentduedate as PaymentDueDate,invoicedate as InvoiceDate,'
                 + 'invoicenumber as InvoiceNumber,stuff(user.displayname) as Assignees,BankAccount.AccountNumber,'

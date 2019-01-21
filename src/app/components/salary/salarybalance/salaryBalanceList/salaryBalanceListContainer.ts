@@ -26,20 +26,24 @@ export class SalaryBalanceListContainer implements OnInit {
         private tabSer: TabService,
         private salarybalanceService: SalarybalanceService,
         private errorService: ErrorService,
-    ) {}
+    ) {
+        this.route
+            .params.map(params => +params['empID'] || 0)
+            .do(empID => this.handleTab(empID))
+            .subscribe();
+    }
 
     public ngOnInit() {
         this.route
             .params
             .map(params => +params['empID'] || 0)
-            .do(empID => this.handleTab(empID))
             .subscribe(empID => this.getSalaryBalances(empID));
     }
 
     private handleTab(empID: number) {
         this.tabSer
             .addTab({
-                name: 'Saldo',
+                name: empID ? `Saldo for ansatt nr ${empID}` : 'Saldo',
                 url: 'salary/salarybalances' + (empID ? `;empID=${empID}` : ''),
                 moduleID: UniModules.Salarybalances,
                 active: true

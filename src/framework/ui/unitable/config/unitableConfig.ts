@@ -61,6 +61,7 @@ export interface IUniTableConfig {
     headerVisible?: boolean;
     rowDraggable?: boolean;
     autofocus?: boolean;
+    showTotalRowCount?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -114,6 +115,7 @@ export class UniTableConfig implements IUniTableConfig {
     public beforeEdit: (event: IEditorData) => IEditorData;
     public headerVisible: boolean;
     public autofocus: boolean;
+    public showTotalRowCount: boolean;
 
     /**
      * @constructor
@@ -332,6 +334,11 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setSearchListVisible(visible: boolean) {
         this.searchListVisible = visible;
+        return this;
+    }
+
+    public setShowTotalRowCount(show: boolean) {
+        this.showTotalRowCount = show;
         return this;
     }
 }

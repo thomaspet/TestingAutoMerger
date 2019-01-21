@@ -29,6 +29,7 @@ export class UniQueryReadOnly implements OnChanges {
     @Input() public customerID: number;
     @Input() public hidden: boolean;
     @Input() public projectID: number;
+    @Input() public parentModel: string;
 
     @ViewChild(UniTable) public table: UniTable;
 
@@ -54,7 +55,7 @@ export class UniQueryReadOnly implements OnChanges {
         private statusService: StatusService,
         private errorService: ErrorService
     ) {
-        let token = this.authService.getTokenDecoded();
+        const token = this.authService.getTokenDecoded();
         if (token) {
             this.currentUserGlobalIdentity = token.nameid;
         }
@@ -66,15 +67,31 @@ export class UniQueryReadOnly implements OnChanges {
                 params = new URLSearchParams();
             }
 
+            params.delete('skip'); // Temp workaround since with skip returns duplicate values
+
             params.set('model', this.queryDefinition.MainModelName);
             params.set('select', this.selects);
+
+            if (this.parentModel === 'project') {
+                params.set('filter', 'Project.ID eq ' + this.externalID + ' or Dimensions.ProjectID eq ' + this.externalID);
+
+                const mainModelName = this.queryDefinition.MainModelName;
+
+                if (mainModelName === 'SupplierInvoice' || mainModelName === 'CustomerInvoice') {
+                    params.set('join', mainModelName + `.JournalEntryID eq JournalEntryLineDraft.JournalEntryID `
+                    + `and JournalEntryLineDraft.DimensionsID eq Dimensions.ID`);
+                } else if (mainModelName === 'CustomerOrder' || mainModelName === 'CustomerQuote') {
+                    params.set('join', mainModelName + `.ID eq ` + mainModelName + `Item.` + mainModelName + `ID and ` +
+                    mainModelName + `Item.DimensionsID eq Dimensions.ID`);
+                }
+            }
 
             if (this.expands) {
                 params.set('expand', this.expands);
             }
 
             return this.statisticsService
-                .GetAllByUrlSearchParams(params).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                .GetAllByUrlSearchParams(params, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
     }
 
@@ -88,7 +105,7 @@ export class UniQueryReadOnly implements OnChanges {
         }
 
         if (changes['externalID'] && changes['externalID'].currentValue && this.tableConfig) {
-            let expressionFilterValues: Array<IExpressionFilterValue> = [
+            const expressionFilterValues: Array<IExpressionFilterValue> = [
                 {
                     expression: 'currentuserid',
                     value: this.currentUserGlobalIdentity
@@ -125,7 +142,7 @@ export class UniQueryReadOnly implements OnChanges {
                         }
 
                         this.queryDefinition.UniQueryFields.forEach((field: UniQueryField) => {
-                            let f: UniTableColumn = new UniTableColumn();
+                            const f: UniTableColumn = new UniTableColumn();
                             f.field = field.Field;
                             f.header = field.Header;
                             f.type = field.FieldType;
@@ -136,7 +153,7 @@ export class UniQueryReadOnly implements OnChanges {
                             f.index = field.Index;
 
                             if (f.field.toLowerCase().endsWith('statuscode')) {
-                                let statusCodes = this.statusService
+                                const statusCodes = this.statusService
                                     .getStatusCodesForEntity(this.queryDefinition.MainModelName);
                                 if (statusCodes && statusCodes.length > 0) {
                                     f.selectConfig = {
@@ -151,7 +168,7 @@ export class UniQueryReadOnly implements OnChanges {
                         });
 
                         this.queryDefinition.UniQueryFilters.forEach((field: UniQueryFilter) => {
-                            let f: ITableFilter = {
+                            const f: ITableFilter = {
                                 field: field.Field,
                                 operator: field.Operator,
                                 value: field.Value,
@@ -201,7 +218,7 @@ export class UniQueryReadOnly implements OnChanges {
             this.buttonAction = () => this.router.navigateByUrl(navigateURL);
         } else if (this.queryDefinition.MainModelName.startsWith('Supplier')) {
             if (title === 'Invoice') {
-                this.buttonTitle = 'Nytt fakturamottak';
+                this.buttonTitle = 'Ny leverandørfaktura';
                 navigateURL = `/accounting/bills/0`;
             }
 
@@ -218,9 +235,9 @@ export class UniQueryReadOnly implements OnChanges {
         }
 
         for (let i = 0; i < this.fields.length; i++) {
-            let field = this.fields[i];
+            const field = this.fields[i];
 
-            let colName = field.field;
+            const colName = field.field;
             let aliasColName = '';
             let selectableColName = '';
 
@@ -233,7 +250,7 @@ export class UniQueryReadOnly implements OnChanges {
                 let prefix = field.path;
 
                 if (field.path.indexOf('.') > 0) {
-                    let lastIndex = field.path.lastIndexOf('.');
+                    const lastIndex = field.path.lastIndexOf('.');
                     prefix = field.path.substring(lastIndex + 1);
                 }
 
@@ -248,7 +265,7 @@ export class UniQueryReadOnly implements OnChanges {
             if (field.sumFunction && selectableColName.indexOf(field.sumFunction) === -1) {
                 selectableColName = `${field.sumFunction}(${selectableColName})`;
             }
-            let col = new UniTableColumn(selectableColName, field.header, field.type);
+            const col = new UniTableColumn(selectableColName, field.header, field.type);
             col.alias = aliasColName;
             col.path = field.path;
             col.width = field.width;
@@ -274,11 +291,11 @@ export class UniQueryReadOnly implements OnChanges {
         }
 
         if (this.queryDefinition.ClickUrl && this.queryDefinition.ClickParam) {
-            let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+            const params: Array<string> = this.queryDefinition.ClickParam.split(',');
 
             params.forEach(param => {
-                let paramAlias = param.replace('.', '');
-                let paramSelect = param + ' as ' + paramAlias;
+                const paramAlias = param.replace('.', '');
+                const paramSelect = param + ' as ' + paramAlias;
 
                 if (!selects.find(x => x === paramSelect)) {
                     selects.push(paramSelect);
@@ -289,7 +306,7 @@ export class UniQueryReadOnly implements OnChanges {
         this.selects = selects.join(',');
         this.expands = expands.join(',');
 
-        let expressionFilterValues: Array<IExpressionFilterValue> = [
+        const expressionFilterValues: Array<IExpressionFilterValue> = [
             {
                 expression: 'currentuserid',
                 value: this.currentUserGlobalIdentity
@@ -319,7 +336,7 @@ export class UniQueryReadOnly implements OnChanges {
             .setExpressionFilterValues(expressionFilterValues)
             .setFilters(this.filters)
             .setDataMapper((data) => {
-                let tmp = data !== null ? data.Data : [];
+                const tmp = data !== null ? data.Data : [];
 
                 if (data !== null && data.Message !== null && data.Message !== '') {
                     this.toastService.addToast('Feil ved henting av data, ' + data.Message, ToastType.bad);
@@ -331,7 +348,7 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     private statusCodeToText(statusCode: number): string {
-        let text: string = this.statusService.getStatusText(statusCode);
+        const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
     }
 
@@ -340,17 +357,17 @@ export class UniQueryReadOnly implements OnChanges {
     }
 
     public onRowSelected(event) {
-        let selectedObject = event.rowModel;
+        const selectedObject = event.rowModel;
 
         if (this.queryDefinition.ClickUrl) {
             let url = this.queryDefinition.ClickUrl;
 
             // replace values in parameters with values from the selected row before navigating
             if (this.queryDefinition.ClickParam) {
-                let params: Array<string> = this.queryDefinition.ClickParam.split(',');
+                const params: Array<string> = this.queryDefinition.ClickParam.split(',');
 
                 params.forEach(param => {
-                    let paramAlias = param.replace('.', '');
+                    const paramAlias = param.replace('.', '');
                     url = url.replace(`:${param}`, selectedObject[paramAlias]);
                 });
             }

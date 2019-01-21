@@ -12,6 +12,7 @@ import {CustomerOrderItemService} from '../sales/customerOrderItemService';
 import {RecurringInvoiceService} from '../sales/recurringInvoiceService';
 import {PaymentService} from '../accounting/paymentService';
 import {PaymentBatchService} from '../accounting/paymentBatchService';
+import { SupplierInvoiceService } from '../accounting/supplierInvoiceService';
 
 @Injectable()
 export class StatusService {
@@ -29,6 +30,7 @@ export class StatusService {
         private recurringInvoiceService: RecurringInvoiceService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
+        private supplierInvoiceService: SupplierInvoiceService
     ) {}
 
     public getStatusText(statusCode: number): string {
@@ -95,6 +97,9 @@ export class StatusService {
                                         break;
                                     case 'Sharing':
                                         name = this.getSharingStatusText(item.StatusStatusCode);
+                                        break;
+                                    case 'SupplierInvoice':
+                                        name = this.supplierInvoiceService.getStatusText(item.StatusStatusCode);
                                     // TODO: Add when Quote Item status flow is implemented in back-end
                                     // case 'CustomerQuoteItem':
                                     //     name = this.customerQuoteItemService.getStatusText(item.StatusStatusCode);

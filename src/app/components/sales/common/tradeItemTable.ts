@@ -448,14 +448,14 @@ export class TradeItemTable {
                     // Find factor in array and display label. Make sure factor exists just in case
                     const factor = this.priceFactor.find(fac => fac.value === row.TimeFactor);
                     return factor ? factor.label : '';
-             } else {
-                   return '';
-             }
+                } else {
+                    return '';
+                }
             })
             .setOptions({
                 itemTemplate: rowModel => rowModel.label,
                 resource: this.priceFactor
-            });
+           });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')

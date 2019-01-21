@@ -1,39 +1,37 @@
-import {Component} from '@angular/core';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
-import {IViewConfig} from '../genericview/list';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
+import {Component, ViewChild, OnInit} from '@angular/core';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { Router } from '@angular/router';
+import { UniTickerWrapper } from '@app/components/uniticker/tickerWrapper/tickerWrapper';
 
 @Component({
     selector: 'workers',
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
+    templateUrl: './workers.html'
 })
-export class WorkerListview {
-    public viewconfig: IViewConfig;
+export class WorkerListview implements OnInit {
 
-    constructor() {
-        this.viewconfig = this.createConfig();
+    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+
+    public tickercode: string = 'worker_main_list';
+
+    public toolbarActions = [{
+        label: 'Ny person',
+        action: this.newWorker.bind(this),
+        main: true,
+        disabled: false
+    }];
+
+    constructor(private router: Router, private tabService: TabService) {}
+
+    public ngOnInit(): void {
+        this.tabService.addTab({
+            url: '/timetracking/workers',
+            name: 'Personer',
+            active: true,
+            moduleID: UniModules.Workers
+        });
     }
 
-    private createConfig(): IViewConfig {
-        return {
-            moduleID: UniModules.Workers,
-            baseUrl: '/timetracking/workers',
-            title: 'Personer',
-            data: {
-                route: 'workers',
-                expand: 'info'
-            },
-            tableConfig: this.createTableConfig()
-        };
-    }
-
-    private createTableConfig(): UniTableConfig {
-        const cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
-                .setWidth('10%')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Info.Name', 'Navn').setWidth('40%')
-        ];
-        return new UniTableConfig('timetracking.worker.workers', false, true).setSearchable(true).setColumns(cols);
+    private newWorker() {
+        this.router.navigateByUrl('/timetracking/workers/' + 0);
     }
 }

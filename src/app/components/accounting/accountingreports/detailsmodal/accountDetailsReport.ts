@@ -195,7 +195,7 @@ export class AccountDetailsReport {
 
     public updateToolbar() {
         this.toolbarconfig = {
-            title: 'Forespørsel konto',
+            title: 'Søk på konto',
             navigation: {
                 prev: this.previous.bind(this),
                 next: this.next.bind(this)
@@ -205,7 +205,7 @@ export class AccountDetailsReport {
 
     public addTab(number?: number) {
         this.tabService.addTab({
-            name: 'Forespørsel konto',
+            name: 'Søk på konto',
             url: `/accounting/accountquery${ !!number ? '?account=' + number : '' }`,
             moduleID: UniModules.AccountQuery,
             active: true

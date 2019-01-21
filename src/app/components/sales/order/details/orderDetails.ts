@@ -511,6 +511,18 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         const customerChanged: boolean = this.didCustomerChange(order);
         if (customerChanged) {
+            if ((!order.Customer.ID || order.Customer.ID === 0) && order.Customer.OrgNumber !== null) {
+                this.customerService.getCustomers(order.Customer.OrgNumber).subscribe(res => {
+                    if (res.Data.length > 0) {
+                        let orgNumberUses = 'Det finnes allerede kunde med dette organisasjonsnummeret registrert i UE: <br><br>';
+                        res.Data.forEach(function (ba) {
+                            orgNumberUses += ba.CustomerNumber + ' ' + ba.Name + ' <br>';
+                        });
+                        this.toastService.addToast('', ToastType.warn, 60, orgNumberUses);
+                    }
+                }, err => this.errorService.handle(err));
+            }
+
             if (order.Customer.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere kunden?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -807,6 +819,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         if (!this.currentCustomer && !order.Customer) {
             return false;
+        }
+
+        if (!this.currentCustomer && order.Customer.ID === 0) {
+            change = true;
         }
 
         if (order.Customer && this.currentCustomer) {

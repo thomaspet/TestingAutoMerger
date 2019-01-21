@@ -4,7 +4,6 @@ import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
 import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
-import {TableUtils} from './table-utils';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
 import {Observable} from 'rxjs';
@@ -20,6 +19,7 @@ export class TableDataService {
     private hasRemoteLookup: boolean;
 
     public sumRow$: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
+    public totalRowCount$: BehaviorSubject<number> = new BehaviorSubject(0);
     public loadedRowCount: number;
 
     public basicSearchFilters: ITableFilter[];
@@ -37,10 +37,7 @@ export class TableDataService {
     // Only maintained for inifinite scroll tables!
     private rowCountOnRemote: number;
 
-    constructor(
-        private statisticsService: StatisticsService,
-        private utils: TableUtils
-    ) {}
+    constructor(private statisticsService: StatisticsService) {}
 
     public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
         this.gridApi = gridApi;
@@ -53,6 +50,7 @@ export class TableDataService {
             this.originalData = this.setMetadata(resource);
             const filteredData = this.filterLocalData(this.originalData);
             this.loadedRowCount = filteredData.length;
+            this.totalRowCount$.next(this.loadedRowCount);
 
             this.gridApi.setRowData(filteredData);
             this.gridApi.forEachNode(node => {
@@ -125,6 +123,8 @@ export class TableDataService {
                         if (res.json) {
                             data = res.json();
                             totalRowCount = res.headers && res.headers.get('count');
+                            this.totalRowCount$.next(totalRowCount);
+
                             if (data.Data) {
                                 data.Data.forEach(item => {
                                     if (item.ID === 3223) {
@@ -159,6 +159,7 @@ export class TableDataService {
 
                 if (params.startRow === 0) {
                     this.sumRow$.next(undefined);
+
                     if (this.columnSumResolver) {
                         this.columnSumResolver(urlParams)
                             .catch(err => {

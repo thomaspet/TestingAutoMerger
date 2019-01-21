@@ -56,7 +56,9 @@ export class SalaryBalanceViewService {
             errors.push('ansatt');
         }
 
-        if (!this.salaryBalanceService.isHiddenByInstalmentType(currentSalBal) && !currentSalBal.SupplierID) {
+        if (!this.salaryBalanceService.isHiddenByInstalmentType(currentSalBal)
+            && currentSalBal.InstalmentType !== SalBalType.Other
+            && !currentSalBal.SupplierID) {
             errors.push('leverandør');
         }
 

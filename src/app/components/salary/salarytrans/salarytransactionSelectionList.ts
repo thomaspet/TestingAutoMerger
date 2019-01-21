@@ -292,6 +292,10 @@ export class SalaryTransactionSelectionList extends UniView implements AfterView
         return this.transList ? this.transList.hasDirty() : false;
     }
 
+    public updateSums() {
+        this.setSummarySource();
+    }
+
     public setEditable(isEditable: boolean) {
         if (this.transList) {
             this.transList.setEditable(isEditable);

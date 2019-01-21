@@ -2,7 +2,7 @@
     <header>
         <h1>Feriepenger - oppsett og utbetaling</h1>
     </header>
-    <article [attr.aria-busy]="busy || !vacationpayBasis">
+    <article [attr.aria-busy]="busy || !vacationpayBasis" class="scrollable">
         <section class="vacationpay_Flexheader">
             <uni-form class="vacationpay_settings_left" [config]="config$" [fields]="fields$" [model]="vacationHeaderModel$" (changeEvent)="change($event)"></uni-form>
             <uni-information [config]="infoConfig$ | async" class="infoNote">

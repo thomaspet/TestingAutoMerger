@@ -22,6 +22,10 @@ export class StatisticsService extends BizHttp<string> {
         this.DefaultOrderBy = null;
     }
 
+    public GetWrappedDataByUrlSearchParams<T>(params: URLSearchParams): Observable<Response> {
+        return this.GetAllByUrlSearchParams(params);
+    }
+
     public GetDataByUrlSearchParams<T>(params: URLSearchParams): Observable<StatisticsResponse> {
         return this.GetAllByUrlSearchParams(params).map(response => response.json());
     }

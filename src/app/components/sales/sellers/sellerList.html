@@ -1,8 +1,8 @@
 <uni-toolbar
-    [config]="{title: 'Selgere'}">
+    [config]="{title: 'Selgere'}"
+    [saveactions]="toolbarActions">
 </uni-toolbar>
 <section class="application">
-    <button (click)="createSeller()" class="new-button">Ny selger</button>
     <uni-table
         [resource]="sellers"
         [config]="sellerTableConfig"

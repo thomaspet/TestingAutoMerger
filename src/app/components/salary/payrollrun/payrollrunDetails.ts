@@ -666,6 +666,9 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
                         , 'Dimensions', 'Files', 'VatType.VatTypePercentages'])
                     .do((transes: SalaryTransaction[]) => {
+                        if (this.selectionList) {
+                            this.selectionList.updateSums();
+                        }
                         this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue());
                     }),
                 this.getProjectsObservable(),

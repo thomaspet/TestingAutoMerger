@@ -3,7 +3,7 @@ import {TypeOfIntegration} from '@uni-entities';
 export const COUNTERS = [
     {
         id: 'counters_supplierinvoice',
-        description: 'Tellere - fakturamottak',
+        description: 'Tellere - leverandørfaktura',
         width: 4,
         height: 1,
         widgetType: 'counters',

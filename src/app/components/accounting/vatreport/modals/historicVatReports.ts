@@ -12,29 +12,29 @@ import {
     UniTableColumnType
 } from '../../../../../framework/ui/unitable/index';
 import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {VatReport} from '../../../../../app/unientities';
+import { Period, VatReport } from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
-import {ToastService} from '../../../../../framework/uniToast/toastService';
 import {URLSearchParams} from '@angular/http';
 import {Observable} from 'rxjs';
 import {
     VatReportService,
-    PeriodService,
     ErrorService
 } from '../../../../services/services';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 @Component({
     selector: 'historic-vatreport-modal',
+    styles: [`.uni-modal { width: 60vw;}`],
     template: `
         <section role="dialog" class="uni-modal">
             <header><h1>Oversikt over MVA meldinger</h1></header>
             <article class='modal-content'>
                 <p>Trykk på en av linjene under for å vise detaljer om MVA meldingen</p>
-                <uni-table
+                <ag-grid-wrapper
                     [resource]="lookupFunction"
                     [config]="uniTableConfig"
                     (rowSelected)="selectedItemChanged($event)">
-                </uni-table>
+                </ag-grid-wrapper>
             </article>
             <footer>
                 <button (click)="close(null)" class="bad">Avbryt</button>
@@ -58,9 +58,8 @@ export class HistoricVatReportModal implements IUniModal {
     private periodDateFormat: PeriodDateFormatPipe;
 
     constructor(
-        private periodService: PeriodService,
-        private toastService: ToastService,
         private vatReportService: VatReportService,
+        private statisticsService: StatisticsService,
         private errorService: ErrorService
     ) {
         this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
@@ -73,15 +72,15 @@ export class HistoricVatReportModal implements IUniModal {
 
     }
 
-    private getTableData(urlParams: URLSearchParams): Observable<VatReport[]> {
+    private getTableData(urlParams: URLSearchParams): Observable<any> {
         urlParams = urlParams || new URLSearchParams();
-        urlParams.set('expand', 'TerminPeriod,VatReportType,JournalEntry,VatReportArchivedSummary');
-
-        if (!urlParams.get('orderby')) {
-            urlParams.set('orderby', 'TerminPeriod.AccountYear DESC, TerminPeriod.No DESC, ID DESC');
-        }
-
-        return this.vatReportService.GetAllByUrlSearchParams(urlParams);
+        urlParams.set('model', 'vatreport');
+        urlParams.set('select', 'vatreport.*,terminperiod.*,vatreporttype.*,journalentry.*,vatreportarchivedsummary.*,'
+            + 'auditlog.Action,auditlog.ID,auditlog.NewValue,auditlog.UpdatedAt,auditlog.EntityType');
+        urlParams.set('join', 'vatreport.ID eq auditlog.EntityID');
+        urlParams.set('expand', 'terminperiod,vatreporttype,journalentry,vatreportarchivedsummary');
+        urlParams.set('filter', 'auditlog.newvalue eq 32004 and auditlog.EntityType eq \'VatReport\'');
+        return this.statisticsService.GetWrappedDataByUrlSearchParams(urlParams);
     }
 
     private generateUniTableConfig(): UniTableConfig {
@@ -90,17 +89,43 @@ export class HistoricVatReportModal implements IUniModal {
             .setPageSize(10)
             .setSearchable(false)
             .setColumns([
-                new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text).setWidth('25%'),
-                new UniTableColumn('TerminPeriod.AccountYear', 'År', UniTableColumnType.Text).setWidth('15%'),
-                new UniTableColumn('TerminPeriod.No', 'Termin', UniTableColumnType.Text).setWidth('15%'),
-                new UniTableColumn('TerminPeriod.Name', 'Periode', UniTableColumnType.Text).setWidth('30%')
-                    .setTemplate((vatReport: VatReport) => {
-                        return this.periodDateFormat.transform(vatReport.TerminPeriod);
+                new UniTableColumn('VatReportType.Name', 'Type', UniTableColumnType.Text)
+                    .setWidth('25%')
+                    .setAlias('VatReportType_Name'),
+
+                new UniTableColumn('TerminPeriod.AccountYear', 'År', UniTableColumnType.Text)
+                    .setAlias('TerminPeriod_AccountYear')
+                    .setWidth('15%'),
+                new UniTableColumn('TerminPeriod.No', 'Termin', UniTableColumnType.Text)
+                    .setWidth('5%')
+                    .setAlias('TerminPeriod_No'),
+                new UniTableColumn('TerminPeriod.Name', 'Periode', UniTableColumnType.Text)
+                    .setWidth('30%')
+                    .setAlias('TerminPeriod_Name')
+                    .setTemplate((vatReport: any) => {
+                        return this.periodDateFormat.transform(<Period>{
+                            FromDate: vatReport.TerminPeriod_FromDate,
+                            ToDate: vatReport.TerminPeriod_ToDate,
+                        });
                     }),
                 new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text).setWidth('15%')
                     .setTemplate((vatReport: VatReport) => {
                         return this.vatReportService.getStatusText(vatReport.StatusCode);
-                    })
+                    }),
+                new UniTableColumn('CreatedAt', 'Sist endret dato', UniTableColumnType.DateTime).setWidth('15%')
+                    .setTemplate((vatReport: VatReport) => {
+                        return (new Date(vatReport.CreatedAt) > new Date(vatReport.UpdatedAt))
+                            ? vatReport.CreatedAt.toString()
+                            : vatReport.UpdatedAt.toString();
+                    }),
+                new UniTableColumn('auditlog.Action', 'Status Altinn', UniTableColumnType.Text)
+                    .setWidth('15%')
+                    .setAlias('auditlogAction')
+                    .setTemplate((vatReport: any) => {
+                        return (vatReport.auditlogAction === 'approveManually')
+                            ? 'Manuelt godkjent'
+                            : 'Signert';
+                    }),
 
             ]);
     }

@@ -29,6 +29,13 @@ export class SellerList {
     private expandString = 'DefaultDimensions,DefaultDimensions.Project,'
         + 'DefaultDimensions.Department,User,Team,Employee,Employee.BusinessRelationInfo';
 
+    public toolbarActions = [{
+        label: 'Ny selger',
+        action: this.createSeller.bind(this),
+        main: true,
+        disabled: false
+    }];
+
     constructor(
         private router: Router,
         private errorService: ErrorService,

@@ -1,57 +1,48 @@
-import {Component} from '@angular/core';
-import {UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
-import {WorkTypeSystemTypePipe} from '../../common/utils/pipes';
-import {IViewConfig} from '../genericview/list';
+import {Component, ViewChild, OnInit} from '@angular/core';
+import { Router } from '@angular/router';
+import { UniTickerWrapper } from '@app/components/uniticker/tickerWrapper/tickerWrapper';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ITickerColumnOverride } from '@app/services/services';
+import { WorkTypeSystemTypePipe } from '@app/components/common/utils/pipes';
 
 @Component({
     selector: 'worktypes',
-    template: '<genericlist [viewconfig]="viewconfig"></genericlist>'
+    templateUrl: './worktypes.html'
 })
-export class WorktypeListview {
-    public viewconfig: IViewConfig;
+export class WorktypeListview implements OnInit {
 
-    constructor() {
-        this.viewconfig = this.createConfig();
+    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    private systemTypePipe: WorkTypeSystemTypePipe = new WorkTypeSystemTypePipe();
+
+    public tickercode: string = 'worktype_list';
+    public columnOverrides: Array<ITickerColumnOverride> = [
+        {
+            Field: 'SystemType',
+            Template: (dataItem) => {
+                return this.systemTypePipe.transform(dataItem.WorktypeSystemType, '');
+            }
+        }
+    ];
+
+    public toolbarActions = [{
+        label: 'Ny timeart',
+        action: this.newWorktype.bind(this),
+        main: true,
+        disabled: false
+    }];
+
+    constructor(private router: Router, private tabService: TabService) {}
+
+    public ngOnInit(): void {
+        this.tabService.addTab({
+            url: '/timetracking/worktypes',
+            name: 'Timearter',
+            active: true,
+            moduleID: UniModules.WorkTypes
+        });
     }
 
-    private createConfig(): IViewConfig {
-        return {
-            moduleID: UniModules.WorkTypes,
-            baseUrl: '/timetracking/worktypes',
-            title: 'Timearter',
-            data: {
-                route: 'worktypes', expand: 'product'
-            },
-            tableConfig: this.createTableConfig()
-        };
-    }
-
-    private createTableConfig(): UniTableConfig {
-        const systemTypePipe = new WorkTypeSystemTypePipe();
-        const cols = [
-            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number)
-                .setWidth('5%')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text)
-                .setWidth('25%')
-                .setFilterOperator('startswith'),
-            new UniTableColumn('SystemType', 'Type', UniTableColumnType.Text)
-                .setFilterable(false)
-                .setTemplate((rowModel: any) => systemTypePipe.transform(rowModel.SystemType, '')  )
-                .setWidth('15%'),
-            new UniTableColumn('Product.PartName', 'Produktnr.', UniTableColumnType.Text)
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Price', 'Pris', UniTableColumnType.Text)
-                .setFilterOperator('startswith'),
-            new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-                .setFilterOperator('startswith')
-                .setWidth('20%'),
-            new UniTableColumn('WagetypeNumber', 'Lønnsart', UniTableColumnType.Text)
-                .setFilterOperator('startswith')
-        ];
-        return new UniTableConfig('timetracking.worktypes.list', false, true)
-            .setSearchable(true)
-            .setColumns(cols);
+    private newWorktype() {
+        this.router.navigateByUrl('/timetracking/worktypes/' + 0);
     }
 }

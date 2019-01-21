@@ -33,6 +33,7 @@ import {TimeentryImportModal} from './components/file-import-modal';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
+import {UniTickerModule} from '../uniticker/uniTickerModule';
 
 import {MatSelectModule} from '@angular/material';
 import {MatMenuModule} from '@angular/material';
@@ -52,7 +53,8 @@ import {MatMenuModule} from '@angular/material';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        WidgetModule
+        WidgetModule,
+        UniTickerModule
     ],
     declarations: [
         GenericDetailview,

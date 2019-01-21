@@ -265,10 +265,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
         }
 
-        this.journalEntryLines = data;
-
-        // If SupplierInvoice don't set focus on table
-        if (this.mode === JournalEntryMode.SupplierInvoice) { return; }
+        // If SupplierInvoice don't set focus on table, and filter away credited lines!
+        if (this.mode === JournalEntryMode.SupplierInvoice) {
+            // Hide credited lines from Supplier Invoice view
+            this.journalEntryLines = data.filter(line => line.StatusCode !== 34002);
+            return;
+        } else {
+            this.journalEntryLines = data;
+        }
 
         setTimeout(() => {
             if (this.currentRowIndex >= 0) {
@@ -1392,7 +1396,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         } else if (this.mode === JournalEntryMode.SupplierInvoice) {
-            // SupplierInvoice == "Fakturamottak"
+            // SupplierInvoice == "Leverandørfaktura"
             tableName = 'accounting.journalEntry.supplierinvoice';
 
             if (this.defaultRowData) {

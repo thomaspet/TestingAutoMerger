@@ -739,7 +739,14 @@ export class UniTicker {
                 getDimensionColumns.subscribe(res => {
                     if (res && res.length) {
                         res.forEach(customDimension => {
-                            const dimField = `Dimension${customDimension.Dimension}`;
+                            const dimFieldNo = `Dimension${customDimension.Dimension}.Number`;
+                            const colNoIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimFieldNo));
+                            if (colNoIndex >= 0) {
+                                this.ticker.Columns[colNoIndex].Header = customDimension.Label + "nr.";
+                                this.ticker.Columns[colNoIndex].DefaultHidden = !customDimension.IsActive;
+                            }
+
+                            const dimField = `Dimension${customDimension.Dimension}.Name`;
                             const colIndex = this.ticker.Columns.findIndex(col => col.Field.includes(dimField));
                             if (colIndex >= 0) {
                                 this.ticker.Columns[colIndex].Header = customDimension.Label;
@@ -1127,6 +1134,7 @@ export class UniTicker {
             .setSearchListVisible(true)
             .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
+            .setShowTotalRowCount(true)
             .setDataMapper((data) => {
                 if (this.ticker.Model) {
                     const tmp = data !== null ? data.Data : [];

@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild, AfterContentInit} from '@angular/core';
+import {Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
@@ -35,14 +35,13 @@ import {
     PaymentService,
     JournalEntryService,
     CustomerInvoiceService,
-    ElsaProductService,
     ElsaPurchaseService,
     CompanySettingsService,
 } from '../../services/services';
 import {ToastService, ToastType} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
 import { AfterViewInit } from '@angular/core/src/metadata/lifecycle_hooks';
-import { RequestMethod, Http } from '@angular/http';
+import { RequestMethod } from '@angular/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
 import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
 
@@ -221,6 +220,7 @@ export class BankComponent implements AfterViewInit {
         private customerInvoiceService: CustomerInvoiceService,
         private elsaPurchasesService: ElsaPurchaseService,
         private companySettingsService: CompanySettingsService,
+        private statisticsService: StatisticsService,
     ) {
         this.updateTab();
 
@@ -548,31 +548,34 @@ export class BankComponent implements AfterViewInit {
         `Viktig, betalinger er sendt til banken og må stoppes manuelt der før du kan slette betalingen.<br>
         Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
         : '';
-        const modal = this.modalService.open(UniConfirmModalV2, {
-            header: 'Slett betaling',
-            message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
-            warning: warningMessage,
-            buttonLabels: {
-                accept: 'Slett og krediter faktura',
-                reject: 'Slett betaling',
-                cancel: 'Avbryt'
-            }
-        });
-
-        modal.onClose.subscribe((result) => {
-            if (result !== ConfirmActions.CANCEL) {
-                this.paymentService.Action(
-                    row.ID,
-                    result === ConfirmActions.ACCEPT ? 'force-delete-and-credit' : 'force-delete',
-                    null,
-                    RequestMethod.Delete
-                ).subscribe(paymentResponse => {
-                    this.tickerContainer.mainTicker.reloadData(); // refresh table
-                    this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
-                    });
+        this.isJournaled(row.ID).subscribe(res => {
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Slett betaling',
+                message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
+                warning: warningMessage,
+                buttonLabels: {
+                    accept: res[0].ID ? 'Slett og krediter faktura' : null,
+                    reject: 'Slett betaling',
+                    cancel: 'Avbryt'
                 }
             });
+
+            modal.onClose.subscribe((result) => {
+                if (result !== ConfirmActions.CANCEL) {
+                    this.paymentService.Action(
+                        row.ID,
+                        result === ConfirmActions.ACCEPT ? 'force-delete-and-credit' : 'force-delete',
+                        null,
+                        RequestMethod.Delete
+                    ).subscribe(() => {
+                        this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        this.toastService.addToast('Betaling er slettet', ToastType.good, 3);
+                        });
+                    }
+                });
+            });
         });
+
     }
 
     public updatePaymentStatusToPaidAndJournaled(doneHandler: (status: string) => any) {
@@ -969,19 +972,16 @@ export class BankComponent implements AfterViewInit {
                 return;
             }
 
-            const requests = [];
-            this.rows.forEach(x => {
-                requests.push(
-                    result === ConfirmActions.ACCEPT
-                    ? this.paymentService.Action(x.ID, 'delete-and-credit', null, RequestMethod.Delete)
-                    : this.paymentService.Remove(x.ID, x),
-                    );
-            });
-
-            Observable.forkJoin(requests).subscribe(response => {
-                this.toastService.addToast('Betalinger slettet', ToastType.good, 5);
+            const paymentIDs = this.rows.map(x => x.ID);
+            this.paymentService.ActionWithBody(null, paymentIDs, 'batch-delete-and-credit', RequestMethod.Put,
+            result === ConfirmActions.ACCEPT ? '' : 'credit=false')
+            .subscribe(res => {
+                res.forEach(x => {
+                    if (x.statusCode === 3) {
+                        this.toastService.addToast(x.errorMessage, ToastType.bad);
+                    }
+                });
                 doneHandler('Betalinger slettet');
-
                 // Refresh data after save
                 this.tickerContainer.mainTicker.reloadData();
             }, (err) => {
@@ -989,6 +989,15 @@ export class BankComponent implements AfterViewInit {
                 this.errorService.handle(err);
             });
         });
+    }
+
+    private isJournaled(paymentID: number): Observable<any> {
+        return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
+        + `&select=JournalEntryLine.ID as ID`
+        + `&filter=SourceEntityName eq 'SupplierInvoice' and `
+        + `DestinationEntityName eq 'Payment' and Payment.ID eq ${paymentID}`
+        + `&join=Tracelink.DestinationInstanceID eq Payment.ID and Tracelink.SourceInstanceID eq SupplierInvoice.ID `
+        + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID`);
     }
 
 }
