@@ -64,7 +64,7 @@ export class ReminderSending implements OnInit {
         + 'CustomerInvoice.PaymentDueDate as InvoiceDueDate,CustomerInvoice.InvoiceDate as InvoiceDate,'
         + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
         + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
-        + 'add(sum(isnull(restamountcurrency,0)),max(customerinvoice.restamountcurrency)) as RestAmountCurrency,'
+        + 'add(sum(isnull(restamountcurrency,0)),max(customerinvoice.restamountcurrency)) as _RestAmountCurrency,'
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode&expand=CustomerInvoice,'
         + 'CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode&filter='
@@ -513,14 +513,14 @@ export class ReminderSending implements OnInit {
             })
             .setCls('column-align-right');
 
-        const restAmountCol = new UniTableColumn('RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
+        const restAmountCol = new UniTableColumn('_RestAmountCurrency', 'Restsum', UniTableColumnType.Number)
             .setWidth('10%')
             .setFilterOperator('eq')
             .setFormat('{0:n}')
             .setNumberFormat(this.numberFormat)
             .setEditable(false)
             .setConditionalCls((item) => {
-                return (item.RestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
+                return (+item._RestAmountCurrency <= 0) ? 'number-good' : 'number-bad';
             });
 
         const feeAmountCol = new UniTableColumn('ReminderFeeCurrency', 'Gebyr', UniTableColumnType.Number)
