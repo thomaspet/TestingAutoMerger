@@ -137,7 +137,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             this.journalEntry = undefined;
             let changedPayroll = true;
             this.payrollrunID = +params['id'];
-            this.updateSum(this.payrollrunID).subscribe();
             this.tagConfig.readOnly = !this.payrollrunID;
             if (!this.payrollrunID) {
                 this.setEditableOnChildren(false);
@@ -206,7 +205,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     };
 
                     this.saveActions = this.getSaveActions(payrollRun);
-
                     this.checkDirty();
                     if (changedPayroll) {
                         if (!payrollRun.Description && !this.detailsActive) {
@@ -649,6 +647,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private getSalaryTransactions() {
         this.getSalaryTransactionsObservable()
+            .do(() => this.updateSum(this.payrollrunID).subscribe())
             .subscribe(
             response => {
                 super.updateState('salaryTransactions', response, false);
@@ -1166,6 +1165,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.saveActions = this.saveActions.map(x => {x.disabled = true; return x; });
             } else {
                 this.saveActions = this.getSaveActions(this.payrollrun$.value);
+                this.checkDirty();
             }
         }
     }
