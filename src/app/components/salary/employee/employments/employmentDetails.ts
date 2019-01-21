@@ -170,10 +170,6 @@ export class EmploymentDetails implements OnChanges {
         // Ordinary, maritime and frilancer
         this.setRequiredTooltip(fields, employment, 'StartDate');
 
-        this.setRequiredTooltip(fields, employment, 'ShipReg');
-        this.setRequiredTooltip(fields, employment, 'ShipType');
-        this.setRequiredTooltip(fields, employment, 'TradeArea');
-
         // Ordinary and maritime
         if (employment.TypeOfEmployment !== TypeOfEmployment.FrilancerContratorFeeRecipient) {
             this.setRequiredTooltip(fields, employment, 'JobCode');
@@ -187,9 +183,12 @@ export class EmploymentDetails implements OnChanges {
         // Only maritime
         if (employment.TypeOfEmployment === TypeOfEmployment.MaritimeEmployment) {
             this.setRequiredTooltip(fields, employment, 'RemunerationType');
+            this.setRequiredTooltip(fields, employment, 'ShipReg');
+            this.setRequiredTooltip(fields, employment, 'ShipType');
+            this.setRequiredTooltip(fields, employment, 'TradeArea');
         }
 
-        this.fields$.next(fields);
+        setTimeout(() => this.fields$.next(fields));
     }
 
     private setRequiredTooltip(fields, model, property) {
