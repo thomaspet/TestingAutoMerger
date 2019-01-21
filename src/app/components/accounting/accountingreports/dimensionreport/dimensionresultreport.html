@@ -2,7 +2,7 @@
 
 <section class="application">
     <section class="period-setup">
-        Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
+        Perioder: <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker><period-picker style="display: none" [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker>
     </section>
 
     <drilldown-result-report-part [periodFilter1]="periodFilter1" [periodFilter2]="periodFilter2" [dimensionType]="dimensionType" [dimensionId]="filterDimensionID"></drilldown-result-report-part>
