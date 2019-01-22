@@ -1,81 +1,56 @@
-import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
-import {
-    accountSearch,
-    openNewAccountModal, vatTypeGroupConfig
-} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-items-table.helpers';
-import { from } from 'rxjs/observable/from';
-import { map } from 'rxjs/operator/map';
+import { UniTableConfig } from '@uni-framework/ui/unitable';
+import accountColumn from './columns/account.column';
+import vattypeColumn from './columns/vattype.column';
+import ammountColumn from './columns/amount.column';
+import departmentColumn from './columns/department.column';
+import descriptionColumn from './columns/description.column';
+import { CompanySettingsService } from '@app/services/common/companySettingsService';
+import { VatTypeService } from '@app/services/accounting/vatTypeService';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { AccountService } from '@app/services/accounting/accountService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { PredefinedDescriptionService } from '@app/services/common/PredefinedDescriptionService';
+import { forkJoin } from 'rxjs';
+import { CostAllocationItem } from '@app/unientities';
 
-const accountColumn = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
-    .setDisplayField('Account.AccountNumber')
-    .setTemplate((rowModel) => {
-        if (rowModel.DebitAccount) {
-            const account = rowModel.DebitAccount;
-            return account.AccountNumber
-                + ': '
-                + account.AccountName;
-        }
-        return '';
-    })
-    .setWidth('10%')
-    .setOptions({
-        itemTemplate: (selectedItem) => {
-            return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
-        },
-        lookupFunction: (searchValue) => {
-            return accountSearch(searchValue);
-        },
-        addNewButtonVisible: true,
-        addNewButtonText: 'Opprett ny konto',
-        addNewButtonCallback: (text) => {
-            return openNewAccountModal(this.table.getCurrentRow(), text);
-        }
+
+
+const tableConfig = (
+    table: AgGridWrapper,
+    companySettinsService: CompanySettingsService,
+    vatTypeService: VatTypeService,
+    accountService: AccountService,
+    statisticsService: StatisticsService,
+    modalService: UniModalService,
+    predefinedDescriptionService: PredefinedDescriptionService
+) => {
+
+    return forkJoin([
+        companySettinsService.Get(1),
+        predefinedDescriptionService.GetAll('filter=Type eq 1'),
+    ]).map(([companySettings, descriptions]) => {
+        const columns = [
+            accountColumn(table, accountService, modalService),
+            vattypeColumn(vatTypeService, companySettings),
+            ammountColumn(),
+            descriptionColumn(descriptions),
+            departmentColumn(statisticsService)
+        ];
+
+        const config = new UniTableConfig('accounting.costallocation.items', true, true, 20)
+            .setSearchable(false)
+            .setEditable(true)
+            .setColumns(columns)
+            .setColumnMenuVisible(true, false);
+        config.defaultRowData = (() => {
+            const value = new CostAllocationItem();
+            return value;
+        })();
+        return config;
     });
-const vatTypeColumn = new UniTableColumn('VatType', 'MVA', UniTableColumnType.Lookup)
-    .setDisplayField('VatType.VatCode')
-    .setWidth('8%')
-    .setSkipOnEnterKeyNavigation(true)
-    .setTemplate((rowModel) => {
-        if (rowModel.DebitVatType) {
-            const vatType = rowModel.DebitVatType;
-            return `${vatType.VatCode}: ${vatType.VatPercent}%`;
-        }
-        return '';
-    })
-    .setOptions({
-        itemTemplate: (item) => {
-            return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
-        },
-        lookupFunction: (searchValue) => {
-            // this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true'),
-            const vatTypes = []
-            return from([]).pipe(
-                map(result => this.vattypes.filter(
-                    (vattype) => vattype.VatCode === searchValue
-                    || vattype.VatPercent === searchValue
-                    || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
-                    || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%`
-                    || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`
-                ))
-            );
-        },
-        groupConfig: vatTypeGroupConfig
-    })
-    // this.companySettingsService.Get(1),
-    .setEditable(x => this.companySettings.TaxMandatoryType === 3);
-const columns = [
-    accountColumn
-];
 
-const tableConfig = new UniTableConfig('accounting.costallocation.items', true, true, 20)
-    .setSearchable(false)
-    .setEditable(true)
-    .setColumns(columns)
-    .setColumnMenuVisible(true, false);
-/*tableConfig.defaultRowData = (() => {
-    const value = new EventSubscriber();
-    value.Active = true;
-    return value;
-})();*/
+
+};
 
 export default tableConfig;

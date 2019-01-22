@@ -1,70 +1,85 @@
 import {
-    ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges
+    ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild
 } from '@angular/core';
 import { UniTableConfig } from '@uni-framework/ui/unitable';
 import { CostAllocation } from '@app/unientities';
 import formFields from './cost-allocation-form.config';
 import tableConfig from './cost-allocation-items-table.config';
-import { BehaviorSubject } from 'rxjs';
-import { CostAllocationService } from '@app/services/accounting/costAllocationService';
+import { CompanySettingsService } from '@app/services/common/companySettingsService';
+import { VatTypeService } from '@app/services/accounting/vatTypeService';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { Subject } from 'rxjs/Subject';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { AccountService } from '@app/services/accounting/accountService';
+import { PredefinedDescriptionService } from '@app/services/common/PredefinedDescriptionService';
 
 @Component({
     selector: 'uni-cost-allocation-details',
     templateUrl: './cost-allocation-details.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: [
+        `:host {width: 100%;}`,
+        `section.uni-container { width: 100%; }`
+    ]
 })
 export class UniCostAllocationDetails {
     @Input() costAllocation: CostAllocation = new CostAllocation();
     @Input() isTouched: boolean;
 
     @Output() touched = new EventEmitter<boolean>(true);
-    @Output() addSubscriber = new EventEmitter<any>(true);
-    @Output() saveEventplan = new EventEmitter<CostAllocation>(true);
-    @Output() updateSubscriber = new EventEmitter<CostAllocation>(true);
-    @Output() deleteSubscriber = new EventEmitter<CostAllocation>(true);
 
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
     formConfig = { autofocus: true };
-    fields$ = new BehaviorSubject<any>([]);
+    formFields = formFields;
     tableConfig: UniTableConfig;
+    _onDestroy = new Subject();
+    constructor(
+        private companySettingsService: CompanySettingsService,
+        private vatTypeService: VatTypeService,
+        private accountService: AccountService,
+        private statisticsService: StatisticsService,
+        private modalService: UniModalService,
+        private predefinedDescriptionService: PredefinedDescriptionService) {
 
-    constructor(private costAllocationService: CostAllocationService) {
-        this.costAllocationService.GetAll('expand=items&hateoas=false', [])
-            .subscribe(data => {
-                this.fields$.next(formFields(data));
-            }, () => {
-                this.fields$.next(formFields([], []));
+    }
+
+    ngOnInit() {
+        tableConfig(
+            this.table,
+            this.companySettingsService,
+            this.vatTypeService,
+            this.accountService,
+            this.statisticsService,
+            this.modalService,
+            this.predefinedDescriptionService
+        )
+            .takeUntil(this._onDestroy)
+            .subscribe(config => {
+                this.tableConfig = config;
+                this.tableConfig.deleteButton = true;
             });
-        this.tableConfig = tableConfig;
-        this.tableConfig.deleteButton = true;
     }
 
     ngOnChanges(change: SimpleChanges) {
         if (change.costAllocation) {
-            if (change.costAllocation.currentValue) {
-                this.fields$.next(this.updateFormFields(change.costAllocation.currentValue));
-            } else {
-                this.costAllocation = new CostAllocation();
-            }
+            this.costAllocation = change.costAllocation.currentValue;
         }
+    }
+
+    ngOnDestroy() {
+        this._onDestroy.next();
     }
 
     onFormInput() {
         this.touched.emit(true);
     }
 
-    onRowDeleted(row) {
-        this.deleteSubscriber.emit(row);
+    onRowDeleted() {
+        this.touched.emit(true);
     }
 
-    onRowChange(row) {
-        if (row.ID) {
-            this.updateSubscriber.emit(row);
-        } else {
-            this.addSubscriber.emit(row);
-        }
-    }
-
-    onClickSaveEventplanButton() {
-        this.saveEventplan.emit(this.costAllocation);
+    onRowChange() {
+        this.touched.emit(true);
     }
 }

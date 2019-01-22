@@ -2,8 +2,16 @@ import { Observable } from 'rxjs/Observable';
 import { StatusCode } from '@app/components/sales/salesHelper/salesEnums';
 import { NewAccountModal } from '@app/components/accounting/NewAccountModal';
 import { IGroupConfig } from '@uni-framework/ui/unitable/controls';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { AccountService } from '@app/services/accounting/accountService';
+import { UniModalService } from '@uni-framework/uni-modal';
 
-export function accountSearch(searchValue: string): Observable<any> {
+export function departmentSearch(statisticsService: StatisticsService, searchValue): Observable<any> {
+    return statisticsService.GetAll(`model=Department&select=DepartmentNumber as DepartmentNumber,Name as Name,ID as ID&` +
+        `filter=contains(DepartmentNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
+}
+
+export function accountSearch(accountService: AccountService, searchValue: string): Observable<any> {
 
     let filter = '';
     if (searchValue === '') {
@@ -33,12 +41,12 @@ export function accountSearch(searchValue: string): Observable<any> {
         }
     }
 
-    return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
+    return accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
 }
 
-export function openNewAccountModal(item: any, searchCritera: string): Promise<Account> {
+export function openNewAccountModal(modalService: UniModalService, item: any, searchCritera: string): Promise<Account> {
     return new Promise((resolve, reject) => {
-        this.modalService.open(NewAccountModal, { data: { searchCritera: searchCritera } })
+        modalService.open(NewAccountModal, { data: { searchCritera: searchCritera } })
             .onClose
             .subscribe((account) => {
                 if (account) {

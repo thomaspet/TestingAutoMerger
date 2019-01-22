@@ -15,7 +15,7 @@ import tableConfig from './cost-allocation-table.config';
 export class UniCostAllocationList {
     @Input() data: CostAllocation[];
     @Input() selectedIndex: number;
-    @Output() costAllocationSelected: EventEmitter<CostAllocation> = new EventEmitter<CostAllocation>(true);
+    @Output() costAllocationSelected: EventEmitter<{row: CostAllocation, index: number}> = new EventEmitter<{row: CostAllocation, index: number}>(true);
     @Output() costAllocationDeleted: EventEmitter<CostAllocation> = new EventEmitter<CostAllocation>(true);
 
     @ViewChild('table') table: AgGridWrapper;
@@ -26,14 +26,20 @@ export class UniCostAllocationList {
     }
 
     ngOnChanges(changes: SimpleChanges) {
-        if (changes.selectedIndex && changes.selectedIndex.currentValue !== changes.selectedIndex.previousValue) {
-            this.costAllocationSelected.emit(this.data && this.data[this.selectedIndex]);
+        if (this.selectedIndex >= 0) {
             setTimeout(() => this.table.focusRow(this.selectedIndex), 200);
+        } else {
+            setTimeout(() => {
+                if (this.table && this.table.getRowCount() > 0) {
+                    this.table.clearSelection();
+                }
+            });
         }
     }
 
     onRowSelected(row) {
-        this.costAllocationSelected.emit(row);
+        const index = this.data.findIndex(item => row.ID === item.ID);
+        this.costAllocationSelected.emit({row, index});
     }
 
     onRowDelete($event) {
