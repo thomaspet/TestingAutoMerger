@@ -5,7 +5,7 @@
 <div class="application">
     <section class="splitview">
         <nav class ="splitview_list">
-            <uni-cost-allocation-list
+            <uni-cost-allocation-list #costAllocationList
                 [selectedIndex]="selectedIndex"
                 [data]="costAllocationItems"
                 (costAllocationSelected)="onCostAllocationSelected($event)"

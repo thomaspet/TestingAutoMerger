@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
@@ -12,6 +12,7 @@ import { CustomDimensionService } from '@app/services/common/customDimensionServ
 import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
 import { Observable } from 'rxjs/Observable';
+import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 
 
 const EXPAND_ITEMS = [
@@ -43,8 +44,10 @@ export class UniCostAllocation implements OnInit {
     currentCostAllocation = new CostAllocation();
     dimensionTypes: any[] = [];
 
+    @ViewChild('costAllocationList') costAllocationList: UniCostAllocationList;
+
     constructor(
-        public toast : ToastService,
+        public toast: ToastService,
         public tabService: TabService,
         public modalService: UniModalService,
         public costAllocationService: CostAllocationService,
@@ -109,46 +112,7 @@ export class UniCostAllocation implements OnInit {
             {
                 label: 'Lagre',
                 action: done => {
-                    const copyOfCostAllocation = Object.assign({}, this.currentCostAllocation);
-                    const items = copyOfCostAllocation.Items
-                        .filter(row => !row['_isEmpty'])
-                        .map(s => {
-                            if (!s.ID) {
-                                s._createguid = createGuid();
-                            }
-                            if (s.Account && s.Account.ID) {
-                                s.AccountID = s.Account.ID;
-                                s.Account = null;
-                            }
-                            if (s.VatType && s.VatType.ID) {
-                                s.VatTypeID = s.VatType.ID;
-                                s.VatType = null;
-                            }
-                            if (s.Dimensions && !s.Dimensions.ID) {
-                                s.Dimensions['_createguid'] = createGuid();
-                            }
-                            if (s.Dimensions.Department) {
-                                s.Dimensions.DepartmentID = s.Dimensions.Department.ID;
-                                s.Dimensions.Department = null;
-                            }
-                            if (s.Dimensions.Project) {
-                                s.Dimensions.ProjectID = s.Dimensions.Project.ID;
-                                s.Dimensions.Project = null;
-                            }
-                            if (this.dimensionTypes) {
-                                this.dimensionTypes.forEach(type => {
-                                    const name = 'Dimension' + type.Dimension;
-                                    const id = 'Dimension' + type.Dimension + 'ID';
-                                    if (s.Dimensions[name]) {
-                                        s.Dimensions[id] = s.Dimensions[name].ID;
-                                        s.Dimensions[name] = null;
-                                    }
-                                });
-                            }
-                            return s;
-                        });
-                    copyOfCostAllocation.Items = items;
-                    this.save(copyOfCostAllocation).subscribe(entity => {
+                    this.saveEntity(this.currentCostAllocation).subscribe(entity => {
                         this.ngOnInit();
                         done('Lagring fullført');
                     }, (error) => {
@@ -162,6 +126,9 @@ export class UniCostAllocation implements OnInit {
     }
 
     onCostAllocationSelected(data) {
+        if (data.index === this.selectedIndex) {
+            return;
+        }
         if (!this.touched) {
             this.costAllocationService.Get(data.row.ID, EXPAND_ITEMS).subscribe(entity => {
                 this.currentCostAllocation = entity;
@@ -170,7 +137,7 @@ export class UniCostAllocation implements OnInit {
         } else {
             this.modalService.openUnsavedChangesModal().onClose.subscribe((res: any) => {
                 if (res === ConfirmActions.ACCEPT) {
-                    this.save(this.currentCostAllocation).then((result: any) => {
+                    this.saveEntity(this.currentCostAllocation).subscribe((result: any) => {
                         this.touched = false;
                         this.costAllocationService.GetAll('', EXPAND_ITEMS)
                             .subscribe(items => {
@@ -179,13 +146,18 @@ export class UniCostAllocation implements OnInit {
                                 this.costAllocationItems = items;
                                 this.selectedIndex = this.costAllocationItems.findIndex(item => item.ID === result.ID);
                             });
-                    }).catch(reason => {
+                    }, (reason) => {
                         this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
                     });
                 } else {
                     if (res !== ConfirmActions.CANCEL) {
                         this.currentCostAllocation = data.row;
+                        this.selectedIndex = data.index;
                         this.touched = false;
+                    } else {
+                        setTimeout(() => {
+                            this.costAllocationList.table.focusRow(this.selectedIndex);
+                        });
                     }
                 }
             });
@@ -198,7 +170,46 @@ export class UniCostAllocation implements OnInit {
         }, (error) => this.errorService.handle(error));
     }
 
-    save(entity: CostAllocation) {
+    saveEntity(entity: CostAllocation): Observable<CostAllocation> {
+        const copyOfCostAllocation = Object.assign({}, entity);
+        const items = copyOfCostAllocation.Items
+            .filter(row => !row['_isEmpty'])
+            .map(s => {
+                if (!s.ID) {
+                    s._createguid = createGuid();
+                }
+                if (s.Account && s.Account.ID) {
+                    s.AccountID = s.Account.ID;
+                    s.Account = null;
+                }
+                if (s.VatType && s.VatType.ID) {
+                    s.VatTypeID = s.VatType.ID;
+                    s.VatType = null;
+                }
+                if (s.Dimensions && !s.Dimensions.ID) {
+                    s.Dimensions['_createguid'] = createGuid();
+                }
+                if (s.Dimensions.Department) {
+                    s.Dimensions.DepartmentID = s.Dimensions.Department.ID;
+                    s.Dimensions.Department = null;
+                }
+                if (s.Dimensions.Project) {
+                    s.Dimensions.ProjectID = s.Dimensions.Project.ID;
+                    s.Dimensions.Project = null;
+                }
+                if (this.dimensionTypes) {
+                    this.dimensionTypes.forEach(type => {
+                        const name = 'Dimension' + type.Dimension;
+                        const id = 'Dimension' + type.Dimension + 'ID';
+                        if (s.Dimensions[name]) {
+                            s.Dimensions[id] = s.Dimensions[name].ID;
+                            s.Dimensions[name] = null;
+                        }
+                    });
+                }
+                return s;
+            });
+        copyOfCostAllocation.Items = items;
         let source$;
         if (entity.ID) {
             source$ = this.costAllocationService.Put(entity.ID, entity);
@@ -221,13 +232,13 @@ export class UniCostAllocation implements OnInit {
         return Observable.create(observer => {
             this.modalService.openUnsavedChangesModal().onClose.subscribe(res => {
                 if (res === ConfirmActions.ACCEPT) {
-                    this.save(this.currentCostAllocation).then(() => {
+                    this.saveEntity(this.currentCostAllocation).subscribe(() => {
                         this.touched = false;
                         this.ngOnInit();
                         this.toast.addToast('Fordelingsnøkler lagret', ToastType.good, ToastTime.medium);
                         observer.next(true);
                         observer.complete();
-                    }).catch(reason => {
+                    }, (reason) => {
                         this.toast.addToast(reason, ToastType.bad, ToastTime.medium);
                         observer.next(false);
                         observer.complete();
