@@ -6,6 +6,11 @@ import { StatisticsService } from '@app/services/common/statisticsService';
 import { AccountService } from '@app/services/accounting/accountService';
 import { UniModalService } from '@uni-framework/uni-modal';
 
+export function projectSearch(statisticsService: StatisticsService, searchValue): Observable<any> {
+    return statisticsService.GetAll(`model=Project&select=ProjectNumber as ProjectNumber,Name as Name,ID as ID&` +
+        `filter=contains(ProjectNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
+}
+
 export function departmentSearch(statisticsService: StatisticsService, searchValue): Observable<any> {
     return statisticsService.GetAll(`model=Department&select=DepartmentNumber as DepartmentNumber,Name as Name,ID as ID&` +
         `filter=contains(DepartmentNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);

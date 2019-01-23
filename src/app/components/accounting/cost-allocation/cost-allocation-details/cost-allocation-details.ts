@@ -13,6 +13,7 @@ import { StatisticsService } from '@app/services/common/statisticsService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { AccountService } from '@app/services/accounting/accountService';
 import { PredefinedDescriptionService } from '@app/services/common/PredefinedDescriptionService';
+import { CustomDimensionService } from '@app/services/common/customDimensionService';
 
 @Component({
     selector: 'uni-cost-allocation-details',
@@ -40,7 +41,8 @@ export class UniCostAllocationDetails {
         private accountService: AccountService,
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
-        private predefinedDescriptionService: PredefinedDescriptionService) {
+        private predefinedDescriptionService: PredefinedDescriptionService,
+        private customDimensionService: CustomDimensionService) {
 
     }
 
@@ -52,7 +54,8 @@ export class UniCostAllocationDetails {
             this.accountService,
             this.statisticsService,
             this.modalService,
-            this.predefinedDescriptionService
+            this.predefinedDescriptionService,
+            this.customDimensionService
         )
             .takeUntil(this._onDestroy)
             .subscribe(config => {
