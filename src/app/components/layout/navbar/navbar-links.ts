@@ -553,6 +553,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/admin/gdpr',
                         moduleID: UniModules.GDPRList
                     },
+                    {
+                        name: 'Flyt',
+                        url: '/admin/flow',
+                        moduleID: UniModules.Flow
+                    },
                 ]
             }
         ]

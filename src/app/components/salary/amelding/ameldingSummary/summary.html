@@ -1,4 +1,4 @@
-<!-- <section class="uni-container"> -->
+<section class="uni-container">
 <dl class="amelding_summary_overview" *ngIf="currentAMelding">
     <dt>A-melding ID</dt>
     <dd>{{currentAMelding.replacesID > 0 ? currentAMelding.ID + ' (Erstatter ID ' + currentAMelding.replacesID + ')' : currentAMelding.ID}}</dd>
@@ -12,7 +12,11 @@
     <dt>Status</dt>
     <dd>{{statusText}}</dd>
 </dl>
-
+<dl class="amelding_summary_overview" *ngIf="showXMLValidationError">
+    <dt style="color: red">Validering av xml feilet</dt>
+    <dd id="amelding_mainfile_validation_error_text">{{currentAMelding.xmlValidationErrors}}</dd>
+</dl>
+</section>
 
 <ul class="amelding_summary_sections" *ngIf="entitiesWithData">
 
@@ -22,28 +26,37 @@
             <i class="material-icons">
                 {{virksomhet.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
             </i>
-
             <p>
                 <strong>{{virksomhet.orgNumber | uninumberformat:'orgno'}}</strong>
                 {{virksomhet.name}}
             </p>
+            <section class="amelding_validation_errors_container">
+                <em
+                *ngIf="virksomhet.validations.length"
+                class="amelding_validation_errors"
+                title="{{virksomhet.validations.join(', ')}}"></em>
+            </section>
 
-            <small>
-                Grunnlag arbeidsgiveravgift
-                <strong>{{virksomhet.sums.agaBase | unicurrency}}</strong>
-            </small>
+
+            <section class="amelding_summary_section_header_aga">
+                <small>
+                    Grunnlag arbeidsgiveravgift
+                    <strong>{{virksomhet.sums.agaBase | unicurrency}}</strong>
+                </small>
+            </section>
+
         </section>
 
         <article class="amelding_summary_section_details" *ngIf="virksomhet.expanded">
 
             <h2>Ansatte og arbeidsforhold</h2>
-            <uni-table [config]="employeeTableConfig" [resource]="virksomhet.employees"></uni-table>
+            <ag-grid-wrapper [config]="employeeTableConfig" [resource]="virksomhet.employees"></ag-grid-wrapper>
 
             <h2 *ngIf="virksomhet.leaves && virksomhet.leaves.length > 0">Permisjoner</h2>
-            <uni-table *ngIf="virksomhet.leaves && virksomhet.leaves.length > 0" [config]="leaveTableConfig" [resource]="virksomhet.leaves"></uni-table>
+            <ag-grid-wrapper *ngIf="virksomhet.leaves && virksomhet.leaves.length > 0" [config]="leaveTableConfig" [resource]="virksomhet.leaves"></ag-grid-wrapper>
 
             <h2 *ngIf="virksomhet.transactions && virksomhet.transactions.length > 0">Sum per beskrivelse</h2>
-            <uni-table *ngIf="virksomhet.transactions && virksomhet.transactions.length > 0" [config]="transactionTableConfig" [resource]="virksomhet.transactions"></uni-table>
+            <ag-grid-wrapper *ngIf="virksomhet.transactions && virksomhet.transactions.length > 0" [config]="transactionTableConfig" [resource]="virksomhet.transactions"></ag-grid-wrapper>
 
         </article>
 

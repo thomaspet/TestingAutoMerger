@@ -189,6 +189,11 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
+    public setAlias(alias: string) {
+        this.alias = alias;
+        return this;
+    }
+
     public setDisplayField(displayField: string) {
         this.displayField = displayField;
         return this;

@@ -1,7 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity} from '../../../unientities';
+import {
+    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country
+} from '../../../unientities';
 import {Observable} from 'rxjs';
 import {MunicipalService} from '../../common/municipalsService';
 import {CompanySettingsService} from '../../common/companySettingsService';
@@ -29,6 +31,14 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.Emails',
         'BusinessRelationInfo.Phones',
         'BusinessRelationInfo.BankAccounts',
+    ];
+
+    private InternationalIDTypes: { ID: number, Name: string }[] = [
+        { ID: InternationalIDType.notSet, Name: 'Ikke valgt' },
+        { ID: InternationalIDType.Passportnumber, Name: 'Passnr'},
+        { ID: InternationalIDType.SocialSecurityNumber, Name: 'Social sec. nr'},
+        { ID: InternationalIDType.TaxIdentificationNumber, Name: 'Tax identit. nr'},
+        { ID: InternationalIDType.ValueAddedTaxNumber, Name: 'Value added nr'}
     ];
 
     constructor(
@@ -75,12 +85,12 @@ export class EmployeeService extends BizHttp<Employee> {
     public saveEmployeeCategory(employeeID: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (employeeID && category) {
 
-            let endpoint = this.relativeURL
+            const endpoint = this.relativeURL
                 + '/'
                 + employeeID
                 + '/category';
 
-            let saveObs = category.ID
+            const saveObs = category.ID
                 ? this.http.asPUT().withEndPoint(endpoint + '/' + category.ID)
                 : this.http.asPOST().withEndPoint(endpoint);
 
@@ -96,7 +106,7 @@ export class EmployeeService extends BizHttp<Employee> {
     public saveEmployeeTag(employeeID, category: EmployeeCategory): Observable<ITag> {
         return this.saveEmployeeCategory(employeeID, category)
             .filter(cat => !!cat)
-            .map(cat => { return {title: cat.Name, linkID: cat.ID}; });
+            .map(cat => ({ title: cat.Name, linkID: cat.ID }));
     }
 
     public deleteEmployeeCategory(employeeID: number, categoryID: number): Observable<boolean> {
@@ -140,13 +150,13 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public getNext(employeeNumber: number, expand: string[] = null) {
-        let expands = expand || this.defaultExpands;
+        const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber gt ${employeeNumber}&top=1&orderBy=EmployeeNumber`, expands)
             .map(resultSet => resultSet[0]);
     }
 
     public getPrevious(employeeNumber: number, expand: string[] = null) {
-        let expands = expand || this.defaultExpands;
+        const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber lt ${employeeNumber}&top=1&orderBy=EmployeeNumber desc`, expands)
             .map(resultSet => resultSet[0]);
     }
@@ -354,6 +364,38 @@ export class EmployeeService extends BizHttp<Employee> {
                     Options: {
                         class: 'freeTextFieldEmployee'
                     },
+                    Section: 0,
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'InternationalID',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Internasjonal ID',
+                    FieldSet: 5,
+                    Legend: 'Internasjonal',
+                    Section: 0,
+                    Options: { },
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'InternasjonalIDType',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Type',
+                    FieldSet: 5,
+                    Section: 0,
+                    Options: {
+                        source: this.InternationalIDTypes,
+                        template: (obj) => `${obj.ID} - ${obj.Name}`,
+                        valueProperty: 'ID',
+                        displayProperty: 'Name'
+                    }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'InternasjonalIDCountry',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Land',
+                    FieldSet: 5,
                     Section: 0,
                 },
             ]

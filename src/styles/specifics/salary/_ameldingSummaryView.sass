@@ -9,7 +9,6 @@ amelding-summary-view
         .amelding_summary_sections
             flex: 3
 
-
 .amelding_summary_overview
     dt, dd
         display: inline-block
@@ -41,21 +40,30 @@ amelding-summary-view
     width: 100%
     padding: 1rem 2rem 1rem 1rem
     display: flex
-    justify-content: space-between
     align-items: center
     cursor: pointer
 
     p
         margin: 0
-        flex-grow: 1
         padding-left: 1rem
+
+    .amelding_validation_errors_container
+        flex-grow: 1
+
+    .amelding_validation_errors
+        display: block
+        background: unicon-warning($uni-color-bad) no-repeat center
+        background-size: 1.5rem
+        height: 2rem
+        width: 2rem
+        margin-left: .5rem
 
     strong
         display: block
         color: $uni-color-scale4
         line-height: 1rem
         font-size: 1rem
-
-    .small
-        font-size: 14px
-
+#amelding_mainfile_validation_error_text
+            height: 6rem
+            overflow-y: auto
+            line-height: 1rem

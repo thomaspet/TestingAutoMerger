@@ -39,7 +39,7 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
 import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
 import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
-import { EventplanService } from '@app/components/settings/eventPlans/eventplan.service';
+
 
 import {
     MatSlideToggleModule,
@@ -100,7 +100,7 @@ import {
         IntegrationSettings,
         EventPlans,
         EventPlansList,
-        EventPlanDetails
+        EventPlanDetails,
     ],
     entryComponents: [
         GrantModal,
@@ -110,7 +110,7 @@ import {
         ResetAutobankPasswordModal,
         UniDimensionModal,
         UniRoleModal,
-        InviteUsersModal
+        InviteUsersModal,
     ],
     exports: [
         RouterModule,
@@ -126,13 +126,12 @@ import {
         ChangeCompanySettingsPeriodSeriesModal,
         GrantModal,
         // FreeAmountModal,
-        EventPlans
+        EventPlans,
     ],
     providers: [
         SubEntitySettingsService,
         CompanySettingsViewService,
         SettingsService,
-        EventplanService
     ]
 })
 export class SettingsModule {

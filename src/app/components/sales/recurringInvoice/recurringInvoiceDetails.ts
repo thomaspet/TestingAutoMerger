@@ -222,7 +222,7 @@ export class UniRecurringInvoice implements OnInit {
             const projectID = +params['projectID'];
 
             this.commentsConfig = {
-                entityType: 'CustomerInvoice',
+                entityType: 'RecurringInvoice',
                 entityID: this.invoiceID
             };
 

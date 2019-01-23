@@ -1,0 +1,39 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Ny flyt</header>
+    <article>
+        <flow-custom-modal-entity
+            [eventPlan]="eventPlan"
+            *ngIf="currentPageIndex === 0"
+        ></flow-custom-modal-entity>
+        <flow-custom-modal-triggers
+            [eventPlan]="eventPlan"
+            *ngIf="currentPageIndex === 1"
+        ></flow-custom-modal-triggers>
+        <flow-custom-modal-plan
+            [eventPlan]="eventPlan"
+            *ngIf="currentPageIndex === 2"
+        ></flow-custom-modal-plan>
+        <flow-custom-modal-receipt
+            [eventPlan]="eventPlan"
+            *ngIf="currentPageIndex === 3"
+        ></flow-custom-modal-receipt>
+    </article>
+
+    <footer class="center">
+        <button class="rounded"
+                (click)="navigateBack()"
+                *ngIf="currentPageIndex !== 0">
+            Tilbake
+        </button>
+        <button class="c2a rounded"
+                (click)="navigateNext()"
+                *ngIf="currentPageIndex !== 3">
+            Neste
+        </button>
+        <button class="c2a rounded"
+                (click)="close()"
+                *ngIf="currentPageIndex === 3">
+            Lagre
+        </button>
+    </footer>
+</section>

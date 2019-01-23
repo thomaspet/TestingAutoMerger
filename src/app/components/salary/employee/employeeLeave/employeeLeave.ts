@@ -130,6 +130,7 @@ export class EmployeeLeaves extends UniView {
 
     private mapEmploymentToPermision(rowModel) {
         const employment = rowModel['_Employment'];
+        rowModel['Employment'] = employment;
         rowModel['EmploymentID'] = employment ? employment.ID : 0;
     }
 

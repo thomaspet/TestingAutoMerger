@@ -1,0 +1,60 @@
+@import '~src/styles/uni-redesign/_color.sass'
+
+\:host
+    display: block
+    padding: 2rem
+
+.table-container
+    background-color: white
+    padding: 2rem
+    width: 100%
+
+.icon-wrap
+    height: 100%
+    width: 100%
+    display: flex
+    justify-content: center
+    align-items: center
+    flex-direction: row
+    span
+        width: 1.5rem
+        height: 1.5rem
+        border-radius: 5px
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2)
+    i
+        color: $redesign-light-blue
+        font-size: 1.5rem
+    svg
+        fill: $redesign-c2a
+        height: 70%
+        display: block
+        margin: auto
+        margin-top: 0.4rem
+
+table
+    border-collapse: collapse
+    width: 100%
+    th
+        text-align: left
+        color: $redesign-scale3
+    tr
+        cursor: pointer
+    tr:not(:first-of-type):not(:last-of-type)
+        border-bottom: 2px solid $redesign-scale4
+    td
+        padding-top: 1rem
+        padding-bottom: 1rem
+        color: $redesign-scale1
+        &.toggle-cell
+            color: $redesign-scale3
+            font-weight: 700
+        &.active
+            color: $redesign-light-blue
+    mat-slide-toggle
+        padding-right: 0.5rem
+        cursor: pointer
+        .mat-checked .mat-slide-toggle-bar
+            background-color: $redesign-light-blue
+
+    .delete-icon
+        color: $redesign-scale5
