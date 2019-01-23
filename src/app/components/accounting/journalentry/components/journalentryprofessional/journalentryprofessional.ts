@@ -2392,13 +2392,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             const readonlyRows = tableData.filter(row => !!row.StatusCode);
                             const editableRows = tableData.filter(row => !row.StatusCode);
 
-                            // Check if readonly rows contains one or more lines with the wrong numberseries
+                            // Check if readonly rows contains one or more lines with the wrong numberseries.
+                            // Rows where _editmode is set is journalentries that are being corrected, so they
+                            // will already have a defined journalentrynumber. Dont update numbers for these
+                            // even if the numberseries does not exist, because this will not have any effect
+                            // when saving anyway (i.e. if a journalentry is corrected from 15.01.2018 to 15.01.2019
+                            // the journalentrynumber will still be set to 2018-something)
                             const shouldUpdateData = editableRows.some(
-                                row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
-                                row.NumberseriesID !== this.selectedNumberSeries.ID
+                                row => (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
+                                row.NumberseriesID !== this.selectedNumberSeries.ID) && !row._editmode
                             );
+
                             if (shouldUpdateData) {
-                                const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
+                                const uniQueNumbers = _.uniq(editableRows.filter(x => !x._editmode).map(item => item.JournalEntryNo));
                                 uniQueNumbers.forEach(uniQueNumber => {
                                     const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
 
