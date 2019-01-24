@@ -1,11 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { CostAllocation } from '@app/unientities';
 import { CostAllocationService } from '@app/services/accounting/costAllocationService';
-import { Subject } from 'rxjs/Subject';
-import { takeUntil } from 'rxjs/operators';
 import { createGuid } from '@app/services/common/dimensionService';
 import { ErrorService } from '@app/services/common/errorService';
 import { CustomDimensionService } from '@app/services/common/customDimensionService';

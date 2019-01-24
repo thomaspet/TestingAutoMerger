@@ -3,8 +3,6 @@ import {
 } from '@angular/core';
 import { UniTableConfig } from '@uni-framework/ui/unitable';
 import { CostAllocation } from '@app/unientities';
-import formFields from './cost-allocation-form.config';
-import tableConfig from './cost-allocation-items-table.config';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -14,6 +12,15 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { AccountService } from '@app/services/accounting/accountService';
 import { PredefinedDescriptionService } from '@app/services/common/PredefinedDescriptionService';
 import { CustomDimensionService } from '@app/services/common/customDimensionService';
+import { forkJoin } from 'rxjs';
+import { accountColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/account.column';
+import { customDimensionColumns } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/custom-dimension.column';
+import { vattypeColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/vattype.column';
+import { ammountColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/amount.column';
+import { descriptionColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/description.column';
+import { departmentColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/department.column';
+import { projectColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/project.column';
+import { FieldType } from '@uni-framework/ui/uniform';
 
 @Component({
     selector: 'uni-cost-allocation-details',
@@ -26,15 +33,20 @@ import { CustomDimensionService } from '@app/services/common/customDimensionServ
 })
 export class UniCostAllocationDetails {
     @Input() costAllocation: CostAllocation = new CostAllocation();
-    @Input() isTouched: boolean;
-
     @Output() touched = new EventEmitter<boolean>(true);
-
     @ViewChild(AgGridWrapper) table: AgGridWrapper;
     formConfig = { autofocus: true };
-    formFields = formFields;
+    formFields = [
+        {
+            EntityType: 'CostAllocation',
+            Property: 'Name',
+            FieldType: FieldType.TEXT,
+            Label: 'Navn',
+            Section: 0,
+            FieldSet: 0
+        }
+    ];
     tableConfig: UniTableConfig;
-    _onDestroy = new Subject();
     constructor(
         private companySettingsService: CompanySettingsService,
         private vatTypeService: VatTypeService,
@@ -47,21 +59,31 @@ export class UniCostAllocationDetails {
     }
 
     ngOnInit() {
-        tableConfig(
-            this.table,
-            this.companySettingsService,
-            this.vatTypeService,
-            this.accountService,
-            this.statisticsService,
-            this.modalService,
-            this.predefinedDescriptionService,
-            this.customDimensionService
-        )
-            .takeUntil(this._onDestroy)
-            .subscribe(config => {
-                this.tableConfig = config;
-                this.tableConfig.deleteButton = true;
-            });
+        forkJoin([
+            this.companySettingsService.Get(1),
+            this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
+            this.customDimensionService.getMetadata(),
+            this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+        ]).subscribe(([companySettings, descriptions, dimensionsMetadata, vattypes]) => {
+            const dimensionColumns = customDimensionColumns(
+                this.customDimensionService,
+                dimensionsMetadata
+            );
+            const columns = [
+                accountColumn(this.table, this.accountService, this.modalService),
+                vattypeColumn(vattypes, this.vatTypeService, companySettings),
+                ammountColumn(),
+                descriptionColumn(descriptions),
+                departmentColumn(this.statisticsService),
+                projectColumn(this.statisticsService)
+            ].concat(dimensionColumns);
+            this.tableConfig = new UniTableConfig('accounting.costallocation.items', true, true, 20)
+                .setSearchable(false)
+                .setEditable(true)
+                .setColumns(columns)
+                .setDeleteButton(true)
+                .setColumnMenuVisible(true, false);
+        });
     }
 
     ngOnChanges(change: SimpleChanges) {
@@ -70,19 +92,7 @@ export class UniCostAllocationDetails {
         }
     }
 
-    ngOnDestroy() {
-        this._onDestroy.next();
-    }
-
-    onFormInput() {
-        this.touched.emit(true);
-    }
-
-    onRowDeleted() {
-        this.touched.emit(true);
-    }
-
-    onRowChange() {
+    onTouch() {
         this.touched.emit(true);
     }
 }

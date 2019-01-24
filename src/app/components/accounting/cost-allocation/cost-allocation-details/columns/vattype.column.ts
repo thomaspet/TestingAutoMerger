@@ -1,13 +1,48 @@
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { vatTypeGroupConfig } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-items-table.helpers';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
-import { CompanySettings } from '@app/unientities';
+import { CompanySettings, VatType } from '@app/unientities';
+import { IGroupConfig } from '@uni-framework/ui/unitable/controls';
 
-export default (vatTypeService: VatTypeService, companySettings: CompanySettings) => {
-    let vattypes = [];
-    vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true').subscribe(result => {
-        vattypes = result;
-    });
+const vatTypeGroupConfig: IGroupConfig = {
+    groupKey: 'VatCodeGroupingValue',
+    visibleValueKey: 'Visible',
+    groups: [
+        {
+            key: 1,
+            header: 'Kjøp/kostnader.'
+        },
+        {
+            key: 2,
+            header: 'Kjøp/Importfaktura'
+        },
+        {
+            key: 3,
+            header: 'Import/Mva-beregning'
+        },
+        {
+            key: 4,
+            header: 'Salg/inntekter'
+        }
+        ,
+        {
+            key: 5,
+            header: 'Salg uten mva.'
+        }
+        ,
+        {
+            key: 6,
+            header: 'Kjøpskoder, spesielle'
+        }
+        ,
+        {
+            key: 7,
+            header: 'Egendefinerte koder'
+        }
+
+    ]
+};
+
+export const vattypeColumn = (vattypes: VatType[], vatTypeService: VatTypeService, companySettings: CompanySettings) => {
     return new UniTableColumn('VatType', 'MVA', UniTableColumnType.Lookup)
         .setDisplayField('VatType.VatCode')
         .setWidth('8%')

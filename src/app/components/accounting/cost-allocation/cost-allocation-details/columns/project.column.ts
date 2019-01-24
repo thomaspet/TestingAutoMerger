@@ -1,11 +1,7 @@
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import {
-    departmentSearch,
-    projectSearch
-} from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-items-table.helpers';
 import { StatisticsService } from '@app/services/common/statisticsService';
 
-export default (statisticsService: StatisticsService) => {
+export const projectColumn = (statisticsService: StatisticsService) => {
     return new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
         .setDisplayField('Project.ProjectNumber')
         .setWidth('12%')
@@ -21,7 +17,8 @@ export default (statisticsService: StatisticsService) => {
                 return `${item.ProjectNumber} - ${item.Name}`;
             },
             lookupFunction: (searchValue) => {
-                return projectSearch(statisticsService, searchValue);
+                return statisticsService.GetAll(`model=Project&select=ProjectNumber as ProjectNumber,Name as Name,ID as ID&` +
+                    `filter=contains(ProjectNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
             }
         });
-}
+};
