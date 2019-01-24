@@ -90,6 +90,7 @@ export class UniCostAllocation implements OnInit {
                     this.touched = false;
                     this.saveActions = this.updateSaveActions(false);
                     this.currentCostAllocation = entity;
+                    setTimeout(() => this.costAllocationList.table.focusRow(this.selectedIndex), 200);
 
                 });
         }
@@ -166,7 +167,10 @@ export class UniCostAllocation implements OnInit {
     onDeleteCostAllocation(selectedCostAllocation: CostAllocation) {
         this.costAllocationService.Remove(selectedCostAllocation.ID, selectedCostAllocation).subscribe((result) => {
             this.ngOnInit();
-        }, (error) => this.errorService.handle(error));
+        }, (error) => {
+            this.ngOnInit();
+            this.errorService.handle(error);
+        });
     }
 
     saveEntity(entity: CostAllocation): Observable<CostAllocation> {
