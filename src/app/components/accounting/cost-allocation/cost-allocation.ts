@@ -59,6 +59,7 @@ export class UniCostAllocation implements OnInit {
         });
         this.saveActions = this.updateSaveActions(false);
         this.toolbarconfig = <IToolbarConfig>{
+            title: 'Fordelingsnøkler',
             navigation: {
                 add: () => {
                     this.costAllocationService.GetNewEntity(EXPAND_ITEMS).subscribe(entity => {
