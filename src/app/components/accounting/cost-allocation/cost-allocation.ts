@@ -1,11 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { CostAllocation } from '@app/unientities';
 import { CostAllocationService } from '@app/services/accounting/costAllocationService';
-import { Subject } from 'rxjs/Subject';
-import { takeUntil } from 'rxjs/operators';
 import { createGuid } from '@app/services/common/dimensionService';
 import { ErrorService } from '@app/services/common/errorService';
 import { CustomDimensionService } from '@app/services/common/customDimensionService';
@@ -61,6 +59,7 @@ export class UniCostAllocation implements OnInit {
         });
         this.saveActions = this.updateSaveActions(false);
         this.toolbarconfig = <IToolbarConfig>{
+            title: 'Fordelingsnøkler',
             navigation: {
                 add: () => {
                     this.costAllocationService.GetNewEntity(EXPAND_ITEMS).subscribe(entity => {
@@ -91,6 +90,7 @@ export class UniCostAllocation implements OnInit {
                     this.touched = false;
                     this.saveActions = this.updateSaveActions(false);
                     this.currentCostAllocation = entity;
+                    setTimeout(() => this.costAllocationList.table.focusRow(this.selectedIndex), 200);
 
                 });
         }
@@ -167,7 +167,10 @@ export class UniCostAllocation implements OnInit {
     onDeleteCostAllocation(selectedCostAllocation: CostAllocation) {
         this.costAllocationService.Remove(selectedCostAllocation.ID, selectedCostAllocation).subscribe((result) => {
             this.ngOnInit();
-        }, (error) => this.errorService.handle(error));
+        }, (error) => {
+            this.ngOnInit();
+            this.errorService.handle(error);
+        });
     }
 
     saveEntity(entity: CostAllocation): Observable<CostAllocation> {
@@ -189,11 +192,11 @@ export class UniCostAllocation implements OnInit {
                 if (s.Dimensions && !s.Dimensions.ID) {
                     s.Dimensions['_createguid'] = createGuid();
                 }
-                if (s.Dimensions.Department) {
+                if (s.Dimensions && s.Dimensions.Department) {
                     s.Dimensions.DepartmentID = s.Dimensions.Department.ID;
                     s.Dimensions.Department = null;
                 }
-                if (s.Dimensions.Project) {
+                if (s.Dimensions && s.Dimensions.Project) {
                     s.Dimensions.ProjectID = s.Dimensions.Project.ID;
                     s.Dimensions.Project = null;
                 }
@@ -209,7 +212,7 @@ export class UniCostAllocation implements OnInit {
                 }
                 return s;
             });
-        copyOfCostAllocation.Items = items;
+        entity.Items = items;
         let source$;
         if (entity.ID) {
             source$ = this.costAllocationService.Put(entity.ID, entity);

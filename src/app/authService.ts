@@ -34,7 +34,7 @@ const PUBLIC_ROOT_ROUTES = [
     'contract-activation'
 ];
 
-const PUBLIC_ROUTES = ['costallocation'];
+const PUBLIC_ROUTES = [];
 
 @Injectable()
 export class AuthService {

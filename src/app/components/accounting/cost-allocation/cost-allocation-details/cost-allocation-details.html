@@ -6,13 +6,13 @@
         [config]="formConfig"
         [fields]="formFields"
         [model]="costAllocation"
-        (inputEvent)="onFormInput()">
+        (inputEvent)="onTouch()">
     </uni-form>
 
     <ag-grid-wrapper
         [config]="tableConfig"
         [(resource)]="costAllocation.Items"
-        (rowChange)="onRowChange()"
-        (rowDelete)="onRowDeleted()">
+        (rowChange)="onTouch()"
+        (rowDelete)="onTouch()">
     </ag-grid-wrapper>
 </section>

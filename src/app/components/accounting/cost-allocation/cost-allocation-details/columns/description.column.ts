@@ -2,7 +2,7 @@ import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { PredefinedDescription } from '@app/unientities';
 import { of } from 'rxjs/index';
 
-export default (predefinedDescriptions: PredefinedDescription[]) => {
+export const descriptionColumn = (predefinedDescriptions: PredefinedDescription[]) => {
     return new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)
         .setOptions({
             lookupFunction: (query) => {

@@ -50,7 +50,9 @@ export class ModulusService {
 
     public isValidKID(KID: string): boolean {
         if (KID) {
-            return this.modulus10(KID) || this.modulus11(KID, true);
+            return !KID
+            .split('')
+            .some(x => isNaN(+x)) && (this.modulus10(KID) || this.modulus11(KID));
         }
         return true;
     }
@@ -62,7 +64,7 @@ export class ModulusService {
 
         return {
             value: KID,
-            errorMessage: 'KID-nr. er ikke gyldig. KID-nr kan kun inneholde tall, og i noen tilfeller et minustegn til slutt',
+            errorMessage: 'KID-nr. er ikke gyldig',
             field: field,
             isWarning: true
         };
@@ -152,7 +154,7 @@ export class ModulusService {
         return !(sum % 10);
     }
 
-    private modulus11(input: string, isKidCheck: boolean = false): boolean {
+    private modulus11(input: string): boolean {
         let controlNumber = 2,
             sumForMod = 0,
             i;
@@ -168,9 +170,7 @@ export class ModulusService {
         if (controlDigit === 11) {
             controlDigit = 0;
         }
-        if (isKidCheck && controlDigit === 10 && input.charAt(input.length - 1) === '-') {
-            return true;
-        }
+
         return controlDigit === parseInt(input.charAt(input.length - 1), 10);
     }
 }
