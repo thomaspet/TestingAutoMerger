@@ -166,6 +166,7 @@ export class UniCostAllocation implements OnInit {
 
     onDeleteCostAllocation(selectedCostAllocation: CostAllocation) {
         this.costAllocationService.Remove(selectedCostAllocation.ID, selectedCostAllocation).subscribe((result) => {
+            this.selectedIndex = -1;
             this.ngOnInit();
         }, (error) => {
             this.ngOnInit();
