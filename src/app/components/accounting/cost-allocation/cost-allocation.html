@@ -1,0 +1,22 @@
+<uni-toolbar
+    [saveactions]="saveActions"
+    [config]="toolbarconfig"
+></uni-toolbar>
+<div class="application">
+    <section class="splitview">
+        <nav class ="splitview_list">
+            <uni-cost-allocation-list #costAllocationList
+                [selectedIndex]="selectedIndex"
+                [data]="costAllocationItems"
+                (costAllocationSelected)="onCostAllocationSelected($event)"
+                (eventplanDeleted)="onDeleteCostAllocation($event)"
+            ></uni-cost-allocation-list>
+        </nav>
+        <main class="splitview_detail">
+            <uni-cost-allocation-details
+                [costAllocation]="currentCostAllocation"
+                (touched)="onDetailsTouched($event)"
+            ></uni-cost-allocation-details>
+        </main>
+    </section>
+</div>

@@ -86,6 +86,9 @@ import {
     MatProgressBarModule,
     MatMenuModule
 } from '@angular/material';
+import { UniCostAllocation } from '@app/components/accounting/cost-allocation/cost-allocation';
+import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
+import { UniCostAllocationDetails } from '@app/components/accounting/cost-allocation/cost-allocation-details/cost-allocation-details';
 
 @NgModule({
     imports: [
@@ -179,7 +182,12 @@ import {
         AccountingReportShortcuts,
 
         // PostPost
-        PostPost
+        PostPost,
+
+        // Cost Allocation
+        UniCostAllocation,
+        UniCostAllocationList,
+        UniCostAllocationDetails
     ],
     entryComponents: [
         HistoricVatReportModal,
@@ -197,7 +205,10 @@ import {
         SelectDraftLineModal,
         DraftLineDescriptionModal,
         UniBudgetEntryEditModal,
-        UniBudgetEditModal
+        UniBudgetEditModal,
+        UniCostAllocation,
+        UniCostAllocationList,
+        UniCostAllocationDetails
     ],
     exports: [
         AccountSettings,
@@ -250,7 +261,11 @@ import {
         DrilldownBalanceReportPart,
 
         // PostPost
-        PostPost
+        PostPost,
+
+        // CostAllocation
+        UniCostAllocation,
+        UniCostAllocationList
     ],
     providers: [
         PeriodFilterHelper,

@@ -1,0 +1,18 @@
+<section class="uni-container">
+    <header>
+        <span style="display: inline-block">{{costAllocation?.Name || 'Ny Fordelingsnøkler'}}</span>
+    </header>
+    <uni-form
+        [config]="formConfig"
+        [fields]="formFields"
+        [model]="costAllocation"
+        (inputEvent)="onFormInput()">
+    </uni-form>
+
+    <ag-grid-wrapper
+        [config]="tableConfig"
+        [(resource)]="costAllocation.Items"
+        (rowChange)="onRowChange()"
+        (rowDelete)="onRowDeleted()">
+    </ag-grid-wrapper>
+</section>
