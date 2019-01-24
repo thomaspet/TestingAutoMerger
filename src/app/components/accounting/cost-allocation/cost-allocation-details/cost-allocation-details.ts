@@ -20,6 +20,7 @@ import { descriptionColumn } from '@app/components/accounting/cost-allocation/co
 import { departmentColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/department.column';
 import { projectColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/project.column';
 import { FieldType } from '@uni-framework/ui/uniform';
+import { percentColumn } from '@app/components/accounting/cost-allocation/cost-allocation-details/columns/percent.column';
 
 @Component({
     selector: 'uni-cost-allocation-details',
@@ -73,6 +74,7 @@ export class UniCostAllocationDetails {
                 accountColumn(this.table, this.accountService, this.modalService),
                 vattypeColumn(vattypes, this.vatTypeService, <CompanySettings>companySettings),
                 ammountColumn(),
+                percentColumn(),
                 descriptionColumn(descriptions),
                 departmentColumn(this.statisticsService),
                 projectColumn(this.statisticsService)
