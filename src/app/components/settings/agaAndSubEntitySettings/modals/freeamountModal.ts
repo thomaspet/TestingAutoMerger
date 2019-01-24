@@ -25,19 +25,12 @@ export class FreeAmountModal implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     public freeamountTableConfig: UniTableConfig;
     public freeamountData$: BehaviorSubject<AGASums[]> = new BehaviorSubject([]);
-
-    //
-    // Jorge: can't understand why model is not used. Which is then the point of the form?
-    public freeamountModel$: BehaviorSubject<number> = new BehaviorSubject(0);
+    public freeamountModel$: BehaviorSubject<FreeAmountSummary> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({submitText: ''});
 
     constructor(
-        private _subentityService: SubEntityService,
-        private _grantService: GrantService,
         private errorService: ErrorService,
-        private financialYearService: FinancialYearService,
-        private payrollRunService: PayrollrunService,
         private agaSumService: AgaSumService
     ) {}
 
@@ -63,7 +56,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
                         : data.SubEntity.OrgNumber || data.SubEntity.ID;
                     return data.Sums;
                 }));
-                this.freeamountModel$.next(summary.RestFreeAmount);
+                this.freeamountModel$.next(summary);
             })
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
@@ -86,7 +79,7 @@ export class FreeAmountModal implements OnInit, IUniModal {
         totalFreeamountField.Combo = 0;
         totalFreeamountField.FieldType = FieldType.TEXT;
         totalFreeamountField.EntityType = 'freeamountModel';
-        totalFreeamountField.Property = 'TotalFreeamount';
+        totalFreeamountField.Property = 'RestFreeAmount';
         totalFreeamountField.Label = 'Rest fribeløp';
         totalFreeamountField.Options = null;
         totalFreeamountField.ReadOnly = true;
