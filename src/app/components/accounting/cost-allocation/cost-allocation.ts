@@ -204,7 +204,7 @@ export class UniCostAllocation implements OnInit {
                     this.dimensionTypes.forEach(type => {
                         const name = 'Dimension' + type.Dimension;
                         const id = 'Dimension' + type.Dimension + 'ID';
-                        if (s.Dimensions[name]) {
+                        if (s.Dimensions && s.Dimensions[name]) {
                             s.Dimensions[id] = s.Dimensions[name].ID;
                             s.Dimensions[name] = null;
                         }
