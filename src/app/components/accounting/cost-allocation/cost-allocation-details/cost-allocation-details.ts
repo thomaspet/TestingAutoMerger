@@ -1,12 +1,11 @@
 import {
-    ChangeDetectionStrategy, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild
+    ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild
 } from '@angular/core';
 import { UniTableConfig } from '@uni-framework/ui/unitable';
-import { CostAllocation } from '@app/unientities';
+import { CompanySettings, CostAllocation } from '@app/unientities';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import { Subject } from 'rxjs/Subject';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { AccountService } from '@app/services/accounting/accountService';
@@ -48,6 +47,7 @@ export class UniCostAllocationDetails {
     ];
     tableConfig: UniTableConfig;
     constructor(
+        private cdr: ChangeDetectorRef,
         private companySettingsService: CompanySettingsService,
         private vatTypeService: VatTypeService,
         private accountService: AccountService,
@@ -71,7 +71,7 @@ export class UniCostAllocationDetails {
             );
             const columns = [
                 accountColumn(this.table, this.accountService, this.modalService),
-                vattypeColumn(vattypes, this.vatTypeService, companySettings),
+                vattypeColumn(vattypes, this.vatTypeService, <CompanySettings>companySettings),
                 ammountColumn(),
                 descriptionColumn(descriptions),
                 departmentColumn(this.statisticsService),
@@ -83,6 +83,7 @@ export class UniCostAllocationDetails {
                 .setColumns(columns)
                 .setDeleteButton(true)
                 .setColumnMenuVisible(true, false);
+            this.cdr.markForCheck();
         });
     }
 

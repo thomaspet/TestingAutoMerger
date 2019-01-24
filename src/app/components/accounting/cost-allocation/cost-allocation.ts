@@ -187,11 +187,11 @@ export class UniCostAllocation implements OnInit {
                 if (s.Dimensions && !s.Dimensions.ID) {
                     s.Dimensions['_createguid'] = createGuid();
                 }
-                if (s.Dimensions.Department) {
+                if (s.Dimensions && s.Dimensions.Department) {
                     s.Dimensions.DepartmentID = s.Dimensions.Department.ID;
                     s.Dimensions.Department = null;
                 }
-                if (s.Dimensions.Project) {
+                if (s.Dimensions && s.Dimensions.Project) {
                     s.Dimensions.ProjectID = s.Dimensions.Project.ID;
                     s.Dimensions.Project = null;
                 }
@@ -207,7 +207,7 @@ export class UniCostAllocation implements OnInit {
                 }
                 return s;
             });
-        copyOfCostAllocation.Items = items;
+        entity.Items = items;
         let source$;
         if (entity.ID) {
             source$ = this.costAllocationService.Put(entity.ID, entity);
