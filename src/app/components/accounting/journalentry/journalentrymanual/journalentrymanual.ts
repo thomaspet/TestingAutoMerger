@@ -50,6 +50,7 @@ import {
     CostAllocationService,
     AccountService,
     SupplierService,
+    DimensionService,
 } from '../../../../services/services';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
@@ -151,6 +152,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private costAllocationService: CostAllocationService,
         private accountService: AccountService,
         private supplierService: SupplierService,
+        private dimensionService: DimensionService,
     ) {}
 
     public ngOnInit() {
@@ -446,8 +448,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, keepCurrentLine: boolean = false) {
-        this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount).subscribe(draftlines => {
+    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID, currencyExchangeRate, keepCurrentLine: boolean = false) {
+        this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate).subscribe(draftlines => {
             this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
                 this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
             });
@@ -457,6 +459,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
         var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
+        var dimensions = _.uniq(draftlines.map(draftline => draftline.DimensionsID).filter(Boolean));
 
         Observable.forkJoin(
             accounts.length > 0
@@ -464,21 +467,25 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 : Observable.of([]),
             vattypes.length > 0
                 ? Observable.forkJoin(vattypes.map(vattypeID => this.vatTypeService.Get(vattypeID)))
+                : Observable.of([]),
+            dimensions.length > 0
+                ? Observable.forkJoin(dimensions.map(dimensionID => this.dimensionService.Get(dimensionID, ['Project','Department','Dimension5','Dimension6','Dimension7','Dimension8','Dimension9','Dimension10'])))
                 : Observable.of([])
         )
         .subscribe((res) => {
             let accounts = res[0];
             let vattypes = res[1];
+            let dimensions = res[2];
 
             var first = true;
             var lines = this.getJournalEntryData();
-
             draftlines.map(draftline => {
                 var newline = JSON.parse(JSON.stringify(draftline));
                 newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID);
                 newline.DebitAccountID = draftline.AccountID;
                 newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.Dimensions = dimensions.find(dimension => dimension.ID == draftline.DimensionsID);
                 newline.CostAllocation = costAllocation;
                 newline.SameOrNew = "1";
                 newline.isDirty = true;
@@ -490,6 +497,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     currentLine.DebitAccountID = newline.DebitAccountID;
                     currentLine.DebitVatType = newline.DebitVatType;
                     currentLine.DebitVatTypeID = newline.DebitVatTypeID;
+                    currentLine.Dimensions = newline.Dimensions;
                     currentLine.DimensionsID = newline.DimensionsID;
                     currentLine.Description = newline.Description;
                     currentLine.AmountCurrency = newline.AmountCurrency;
@@ -506,6 +514,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             });
 
             this.setJournalEntryData(lines);
+            this.dataChanged.emit(lines);
 
             setTimeout(() => {
                 this.journalEntryProfessional.focusLastRow();

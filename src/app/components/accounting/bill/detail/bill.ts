@@ -3644,7 +3644,7 @@ export class BillView implements OnInit {
     private tryAddCostAllocation() {
         const current = this.current.getValue();
         if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
-            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency);
+            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, false);            
         }
     }
 
