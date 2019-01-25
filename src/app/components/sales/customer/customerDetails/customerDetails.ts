@@ -1058,16 +1058,20 @@ export class CustomerDetails implements OnInit {
     }
 
     public onContactChanged(contact: Contact) {
+
+        this.isDirty = true;
+        this.setupSaveActions();
+
         if (!contact) {
             return;
         }
 
+        // prepare for save
         if (!contact.ID) {
             contact['_createguid'] = this.customerService.getNewGuid();
             contact.Info['_createguid'] = this.customerService.getNewGuid();
         }
 
-        // prepare for save
         if (!contact.Info.DefaultEmail.ID) {
             contact.Info.DefaultEmail['_createguid'] = this.customerService.getNewGuid();
         }
