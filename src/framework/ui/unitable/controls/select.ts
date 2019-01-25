@@ -1,9 +1,9 @@
-import {Component, Input, HostListener, ViewChild, ElementRef, Output, EventEmitter} from '@angular/core';
+import {Component, HostListener, ViewChild, ElementRef, EventEmitter} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
 
 export interface ISelectOptions {
-    resource: Observable<any> | any[];
+    resource: any[] | ((row?) => any[]) | Observable<any>;
     displayField?: string;
     itemTemplate?: (item) => string;
     searchable?: boolean;
@@ -50,11 +50,9 @@ export class UnitableSelect {
     @ViewChild('itemDropdown')
     private itemDropdown: ElementRef;
 
-    @Input()
-    private column: any;
-
-    @Input()
-    public inputControl: FormControl;
+    column: any;
+    rowModel: any;
+    inputControl: FormControl;
 
     itemSelected: EventEmitter<any> = new EventEmitter();
 
@@ -68,11 +66,14 @@ export class UnitableSelect {
     public ngOnInit() {
         if (this.column) {
             this.options = this.column.get('options') || {};
+            const resource = this.options.resource;
 
-            if (Array.isArray(this.options.resource)) {
-                this.items = [...<any[]> this.options.resource];
+            if (Array.isArray(resource)) {
+                this.items = [...resource];
+            } else if (typeof resource === 'function') {
+                this.items = resource(this.rowModel);
             } else {
-                (<Observable<any>> this.options.resource).subscribe((res) => {
+                (<Observable<any>> resource).subscribe((res) => {
                     this.items = res;
                 });
             }
