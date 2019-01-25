@@ -10,10 +10,11 @@ import {
     NumberSeriesTask,
     VatType,
     NumberSeries,
-    LocalDate
+    LocalDate,
+    JournalEntryLineDraft
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
-import {JournalEntryData} from '@app/models';
+import {JournalEntryData, FieldAndJournalEntryData} from '@app/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
@@ -44,7 +45,9 @@ import {
     JournalEntryLineService,
     NumberSeriesTaskService,
     NumberSeriesService,
-    VatTypeService
+    VatTypeService,
+    CostAllocationService,
+    AccountService,
 } from '../../../../services/services';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
@@ -52,6 +55,7 @@ import {
     UniConfirmModalV2,
     ConfirmActions
 } from '../../../../../framework/uni-modal';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -141,7 +145,9 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private journalEntryLineService: JournalEntryLineService,
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTaskService: NumberSeriesTaskService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private costAllocationService: CostAllocationService,
+        private accountService: AccountService,
     ) {}
 
     public ngOnInit() {
@@ -402,6 +408,105 @@ export class JournalEntryManual implements OnChanges, OnInit {
         return null;
     }
 
+    //
+    // CostAllocation
+    //
+
+    private onRowFieldChanged(rowfield: FieldAndJournalEntryData) {
+        var lines = this.getJournalEntryData();
+
+        switch (rowfield.Field) {
+            case 'CostAllocation':
+                this.currentJournalEntryData = rowfield.JournalEntryData;
+                this.addCostAllocationForCostAllocation(rowfield.JournalEntryData.CostAllocation.ID, rowfield.JournalEntryData.DebitAccountID, rowfield.JournalEntryData.AmountCurrency, true);                
+                break;
+            case 'DebitAccount':
+                if (rowfield.JournalEntryData['_costAllocationTime']) {
+                    lines.map(line => {
+                        if (rowfield.JournalEntryData['_costAllocationTime'] == line['_costAllocationTime'] && !line.DebitAccountID) {
+                            line.DebitAccountID = rowfield.JournalEntryData.DebitAccountID;
+                            line.DebitAccount = rowfield.JournalEntryData.DebitAccount;
+                        }
+                    });
+                    this.setJournalEntryData(lines);
+                }
+
+                break;
+        }
+    }
+
+    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number = null, keepCurrentLine: boolean = false) {
+        this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount).subscribe(draftlines => {
+            this.addCostAllocationDraftLines(draftlines, keepCurrentLine);
+        });
+    }
+
+    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, keepCurrentLine: boolean = false) {
+        this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount).subscribe(draftlines => {
+            this.addCostAllocationDraftLines(draftlines, keepCurrentLine);
+        });
+    }
+
+    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean) {
+        var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
+        var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
+
+        Observable.forkJoin(
+            accounts.length > 0 
+                ? Observable.forkJoin(accounts.map(accountID => this.accountService.Get(accountID)))
+                : Observable.of([]),
+            vattypes.length > 0
+                ? Observable.forkJoin(vattypes.map(vattypeID => this.vatTypeService.Get(vattypeID)))
+                : Observable.of([])
+        )
+        .subscribe((res) => {                    
+            let accounts = res[0];
+            let vattypes = res[1]; 
+
+            var first = true;
+            var lines = this.getJournalEntryData();
+
+            draftlines.map(draftline => {
+                var newline = JSON.parse(JSON.stringify(draftline));
+                newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID); 
+                newline.DebitAccountID = draftline.AccountID;
+                newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
+                newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.SameOrNew = "1";
+                newline.isDirty = true;
+                newline['_costAllocationTime'] = (new Date()).getTime();
+
+                if (first && keepCurrentLine) {
+                    var currentLine = lines.find(line => line['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+                    currentLine.DebitAccount = newline.DebitAccount;
+                    currentLine.DebitAccountID = newline.DebitAccountID;
+                    currentLine.DebitVatType = newline.DebitVatType;
+                    currentLine.DebitVatTypeID = newline.DebitVatTypeID;
+                    currentLine.DimensionsID = newline.DimensionsID;
+                    currentLine.Description = newline.Description;
+                    currentLine.AmountCurrency = newline.AmountCurrency;
+                    currentLine.Amount = newline.Amount;
+                    currentLine['_costAllocationTime'] = newline['_costAllocationTime'];
+
+                    this.currentJournalEntryData = currentLine;    
+                } else {
+                    lines.push(newline);
+                }
+
+                first = false;
+            });    
+
+            this.setJournalEntryData(lines);
+
+            setTimeout(() => {
+                this.journalEntryProfessional.focusLastRow();
+            });
+        });
+   
+    }
+
+    //
+
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
         if (this.editmode) {
             // copies lines from the original array and lets you edit them as a template
@@ -461,13 +566,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
                     this.journalEntryProfessional.dataChanged.debounceTime(300)
                     .subscribe((values) => this.onDataChanged(values));
+
+                    this.journalEntryProfessional.rowFieldChanged.debounceTime(300)
+                    .subscribe((rowfield) => this.onRowFieldChanged(rowfield));
                 }
             }
         });
     }
 
     public onDataChanged(data: JournalEntryData[]) {
-
         this.dataChanged.emit(data);
         if (data.length <= 0) {
             this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
@@ -958,5 +1065,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true);
+    }
+
+    public isEmpty(): boolean {
+        var lines = this.getJournalEntryData();
+        return lines == null || lines.length == 0;
     }
 }

@@ -25,6 +25,7 @@ import {
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
@@ -83,6 +84,7 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import { CIRCULAR } from '@angular/core/src/render3/instructions';
 declare var _;
 
 interface ITab {
@@ -184,6 +186,7 @@ export class BillView implements OnInit {
     ];
 
     public actions: IUniSaveAction[];
+    public contextMenuItems: IContextMenuItem[] = [];
 
     private rootActions: IUniSaveAction[] = [
         {
@@ -243,7 +246,7 @@ export class BillView implements OnInit {
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
-        private paymentService: PaymentService
+        private paymentService: PaymentService,
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -685,6 +688,7 @@ export class BillView implements OnInit {
                 this.toast.clear();
                 this.handleEHFResult(invoice);
                 this.flagUnsavedChanged();
+                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -911,6 +915,7 @@ export class BillView implements OnInit {
                 this.flagUnsavedChanged();
                 this.ocrData = result;
                 this.uniImage.setOcrData(this.ocrData);
+                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -1407,9 +1412,6 @@ export class BillView implements OnInit {
         if (change['Supplier'])  {
             const supplier = change['Supplier'].currentValue;
 
-
-
-
             if (model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
@@ -1543,7 +1545,7 @@ export class BillView implements OnInit {
         if (change['TaxInclusiveAmountCurrency']) {
             this.updateJournalEntryAmountsWhenCurrencyChanges(model);
             if (this.journalEntryManual) {
-                this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                this.updateSummary(this.journalEntryManual.getJournalEntryData()); 
             }
         }
 
@@ -1558,6 +1560,10 @@ export class BillView implements OnInit {
                 change['TaxInclusiveAmountCurrency'].currentValue = model.TaxInclusiveAmountCurrency;
             }
             this.current.next(model);
+        }
+
+        if (change['TaxInclusiveAmountCurrency'] && this.journalEntryManual.isEmpty()) {
+            this.tryAddCostAllocation();
         }
 
         if (change['DefaultDimensions.ProjectID']) {
@@ -1681,6 +1687,11 @@ export class BillView implements OnInit {
                 current.CurrencyCodeID = result.CurrencyCodeID;
             } else {
                 current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+
+            if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty())
+            {
+                this.tryAddCostAllocation();
             }
         }
 
@@ -3394,6 +3405,13 @@ export class BillView implements OnInit {
             entityID: doc.ID || 0,
             entityType: SupplierInvoice.EntityType
         };
+        this.contextMenuItems = [
+            {
+                label: lang.clearpostings,
+                action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => false,
+            },
+        ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? `${trimLength(doc.Supplier.Info.Name, 20)}`
@@ -3421,7 +3439,8 @@ export class BillView implements OnInit {
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,
-            entityType: 'SupplierInvoice'
+            entityType: 'SupplierInvoice',
+            contextmenu: this.contextMenuItems
         };
     }
 
@@ -3536,5 +3555,16 @@ export class BillView implements OnInit {
             }
             this.suggestions = items;
         });
+    }
+
+    private tryAddCostAllocation() {
+        const current = this.current.getValue();
+        if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
+            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency);
+        }
+    }
+
+    private resetPostings() {
+        this.journalEntryManual.clear();
     }
 }

@@ -37,7 +37,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -59,7 +59,8 @@ import {
     PredefinedDescriptionService,
     SupplierService,
     CustomerService,
-    UserService
+    UserService,
+    CostAllocationService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -113,6 +114,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
+    @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>(); 
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
@@ -194,6 +196,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerService: CustomerService,
         private userService: UserService,
         private paymentService: PaymentService,
+        private costAllocationService: CostAllocationService,
     ) {}
 
     public ngOnInit() {
@@ -238,8 +241,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.selectedNumberSeriesTaskID =  this.selectedNumberSeries.NumberSeriesTaskID;
             this.setupJournalEntryNumbers(true);
         }
-
-
     }
 
     public setJournalEntryData(data) {
@@ -1324,6 +1325,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             )
             .setVisible(false);
 
+        const costAllocationCol = new UniTableColumn('CostAllocation', 'Fordelingsnøkkel', UniTableColumnType.Lookup)
+            .setTemplate((rowModel) => {
+                if (rowModel.CostAllocation && rowModel.CostAllocation.Name) {
+                    return rowModel.CostAllocation.ID + ' - ' + rowModel.CostAllocation.Name;
+                }
+                return '';
+            })
+            .setWidth('12%')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.ID + ' - ' + item.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.costAllocationService.search(searchValue);
+                }
+            })
+            .setVisible(true);
+
         let defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
@@ -1430,7 +1449,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 amountCol,
                 netAmountCol,
-                amountCurrencyCol
+                amountCurrencyCol,
+                costAllocationCol
             ];
 
             if (dimensionCols.length) {
@@ -2827,6 +2847,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
+
+        if (event.newValue && event.field) {
+            this.rowFieldChanged.emit({
+                Field: event.field, 
+                JournalEntryData: event.rowModel
+            });
+        }
     }
 
     public getTableData() {
@@ -2834,5 +2861,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return this.table.getTableData();
         }
         return null;
+    }
+
+    public focusLastRow() {
+        var rows = this.getTableData() || [];
+        this.currentRowIndex = rows.length;
+        this.table.focusRow(this.currentRowIndex);
     }
 }
