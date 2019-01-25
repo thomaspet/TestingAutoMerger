@@ -58,6 +58,7 @@ export class SalaryBalanceViewService {
 
         if (!this.salaryBalanceService.isHiddenByInstalmentType(currentSalBal)
             && currentSalBal.InstalmentType !== SalBalType.Other
+            && currentSalBal.InstalmentType !== SalBalType.Outlay
             && !currentSalBal.SupplierID) {
             errors.push('leverandør');
         }
