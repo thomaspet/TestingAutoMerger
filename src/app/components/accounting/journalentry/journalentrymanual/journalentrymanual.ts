@@ -11,7 +11,8 @@ import {
     VatType,
     NumberSeries,
     LocalDate,
-    JournalEntryLineDraft
+    JournalEntryLineDraft,
+    CostAllocation,
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
 import {JournalEntryData, FieldAndJournalEntryData} from '@app/models';
@@ -48,6 +49,7 @@ import {
     VatTypeService,
     CostAllocationService,
     AccountService,
+    SupplierService,
 } from '../../../../services/services';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
@@ -148,6 +150,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private modalService: UniModalService,
         private costAllocationService: CostAllocationService,
         private accountService: AccountService,
+        private supplierService: SupplierService,
     ) {}
 
     public ngOnInit() {
@@ -437,17 +440,21 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number = null, keepCurrentLine: boolean = false) {
         this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount).subscribe(draftlines => {
-            this.addCostAllocationDraftLines(draftlines, keepCurrentLine);
+            this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
+                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);                
+            });
         });
     }
 
     public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, keepCurrentLine: boolean = false) {
         this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount).subscribe(draftlines => {
-            this.addCostAllocationDraftLines(draftlines, keepCurrentLine);
+            this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
+                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
+            });
         });
     }
 
-    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean) {
+    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation?: CostAllocation = null) {
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
         var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
 
@@ -472,6 +479,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 newline.DebitAccountID = draftline.AccountID;
                 newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.CostAllocation = costAllocation;
                 newline.SameOrNew = "1";
                 newline.isDirty = true;
                 newline['_costAllocationTime'] = (new Date()).getTime();
@@ -486,6 +494,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     currentLine.Description = newline.Description;
                     currentLine.AmountCurrency = newline.AmountCurrency;
                     currentLine.Amount = newline.Amount;
+                    currentLine.CostAllocation = costAllocation;
                     currentLine['_costAllocationTime'] = newline['_costAllocationTime'];
 
                     this.currentJournalEntryData = currentLine;    
