@@ -421,7 +421,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
         switch (rowfield.Field) {
             case 'CostAllocation':
                 this.currentJournalEntryData = rowfield.JournalEntryData;
-                this.addCostAllocationForCostAllocation(rowfield.JournalEntryData.CostAllocation.ID, rowfield.JournalEntryData.DebitAccountID, rowfield.JournalEntryData.AmountCurrency, true);                
+                this.addCostAllocationForCostAllocation(rowfield.JournalEntryData.CostAllocation.ID, rowfield.JournalEntryData.DebitAccountID, rowfield.JournalEntryData.AmountCurrency, true);
                 break;
             case 'DebitAccount':
                 if (rowfield.JournalEntryData['_costAllocationTime']) {
@@ -441,7 +441,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number = null, keepCurrentLine: boolean = false) {
         this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount).subscribe(draftlines => {
             this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
-                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);                
+                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
             });
         });
     }
@@ -454,28 +454,28 @@ export class JournalEntryManual implements OnChanges, OnInit {
         });
     }
 
-    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation?: CostAllocation = null) {
+    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
         var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
 
         Observable.forkJoin(
-            accounts.length > 0 
+            accounts.length > 0
                 ? Observable.forkJoin(accounts.map(accountID => this.accountService.Get(accountID)))
                 : Observable.of([]),
             vattypes.length > 0
                 ? Observable.forkJoin(vattypes.map(vattypeID => this.vatTypeService.Get(vattypeID)))
                 : Observable.of([])
         )
-        .subscribe((res) => {                    
+        .subscribe((res) => {
             let accounts = res[0];
-            let vattypes = res[1]; 
+            let vattypes = res[1];
 
             var first = true;
             var lines = this.getJournalEntryData();
 
             draftlines.map(draftline => {
                 var newline = JSON.parse(JSON.stringify(draftline));
-                newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID); 
+                newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID);
                 newline.DebitAccountID = draftline.AccountID;
                 newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
                 newline.DebitVatTypeID = draftline.VatTypeID;
@@ -497,13 +497,13 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     currentLine.CostAllocation = costAllocation;
                     currentLine['_costAllocationTime'] = newline['_costAllocationTime'];
 
-                    this.currentJournalEntryData = currentLine;    
+                    this.currentJournalEntryData = currentLine;
                 } else {
                     lines.push(newline);
                 }
 
                 first = false;
-            });    
+            });
 
             this.setJournalEntryData(lines);
 
@@ -511,7 +511,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 this.journalEntryProfessional.focusLastRow();
             });
         });
-   
+
     }
 
     //
