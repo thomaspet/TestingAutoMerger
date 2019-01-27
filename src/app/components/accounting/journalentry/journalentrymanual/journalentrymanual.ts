@@ -15,7 +15,7 @@ import {
     CostAllocation,
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
-import {JournalEntryData, FieldAndJournalEntryData} from '@app/models';
+import {JournalEntryData, FieldAndJournalEntryData, CostAllocationData} from '@app/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
@@ -76,6 +76,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public doValidateBalance: boolean = true;
     @Input() public defaultRowData: JournalEntryData;
     @Input() public selectedNumberSeries: NumberSeries;
+    @Input() public costAllocationData: CostAllocationData;
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
@@ -419,11 +420,19 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private onRowFieldChanged(rowfield: FieldAndJournalEntryData) {
         var lines = this.getJournalEntryData();
-
+   
         switch (rowfield.Field) {
             case 'CostAllocation':
                 this.currentJournalEntryData = rowfield.JournalEntryData;
-                this.addCostAllocationForCostAllocation(rowfield.JournalEntryData.CostAllocation.ID, rowfield.JournalEntryData.DebitAccountID, rowfield.JournalEntryData.AmountCurrency, true);
+                this.addCostAllocationForCostAllocation(
+                    rowfield.JournalEntryData.CostAllocation.ID, 
+                    rowfield.JournalEntryData.DebitAccountID, 
+                    rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
+                    this.costAllocationData.CurrencyCodeID, 
+                    this.costAllocationData.ExchangeRate, 
+                    this.costAllocationData.FinancialDate, 
+                    this.costAllocationData.VatDate, 
+                    true);
                 break;
             case 'DebitAccount':
                 if (rowfield.JournalEntryData['_costAllocationTime']) {
@@ -434,29 +443,54 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         }
                     });
                     this.setJournalEntryData(lines);
+                } else {
+                    this.addCostAllocationForAccount(
+                        rowfield.JournalEntryData.DebitAccountID, 
+                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
+                        this.costAllocationData.CurrencyCodeID, 
+                        this.costAllocationData.ExchangeRate, 
+                        this.costAllocationData.FinancialDate, 
+                        this.costAllocationData.VatDate, 
+                        true);
                 }
 
                 break;
         }
     }
 
-    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number = null, keepCurrentLine: boolean = false) {
-        this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount).subscribe(draftlines => {
-            this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
-                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
-            });
+    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
+            if (costAllocation) {
+                this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
+                });    
+            }
         });
     }
 
-    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID, currencyExchangeRate, keepCurrentLine: boolean = false) {
-        this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate).subscribe(draftlines => {
-            this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
-                this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
-            });
+    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
+            if (supplier.CostAllocationID) {
+                this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
+                });    
+            }
+        });
+    }
+
+    public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.accountService.Get(accountID, ['CostAllocation']).subscribe(account => {
+            if (account.CostAllocationID) {
+                this.costAllocationService.getDraftLinesByAccountID(accountID, accountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, account.CostAllocation);
+                });
+            }
         });
     }
 
     private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
+        if (draftlines == null || draftlines.length == 0) return;
+        
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
         var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
         var dimensions = _.uniq(draftlines.map(draftline => draftline.DimensionsID).filter(Boolean));

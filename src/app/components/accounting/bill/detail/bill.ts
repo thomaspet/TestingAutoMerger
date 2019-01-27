@@ -37,7 +37,7 @@ import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
     UniModalService,
@@ -133,6 +133,7 @@ export class BillView implements OnInit {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
+    public costAllocationData$: BehaviorSubject<CostAllocationData> = new BehaviorSubject(new CostAllocationData());
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
@@ -1704,6 +1705,17 @@ export class BillView implements OnInit {
                     }
                 });
             }
+        }
+
+        // Set CostAllocationData for use inside JournalEntryManual
+        if (change['TaxInclusiveAmountCurrency'] || change['CurrencyCodeID'] || change['InvoiceDate'] || change['DeliveryDate']) {
+            var currentCostAllocationData = this.costAllocationData$.getValue();
+            currentCostAllocationData.CurrencyAmount = model.TaxInclusiveAmountCurrency;
+            currentCostAllocationData.CurrencyCodeID = model.CurrencyCodeID;
+            currentCostAllocationData.ExchangeRate = model.CurrencyExchangeRate;
+            currentCostAllocationData.FinancialDate = model.DeliveryDate;
+            currentCostAllocationData.VatDate = model.InvoiceDate;
+            this.costAllocationData$.next(currentCostAllocationData);
         }
 
         this.flagUnsavedChanged();
@@ -3644,7 +3656,7 @@ export class BillView implements OnInit {
     private tryAddCostAllocation() {
         const current = this.current.getValue();
         if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
-            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, false);            
+            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, current.DeliveryDate, current.InvoiceDate, false);            
         }
     }
 
