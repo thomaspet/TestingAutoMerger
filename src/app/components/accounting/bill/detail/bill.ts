@@ -256,6 +256,10 @@ export class BillView implements OnInit {
                 this.myUserRoles = roles;
             });
         });
+
+        this.current.subscribe((invoice) => {
+            this.tryUpdateCostAllocationData(invoice);
+        });
     }
 
     public ngOnInit() {
@@ -1707,17 +1711,6 @@ export class BillView implements OnInit {
             }
         }
 
-        // Set CostAllocationData for use inside JournalEntryManual
-        if (change['TaxInclusiveAmountCurrency'] || change['CurrencyCodeID'] || change['InvoiceDate'] || change['DeliveryDate']) {
-            var currentCostAllocationData = this.costAllocationData$.getValue();
-            currentCostAllocationData.CurrencyAmount = model.TaxInclusiveAmountCurrency;
-            currentCostAllocationData.CurrencyCodeID = model.CurrencyCodeID;
-            currentCostAllocationData.ExchangeRate = model.CurrencyExchangeRate;
-            currentCostAllocationData.FinancialDate = model.DeliveryDate;
-            currentCostAllocationData.VatDate = model.InvoiceDate;
-            this.costAllocationData$.next(currentCostAllocationData);
-        }
-
         this.flagUnsavedChanged();
     }
 
@@ -2736,7 +2729,7 @@ export class BillView implements OnInit {
                 const lines = this.journalEntryManual.getJournalEntryData();
 
                 lines.map(line => {
-                    if (line.FinancialDate.toString() === oldDate.toString()) {
+                    if (line.FinancialDate && oldDate && (line.FinancialDate.toString() === oldDate.toString())) {
                         // if user changed the FinancialDate manually, dont override it when changing
                         // the InvoiceDate
                         line.FinancialDate = newDate;
@@ -3651,6 +3644,23 @@ export class BillView implements OnInit {
             }
             this.suggestions = items;
         });
+    }
+
+    private tryUpdateCostAllocationData(invoice) {
+        var currentCostAllocationData = this.costAllocationData$.getValue();
+        if (invoice.TaxInclusiveAmountCurrency != currentCostAllocationData.CurrencyAmount ||
+            invoice.CurrencyExchangeRate != currentCostAllocationData.ExchangeRate || 
+            invoice.CurrencyCodeID != currentCostAllocationData.CurrencyCodeID ||
+            invoice.DeliveryDate != currentCostAllocationData.FinancialDate ||
+            invoice.InvoiceDate != currentCostAllocationData.VatDate) {
+
+            currentCostAllocationData.CurrencyAmount = invoice.TaxInclusiveAmountCurrency;
+            currentCostAllocationData.CurrencyCodeID = invoice.CurrencyCodeID;
+            currentCostAllocationData.ExchangeRate = invoice.CurrencyExchangeRate;
+            currentCostAllocationData.FinancialDate = invoice.DeliveryDate;
+            currentCostAllocationData.VatDate = invoice.InvoiceDate;
+            this.costAllocationData$.next(currentCostAllocationData);
+        }
     }
 
     private tryAddCostAllocation() {
