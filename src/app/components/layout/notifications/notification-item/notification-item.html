@@ -1,0 +1,18 @@
+<section class="notification-icon" [ngClass]="notificationType">
+    <i class="material-icons" *ngIf="icon">{{icon}}</i>
+</section>
+
+<section class="notification-body">
+    <!-- <small>{{notification.CompanyName}}</small> -->
+    <span>{{notificationText}}</span>
+    <!-- <small *ngIf="!hideTimestamp">{{timestamp}}</small> -->
+
+    <small>
+        {{notification.CompanyName}} - {{timestamp}}
+    </small>
+
+</section>
+
+<!-- <button class="menu-toggle icon-button">
+    <i class="material-icons">more_vert</i>
+</button> -->
