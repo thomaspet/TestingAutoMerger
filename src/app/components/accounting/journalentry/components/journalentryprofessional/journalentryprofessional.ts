@@ -1506,6 +1506,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
+                costAllocationCol,
                 addedPaymentCol,
                 fileCol
             ];
