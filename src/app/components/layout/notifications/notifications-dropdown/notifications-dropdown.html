@@ -1,0 +1,50 @@
+<header>
+    <section class="top-row">
+        <h1>Varsler</h1>
+        <span *ngIf="selectedFilter?.entityType">({{selectedFilter.label}})</span>
+
+        <button [matMenuTriggerFor]="filterMenu">
+            <i class="material-icons">filter_list</i>
+            Filter
+        </button>
+
+        <mat-menu #filterMenu="matMenu" xPosition="before">
+            <ul class="notification-filters">
+                <li *ngFor="let filter of typeFilters"
+                    [ngClass]="{'selected': filter === selectedFilter}"
+                    (click)="onTypeFilterSelected(filter)">
+
+                    <span>{{filter.label}}</span>
+                    <i class="material-icons">
+                        {{filter === selectedFilter ? 'radio_button_checked' : 'radio_button_unchecked'}}
+                    </i>
+                </li>
+            </ul>
+        </mat-menu>
+    </section>
+
+    <mat-slide-toggle
+        class="show-all-companies"
+        [checked]="!currentCompanyOnly"
+        (change)="toggleCurrentCompanyOnly()">
+
+        Alle selskaper
+    </mat-slide-toggle>
+</header>
+
+<cdk-virtual-scroll-viewport itemSize="100" class="notification-list">
+    <ng-container *cdkVirtualFor="let item of items">
+
+        <section *ngIf="item.isHeader" class="header">
+            {{item.label}}
+        </section>
+
+        <notification-item
+            *ngIf="!item.isHeader"
+            [notification]="item"
+            (click)="onNotificationClick(item)">
+        </notification-item>
+
+    </ng-container>
+
+</cdk-virtual-scroll-viewport>
