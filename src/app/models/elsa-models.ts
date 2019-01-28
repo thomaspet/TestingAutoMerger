@@ -152,3 +152,9 @@ export interface ElsaBundle {
     products: ElsaProduct[];
 }
 
+export enum ElsaCustomerAccessRole {
+    Read = 0,
+    Manage = 1,
+    Owner = 2
+}
+

@@ -31,7 +31,8 @@ const PUBLIC_ROOT_ROUTES = [
     'marketplace',
     'predefined-descriptions',
     'gdpr',
-    'contract-activation'
+    'contract-activation',
+    'license-info'
 ];
 
 const PUBLIC_ROUTES = [];

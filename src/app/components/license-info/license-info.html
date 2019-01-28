@@ -1,0 +1,48 @@
+<h1>Lisensinfo</h1>
+<section class="license-owner">
+    <section class="info-card">
+        <section class="info-field">
+            <strong>Lisenseier</strong>
+            <span>{{licenseOwner?.Name || '-'}}</span>
+        </section>
+
+        <section class="info-field">
+            <strong>Org.nummer</strong>
+            <span>{{licenseOwner?.OrgNumber || '-'}}</span>
+        </section>
+    </section>
+
+    <section class="info-card">
+        <section class="info-field">
+            <strong>Kontaktperson</strong>
+            <span>
+                {{licenseOwner?.ContactPerson || '-'}}
+                <a href="mailto:{{licenseOwner?.ContactEmail}}">{{licenseOwner?.ContactEmail || '-'}}</a>
+                <a *ngIf="licenseOwner?.ContactPhone" href="tel:{{licenseOwner?.ContactPhone}}">{{licenseOwner?.ContactPhone}}</a>
+            </span>
+        </section>
+    </section>
+</section>
+
+<section class="administrators">
+    <h1>Administratorer</h1>
+    <section class="info-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Navn</th>
+                    <th>Epost</th>
+                    <th>Telefon</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let manager of licenseOwner?.Managers">
+                    <td>{{manager.User?.Name}}</td>
+                    <td><a href="mailto:{{manager.User?.Email}}">{{manager.User?.Email}}</a></td>
+                    <td><a href="tel:{{manager.User?.PhoneNumber}}">{{manager.User?.PhoneNumber}}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+</section>
