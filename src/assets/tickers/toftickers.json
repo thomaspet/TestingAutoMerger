@@ -72,6 +72,11 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Rekvisisjon",
+            "Field": "Requisition",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "65px",
@@ -817,6 +822,11 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Rekvisisjon",
+            "Field": "Requisition",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Valuta",
             "Field": "CurrencyCode.Code",
             "Width": "65px",
@@ -1339,6 +1349,11 @@
         {
             "Header": "Deres referanse",
             "Field": "YourReference",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Rekvisisjon",
+            "Field": "Requisition",
             "DefaultHidden": true
         },
         {
