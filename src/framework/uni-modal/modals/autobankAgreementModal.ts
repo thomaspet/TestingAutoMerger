@@ -378,7 +378,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             return false;
         }
 
-        if (!this.validatePassword(this.agreementDetails)) {
+        if (!this.isValidPassword(this.agreementDetails)) {
             // Validate function sets error message
             return false;
         }
@@ -386,11 +386,12 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         return true;
     }
 
-    private validatePassword(agreementDetails: IAutoBankAgreementDetails): boolean {
-        const password = this.agreementDetails.Password;
-        const confirmPassword = this.agreementDetails._confirmPassword;
+    private isValidPassword(agreementDetails: IAutoBankAgreementDetails): boolean {
+        const password = agreementDetails.Password;
+        const confirmPassword = agreementDetails._confirmPassword;
 
-        if (!password) {
+        if (password.length < 10) {
+            this.errorText = password ? 'Ugyldig passord! Passordet må inneholde minst 10 tegn' : '';
             return false;
         }
 
