@@ -351,8 +351,8 @@ export class AccountDetailsReport {
         if (event.column.field === 'ID') {
             const data = {
                 entity: JournalEntry.EntityType,
-                entityID: event.row.JournalEntryID
-
+                entityID: event.row.JournalEntryID,
+                singleImage: false
             };
             this.modalService.open(ImageModal, { data: data });
         }
