@@ -33,7 +33,7 @@ import { StatisticsService } from '@app/services/common/statisticsService';
                 <ag-grid-wrapper
                     [resource]="lookupFunction"
                     [config]="uniTableConfig"
-                    (rowSelected)="selectedItemChanged($event)">
+                    (rowSelect)="selectedItemChanged($event)">
                 </ag-grid-wrapper>
             </article>
             <footer>
@@ -131,8 +131,7 @@ export class HistoricVatReportModal implements IUniModal {
     }
 
     public selectedItemChanged(data: any) {
-        let vatReport: VatReport = data.rowModel;
-        this.close(vatReport);
+        this.close(data);
     }
 
     public close(vatReport: VatReport) {

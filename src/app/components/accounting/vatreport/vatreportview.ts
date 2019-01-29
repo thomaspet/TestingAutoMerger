@@ -410,8 +410,11 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (vatReport) {
+        if (vatReport && vatReport.ExternalRefNo) {
             this.setVatreport(vatReport);
+        } else {
+            this.toastService.addToast('Umulig å last ned MVA-melding', ToastType.bad, 200,
+                'MVA-melding har ikke set ExternalRefNo');
         }
     }
 
