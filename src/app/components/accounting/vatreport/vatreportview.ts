@@ -410,11 +410,11 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (vatReport && vatReport.ExternalRefNo) {
+        if (vatReport && vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
             this.setVatreport(vatReport);
         } else {
-            this.toastService.addToast('Umulig å last ned MVA-melding', ToastType.bad, 200,
-                'MVA-melding har ikke set ExternalRefNo');
+            this.toastService.addToast('Kunne ikke vise MVA-melding', ToastType.bad, 200,
+                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først');
         }
     }
 
