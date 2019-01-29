@@ -24,6 +24,7 @@ export class AmeldingSummaryView implements OnChanges {
     public validations: string[];
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
     public showXMLValidationError: boolean;
+    public validationErrorsInAmelding: string;
 
     constructor(
         private ameldingService: AMeldingService
@@ -51,7 +52,6 @@ export class AmeldingSummaryView implements OnChanges {
                 this.sentDate = moment(this.currentAMelding.sent)
                     .format('DD.MM.YYYY HH:mm');
             }
-            this.showXMLValidationError = !!this.currentAMelding.xmlValidationErrors ? true : false;
         }
 
         if (this.currentSumUp && this.currentAMelding) {
@@ -59,6 +59,15 @@ export class AmeldingSummaryView implements OnChanges {
         } else {
             this.entitiesWithData = [];
         }
+
+        this.validationErrorsInAmelding = '';
+        if (this.validations && this.validations.length) {
+            this.validationErrorsInAmelding = this.validations.join(',');
+        }
+        if (!!this.currentAMelding && !!this.currentAMelding.xmlValidationErrors) {
+            this.validationErrorsInAmelding += this.currentAMelding.xmlValidationErrors;
+        }
+        this.showXMLValidationError = this.validationErrorsInAmelding !== '' ? true : false;
 
     }
 
@@ -127,6 +136,7 @@ export class AmeldingSummaryView implements OnChanges {
                 });
             });
         }
+        this.validations = this.entitiesWithData.map(virk => virk.validations).reduce((val, curr) => [...val, ...curr], []);
     }
 
     private setupEmployees() {

@@ -329,12 +329,6 @@ export class AMeldingView implements OnInit {
         this.initialized = true;
     }
 
-    private getAvvik() {
-        this.alleAvvikStatuser = [];
-        this.alleAvvikStatuser = this._ameldingService.getAvvikIAmeldingen(this.currentAMelding);
-        this.setStatusFromAvvik();
-    }
-
     private getSumsInPeriod() {
         this._salarySumsService
         .getSumsInPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
@@ -497,7 +491,6 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-            this.getAvvik();
             this.legalEntityNo = response.LegalEntityNo;
         }, err => this.errorService.handle(err));
     }
