@@ -105,7 +105,11 @@ export class VatReportView implements OnInit, OnDestroy {
         let year;
 
         if (this.currentVatReport && this.currentVatReport.JournalEntry) {
-            year = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1];
+            const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber
+            if (!hasYear) {
+                this.toastService.addToast('Warning', ToastType.warn, 200, 'Journal entry nummer er ikke definert');
+            }
+            year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : null;
 
             journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber;
             journalEntryID = this.currentVatReport.JournalEntryID;

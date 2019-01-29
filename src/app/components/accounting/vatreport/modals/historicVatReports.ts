@@ -21,6 +21,7 @@ import {
     ErrorService
 } from '../../../../services/services';
 import { StatisticsService } from '@app/services/common/statisticsService';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'historic-vatreport-modal',
@@ -131,10 +132,22 @@ export class HistoricVatReportModal implements IUniModal {
     }
 
     public selectedItemChanged(data: any) {
-        this.close(data);
+        this.close(this.mapVatReport(data));
     }
 
     public close(vatReport: VatReport) {
-        this.onClose.emit(vatReport);
+        this.onClose.emit(this.mapVatReport(vatReport));
+    }
+
+    public mapVatReport(object: any): VatReport {
+        const vatReport = new VatReport();
+
+        for (const prop in object) {
+            if (object.hasOwnProperty(prop)) {
+                const mappedProperty = prop ? prop.split('_').join('.') : prop;
+                _.set(vatReport, mappedProperty, object[prop]);
+            }
+        }
+        return vatReport;
     }
 }
