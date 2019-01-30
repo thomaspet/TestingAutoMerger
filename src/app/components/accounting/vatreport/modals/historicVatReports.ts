@@ -21,6 +21,7 @@ import {
     ErrorService
 } from '../../../../services/services';
 import { StatisticsService } from '@app/services/common/statisticsService';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'historic-vatreport-modal',
@@ -33,7 +34,7 @@ import { StatisticsService } from '@app/services/common/statisticsService';
                 <ag-grid-wrapper
                     [resource]="lookupFunction"
                     [config]="uniTableConfig"
-                    (rowSelected)="selectedItemChanged($event)">
+                    (rowSelect)="selectedItemChanged($event)">
                 </ag-grid-wrapper>
             </article>
             <footer>
@@ -131,11 +132,22 @@ export class HistoricVatReportModal implements IUniModal {
     }
 
     public selectedItemChanged(data: any) {
-        let vatReport: VatReport = data.rowModel;
-        this.close(vatReport);
+        this.close(this.mapVatReport(data));
     }
 
     public close(vatReport: VatReport) {
-        this.onClose.emit(vatReport);
+        this.onClose.emit(this.mapVatReport(vatReport));
+    }
+
+    public mapVatReport(object: any): VatReport {
+        const vatReport = new VatReport();
+
+        for (const prop in object) {
+            if (object.hasOwnProperty(prop)) {
+                const mappedProperty = prop ? prop.split('_').join('.') : prop;
+                _.set(vatReport, mappedProperty, object[prop]);
+            }
+        }
+        return vatReport;
     }
 }
