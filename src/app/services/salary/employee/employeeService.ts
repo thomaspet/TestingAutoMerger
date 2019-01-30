@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
-    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country
+    Employee, EmployeeCategory, Municipal, CompanySettings, SubEntity, InternationalIDType, Address, Country, OtpStatus, TypeOfPaymentOtp
 } from '../../../unientities';
 import {Observable} from 'rxjs';
 import {MunicipalService} from '../../common/municipalsService';
@@ -33,6 +33,32 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.BankAccounts',
     ];
 
+    private  periods(): Array<any> {
+        return [
+            {period: 1, name: 'Januar'},
+            {period: 2, name: 'Februar'},
+            {period: 3, name: 'Mars'},
+            {period: 4, name: 'April'},
+            {period: 5, name: 'Mai'},
+            {period: 6, name: 'Juni'},
+            {period: 7, name: 'Juli'},
+            {period: 8, name: 'August'},
+            {period: 9, name: 'September'},
+            {period: 10, name: 'Oktober'},
+            {period: 11, name: 'November'},
+            {period: 12, name: 'Desember'}
+        ];
+      }
+
+    private  otpStatus(): Array<any> {
+        return [
+            {id: OtpStatus.A, name: 'A'},
+            {id: OtpStatus.S, name: 'S'},
+            {id: OtpStatus.P, name: 'P'},
+            {id: OtpStatus.LP, name: 'LP'},
+            {id: OtpStatus.AP, name: 'AP'},
+        ];
+    }
     private InternationalIDTypes: { ID: number, Name: string }[] = [
         { ID: InternationalIDType.notSet, Name: 'Ikke valgt' },
         { ID: InternationalIDType.Passportnumber, Name: 'Passnr'},
@@ -40,6 +66,14 @@ export class EmployeeService extends BizHttp<Employee> {
         { ID: InternationalIDType.TaxIdentificationNumber, Name: 'Tax identit. nr'},
         { ID: InternationalIDType.ValueAddedTaxNumber, Name: 'Value added nr'}
     ];
+
+    private typeOfOtpPayments(): Array<any> {
+        return [
+            {id: TypeOfPaymentOtp.FixedSalary, name: 'Fast'},
+            {id: TypeOfPaymentOtp.HourlyPay, name: 'Time'},
+            {id: TypeOfPaymentOtp.PaidOnCommission, name: 'Provisjon'},
+        ];
+    }
 
     constructor(
         http: UniHttp,
@@ -398,6 +432,95 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 5,
                     Section: 0,
                 },
+            ]
+        }]);
+    }
+
+    public layoutOTP(layoutID: string) {
+        return Observable.from([{
+            Name: layoutID,
+            BaseEntity: 'Employee',
+            Fields: [
+                {
+                    EntityType: 'Employee',
+                    Property: 'OtpExport',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Inkluderes i eksport',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'OtpStatus',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Status',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: {
+                        source: this.otpStatus(),
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        valueProperty: 'id',
+                        displayProperty: 'name'
+                    }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'EmploymentDateOtp',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Ansettelsesdato OTP',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'EndDateOtp',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Sluttdato',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'IncludeOtpUntilMonth',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Inkl. i eksport t.o.m. måned',
+                    FieldSet: 1,
+                    Section: 0,
+                    // Classes: 'quarter-width',
+                    Options: {
+                        source: this.periods(),
+                        template: (obj) => `${obj.period} - ${obj.name}`,
+                        valueProperty: 'period',
+                        displayProperty: 'name'
+                    }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'IncludeOtpUntilYear',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Inkl. i eksport t.o.m. år',
+                    FieldSet: 1,
+                    Section: 0,
+                    // Classes: 'quarter-width, visuallyHideLabel',
+                    Options: { }
+                },
+                {
+                    EntityType: 'Employee',
+                    Property: 'TypeOfPaymentOtp',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Avlønningsform',
+                    FieldSet: 1,
+                    Section: 0,
+                    Options: {
+                        source: this.typeOfOtpPayments(),
+                        template: (obj) => `${obj.id} - ${obj.name}`,
+                        valueProperty: 'id',
+                        displayProperty: 'name'
+                    }
+                }
             ]
         }]);
     }

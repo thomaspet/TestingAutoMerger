@@ -95,7 +95,7 @@ export class AMeldingView implements OnInit {
             });
 
         this._tabService.addTab({
-            name: 'A-Melding',
+            name: 'A-melding',
             url: 'salary/amelding',
             moduleID: UniModules.Amelding,
             active: true

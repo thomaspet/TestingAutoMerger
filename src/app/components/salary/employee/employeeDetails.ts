@@ -5,7 +5,7 @@ import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import {
     Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
     Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator
+    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator, CompanySalary
 } from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -30,7 +30,7 @@ import {
     EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
     SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
     WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService
+    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService, CompanySalaryService
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
@@ -64,6 +64,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private url: string = '/salary/employees/';
     public childRoutes: any[];
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
+    private companySalarySettings: CompanySalary;
 
     private employeeID: number;
     private employee: Employee;
@@ -164,10 +165,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private salaryBalanceLineService: SalaryBalanceLineService,
         private payrollRunService: PayrollrunService,
         private employeeOnCategoryService: EmployeeOnCategoryService,
+        private companySalaryService: CompanySalaryService,
     ) {
         super(router.url, cacheService);
 
-        this.childRoutes = this.getPaths();
+        this.companySalaryService.getCompanySalary()
+            .subscribe((compsalarysettings: CompanySalary) => {
+                this.companySalarySettings = compsalarysettings;
+                this.childRoutes = this.getPaths();
+            });
 
         this.activeYear$.next(this.financialYearService.getActiveYear());
 
@@ -369,15 +375,19 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getPaths(): any[] {
-        return [
+        const paths = [
             {name: 'Detaljer', path: 'personal-details'},
             {name: 'Skatt', path: 'employee-tax'},
             {name: 'Arbeidsforhold', path: 'employments'},
             {name: 'Faste poster', path: 'recurring-post'},
             {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
             {name: 'Permisjon', path: 'employee-leave'},
-            {name: 'Historiske poster', path: 'employee-trans-ticker'},
+            {name: 'Historiske poster', path: 'employee-trans-ticker'}
         ];
+        if (this.companySalarySettings.OtpExportActive) {
+            paths.push({name: 'OTP', path: 'employee-otp'});
+        }
+        return paths;
     }
 
     private fillInnSubEntityOnEmp(employee: Employee): void {

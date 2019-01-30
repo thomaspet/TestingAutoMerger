@@ -253,8 +253,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -2238,6 +2238,7 @@ export class CompanySalary extends UniEntity {
     public MainAccountCostFinancial: number;
     public MainAccountCostFinancialVacation: number;
     public MainAccountCostVacation: number;
+    public OtpExportActive: boolean;
     public PaymentInterval: CompanySalaryPaymentInterval;
     public PostToTaxDraw: boolean;
     public RateFinancialTax: number;
@@ -2314,6 +2315,7 @@ export class EmployeeLeave extends UniEntity {
     public static EntityType = 'EmployeeLeave';
 
     public _createguid: string;
+    public AffectsOtp: boolean;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -6672,9 +6674,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 

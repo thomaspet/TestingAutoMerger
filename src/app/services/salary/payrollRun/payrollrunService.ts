@@ -249,6 +249,10 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'payments-on-runs');
     }
 
+    public getOTPExportData(payrollIDs: string, otpPeriode: number, otpYear: number, asXml: boolean = false) {
+        return super.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
+    }
+
     public validateTransesOnRun(transes: SalaryTransaction[], done: (message: string) => void = null): boolean {
         let validates: boolean = true;
         if (!transes.length) {

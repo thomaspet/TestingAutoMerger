@@ -337,6 +337,14 @@ export class AgaAndSubEntitySettings implements OnInit {
             displayProperty: 'name'
         };
 
+        const otpExportActive = new UniFieldLayout();
+        otpExportActive.EntityType = 'CompanySalary';
+        otpExportActive.Label = 'Benytte OTP-eksport';
+        otpExportActive.Property = 'OtpExportActive';
+        otpExportActive.FieldType = FieldType.CHECKBOX;
+        otpExportActive.Section = 2;
+        otpExportActive.FieldSet = 2;
+
         const vacationSettingsBtn = new UniFieldLayout();
         vacationSettingsBtn.Label = 'Innstillinger feriepenger';
         vacationSettingsBtn.EntityType = 'mainOrganization';
@@ -492,6 +500,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             interrimRemit,
             paymentInterval,
             postTax,
+            otpExportActive,
             vacationSettingsBtn,
             calculateFinancial,
             rateFinancialTax,

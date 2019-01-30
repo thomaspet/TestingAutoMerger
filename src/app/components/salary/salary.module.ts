@@ -37,6 +37,7 @@ import {PersonalDetails} from './employee/personalDetails/personalDetails';
 import {RecurringPost} from './employee/recurringPost/recurringPost';
 import {EmployeeTax} from './employee/employeeTax/employeeTax';
 import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
+import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
 
 import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
 import {ControlModal} from './payrollrun/modals/controlModal';
@@ -117,6 +118,8 @@ import {
 import {
     SalarybalanceTemplateEmployeeListComponent
 } from './salarybalance/template/salarybalance-template-employee-list/salarybalance-template-employee-list.component';
+import { OTPExportComponent } from './otpexport/otpexport.component';
+import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter-modal.component';
 
 @NgModule({
     imports: [
@@ -165,6 +168,7 @@ import {
         RecurringPost,
         EmployeeTax,
         EmployeeSalarybalance,
+        EmployeeOTP,
 
         // Payrollrun
         VacationPayModal,
@@ -226,6 +230,10 @@ import {
         SalarybalanceTemplateDetailsComponent,
         SalarybalanceTemplateView,
         SalarybalanceTemplateEmployeeListComponent,
+
+        // OTP
+        OTPExportComponent,
+        OtpFilterModalComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -242,6 +250,7 @@ import {
         ReconciliationResponseModalComponent,
         TimeTransferComponent,
         TravelRejectModal,
+        OtpFilterModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -285,6 +294,7 @@ import {
         EmployeeTax,
         EmployeeSalarybalance,
         EmployeeTransTickerComponent,
+        EmployeeOTP,
 
         // Payrollrun
         VacationPayModal,
@@ -332,7 +342,10 @@ import {
         TravelListComponent,
         TravelDetailsComponent,
         TravelLinesComponent,
-        TravelRejectModal
+        TravelRejectModal,
+
+        // OTP
+        OTPExportComponent
     ]
 })
 export class SalaryModule {}

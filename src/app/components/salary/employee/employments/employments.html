@@ -15,8 +15,9 @@
     <main class="splitview_detail" *ngIf="employments">
         <employment-details
             [employment]="selectedEmployment$ | async"
-            [employeeID]="employeeID"
-            (employmentChange)="onEmploymentChange($event)">
+            [employee]="employee"
+            (employmentChange)="onEmploymentChange($event)"
+            (employeeChange)="onEmployeeChange($event)">
         </employment-details>
         <button class="delete" (click)="onDeleteEmployment()" [disabled]="deleteBtnDisabled()">
             Slett arbeidsforhold

@@ -34,6 +34,7 @@ import {
 // } from '@app/components/salary/salarybalance/template/salarybalance-template-details/salarybalance-template-details.component';
 import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
 import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
+import {OTPExportComponent} from './otpexport/otpexport.component';
 
 export const salaryRoutes: Routes = [
     {
@@ -126,5 +127,9 @@ export const salaryRoutes: Routes = [
         component: SalarybalanceTemplateView,
         children: SalarybalanceTemplateRoutes,
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'otpexport',
+        component: OTPExportComponent
     }
 ];
