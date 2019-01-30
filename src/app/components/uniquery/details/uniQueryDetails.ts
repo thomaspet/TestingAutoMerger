@@ -436,7 +436,7 @@ export class UniQueryDetails {
 
         // execute request to create Excel file
         this.statisticsService
-            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers, null)
+            .GetExportedExcelFile(this.queryDefinition.MainModelName, this.selects, this.filterObject.filter, this.expands, headers, null, false)
                 .subscribe((blob) => {
                     // download file so the user can open it
                     saveAs(blob, 'export.xlsx');

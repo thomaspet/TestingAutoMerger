@@ -1309,7 +1309,7 @@ export class UniTicker {
         // execute request to create Excel file
         this.statisticsService
             .GetExportedExcelFile(this.ticker.Model, selectedFieldString, params.get('filter'),
-                this.ticker.Expand, headers.join(','), this.ticker.Joins)
+                this.ticker.Expand, headers.join(','), this.ticker.Joins, this.ticker.Distinct)
                     .subscribe((blob) => {
                         // download file so the user can open it
                         saveAs(blob, 'export.xlsx');
