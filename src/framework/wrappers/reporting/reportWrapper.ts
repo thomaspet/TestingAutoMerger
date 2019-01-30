@@ -197,6 +197,7 @@ export class StimulsoftReportWrapper {
                                     mimetype = 'application/pdf';
                                     settings = new Stimulsoft.Report.Export.StiPdfExportSettings();
                                     service = new Stimulsoft.Report.Export.StiPdfExportService();
+                                    service.useUnicode = true;
                                     break;
                             }
 
