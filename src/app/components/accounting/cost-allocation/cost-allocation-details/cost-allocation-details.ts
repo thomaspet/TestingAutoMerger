@@ -64,7 +64,7 @@ export class UniCostAllocationDetails {
             this.companySettingsService.Get(1),
             this.predefinedDescriptionService.GetAll('filter=Type eq 1'),
             this.customDimensionService.getMetadata(),
-            this.vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
+            this.vatTypeService.GetAll('orderby=VatCode')
         ]).subscribe(([companySettings, descriptions, dimensionsMetadata, vattypes]) => {
             const dimensionColumns = customDimensionColumns(
                 this.customDimensionService,
@@ -72,7 +72,7 @@ export class UniCostAllocationDetails {
             );
             const columns = [
                 accountColumn(this.table, this.accountService, this.modalService),
-                vattypeColumn(vattypes, this.vatTypeService, <CompanySettings>companySettings),
+                vattypeColumn(vattypes, <CompanySettings>companySettings),
                 ammountColumn(),
                 percentColumn(),
                 descriptionColumn(descriptions),
