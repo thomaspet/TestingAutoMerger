@@ -1,7 +1,7 @@
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { VatTypeService } from '@app/services/accounting/vatTypeService';
 import { CompanySettings, VatType } from '@app/unientities';
 import { IGroupConfig } from '@uni-framework/ui/unitable/controls';
+import { from } from 'rxjs';
 
 const vatTypeGroupConfig: IGroupConfig = {
     groupKey: 'VatCodeGroupingValue',
@@ -42,10 +42,10 @@ const vatTypeGroupConfig: IGroupConfig = {
     ]
 };
 
-export const vattypeColumn = (vattypes: VatType[], vatTypeService: VatTypeService, companySettings: CompanySettings) => {
+export const vattypeColumn = (vattypes: VatType[], companySettings: CompanySettings) => {
     return new UniTableColumn('VatType', 'MVA', UniTableColumnType.Lookup)
         .setDisplayField('VatType.VatCode')
-        .setWidth('8%')
+        .setVisible(false)
         .setSkipOnEnterKeyNavigation(true)
         .setTemplate((rowModel) => {
             if (rowModel.VatType) {
@@ -60,14 +60,13 @@ export const vattypeColumn = (vattypes: VatType[], vatTypeService: VatTypeServic
                 return `${item.VatCode}: ${item.Name} - ${item.VatPercent}%`;
             },
             lookupFunction: (searchValue) => {
-                return vatTypeService.GetVatTypesWithDefaultVatPercent('filter=OutputVat eq true')
-                    .map(result => result.filter(
-                        (vattype) => vattype.VatCode === searchValue
-                        || vattype.VatPercent === searchValue
-                        || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
-                        || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%`
-                        || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`
-                    ));
+                return from([vattypes.filter(
+                    (vattype) => vattype.VatCode === searchValue
+                    || vattype.VatPercent === searchValue
+                    || vattype.Name.toLowerCase().indexOf(searchValue.toLowerCase()) >= 0
+                    || searchValue === `${vattype.VatCode}: ${vattype.Name} - ${vattype.VatPercent}%`
+                    || searchValue === `${vattype.VatCode}: ${vattype.VatPercent}%`
+                )]);
             },
             groupConfig: vatTypeGroupConfig
         })
