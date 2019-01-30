@@ -8,10 +8,6 @@ import {
     UniTableConfig, IContextMenuItem
 } from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {
-    ErrorService,
-    ContactService
-} from '../../../services/services';
 
 declare const _;
 
@@ -34,8 +30,6 @@ export class Contacts implements AfterViewInit {
 
     constructor(
         private router: Router,
-        private contactService: ContactService,
-        private errorService: ErrorService,
         private toastService: ToastService
     ) {}
 
@@ -53,7 +47,7 @@ export class Contacts implements AfterViewInit {
     }
 
     public onRowChanged(event) {
-        let contact = event.rowModel;
+        const contact = event.rowModel;
         this.parentBusinessRelation.Contacts[contact._originalIndex] = contact;
 
         this.contactChanged.emit(contact);
@@ -63,14 +57,14 @@ export class Contacts implements AfterViewInit {
         this.focusRow(0);
     }
 
-    public focusRow(index = undefined) {
+    public focusRow(index?) {
         if (this.table && index) {
             this.table.focusRow(index);
         }
     }
 
     public onRowDelete(event) {
-        var contact = event.rowModel;
+        const contact = event.rowModel;
         if (!contact) { return; }
         if (!contact.ID) {
             this.contacts.splice(contact._originalIndex, 1);
@@ -83,7 +77,7 @@ export class Contacts implements AfterViewInit {
     }
 
     private changeCallback(event) {
-        var rowModel = event.rowModel;
+        const rowModel = event.rowModel;
 
         if (event.field === 'Info.Name') {
             rowModel.Info.Name = rowModel[event.field];
@@ -98,12 +92,12 @@ export class Contacts implements AfterViewInit {
 
     private setupTable() {
         // Define columns to use in the table
-        let nameCol = new UniTableColumn('Info.Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
-        let titleCol = new UniTableColumn('Role', 'Rolle',  UniTableColumnType.Text);
-        let phoneCol = new UniTableColumn('Info.DefaultPhone.Number', 'Telefon',  UniTableColumnType.Text);
-        let emailCol = new UniTableColumn('Info.DefaultEmail.EmailAddress', 'Epost',  UniTableColumnType.Text);
+        const nameCol = new UniTableColumn('Info.Name', 'Navn',  UniTableColumnType.Text).setWidth('200px');
+        const titleCol = new UniTableColumn('Role', 'Rolle',  UniTableColumnType.Text);
+        const phoneCol = new UniTableColumn('Info.DefaultPhone.Number', 'Telefon',  UniTableColumnType.Text);
+        const emailCol = new UniTableColumn('Info.DefaultEmail.EmailAddress', 'E-postadresse',  UniTableColumnType.Text);
 
-        let isMainContactCol =
+        const isMainContactCol =
             new UniTableColumn('_maincontact', 'Hovedkontakt',  UniTableColumnType.Text)
                 .setTemplate((item) => {
                     if (typeof item._maincontact === 'boolean' && item._maincontact ) {
@@ -114,7 +108,7 @@ export class Contacts implements AfterViewInit {
                 .setEditable(false);
 
 
-        let defaultRowModel = {
+        const defaultRowModel = {
             Role: '',
             Info: {
                 Name: '',
@@ -128,7 +122,7 @@ export class Contacts implements AfterViewInit {
             }
         };
 
-        let contextMenuItems: IContextMenuItem[] = [];
+        const contextMenuItems: IContextMenuItem[] = [];
 
         contextMenuItems.push({
             label: 'Vis kontaktdetaljer',
@@ -167,9 +161,10 @@ export class Contacts implements AfterViewInit {
                     });
 
                     this.mainContactSet.emit(rowModel);
+                    this.contactChanged.emit(rowModel);
                 }
             },
-            disabled: (rowModel) => {
+            disabled: () => {
                 return false;
             }
         });
