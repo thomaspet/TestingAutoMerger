@@ -440,6 +440,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         if (rowfield.JournalEntryData['_costAllocationTime'] == line['_costAllocationTime'] && !line.DebitAccountID) {
                             line.DebitAccountID = rowfield.JournalEntryData.DebitAccountID;
                             line.DebitAccount = rowfield.JournalEntryData.DebitAccount;
+                            if (rowfield.JournalEntryData.DebitVatTypeID && !line.DebitVatTypeID) {
+                                line.DebitVatTypeID = rowfield.JournalEntryData.DebitVatTypeID;
+                                line.DebitVatType = rowfield.JournalEntryData.DebitVatType;
+                            }
                         }
                     });
                     this.setJournalEntryData(lines);
@@ -513,7 +517,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
             var first = true;
             var lines = this.getJournalEntryData();
-            draftlines.map(draftline => {
+            var currentIndex = lines.findIndex(line => line['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+            draftlines.map((draftline, index) => {
                 var newline = JSON.parse(JSON.stringify(draftline));
                 newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID);
                 newline.DebitAccountID = draftline.AccountID;
@@ -526,7 +531,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 newline['_costAllocationTime'] = (new Date()).getTime();
 
                 if (first && keepCurrentLine) {
-                    var currentLine = lines.find(line => line['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+                    var currentLine = lines[currentIndex];
                     currentLine.DebitAccount = newline.DebitAccount;
                     currentLine.DebitAccountID = newline.DebitAccountID;
                     currentLine.DebitVatType = newline.DebitVatType;
@@ -541,7 +546,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
                     this.currentJournalEntryData = currentLine;
                 } else {
-                    lines.push(newline);
+                    lines.splice(currentIndex + index, 0, newline);
                 }
 
                 first = false;
