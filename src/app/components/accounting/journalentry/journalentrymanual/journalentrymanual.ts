@@ -420,18 +420,18 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private onRowFieldChanged(rowfield: FieldAndJournalEntryData) {
         var lines = this.getJournalEntryData();
-   
+
         switch (rowfield.Field) {
             case 'CostAllocation':
                 this.currentJournalEntryData = rowfield.JournalEntryData;
                 this.addCostAllocationForCostAllocation(
-                    rowfield.JournalEntryData.CostAllocation.ID, 
-                    rowfield.JournalEntryData.DebitAccountID, 
-                    rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
-                    this.costAllocationData.CurrencyCodeID, 
-                    this.costAllocationData.ExchangeRate, 
-                    this.costAllocationData.FinancialDate, 
-                    this.costAllocationData.VatDate, 
+                    rowfield.JournalEntryData.CostAllocation.ID,
+                    rowfield.JournalEntryData.DebitAccountID,
+                    rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                    this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                    this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                    this.costAllocationData ? this.costAllocationData.FinancialDate : null,
+                    this.costAllocationData ? this.costAllocationData.VatDate : null,
                     true);
                 break;
             case 'DebitAccount':
@@ -449,12 +449,12 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     this.setJournalEntryData(lines);
                 } else {
                     this.addCostAllocationForAccount(
-                        rowfield.JournalEntryData.DebitAccountID, 
-                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
-                        this.costAllocationData.CurrencyCodeID, 
-                        this.costAllocationData.ExchangeRate, 
-                        this.costAllocationData.FinancialDate, 
-                        this.costAllocationData.VatDate, 
+                        rowfield.JournalEntryData.DebitAccountID,
+                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                        this.costAllocationData ? this.costAllocationData.FinancialDate : null,
+                        this.costAllocationData ? this.costAllocationData.VatDate : null,
                         true);
                 }
 
@@ -467,7 +467,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             if (costAllocation) {
                 this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
                     this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
-                });    
+                });
             }
         });
     }
@@ -477,7 +477,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
             if (supplier.CostAllocationID) {
                 this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
                     this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
-                });    
+                });
             }
         });
     }
@@ -494,7 +494,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
 
     private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
         if (draftlines == null || draftlines.length == 0) return;
-        
+
         var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
         var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
         var dimensions = _.uniq(draftlines.map(draftline => draftline.DimensionsID).filter(Boolean));
