@@ -76,7 +76,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public doValidateBalance: boolean = true;
     @Input() public defaultRowData: JournalEntryData;
     @Input() public selectedNumberSeries: NumberSeries;
-    @Input() public costAllocationData: CostAllocationData;
+    @Input() public costAllocationData: CostAllocationData = new CostAllocationData();
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
