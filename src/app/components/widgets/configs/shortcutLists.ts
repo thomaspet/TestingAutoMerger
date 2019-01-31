@@ -150,7 +150,7 @@ export const SHORTCUT_LISTS = [
                     label: 'Altinn',
                     url: '/salary/altinnoverview',
                     icon: 'search'
-                }
+                },
             ]
         }
     },
@@ -337,6 +337,11 @@ export const SHORTCUT_LISTS = [
                 {
                     label: 'Tilleggsopplysninger',
                     link: '/salary/supplements',
+                    urlToNew: ''
+                },
+                {
+                    label: 'Variable lønnsposter',
+                    link: '/salary/variablepayrolls',
                     urlToNew: ''
                 }
             ]

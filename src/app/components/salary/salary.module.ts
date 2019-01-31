@@ -47,6 +47,7 @@ import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsS
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
+import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
 
 import {SalaryTransactionSelectionList} from './salarytrans/salarytransactionSelectionList';
 import {SalaryTransactionEmployeeList} from './salarytrans/salarytransList';
@@ -101,7 +102,9 @@ import { TravelDetailsComponent } from './travel/travel-details/travel-details.c
 import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
-import {MatSlideToggleModule} from '@angular/material';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
@@ -127,7 +130,9 @@ import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
+        MatTooltipModule,
         MatSlideToggleModule,
+        MatSelectModule,
         UniTickerModule,
 
         RouterModule.forChild(salaryRoutes),
@@ -179,6 +184,7 @@ import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter
         PaycheckSending,
         PaycheckSenderModal,
         TimeTransferComponent,
+        VariablePayrollsComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -305,6 +311,7 @@ import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter
         PaycheckSending,
         PaycheckSenderModal,
         TimeTransferComponent,
+        VariablePayrollsComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,

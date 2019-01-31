@@ -77,7 +77,7 @@ export enum UniModules {
     TravelType = 511,
     SalarybalanceTemplates = 512,
     OTPExport       = 513,
-
+    VariablePayrolls = 514,
     WorkProfiles    = 600,
     Workers         = 601,
     WorkTypes       = 602,

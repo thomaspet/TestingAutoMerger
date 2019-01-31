@@ -1,0 +1,36 @@
+<uni-toolbar [saveactions]="saveActions" [config]="{title: 'Variable lønnsposter'}"></uni-toolbar>
+
+<article class="application">
+    <uni-information [config]="infoConfig" class="infoNote">
+        I dette grensesnittet kan du endre, registrere og slette variable lønnsposter. Ved lagring overføres postene automatisk
+        til valgt lønnsavregning. Ved sletting fjernes postene fra valgt lønnsavregning.
+        <br>
+        <br>
+        Husk at du også kan endre direkte på lønnsavregningen.
+    </uni-information>
+    <span class="selectedPayrollrun">
+        Lønnsavregning
+        <article class="selectContainer">
+            <uni-select
+                [items]="payrollruns"
+                [config]="payrollrunSelectConfig"
+                [(value)]="selectedPayrollrun"
+                (valueChange)="onPayrollrunSelect($event)">
+            </uni-select>
+        </article>
+    </span>
+
+    <span class="showPayrolls">
+        Vis alle variable lønnsposter
+        <i class="material-icons tab-tooltip" matTooltip="{{ infoMessage }}">
+            info
+        </i>
+        <mat-slide-toggle class="togglePayrollrun" [(checked)]="toggle" (change)="toggleChange($event)"></mat-slide-toggle>
+    </span>
+
+    <section [attr.aria-busy]="tableLoading" class="uniTable">
+        <ag-grid-wrapper class="maintable salaryTransTable" [resource]="filteredTransactions" [config]="salarytransEmployeeTableConfig"
+            (rowChange)="rowChanged($event)" (rowDelete)="onRowDeleted($event)" (cellClick)="onCellClick($event)">
+        </ag-grid-wrapper>
+    </section>
+</article>

@@ -340,6 +340,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 disabled: () => {
                     return this.payrollrun$.getValue() && !!this.payrollrun$.getValue().StatusCode;
                 }
+            },
+            {
+                label: 'Gå til variable lønnsposter',
+                action: () => this.router.navigateByUrl('/salary/variablepayrolls/' + this.payrollrunID),
             }
         ];
 

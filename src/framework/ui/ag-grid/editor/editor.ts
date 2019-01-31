@@ -285,6 +285,7 @@ export class TableEditor {
             && this.currentRowIndex > 0
             && this.editor
             && this.editor.instance.getValue() === undefined
+            && this.config.copyFromCellAbove
         ) {
             this.copyFromAbove();
         }
