@@ -16,7 +16,7 @@ export class OtpFilterModalComponent implements OnInit, IUniModal {
   @ViewChild(AgGridWrapper) private table: AgGridWrapper;
   @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
   private payrolls: PayrollRun[];
-  private selectedPayrolls: PayrollRun[];
+  public selectedPayrolls: PayrollRun[];
   public busy: boolean = false;
   public currentYear: number;
   public selectedOTPPeriod: number;

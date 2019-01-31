@@ -30,7 +30,7 @@ export class OTPExportComponent implements OnInit {
   public otpTableConfig: UniTableConfig;
   public otpData: any[] = [];
   private companySalarySettings: CompanySalary;
-  private showOTPNotActive: boolean = true;
+  public showOTPNotActive: boolean = true;
   private runs: string;
   private  periods(): Array<any> {
     return [
