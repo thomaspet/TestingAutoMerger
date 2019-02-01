@@ -91,12 +91,28 @@ export class EmployeeLeaves extends UniView {
                 },
                 lookupFunction: (searchValue) => this.lookupEmployment(searchValue)
             });
+        const affectsOTPCol = new UniTableColumn('_AffectsOtp', 'Påvirker OTP', UniTableColumnType.Select)
+            .setWidth('15%')
+            .setTemplate((row: EmployeeLeave) => {
+                if (row['_isEmpty']) {
+                    return '';
+                }
+                if (row && row.AffectsOtp) {
+                    return 'Ja';
+                } else {
+                    return 'Nei';
+                }
+            })
+            .setOptions({
+                resource: ['Ja', 'Nei'],
+                itemTemplate: rowModel => rowModel
+            });
 
         this.tableConfig = new UniTableConfig('salary.employee.employeeLeave', this.employeeID ? true : false)
             .setDeleteButton(true)
             .setColumns([
                 fromDateCol, toDateCol, leavePercentCol,
-                leaveTypeCol, employmentIDCol, commentCol
+                leaveTypeCol, employmentIDCol, commentCol, affectsOTPCol
             ])
             .setChangeCallback((event) => {
                 const row: EmployeeLeave = event.rowModel;
@@ -110,6 +126,14 @@ export class EmployeeLeaves extends UniView {
 
                 if (event.field === 'LeaveType') {
                     this.mapLeavetypeToPermision(row);
+                }
+
+                if (event.field === '_AffectsOtp') {
+                    if (row['_AffectsOtp'] === 'Ja') {
+                        row.AffectsOtp = true;
+                    } else {
+                        row.AffectsOtp = false;
+                    }
                 }
 
                 // Update local array and cache
