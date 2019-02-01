@@ -1,23 +1,25 @@
 import {Component, Input, OnChanges} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of as observableOf} from 'rxjs';
+import {switchMap, map} from 'rxjs/operators';
+
+import {ChartHelper} from '../chartHelper';
 import {PeriodFilter} from '../periodFilter/periodFilter';
 import {AccountDetailsReportModal, IDetailsModalInput} from '../detailsmodal/accountDetailsReportModal';
-import {UniModalService} from '../../../../../framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {UniHttp} from '@uni-framework/core/http/http';
 import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
     INumberFormat
-} from '../../../../../framework/ui/unitable/index';
-import {ChartHelper} from '../chartHelper';
+} from '@uni-framework/ui/unitable';
 import {
     AccountGroupService,
     StatisticsService,
     ErrorService,
     DimensionService,
     NumberFormat
-} from '../../../../services/services';
-import { UniHttp } from '../../../../../framework/core/http/http';
+} from '@app/services/services';
 
 interface IReportRow {
     ID: number;
@@ -190,54 +192,79 @@ export class DrilldownResultReportPart implements OnChanges {
     private mapDimTypeToModel(dimType: number): { model: string, filterModel?: string, fld: string } {
         switch (dimType) {
             case 1:
-                return { model: 'project', fld: 'ProjectNumber' }
+                return { model: 'project', fld: 'ProjectNumber' };
             case 2:
-                return { model: 'department', fld: 'DepartmentNumber' }
+                return { model: 'department', fld: 'DepartmentNumber' };
             case 3:
-                return { model: 'responsible', fld: 'NameOfResponsible' }
+                return { model: 'responsible', fld: 'NameOfResponsible' };
             case 4:
-                return { model: 'region', fld: 'RegionCode' }
+                return { model: 'region', fld: 'RegionCode' };
             default:
-                return { model: `dimension${dimType}`, filterModel: `dim${dimType}`, fld: 'Number' }
+                return { model: `dimension${dimType}`, filterModel: `dim${dimType}`, fld: 'Number' };
         }
     }
 
-    private loadData(dimfilter = "") { 
+    private getDimFilter(): Observable<string> {
         this.busy = true;
 
-        if (this.dimensionType && this.dimensionId && dimfilter === "") {
-            // Lookup the 'number' from the 'id' since the report-action doesnt support ID's
-            const dimMap = this.mapDimTypeToModel(parseInt(this.dimensionType.toString()));
-            this.statisticsService.GetAll(`model=${dimMap.model}&select=${dimMap.fld} as value&filter=id eq ${this.dimensionId}`)
-                .subscribe( x => {
-                    if (x && x.Success && x.Data.length > 0) {
-                        var value = x.Data[0].value;
-                        this.loadData(`&${dimMap.filterModel || dimMap.model}='${value}'-'${value}'`);
-                        return;
+        // Lookup the 'number' from the 'id' since the report-action doesnt support ID's
+        if (this.dimensionType && this.dimensionId) {
+            const dimType = parseInt(this.dimensionType.toString(), 10);
+            const dimMap = this.mapDimTypeToModel(dimType);
+
+            return this.statisticsService.GetAll(
+                `model=${dimMap.model}&select=${dimMap.fld} as value&filter=id eq ${this.dimensionId}`
+            ).pipe(
+                map(res => {
+                    if (res.Success && res.Data && res.Data.length) {
+                        const value = res.Data[0].value;
+                        return `&${dimMap.filterModel || dimMap.model}='${value}'-'${value}'`;
                     }
-                    this.busy = false;
-                }, err => { this.busy = false; this.errorService.handle(err); });
-            return;
+                })
+            );
+        } else {
+            let dimFilter = '';
+            if (this.filter) {
+                if (this.filter.ProjectNumber) {
+                    dimFilter += `&dim1='${this.filter.ProjectNumber}'-'${this.filter.ProjectNumber}'`;
+                }
+
+                if (this.filter.DepartmentNumber) {
+                    dimFilter += `&dim2='${this.filter.DepartmentNumber}'-'${this.filter.DepartmentNumber}'`;
+                }
+            }
+
+            return observableOf(dimFilter);
         }
+    }
 
-        const filter = `&financialyear=${this.periodFilter1.year}`
-            + `&period=${this.periodFilter1.fromPeriodNo}-${this.periodFilter1.toPeriodNo}`
-            + dimfilter ||
-            ( ( this.filter && this.filter.ProjectNumber ? `&dim1='${this.filter.ProjectNumber}'-'${this.filter.ProjectNumber}'` : '')
-            + ( this.filter && this.filter.DepartmentNumber ? `&dim2='${this.filter.DepartmentNumber}'-'${this.filter.DepartmentNumber}'` : '') );
+    private loadData() {
+        this.busy = true;
 
-        this.http.usingBusinessDomain().asGET()
-            .withEndPoint("accounts?action=profit-and-loss-periodical" + filter).send()
-                .map( x => x.json())                
-                .subscribe( x => {
-                    const list = this.extractGroups(x);
-                    this.flattenedTreeSummaryList = list;
-                    this.calculateTreePercentages(list, null, null);
-                    this.percentagePeriod1 = list.find(x => x.number === 9).percentagePeriod1;
-                    this.setupTable();
-                    this.setupChart();
-                    this.busy = false;
-                }, err => { this.busy = false; this.errorService.handle(err); });
+        this.getDimFilter().pipe(
+            switchMap(dimFilter => {
+                const filter = `&financialyear=${this.periodFilter1.year}`
+                    + `&period=${this.periodFilter1.fromPeriodNo}-${this.periodFilter1.toPeriodNo}`
+                    + dimFilter;
+
+                return this.http.asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint('accounts?action=profit-and-loss-periodical' + filter)
+                    .send();
+            })
+        ).subscribe(
+            res => {
+                res = res.json();
+                const list = this.extractGroups(res);
+                this.flattenedTreeSummaryList = list;
+                this.calculateTreePercentages(list, null, null);
+                this.percentagePeriod1 = list.find(x => x.number === 9).percentagePeriod1;
+                this.setupTable();
+                this.setupChart();
+            },
+            err => this.errorService.handle(err),
+            () => this.busy = false
+        );
     }
 
     private toSummaryData(row: IReportRow, level = 0, presign = 1): ResultSummaryData {
@@ -252,31 +279,31 @@ export class DrilldownResultReportPart implements OnChanges {
         ret.level = level;
         ret.turned = presign < 0;
         return ret;
-    } 
+    }
 
     private extractGroups(rows: IReportRow[]): ResultSummaryData[] {
         const groups: ResultSummaryData[] = [];
         let hasBudget = false;
-        const template = [ 
-            { number: 3, name: "Salg", from: 3000, to: 3999, turned: true },
-            { number: 4, name: "Varekjøp", from: 4000, to: 4999 },
-            { number: 5, name: "Lønn", from: 5000, to: 5999 },
-            { number: 6, name: "Andre kostnader", from: 6000, to: 7999 },
-            { number: 7, name: "Driftsresultat", from: 3000, to: 7999, turned: true, virtual: true },
-            { number: 8, name: "Finansinntekter", from: 8000, to: 8099, turned: true, autohide: true },
-            { number: 81, name: "Finanskostnader", from: 8100, to: 8199, autohide: true },
-            { number: 83, name: "Skatt", from: 8200, to: 8799, autohide: true },
-            { number: 89, name: "Årsresultat", from: 8800, to: 8899, autohide: true },
-            { number: 89, name: "Disponeringer", from: 8900, to: 8999, autohide: true },
-            { number: 9, name: "Årsresultat", from: 3000, to: 8999, turned: true, virtual: true },
+        const template = [
+            { number: 3, name: 'Salg', from: 3000, to: 3999, turned: true },
+            { number: 4, name: 'Varekjøp', from: 4000, to: 4999 },
+            { number: 5, name: 'Lønn', from: 5000, to: 5999 },
+            { number: 6, name: 'Andre kostnader', from: 6000, to: 7999 },
+            { number: 7, name: 'Driftsresultat', from: 3000, to: 7999, turned: true, virtual: true },
+            { number: 8, name: 'Finansinntekter', from: 8000, to: 8099, turned: true, autohide: true },
+            { number: 81, name: 'Finanskostnader', from: 8100, to: 8199, autohide: true },
+            { number: 83, name: 'Skatt', from: 8200, to: 8799, autohide: true },
+            { number: 89, name: 'Årsresultat', from: 8800, to: 8899, autohide: true },
+            { number: 89, name: 'Disponeringer', from: 8900, to: 8999, autohide: true },
+            { number: 9, name: 'Årsresultat', from: 3000, to: 8999, turned: true, virtual: true },
         ];
         template.forEach( (x: any) => {
-            for (var i = 0; i < rows.length; i++) {
+            for (let i = 0; i < rows.length; i++) {
                 const row = rows[i];
                 const presign = x.turned ? -1 : 1;
                 const sumrow = (<ResultSummaryData>x);
                 if (row.AccountNumber >= x.from && row.AccountNumber <= x.to) {
-                    
+
                     if (!x.virtual) {
                         sumrow.children = sumrow.children || [];
                         const item = this.toSummaryData(row, 1, presign);
@@ -293,7 +320,7 @@ export class DrilldownResultReportPart implements OnChanges {
                     sumrow.isAccount = false;
                     sumrow.id = sumrow.number;
                 }
-            } 
+            }
             if (!(x.autohide && ( (!x.children) || x.children.length === 0))) {
                 groups.push(x);
             }
