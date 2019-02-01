@@ -105,10 +105,7 @@ export class VatReportView implements OnInit, OnDestroy {
         let year;
 
         if (this.currentVatReport && this.currentVatReport.JournalEntry) {
-            const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber
-            if (!hasYear) {
-                this.toastService.addToast('Warning', ToastType.warn, 200, 'Bilagsnummer er ikke definert på tilknyttet bilag');
-            }
+            const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber;
             year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : null;
 
             journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber;
