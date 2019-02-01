@@ -810,6 +810,12 @@ export class BillView implements OnInit {
                 invoice.BankAccountID = res.ID;
                 this.current.next(invoice);
 
+                // supplier
+                var idx = supplier.Info.BankAccounts.findIndex(ba => ba.ID == 0 && ba.AccountNumber == res.AccountNumber);
+                idx != undefined
+                    ? supplier.Info.BankAccounts[idx] = res
+                    : supplier.Info.BankAccounts.push(res);
+
                 this.setSupplier(supplier);
             },
             err => this.errorService.handle(err)
