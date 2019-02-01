@@ -1390,7 +1390,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         if (!leave['_isEmpty'] && (leave['_isDirty'] || leave.Deleted)) {
                             changeCount++;
 
-                            if (!leave.Employment.DimensionsID && leave.Employment.Dimensions) {
+                            if (leave.Employment && !leave.Employment.DimensionsID && leave.Employment.Dimensions) {
                                 leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                             }
 
