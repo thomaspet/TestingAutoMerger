@@ -2899,6 +2899,8 @@ export class BillView implements OnInit {
             }
             if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                 current.Supplier = null;
+            } else if (current.SupplierID && (current.Supplier && current.Supplier['_createguid'])) {
+                current.SupplierID = null;
             }
             obs = this.supplierInvoiceService.Put(current.ID, current);
         } else {
@@ -2956,6 +2958,9 @@ export class BillView implements OnInit {
                     if (!current.SupplierID
                         && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
+                    } else if (current.SupplierID
+                            && (current.Supplier && current.Supplier['_createguid'])) {
+                            current.SupplierID = null;
                     }
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
