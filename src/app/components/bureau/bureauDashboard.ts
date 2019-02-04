@@ -19,6 +19,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
+import { DeleteCompanyModal } from './delete-company-modal/delete-company-modal';
 
 
 enum KPI_STATUS {
@@ -294,6 +295,21 @@ export class BureauDashboard {
                 {
                     label: 'Rediger klientnr',
                     action: company => this.editClientNumber(company)
+                },
+                {
+                    label: 'Slett selskap',
+                    action: (company) => {
+                        this.modalService.open(DeleteCompanyModal, {
+                            data: company
+                        }).onClose.subscribe(companyDeleted => {
+                            if (companyDeleted) {
+                                this.companies = this.companies.filter(c => c.ID !== company.ID);
+                                this.filterCompanies();
+
+                                // this.loadCompanies();
+                            }
+                        });
+                    }
                 }
             ]);
     }

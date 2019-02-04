@@ -25,4 +25,14 @@ export class CompanyService extends BizHttp<Company> {
             .do(() => super.invalidateCache())
             .map(res => res.json());
     }
+
+    deleteCompany(ID: number, companyKey: string) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`companies/${ID}?action=delete-company`)
+            .withHeader('CompanyKey', companyKey)
+            .send({}, null, false)
+            .do(() => super.invalidateCache());
+    }
 }

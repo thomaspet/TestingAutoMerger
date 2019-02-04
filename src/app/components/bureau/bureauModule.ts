@@ -14,8 +14,9 @@ import {BureauCurrentCompanyService} from './bureauCurrentCompanyService';
 import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {GrantAccessSelectionList} from './grant-access-modal/selection-list/selection-list';
 import {PAGES} from '@app/components/bureau/grant-access-modal/pages';
-
 import {CompanyGroupModal} from './company-group-modal/company-group-modal';
+import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
+
 import {MatStepperModule, MatCheckboxModule, MatButtonModule, MatListModule, MatSelectModule, MatMenuModule} from '@angular/material';
 
 @NgModule({
@@ -43,6 +44,7 @@ import {MatStepperModule, MatCheckboxModule, MatButtonModule, MatListModule, Mat
         BureauDetails,
         CompanyGroupModal,
         UniNewCompanyModal,
+        DeleteCompanyModal,
         ...TABS,
         ...PAGES,
     ],
@@ -54,6 +56,7 @@ import {MatStepperModule, MatCheckboxModule, MatButtonModule, MatListModule, Mat
         GrantAccessModal,
         UniNewCompanyModal,
         CompanyGroupModal,
+        DeleteCompanyModal,
     ]
 })
 export class BureauModule {}
