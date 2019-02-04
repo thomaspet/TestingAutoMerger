@@ -5,6 +5,9 @@ import {AccountDetails} from './accountDetails/accountDetails';
 import {Account} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {AccountService, VatTypeService, ErrorService} from '../../../services/services';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {UniModalService, UniConfirmModalV2, ConfirmActions, IModalOptions} from '../../../../framework/uni-modal';
 
 @Component({
     selector: 'account-settings',
@@ -25,7 +28,12 @@ export class AccountSettings {
                 label: 'Opprett ny',
                 action: () => this.account = new Account()
             }
-        }
+        },
+        contextmenu: [
+            {
+                label: 'Synkroniser kontoplan NS4102',
+                action: () => this.SynchronizeNS4102()
+            }]
     };
 
     public saveactions: IUniSaveAction[] = [
@@ -37,7 +45,14 @@ export class AccountSettings {
         }
     ];
 
-    constructor(private tabService: TabService) {
+    constructor(
+        private tabService: TabService,
+        private accountService: AccountService,
+        private vatTypeService: VatTypeService,
+        private errorService: ErrorService,
+        private toastService: ToastService,
+        private modalService: UniModalService
+    ) {
         this.tabService.addTab({
             name: 'Kontoplan', url: '/accounting/accountsettings',
             moduleID: UniModules.Accountsettings, active: true
@@ -76,5 +91,39 @@ export class AccountSettings {
 
     private saveSettings(completeEvent) {
         this.accountDetails.saveAccount(completeEvent);
+    }
+
+    public SynchronizeNS4102() {
+
+
+        const options: IModalOptions = {
+            message: 'Synkronisering av kontoer vil overskrive endringer gjort i standardkontoer i kontoplanen. Vil du fortsette?'
+        };
+        this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                this.toastService.addToast('Kontoplanen m/mvakoder synkroniseres ... vennligst vent', ToastType.good, 2);
+                this.accountService.PutAction(null, 'synchronize-ns4102-as')
+                .subscribe(
+                (response: any) => {
+                    this.vatTypeService.PutAction(null, 'synchronize')
+                    .subscribe(
+                    (response2: any) => {
+                        this.toastService.addToast('Kontoplanen ble synkronsert',
+                            ToastType.good, 5, 'Kontoplanen NS4102 m/mvakoder ble synkronsert');
+                    },
+                    err2 => this.errorService.handle(err2));
+                },
+                err => this.errorService.handle(err));
+
+            }
+            return;
+        });
+
+
+
+
+
+
+
     }
 }
