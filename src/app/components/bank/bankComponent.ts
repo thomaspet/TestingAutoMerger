@@ -844,6 +844,20 @@ export class BankComponent implements AfterViewInit {
         }
     }
 
+    private groupBy(list, keyGetter): any {
+        const map = new Map();
+        list.forEach((item) => {
+            const key = keyGetter(item);
+            const collection = map.get(key);
+            if (!collection) {
+                map.set(key, [item]);
+            } else {
+                collection.push(item);
+            }
+        });
+        return map;
+    }
+
     private payInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any, isManualPayment: boolean) {
         const paymentIDs: number[] = [];
         selectedRows.forEach(x => {
@@ -939,6 +953,24 @@ export class BankComponent implements AfterViewInit {
             errorMessages.push(`Det er ${paymentsWithoutPaymentCode.length} rader som mangler type`);
         }
 
+        this.groupBy(this.rows, payment => payment.ToBankAccountAccountNumber).forEach(paymentsGroupedByAccountNumber => {
+            if (paymentsGroupedByAccountNumber.find(x => x.PaymentAmountCurrency < 0)) {
+                this.groupBy(paymentsGroupedByAccountNumber, x => x.PaymentDate).forEach(paymentsGroupedByDate => {
+                    let sum = 0;
+                    const paymentDate = moment(paymentsGroupedByDate[0].PaymentDate).format('L');
+                    const toBankAccountAccountNumber = paymentsGroupedByDate[0].ToBankAccountAccountNumber;
+                    paymentsGroupedByDate.forEach(payment => {
+                        sum += payment.Amount;
+                    });
+                    if (sum <= 0) {
+                        errorMessages.push(`Det er noen rader med betalingsdato ${paymentDate}
+                        til konto ${toBankAccountAccountNumber} hvor beløp ikke er større enn 0 (sum er ${sum}). Vennligst
+                        endre betalingsdate på rader med minusbeløp til samme betalingsdato slik at sum blir positiv.<br><br>`);
+                    }
+                });
+            }
+        });
+
         if (errorMessages.length > 0) {
             this.toastService.addToast('Feil ved validering', ToastType.bad, 0, errorMessages.join('\n\n'));
             return false;
@@ -1001,3 +1033,4 @@ export class BankComponent implements AfterViewInit {
     }
 
 }
+
