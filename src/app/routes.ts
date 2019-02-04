@@ -92,6 +92,10 @@ const routes = [
         path: 'contract-activation',
         loadChildren: './components/contract-activation/contract-activation.module#ContractActivationModule'
     },
+    {
+        path: 'license-info',
+        loadChildren: './components/license-info/license-info.module#LicenseInfoModule'
+    },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!
     {

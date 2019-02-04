@@ -10,7 +10,6 @@ import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
 import {UniPipesModule} from './pipes/pipesModule';
-import {UniNotifications} from './notifications/notifications';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 import {AppPipesModule} from '../app/pipes/appPipesModule';
@@ -78,7 +77,6 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         FileSplitModal,
         UniToast,
         UniToastList,
-        UniNotifications,
         UniComments,
         UniMultiLevelSelect,
         UniCommentInput,
@@ -115,7 +113,6 @@ import {ScrollingModule} from '@angular/cdk/scrolling';
         UniImage,
         UniToast,
         UniToastList,
-        UniNotifications,
         UniComments,
         UniMultiLevelSelect,
         UniCommentInput,

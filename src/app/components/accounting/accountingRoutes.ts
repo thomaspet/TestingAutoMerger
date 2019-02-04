@@ -19,6 +19,7 @@ import {UniBudgetView} from './budget/budgetview';
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
+import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 
 export const accountingRoutes: Routes = [
     {
@@ -92,6 +93,11 @@ export const accountingRoutes: Routes = [
     {
         path: 'budget',
         component: UniBudgetView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'costallocation',
+        component: UniCostAllocation,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

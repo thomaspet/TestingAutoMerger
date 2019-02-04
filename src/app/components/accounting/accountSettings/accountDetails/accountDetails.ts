@@ -3,7 +3,7 @@ import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {Account, VatType, AccountGroup, VatDeductionGroup} from '../../../../unientities';
+import {Account, VatType, AccountGroup, VatDeductionGroup, CostAllocation} from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
 import {
@@ -12,7 +12,8 @@ import {
     VatTypeService,
     CurrencyCodeService,
     AccountService,
-    VatDeductionGroupService
+    VatDeductionGroupService,
+    CostAllocationService
 } from '../../../../services/services';
 
 @Component({
@@ -39,7 +40,8 @@ export class AccountDetails implements OnInit {
         private accountGroupService: AccountGroupService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private vatDeductionGroupService: VatDeductionGroupService
+        private vatDeductionGroupService: VatDeductionGroupService,
+        private costAllocationService: CostAllocationService
     ) {}
 
     public ngOnInit() {
@@ -77,7 +79,10 @@ export class AccountDetails implements OnInit {
             this.account$.next(incomingAccount);
         } else {
             this.getAccount(this.inputAccount.ID).subscribe(
-                dataset => this.account$.next(dataset),
+                dataset => {
+                    this.account$.next(dataset);
+                    this.extendFormConfig();
+                },
                 err => this.errorService.handle(err)
             );
         }
@@ -92,6 +97,10 @@ export class AccountDetails implements OnInit {
             displayProperty: 'Code',
             debounceTime: 200
         };
+
+        const account = this.account$.getValue();
+        const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(account ? account.CostAllocationID : 0);
 
         const vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
         vattype.Options = {
@@ -283,6 +292,14 @@ export class AccountDetails implements OnInit {
                     Property: 'UsePostPost',
                     FieldType: FieldType.CHECKBOX,
                     Label: 'PostPost',
+                },
+                {
+                    FieldSet: 2,
+                    Legend: 'Detaljer',
+                    EntityType: 'Account',
+                    Property: 'CostAllocationID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Fordelingsnøkkel'
                 },
                 // Fieldset 3 (vatdeduction)
                 {

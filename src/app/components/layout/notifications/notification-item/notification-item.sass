@@ -1,0 +1,53 @@
+\:host
+    display: flex
+    padding: 0 .5rem 0 1rem
+    cursor: pointer
+
+    // Remember to also change itemSize in notifications-dropdown.html
+    height: 100px
+
+    &:hover
+        background: #D5EEF6
+
+.notification-icon
+    flex: 0 0 auto
+    height: 40px
+    width: 40px
+    border-radius: 50%
+    margin: auto .25rem
+    text-align: center
+    background: #83C937
+
+    &.mention
+        background: #2699FB
+    &.inbox
+        background: #83C937
+    &.approval
+        background: #F53B57
+
+    i.material-icons
+        color: #fff
+        line-height: 40px
+        font-size: 19px
+
+.notification-body
+    flex: 1
+    margin: auto 1rem
+
+    small
+        display: block
+        font-size: 12px
+
+        // &.company-name
+        //     font-size: 12px
+        //     font-weight: 500
+
+    span
+        display: block
+        font-size: 15px
+        line-height: 20px
+
+.menu-toggle
+    flex: 0 0 auto
+    margin: auto 0
+    border-radius: 50%

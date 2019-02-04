@@ -30,6 +30,8 @@ import {SmartSearchDataService} from './smart-search/smart-search-data.service';
 import {A11yModule} from '@angular/cdk/a11y';
 import {OverlayModule} from '@angular/cdk/overlay';
 
+import {NotificationsModule} from './notifications/notifications.module';
+
 import {
     MatTabsModule,
     MatTooltipModule,
@@ -59,7 +61,8 @@ import {
         MatProgressBarModule,
 
         UniFrameworkModule,
-        AppPipesModule
+        AppPipesModule,
+        NotificationsModule
     ],
     declarations: [
         UniTabs,

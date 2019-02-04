@@ -20,9 +20,10 @@ import {IUniSearchConfig} from './IUniSearchConfig';
                 [title]="getTitle()"
                 tabindex="-1"
                 (focus)="onFocus($event)"
+                (blur)="onBlur()"
             />
 
-            <button class="searchBtn"
+            <button *ngIf="!config?.disableSearchButton" class="searchBtn"
                     [disabled]="disabled"
                     (click)="onBtnClick()"
                     [attr.aria-busy]="uniSearchAttr.busy"
@@ -35,17 +36,13 @@ import {IUniSearchConfig} from './IUniSearchConfig';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearch {
-    @ViewChild(UniSearchAttr)
-    public uniSearchAttr: UniSearchAttr;
+    @ViewChild(UniSearchAttr) uniSearchAttr: UniSearchAttr;
 
-    @Input()
-    public config: IUniSearchConfig;
+    @Input() config: IUniSearchConfig;
+    @Input() disabled: boolean;
 
-    @Input()
-    public disabled: boolean;
-
-    @Output()
-    private changeEvent: EventEmitter<any> = new EventEmitter<any>();
+    @Output() private changeEvent = new EventEmitter<any>();
+    @Output() private blurEvent = new EventEmitter<any>();
 
     public onBtnClick = () => this.uniSearchAttr.onSearchButtonClick();
 
@@ -60,6 +57,10 @@ export class UniSearch {
     constructor(private componentElement: ElementRef, private cd: ChangeDetectorRef) {
     }
 
+    onBlur() {
+        this.blurEvent.emit();
+    }
+
     onFocus(event) {
         try {
             event.target.select();
@@ -70,18 +71,20 @@ export class UniSearch {
         this.uniSearchAttr.closeSearchResult();
     }
 
-    public setValue(value) {
+    setValue(value) {
         this.NativeInput.value = value;
         this.cd.detectChanges();
     }
 
-    public onChangeEvent(event) {
+    onChangeEvent(event) {
         this.changeEvent.emit(event);
     }
-    public getTitle() {
+
+    getTitle() {
         return (this.uniSearchAttr as any).componentElement.nativeElement.value || '';
     }
-    public focus() {
+
+    focus() {
         try {
             this.NativeInput.focus();
             this.NativeInput.select();

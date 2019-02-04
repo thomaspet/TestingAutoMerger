@@ -181,7 +181,7 @@ export class Signup {
             password: password
         }).subscribe(
             () => {
-                this.authService.setActiveCompany(company);
+                this.authService.setActiveCompany(company, '/');
             },
             () => {
                 this.router.navigateByUrl('/init/login');

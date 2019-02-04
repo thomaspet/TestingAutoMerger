@@ -25,6 +25,7 @@ import {
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '../../../../../framework/save/save';
+import {IContextMenuItem} from '../../../../../framework/ui/unitable/index';
 import {UniForm, FieldType, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Location} from '@angular/common';
 import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
@@ -36,7 +37,7 @@ import {UniAssignModal, AssignDetails} from './assignmodal';
 import {UniAddFileModal} from './addFileModal';
 import {UniMath} from '../../../../../framework/core/uniMath';
 import {CommentService} from '../../../../../framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
     UniModalService,
@@ -83,6 +84,7 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
+import { CIRCULAR } from '@angular/core/src/render3/instructions';
 declare var _;
 
 interface ITab {
@@ -131,6 +133,7 @@ export class BillView implements OnInit {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: true });
     public fields$: BehaviorSubject<UniFieldLayout[]>;
     public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
+    public costAllocationData$: BehaviorSubject<CostAllocationData> = new BehaviorSubject(new CostAllocationData());
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
@@ -184,6 +187,7 @@ export class BillView implements OnInit {
     ];
 
     public actions: IUniSaveAction[];
+    public contextMenuItems: IContextMenuItem[] = [];
 
     private rootActions: IUniSaveAction[] = [
         {
@@ -243,7 +247,7 @@ export class BillView implements OnInit {
         private customDimensionService: CustomDimensionService,
         private vatDeductionService: VatDeductionService,
         private fileService: FileService,
-        private paymentService: PaymentService
+        private paymentService: PaymentService,
     ) {
         this.actions = this.rootActions;
         userService.getCurrentUser().subscribe( usr => {
@@ -251,6 +255,10 @@ export class BillView implements OnInit {
             this.userService.getRolesByUserId(this.myUser.ID).subscribe(roles => {
                 this.myUserRoles = roles;
             });
+        });
+
+        this.current.subscribe((invoice) => {
+            this.tryUpdateCostAllocationData(invoice);
         });
     }
 
@@ -685,6 +693,7 @@ export class BillView implements OnInit {
                 this.toast.clear();
                 this.handleEHFResult(invoice);
                 this.flagUnsavedChanged();
+                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -911,6 +920,7 @@ export class BillView implements OnInit {
                 this.flagUnsavedChanged();
                 this.ocrData = result;
                 this.uniImage.setOcrData(this.ocrData);
+                this.tryAddCostAllocation();
             }, (err) => {
                 this.errorService.handle(err);
             });
@@ -1407,10 +1417,11 @@ export class BillView implements OnInit {
         if (change['Supplier'])  {
             const supplier = change['Supplier'].currentValue;
 
+            if (supplier === null) {
+                model.SupplierID = null;
+            }
 
-
-
-            if (model.Supplier.StatusCode === StatusCode.InActive) {
+            if (model.Supplier && model.Supplier.StatusCode === StatusCode.InActive) {
                 const options: IModalOptions = {message: 'Vil du aktivere leverandøren?'};
                 this.modalService.open(UniConfirmModalV2, options).onClose.subscribe(res => {
                     if (res === ConfirmActions.ACCEPT) {
@@ -1426,7 +1437,7 @@ export class BillView implements OnInit {
                 });
             }
 
-            if (supplier.ID === 0 || !supplier.ID) {
+            if (supplier && (supplier.ID === 0 || !supplier.ID)) {
                 this.supplierService.getSuppliers(supplier.OrgNumber).subscribe(res => {
                     if (res.Data.length > 0) {
                         let orgNumberUses = 'Det finnes allerede leverandør med dette organisasjonsnummeret registrert i UE: <br><br>';
@@ -1438,7 +1449,7 @@ export class BillView implements OnInit {
                 }, err => this.errorService.handle(err));
             }
 
-            if (supplier.ID) {
+            if (supplier && supplier.ID) {
                 if (!this.modulusService.isValidOrgNr(supplier.OrgNumber)
                     && (!supplier.StatusCode || supplier.StatusCode === StatusCode.Pending)
                 ) {
@@ -1560,15 +1571,20 @@ export class BillView implements OnInit {
             this.current.next(model);
         }
 
-        if (change['DefaultDimensions.ProjectID']) {
-            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
-            this.projectService.Get(change['DefaultDimensions.ProjectID'].currentValue).subscribe((project) => {
-                model.DefaultDimensions.Project = project;
-                this.current.next(model);
+        if (change['TaxInclusiveAmountCurrency'] && this.journalEntryManual.isEmpty()) {
+            this.tryAddCostAllocation();
+        }
 
-                // Check if the journalentrylines have a different project..
-                if (lines.filter(line => line.Dimensions && line.Dimensions.ProjectID &&
-                    line.Dimensions.ProjectID !== project.ID).length) {
+        if (change['DefaultDimensions.ProjectID']) {
+            if (!model.DefaultDimensionsID) {
+                model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            }
+            if (!change['DefaultDimensions.ProjectID'].currentValue) {
+                model.DefaultDimensions.Project = null;
+                model.DefaultDimensions.ProjectID = null;
+                this.current.next(model);
+                const linesWithProject = lines.filter(line => line.Dimensions && line.Dimensions.ProjectID && line.Dimensions.ProjectID);
+                if (linesWithProject.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
                             accept: 'Oppdater alle linjer',
@@ -1579,31 +1595,64 @@ export class BillView implements OnInit {
                     }).onClose.subscribe((res) => {
                         if (res === ConfirmActions.ACCEPT) {
                             lines.forEach((line: any) => {
-                                line.Dimensions.Project = project;
-                                line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                                line.Dimensions.Project = null;
+                                line.Dimensions.ProjectID = null;
                             });
                             this.journalEntryManual.setJournalEntryData(lines);
                         }
                     });
                 } else {
                     lines.forEach((line: any) => {
-                        line.Dimensions.Project = project;
-                        line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                        line.Dimensions.Project = null;
+                        line.Dimensions.ProjectID = null;
                     });
                     this.journalEntryManual.setJournalEntryData(lines);
                 }
-            });
+            } else {
+                this.projectService.Get(change['DefaultDimensions.ProjectID'].currentValue).subscribe((project) => {
+                    model.DefaultDimensions.Project = project;
+                    this.current.next(model);
+
+                    // Check if the journalentrylines have a different project..
+                    if (lines.filter(line => line.Dimensions && line.Dimensions.ProjectID &&
+                        line.Dimensions.ProjectID !== project.ID).length) {
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {
+                                accept: 'Oppdater alle linjer',
+                                reject: 'Ikke oppdater'
+                            },
+                            header: 'Prosjekt',
+                            message: 'Det finnes linjer med ulikt prosjekt. Vil du oppdatere prosjekt på alle linjene?'
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                lines.forEach((line: any) => {
+                                    line.Dimensions.Project = project;
+                                    line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                                });
+                                this.journalEntryManual.setJournalEntryData(lines);
+                            }
+                        });
+                    } else {
+                        lines.forEach((line: any) => {
+                            line.Dimensions.Project = project;
+                            line.Dimensions.ProjectID = change['DefaultDimensions.ProjectID'].currentValue;
+                        });
+                        this.journalEntryManual.setJournalEntryData(lines);
+                    }
+                });
+            }
         }
 
         if (change['DefaultDimensions.DepartmentID']) {
-            model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
-            this.departmentService.Get(change['DefaultDimensions.DepartmentID'].currentValue).subscribe((department) => {
-                model.DefaultDimensions.Department = department;
+            if (!model.DefaultDimensionsID) {
+                model.DefaultDimensions['_createguid'] = model.DefaultDimensions['_createguid'] || this.projectService.getNewGuid();
+            }
+            if (!change['DefaultDimensions.DepartmentID'].currentValue) {
+                model.DefaultDimensions.Department = null;
+                model.DefaultDimensions.DepartmentID = null;
                 this.current.next(model);
-
-                // Check if the journalentrylines have a different department..
-                if (lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID &&
-                    line.Dimensions.DepartmentID !== department.ID).length) {
+                const linesWithDepartment = lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID && line.Dimensions.DepartmentID);
+                if (linesWithDepartment.length) {
                     this.modalService.open(UniConfirmModalV2, {
                         buttonLabels: {
                             accept: 'Oppdater alle linjer',
@@ -1614,20 +1663,52 @@ export class BillView implements OnInit {
                     }).onClose.subscribe((res) => {
                         if (res === ConfirmActions.ACCEPT) {
                             lines.forEach((line: any) => {
-                                line.Dimensions.Department = department;
-                                line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                                line.Dimensions.Department = null;
+                                line.Dimensions.DepartmentID = null;
                             });
                             this.journalEntryManual.setJournalEntryData(lines);
                         }
                     });
                 } else {
                     lines.forEach((line: any) => {
-                        line.Dimensions.Department = department;
-                        line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                        line.Dimensions.Department = null;
+                        line.Dimensions.DepartmentID = null;
                     });
                     this.journalEntryManual.setJournalEntryData(lines);
                 }
-            });
+            } else {
+                this.departmentService.Get(change['DefaultDimensions.DepartmentID'].currentValue).subscribe((department) => {
+                    model.DefaultDimensions.Department = department;
+                    this.current.next(model);
+
+                    // Check if the journalentrylines have a different department..
+                    if (lines.filter(line => line.Dimensions && line.Dimensions.DepartmentID &&
+                        line.Dimensions.DepartmentID !== department.ID).length) {
+                        this.modalService.open(UniConfirmModalV2, {
+                            buttonLabels: {
+                                accept: 'Oppdater alle linjer',
+                                reject: 'Ikke oppdater'
+                            },
+                            header: 'Avdeling',
+                            message: 'Det finnes linjer med ulik avdeling. Vil du oppdatere avdeling på alle linjene?'
+                        }).onClose.subscribe((res) => {
+                            if (res === ConfirmActions.ACCEPT) {
+                                lines.forEach((line: any) => {
+                                    line.Dimensions.Department = department;
+                                    line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                                });
+                                this.journalEntryManual.setJournalEntryData(lines);
+                            }
+                        });
+                    } else {
+                        lines.forEach((line: any) => {
+                            line.Dimensions.Department = department;
+                            line.Dimensions.DepartmentID = change['DefaultDimensions.DepartmentID'].currentValue;
+                        });
+                        this.journalEntryManual.setJournalEntryData(lines);
+                    }
+                });
+            }
         }
 
         this.flagUnsavedChanged();
@@ -1681,6 +1762,11 @@ export class BillView implements OnInit {
                 current.CurrencyCodeID = result.CurrencyCodeID;
             } else {
                 current.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
+            }
+
+            if (current.TaxInclusiveAmountCurrency && this.journalEntryManual.isEmpty())
+            {
+                this.tryAddCostAllocation();
             }
         }
 
@@ -2643,7 +2729,7 @@ export class BillView implements OnInit {
                 const lines = this.journalEntryManual.getJournalEntryData();
 
                 lines.map(line => {
-                    if (line.FinancialDate.toString() === oldDate.toString()) {
+                    if (line.FinancialDate && oldDate && (line.FinancialDate.toString() === oldDate.toString())) {
                         // if user changed the FinancialDate manually, dont override it when changing
                         // the InvoiceDate
                         line.FinancialDate = newDate;
@@ -2802,15 +2888,25 @@ export class BillView implements OnInit {
     public saveAndReject(done) {
         let obs;
         const current = this.current.getValue();
+        if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+            current.Supplier = null;
+        }
         if (current.ID) {
             // if the journalentry is already booked, clear the object before saving as we don't
             // want to resave a booked journalentry
             if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
               current.JournalEntry = null;
             }
-
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                current.Supplier = null;
+            } else if (current.SupplierID && (current.Supplier && current.Supplier['_createguid'])) {
+                current.SupplierID = null;
+            }
             obs = this.supplierInvoiceService.Put(current.ID, current);
         } else {
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                current.Supplier = null;
+            }
             obs = this.supplierInvoiceService.Post(current);
         }
         obs.subscribe((res) => {
@@ -2859,8 +2955,19 @@ export class BillView implements OnInit {
                             line.VatDeductionPercent = 0;
                         }
                     });
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                        current.Supplier = null;
+                    } else if (current.SupplierID
+                            && (current.Supplier && current.Supplier['_createguid'])) {
+                            current.SupplierID = null;
+                    }
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
+                        current.Supplier = null;
+                    }
                     obs = this.supplierInvoiceService.Post(current);
                 }
                 obs.subscribe((result) => {
@@ -3343,7 +3450,7 @@ export class BillView implements OnInit {
 
                 this.invoicePayments.forEach(payment => {
                     _substatuses.push({
-                        title: payment.Amount.toFixed(2) + ' ' + payment.CurrencyCode,
+                        title: payment.AmountCurrency.toFixed(2) + ' ' + payment.CurrencyCode,
                         subtitle: (payment.StatusCode === 31002 || payment.StatusCode === 31003)
                         ? this.paymentService.getStatusText(44006) : this.paymentService.getStatusText(payment.StatusCode),
                         state: STATUSTRACK_STATES.Completed,
@@ -3394,6 +3501,13 @@ export class BillView implements OnInit {
             entityID: doc.ID || 0,
             entityType: SupplierInvoice.EntityType
         };
+        this.contextMenuItems = [
+            {
+                label: lang.clearpostings,
+                action: () => this.journalEntryManual.removeJournalEntryData(),
+                disabled: () => false,
+            },
+        ];
         this.toolbarConfig = {
             title: doc && doc.Supplier && doc.Supplier.Info
                 ? `${trimLength(doc.Supplier.Info.Name, 20)}`
@@ -3421,7 +3535,8 @@ export class BillView implements OnInit {
                 }
             },
             entityID: doc && doc.ID ? doc.ID : null,
-            entityType: 'SupplierInvoice'
+            entityType: 'SupplierInvoice',
+            contextmenu: this.contextMenuItems
         };
     }
 
@@ -3536,5 +3651,33 @@ export class BillView implements OnInit {
             }
             this.suggestions = items;
         });
+    }
+
+    private tryUpdateCostAllocationData(invoice) {
+        var currentCostAllocationData = this.costAllocationData$.getValue();
+        if (invoice.TaxInclusiveAmountCurrency != currentCostAllocationData.CurrencyAmount ||
+            invoice.CurrencyExchangeRate != currentCostAllocationData.ExchangeRate ||
+            invoice.CurrencyCodeID != currentCostAllocationData.CurrencyCodeID ||
+            invoice.DeliveryDate != currentCostAllocationData.FinancialDate ||
+            invoice.InvoiceDate != currentCostAllocationData.VatDate) {
+
+            currentCostAllocationData.CurrencyAmount = invoice.TaxInclusiveAmountCurrency;
+            currentCostAllocationData.CurrencyCodeID = invoice.CurrencyCodeID;
+            currentCostAllocationData.ExchangeRate = invoice.CurrencyExchangeRate;
+            currentCostAllocationData.FinancialDate = invoice.DeliveryDate;
+            currentCostAllocationData.VatDate = invoice.InvoiceDate;
+            this.costAllocationData$.next(currentCostAllocationData);
+        }
+    }
+
+    private tryAddCostAllocation() {
+        const current = this.current.getValue();
+        if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
+            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, current.DeliveryDate, current.InvoiceDate, false);
+        }
+    }
+
+    private resetPostings() {
+        this.journalEntryManual.clear();
     }
 }

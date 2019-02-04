@@ -1,0 +1,55 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+$red: #f53b57
+
+\:host
+    margin: 0 auto !important
+    height: 90vh !important
+
+    form
+        margin-top: 0.5rem
+
+    label
+        display: flex
+        margin-bottom: 1rem
+
+        span
+            flex: 0 0 150px
+            margin-right: 20px
+            font-weight: 400
+            font-size: 14px
+            text-align: right
+            line-height: 2.4rem
+
+        input, select, uni-search ::ng-deep input
+            flex: 1
+            height: 2.4rem !important
+            border: 1px solid rgba(0, 0, 0, 0.25)
+            border-radius: 3px
+            font-size: 14px
+            width: 100%
+
+            &.ng-touched.ng-invalid
+                border: 1px solid $red
+
+        .invalid ::ng-deep input
+            border: 1px solid $red
+
+        .warning ::ng-deep input
+            border: 1px solid $uni-color-warn
+
+        select
+            padding-left: 4px
+
+        uni-search
+            width: 100%
+
+    small.form-warning
+        display: block
+        color: $uni-color-warn
+        margin: -10px 0 16px 170px
+
+    small.form-error
+        display: block
+        color: $red
+        margin: -10px 0 16px 170px

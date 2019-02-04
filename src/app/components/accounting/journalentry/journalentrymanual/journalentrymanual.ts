@@ -10,10 +10,12 @@ import {
     NumberSeriesTask,
     VatType,
     NumberSeries,
-    LocalDate
+    LocalDate,
+    JournalEntryLineDraft,
+    CostAllocation,
 } from '../../../../unientities';
 import {ValidationResult} from '../../../../models/validationResult';
-import {JournalEntryData} from '@app/models';
+import {JournalEntryData, FieldAndJournalEntryData, CostAllocationData} from '@app/models';
 import {JournalEntrySimpleCalculationSummary} from '../../../../models/accounting/JournalEntrySimpleCalculationSummary';
 import {JournalEntryAccountCalculationSummary} from '../../../../models/accounting/JournalEntryAccountCalculationSummary';
 import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceInfo';
@@ -44,7 +46,11 @@ import {
     JournalEntryLineService,
     NumberSeriesTaskService,
     NumberSeriesService,
-    VatTypeService
+    VatTypeService,
+    CostAllocationService,
+    AccountService,
+    SupplierService,
+    DimensionService,
 } from '../../../../services/services';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {
@@ -52,6 +58,7 @@ import {
     UniConfirmModalV2,
     ConfirmActions
 } from '../../../../../framework/uni-modal';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -69,6 +76,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Input() public doValidateBalance: boolean = true;
     @Input() public defaultRowData: JournalEntryData;
     @Input() public selectedNumberSeries: NumberSeries;
+    @Input() public costAllocationData: CostAllocationData = new CostAllocationData();
 
     @Output() public dataCleared: EventEmitter<any> = new EventEmitter<any>();
     @Output() public componentInitialized: EventEmitter<any> = new EventEmitter<any>();
@@ -141,7 +149,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
         private journalEntryLineService: JournalEntryLineService,
         private numberSeriesService: NumberSeriesService,
         private numberSeriesTaskService: NumberSeriesTaskService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private costAllocationService: CostAllocationService,
+        private accountService: AccountService,
+        private supplierService: SupplierService,
+        private dimensionService: DimensionService,
     ) {}
 
     public ngOnInit() {
@@ -402,6 +414,156 @@ export class JournalEntryManual implements OnChanges, OnInit {
         return null;
     }
 
+    //
+    // CostAllocation
+    //
+
+    private onRowFieldChanged(rowfield: FieldAndJournalEntryData) {
+        var lines = this.getJournalEntryData();
+
+        switch (rowfield.Field) {
+            case 'CostAllocation':
+                this.currentJournalEntryData = rowfield.JournalEntryData;
+                this.addCostAllocationForCostAllocation(
+                    rowfield.JournalEntryData.CostAllocation.ID,
+                    rowfield.JournalEntryData.DebitAccountID,
+                    rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                    this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                    this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                    this.costAllocationData ? this.costAllocationData.FinancialDate : null,
+                    this.costAllocationData ? this.costAllocationData.VatDate : null,
+                    true);
+                break;
+            case 'DebitAccount':
+                if (rowfield.JournalEntryData['_costAllocationTime']) {
+                    lines.map(line => {
+                        if (rowfield.JournalEntryData['_costAllocationTime'] == line['_costAllocationTime'] && !line.DebitAccountID) {
+                            line.DebitAccountID = rowfield.JournalEntryData.DebitAccountID;
+                            line.DebitAccount = rowfield.JournalEntryData.DebitAccount;
+                            if (rowfield.JournalEntryData.DebitVatTypeID && !line.DebitVatTypeID) {
+                                line.DebitVatTypeID = rowfield.JournalEntryData.DebitVatTypeID;
+                                line.DebitVatType = rowfield.JournalEntryData.DebitVatType;
+                            }
+                        }
+                    });
+                    this.setJournalEntryData(lines);
+                } else {
+                    this.addCostAllocationForAccount(
+                        rowfield.JournalEntryData.DebitAccountID,
+                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
+                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
+                        this.costAllocationData ? this.costAllocationData.FinancialDate : null,
+                        this.costAllocationData ? this.costAllocationData.VatDate : null,
+                        true);
+                }
+
+                break;
+        }
+    }
+
+    public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
+            if (costAllocation) {
+                this.costAllocationService.getDraftLinesByCostAllocationID(costAllocationID, useAccountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, costAllocation);
+                });
+            }
+        });
+    }
+
+    public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
+            if (supplier.CostAllocationID) {
+                this.costAllocationService.getDraftLinesBySupplierID(supplierID, null, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, supplier.CostAllocation);
+                });
+            }
+        });
+    }
+
+    public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        this.accountService.Get(accountID, ['CostAllocation']).subscribe(account => {
+            if (account.CostAllocationID) {
+                this.costAllocationService.getDraftLinesByAccountID(accountID, accountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
+                    this.addCostAllocationDraftLines(draftlines, keepCurrentLine, account.CostAllocation);
+                });
+            }
+        });
+    }
+
+    private addCostAllocationDraftLines(draftlines: JournalEntryLineDraft[], keepCurrentLine?: boolean, costAllocation: CostAllocation = null) {
+        if (draftlines == null || draftlines.length == 0) return;
+
+        var accounts = _.uniq(draftlines.map(draftline => draftline.AccountID).filter(Boolean));
+        var vattypes = _.uniq(draftlines.map(draftline => draftline.VatTypeID).filter(Boolean));
+        var dimensions = _.uniq(draftlines.map(draftline => draftline.DimensionsID).filter(Boolean));
+
+        Observable.forkJoin(
+            accounts.length > 0
+                ? Observable.forkJoin(accounts.map(accountID => this.accountService.Get(accountID)))
+                : Observable.of([]),
+            vattypes.length > 0
+                ? Observable.forkJoin(vattypes.map(vattypeID => this.vatTypeService.Get(vattypeID)))
+                : Observable.of([]),
+            dimensions.length > 0
+                ? Observable.forkJoin(dimensions.map(dimensionID => this.dimensionService.Get(dimensionID, ['Project','Department','Dimension5','Dimension6','Dimension7','Dimension8','Dimension9','Dimension10'])))
+                : Observable.of([])
+        )
+        .subscribe((res) => {
+            let accounts = res[0];
+            let vattypes = res[1];
+            let dimensions = res[2];
+
+            var first = true;
+            var lines = this.getJournalEntryData();
+            var currentIndex = lines.findIndex(line => line['_originalIndex'] === this.currentJournalEntryData['_originalIndex']);
+            draftlines.map((draftline, index) => {
+                var newline = JSON.parse(JSON.stringify(draftline));
+                newline.DebitAccount = accounts.find(account => account.ID == draftline.AccountID);
+                newline.DebitAccountID = draftline.AccountID;
+                newline.DebitVatType = vattypes.find(vattype => vattype.ID == draftline.VatTypeID);
+                newline.DebitVatTypeID = draftline.VatTypeID;
+                newline.Dimensions = dimensions.find(dimension => dimension.ID == draftline.DimensionsID);
+                newline.CostAllocation = costAllocation;
+                newline.SameOrNew = "1";
+                newline.isDirty = true;
+                newline['_costAllocationTime'] = (new Date()).getTime();
+
+                if (first && keepCurrentLine) {
+                    var currentLine = lines[currentIndex];
+                    currentLine.DebitAccount = newline.DebitAccount;
+                    currentLine.DebitAccountID = newline.DebitAccountID;
+                    currentLine.DebitVatType = newline.DebitVatType;
+                    currentLine.DebitVatTypeID = newline.DebitVatTypeID;
+                    currentLine.Dimensions = newline.Dimensions;
+                    currentLine.DimensionsID = newline.DimensionsID;
+                    currentLine.Description = newline.Description;
+                    currentLine.AmountCurrency = newline.AmountCurrency;
+                    currentLine.Amount = newline.Amount;
+                    currentLine.CostAllocation = costAllocation;
+                    currentLine['_costAllocationTime'] = newline['_costAllocationTime'];
+
+                    this.currentJournalEntryData = currentLine;
+                } else {
+                    lines.splice(currentIndex + index, 0, newline);
+                }
+
+                first = false;
+            });
+
+            this.setJournalEntryData(lines);
+            this.dataChanged.emit(lines);
+
+            setTimeout(() => {
+                this.journalEntryProfessional.focusLastRow();
+            });
+        });
+
+    }
+
+    //
+
     public setJournalEntryData(lines: Array<JournalEntryData>, retryCount = 0) {
         if (this.editmode) {
             // copies lines from the original array and lets you edit them as a template
@@ -461,13 +623,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 if (this.journalEntryProfessional.dataChanged.observers.length === 0) {
                     this.journalEntryProfessional.dataChanged.debounceTime(300)
                     .subscribe((values) => this.onDataChanged(values));
+
+                    this.journalEntryProfessional.rowFieldChanged.debounceTime(300)
+                    .subscribe((rowfield) => this.onRowFieldChanged(rowfield));
                 }
             }
         });
     }
 
     public onDataChanged(data: JournalEntryData[]) {
-
         this.dataChanged.emit(data);
         if (data.length <= 0) {
             this.itemsSummaryData = new JournalEntrySimpleCalculationSummary();
@@ -958,5 +1122,10 @@ export class JournalEntryManual implements OnChanges, OnInit {
             .setColumns(columns)
             .setMultiRowSelect(true)
             .setColumnMenuVisible(true);
+    }
+
+    public isEmpty(): boolean {
+        var lines = this.getJournalEntryData();
+        return lines == null || lines.length == 0;
     }
 }

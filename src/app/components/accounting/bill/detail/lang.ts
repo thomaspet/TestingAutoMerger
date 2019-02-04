@@ -66,6 +66,7 @@ export const billViewLanguage = {
     delete_canceled: 'Sletting avbrutt',
 
     converter: 'Kjør tolk (OCR/EHF)',
+    clearpostings: 'Tøm konteringslisten',
 
     ocr_running: 'Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..',
     org_not_found: '(aktuelt orgnr. ble ikke funnet blant dine eksisterende leverandører)',

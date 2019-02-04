@@ -127,7 +127,7 @@ export class App {
                             'Suksess',
                             ToastType.good,
                             ToastTime.short,
-                            'Selskaps-Lisens godkjenning lagret',
+                            'Selskapslisens godkjent',
                         ),
                         err => this.errorService.handle(err),
                     );

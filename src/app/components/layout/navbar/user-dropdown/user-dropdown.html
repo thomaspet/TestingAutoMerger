@@ -15,7 +15,7 @@
                     <span>{{user?.UserName}}</span>
                 </section>
 
-                <section class="info-field">
+                <section class="info-field" *ngIf="user?.PhoneNumber">
                     <span>Telefon:</span>
                     <span>{{user?.PhoneNumber}}</span>
                 </section>
@@ -33,10 +33,16 @@
                 </section>
             </section>
 
+            <a routerLink="license-info">
+                <i class="material-icons license-info">link</i>
+                Lisensinformasjon
+            </a>
+
             <a (click)="openUserSettingsModal()">
                 <i class="material-icons">settings</i>
                 Brukerinnstillinger
             </a>
+
             <a (click)="logOut()">
                 <i class="material-icons">exit_to_app</i>
                 Logg ut

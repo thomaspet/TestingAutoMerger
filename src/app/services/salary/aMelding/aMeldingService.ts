@@ -2,12 +2,16 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {AmeldingData} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
 
+    private alleAvvikNoder: any[] = [];
+    private mottattLeveranserIPerioden: any[] = [];
+    private identificationObject: any = {};
     public internalAmeldingStatus: Array<any> = [
         {Code: 1, Text: 'Generert'},
         {Code: 2, Text: 'Innsendt'},
@@ -94,8 +98,16 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         return helpText;
     }
 
-    public getAMeldingWithFeedback(id: number | string): Observable<any> {
+    public getAMeldingWithFeedback(id: number | string, validate: boolean = false): Observable<any> {
         if (id !== 0) {
+            if (validate) {
+                return this.http
+                    .asGET()
+                    .usingBusinessDomain()
+                    .withEndPoint(this.relativeURL + `/${id}?validate=true`)
+                    .send()
+                    .map(response => response.json());
+            }
             return this.Get(id);
         }
     }
@@ -170,12 +182,195 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.json());
     }
 
-    public getAmeldingSumUp(id: number) {
+    public getAmeldingSumUp(id: number): Observable<any> {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(`ameldingsums/${id}?action=get-sumup`)
             .send()
             .map(response => response.json());
+    }
+
+    public getValidations(entity: any): string[] {
+        return entity
+            .employees
+            .map(emp => emp.arbeidsforhold)
+            .reduce((acc, curr) => [...acc, ...curr])
+            .map(empl => empl.validations)
+            .reduce((acc, curr) => [...acc, ...curr]);
+    }
+
+    public getAvvikIAmeldingen(amelding: any): any[] {
+        this.alleAvvikNoder = [];
+        this.mottattLeveranserIPerioden = [];
+        if (amelding.hasOwnProperty('feedBack')) {
+            const feedback = amelding.feedBack;
+            if (feedback !== null) {
+                const alleMottak = amelding.feedBack.melding.Mottak;
+                if (alleMottak instanceof Array) {
+                    alleMottak.forEach(mottak => {
+                        const pr = mottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop(), 10);
+                        this.setMottattLeveranser(mottak.mottattLeveranse, period);
+                        if (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year) {
+                            this.getAvvikRec(mottak, period);
+                        }
+                    });
+                } else {
+                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                        const pr = alleMottak.kalendermaaned;
+                        const period = parseInt(pr.split('-').pop(), 10);
+                        this.setMottattLeveranser(alleMottak.mottattLeveranse, period);
+                        if (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year) {
+                            this.getAvvikRec(alleMottak, period);
+                        }
+                    } else {
+                        // When altinn would not accept sent amelding, check for avvik
+                        this.getAvvikRec(alleMottak, amelding.period);
+                    }
+                }
+            }
+        }
+        return this.alleAvvikNoder;
+    }
+
+    public getLeveranserIAmeldingen(): any[] {
+        return this.mottattLeveranserIPerioden.sort((curr, next) => {
+            const periodDiff = curr.periode - next.periode;
+            if (periodDiff) {
+                return periodDiff < 0 ? -1 : 1;
+            }
+            const timediff = new Date(next.tidsstempelFraAltinn).getTime() - new Date(curr.tidsstempelFraAltinn).getTime();
+            return timediff < 0 ? -1 : 1;
+        });
+    }
+
+    public attachMessageIDsToLeveranser(leveranser: any[], ameldinger: AmeldingData[] = []): Observable<any[]> {
+        const missingMessageIDs = leveranser
+            .map(leveranse => [leveranse.meldingsId, leveranse.erstatterMeldingsId])
+            .reduce((acc, lev) => [...acc, ...lev], [])
+            .filter(id => !ameldinger.some(amld => amld.messageID === id))
+            .filter((id, index, arr) => index === arr.findIndex(arrID => arrID === id));
+
+        const obs = missingMessageIDs
+            ? this.GetAll(`filter=${missingMessageIDs.map(id => `messageID eq '${id}'`).join(' or ')}`)
+            : of([]);
+        return obs
+            .pipe(
+                map(amld => [...amld, ...ameldinger]),
+                map(amld => this.getLeveranserWithErstattMessageID(
+                    this.getLeveranserWithMessageID(leveranser, amld),
+                    amld))
+            );
+    }
+
+    private getLeveranserWithMessageID(leveranser: any[], ameldinger: AmeldingData[]): any[] {
+        return leveranser.map(leveranse => {
+            let mldID = 0;
+            ameldinger.forEach(amelding => {
+                if (leveranse.meldingsId === amelding.messageID) {
+                    mldID = amelding.ID;
+                    return;
+                }
+            });
+            leveranse['_messageID'] = mldID ? mldID : leveranse.meldingsId;
+            return leveranse;
+        });
+    }
+
+    private getLeveranserWithErstattMessageID(leveranser: any[], ameldinger: AmeldingData[]): any[] {
+        return leveranser.map(leveranse => {
+            let mldID = 0;
+            ameldinger.forEach(amelding => {
+                if (leveranse.erstatterMeldingsId === amelding.messageID) {
+                    mldID = amelding.ID;
+                    return;
+                }
+            });
+            leveranse['_replaceMessageID'] = mldID ? mldID : leveranse.erstatterMeldingsId;
+            return leveranse;
+        });
+    }
+
+    private getAvvikRec(obj, period: number) {
+        for (const propname in obj) {
+            if (propname === 'avvik') {
+                if (obj[propname] instanceof Array) {
+                    obj[propname].forEach(avvik => {
+                        this.buildAvvik(obj, avvik, period, ['arbeidsforholdId', 'yrke', 'beloep', 'fordel', 'alvorlighetsgrad']);
+                        this.alleAvvikNoder.push(avvik);
+                    });
+                } else {
+                    const avvik = obj[propname];
+                    this.buildAvvik(obj, avvik, period, ['arbeidsforholdId', 'beloep', 'fordel', 'alvorlighetsgrad']);
+                    this.alleAvvikNoder.push(avvik);
+                }
+            } else {
+                if (typeof obj[propname] === 'object' && obj[propname] !== null) {
+                    if (propname === 'inntektsmottaker') {
+                        if (obj[propname].hasOwnProperty('identifiserendeInformasjon')) {
+                            this.identificationObject = obj[propname]['identifiserendeInformasjon'];
+                        }
+                        this.getAvvikWithAncestorInfoRec(obj[propname], period);
+                        this.identificationObject = {};
+                    } else {
+                        this.getAvvikRec(obj[propname], period);
+                    }
+                }
+            }
+        }
+    }
+
+    private getAvvikWithAncestorInfoRec(obj, period: number) {
+        for (const propname in obj) {
+            if (propname === 'avvik') {
+                if (obj[propname] instanceof Array) {
+                    obj[propname].forEach(avvik => {
+                        this.buildAvvik(obj, avvik, period, ['arbeidsforholdId', 'yrke', 'beloep', 'fordel']);
+                        this.alleAvvikNoder.push(avvik);
+                    });
+                } else {
+                    const avvik = obj[propname];
+                    this.buildAvvik(obj, avvik, period, ['arbeidsforholdId', 'beloep', 'fordel']);
+                    this.alleAvvikNoder.push(avvik);
+                }
+            } else {
+                if (typeof obj[propname] === 'object' && obj[propname] !== null) {
+                    this.getAvvikWithAncestorInfoRec(obj[propname], period);
+                }
+            }
+        }
+    }
+
+    private buildAvvik(obj, avvik, period: number, props: string[]) {
+        props.forEach(prop => {
+            if (obj.hasOwnProperty(prop)) {
+                avvik[prop] = obj[prop];
+            }
+        });
+        if (obj.hasOwnProperty('loennsinntekt')) {
+            const loennObj = obj['loennsinntekt'];
+            if (loennObj.hasOwnProperty('beskrivelse')) {
+                avvik.loennsinntektBeskrivelse = loennObj['beskrivelse'];
+            }
+        }
+        avvik.belongsToPeriod = period;
+        if (this.identificationObject) {
+            avvik.ansattnummer = this.identificationObject.ansattnummer;
+            avvik.foedselsdato = this.identificationObject.foedselsdato;
+            avvik.ansattnavn = this.identificationObject.navn;
+        }
+    }
+
+    private setMottattLeveranser(leveranser, period) {
+        if (leveranser instanceof Array) {
+            leveranser.forEach(leveranse => {
+                leveranse.periode = period;
+                this.mottattLeveranserIPerioden.push(leveranse);
+            });
+        } else {
+            leveranser.periode = period;
+            this.mottattLeveranserIPerioden.push(leveranser);
+        }
     }
 }

@@ -72,11 +72,14 @@ export class Contacts implements AfterViewInit {
     public onRowDelete(event) {
         var contact = event.rowModel;
         if (!contact) { return; }
-
+        if (!contact.ID) {
+            this.contacts.splice(contact._originalIndex, 1);
+        } else {
         contact.Deleted = true;
         this.parentBusinessRelation.Contacts[contact._originalIndex] = contact;
 
         this.deleted.emit(contact);
+        }
     }
 
     private changeCallback(event) {

@@ -1,5 +1,7 @@
 import {Injectable} from '@angular/core';
 import {Dimensions} from '../../unientities';
+import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {UniHttp} from '../../../framework/core/http/http';
 
 export enum DimensionTypes {
     Project = 1,
@@ -48,7 +50,17 @@ export class Dimension extends Dimensions {
     }
 }
 
-export class DimensionService {
+@Injectable()
+export class DimensionService extends BizHttp<Dimension> {
+
+    constructor(http: UniHttp) {
+        super(http);
+
+        this.relativeURL = Dimension.RelativeUrl;
+        this.entityType = Dimension.EntityType;
+        this.DefaultOrderBy = null;
+    }
+
     public static getEntityNameFromDimensionType(dimensionType: number) {
         let entityName = '';
         if (dimensionType.toString() === DimensionTypes.Project.toString()) {

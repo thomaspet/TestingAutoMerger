@@ -32,7 +32,8 @@ export class EmployeeCategoryService extends BizHttp<EmployeeCategory> {
 
     public searchCategories(query: string, ignoreFilter: string): Observable<EmployeeCategory[]> {
         return this
-            .GetAll(`filter=contains(Name,'${query}')${ignoreFilter ? ' and (' + ignoreFilter + ')' : ''}&top=50`);
+            .GetAll(`filter=(contains(Name,'${query}') or startswith(ID,'${query}'))`
+                + `${ignoreFilter ? ' and (' + ignoreFilter + ')' : ''}&top=50`);
     }
 
     public getEmployeesInCategory(categoryID: number): Observable<Employee[]> {

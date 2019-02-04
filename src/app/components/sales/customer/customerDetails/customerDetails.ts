@@ -1058,16 +1058,20 @@ export class CustomerDetails implements OnInit {
     }
 
     public onContactChanged(contact: Contact) {
+
+        this.isDirty = true;
+        this.setupSaveActions();
+
         if (!contact) {
             return;
         }
 
+        // prepare for save
         if (!contact.ID) {
             contact['_createguid'] = this.customerService.getNewGuid();
             contact.Info['_createguid'] = this.customerService.getNewGuid();
         }
 
-        // prepare for save
         if (!contact.Info.DefaultEmail.ID) {
             contact.Info.DefaultEmail['_createguid'] = this.customerService.getNewGuid();
         }
@@ -1119,7 +1123,7 @@ export class CustomerDetails implements OnInit {
     public onChange(changes: SimpleChanges) {
         let customer = this.customer$.getValue();
         this.isDirty = true;
-        if (customer.OrgNumber) {
+        if (changes['OrgNumber'] && customer.OrgNumber) {
             this.customerService.getCustomers(customer.OrgNumber).subscribe(res => {
                 if (res.Data.length > 0) {
                     let orgNumberUses = 'Dette org.nummeret er i bruk hos kunde: <br><br>';

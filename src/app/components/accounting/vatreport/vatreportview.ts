@@ -105,7 +105,8 @@ export class VatReportView implements OnInit, OnDestroy {
         let year;
 
         if (this.currentVatReport && this.currentVatReport.JournalEntry) {
-            year = this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1];
+            const hasYear = !!this.currentVatReport.JournalEntry.JournalEntryNumber;
+            year = hasYear ? this.currentVatReport.JournalEntry.JournalEntryNumber.split('-')[1] : null;
 
             journalEntryNumber = this.currentVatReport.JournalEntry.JournalEntryNumber;
             journalEntryID = this.currentVatReport.JournalEntryID;
@@ -410,7 +411,10 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
     public historicVatReportSelected(vatReport: VatReport) {
-        if (vatReport) {
+        if (vatReport && !vatReport.ExternalRefNo && vatReport.StatusCode === 32005) {
+            this.toastService.addToast('Kunne ikke vise MVA-melding', ToastType.bad, 200,
+                'Historikk er ikke tilgjengelig siden MVA-meldingen ble korrigert uten å sendes inn til Altinn først');
+        } else {
             this.setVatreport(vatReport);
         }
     }

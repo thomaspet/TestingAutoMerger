@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges} from '@angular/core';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 import * as moment from 'moment';
+import {AMeldingService} from '@app/services/services';
 
 @Component({
     selector: 'amelding-summary-view',
@@ -20,9 +21,14 @@ export class AmeldingSummaryView implements OnChanges {
     public createdDate: string = '';
     public sentDate: string = '';
     public statusText: string;
+    public validations: string[];
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
+    public showXMLValidationError: boolean;
+    public validationErrorsInAmelding: string;
 
-    constructor() {
+    constructor(
+        private ameldingService: AMeldingService
+    ) {
         this.setupEmployees();
         this.setupLeaves();
         this.setupTransactions();
@@ -54,6 +60,15 @@ export class AmeldingSummaryView implements OnChanges {
             this.entitiesWithData = [];
         }
 
+        this.validationErrorsInAmelding = '';
+        if (this.validations && this.validations.length) {
+            this.validationErrorsInAmelding = this.validations.join(',');
+        }
+        if (!!this.currentAMelding && !!this.currentAMelding.xmlValidationErrors) {
+            this.validationErrorsInAmelding += this.currentAMelding.xmlValidationErrors;
+        }
+        this.showXMLValidationError = this.validationErrorsInAmelding !== '' ? true : false;
+
     }
 
     private mapData() {
@@ -81,7 +96,8 @@ export class AmeldingSummaryView implements OnChanges {
                                     name: employeeName,
                                     arbeidsforholdId: arbeidsforhold.arbeidsforholdId,
                                     startDate: arbeidsforhold.startDate,
-                                    endDate: arbeidsforhold.endDate
+                                    endDate: arbeidsforhold.endDate,
+                                    validations: arbeidsforhold.validations,
                                 });
 
                                 if (arbeidsforhold.permisjon) {
@@ -115,10 +131,12 @@ export class AmeldingSummaryView implements OnChanges {
                     employees: this.employeeAndEmployments,
                     leaves: this.employeeleaves,
                     transactions: this.sumPerDescription,
-                    sums: entitySums
+                    sums: entitySums,
+                    validations: this.ameldingService.getValidations(entity),
                 });
             });
         }
+        this.validations = this.entitiesWithData.map(virk => virk.validations).reduce((val, curr) => [...val, ...curr], []);
     }
 
     private setupEmployees() {
@@ -132,8 +150,21 @@ export class AmeldingSummaryView implements OnChanges {
         const endCol = new UniTableColumn('endDate', 'Sluttdato', UniTableColumnType.LocalDate)
             .setWidth('8rem');
 
+        const errorsCol = new UniTableColumn('validations', 'Feil')
+            .setTemplate(row => row.validations && row.validations.length ?  ' ' : '')
+            .setWidth('2rem')
+            .setFilterable(true)
+            .setTooltipResolver(rowModel => {
+                if (rowModel.validations && rowModel.validations.length) {
+                    return {
+                        type: 'bad',
+                        text: rowModel.validations.join(', '),
+                    };
+                }
+            });
+
         this.employeeTableConfig = new UniTableConfig('salary.amelding.summary.employees', false, true, 30)
-        .setColumns([empNoCol, nameCol, emplmntCol, startCol, endCol]);
+        .setColumns([empNoCol, nameCol, emplmntCol, startCol, endCol, errorsCol]);
     }
 
     private setupLeaves() {

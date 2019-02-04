@@ -66,20 +66,16 @@ export class JournalEntries {
         private statisticsService: StatisticsService
     ) {
         this.route.params.subscribe(params => {
-            let tabUrl = `/accounting/journalentry/manual`;
             const journalEntryID = +params['journalEntryID'];
             const journalEntryNumber = params['journalEntryNumber'];
             this.numberSeriesIDFromParam = +params['numberseriesID'];
-            tabUrl += this.numberSeriesIDFromParam ? ';numberseriesID=' + this.numberSeriesIDFromParam : '';
+            this.tab.url = this.router.url;
 
             if (journalEntryID) {
                 this.currentJournalEntryID = journalEntryID;
-                tabUrl += `;journalEntryID=${journalEntryID}`;
 
                 if (journalEntryNumber) {
                     this.currentJournalEntryNumber = journalEntryNumber;
-                    tabUrl += `;journalEntryNumber=${journalEntryNumber}`;
-                    this.tab.url = tabUrl;
                     this.tabService.addTab(this.tab);
                 }
 
@@ -88,8 +84,6 @@ export class JournalEntries {
                     this.journalEntryService.Get(params['journalEntryID'], ['DraftLines'])
                         .subscribe(journalEntry => {
                             this.currentJournalEntryNumber = journalEntry.JournalEntryNumber;
-                            tabUrl += `;journalEntryNumber=${journalEntry.JournalEntryNumber}`;
-                            this.tab.url = tabUrl;
                             this.tabService.addTab(this.tab);
 
                             if (params['editmode']) {
@@ -101,7 +95,6 @@ export class JournalEntries {
                 this.editmode = false;
                 this.currentJournalEntryNumber = null;
                 this.currentJournalEntryID = 0;
-                this.tab.url = tabUrl;
                 this.tabService.addTab(this.tab);
             }
             this.setupToolBarconfig();
@@ -268,14 +261,11 @@ export class JournalEntries {
             if (this.currentJournalEntryNumber) {
                 const split = this.currentJournalEntryNumber.split('-');
                 journalEntryNumber = split[0];
-                year = split[1];
             }
 
-            if (!year) {
-                year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
-                    ? this.journalEntryManual.currentFinancialYear.Year.toString()
-                    : '';
-            }
+            year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
+                ? this.journalEntryManual.currentFinancialYear.Year.toString()
+                : '';
 
             this.journalEntryService.getPreviousJournalEntry(year, journalEntryNumber || null).subscribe(
                 res => {

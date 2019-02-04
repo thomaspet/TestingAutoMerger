@@ -65,6 +65,7 @@ import {ApiKeyService} from './common/apikeyService';
 import {DistributionPlanService} from './common/distributionService';
 import {AccrualService} from './common/accrualService';
 import {UserRoleService} from './common/userRoleService';
+import {EventplanService} from './common/eventplan.service';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -130,6 +131,7 @@ export * from './common/customDimensionService';
 export * from './common/apikeyService';
 export * from './common/distributionService';
 export * from './common/userRoleService';
+export * from './common/eventplan.service';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -203,6 +205,7 @@ export class CommonServicesModule {
                 DistributionPlanService,
                 AccrualService,
                 UserRoleService,
+                EventplanService,
             ]
         };
     }

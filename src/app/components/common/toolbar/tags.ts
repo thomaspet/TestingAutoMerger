@@ -14,6 +14,7 @@ export interface IUniTagsConfig {
     toolTip?: string;
     readOnlyMessage?: string;
     autoCompleteConfig?: ITagAutoComplete;
+    template?: (obj: ITag) => string;
 }
 
 export interface ITag {
@@ -46,7 +47,7 @@ export interface ITagAutoComplete {
                 </p>
                 <ul class="tag-list" [attr.aria-busy]="removeBusy">
                     <li *ngFor="let tag of tags">
-                        {{tag.title}}
+                        {{config.template ? config.template(tag) : tag.title}}
                         <i class="material-icons" *ngIf="config && !config.readOnly" (click)="remove(tag)">
                             close
                         </i>

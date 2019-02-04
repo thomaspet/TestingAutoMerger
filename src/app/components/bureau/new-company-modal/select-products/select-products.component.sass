@@ -1,0 +1,36 @@
+mat-grid-list
+    width: 40vw
+
+    mat-card
+        height: 85%
+        width: 85%
+        border: 0.1rem solid #8C96A9
+        box-shadow: none
+        display: table
+
+        &:hover
+            background-color: #D5EEF6
+            border: 0.1rem solid #3f76db
+
+        &.card-selected
+            background-color: #D5EEF6
+            border: 0.1rem solid #3f76db
+
+            ::ng-deep .mat-badge-content
+                display: flex
+                align-items: center
+                justify-content: center
+
+        mat-card-content
+            display: table-cell
+            vertical-align: middle
+
+            img
+                height: 3rem
+                width: auto
+                display: block
+                margin: auto
+
+            .label
+                text-align: center
+

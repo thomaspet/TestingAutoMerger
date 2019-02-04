@@ -37,7 +37,7 @@ import {
     InvoicePaymentData,
     NumberSeries
 } from '../../../../../unientities';
-import {JournalEntryData, NumberSeriesTaskIds} from '@app/models';
+import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
 import {NewAccountModal} from '../../../NewAccountModal';
 import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
@@ -59,7 +59,8 @@ import {
     PredefinedDescriptionService,
     SupplierService,
     CustomerService,
-    UserService
+    UserService,
+    CostAllocationService,
 } from '../../../../../services/services';
 import {
     UniModalService,
@@ -113,6 +114,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public showImageChanged: EventEmitter<boolean> = new EventEmitter<boolean>();
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
+    @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>(); 
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
@@ -194,6 +196,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private customerService: CustomerService,
         private userService: UserService,
         private paymentService: PaymentService,
+        private costAllocationService: CostAllocationService,
     ) {}
 
     public ngOnInit() {
@@ -238,8 +241,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.selectedNumberSeriesTaskID =  this.selectedNumberSeries.NumberSeriesTaskID;
             this.setupJournalEntryNumbers(true);
         }
-
-
     }
 
     public setJournalEntryData(data) {
@@ -1324,6 +1325,24 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             )
             .setVisible(false);
 
+        const costAllocationCol = new UniTableColumn('CostAllocation', 'Fordelingsnøkkel', UniTableColumnType.Lookup)
+            .setTemplate((rowModel) => {
+                if (rowModel.CostAllocation && rowModel.CostAllocation.Name) {
+                    return rowModel.CostAllocation.ID + ' - ' + rowModel.CostAllocation.Name;
+                }
+                return '';
+            })
+            .setWidth('12%')
+            .setOptions({
+                itemTemplate: (item) => {
+                    return (item.ID + ' - ' + item.Name);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.costAllocationService.search(searchValue);
+                }
+            })
+            .setVisible(true);
+
         let defaultRowData = {
             Dimensions: {},
             DebitAccount: null,
@@ -1430,7 +1449,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 amountCol,
                 netAmountCol,
-                amountCurrencyCol
+                amountCurrencyCol,
+                costAllocationCol
             ];
 
             if (dimensionCols.length) {
@@ -1486,6 +1506,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
+                costAllocationCol,
                 addedPaymentCol,
                 fileCol
             ];
@@ -2392,13 +2413,19 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             const readonlyRows = tableData.filter(row => !!row.StatusCode);
                             const editableRows = tableData.filter(row => !row.StatusCode);
 
-                            // Check if readonly rows contains one or more lines with the wrong numberseries
+                            // Check if readonly rows contains one or more lines with the wrong numberseries.
+                            // Rows where _editmode is set is journalentries that are being corrected, so they
+                            // will already have a defined journalentrynumber. Dont update numbers for these
+                            // even if the numberseries does not exist, because this will not have any effect
+                            // when saving anyway (i.e. if a journalentry is corrected from 15.01.2018 to 15.01.2019
+                            // the journalentrynumber will still be set to 2018-something)
                             const shouldUpdateData = editableRows.some(
-                                row => row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
-                                row.NumberseriesID !== this.selectedNumberSeries.ID
+                                row => (row.NumberSeriesTaskID !== this.selectedNumberSeriesTaskID ||
+                                row.NumberseriesID !== this.selectedNumberSeries.ID) && !row._editmode
                             );
+
                             if (shouldUpdateData) {
-                                const uniQueNumbers = _.uniq(editableRows.map(item => item.JournalEntryNo));
+                                const uniQueNumbers = _.uniq(editableRows.filter(x => !x._editmode).map(item => item.JournalEntryNo));
                                 uniQueNumbers.forEach(uniQueNumber => {
                                     const lines = editableRows.filter(line => line.JournalEntryNo === uniQueNumber);
 
@@ -2821,6 +2848,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const tableData = this.table.getTableData();
         this.dataChanged.emit(tableData);
+
+        if (event.newValue && event.field) {
+            this.rowFieldChanged.emit({
+                Field: event.field, 
+                JournalEntryData: event.rowModel
+            });
+        }
     }
 
     public getTableData() {
@@ -2828,5 +2862,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             return this.table.getTableData();
         }
         return null;
+    }
+
+    public focusLastRow() {
+        var rows = this.getTableData() || [];
+        this.currentRowIndex = rows.length;
+        this.table.focusRow(this.currentRowIndex);
     }
 }

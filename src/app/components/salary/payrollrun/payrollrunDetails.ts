@@ -91,12 +91,13 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         helpTextOnEmpty: 'Ingen kategorier valgt for denne lønnsavregningen',
         truncate: 20,
         autoCompleteConfig: {
-            template: (obj: EmployeeCategory) => obj ? obj.Name : '',
+            template: (obj: EmployeeCategory) => obj ? `${obj.ID} - ${obj.Name}` : '',
             valueProperty: 'Name',
             search: (query, ignoreFilter) => this.employeeCategoryService.searchCategories(query, ignoreFilter),
             saveCallback: (cat: EmployeeCategory) => this.payrollrunService.savePayrollTag(this.payrollrunID, cat),
             deleteCallback: (tag) => this.payrollrunService.deletePayrollTag(this.payrollrunID, tag)
-        }
+        },
+        template: tag => `${tag.linkID} - ${tag.title}`
     };
 
     public paymentSum: number;
@@ -136,7 +137,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             this.journalEntry = undefined;
             let changedPayroll = true;
             this.payrollrunID = +params['id'];
-            this.updateSum(this.payrollrunID).subscribe();
             this.tagConfig.readOnly = !this.payrollrunID;
             if (!this.payrollrunID) {
                 this.setEditableOnChildren(false);
@@ -205,7 +205,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     };
 
                     this.saveActions = this.getSaveActions(payrollRun);
-
                     this.checkDirty();
                     if (changedPayroll) {
                         if (!payrollRun.Description && !this.detailsActive) {
@@ -648,6 +647,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     private getSalaryTransactions() {
         this.getSalaryTransactionsObservable()
+            .do(() => this.updateSum(this.payrollrunID).subscribe())
             .subscribe(
             response => {
                 super.updateState('salaryTransactions', response, false);
@@ -1165,6 +1165,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 this.saveActions = this.saveActions.map(x => {x.disabled = true; return x; });
             } else {
                 this.saveActions = this.getSaveActions(this.payrollrun$.value);
+                this.checkDirty();
             }
         }
     }

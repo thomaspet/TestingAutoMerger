@@ -4,6 +4,7 @@ import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
 import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
 import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
+import {FlowSettings, FLOW_ROUTES} from '@app/components/admin/flow/flowSettings';
 
 export const adminRoutes = [
     {
@@ -30,7 +31,13 @@ export const adminRoutes = [
             {
                 path: 'gdpr',
                 component: UniGdprPeopleList
-            }
+            },
+            {
+                path: 'flow',
+                component: FlowSettings,
+                canDeactivate: [CanDeactivateGuard],
+                children: FLOW_ROUTES,
+            },
         ]
     }
 ];

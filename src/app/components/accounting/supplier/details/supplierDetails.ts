@@ -38,6 +38,7 @@ import {
     NumberSeriesService,
     ModulusService,
     JournalEntryLineService,
+    CostAllocationService,
 } from '../../../../services/services';
 
 import {
@@ -118,7 +119,7 @@ export class SupplierDetails implements OnInit {
         'Info.BankAccounts.Bank',
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
-        'Info.Contacts.Info.DefaultPhone'
+        'Info.Contacts.Info.DefaultPhone',
     ];
 
     public postposttabs: IUniTab[] = [
@@ -184,6 +185,7 @@ export class SupplierDetails implements OnInit {
         private numberSeriesService: NumberSeriesService,
         private modulusService: ModulusService,
         private journalEntryLineService: JournalEntryLineService,
+        private costAllocationService: CostAllocationService,
     ) {}
 
     public ngOnInit() {
@@ -533,6 +535,7 @@ export class SupplierDetails implements OnInit {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
                 this.setTabTitle();
+                this.extendFormConfig();
                 this.showHideNameProperties();
                 this.setSupplierStatusInToolbar();
             }, err => this.errorService.handle(err));
@@ -579,6 +582,10 @@ export class SupplierDetails implements OnInit {
 
     public extendFormConfig() {
         const fields = this.fields$.getValue();
+
+        const supplier = this.supplier$.getValue();
+        const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(supplier.CostAllocationID);
 
         const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
@@ -1135,6 +1142,14 @@ export class SupplierDetails implements OnInit {
                     Property: 'Localization',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Språk tilbud/ordre/faktura',
+                },
+                {
+                    FieldSet: 3,
+                    Legend: 'Betingelser',
+                    EntityType: 'Supplier',
+                    Property: 'CostAllocationID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Fordelingsnøkkel'
                 },
 
                 // Fieldset 4 (dimensions)

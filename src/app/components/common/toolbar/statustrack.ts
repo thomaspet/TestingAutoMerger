@@ -29,7 +29,7 @@ export interface IStatus {
     template: `
         <ol>
             <li *ngFor="let status of config"
-                [class]="getStatusClass(status.state)"
+                [ngClass]="getStatusClass(status.state)"
                 [attr.data-badge]="status.badge">
 
                 <span class="statustrack_title"

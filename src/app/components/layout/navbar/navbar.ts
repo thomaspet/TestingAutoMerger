@@ -40,7 +40,8 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
                 </i>
 
                 <uni-company-dropdown></uni-company-dropdown>
-                <uni-notifications *ngIf="hasActiveContract"></uni-notifications>
+                <!--<uni-notifications *ngIf="hasActiveContract"></uni-notifications>-->
+                <notifications></notifications>
 
                 <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length)">
                     <i

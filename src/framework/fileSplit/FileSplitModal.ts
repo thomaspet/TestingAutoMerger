@@ -63,10 +63,12 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
                                 [attr.src]="currentThumbnail.url"
                                 (load)="finishedLoadingThumbnail(currentThumbnail)"
                                 [attr.alt]="currentThumbnail.page"
-                                [class.loading]="!currentThumbnail._isloaded"
-                                [class.rotate90]="currentThumbnail._rotation === 90"
-                                [class.rotate180]="currentThumbnail._rotation === 180"
-                                [class.rotate270]="currentThumbnail._rotation === 270" />
+                                [ngClass]="{
+                                    'loading': !currentThumbnail._isloaded,
+                                    'rotate90': currentThumbnail._rotation === 90,
+                                    'rotate180': currentThumbnail._rotation === 180,
+                                    'rotate270': currentThumbnail._rotation === 270
+                                }"/>
                             <div class="commands" *ngIf="currentThumbnail">
                                 <span class="pageno">Side {{currentThumbnail.page}}</span>
                                 <a (click)="rotateLeft($event)" title="Roter venstre"><i class="material-icons">undo</i></a>
@@ -76,7 +78,7 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
                     </div>
                     <div class="image_thumbnails" #thumbnailcontainer>
                         <li *ngFor="let thumbnail of visibleThumbnails; let idx = index"
-                            [class]="thumbnail.class"
+                            [ngClass]="thumbnail.class"
                             (click)="thumbnailClicked(thumbnail.page, $event)"
                             (focus)="thumbnailFocused(thumbnail, idx)"
                             tabindex="0">
@@ -84,10 +86,12 @@ import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../uni-modal';
                                 <img [attr.src]="thumbnail.url"
                                     (load)="finishedLoadingThumbnail(thumbnail)"
                                     [attr.alt]="thumbnail.page"
-                                    [class.loading]="!thumbnail._isloaded"
-                                    [class.rotate90]="thumbnail._rotation === 90"
-                                    [class.rotate180]="thumbnail._rotation === 180"
-                                    [class.rotate270]="thumbnail._rotation === 270" />
+                                    [ngClass]="{
+                                        'loading': !thumbnail._isloaded,
+                                        'rotate90': thumbnail._rotation === 90,
+                                        'rotate180': thumbnail._rotation === 180,
+                                        'rotate270': thumbnail._rotation === 270
+                                    }"/>
                                 <div class="pageno">Side {{thumbnail.page}}</div>
                             </div>
                         </li>

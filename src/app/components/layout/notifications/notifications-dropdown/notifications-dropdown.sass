@@ -1,0 +1,87 @@
+@import '~src/styles/unibase/colors/__colors.sass'
+
+// height todo (vh with max-height)
+\:host
+    display: flex
+    flex-direction: column
+    width: 30rem
+    height: 45rem
+    max-height: calc(100vh - 5rem)
+    margin-top: 9px
+    background: #fff
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
+    border-bottom-left-radius: 3px
+    border-bottom-right-radius: 3px
+
+    ::ng-deep mat-slide-toggle.show-all-companies
+        .mat-slide-toggle-content
+            font-size: 15px
+
+        &.mat-slide-toggle.mat-checked:not(.mat-disabled) .mat-slide-toggle-bar
+            background-color: rgba(0,0,0,.38) !important
+            .mat-slide-toggle-thumb
+                background-color: #f9f9f9 !important
+
+header
+    flex: 0 0 7rem
+    background: #2B66C3
+    color: #fff
+    padding: 1rem 20px 0
+
+    .top-row
+        display: flex
+        margin-bottom: 1rem
+
+        h1
+            flex: 0 0 auto
+            margin: auto 0
+            padding-bottom: 3px
+            font-weight: 400
+            font-size: 21px
+            line-height: 21px
+
+        > span
+            font-size: 15px
+            margin: auto 1rem
+            color: rgba(255, 255, 255, .75)
+
+        button
+            margin: auto 0 auto auto
+            color: #fff
+            i.material-icons
+                margin-bottom: 2px
+
+.notification-filters
+    list-style: none
+    margin: 10px 0
+
+    li
+        display: flex
+        height: 2.5rem
+        padding: 0px 10px
+        color: #8C96A9
+        cursor: pointer
+
+        &.selected
+            color: #2699FB
+        &:hover
+            background: #f7f7f7
+
+        i.material-icons
+            flex: 0 0 auto
+            margin: auto 0
+
+        span
+            flex: 1
+            margin: auto 2rem auto 5px
+
+.notification-list
+    flex: 1
+
+    .header
+        background: #f2f2f2
+        height: 25px
+        line-height: 25px
+        padding-left: 1rem
+        font-size: 13px
+        color: #8C96A9

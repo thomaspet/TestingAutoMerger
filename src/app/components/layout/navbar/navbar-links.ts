@@ -317,6 +317,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Valuta',
                         url: '/currency/exchange',
                         moduleID: UniModules.CurrencyExchange
+                    },
+                    {
+                        name: 'Fordelingsnøkler',
+                        url: '/accounting/costallocation',
+                        moduleID: UniModules.CostAllocation
                     }
                 ]
             }
@@ -547,6 +552,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'GDPR',
                         url: '/admin/gdpr',
                         moduleID: UniModules.GDPRList
+                    },
+                    {
+                        name: 'Flyt',
+                        url: '/admin/flow',
+                        moduleID: UniModules.Flow
                     },
                 ]
             }

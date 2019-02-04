@@ -9,3 +9,4 @@ export * from './activationEnum';
 export * from './projectResponsibility';
 export * from './reportTypeEnum';
 export * from './elsa-models';
+export * from './accounting/CostAllocationData';

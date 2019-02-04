@@ -1,0 +1,49 @@
+<form [formGroup]="companyData">
+    <label>
+        <span>Selskapsnavn</span>
+        <uni-search
+            #companyName
+            [config]="companyNameSearchConfig"
+            [ngClass]="{'invalid': isCompanyNameFieldTouched && !companyData.controls['companyName'].valid}"
+            (blurEvent)="isCompanyNameFieldTouched = true"
+            (keyup)="onKeyUp('companyName')">
+        </uni-search>
+        <input type="hidden" formControlName="companyName">
+    </label>
+    <small class="form-error" *ngIf="isCompanyNameFieldTouched && !companyData.controls['companyName'].valid">
+        Selskapsnavn er påkrevd for å få opprette nytt selskap
+    </small>
+
+    <label>
+        <span>Organisasjonsnummer</span>
+        <uni-search
+            #orgNo
+            [config]="orgNumberSearchConfig"
+            [ngClass]="{'warning': !isOrgNumberValid}"
+            (blurEvent)="isOrgNumberFieldTouched = true; validateOrgNumber()"
+            (keyup)="onKeyUp('orgNumber')">
+        </uni-search>
+        <input type="hidden" formControlName="orgNumber">
+    </label>
+    <small class="form-warning" *ngIf="orgNumberAlreadyExists">
+        Du har allerede et selskap med dette organisasjonsnummeret
+    </small>
+    <small class="form-warning" *ngIf="!isOrgNumberValid">
+        Organisasjonsnummeret er ikke gyldig, men du kan velge å fortsette
+    </small>
+
+    <label>
+        <span>Adresse</span>
+        <input type="text" formControlName="address">
+    </label>
+
+    <label>
+        <span>Postnummer</span>
+        <input type="text" formControlName="postalCode">
+    </label>
+
+    <label>
+        <span>Poststed</span>
+        <input type="text" formControlName="city">
+    </label>
+</form>

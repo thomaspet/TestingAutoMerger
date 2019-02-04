@@ -147,8 +147,6 @@ export class AMeldingView implements OnInit {
     }
 
     public ngOnInit() {
-        this.loadYearData();
-
         this.financialYearService.lastSelectedFinancialYear$.subscribe(year => {
             this.clearAMelding();
             this.loadYearData();
@@ -300,9 +298,9 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    public getAmldWithFeedback(amldID: number) {
+    public getAmldWithFeedback(amldID: number, validate: boolean = false) {
         this._ameldingService
-            .getAMeldingWithFeedback(amldID)
+            .getAMeldingWithFeedback(amldID, validate)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((amldWithFeedback: AmeldingData) => {
                 this.refresh(amldWithFeedback);
@@ -342,7 +340,38 @@ export class AMeldingView implements OnInit {
                 this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
                 this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
                 this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
-                this.getDataFromFeedback(this.currentAMelding, 0);
+                if (!!this.currentAMelding) {
+                    if (this.currentAMelding.hasOwnProperty('feedBack')) {
+                        if (this.currentAMelding.feedBack !== null) {
+                            const alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                            if (alleMottak instanceof Array) {
+                                alleMottak.forEach(mottak => {
+                                    const pr = mottak.kalendermaaned;
+                                    const period = parseInt(pr.split('-').pop(), 10);
+                                    if ((period === this.currentAMelding.period)
+                                        && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
+                                            if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
+                                                const periode = mottak.mottattPeriode;
+                                                this.getTotalAGAAndFtrekk(periode);
+                                            }
+                                    }
+                                });
+                            } else {
+                                if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                                    const pr = alleMottak.kalendermaaned;
+                                    const period = parseInt(pr.split('-').pop(), 10);
+                                    if ((period === this.currentAMelding.period)
+                                        && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
+                                            if (alleMottak && alleMottak.hasOwnProperty('mottattPeriode')) {
+                                                const periode = alleMottak.mottattPeriode;
+                                                this.getTotalAGAAndFtrekk(periode);
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 this.totalAGASystem = 0;
                 this.totalFtrekkSystem = 0;
@@ -462,79 +491,8 @@ export class AMeldingView implements OnInit {
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
         .subscribe((response) => {
             this.currentSumUp = response;
-            if (this.currentAMelding.ID !== this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID) {
-                const statusTextObject: any = this.getDataFromFeedback(this.currentAMelding, 1);
-                if (statusTextObject) {
-                    this.currentSumUp._sumupStatusText = statusTextObject.statusText;
-                } else {
-                    this.currentSumUp._sumupStatusText = 'Status altinn';
-                }
-            } else {
-                this.currentSumUp._sumupStatusText = this.periodStatus;
-            }
-
             this.legalEntityNo = response.LegalEntityNo;
         }, err => this.errorService.handle(err));
-    }
-
-    private getDataFromFeedback(amelding, typeData): any {
-        let mottakObject: any;
-        if (amelding && amelding.hasOwnProperty('feedBack')) {
-            if (amelding.feedBack !== null) {
-                const alleMottak = amelding.feedBack.melding.Mottak;
-                if (alleMottak instanceof Array) {
-                    alleMottak.forEach(mottak => {
-                        const pr = mottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop(), 10);
-                        if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
-                                mottakObject = this.checkMottattPeriode(mottak, typeData);
-                        }
-                    });
-                } else {
-                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
-                        const pr = alleMottak.kalendermaaned;
-                        const period = parseInt(pr.split('-').pop(), 10);
-                        if ((period === amelding.period)
-                            && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === amelding.year)) {
-                                mottakObject = this.checkMottattPeriode(alleMottak, typeData);
-                        }
-                    } else {
-                        // mangler kalendermaaned i mottaket, sett som avvist
-                        mottakObject = {statusText: 'Avvist'};
-                    }
-                }
-            }
-        }
-        return mottakObject;
-    }
-
-    private checkMottattPeriode(mottak, typeData): any {
-        let anyObject: any = {};
-        if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
-            switch (typeData) {
-                case 0:
-                    this.getTotalAGAAndFtrekk(mottak.mottattPeriode);
-                    break;
-                case 1:
-                    this.periodStatus = '';
-                    this.alleAvvikStatuser = [];
-                    this.getAvvikRec(mottak.mottattPeriode);
-                    if (mottak.hasOwnProperty('mottattLeveranse')) {
-                        this.getAvvikRec(mottak.mottattLeveranse);
-                    }
-                    this.setStatusFromAvvik();
-                    anyObject = {statusText: this.periodStatus};
-                    break;
-
-                default:
-                    break;
-            }
-        } else {
-            anyObject = {statusText: 'Avvist'};
-        }
-
-        return anyObject;
     }
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
@@ -550,9 +508,12 @@ export class AMeldingView implements OnInit {
         }
     }
 
-    private setStatusFromAvvik() {
+    private setStatusFromAvvik(avvikIamld: any[] = null) {
         let statusSet: boolean = false;
-        this.alleAvvikStatuser.forEach(avvik => {
+        this.periodStatus = '';
+        const alleAvvik = avvikIamld != null ? avvikIamld : this.alleAvvikStatuser;
+
+        alleAvvik.forEach(avvik => {
             if (!statusSet) {
                 switch (avvik.alvorlighetsgrad) {
                     case 'oeyeblikkelig':
@@ -574,6 +535,9 @@ export class AMeldingView implements OnInit {
         if (this.periodStatus === '') {
             this.periodStatus = 'Mottatt';
         }
+        if (!!this.currentSumUp) {
+            this.currentSumUp._sumupStatusText = this.periodStatus;
+        }
     }
 
     private getAMeldingForPeriod() {
@@ -585,7 +549,8 @@ export class AMeldingView implements OnInit {
                 .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
                 .finally(() => {
                     if (this.aMeldingerInPeriod.length > 0) {
-                        this.getAmldWithFeedback(this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1].ID);
+                        const current = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1];
+                        this.getAmldWithFeedback(current.ID, current.status  > 1 ? false : true);
                     } else {
                         this.initialized = true;
                         this.updateToolbar();
@@ -661,39 +626,13 @@ export class AMeldingView implements OnInit {
 
             case 3:
                 this.periodStatus = '';
-                const statusTextObject: any = this.getDataFromFeedback(amelding, 1);
-                if (!!statusTextObject) {
-                    this.periodStatus = this.periodStatus === '' ? 'Avvist' : statusTextObject.statusText;
-                }
+                const avvik = this._ameldingService.getAvvikIAmeldingen(amelding);
+                this.setStatusFromAvvik(avvik);
+                this.periodStatus = this.periodStatus === '' ? 'Avvist' : this.periodStatus;
                 break;
 
             default:
                 break;
-        }
-    }
-
-    private getAvvikRec(obj) {
-        for (const propname in obj) {
-            if (propname === 'avvik') {
-                if (obj[propname] instanceof Array) {
-                    obj[propname].forEach(avvik => {
-                        if (obj.hasOwnProperty('alvorlighetsgrad')) {
-                            avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
-                        }
-                        this.alleAvvikStatuser.push(avvik);
-                    });
-                } else {
-                    const avvik = obj[propname];
-                    if (obj.hasOwnProperty('alvorlighetsgrad')) {
-                        avvik.alvorlighetsgrad = obj['alvorlighetsgrad'];
-                    }
-                    this.alleAvvikStatuser.push(avvik);
-                }
-            } else {
-                if (typeof obj[propname] === 'object' && obj[propname] !== null) {
-                    this.getAvvikRec(obj[propname]);
-                }
-            }
         }
     }
 

@@ -1,0 +1,12 @@
+<mat-radio-group class="radio-group" [(ngModel)]="contractID">
+    <div *ngFor="let customer of customers">
+        <mat-card class="card" *ngFor="let contract of customer.contracts" [ngClass]="{'card-selected': contractID === contract.id}">
+            <mat-radio-button class="radio-button" [value]="contract.id" (change)="contractIDChange.emit(contract.id)">
+                <div class="radio-label">
+                    <div class="radio-label-left">{{customer.name}}</div>
+                    <div class="radio-label-right"><span class="license-type-label">Lisenstype</span> {{contractTypeToText(contract.contractType)}}</div>
+                </div>
+            </mat-radio-button>
+        </mat-card>
+    </div>
+</mat-radio-group>

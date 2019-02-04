@@ -272,9 +272,14 @@ export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit 
         this.workIndex = index;
 
         // Fetch updated customer-details and set to each order:
-        this.customerService.Get(order.CustomerID, ['info.InvoiceAddress'])
+        this.customerService.Get(order.CustomerID, ['info.InvoiceAddress,info.DefaultEmail'])
             .subscribe( customer => {
             if (order && order.CustomerID > 0) {
+                // set customer email
+                order.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress 
+                    ? customer.Info.DefaultEmail.EmailAddress
+                    : customer.EmailAddress;
+
                 // set customer on order (with address etc.)
                 if (!order.ID) {
                     order.setCustomer(customer);
