@@ -13,8 +13,7 @@ import {
     BusinessRelationService,
 } from '@app/services/services';
 
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {AfterActivationModal} from './after-activation-modal/after-activation-modal';
+import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'contract-activation',
@@ -85,7 +84,7 @@ export class ContractActivation {
         // TODO: need endpoint for contract-activation
         setTimeout(() => {
             this.busy = false;
-            this.modalService.open(AfterActivationModal);
+            this.modalService.open(CompanyActionsModal, <IModalOptions>{ header: 'Velkommen til Uni Economy!' });
             this.router.navigateByUrl('/');
         }, 1000);
     }

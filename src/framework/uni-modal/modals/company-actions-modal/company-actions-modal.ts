@@ -3,12 +3,12 @@ import {Router} from '@angular/router';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
-    selector: 'after-activation-modal',
-    templateUrl: './after-activation-modal.html',
-    styleUrls: ['./after-activation-modal.sass'],
+    selector: 'company-actions-modal',
+    templateUrl: './company-actions-modal.html',
+    styleUrls: ['./company-actions-modal.sass'],
     host: {'class': 'uni-redesign'}
 })
-export class AfterActivationModal implements IUniModal {
+export class CompanyActionsModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 

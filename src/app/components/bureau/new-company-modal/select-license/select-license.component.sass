@@ -1,0 +1,31 @@
+.card
+    background-color: #f7f7f7
+    margin-top: 0.5rem
+    box-shadow: none
+    padding: unset
+
+    mat-radio-button ::ng-deep .mat-radio-outer-circle
+        background-color: white
+
+    mat-radio-button ::ng-deep label
+        padding: 16px
+
+    mat-radio-button ::ng-deep label, mat-radio-button ::ng-deep .mat-radio-label-content, .radio-label
+        width: 100%
+        font-size: 14px
+
+        div
+            display: inline-block
+
+        .radio-label-left
+            width: 65%
+
+        .radio-label-right
+            width: 35%
+
+            .license-type-label
+                color: grey
+
+.card-selected, .card:hover
+    background-color: #D5EEF6
+    outline: 0.1rem solid #3f76db

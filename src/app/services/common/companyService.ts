@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Company} from '../../unientities';
+import {Company, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 
 @Injectable()
@@ -13,6 +13,21 @@ export class CompanyService extends BizHttp<Company> {
 
         // Tell BizHttp to only clear cache on logout (not company change)
         this.cacheSettings.clearOnlyOnLogout = true;
+    }
+
+    createCompany(companyName: string, companySettings: CompanySettings, contractID: number, productNames: string) {
+        return this.http
+            .asPUT()
+            .withEndPoint('companies?action=create-company')
+            .withBody({
+                CompanyName: companyName,
+                CompanySettings: companySettings,
+                ContractID: contractID,
+                ProductNames: productNames
+            })
+            .send()
+            .do(() => super.invalidateCache())
+            .map(response => response.json());
     }
 
     public updateCompanyClientNumber(companyID: number, clientNumber: number, key) {

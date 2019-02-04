@@ -1,10 +1,9 @@
 import {Component, ViewChild, ElementRef} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router, ActivationEnd} from '@angular/router';
-import {UniModalService} from '../../../framework/uni-modal/modalService';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
-import {UniNewCompanyModal} from './newCompanyModal';
+import {UniNewCompanyModal} from './new-company-modal/newCompanyModal';
 import {GrantAccessModal} from './grant-access-modal/grant-access-modal';
 import {KpiCompany} from './kpiCompanyModel';
 import {BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
@@ -19,6 +18,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
+import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
 import { DeleteCompanyModal } from './delete-company-modal/delete-company-modal';
 
 
@@ -418,7 +418,9 @@ export class BureauDashboard {
                     this.companies.unshift(company);
                     this.companies = [...this.companies];
                     this.filterCompanies();
-                    doneCallback(`Selskap ${company.Name} opprettet`);
+                    this.authService.setActiveCompany(company);
+                    this.uniModalService.open(CompanyActionsModal, <IModalOptions>{ header: `${company.Name} opprettet!` });
+                    doneCallback(`${company.Name} opprettet!`);
                 }
             });
     }
