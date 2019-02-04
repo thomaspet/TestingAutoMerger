@@ -965,7 +965,7 @@ export class BankComponent implements AfterViewInit {
                     if (sum <= 0) {
                         errorMessages.push(`Det er noen rader med betalingsdato ${paymentDate}
                         til konto ${toBankAccountAccountNumber} hvor beløp ikke er større enn 0 (sum er ${sum}). Vennligst
-                        endre betalingsdate på rader med minusbeløp til samme betalingsdato slik at sum blir positiv.<br><br>`);
+                        endre betalingsdato på rader med minusbeløp til samme betalingsdato slik at sum blir positiv.<br><br>`);
                     }
                 });
             }
