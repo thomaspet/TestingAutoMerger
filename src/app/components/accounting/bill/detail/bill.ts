@@ -2894,7 +2894,7 @@ export class BillView implements OnInit {
     public saveAndReject(done) {
         let obs;
         const current = this.current.getValue();
-        if (!current.SupplierID) {
+        if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
             current.Supplier = null;
         }
         if (current.ID) {
@@ -2903,12 +2903,14 @@ export class BillView implements OnInit {
             if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
               current.JournalEntry = null;
             }
-            if (!current.SupplierID) {
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                 current.Supplier = null;
+            } else if (current.SupplierID && (current.Supplier && current.Supplier['_createguid'])) {
+                current.SupplierID = null;
             }
             obs = this.supplierInvoiceService.Put(current.ID, current);
         } else {
-            if (!current.SupplierID) {
+            if (!current.SupplierID && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                 current.Supplier = null;
             }
             obs = this.supplierInvoiceService.Post(current);
@@ -2959,12 +2961,17 @@ export class BillView implements OnInit {
                             line.VatDeductionPercent = 0;
                         }
                     });
-                    if (!current.SupplierID) {
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
+                    } else if (current.SupplierID
+                            && (current.Supplier && current.Supplier['_createguid'])) {
+                            current.SupplierID = null;
                     }
                     obs = this.supplierInvoiceService.Put(current.ID, current);
                 } else {
-                    if (!current.SupplierID) {
+                    if (!current.SupplierID
+                        && (!current.Supplier || (current.Supplier && !current.Supplier['_createguid']))) {
                         current.Supplier = null;
                     }
                     obs = this.supplierInvoiceService.Post(current);
@@ -3655,7 +3662,7 @@ export class BillView implements OnInit {
     private tryUpdateCostAllocationData(invoice) {
         var currentCostAllocationData = this.costAllocationData$.getValue();
         if (invoice.TaxInclusiveAmountCurrency != currentCostAllocationData.CurrencyAmount ||
-            invoice.CurrencyExchangeRate != currentCostAllocationData.ExchangeRate || 
+            invoice.CurrencyExchangeRate != currentCostAllocationData.ExchangeRate ||
             invoice.CurrencyCodeID != currentCostAllocationData.CurrencyCodeID ||
             invoice.DeliveryDate != currentCostAllocationData.FinancialDate ||
             invoice.InvoiceDate != currentCostAllocationData.VatDate) {
@@ -3672,7 +3679,7 @@ export class BillView implements OnInit {
     private tryAddCostAllocation() {
         const current = this.current.getValue();
         if (current.SupplierID > 0 && current.TaxInclusiveAmountCurrency != 0) {
-            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, current.DeliveryDate, current.InvoiceDate, false);            
+            this.journalEntryManual.addCostAllocationForSupplier(current.SupplierID, current.TaxInclusiveAmountCurrency, current.CurrencyCodeID, current.CurrencyExchangeRate, current.DeliveryDate, current.InvoiceDate, false);
         }
     }
 

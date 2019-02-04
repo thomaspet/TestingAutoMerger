@@ -155,7 +155,6 @@ export class UserManagement {
     openInviteUserModal() {
         this.modalService.open(InviteUsersModal).onClose.subscribe(userInvited => {
             if (userInvited) {
-                this.userService.invalidateCache();
                 this.loadUsers();
             }
         });

@@ -19,4 +19,5 @@ export interface IUniSearchConfig {
     maxResultsLength?: number;
     unfinishedValueFn?: (val: any) => Observable<any>;
     searchType1880?: SearchType1880;
+    disableSearchButton?: boolean;
 }

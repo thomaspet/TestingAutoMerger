@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
+import { switchMap, map } from 'rxjs/operators';
 
 @Injectable()
 export class UserService extends BizHttp<User> {
@@ -40,6 +41,22 @@ export class UserService extends BizHttp<User> {
     public Put(id: number, entity: any): Observable<any> {
         this.userObservable = undefined; // invalidate cache
         return super.Put(id, entity);
+    }
+
+    inviteUser(email: string) {
+        return this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications')
+            .withBody({Email: email})
+            .send()
+            .pipe(
+                switchMap(() => {
+                    super.invalidateCache();
+                    return this.GetAll().pipe(
+                        map(users => users.find(u => u.Email === email))
+                    );
+                })
+            );
     }
 
     public getRolesByUserId(id: number) {

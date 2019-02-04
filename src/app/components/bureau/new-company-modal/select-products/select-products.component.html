@@ -1,0 +1,14 @@
+<mat-grid-list cols="4" rowHeight="1:1">
+    <mat-grid-tile *ngFor="let product of products">
+        <mat-card [ngClass]="{'card-selected': product['_selected']}"
+                (click)="onSelectionChange(product)"
+                matBadge
+                [matBadgeHidden]="!product['_selected']"
+                matBadgeIcon="check">
+            <mat-card-content>
+                <img [src]="product.iconReference">
+                <div class="label">{{product.label}}</div>
+            </mat-card-content>
+        </mat-card>
+    </mat-grid-tile>
+</mat-grid-list>

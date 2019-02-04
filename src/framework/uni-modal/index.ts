@@ -24,6 +24,7 @@ import {SubCompanyModal} from './modals/subCompanyModal';
 import {UniEditFieldModal} from './modals/editFieldModal';
 import {ProductPurchasesModal} from './modals/product-purchases-modal/product-purchases-modal';
 import {UniAutobankAgreementModal} from './modals/autobankAgreementModal';
+import {CompanyActionsModal} from './modals/company-actions-modal/company-actions-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -52,6 +53,7 @@ export * from './modals/choose-report-modal/chooseReportModal';
 export * from './modals/editFieldModal';
 export * from './modals/product-purchases-modal/product-purchases-modal';
 export * from './modals/autobankAgreementModal';
+export * from './modals/company-actions-modal/company-actions-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -79,6 +81,7 @@ export const MODALS = [
     SubCompanyModal,
     UniEditFieldModal,
     ProductPurchasesModal,
-    UniAutobankAgreementModal
+    UniAutobankAgreementModal,
+    CompanyActionsModal,
 ];
 

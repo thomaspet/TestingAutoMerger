@@ -7,7 +7,6 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 
 // import {CanDeactivateGuard} from '@app/canDeactivateGuard';
 import {ContractActivation} from './contract-activation';
-import {AfterActivationModal} from './after-activation-modal/after-activation-modal';
 
 import {
     MatCheckboxModule, MatStepperModule
@@ -35,8 +34,7 @@ const routes = [{
     ],
     declarations: [
         ContractActivation,
-        AfterActivationModal
     ],
-    entryComponents: [AfterActivationModal]
+    entryComponents: []
 })
 export class ContractActivationModule {}
