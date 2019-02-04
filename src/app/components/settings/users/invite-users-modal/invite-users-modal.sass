@@ -1,18 +1,59 @@
-\:host
-    margin: 10rem auto auto !important
-
 .uni-modal
-    width: 30rem
+    width: 35rem
+
+    > article
+        padding: 1rem 0 0
 
 input
     display: block
-    width: 100%
+    width: calc(100% - 6rem)
     height: 3rem
+    margin: 0 3rem 1rem
 
     &.invalid
         border: 1px solid #d24d57
 
-small
+small.validation-error
     display: block
+    padding: 0 3rem
     margin: 8px 8px 0
     color: #d24d57
+
+ul.product-list
+    list-style: none
+
+    > li
+        padding: 10px 5px
+        border-bottom:  1px solid #ccc
+
+        i.material-icons
+            vertical-align: middle
+
+ul.role-list
+    list-style: none
+    margin: 1rem 0 2rem
+
+#product-wrapper
+    max-height: calc(100vh - 25rem)
+    overflow-y: scroll
+    padding: 1rem 3rem
+    margin-top: 2rem
+    border-top: 1px solid #E2E6F0
+    border-bottom: 1px solid #E2E6F0
+
+    > strong
+        display: block
+        margin: 1rem 0
+        font-weight: 500
+
+    mat-accordion
+        display: block
+
+    ::ng-deep
+        .mat-checkbox-label
+            font-size: 15px
+        .mat-list-item-content
+            padding-left: 31px
+
+.active-role-count
+    margin-left: auto

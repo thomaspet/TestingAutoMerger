@@ -1,8 +1,18 @@
 import {Component, EventEmitter, ViewChild, ElementRef} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {ErrorService} from '@app/services/services';
-import {UniHttp} from '@uni-framework/core/http/http';
+import {ErrorService, RoleService, ElsaProductService, UserService, UserRoleService} from '@app/services/services';
+import {forkJoin, Observable} from 'rxjs';
+import { ElsaProduct } from '@app/models';
+import { Role } from '@uni-entities';
+import { switchMap } from 'rxjs/operators';
+
+interface RoleGroup {
+    label: string;
+    roles: Role[];
+    product?: ElsaProduct;
+    productPurchased?: boolean;
+}
 
 @Component({
     selector: 'invite-users-modal',
@@ -18,12 +28,29 @@ export class InviteUsersModal implements IUniModal {
 
     busy: boolean;
     invalidInput: boolean;
+    missingRoles: boolean;
+
     emailControl: FormControl = new FormControl('', Validators.email);
+    roleGroups: RoleGroup[];
 
     constructor(
-        private http: UniHttp,
-        private errorService: ErrorService
-    ) {}
+        private errorService: ErrorService,
+        private userService: UserService,
+        private roleService: RoleService,
+        private userRoleService: UserRoleService,
+        private productService: ElsaProductService
+    ) {
+        this.busy = true;
+
+        forkJoin(
+            this.roleService.GetAll(),
+            this.productService.GetAll()
+        ).subscribe(
+            res => this.roleGroups = this.groupRolesByProduct(res[0], res[1]),
+            err => this.errorService.handle(err),
+            () => this.busy = false
+        );
+    }
 
     ngAfterViewInit() {
         if (this.emailInput && this.emailInput.nativeElement) {
@@ -31,30 +58,114 @@ export class InviteUsersModal implements IUniModal {
         }
     }
 
-    send() {
-        this.invalidInput = false;
-        if (this.isValidEmail()) {
-            this.busy = true;
-
-            this.http.asPOST()
-                .usingBusinessDomain()
-                .withEndPoint('user-verifications')
-                .withBody({Email: this.emailControl.value})
-                .send()
-                .map(response => response.json())
-                .subscribe(
-                    () => this.onClose.emit(true),
-                    err => {
-                        this.errorService.handle(err);
-                        this.busy = false;
-                    }
-                );
+    onProductPurchaseChange(group) {
+        if (group.productPurchased) {
+            group.roles[0]['_checked'] = true;
         } else {
-            this.invalidInput = true;
+            group.roles.forEach(role => role['_checked'] = false);
+        }
+
+        this.setActiveRoleCount(group);
+    }
+
+    onRoleClick(group, role) {
+        if (group.productPurchased) {
+            role['_checked'] = !role['_checked'];
+            this.setActiveRoleCount(group);
         }
     }
 
-    isValidEmail() {
-        return this.emailControl.value && this.emailControl.valid;
+    private setActiveRoleCount(group: RoleGroup) {
+        group['_activeRoleCount'] = group.roles.reduce((count, role) => {
+            return role['_checked'] ? count + 1 : count;
+        }, 0);
+    }
+
+    groupRolesByProduct(roles: Role[], products: ElsaProduct[]): RoleGroup[] {
+        roles = roles || [];
+        products = products || [];
+
+        const filteredProducts = products.filter(product => {
+            return product.productTypeName === 'Module' && product.name !== 'Complete';
+        });
+
+        const groups: RoleGroup[] = filteredProducts.map(product => {
+            return {
+                label: product.label,
+                roles: [],
+                selectedRoles: [],
+                product: product
+            };
+        });
+
+        // Fill the groups with roles
+        roles.forEach(role => {
+            const roleNameLowerCase = (role.Name || '').toLowerCase();
+
+            const groupsThatShouldHaveRole = groups.filter(group => {
+                const listOfRoles = group.product && group.product.listOfRoles || '';
+                return listOfRoles.trim().split(',').some(roleName => {
+                    return roleName.toLowerCase() === roleNameLowerCase;
+                });
+            });
+
+            if (groupsThatShouldHaveRole.length) {
+                groupsThatShouldHaveRole.forEach(group => {
+                    group.roles.push(role);
+                });
+            }
+        });
+
+        return groups.filter(group => group.roles && group.roles.length);
+    }
+
+    send() {
+        const products = [];
+        const roles = [];
+
+        this.roleGroups.forEach(group => {
+            if (!group.product || group.productPurchased) {
+                const checkedRoles = group.roles.filter(role => role['_checked']);
+                if (checkedRoles.length) {
+                    roles.push(...checkedRoles);
+                    if (group.product) {
+                        products.push(group.product);
+                    }
+                }
+            }
+        });
+
+        this.missingRoles = !roles.length;
+        this.invalidInput = !this.emailControl.value || !this.emailControl.valid;
+
+        if (!this.missingRoles && !this.invalidInput) {
+            this.busy = true;
+
+            this.userService.inviteUser(this.emailControl.value).pipe(
+                switchMap(user => this.addUserRoles(user, roles))
+            ).subscribe(
+                () => this.onClose.emit(true),
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                }
+            );
+        }
+    }
+
+    private addUserRoles(user, roles: Role[]) {
+        if (user && roles && roles.length) {
+            const userRoles = roles.map(role => {
+                return {
+                    UserID: user.ID,
+                    SharedRoleId: role.ID,
+                    SharedRoleName: role.Name
+                };
+            });
+
+            return this.userRoleService.bulkUpdate(userRoles);
+        }
+
+        return Observable.throw('Brukeren er invitert, men setting av roller feilet');
     }
 }

@@ -104,3 +104,42 @@ mat-tree
 
             &[aria-selected]:not([aria-selected=false])
                 background-color: #f0f0f0
+
+
+mat-expansion-panel
+    box-shadow: none !important
+    border: 1px solid $uni-color-scale9
+    border-radius: 0 !important
+    margin-bottom: 16px !important
+
+    .mat-expansion-panel-body
+        padding: 0 10px 10px
+        border-top: 1px solid $uni-color-scale9
+
+    mat-expansion-panel-header
+        border-radius: 0
+        padding: 0 15px !important
+
+        .mat-checkbox-inner-container
+            margin-right: 10px
+            margin-bottom: 5px
+
+        .panel-toggle
+            margin-right: 5px
+
+        .panel-right
+            margin: auto 0 auto auto
+            button
+                padding: 1px 10px 0
+                margin: 0
+                color: #1565c0
+                font-size: 14px
+
+                &.red
+                    color: #f53b57
+
+                &[disabled]
+                    background-color: unset
+
+    mat-panel-title
+        margin: auto 0
