@@ -424,10 +424,17 @@ export class JournalEntryManual implements OnChanges, OnInit {
         switch (rowfield.Field) {
             case 'CostAllocation':
                 this.currentJournalEntryData = rowfield.JournalEntryData;
+
+                var useAccount = rowfield.JournalEntryData.CreditAccount &&
+                                 rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup && 
+                                 rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup.GroupNumber == "3"
+                                 ? rowfield.JournalEntryData.CreditAccountID
+                                 : rowfield.JournalEntryData.DebitAccountID;
+
                 this.addCostAllocationForCostAllocation(
                     rowfield.JournalEntryData.CostAllocation.ID,
-                    rowfield.JournalEntryData.DebitAccountID,
-                    rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                    useAccount,
+                    rowfield.JournalEntryData.AmountCurrency || (this.costAllocationData ? this.costAllocationData.CurrencyAmount : null),
                     this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
                     this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
                     this.costAllocationData ? this.costAllocationData.FinancialDate : null,
@@ -450,7 +457,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 } else {
                     this.addCostAllocationForAccount(
                         rowfield.JournalEntryData.DebitAccountID,
-                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData ? this.costAllocationData.CurrencyAmount : null,
+                        rowfield.JournalEntryData.AmountCurrency || (this.costAllocationData ? this.costAllocationData.CurrencyAmount : null),
                         this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null,
                         this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
                         this.costAllocationData ? this.costAllocationData.FinancialDate : null,
@@ -470,11 +477,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
                 } else {
                     this.addCostAllocationForAccount(
                         rowfield.JournalEntryData.CreditAccountID, 
-                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
-                        this.costAllocationData.CurrencyCodeID, 
-                        this.costAllocationData.ExchangeRate, 
-                        this.costAllocationData.FinancialDate, 
-                        this.costAllocationData.VatDate, 
+                        rowfield.JournalEntryData.AmountCurrency || (this.costAllocationData ? this.costAllocationData.CurrencyAmount : null), 
+                        this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null, 
+                        this.costAllocationData ? this.costAllocationData.ExchangeRate : null, 
+                        this.costAllocationData ? this.costAllocationData.FinancialDate : null, 
+                        this.costAllocationData ? this.costAllocationData.VatDate : null, 
                         true);
                 }
         }
@@ -501,6 +508,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
+        if (!currencyAmount || currencyAmount === 0) return;
         this.accountService.Get(accountID, ['CostAllocation']).subscribe(account => {
             if (account.CostAllocationID) {
                 this.costAllocationService.getDraftLinesByAccountID(accountID, accountID, currencyAmount, currencyCodeID, currencyExchangeRate, financialDate, vatDate).subscribe(draftlines => {
