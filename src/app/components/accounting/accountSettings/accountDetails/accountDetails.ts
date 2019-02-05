@@ -301,6 +301,14 @@ export class AccountDetails implements OnInit {
                     FieldType: FieldType.AUTOCOMPLETE,
                     Label: 'Fordelingsnøkkel'
                 },
+                {
+                    FieldSet: 2,
+                    Legend: 'Detaljer',
+                    EntityType: 'Account',
+                    Property: 'DoSynchronize',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Synkronisér'
+                },
                 // Fieldset 3 (vatdeduction)
                 {
                     FieldSet: 3,

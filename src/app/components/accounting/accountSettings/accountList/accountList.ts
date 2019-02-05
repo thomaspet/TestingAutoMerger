@@ -124,9 +124,15 @@ export class AccountList implements OnInit, AfterViewInit {
                 }
             });
 
+        const doSynchronizeCol = new UniTableColumn('DoSynchronize', 'Synkronisér', UniTableColumnType.Boolean)    
+            .setFilterable(true)
+            .setWidth('5rem')
+            .setAlignment('center')
+            ;
+
         // Setup table
         this.accountTable = new UniTableConfig('accounting.accountSettings.accountList', false, true, 15)
             .setSearchable(true)
-            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, visibilityCol, lockedCol]);
+            .setColumns([accountNumberCol, accountNameCol, accountGroupNameCol, vatTypeCol, visibilityCol, lockedCol, doSynchronizeCol]);
     }
 }
