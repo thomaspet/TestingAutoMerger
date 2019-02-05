@@ -192,12 +192,15 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public getValidations(entity: any): string[] {
-        return entity
+        if (entity && entity.arbeidsforhold) {
+            return entity
             .employees
             .map(emp => emp.arbeidsforhold)
-            .reduce((acc, curr) => [...acc, ...curr])
+            .reduce((acc, curr) => [...acc, ...curr], [])
             .map(empl => empl.validations)
-            .reduce((acc, curr) => [...acc, ...curr]);
+            .reduce((acc, curr) => [...acc, ...curr], []);
+        }
+        return [];
     }
 
     public getAvvikIAmeldingen(amelding: any): any[] {
