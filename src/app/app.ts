@@ -22,6 +22,10 @@ import {KeyCodes} from '@app/services/common/keyCodes';
 import {Observable} from 'rxjs/Rx';
 import {Router} from '@angular/router';
 
+import {LicenseManager} from 'ag-grid-enterprise';
+LicenseManager.setLicenseKey
+('Evaluation_License-_Not_For_Production_Valid_Until_14_March_2019__MTU1MjUyMTYwMDAwMA==8917c155112df433b2b09086753e8903');
+
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
 @Component({

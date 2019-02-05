@@ -208,6 +208,10 @@ export class UniTickerContainer {
         this.mainTicker.exportToExcel(completeEvent);
     }
 
+    public turnGroupingOnOff() {
+        this.mainTicker.turnGroupingOnOff();
+    }
+
     public runAction(action) {
         if (this.mainTicker) {
             this.mainTicker.onExecuteAction(action);

@@ -125,6 +125,9 @@ export class UniTableColumn implements IUniTableColumn {
     public onCellClick: (rowModel) => void;
     public maxLength: number;
     public resizeable: boolean = true;
+    public rowGroup?: boolean;
+    public enableRowGroup?: boolean;
+    public enablePivot?: boolean;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -181,6 +184,16 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setResizeable(resizeable: boolean) {
         this.resizeable = resizeable;
+        return this;
+    }
+
+    public setRowGroup(rowGroup: boolean) {
+        this.rowGroup = rowGroup;
+        return this;
+    }
+
+    public setEnableRowGroup(enableRowGroup: boolean) {
+        this.enableRowGroup = enableRowGroup;
         return this;
     }
 

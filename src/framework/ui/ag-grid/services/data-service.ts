@@ -2,10 +2,10 @@ import {Injectable} from '@angular/core';
 import {URLSearchParams} from '@angular/http';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../unitable/config/unitableColumn';
 import {UniTableConfig} from '../../unitable/config/unitableConfig';
-import {GridApi, IDatasource, IGetRowsParams} from 'ag-grid-community';
+import {GridApi, IDatasource, IGetRowsParams, IServerSideDatasource, IServerSideGetRowsParams} from 'ag-grid-community';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
 import {StatisticsService} from '@app/services/common/statisticsService';
-
+import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -37,18 +37,22 @@ export class TableDataService {
     // Only maintained for inifinite scroll tables!
     private rowCountOnRemote: number;
 
-    constructor(private statisticsService: StatisticsService) {}
+    constructor(private statisticsService: StatisticsService, private http: UniHttp) {}
 
     public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
         this.gridApi = gridApi;
-        this.config = config;
 
-        this.filterString = undefined;
-        this.setFilters(config.filters, [], false);
+        if (!this.config || this.config.configStoreKey !== config.configStoreKey) {
+            this.filterString = undefined;
+            this.setFilters(config.filters, [], false);
+        }
+
+        this.config = config;
 
         if (Array.isArray(resource)) {
             this.originalData = this.setMetadata(resource);
-            const filteredData = this.filterLocalData(this.originalData);
+            // Don't filter locally when grouping is on!
+            const filteredData = this.config.groupingIsOn ? this.originalData  : this.filterLocalData(this.originalData);
             this.loadedRowCount = filteredData.length;
             this.totalRowCount$.next(this.loadedRowCount);
 
@@ -461,7 +465,7 @@ export class TableDataService {
         advancedSearchFilters: ITableFilter[] = [],
         basicSearchFilters: ITableFilter[] = [],
         refreshTableData: boolean = true
-    ): void {
+    ): any {
         // Dont use filters that are missing field or operator.
         // This generally means the user is not done creating them yet
         advancedSearchFilters = advancedSearchFilters.filter(f => !!f.field && !!f.operator);
@@ -501,6 +505,8 @@ export class TableDataService {
 
         if (refreshTableData) {
             this.refreshData();
+        } else {
+            return this.filterString;
         }
     }
 

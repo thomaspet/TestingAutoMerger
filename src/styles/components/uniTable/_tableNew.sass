@@ -42,6 +42,15 @@ ag-grid-angular
         border-left: $table-border-style
         border-right: $table-border-style
 
+    .ag-row-group
+        font-style: italic
+        font-weight: bold
+        .table-link
+            text-decoration: none !important
+            cursor: default
+            &:hover
+                background: transparent
+
 ag-grid-wrapper:not(.selection-list)
     .ag-header
         border-left: none
@@ -75,6 +84,8 @@ ag-grid-angular.col-menu-hidden
 
 .ag-cell
     line-height: 35px
+    > span
+        display: flex
 .ag-header-cell
     line-height: 35px // 40px
 

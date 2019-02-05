@@ -1,13 +1,13 @@
 <section *ngIf="ticker && prefetchDataLoaded && canShowTicker">
     <!-- Main ticker header -->
     <section *ngIf="!parentModel; else subTickerHeader" class="ticker-horizontal-menu">
+        <!--<a (click)="turnGroupingOnOff()">Slå av/på gruppering</a>-->
         <a *ngFor="let action of getTickerActions()"
             (click)="onExecuteAction(action)"
             [hidden]="action.DisplayInActionBar != null && !action.DisplayInActionBar">
             {{action.Name}}
         </a>
     </section>
-
     <!-- Sub ticker header (ng else) -->
     <ng-template #subTickerHeader>
         <header class="sub-ticker-header">
@@ -39,12 +39,21 @@
 
     <section class="ticker-data">
         <section class="data-container">
-            <ag-grid-wrapper *ngIf="ticker.Type === 'table'"
+            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
                 [resource]="lookupFunction"
                 [columnSumResolver]="columnSumResolver"
                 [config]="tableConfig"
                 (columnsChange)="onColumnsChange($event)"
                 (rowSelectionChange)="onRowSelectionChange($event)"
+                (rowClick)="onRowClick($event)">
+            </ag-grid-wrapper>
+
+            <ag-grid-wrapper *ngIf="ticker.Type === 'table' && groupingIsOn"
+                [resource]="resource"
+                [columnSumResolver]="columnSumResolver"
+                [config]="tableConfig"
+                (rowSelectionChange)="onRowSelectionChange($event)"
+                (filtersChangeWhileGroup)="filtersChangeWhileGroup($event)"
                 (rowClick)="onRowClick($event)">
             </ag-grid-wrapper>
 
