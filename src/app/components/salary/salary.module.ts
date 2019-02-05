@@ -123,6 +123,7 @@ import {
 } from './salarybalance/template/salarybalance-template-employee-list/salarybalance-template-employee-list.component';
 import { OTPExportComponent } from './otpexport/otpexport.component';
 import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter-modal.component';
+import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail-options/paycheck-mail-options.component';
 
 @NgModule({
     imports: [
@@ -240,6 +241,7 @@ import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter
         // OTP
         OTPExportComponent,
         OtpFilterModalComponent,
+        PaycheckMailOptionsComponent,
     ],
     entryComponents: [
         TaxCardModal,

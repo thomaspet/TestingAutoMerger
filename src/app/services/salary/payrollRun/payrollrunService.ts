@@ -33,6 +33,18 @@ export enum PayrollRunPaymentStatus {
     Paid = 3
 }
 
+export interface IPaycheckEmailInfo {
+    ReportID?: number;
+    Subject?: string;
+    Message?: string;
+    GroupByWageType?: boolean;
+}
+
+export interface IPaycheckReportSetup {
+    EmpIDs: number[];
+    Mail: IPaycheckEmailInfo;
+}
+
 @Injectable()
 export class PayrollrunService extends BizHttp<PayrollRun> {
 
@@ -240,8 +252,8 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
         return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
-    public emailPaychecks(emps: Employee[], runID: number, grouping: boolean = false) {
-        return super.ActionWithBody(runID, emps, 'email-paychecks', RequestMethod.Put, `grouped=${grouping}`);
+    public emailPaychecks(runID: number, setup: IPaycheckReportSetup) {
+        return super.ActionWithBody(runID, setup, 'email-paychecks', RequestMethod.Put);
     }
 
 
