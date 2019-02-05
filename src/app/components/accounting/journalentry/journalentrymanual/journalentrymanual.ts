@@ -457,8 +457,26 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         this.costAllocationData ? this.costAllocationData.VatDate : null,
                         true);
                 }
-
                 break;
+            case 'CreditAccount':
+                if (rowfield.JournalEntryData['_costAllocationTime']) {
+                    lines.map(line => {
+                        if (rowfield.JournalEntryData['_costAllocationTime'] == line['_costAllocationTime'] && !line.CreditAccountID) {
+                            line.CreditAccountID = rowfield.JournalEntryData.CreditAccountID;
+                            line.CreditAccount = rowfield.JournalEntryData.CreditAccount;
+                        }
+                    });
+                    this.setJournalEntryData(lines);
+                } else {
+                    this.addCostAllocationForAccount(
+                        rowfield.JournalEntryData.CreditAccountID, 
+                        rowfield.JournalEntryData.AmountCurrency || this.costAllocationData.CurrencyAmount, 
+                        this.costAllocationData.CurrencyCodeID, 
+                        this.costAllocationData.ExchangeRate, 
+                        this.costAllocationData.FinancialDate, 
+                        this.costAllocationData.VatDate, 
+                        true);
+                }
         }
     }
 
