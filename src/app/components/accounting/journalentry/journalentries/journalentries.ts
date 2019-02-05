@@ -331,14 +331,11 @@ export class JournalEntries {
             if (this.currentJournalEntryNumber) {
                 const split = this.currentJournalEntryNumber.split('-');
                 journalEntryNumber = split[0];
-                year = split[1];
             }
 
-            if (!year) {
-                year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
-                    ? this.journalEntryManual.currentFinancialYear.Year.toString()
-                    : '';
-            }
+            year = this.journalEntryManual && this.journalEntryManual.currentFinancialYear
+                ? this.journalEntryManual.currentFinancialYear.Year.toString()
+                : '';
 
             this.journalEntryService.getNextJournalEntry(year, journalEntryNumber || null).subscribe(
                 res => {
