@@ -541,9 +541,13 @@ ag-grid-angular@^19.0.0:
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-angular/-/ag-grid-angular-19.0.0.tgz#6869d2e6527d00562174d9ec27513d0ef6a31743"
 
-ag-grid-community@^19.0.0:
+ag-grid-community@19.0.0:
   version "19.0.0"
   resolved "https://registry.yarnpkg.com/ag-grid-community/-/ag-grid-community-19.0.0.tgz#b0909835c63bdeef54047bf27ab16a10fdf61ed0"
+
+ag-grid-enterprise@19.0.0:
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/ag-grid-enterprise/-/ag-grid-enterprise-19.0.0.tgz#ae8dcc5db81108e5344a45a28d06c242393c3384"
 
 agent-base@^4.1.0:
   version "4.2.1"
