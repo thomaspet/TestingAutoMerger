@@ -88,6 +88,10 @@ export class AccountDetails implements OnInit {
         }
     }
 
+    public onChange(event) {
+        this.changeEvent.emit();
+    }
+
     private extendFormConfig() {
         const fields = this.fields$.getValue();
         const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
