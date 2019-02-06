@@ -160,7 +160,18 @@ export class AccountDetails implements OnInit {
                 }
             }
         };
+        this.setSynchronizeVisibility(account, fields);
         this.fields$.next(fields);
+    }
+
+    private setSynchronizeVisibility(account: Account, fields) {
+        if (!account) return; 
+        const doSynchronize: UniFieldLayout = fields.find(x => x.Property === 'DoSynchronize');
+        if (account.AccountSetupID) {
+            doSynchronize.Hidden = false;
+        } else {
+            doSynchronize.Hidden = true;
+        }
     }
 
     public getAccount(ID: number) {
