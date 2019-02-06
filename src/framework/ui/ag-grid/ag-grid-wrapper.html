@@ -14,7 +14,7 @@
     (click)="expandCollapseAll()"
     style="float: right; margin: 0 1rem 0 0;">
     <i class="material-icons" style="vertical-align: middle; margin-bottom: 2px">
-        {{ allIsExpanded ? 'unfold_less' : 'unfold_more' }}
+        {{ allIsExpanded ? 'close' : 'menu' }}
     </i>
     {{ allIsExpanded ? 'Lukk' : 'Åpne' }} alle grupper
 </a>
@@ -34,7 +34,8 @@
         [ngClass]="{
             'editable': config?.editable,
             'col-menu-hidden': config && !config.columnMenuVisible,
-            'ag-theme-balham': config?.groupingIsOn
+            'ag-theme-balham': config?.groupingIsOn,
+            'grouping-class': config?.groupingIsOn
         }"
         [columnDefs]="agColDefs"
         [getRowClass]="rowClassResolver"
@@ -42,7 +43,7 @@
         [suppressPropertyNamesCheck]="true"
 
         [rowModelType]="rowModelType"
-        [domLayout]="localData ? 'autoHeight' : 'normal'"
+        [domLayout]="(localData && !config?.groupingIsOn) ? 'autoHeight' : 'normal'"
 
         [getRowNodeId]="getRowIdentifier"
         [enableColResize]="true"
@@ -83,7 +84,7 @@
         [frameworkComponents]="cellRendererComponents">
     </ag-grid-angular>
 
-    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1">
+    <section class="pagination" *ngIf="usePagination && paginationInfo?.pageCount > 1  && !config?.groupingIsOn">
         <i class="material-icons" (click)="paginate('first')">first_page</i>
         <i class="material-icons" (click)="paginate('prev')">keyboard_arrow_left</i>
 

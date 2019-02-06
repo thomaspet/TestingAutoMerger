@@ -223,6 +223,12 @@ export class AgGridWrapper {
     public onAgGridReady(event: GridReadyEvent) {
         this.agGridApi = event.api;
         this.agGridApi.sizeColumnsToFit();
+        if (this.config.groupingIsOn) {
+            const doc = document.getElementsByClassName('ag-column-drop-empty-message');
+            if (doc && doc.length) {
+                doc[0].innerHTML = 'Dra kolonner her for å gruppere';
+            }
+        }
         this.initialize();
     }
 
@@ -952,7 +958,7 @@ export class AgGridWrapper {
         };
 
         obj.shouldRowBeSkipped = function(params) {
-            if (params.node.group) {
+            if (params.node.group && !params.node.leafGroup) {
                 return false;
             } else if (params.node.parent && params.node.parent.expanded) {
                 return false;
