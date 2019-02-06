@@ -271,26 +271,28 @@ export class EmploymentDetails implements OnChanges {
 
         if (changes['EndDate']) {
             const enddate: LocalDate = changes['EndDate'].currentValue;
-            const includedate = moment(new Date()).add(2, 'months');
-            const obs = this.modalService
-            .confirm({
-                header: 'Oppdater Slutttdato OTP',
-                message: 'Vil du også oppdatere sluttdato OTP?',
-                buttonLabels: {
-                    accept: 'Ja, oppdater sluttdato OTP',
-                    cancel: 'Nei, setter den selv'
-                }
-            })
-            .onClose;
-            return obs
-                .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
-                .switchMap(() => Observable.of(this.employee))
-                .subscribe((employee) => {
-                    employee.EndDateOtp = enddate;
-                    employee.IncludeOtpUntilMonth = includedate.month() + 1;
-                    employee.IncludeOtpUntilYear = includedate.year();
-                    this.employeeChange.emit(employee);
-                });
+            if (!!enddate) {
+                const includedate = moment(new Date()).add(2, 'months');
+                const obs = this.modalService
+                .confirm({
+                    header: 'Oppdater Slutttdato OTP',
+                    message: 'Vil du også oppdatere sluttdato OTP?',
+                    buttonLabels: {
+                        accept: 'Ja, oppdater sluttdato OTP',
+                        cancel: 'Nei, setter den selv'
+                    }
+                })
+                .onClose;
+                return obs
+                    .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                    .switchMap(() => Observable.of(this.employee))
+                    .subscribe((employee) => {
+                        employee.EndDateOtp = enddate;
+                        employee.IncludeOtpUntilMonth = includedate.month();
+                        employee.IncludeOtpUntilYear = includedate.year();
+                        this.employeeChange.emit(employee);
+                    });
+            }
         }
     }
 

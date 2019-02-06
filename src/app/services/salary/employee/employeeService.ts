@@ -33,8 +33,17 @@ export class EmployeeService extends BizHttp<Employee> {
         'BusinessRelationInfo.BankAccounts',
     ];
 
+    private InternationalIDTypes: { ID: number, Name: string }[] = [
+        { ID: InternationalIDType.notSet, Name: 'Ikke valgt' },
+        { ID: InternationalIDType.Passportnumber, Name: 'Passnr'},
+        { ID: InternationalIDType.SocialSecurityNumber, Name: 'Social sec. nr'},
+        { ID: InternationalIDType.TaxIdentificationNumber, Name: 'Tax identit. nr'},
+        { ID: InternationalIDType.ValueAddedTaxNumber, Name: 'Value added nr'}
+    ];
+
     private  periods(): Array<any> {
         return [
+            {period: 0, name: 'Ikke valgt'},
             {period: 1, name: 'Januar'},
             {period: 2, name: 'Februar'},
             {period: 3, name: 'Mars'},
@@ -52,20 +61,13 @@ export class EmployeeService extends BizHttp<Employee> {
 
     private  otpStatus(): Array<any> {
         return [
-            {id: OtpStatus.A, name: 'A'},
-            {id: OtpStatus.S, name: 'S'},
-            {id: OtpStatus.P, name: 'P'},
-            {id: OtpStatus.LP, name: 'LP'},
-            {id: OtpStatus.AP, name: 'AP'},
+            {id: OtpStatus.A, name: 'Aktiv'},
+            {id: OtpStatus.S, name: 'Syk'},
+            {id: OtpStatus.P, name: 'Permittert'},
+            {id: OtpStatus.LP, name: 'Lovfestet Permisjon'},
+            {id: OtpStatus.AP, name: 'Avtalt Permisjon'},
         ];
     }
-    private InternationalIDTypes: { ID: number, Name: string }[] = [
-        { ID: InternationalIDType.notSet, Name: 'Ikke valgt' },
-        { ID: InternationalIDType.Passportnumber, Name: 'Passnr'},
-        { ID: InternationalIDType.SocialSecurityNumber, Name: 'Social sec. nr'},
-        { ID: InternationalIDType.TaxIdentificationNumber, Name: 'Tax identit. nr'},
-        { ID: InternationalIDType.ValueAddedTaxNumber, Name: 'Value added nr'}
-    ];
 
     private typeOfOtpPayments(): Array<any> {
         return [

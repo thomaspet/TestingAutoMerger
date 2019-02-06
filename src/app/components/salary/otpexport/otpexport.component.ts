@@ -49,6 +49,16 @@ export class OTPExportComponent implements OnInit {
     ];
   }
 
+  private statuses(): Array<any> {
+    return [
+      {short: 'A', full: 'Aktiv'},
+      {short: 'S', full: 'Syk'},
+      {short: 'P', full: 'Permittert'},
+      {short: 'LP', full: 'Lovfestet Permisjon'},
+      {short: 'AP', full: 'Avtalt Permisjon'}
+    ];
+  }
+
   constructor(
     private tabService: TabService,
     private modalService: UniModalService,
@@ -180,7 +190,10 @@ export class OTPExportComponent implements OnInit {
     const employmentpercentCol = new UniTableColumn('Stillingsprosent', 'Stillingsprosent', UniTableColumnType.Text);
     const periodsalarySumCol = new UniTableColumn('Periodelonn-belop', 'Periodelønn-beløp', UniTableColumnType.Money);
     const periodsalaryAmountCol = new UniTableColumn('Periodelonn-antall', 'Periodelønn-antall', UniTableColumnType.Number);
-    const statusPensionCol = new UniTableColumn('Status', 'Status pensjon', UniTableColumnType.Text);
+    const statusPensionCol = new UniTableColumn('Status', 'Status pensjon', UniTableColumnType.Text)
+    .setTemplate(rowModel => {
+      return this.statuses().find(s => s.short === rowModel.Status).full;
+    });
     this.otpTableConfig = new UniTableConfig('salary.otpexport.data', false, true)
       .setColumns([
         numberCol, nameCol, birthCol, departmentCol, addressCol, startdateCol, enddateCol, paymentformCol, yearwageCol,

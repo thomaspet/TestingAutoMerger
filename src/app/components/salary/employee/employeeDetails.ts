@@ -1019,6 +1019,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                 }
                 emp.BusinessRelationInfo = brInfo;
                 emp['_EmployeeSearchResult'] = undefined;
+
+                if (!emp.IncludeOtpUntilMonth) {
+                    emp.IncludeOtpUntilMonth = 0;
+                }
+                if (!emp.IncludeOtpUntilMonth) {
+                    emp.IncludeOtpUntilYear = 0;
+                }
                 return emp;
             })
             .switchMap(emp => !!emp.ID
@@ -1092,11 +1099,18 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         if (!employment['_isDirty']) {
                             return;
                         }
+
+                        if (employment.Dimensions && !employment.DimensionsID) {
+                            if (Object.keys(employment.Dimensions)
+                                .filter(x => x.indexOf('ID') > -1)
+                                .some(key => employment.Dimensions[key])) {
+                                    employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                            } else {
+                                employment.Dimensions = null;
+                            }
+                        }
                         employment.EmployeeID = employee.ID;
                         employment.EmployeeNumber = employee.EmployeeNumber;
-                        if (!employment.DimensionsID && employment.Dimensions) {
-                            employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
-                        }
                         employment.MonthRate = employment.MonthRate || 0;
                         employment.HourRate = employment.HourRate || 0;
                         employment.UserDefinedRate = employment.UserDefinedRate || 0;
@@ -1400,8 +1414,14 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         if (!leave['_isEmpty'] && (leave['_isDirty'] || leave.Deleted)) {
                             changeCount++;
 
-                            if (leave.Employment && !leave.Employment.DimensionsID && leave.Employment.Dimensions) {
-                                leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                            if (leave.Employment && leave.Employment.Dimensions && !leave.Employment.DimensionsID) {
+                                if (Object.keys(leave.Employment.Dimensions)
+                                    .filter(x => x.indexOf('ID') > -1)
+                                    .some(key => leave.Employment.Dimensions[key])) {
+                                        leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                                } else {
+                                    leave.Employment.Dimensions = null;
+                                }
                             }
 
                             const source = (leave.ID > 0)
