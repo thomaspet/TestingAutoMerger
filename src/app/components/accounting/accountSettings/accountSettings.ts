@@ -65,19 +65,21 @@ export class AccountSettings {
                 return;
             }
 
-            let doChange: boolean = true;
+            if (!this.hasChanges) {
+                this.changeRow(account);
+            }
 
-            if (this.hasChanges) {
-                if (!confirm('Du har gjort endringer som ikke er lagret, trykk avbryt hvis du vil lagre først!')) {
-                    doChange = false;
+            this.checkSave().then((success: boolean) => {
+                if (success) {
+                    this.changeRow(account);
                 }
-            }
-
-            if (doChange) {
-                this.account = account;
-                this.hasChanges = false;
-            }
+            })    
         }, 100);
+    }
+
+    private changeRow(account: Account) {
+        this.account = account;
+        this.hasChanges = false;
     }
 
     public change(account: Account) {
@@ -89,6 +91,43 @@ export class AccountSettings {
         this.hasChanges = false;
     }
 
+    private checkSave(): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            if (!this.hasChanges) {
+                resolve(true);
+                return;
+            }
+
+            this.modalService.confirm({
+                header: 'Ulagrede endringer',
+                message: 'Ønsker du å lagre endringer før vi fortsetter?',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast'/*,
+                    cancel: 'Avbryt'*/
+                }
+            }).onClose.subscribe(response => {
+                switch (response) {
+                    case ConfirmActions.ACCEPT:
+                        this.save()
+                            .then(() => resolve(true))
+                            .catch(() => resolve(false))
+                            ;
+                    break;
+                    case ConfirmActions.REJECT:
+                        resolve(true); // discard changes
+                    break;
+                    default:
+                        resolve(false);
+                    break;
+                }
+            });
+        });
+    }
+
+    private save(done?: any): Promise<boolean> {
+        return this.accountDetails.save(done);
+    }
     private saveSettings(completeEvent) {
         this.accountDetails.saveAccount(completeEvent);
     }
