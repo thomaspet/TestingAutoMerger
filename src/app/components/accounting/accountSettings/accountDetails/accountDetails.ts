@@ -177,6 +177,60 @@ export class AccountDetails implements OnInit {
             ]);
     }
 
+    public save(done?: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            const account = this.account$.getValue();
+            // Doing this to prevent "Foreignkey does not match parent ID" error:
+            if (account.AccountGroup && account.AccountGroupID !== account.AccountGroup.ID) {
+                account.AccountGroup = null;
+            }
+
+            if (!account.AccountNumber || !account.AccountName || !account.AccountGroupID) {
+                this.toastService.addToast(
+                    'Kan ikke lagre, mangler informasjon',
+                    ToastType.bad,
+                    ToastTime.medium,
+                    'Du må velge minimum kontonummer, navn og velge en kontogruppe før du kan lagre');
+                if (done) { done('Lagring feilet'); }   //completeEvent('Lagring feilet');
+                resolve(false);
+                return;
+            }
+
+            if (account.ID && account.ID > 0) {
+                this.accountService
+                    .Put(account.ID, account)
+                    .subscribe(
+                        (response) => {
+                            //completeEvent('Lagret');
+                            resolve(true);
+                            this.accountSaved.emit(account);
+                        },
+                        (err) => {
+                            //completeEvent('Feil ved lagring');
+                            resolve(false);
+                            this.errorService.handle(err);
+                        }
+                    );
+            } else {
+                this.accountService
+                    .Post(account)
+                    .subscribe(
+                        (response) => {
+                            //completeEvent('Lagret');
+                            resolve(true);
+                            this.accountSaved.emit(account);
+                        },
+                        (err) => {
+                            //completeEvent('Feil ved lagring');
+                            resolve(false);
+                            this.errorService.handle(err);
+                        }
+                    );
+            }            
+            return;
+        });
+        
+    }
 
     public saveAccount(completeEvent: any): void {
         const account = this.account$.getValue();
