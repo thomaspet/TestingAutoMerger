@@ -128,6 +128,11 @@ export class AccountList implements OnInit, AfterViewInit {
             .setFilterable(true)
             .setWidth('5rem')
             .setAlignment('center')
+            .setConditionalCls(rowModel => {
+                if(!rowModel.AccountSetupID) { 
+                    return 'is-na';
+                }
+            });
             ;
 
         // Setup table
