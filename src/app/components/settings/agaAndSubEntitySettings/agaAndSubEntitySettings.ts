@@ -27,6 +27,7 @@ import {
 import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 import { ToastService } from '@uni-framework/uniToast/toastService';
+import {VacationPayModal} from '@app/components/salary/payrollrun/modals/vacationpay/vacationPayModal';
 declare var _;
 
 @Component({
@@ -220,8 +221,6 @@ export class AgaAndSubEntitySettings implements OnInit {
             }
         };
 
-
-
         const mainAccountAlocatedAga = new UniFieldLayout();
         mainAccountAlocatedAga.Label = 'Konto avsatt aga';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
@@ -347,7 +346,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const vacationSettingsBtn = new UniFieldLayout();
         vacationSettingsBtn.Label = 'Innstillinger feriepenger';
-        vacationSettingsBtn.EntityType = 'mainOrganization';
+        vacationSettingsBtn.EntityType = 'CompanySalary';
         vacationSettingsBtn.Property = '_VacationSettingsBtn';
         vacationSettingsBtn.FieldType = FieldType.BUTTON;
         vacationSettingsBtn.Section = 2;
@@ -356,6 +355,20 @@ export class AgaAndSubEntitySettings implements OnInit {
             class: 'vacationSettingsButton',
             click: (event) => {
                 this.openVacationSettingsModal();
+            }
+        };
+
+        const vacationPayBtn = new UniFieldLayout();
+        vacationPayBtn.Label = 'Registrer feriepengegrunnlag';
+        vacationPayBtn.EntityType = 'CompanySalary';
+        vacationPayBtn.Property = '_VacationPayBtn';
+        vacationPayBtn.FieldType = FieldType.BUTTON;
+        vacationPayBtn.Section = 2;
+        vacationPayBtn.FieldSet = 2;
+        vacationPayBtn.Options = {
+            class: 'vacationSettingsButton',
+            click: (event) => {
+                this.openVacationPayModal();
             }
         };
 
@@ -502,6 +515,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             postTax,
             otpExportActive,
             vacationSettingsBtn,
+            vacationPayBtn,
             calculateFinancial,
             rateFinancialTax,
             financial,
@@ -521,7 +535,11 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public openVacationSettingsModal() {
-        this.modalService.open(VacationPaySettingsModal);
+        this.modalService.open(VacationPaySettingsModal, {data: {}});
+    }
+
+    public openVacationPayModal() {
+        this.modalService.open(VacationPayModal);
     }
 
     public saveButtonIsDisabled(isDisabled: boolean) {
@@ -582,18 +600,6 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     public toggleShowSubEntities() {
         this.showSubEntities = !this.showSubEntities;
-    }
-
-    public log(title: string, err) {
-        if (!title) {
-            title = '';
-        }
-        if (err._body) {
-            alert(title + ' ' + err._body);
-        } else {
-            alert(title + ' ' + JSON.stringify(err));
-        }
-
     }
 
     public companySalarychange(event: SimpleChanges) {
