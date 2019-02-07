@@ -43,6 +43,9 @@ export class TableDataService {
         this.gridApi = gridApi;
 
         if (!this.config || this.config.configStoreKey !== config.configStoreKey) {
+            if (!this.config) {
+                this.config = config;
+            }
             this.filterString = undefined;
             this.setFilters(config.filters, [], false);
         }
