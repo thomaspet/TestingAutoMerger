@@ -1525,12 +1525,12 @@ export class BusinessRelation extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public BankAccounts: Array<BankAccount>;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
     public Addresses: Array<Address>;
     public Phones: Array<Phone>;
     public Emails: Array<Email>;
+    public BankAccounts: Array<BankAccount>;
     public InvoiceAddress: Address;
     public ShippingAddress: Address;
     public DefaultPhone: Phone;
@@ -2371,9 +2371,9 @@ export class Employment extends UniEntity {
     public UserDefinedRate: number;
     public WorkingHoursScheme: WorkingHoursScheme;
     public WorkPercent: number;
-    public Dimensions: Dimensions;
     public Employee: Employee;
     public SubEntity: SubEntity;
+    public Dimensions: Dimensions;
     public Leaves: Array<EmployeeLeave>;
     public CustomFields: any;
 }
@@ -2615,10 +2615,10 @@ export class Employee extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserID: number;
-    public SubEntity: SubEntity;
-    public Employments: Array<Employment>;
     public BusinessRelationInfo: BusinessRelation;
+    public Employments: Array<Employment>;
     public VacationRateEmployees: Array<VacationRateEmployee>;
+    public SubEntity: SubEntity;
     public TaxCards: Array<EmployeeTaxCard>;
     public CustomFields: any;
 }
@@ -5900,8 +5900,8 @@ export class VatPost extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCodeGroupID: number;
-    public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
+    public VatCodeGroup: VatCodeGroup;
     public CustomFields: any;
 }
 
@@ -6166,6 +6166,7 @@ export class Account extends UniEntity {
     public CustomerID: number;
     public Deleted: boolean;
     public DimensionsID: number;
+    public DoSynchronize: boolean;
     public EmployeeID: number;
     public ID: number;
     public Locked: boolean;
@@ -6288,8 +6289,8 @@ export class BankAccount extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public Bank: Bank;
     public Account: Account;
+    public Bank: Bank;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6674,9 +6675,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
+    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
-    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -7048,6 +7049,20 @@ export class PostingSummary extends UniEntity {
     public SubEntity: SubEntity;
     public PayrollRun: PayrollRun;
     public PostList: Array<JournalEntryLine>;
+}
+
+
+export class PaycheckReportSetup extends UniEntity {
+    public EmpIDs: string;
+    public Mail: PaycheckEmailInfo;
+}
+
+
+export class PaycheckEmailInfo extends UniEntity {
+    public GroupByWageType: boolean;
+    public Message: string;
+    public ReportID: number;
+    public Subject: string;
 }
 
 
@@ -7670,6 +7685,13 @@ export class AltinnSigningTextResponse extends UniEntity {
 export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
     public Message: string;
     public Status: AltinnGetVatReportDataFromAltinnStatus;
+}
+
+
+export class AccountUsageReference extends UniEntity {
+    public Entity: string;
+    public EntityID: number;
+    public Info: string;
 }
 
 
