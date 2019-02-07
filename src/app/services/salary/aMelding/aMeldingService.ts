@@ -192,7 +192,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public getValidations(entity: any): string[] {
-        if (entity && entity.arbeidsforhold) {
+        if (entity && entity.employees) {
             return entity
             .employees
             .map(emp => emp.arbeidsforhold)

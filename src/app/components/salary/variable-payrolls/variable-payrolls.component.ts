@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
-    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate,
+    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Employment,
 } from '../../../unientities';
 import {
     UniCacheService,
@@ -479,8 +479,9 @@ export class VariablePayrollsComponent {
                 if (event.field === '_employee') {
                     if (row['_employee']) {
                         row.EmployeeID = row['_employee'].ID;
-                        if (row['_employee'].Employments && row['_employee'].Employments.length === 1) {
-                            row.employment = row['_employee'].Employments[0];
+                        if (row['_employee'].Employments && !row.employment) {
+                            row.employment = row['_employee'].Employments.find((e: Employment) => e.Standard);
+                            this.mapEmploymentToTrans(row);
                         }
                     }
                 }
@@ -733,15 +734,14 @@ export class VariablePayrollsComponent {
     public onSupplementModalClose(trans: SalaryTransaction) {
         if (trans && trans.Supplements && trans.Supplements.length) {
             this.updateSalaryChanged(trans, true);
+            this.updateNewOrChangedTable(trans);
         }
     }
 
     public rowChanged(event) {
         const row: SalaryTransaction = event.rowModel;
         this.updateSalaryChanged(row);
-        this.newOrChangedSalaryTransactions = this.newOrChangedSalaryTransactions
-            .filter(salaryTrans => salaryTrans['_originalIndex'] !== row['_originalIndex']);
-        this.newOrChangedSalaryTransactions = [...this.newOrChangedSalaryTransactions, row];
+        this.updateNewOrChangedTable(row);
 
         if (row['_isDirty']) {
             if (!row.ID && !row._createguid) {
@@ -754,6 +754,14 @@ export class VariablePayrollsComponent {
         if (!row.DimensionsID && !row.Dimensions) {
             row.Dimensions = new Dimensions();
         }
+    }
+
+    private updateNewOrChangedTable(row: SalaryTransaction) {
+        this.newOrChangedSalaryTransactions = [
+            ...this.newOrChangedSalaryTransactions
+            .filter(salaryTrans => salaryTrans['_originalIndex'] !== row['_originalIndex']),
+            row,
+        ];
     }
 
     public onRowDeleted(row: SalaryTransaction) {
