@@ -195,24 +195,6 @@ export class EmployeeService extends BizHttp<Employee> {
             .map(resultSet => resultSet[0]);
     }
 
-    private getMunicipalityOptions(employee: Employee) {
-        const defaultValue = Observable
-            .of(employee)
-            .switchMap(emp => emp && emp.MunicipalityNo
-                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
-                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
-            .take(1);
-
-        return {
-            getDefaultData: () => defaultValue,
-            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
-            search: (query: string) => this.municipalService.search(query),
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityName',
-            debounceTime: 200
-        };
-    }
-
     private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
         return (value: any, field: UniFieldLayout) => {
             if (!!value) {
@@ -228,7 +210,7 @@ export class EmployeeService extends BizHttp<Employee> {
         };
     }
 
-    public layout(layoutID: string, employee: Employee) {
+    public layout(layoutID: string) {
         return Observable.from([{
             Name: layoutID,
             BaseEntity: 'Employee',
@@ -323,7 +305,6 @@ export class EmployeeService extends BizHttp<Employee> {
                     EntityType: 'Employee',
                     Property: 'MunicipalityNo',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Options: this.getMunicipalityOptions(employee),
                     Label: 'Kommunenummer',
                     FieldSet: 2,
                     Section: 0

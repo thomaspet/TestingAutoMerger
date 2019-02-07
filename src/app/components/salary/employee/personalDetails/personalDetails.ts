@@ -4,7 +4,7 @@ import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index
 import {UniView} from '../../../../../framework/core/uniView';
 import {
     Employee, Email, Phone,
-    Address, SubEntity, BankAccount, User, Country
+    Address, SubEntity, BankAccount, User, Country, Municipal
 } from '../../../../unientities';
 import {
     UniModalService,
@@ -117,7 +117,7 @@ export class PersonalDetails extends UniView {
     }
 
     private getLayout(subEntities: SubEntity[], employee: Employee) {
-        this.employeeService.layout('EmployeePersonalDetailsForm', employee).subscribe(
+        this.employeeService.layout('EmployeePersonalDetailsForm').subscribe(
             (layout: any) => {
                 this.fields$.next(this.extendFormConfig(layout.Fields, subEntities, employee));
             }
@@ -372,6 +372,21 @@ export class PersonalDetails extends UniView {
             displayProperty: 'DisplayName',
             valueProperty: 'ID',
             debounceTime: 200,
+        };
+
+        const municipalityField = this.findByProperty(fields, 'MunicipalityNo');
+        const defaultValue = this.employee$.asObservable()
+            .switchMap(emp => emp && emp.MunicipalityNo
+                ? this.municipalService.GetAll(`filter=MunicipalityNo eq ${emp.MunicipalityNo}&top=1`)
+                : Observable.of([{MunicipalityNo: '', MunicipalityName: ''}]))
+            .take(1);
+        municipalityField.Options = {
+            getDefaultData: () => defaultValue,
+            template: (obj: Municipal) => obj && obj.MunicipalityNo ? `${obj.MunicipalityNo} - ${obj.MunicipalityName}` : '',
+            search: (query: string) => this.municipalService.search(query),
+            valueProperty: 'MunicipalityNo',
+            displayProperty: 'MunicipalityName',
+            debounceTime: 200
         };
 
         const internationalIDCountryField = this.findByProperty(fields, 'InternasjonalIDCountry');
