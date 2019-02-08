@@ -104,7 +104,7 @@ export class AccountDetails implements OnInit {
 
         const account = this.account$.getValue();
         const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
-        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(account ? account.CostAllocationID : 0);
+        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(this.account$.asObservable());
 
         const vattype: UniFieldLayout = fields.find(x => x.Property === 'VatTypeID');
         vattype.Options = {
