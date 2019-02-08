@@ -16,6 +16,17 @@ ag-grid-angular
     display: block
     position: relative
 
+    span.expand-collapse-groups
+        cursor: pointer
+        color: #1565c0
+        position: absolute
+        top: 1px
+        right: 1rem
+        z-index: 999
+        font-size: 14px
+        line-height: 30px
+        user-select: none
+
 .ag-icon-checkbox-indeterminate
     @extend .ag-icon-checkbox-unchecked
 
@@ -88,6 +99,10 @@ ag-grid-angular.col-menu-hidden
         display: flex
 .ag-header-cell
     line-height: 35px // 40px
+
+// Hide resize indicator
+.ag-header-cell::after
+    display: none !important
 
 .ag-cell, .ag-header-cell
     padding: 0 10px

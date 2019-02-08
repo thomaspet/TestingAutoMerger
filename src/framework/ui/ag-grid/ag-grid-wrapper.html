@@ -9,18 +9,18 @@
 <section class="row-count" *ngIf="config?.showTotalRowCount && dataService?.totalRowCount$ | async">
     Antall rader: {{dataService?.totalRowCount$ | async}}
 </section>
-<a
-    *ngIf="config?.groupingIsOn"
-    (click)="expandCollapseAll()"
-    style="float: right; margin: 0 1rem 0 0;">
-    <i class="material-icons" style="vertical-align: middle; margin-bottom: 2px">
-        {{ allIsExpanded ? 'close' : 'menu' }}
-    </i>
-    {{ allIsExpanded ? 'Lukk' : 'Åpne' }} alle grupper
-</a>
+
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
     [ngStyle]="{'height': tableHeight}">
+
+    <span
+        *ngIf="config?.groupingIsOn"
+        role="button"
+        class="expand-collapse-groups"
+        (click)="expandCollapseAll()">
+        Åpne/lukk alle grupper
+    </span>
 
     <table-editor *ngIf="config?.editable"
         [agGridApi]="agGridApi"
