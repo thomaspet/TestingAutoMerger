@@ -165,7 +165,7 @@ export class AccountDetails implements OnInit {
     }
 
     private setSynchronizeVisibility(account: Account, fields) {
-        if (!account) return; 
+        if (!account) return;
         const doSynchronize: UniFieldLayout = fields.find(x => x.Property === 'DoSynchronize');
         if (account.AccountSetupID) {
             doSynchronize.Hidden = false;
@@ -237,10 +237,10 @@ export class AccountDetails implements OnInit {
                             this.errorService.handle(err);
                         }
                     );
-            }            
+            }
             return;
         });
-        
+
     }
 
     public saveAccount(completeEvent: any): void {
