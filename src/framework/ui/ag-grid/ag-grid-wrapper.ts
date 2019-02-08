@@ -665,6 +665,7 @@ export class AgGridWrapper {
 
             const agCol: ColDef = {
                 headerName: col.header,
+                suppressMenu: true,
                 hide: !col.visible,
                 headerClass: col.headerCls,
                 cellClass: cellClass,
