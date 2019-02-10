@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -9,7 +9,8 @@ import {
     ErrorService,
     EmploymentService,
     AccountService,
-    StatisticsService
+    StatisticsService,
+    CompanySalaryService
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -48,14 +49,21 @@ export class EmploymentDetails implements OnChanges {
     private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeInitValue: Observable<any>;
+    private companySalarySettings: CompanySalary;
 
     constructor(
         private employmentService: EmploymentService,
         private accountService: AccountService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
-        private modalService: UniModalService
-    ) { }
+        private modalService: UniModalService,
+        private companySalaryService: CompanySalaryService
+    ) {
+        this.companySalaryService.getCompanySalary()
+            .subscribe((compsalarysettings: CompanySalary) => {
+                this.companySalarySettings = compsalarysettings;
+            });
+     }
 
     public ngOnChanges(change: SimpleChanges) {
         if (!this.formReady) {
@@ -272,26 +280,28 @@ export class EmploymentDetails implements OnChanges {
         if (changes['EndDate']) {
             const enddate: LocalDate = changes['EndDate'].currentValue;
             if (!!enddate) {
-                const includedate = moment(new Date()).add(2, 'months');
-                const obs = this.modalService
-                .confirm({
-                    header: 'Oppdater Slutttdato OTP',
-                    message: 'Vil du også oppdatere sluttdato OTP?',
-                    buttonLabels: {
-                        accept: 'Ja, oppdater sluttdato OTP',
-                        cancel: 'Nei, setter den selv'
-                    }
-                })
-                .onClose;
-                return obs
-                    .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
-                    .switchMap(() => Observable.of(this.employee))
-                    .subscribe((employee) => {
-                        employee.EndDateOtp = enddate;
-                        employee.IncludeOtpUntilMonth = includedate.month();
-                        employee.IncludeOtpUntilYear = includedate.year();
-                        this.employeeChange.emit(employee);
-                    });
+                if (this.companySalarySettings.OtpExportActive) {
+                    const includedate = moment(new Date()).add(2, 'months');
+                    const obs = this.modalService
+                    .confirm({
+                        header: 'Oppdater Slutttdato OTP',
+                        message: 'Vil du også oppdatere sluttdato OTP?',
+                        buttonLabels: {
+                            accept: 'Ja, oppdater sluttdato OTP',
+                            cancel: 'Nei, setter den selv'
+                        }
+                    })
+                    .onClose;
+                    return obs
+                        .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
+                        .switchMap(() => Observable.of(this.employee))
+                        .subscribe((employee) => {
+                            employee.EndDateOtp = enddate;
+                            employee.IncludeOtpUntilMonth = includedate.month();
+                            employee.IncludeOtpUntilYear = includedate.year();
+                            this.employeeChange.emit(employee);
+                        });
+                }
             }
         }
     }

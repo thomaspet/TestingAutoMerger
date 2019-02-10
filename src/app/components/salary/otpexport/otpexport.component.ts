@@ -9,7 +9,7 @@ import { FieldType } from '@uni-framework/ui/uniform/index';
 import { OtpFilterModalComponent } from './otp-filter-modal/otp-filter-modal.component';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/services/services';
-import { CompanySalary } from '@uni-entities';
+import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
 
 @Component({
@@ -58,6 +58,14 @@ export class OTPExportComponent implements OnInit {
       {short: 'AP', full: 'Avtalt Permisjon'}
     ];
   }
+
+  private typeOfOtpPayments(): Array<any> {
+    return [
+        {id: TypeOfPaymentOtp.FixedSalary, name: 'Fast'},
+        {id: TypeOfPaymentOtp.HourlyPay, name: 'Time'},
+        {id: TypeOfPaymentOtp.PaidOnCommission, name: 'Provisjon'},
+    ];
+}
 
   constructor(
     private tabService: TabService,
@@ -185,9 +193,22 @@ export class OTPExportComponent implements OnInit {
     const addressCol = new UniTableColumn('Adresselinje1', 'Adresse', UniTableColumnType.Text);
     const startdateCol = new UniTableColumn('Ansattdato', 'Ansattdato', UniTableColumnType.DateTime);
     const enddateCol = new UniTableColumn('Sluttdato', 'Sluttdato', UniTableColumnType.DateTime);
-    const paymentformCol = new UniTableColumn('Avlonningsform', 'Avlønningsform', UniTableColumnType.Text);
-    const yearwageCol = new UniTableColumn('Aarslonn', 'Årslønn', UniTableColumnType.Money);
-    const employmentpercentCol = new UniTableColumn('Stillingsprosent', 'Stillingsprosent', UniTableColumnType.Text);
+    const paymentformCol = new UniTableColumn('Avlonningsform', 'Avlønningsform', UniTableColumnType.Text)
+    .setTemplate(rowModel => {
+      return this.typeOfOtpPayments().find(p => p.id === rowModel.Avlonningsform).name;
+    });
+    const yearwageCol = new UniTableColumn('Aarslonn', 'Årslønn', UniTableColumnType.Number)
+    .setNumberFormat({
+      thousandSeparator: ' ',
+      decimalSeparator: ',',
+      decimalLength: 0
+    });
+    const employmentpercentCol = new UniTableColumn('Stillingsprosent', 'Stillingsprosent', UniTableColumnType.Number)
+    .setNumberFormat({
+      thousandSeparator: ' ',
+      decimalSeparator: ',',
+      decimalLength: 2
+    });
     const periodsalarySumCol = new UniTableColumn('Periodelonn-belop', 'Periodelønn-beløp', UniTableColumnType.Money);
     const periodsalaryAmountCol = new UniTableColumn('Periodelonn-antall', 'Periodelønn-antall', UniTableColumnType.Number);
     const statusPensionCol = new UniTableColumn('Status', 'Status pensjon', UniTableColumnType.Text)

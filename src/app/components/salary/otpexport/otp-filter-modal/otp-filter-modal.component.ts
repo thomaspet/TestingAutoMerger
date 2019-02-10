@@ -68,7 +68,7 @@ export class OtpFilterModalComponent implements OnInit, IUniModal {
     }
     this.onClose.next(
       {
-        otpPeriod: this.otpexportFilterModel$.getValue().otpPeriode,
+        otpPeriod: update ? this.otpexportFilterModel$.getValue().otpPeriode : null,
         otpYear: this.otpexportFilterModel$.getValue().otpYear,
         payrolls: this.selectedPayrolls
       });
