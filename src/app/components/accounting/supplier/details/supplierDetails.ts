@@ -285,6 +285,7 @@ export class SupplierDetails implements OnInit {
 
     public supplierDetailsChange(changes: SimpleChanges) {
         this.isDirty = true;
+        this.setupSaveActions();
 
         if (changes['Info.DefaultBankAccountID']) {
             this.bankaccountService.deleteRemovedBankAccounts(changes['Info.DefaultBankAccountID']);
@@ -460,6 +461,8 @@ export class SupplierDetails implements OnInit {
                 this.saveSupplier(() => {});
             } else if (modalResult === ConfirmActions.REJECT) {
                 this.isDirty = false;
+                this.setupSaveActions();
+
                 if (this.postpost) {
                     this.postpost.isDirty = false;
                 }
@@ -869,6 +872,7 @@ export class SupplierDetails implements OnInit {
                 .subscribe(
                     (updatedValue) => {
                         this.isDirty = false;
+                        this.setupSaveActions();
                         completeEvent('Leverandør lagret');
 
                         this.supplierService.Get(supplier.ID, this.expandOptions).subscribe(updatedSupplier => {
@@ -895,6 +899,7 @@ export class SupplierDetails implements OnInit {
                 .subscribe(
                     (newSupplier) => {
                         this.isDirty = false;
+                        this.setupSaveActions();
                         if (!this.modalMode) {
                             this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
                             this.setTabTitle();
@@ -916,11 +921,13 @@ export class SupplierDetails implements OnInit {
                 label: 'Lagre',
                 action: (completeEvent) => this.saveSupplier(completeEvent),
                 main: true,
+                disabled: !this.isDirty
             },
             {
                 label: 'Lagre som kladd',
                 action: (completeEvent) => this.saveSupplier(completeEvent, true),
                 main: true,
+                disabled: !this.isDirty
             }
         ];
     }
@@ -936,6 +943,7 @@ export class SupplierDetails implements OnInit {
         }
 
         this.isDirty = true;
+        this.setupSaveActions();
 
         // prepare for save
         if (!contact.Info.DefaultEmail.ID) {
