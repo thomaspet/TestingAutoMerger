@@ -392,11 +392,10 @@ export class BillsView implements OnInit {
                 const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
-                        this.selectedItems.length
-                            - numberOfFailed + ' fakturaer ble tildelt'
-                            + '<BR/>' + numberOfFailed + ' fakturaer feilet ved tildeling.',
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble tildelt',
                         ToastType.bad,
-                        3
+                        3,
+                        numberOfFailed + ' fakturaer feilet ved tildeling.'
                     );
                     this.selectedItems = null;
                 } else {
@@ -564,11 +563,10 @@ export class BillsView implements OnInit {
                         const numberOfFailed = res.filter(r => !r.success).length;
                         if (numberOfFailed > 0) {
                             this.toast.addToast(
-                                this.selectedItems.length
-                                    - numberOfFailed + ' fakturaer ble kreditert.'
-                                    + '<BR/>' + numberOfFailed + ' fakturaer feilet.',
+                                this.selectedItems.length - numberOfFailed + ' fakturaer ble kreditert.',
                                 ToastType.bad,
-                                3
+                                3,
+                                numberOfFailed + ' fakturaer feilet.'
                             );
                         } else {
                             this.toast.addToast(
@@ -607,11 +605,10 @@ export class BillsView implements OnInit {
                 const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
-                        this.selectedItems.length
-                            - numberOfFailed + ' fakturaer ble sendt til betalingsliste.'
-                            + '<BR/>' + numberOfFailed + ' fakturaer feilet.',
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble sendt til betalingsliste.',
                         ToastType.bad,
-                        3
+                        3,
+                        numberOfFailed + ' fakturaer feilet.'
                     );
                 } else {
                     this.toast.addToast(
@@ -645,11 +642,10 @@ export class BillsView implements OnInit {
                 const numberOfFailed = res.filter(r => !r.success).length;
                 if (numberOfFailed > 0) {
                     this.toast.addToast(
-                        this.selectedItems.length
-                            - numberOfFailed + ' fakturaer ble bokført.' + '<BR/>'
-                            + numberOfFailed + ' fakturaer feilet ved bokføring.',
+                        this.selectedItems.length - numberOfFailed + ' fakturaer ble bokført.',
                         ToastType.bad,
-                        3
+                        3,
+                        numberOfFailed + ' fakturaer feilet ved bokføring.'
                     );
                     this.selectedItems = null;
                 } else {
