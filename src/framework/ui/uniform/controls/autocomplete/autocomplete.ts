@@ -482,4 +482,12 @@ export class UniAutocompleteInput extends BaseControl {
             list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
         }
     }
+
+    public blurHandler() {
+        if (this.control.value === '') {
+            this.confirmSelection(null);
+        } else {
+            this.confirmSelection(this.currentValue);
+        }
+    }
 }
