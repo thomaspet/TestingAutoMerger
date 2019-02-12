@@ -871,6 +871,32 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        quote.CustomerName = this.currentCustomer.Info.Name;
+        if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
+            var address = this.currentCustomer.Info.Addresses[0];
+            if (this.currentCustomer.Info.InvoiceAddressID) {
+                address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
+            }
+            quote.InvoiceAddressLine1 = address.AddressLine1;
+            quote.InvoiceAddressLine2 = address.AddressLine2;
+            quote.InvoiceAddressLine3 = address.AddressLine3;
+            quote.InvoicePostalCode = address.PostalCode;
+            quote.InvoiceCity = address.City;
+            quote.InvoiceCountry = address.Country;
+            quote.InvoiceCountryCode = address.CountryCode;
+
+            if (this.currentCustomer.Info.ShippingAddressID) {
+                address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+            }
+            quote.ShippingAddressLine1 = address.AddressLine1;
+            quote.ShippingAddressLine2 = address.AddressLine2;
+            quote.ShippingAddressLine3 = address.AddressLine3;
+            quote.ShippingPostalCode = address.PostalCode;
+            quote.ShippingCity = address.City;
+            quote.ShippingCountry = address.Country;
+            quote.ShippingCountryCode = address.CountryCode;
+        }
+
         return quote;
     }
 
