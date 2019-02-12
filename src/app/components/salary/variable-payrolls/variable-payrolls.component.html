@@ -1,6 +1,6 @@
 <uni-toolbar [saveactions]="saveActions" [config]="{title: 'Variable lønnsposter'}"></uni-toolbar>
 
-<article class="application">
+<article class="application" *ngIf="(payrollrun$ | async)" [attr.aria-busy]="loading">
     <uni-information [config]="infoConfig" class="infoNote">
         I dette grensesnittet kan du endre, registrere og slette variable lønnsposter. Ved lagring overføres postene automatisk
         til valgt lønnsavregning. Ved sletting fjernes postene fra valgt lønnsavregning.
@@ -28,9 +28,13 @@
         <mat-slide-toggle class="togglePayrollrun" [(checked)]="toggle" (change)="toggleChange($event)"></mat-slide-toggle>
     </span>
 
-    <section [attr.aria-busy]="tableLoading" class="uniTable">
+    <section class="uniTable">
         <ag-grid-wrapper class="maintable salaryTransTable" [resource]="filteredTransactions" [config]="salarytransEmployeeTableConfig"
             (rowChange)="rowChanged($event)" (rowDelete)="onRowDeleted($event)" (cellClick)="onCellClick($event)">
         </ag-grid-wrapper>
     </section>
+</article>
+
+<article *ngIf="!(payrollrun$ | async)" [attr.aria-busy]="loading" class="application">
+    <h2>Du har ingen åpne lønnsavregninger</h2>
 </article>
