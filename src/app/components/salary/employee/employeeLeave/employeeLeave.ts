@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, EmployeeLeave, Leavetype, LocalDate, CompanySalary} from '../../../../unientities';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent, UniTable} from '../../../../../framework/ui/unitable/index';
+import {Employment, EmployeeLeave, Leavetype, CompanySalary} from '../../../../unientities';
+import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent} from '../../../../../framework/ui/unitable/index';
 import {UniCacheService, ErrorService, EmployeeLeaveService, CompanySalaryService} from '../../../../services/services';
 import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs';
@@ -33,6 +33,7 @@ export class EmployeeLeaves extends UniView {
         this.companysalaryService.getCompanySalary()
             .subscribe(compsalsetting => {
                 this.companysalarySettings = compsalsetting;
+                this.buildTableConfig();
             });
 
         // Update cache key and (re)subscribe when param changes (different employee selected)
@@ -55,7 +56,6 @@ export class EmployeeLeaves extends UniView {
                 })
                 .subscribe((employments: Employment[]) => {
                     this.employments = (employments || []).filter(emp => emp.ID > 0);
-                    this.buildTableConfig();
                 }, err => this.errorService.handle(err));
         });
     }
