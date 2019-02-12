@@ -465,12 +465,17 @@ export class PersonalDetails extends UniView {
     private updateInfoFromSSN(employee: Employee) {
         if (employee.SocialSecurityNumber && employee.SocialSecurityNumber.length === 11) {
 
+
             const day: number = +employee.SocialSecurityNumber.substring(0, 2);
             let month: number = +employee.SocialSecurityNumber.substring(2, 4);
             let year: number = +employee.SocialSecurityNumber.substring(4, 6);
             const controlNumber: number = +employee.SocialSecurityNumber.substring(8, 9);
 
             const yearToday = +new Date().getFullYear().toString().substring(2, 4);
+
+            if (day > 31) {
+                return;
+            }
 
             if (year < yearToday) {
                 const fullYear: string = new Date().getFullYear().toString().substring(0, 2)
