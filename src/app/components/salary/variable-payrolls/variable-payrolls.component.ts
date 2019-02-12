@@ -1,6 +1,6 @@
 import { Component, ViewChild } from '@angular/core';
 import { UniTableColumnType, UniTableColumn, UniTableConfig, IDeleteButton } from '@uni-framework/ui/unitable';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     Employee, WageType, PayrollRun, SalaryTransaction, Project, Department,
@@ -43,19 +43,18 @@ export class VariablePayrollsComponent {
     private payrollRunID: number;
     public payrollruns: PayrollRun[] = [];
     public selectedPayrollrun: PayrollRun;
-
     public salarytransEmployeeTableConfig: UniTableConfig;
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
     private deleteButton: IDeleteButton;
-    private isDirtyArray: SalaryTransaction[] = [];
     public toggle: boolean = false;
     private newOrChangedSalaryTransactions: SalaryTransaction[] = [];
     public filteredTransactions: SalaryTransaction[] = [];
     private deletedLines: SalaryTransaction[] = [];
-    private salaryTransactions: SalaryTransaction[] = null;
-    public tableLoading: boolean;
+    public salaryTransactions: SalaryTransaction[] = null;
+    public payrollrun$: Subject<boolean> = new Subject();
+    public loading: boolean = true;
     public infoMessage: string = 'Viser alle registrerte variable lønnsposter på denne lønnsavregningen';
     public payrollrunSelectConfig: ISelectConfig;
     public infoConfig: IUniInfoConfig = {headline: 'Variable lønnsposter'};
@@ -112,6 +111,7 @@ export class VariablePayrollsComponent {
 
         this.payrollrunService.getAll('filter=StatusCode eq 0 or StatusCode eq null').subscribe((payrollruns) => {
             if (payrollruns[0]) {
+                this.payrollrun$.next(!!payrollruns[0]);
                 this.payrollRunID = this.payrollRunID || payrollruns[0].ID;
                 this.payrollruns = payrollruns;
                 this.selectedPayrollrun = payrollruns.find((payrollrun) => payrollrun.ID === this.payrollRunID);
@@ -122,7 +122,7 @@ export class VariablePayrollsComponent {
                     this.wageTypeService.GetAll(null, ['SupplementaryInformations']),
                     this.payrollrunService.getEmployeesOnPayroll(this.payrollRunID, ['Employments', 'BusinessRelationInfo']),
                     this.salaryTransService.GetAll(
-                        'filter=' + `PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq ${false}`
+                        'filter=' + `PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq ${false} and SalaryBalanceID eq ${null}`
                         + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
                         ['WageType.SupplementaryInformations', 'employment', 'Supplements',
                         'Dimensions', 'Files', 'VatType.VatTypePercentages']
@@ -140,6 +140,7 @@ export class VariablePayrollsComponent {
                     this.createTableConfig();
                 }, err => this.errorService.handle(err));
             }
+            this.loading = false;
         }, err => this.errorService.handle(err));
     }
 
@@ -149,7 +150,7 @@ export class VariablePayrollsComponent {
                 label: 'Lagre endringer',
                 action: this.saveVariablePayrolls.bind(this),
                 main: true,
-                disabled: !(this.isDirtyArray && this.isDirtyArray[0])
+                disabled: !(this.filteredTransactions.filter(x => x['_isDirty'] === true)[0])
             },
         ];
     }
@@ -169,7 +170,6 @@ export class VariablePayrollsComponent {
         this.selectedPayrollrun.transactions = [...createguidOnDimensionsAndSupplements, ...this.deletedLines];
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
-            this.isDirtyArray = [];
             this.getSaveActions();
 
             // need to set a timeout to get latest line in the salaryBalance
@@ -182,7 +182,9 @@ export class VariablePayrollsComponent {
 
     public toggleChange(event) {
         this.toggle = event.checked;
+        this.newOrChangedSalaryTransactions = this.newOrChangedSalaryTransactions.filter(trans => !trans['_isEmpty']);
         if (event.checked) {
+            this.salaryTransactions = this.salaryTransactions.filter(trans => !trans['_isEmpty']);
             this.filteredTransactions = this.salaryTransactions.concat(this.newOrChangedSalaryTransactions);
         } else {
             this.filteredTransactions = this.newOrChangedSalaryTransactions;
@@ -190,7 +192,7 @@ export class VariablePayrollsComponent {
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (!this.isDirtyArray[0]) {
+        if (!(this.filteredTransactions.filter(x => x['_isDirty'])[0])) {
             return Observable.of(true);
         }
 
@@ -201,7 +203,6 @@ export class VariablePayrollsComponent {
                 if (result === ConfirmActions.ACCEPT) {
                     this.saveVariablePayrolls(() => '');
                 } else if (result === ConfirmActions.REJECT) {
-                    this.isDirtyArray = [];
                     this.filteredTransactions = [];
                 } else if (result === ConfirmActions.CANCEL) {
                     this.selectedPayrollrun = this.payrollruns.filter((payrollrun) => payrollrun.ID === this.payrollRunID)[0];
@@ -221,7 +222,7 @@ export class VariablePayrollsComponent {
         }
 
         this.salaryTransService.GetAll(
-            'filter=' + `PayrollRunID eq ${payrollrunID} and IsRecurringPost eq ${false}`
+            'filter=' + `PayrollRunID eq ${payrollrunID} and IsRecurringPost eq ${false} and SalaryBalanceID eq ${null}`
             + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
             ['WageType.SupplementaryInformations', 'employment', 'Supplements', 'Dimensions', 'Files', 'VatType.VatTypePercentages']
         ).subscribe((salaryTranses) => {
@@ -471,7 +472,6 @@ export class VariablePayrollsComponent {
             .setDeleteButton(true, true)
             .setPageable(false)
             .setCopyFromCellAbove(false)
-            .setIsRowReadOnly(row => row.IsRecurringPost || row.SalaryBalanceID > 0)
             .setChangeCallback((event) => {
                 const row: SalaryTransaction = event.rowModel;
                 let obs: Observable<SalaryTransaction> = null;
@@ -747,7 +747,6 @@ export class VariablePayrollsComponent {
             if (!row.ID && !row._createguid) {
                 event.rowModel._createguid = this.salaryTransService.getNewGuid();
             }
-            this.isDirtyArray = [...this.isDirtyArray, ...event.rowModel];
             this.getSaveActions();
         }
 
@@ -757,6 +756,10 @@ export class VariablePayrollsComponent {
     }
 
     private updateNewOrChangedTable(row: SalaryTransaction) {
+        if (row.ID) {
+            this.salaryTransactions = this.salaryTransactions.filter(x => x.ID !== row.ID);
+        }
+
         this.newOrChangedSalaryTransactions = [
             ...this.newOrChangedSalaryTransactions
             .filter(salaryTrans => salaryTrans['_originalIndex'] !== row['_originalIndex']),
@@ -768,9 +771,6 @@ export class VariablePayrollsComponent {
         const transIndex: number = this.getTransIndex(row);
 
         if (row['_isDirty']) {
-            this.isDirtyArray = this.isDirtyArray.filter((salaryTransaction => {
-                return row['_originalIndex'] !== salaryTransaction['_originalIndex'];
-            }));
             this.getSaveActions();
         }
 
@@ -778,7 +778,6 @@ export class VariablePayrollsComponent {
             if (this.filteredTransactions[transIndex].ID) {
                 row.Deleted = true;
                 row['_isDirty'] = true;
-                this.isDirtyArray = [...this.isDirtyArray, row];
                 this.deletedLines = [...this.deletedLines, row];
                 this.getSaveActions();
             } else {
@@ -803,6 +802,7 @@ export class VariablePayrollsComponent {
         if (updateTable) {
             this.table.updateRow(row['_originalIndex'], row);
         }
+        this.getSaveActions();
     }
 
     private getTransIndex(row) {
