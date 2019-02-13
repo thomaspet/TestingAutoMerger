@@ -1869,7 +1869,7 @@
         },
         {
             "Header": "Kundenavn",
-            "Field": "Customer.Info.Name",
+            "Field": "CustomerName",
             "ExternalModel": "Customer",
             "FilterOperator": "contains",
             "Width": 300
