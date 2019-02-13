@@ -6,6 +6,7 @@
            [readonly]="readOnly$ | async"
            [placeholder]="field?.Placeholder || ''"
            (focus)="focusHandler()"
+           (blur)="blurHandler()"
            role="combobox"
            autocomplete="false"
            aria-autocomplete="inline"
