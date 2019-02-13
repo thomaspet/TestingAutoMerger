@@ -264,7 +264,7 @@ export class VariablePayrollsComponent {
             }
 
             if (trans.Dimensions && trans.Dimensions.DepartmentID) {
-                trans['_Departments'] = this.departments.find(department => department.ID === trans.Dimensions.DepartmentID);
+                trans['_Department'] = this.departments.find(department => department.ID === trans.Dimensions.DepartmentID);
             }
 
             trans['_employee'] = employee;
