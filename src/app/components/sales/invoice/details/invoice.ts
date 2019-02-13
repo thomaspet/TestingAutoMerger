@@ -1556,8 +1556,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (this.paymentInfoTypes.findIndex(x => x.ID === invoice.PaymentInfoTypeID && x.StatusCode === 42000 && !x.Locked) === -1) {
                 invoice.PaymentInfoTypeID = null;
                 this.modalService.confirm({
-                    header: 'KID type er ikke lenger aktiv',
-                    message: 'Valgt KID type er ikke lenger aktiv! \r\n Standard vil bli brukt, eller velg en KID type.',
+                    header: 'Kid innstilling fra original faktura er ikke lenger aktiv',
+                    message: 'Kid innstilling fra original faktura er ikke lenger aktiv. Standard innstilling blir benyttet.',
                     buttonLabels: { accept: 'Ok' }
                 });
             }
