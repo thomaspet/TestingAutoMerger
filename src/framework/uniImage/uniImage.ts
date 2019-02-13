@@ -177,6 +177,10 @@ export class UniImage {
         }
     }
 
+    ngOnDestroy() {
+        this.setFileViewerData([]);
+    }
+
     openFileViewer() {
         const baseUrl = window.location.href.split('/#/')[0];
         window.open(
@@ -228,7 +232,9 @@ export class UniImage {
     }
 
     private setFileViewerData(files: File[]) {
-        if (files && files.length) {
+        localStorage.setItem('fileviewer-data', JSON.stringify([]));
+
+        if (files) {
             const imgUrls = [];
             files.forEach(file => {
                 const numberOfPages = file.Pages || 1;
@@ -283,7 +289,8 @@ export class UniImage {
                     }
                 }, err => this.errorService.handle(err));
         } else {
-             this.files = [];
+            this.files = [];
+            this.setFileViewerData(this.files);
         }
     }
 
