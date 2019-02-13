@@ -1552,6 +1552,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 moment(invoice.InvoiceDate).add(this.companySettings.CustomerCreditDays, 'days').toDate()
             );
         }
+        if (invoice.PaymentInfoTypeID) {
+            if (this.paymentInfoTypes.findIndex(x => x.ID === invoice.PaymentInfoTypeID && x.StatusCode === 42000 && !x.Locked) === -1) {
+                invoice.PaymentInfoTypeID = null;
+                this.modalService.confirm({
+                    header: 'KID type er ikke lenger aktiv',
+                    message: 'Valgt KID type er ikke lenger aktiv! \r\n Standard vil bli brukt, eller velg en KID type.',
+                    buttonLabels: { accept: 'Ok' }
+                });
+            }
+        }
         invoice.InvoiceReferenceID = null;
         invoice.Comment = null;
         delete invoice['_links'];
