@@ -26,6 +26,7 @@ import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticatio
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({
     selector: 'amelding-view',
@@ -143,6 +144,10 @@ export class AMeldingView implements OnInit {
             {
                 label: 'Avstemming',
                 action: () => this.openReconciliation()
+            },
+            {
+                label: 'Avansert periodebehandling',
+                action: () => this.openAdminModal()
             }
         ];
     }
@@ -762,6 +767,22 @@ export class AMeldingView implements OnInit {
             .onClose
             .filter(event => event.type >= 0)
             .subscribe(event => this.createAMelding(event));
+    }
+
+    private openAdminModal() {
+        this.modalService
+            .open(PeriodAdminModalComponent,
+                {
+                    data: {
+                        period: this.currentPeriod,
+                        ameldingerInPeriod: this.aMeldingerInPeriod,
+                        companySalary: this.companySalary
+                    }
+                })
+            .onClose
+            .subscribe(something => {
+                console.log('were back');
+            });
     }
 
     private clearAMelding() {

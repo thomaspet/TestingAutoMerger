@@ -1,0 +1,17 @@
+<section class="splitview">
+  <nav class="splitview_list">
+    <ag-grid-wrapper
+      [config]="tableConfig"
+      [resource]="ameldingerInPeriod"
+      (rowSelectionChange)="onRowSelected($event)">
+    </ag-grid-wrapper>
+  </nav>
+  <main class="splitview_detail">
+    <amelding-receipt-view
+      [attr.aria-busy]="loading"
+      [currentAMelding]="selectedAmelding"
+      [aMeldingerInPeriod]="aMeldingerInPeriod"
+      [companySalary]="companySalary">
+    </amelding-receipt-view>
+  </main>
+</section>

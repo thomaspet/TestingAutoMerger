@@ -1,0 +1,24 @@
+<section role="dialog" class="uni-modal amelding-advanced-period-modal">
+  <header>
+    <h1>A-meldinger - periode {{options.data.period}}</h1>>
+  </header>
+  <article class="application">
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+    <section [ngSwitch]="activeTabIndex">
+      <uni-amelding-period-split-view 
+        *ngSwitchCase="0" 
+        [ameldingerInPeriod]="options.data.ameldingerInPeriod" 
+        [companySalary]="options.data.companySalary">
+      </uni-amelding-period-split-view>
+      <uni-amelding-payrolls-period-view 
+        *ngSwitchCase="1" 
+        [period]="options.data.period">
+      </uni-amelding-payrolls-period-view>
+    </section>
+  </article>
+  <footer>
+    <section>
+      <button class="bad" (click)="closeModal()">Avbryt</button>
+    </section>
+  </footer>
+</section>

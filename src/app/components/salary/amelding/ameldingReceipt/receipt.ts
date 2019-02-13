@@ -37,6 +37,7 @@ export class AmeldingReceiptView {
             if (this.currentAMelding.hasOwnProperty('feedBack')) {
                 const feedback = this.currentAMelding.feedBack;
                 if (feedback !== null) {
+                    this.allAvvikGroupedByPeriod = [];
                     this. alleAvvikNoder = this._ameldingService.getAvvikIAmeldingen(this.currentAMelding);
                     this._ameldingService
                         .attachMessageIDsToLeveranser(this._ameldingService.getLeveranserIAmeldingen(), this.aMeldingerInPeriod)
