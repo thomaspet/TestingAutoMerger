@@ -14,7 +14,8 @@ import {Http} from '@angular/http';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
 import {UniModalService, ConfirmActions} from '../uni-modal';
@@ -134,6 +135,8 @@ export class UniImage {
     public processingPercentage: number = null;
     public ocrWords: Array<any> = [];
 
+    onDestroy$: Subject<any> = new Subject();
+
     constructor(
         private ngHttp: Http,
         private http: UniHttp,
@@ -145,12 +148,16 @@ export class UniImage {
         private uniFilesService: UniFilesService,
         private toastService: ToastService
     ) {
-        this.authService.authentication$.subscribe((authDetails) => {
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe((authDetails) => {
             this.activeCompany = authDetails.activeCompany;
             this.refreshFiles();
         });
 
-        this.authService.filesToken$.subscribe(token => {
+        this.authService.filesToken$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(token => {
             this.token = token;
             this.refreshFiles();
         });
@@ -175,6 +182,12 @@ export class UniImage {
                 }
             }
         }
+    }
+
+    ngOnDestroy() {
+        this.setFileViewerData([]);
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     openFileViewer() {
@@ -228,7 +241,9 @@ export class UniImage {
     }
 
     private setFileViewerData(files: File[]) {
-        if (files && files.length) {
+        localStorage.setItem('fileviewer-data', JSON.stringify([]));
+
+        if (files) {
             const imgUrls = [];
             files.forEach(file => {
                 const numberOfPages = file.Pages || 1;
@@ -283,7 +298,8 @@ export class UniImage {
                     }
                 }, err => this.errorService.handle(err));
         } else {
-             this.files = [];
+            this.files = [];
+            this.setFileViewerData(this.files);
         }
     }
 

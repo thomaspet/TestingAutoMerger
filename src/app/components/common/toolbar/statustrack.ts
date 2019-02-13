@@ -82,7 +82,7 @@ export class StatusTrack {
     }
 
     public getStatusClass(state: STATUSTRACK_STATES) {
-        return STATUSTRACK_STATES[state].toLowerCase();
+        return (STATUSTRACK_STATES[state] || 'future').toLowerCase();
     }
 
     public isActiveSubStatus(status: IStatus) {
