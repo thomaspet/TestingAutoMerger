@@ -78,8 +78,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
             const modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
             this.displayValue = this.getDisplayValue(modelValue);
-
-            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) == this.displayValue);
+            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) === this.displayValue);
 
             if (this.field.Options.onChange) {
                 this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
