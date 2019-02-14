@@ -178,15 +178,14 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
-    public selectRow(row: any) {
+    public selectRow(row: any, forcedSelection?: boolean) {
         if (row && row.Deleted) {
             return;
         }
         this.close();
-        if (row === this.selectedRow) {
+        if (row === this.selectedRow && !forcedSelection) {
             return;
         }
-
         const previousValue = _.cloneDeep(this.selectedRow);
         this.focusedRow = this.selectedRow = row || null;
         this.displayValue = this.getDisplayValue(row);
@@ -255,10 +254,10 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                     const index = this.rows.findIndex(r => r === row);
                     if (index >= 0) {
                         this.rows[index] = editedEntity;
-                        this.selectRow(editedEntity);
+                        this.selectRow(editedEntity, true);
                     } else {
                         this.rows.push(editedEntity);
-                        this.selectRow(editedEntity);
+                        this.selectRow(editedEntity, true);
                     }
                     return this.rows;
                 })
