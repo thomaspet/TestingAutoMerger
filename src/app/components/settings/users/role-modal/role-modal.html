@@ -21,15 +21,8 @@
                         {{panel.expanded ? 'expand_less' : 'expand_more'}}
                     </i>
 
-                    <section
-                        *ngIf="group.product && !group.productPurchased"
-                        class="panel-right"
-                        [matTooltip]="canPurchaseProducts ? '' : 'Du har ikke tilgang til å kjøpe produkter'">
-
-                        <button
-                            [disabled]="!canPurchaseProducts"
-                            (click)="purchaseProduct(group)">
-
+                    <section *ngIf="group.product && !group.productPurchased" class="panel-right">
+                        <button (click)="purchaseProduct(group)">
                             Kjøp produkt
                         </button>
                     </section>

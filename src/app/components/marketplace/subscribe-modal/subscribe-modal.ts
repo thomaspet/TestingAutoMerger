@@ -7,7 +7,6 @@ import {
 } from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaProductType} from '@app/models';
 import {ElsaProductService} from '@app/services/elsa/elsaProductService';
-import {AuthService} from '@app/authService';
 import {ElsaPurchaseService, ErrorService} from '@app/services/services';
 import {ElsaPurchase} from '@app/models';
 
@@ -22,7 +21,8 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
-    cannotPurchaseProductsText: string;
+    missingPermissionText: string;
+
     extensionBoughtAndActivated: boolean;
     elsaProductType = ElsaProductType;
 
@@ -33,24 +33,19 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     constructor(
         private errorService: ErrorService,
-        private authService: AuthService,
         private modalService: UniModalService,
         private elsaProductService: ElsaProductService,
         private elsaPurchaseService: ElsaPurchaseService
-    ) {
-        this.authService.authentication$.take(1).subscribe(auth => {
-            try {
-                this.canPurchaseProducts = auth.user.License.CustomerAgreement.CanAgreeToLicense;
-            } catch (e) {}
-        });
-    }
+    ) {}
 
     ngOnInit() {
-        this.product = this.options.data;
+        const data = this.options.data || {};
+        this.product = data.product;
+        this.canPurchaseProducts = data.canPurchaseProducts;
 
         if (this.product.productType !== ElsaProductType.Integration) {
-            if (!this.canPurchaseProducts) {
-                this.cannotPurchaseProductsText = 'Du har ikke rettigheter til å aktivere produkter.';
+            if (!data.canPurchaseProducts) {
+                this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
             }
 
             if (this.product.isPerUser) {
