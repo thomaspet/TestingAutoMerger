@@ -122,7 +122,9 @@ export class VariablePayrollsComponent {
                     this.projectService.GetAll(''),
                     this.departmentService.GetAll(''),
                     this.wageTypeService.GetAll(null, ['SupplementaryInformations']),
-                    this.payrollrunService.getEmployeesOnPayroll(this.payrollRunID, ['Employments', 'BusinessRelationInfo']),
+                    this.payrollrunService.getEmployeesOnPayroll(
+                        this.payrollRunID, ['Employments', 'BusinessRelationInfo', 'Employments.Dimensions']
+                    ),
                     this.salaryTransService.GetAll(
                         'filter=' + `PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq ${false} and SalaryBalanceID eq ${null}`
                         + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
