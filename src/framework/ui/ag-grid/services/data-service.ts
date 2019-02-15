@@ -41,16 +41,9 @@ export class TableDataService {
 
     public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
         this.gridApi = gridApi;
-
-        if (!this.config || this.config.configStoreKey !== config.configStoreKey) {
-            if (!this.config) {
-                this.config = config;
-            }
-            this.filterString = undefined;
-            this.setFilters(config.filters, [], false);
-        }
-
         this.config = config;
+        this.filterString = undefined;
+        this.setFilters(config.filters, [], false);
 
         if (Array.isArray(resource)) {
             this.originalData = this.setMetadata(resource);
