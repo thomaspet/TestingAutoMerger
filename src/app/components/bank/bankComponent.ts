@@ -549,12 +549,14 @@ export class BankComponent implements AfterViewInit {
         Hvis betalingen ikke kan stoppes manuelt, vennligst ta kontakt med banken<br><br>`
         : '';
         this.isJournaled(row.ID).subscribe(res => {
+            const journalEntryLine = res[0] ? res[0] : null;
+            const invoiceNumber = journalEntryLine ? journalEntryLine.InvoiceNumber : null;
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Slett betaling',
-                message: `Vil du slette betaling ${row.Description ? ' ' + row.Description : ''}?`,
+                message: `Vil du slette betaling${invoiceNumber ? ' som tilhører fakturanr: ' + invoiceNumber : ''}?`,
                 warning: warningMessage,
                 buttonLabels: {
-                    accept: res[0].ID ? 'Slett og krediter faktura' : null,
+                    accept: journalEntryLine ? `Slett og krediter faktura` : null,
                     reject: 'Slett betaling',
                     cancel: 'Avbryt'
                 }
@@ -1025,11 +1027,11 @@ export class BankComponent implements AfterViewInit {
 
     private isJournaled(paymentID: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=Tracelink`
-        + `&select=JournalEntryLine.ID as ID`
+        + `&select=JournalEntryLine.ID as ID,JournalEntryLine.InvoiceNumber as InvoiceNumber`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and `
-        + `DestinationEntityName eq 'Payment' and Payment.ID eq ${paymentID}`
+        + `DestinationEntityName eq 'Payment' and Payment.ID eq ${paymentID} and Account.UsePostPost eq 1`
         + `&join=Tracelink.DestinationInstanceID eq Payment.ID and Tracelink.SourceInstanceID eq SupplierInvoice.ID `
-        + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID`);
+        + `and SupplierInvoice.JournalEntryID eq JournalEntryLine.JournalEntryID and JournalEntryLine.AccountID eq Account.ID`);
     }
 
 }
