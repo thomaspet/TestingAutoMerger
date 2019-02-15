@@ -1510,7 +1510,7 @@ export class CustomerDetails implements OnInit {
                     Options: {
                         source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
                         valueProperty: 'ID',
-                        displayProperty: 'Name',
+                        displayProperty: 'Description',
                         hideDeleteButton: true,
                         searchable: false,
                     },
@@ -1524,7 +1524,7 @@ export class CustomerDetails implements OnInit {
                     Options: {
                         source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
                         valueProperty: 'ID',
-                        displayProperty: 'Name',
+                        displayProperty: 'Description',
                         hideDeleteButton: true,
                         searchable: false,
                     },
@@ -1538,7 +1538,7 @@ export class CustomerDetails implements OnInit {
                     Options: {
                         source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
                         valueProperty: 'ID',
-                        displayProperty: 'Name',
+                        displayProperty: 'Description',
                         hideDeleteButton: true,
                         searchable: false,
                     },
