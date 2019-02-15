@@ -26,6 +26,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { IUniInfoConfig } from '@app/components/common/uniInfo/uniInfo';
+import { switchMap } from 'rxjs/operators';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 declare var _;
@@ -105,6 +106,7 @@ export class VariablePayrollsComponent {
             this.payrollRunID = parseInt(params['id'], 10);
 
             if (this.payrollruns && this.payrollruns[0]) {
+                this.loading = true;
                 this.getsalaryTransBasedOnPayrollrun(this.payrollRunID);
             }
         });
@@ -167,14 +169,17 @@ export class VariablePayrollsComponent {
             return trans;
         });
 
+        this.loading = true;
         this.selectedPayrollrun.transactions = [...createguidOnDimensionsAndSupplements, ...this.deletedLines];
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
+            this.salaryTransService.invalidateCache();
             this.getSaveActions();
 
-            // need to set a timeout to get latest line in the salaryBalance
-            setTimeout(() => { this.getsalaryTransBasedOnPayrollrun(payrollrun.ID, true); done('Lagring vellykket'); });
+            this.getsalaryTransBasedOnPayrollrun(payrollrun.ID, true);
+            done('Lagring vellykket');
         }, err => {
+            this.loading = false;
             done('Lagring feilet');
             this.errorService.handle(err);
         });
@@ -221,7 +226,7 @@ export class VariablePayrollsComponent {
                 .subscribe(employees => this.employeeList = employees, err => this.errorService.handle(err));
         }
 
-        this.salaryTransService.GetAll(
+        return this.salaryTransService.GetAll(
             'filter=' + `PayrollRunID eq ${payrollrunID} and IsRecurringPost eq ${false} and SalaryBalanceID eq ${null}`
             + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
             ['WageType.SupplementaryInformations', 'employment', 'Supplements', 'Dimensions', 'Files', 'VatType.VatTypePercentages']
@@ -244,9 +249,10 @@ export class VariablePayrollsComponent {
                 });
             }
 
+            this.loading = false;
             this.deletedLines = [];
             this.createTableConfig();
-        }, err => this.errorService.handle(err));
+        }, err => { this.loading = false; return this.errorService.handle(err); });
     }
 
     public onPayrollrunSelect(event) {
