@@ -209,8 +209,8 @@ export class OTPExportComponent implements OnInit {
       decimalSeparator: ',',
       decimalLength: 2
     });
-    const periodsalarySumCol = new UniTableColumn('Periodelonn-belop', 'Periodelønn-beløp', UniTableColumnType.Money);
-    const periodsalaryAmountCol = new UniTableColumn('Periodelonn-antall', 'Periodelønn-antall', UniTableColumnType.Number);
+    const periodsalarySumCol = new UniTableColumn('Periodelonnbelop', 'Periodelønn-beløp', UniTableColumnType.Money);
+    const periodsalaryAmountCol = new UniTableColumn('Periodelonnantall', 'Periodelønn-antall', UniTableColumnType.Number);
     const statusPensionCol = new UniTableColumn('Status', 'Status pensjon', UniTableColumnType.Text)
     .setTemplate(rowModel => {
       return this.statuses().find(s => s.short === rowModel.Status).full;
