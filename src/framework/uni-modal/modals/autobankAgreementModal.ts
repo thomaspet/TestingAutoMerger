@@ -44,7 +44,7 @@ export interface IAutoBankAgreementDetails {
         <section role="dialog" class="uni-modal uni-autobank-agreement-modal" [class.step2]="steps === 1">
             <header><h1>{{ header }}</h1></header>
 
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps > 0" id="step0">
+            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0">
                 <p>Velkommen til veiviser for ny autobankavtale.</p>
                 <p>
                 For å komme i gang med autobank trenger vi informasjon fra dere for å koble opp mot deres bank.
@@ -54,7 +54,7 @@ export interface IAutoBankAgreementDetails {
                     I slike tilfeller vil dere bli kontaktet av Uni Micro AS eller Zdata for å innhente nødvendig informasjon.
                 </p>
             </article>
-            <article [hidden]="steps !== 1" class="uni-autobank-agreement-modal-body checkbox_step" id="step1">
+            <article *ngIf="steps === 1" class="uni-autobank-agreement-modal-body checkbox_step" id="step1">
                 <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf" type="application/pdf">
                     <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
                 </object>
@@ -66,7 +66,7 @@ export interface IAutoBankAgreementDetails {
                     Godta vilkår og avtaler
                 </label>
             </article>
-            <article class="uni-autobank-agreement-modal-body checkbox_step" [hidden]="steps !== 2" id="step2">
+            <article class="uni-autobank-agreement-modal-body checkbox_step" *ngIf="steps === 2" id="step2">
                 <p>Kryss av for om du ønsker autobankavtale for utbetalinger, innbetallinger, eller begge: </p>
                 <label class="checkbox-label" for="isIncommingCheckbox">
                     <input type="checkbox"
@@ -84,7 +84,7 @@ export interface IAutoBankAgreementDetails {
                     Utbetalinger
                 </label>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 3" id="step3">
+            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
                 <p *ngIf="!editmode">Vennligst full ut feltene under. Alle felt må være fylt ut for å fullføre oppsettet mot autobank</p>
                 <uni-form
                     [config]="formConfig$"
@@ -94,7 +94,7 @@ export interface IAutoBankAgreementDetails {
                 </uni-form>
                 <span *ngIf="errorText" style="font-size: .75rem; color: red; margin-left: 0.5rem;"> {{ errorText }}</span>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 4" id="step4" [attr.aria-busy]="busy">
+            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4" [attr.aria-busy]="busy">
                 <p> Se over og sjekk at all informasjon stemmer føre dere velger fortsett
                     <strong>(NB! Informasjon sendes automatisk til din bank)</strong>
                 </p>
@@ -106,7 +106,7 @@ export interface IAutoBankAgreementDetails {
                 <h3> <strong>Avtale for utgående betaling:  </strong> {{ agreementDetails.IsOutgoing ? 'Ja' : 'Nei' }} </h3>
                 <h3> <strong>E-post: </strong> {{ agreementDetails.Email }} </h3>
             </article>
-            <article class="uni-autobank-agreement-modal-body" [hidden]="steps !== 5" id="step5">
+            <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5">
                 <p>Du har nå fullført din del av opprettelse av autobankavtale. Nå setter vi opp alt med banken.</p>
                 <p>Status kan du sjekke forløpende ved å trykke på linken over knappen "Ny autobankavtale" i bankbilde,
                 eller du kan gå inn under Innstillinger - Bankinstillinger.</p>
