@@ -41,9 +41,21 @@ export class TableDataService {
 
     public initialize(gridApi: GridApi, config: UniTableConfig, resource) {
         this.gridApi = gridApi;
+
+        // If not grouping, set filters as before
+        if (config && !config.groupingIsOn) {
+            this.config = config;
+            this.filterString = undefined;
+            this.setFilters(config.filters, [], false);
+        // If grouping is on, check if the configStoreKey is unequal before setting new empty filters
+        } else if (!this.config || this.config.configStoreKey !== config.configStoreKey) {
+            if (!this.config) {
+                this.config = config;
+            }
+            this.filterString = undefined;
+            this.setFilters(config.filters, [], false);
+        }
         this.config = config;
-        this.filterString = undefined;
-        this.setFilters(config.filters, [], false);
 
         if (Array.isArray(resource)) {
             this.originalData = this.setMetadata(resource);
