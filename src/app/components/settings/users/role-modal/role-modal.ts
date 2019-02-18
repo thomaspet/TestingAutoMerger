@@ -1,7 +1,7 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {Observable, forkJoin, of as observableOf} from 'rxjs';
-import {map, catchError} from 'rxjs/operators';
+import {map, catchError, finalize} from 'rxjs/operators';
 import {User, Role, UserRole} from '@uni-entities';
 import {
     ErrorService,
@@ -57,6 +57,8 @@ export class UniRoleModal implements IUniModal {
         forkJoin(
             this.elsaProductService.GetAll(),
             this.elsaPurchaseService.getAll()
+        ).pipe(
+            finalize(() => this.busy = false)
         ).subscribe(
             res => {
                 this.elsaProducts = res[0];
@@ -65,7 +67,6 @@ export class UniRoleModal implements IUniModal {
                 this.getGroupedRoles().subscribe(groups => this.roleGroups = groups);
             },
             err => this.errorService.handle(err),
-            () => this.busy = false
         );
     }
 

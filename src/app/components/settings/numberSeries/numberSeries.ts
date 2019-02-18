@@ -136,15 +136,16 @@ export class NumberSeries {
                 this.busy = true;
                 this.numberSeriesService.findAndSetNextNumber(null).subscribe(
                     () => {
+                        this.busy = false;
                         this.toastService.addToast('Neste nummer er oppdatert på nummerserier', ToastType.good, 5);
                         done('Neste nummer er oppdatert på nummerserier');
                         this.requestNumberSerie();
                     },
                     err => {
+                        this.busy = false;
                         this.errorService.handle(err);
                         done('En feil oppstod ved oppdatering av neste nummer');
-                    },
-                    () => this.busy = false
+                    }
                 );
             } else {
                 done('');
@@ -164,15 +165,16 @@ export class NumberSeries {
                 this.busy = true;
                 this.numberSeriesService.findAndSetNextNumber(seriesID).subscribe(
                     () => {
+                        this.busy = false;
                         this.toastService.addToast('Neste nummer er oppdatert på nummerserien', ToastType.good, 5);
                         done('Neste nummer er oppdatert på nummerserier');
                         this.requestNumberSerie();
                     },
                     err => {
+                        this.busy = false;
                         this.errorService.handle(err);
                         done('En feil oppstod ved oppdatering av neste nummer');
-                    },
-                    () => this.busy = false
+                    }
                 );
             } else {
                 done('');

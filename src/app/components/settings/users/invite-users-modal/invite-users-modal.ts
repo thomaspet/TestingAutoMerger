@@ -5,7 +5,7 @@ import {ErrorService, RoleService, ElsaProductService, UserService, UserRoleServ
 import {forkJoin, Observable} from 'rxjs';
 import { ElsaProduct } from '@app/models';
 import { Role } from '@uni-entities';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, finalize } from 'rxjs/operators';
 
 interface RoleGroup {
     label: string;
@@ -45,10 +45,11 @@ export class InviteUsersModal implements IUniModal {
         forkJoin(
             this.roleService.GetAll(),
             this.productService.GetAll()
+        ).pipe(
+            finalize(() => this.busy = false)
         ).subscribe(
             res => this.roleGroups = this.groupRolesByProduct(res[0], res[1]),
             err => this.errorService.handle(err),
-            () => this.busy = false
         );
     }
 
