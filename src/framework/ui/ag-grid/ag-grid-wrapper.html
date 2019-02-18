@@ -58,7 +58,10 @@
         [suppressRowDrag]="!config?.rowDraggable"
         [cacheBlockSize]="cacheBlockSize"
         [animateRows]="true"
-        [gridOptions]="config"
+        [suppressMakeColumnVisibleAfterUnGroup]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [suppressDragLeaveHidesColumns]="config?.suppressDragLeaveHidesColumns"
+        [autoGroupColumnDef]="config?.suppressMakeColumnVisibleAfterUnGroup"
+        [rowGroupPanelShow]="config?.rowGroupPanelShow"
         [blockLoadDebounceMillis]="250"
         [suppressContextMenu]="true"
 
