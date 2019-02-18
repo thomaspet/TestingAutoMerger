@@ -224,8 +224,9 @@ export class VariablePayrollsComponent {
         this.newOrChangedSalaryTransactions = [];
 
         if (!samePayrollRun) {
-            this.payrollrunService.getEmployeesOnPayroll(this.payrollRunID, ['Employments', 'BusinessRelationInfo'])
-                .subscribe(employees => this.employeeList = employees, err => this.errorService.handle(err));
+            this.payrollrunService.getEmployeesOnPayroll(
+                this.payrollRunID, ['Employments', 'BusinessRelationInfo', 'Employments.Dimensions']
+            ).subscribe(employees => this.employeeList = employees, err => this.errorService.handle(err));
         }
 
         return this.salaryTransService.GetAll(
@@ -487,10 +488,8 @@ export class VariablePayrollsComponent {
                 if (event.field === '_employee') {
                     if (row['_employee']) {
                         row.EmployeeID = row['_employee'].ID;
-                        if (row['_employee'].Employments && !row.employment) {
-                            row.employment = row['_employee'].Employments.find((e: Employment) => e.Standard);
-                            this.mapEmploymentToTrans(row);
-                        }
+                        row.employment = row['_employee'].Employments.find((e: Employment) => e.Standard);
+                        this.mapEmploymentToTrans(row);
                     }
                 }
 
