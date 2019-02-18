@@ -1796,7 +1796,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.quoteFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
@@ -1820,7 +1820,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.orderFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
@@ -1844,7 +1844,7 @@ export class CompanySettingsComponent implements OnInit {
                 Options: {
                     source: this.invoiceFormList,
                     valueProperty: 'ID',
-                    displayProperty: 'Name',
+                    displayProperty: 'Description',
                     hideDeleteButton: true,
                     searchable: false,
                 },
