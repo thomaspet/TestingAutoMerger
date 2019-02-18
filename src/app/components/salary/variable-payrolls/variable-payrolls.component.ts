@@ -154,7 +154,7 @@ export class VariablePayrollsComponent {
                 label: 'Lagre endringer',
                 action: this.saveVariablePayrolls.bind(this),
                 main: true,
-                disabled: !(this.filteredTransactions.filter(x => x['_isDirty'] === true)[0])
+                disabled: !(this.filteredTransactions.some(x => x['_isDirty'] === true) || this.deletedLines.length)
             },
         ];
     }
@@ -176,7 +176,6 @@ export class VariablePayrollsComponent {
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
-            this.getSaveActions();
 
             this.getsalaryTransBasedOnPayrollrun(payrollrun.ID, true);
             done('Lagring vellykket');
@@ -255,6 +254,7 @@ export class VariablePayrollsComponent {
             this.loading = false;
             this.deletedLines = [];
             this.createTableConfig();
+            this.getSaveActions();
         }, err => { this.loading = false; return this.errorService.handle(err); });
     }
 
@@ -786,14 +786,12 @@ export class VariablePayrollsComponent {
                 row.Deleted = true;
                 row['_isDirty'] = true;
                 this.deletedLines = [...this.deletedLines, row];
-                this.getSaveActions();
             } else {
                 this.filteredTransactions.splice(transIndex, 1);
                 this.newOrChangedSalaryTransactions =
-                    this.newOrChangedSalaryTransactions.filter(
-                        trans => trans['_originalIndex'] !== row['_originalIndex'] || !trans.WageTypeID || !trans.EmployeeID
-                    );
+                    this.newOrChangedSalaryTransactions.filter(trans => trans['_originalIndex'] !== row['_originalIndex']);
             }
+            this.getSaveActions();
         }
     }
 
