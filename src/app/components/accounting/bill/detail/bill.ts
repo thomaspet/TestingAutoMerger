@@ -84,7 +84,6 @@ import {UniNewSupplierModal} from '../../supplier/details/newSupplierModal';
 import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import { EditSupplierInvoicePayments } from '../../modals/editSupplierInvoicePayments';
-import { CIRCULAR } from '@angular/core/src/render3/instructions';
 declare var _;
 
 interface ITab {
@@ -2033,18 +2032,27 @@ export class BillView implements OnInit {
     public creditSupplierInvoice(done: any) {
         const paymentsSentToBank = this.invoicePayments.find(payment =>
             payment.StatusCode === 44002
-            || payment.StatusCode === 44005
             || payment.StatusCode === 44007
             || payment.StatusCode === 44008
             || payment.StatusCode === 44009
             || payment.StatusCode === 44011) !== undefined;
 
+        const paymentsThatWillBeDeleted = this.invoicePayments.find(payment =>
+            payment.StatusCode === 44001
+            || payment.StatusCode === 44003
+            || payment.StatusCode === 44005
+            || payment.StatusCode === 44012
+            || payment.StatusCode === 44014) !== undefined;
+
         const modal = this.modalService.open(UniConfirmModalV2, {
             header: 'Kreditere faktura?',
-            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til forrige status. ',
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til kladd.',
             warning: paymentsSentToBank ?
                 'Leverandørfakturaen har en eller flere betalinger som er sendt til banken. ' +
-                'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.' : ''
+                'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.'
+                : paymentsThatWillBeDeleted
+                ? 'Leverandørfakturaen har en eller flere betalinger som vil bli slettet viss du krediterer.'
+                : ''
         });
 
         modal.onClose.subscribe(response => {
