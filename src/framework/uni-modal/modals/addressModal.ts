@@ -47,6 +47,8 @@ export class UniAddressModal implements IUniModal {
     public formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    public initialState: any;
+
     constructor(
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
@@ -61,6 +63,7 @@ export class UniAddressModal implements IUniModal {
         if (address._initValue && fields[0] && !address[fields[0].Property]) {
             address[fields[0].Property] = address._initValue;
         }
+        this.initialState = Object.assign({}, address);
         this.formModel$.next(address);
 
         this.formFields$.next(fields);
@@ -98,7 +101,7 @@ export class UniAddressModal implements IUniModal {
         if (emitValue) {
             this.onClose.emit(this.formModel$.getValue());
         } else {
-            this.onClose.emit(null);
+            this.onClose.emit(this.initialState);
         }
     }
 
