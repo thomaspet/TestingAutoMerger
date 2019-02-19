@@ -238,6 +238,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.rows = this.filteredRows = _.get(this.model, listProperty, []);
         const oldRows = this.rows;
 
+        let editedValue;
         if (this.field.Options.editor) {
             if (!this.editorIsOpen) {
                 this.editorIsOpen = true;
@@ -250,14 +251,23 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                         return this.rows;
                     }
 
-                    editedEntity['_isDirty'] = true;
                     const index = this.rows.findIndex(r => r === row);
-                    if (index >= 0) {
-                        this.rows[index] = editedEntity;
-                        this.selectRow(editedEntity, true);
+                    if (_.isEqual(editedEntity, this.rows[index])) {
+                        editedEntity['_isDirty'] = true;
+                    }
+                    editedValue = editedEntity;
+                    if (editedEntity['_isDirty']) {
+                        if (index >= 0) {
+                            this.rows[index] = editedEntity;
+                            this.selectRow(editedEntity, true);
+                        } else {
+                            this.rows.push(editedEntity);
+                            this.selectRow(editedEntity, true);
+                        }
                     } else {
-                        this.rows.push(editedEntity);
-                        this.selectRow(editedEntity, true);
+                        this.rows[index] = editedEntity;
+                        this.selectedRow = this.rows[index];
+                        this.displayValue = this.getDisplayValue(editedEntity);
                     }
                     return this.rows;
                 })
@@ -265,7 +275,9 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
                 .then(rows => {
                     // let listProperty = this.field.Options.listProperty || this.field.Property;
                     _.set(this.model, listProperty, rows);
-                    this.emitChange(oldRows, rows);
+                    if (editedValue['_isDirty']) {
+                        this.emitChange(oldRows, rows);
+                    }
                 })
                 .catch((err) => {
                     this.editorIsOpen = false;
