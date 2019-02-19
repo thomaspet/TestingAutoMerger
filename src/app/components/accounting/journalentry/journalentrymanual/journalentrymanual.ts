@@ -428,7 +428,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
                                      rowfield.JournalEntryData.CreditAccount.TopLevelAccountGroup.GroupNumber == "3"
                                      ? rowfield.JournalEntryData.CreditAccountID
                                      : rowfield.JournalEntryData.DebitAccountID;
-
                     this.addCostAllocationForAccount(
                         useAccount,
                         rowfield.JournalEntryData.AmountCurrency,
@@ -481,6 +480,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         this.costAllocationData ? this.costAllocationData.ExchangeRate : null,
                         this.costAllocationData ? this.costAllocationData.FinancialDate : null,
                         this.costAllocationData ? this.costAllocationData.VatDate : null,
+                        false,
                         true);
                 }
                 break;
@@ -500,14 +500,15 @@ export class JournalEntryManual implements OnChanges, OnInit {
                         this.costAllocationData ? this.costAllocationData.CurrencyCodeID : null, 
                         this.costAllocationData ? this.costAllocationData.ExchangeRate : null, 
                         this.costAllocationData ? this.costAllocationData.FinancialDate : null, 
-                        this.costAllocationData ? this.costAllocationData.VatDate : null, 
+                        this.costAllocationData ? this.costAllocationData.VatDate : null,
+                        true,
                         true);
                 }
         }
     }
 
     public addCostAllocationForCostAllocation(costAllocationID: number, useAccountID: number = null, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, creditAllocation: boolean = false, keepCurrentLine: boolean = false) {
-        if (costAllocationID === 0) return;
+        if (!costAllocationID) return;
         this.costAllocationService.Get(costAllocationID).subscribe(costAllocation => {
             if (costAllocation) {
                 this.toastService.addToast(
@@ -524,7 +525,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public addCostAllocationForSupplier(supplierID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, keepCurrentLine: boolean = false) {
-        if (supplierID === 0) return;
+        if (!supplierID) return;
         this.supplierService.Get(supplierID, ['CostAllocation']).subscribe(supplier => {
             if (supplier.CostAllocationID) {
                 this.toastService.addToast(
@@ -541,7 +542,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public addCostAllocationForAccount(accountID: number, currencyAmount: number, currencyCodeID: number, currencyExchangeRate: number, financialDate: LocalDate, vatDate: LocalDate, creditAllocation: boolean = false, keepCurrentLine: boolean = false) {
-        if (!currencyAmount || currencyAmount === 0 || accountID === 0) return;
+        if (!accountID || !currencyAmount) return;
         this.accountService.Get(accountID, ['CostAllocation']).subscribe(account => {
             if (account.CostAllocationID) {
                 this.toastService.addToast(
