@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, CompanySalary} from '../../../unientities';
+import {AmeldingData, CompanySalary, AmeldingType, InternalAmeldingStatus} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -762,8 +762,19 @@ export class AMeldingView implements OnInit {
     }
 
     private openAmeldingTypeModal(done) {
+        let anySentInAmeldingerWithStandardAmeldingType: boolean = false;
+
+        if ((this.aMeldingerInPeriod && this.aMeldingerInPeriod.filter(x => x.type === AmeldingType.Standard)[0])
+            && (this.currentSumUp && this.currentSumUp.Status > InternalAmeldingStatus.GENERATED)
+        ) {
+            anySentInAmeldingerWithStandardAmeldingType = true;
+        }
+
         this.modalService
-            .open(AmeldingTypePickerModal, {modalConfig: {done: done}})
+            .open(AmeldingTypePickerModal, {
+                modalConfig: { done: done },
+                data: { anySentInAmeldingerWithStandardAmeldingType: anySentInAmeldingerWithStandardAmeldingType }
+            })
             .onClose
             .filter(event => event.type >= 0)
             .subscribe(event => this.createAMelding(event));
