@@ -7897,6 +7897,7 @@ export enum AmeldingType{
     Standard = 0,
     Employments = 1,
     Nullstilling = 2,
+    Addition = 3,
 }
 
 
