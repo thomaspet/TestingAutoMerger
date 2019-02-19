@@ -1578,30 +1578,32 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return item;
         });
 
-        invoice.CustomerName = this.currentCustomer.Info.Name;
-        if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
-            var address = this.currentCustomer.Info.Addresses[0];
-            if (this.currentCustomer.Info.InvoiceAddressID) {
-                address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
-            }
-            invoice.InvoiceAddressLine1 = address.AddressLine1;
-            invoice.InvoiceAddressLine2 = address.AddressLine2;
-            invoice.InvoiceAddressLine3 = address.AddressLine3;
-            invoice.InvoicePostalCode = address.PostalCode;
-            invoice.InvoiceCity = address.City;
-            invoice.InvoiceCountry = address.Country;
-            invoice.InvoiceCountryCode = address.CountryCode;
+        if (this.currentCustomer && this.currentCustomer.Info) {
+            invoice.CustomerName = this.currentCustomer.Info.Name;
+            if (this.currentCustomer.Info.Addresses && this.currentCustomer.Info.Addresses.length > 0) {
+                var address = this.currentCustomer.Info.Addresses[0];
+                if (this.currentCustomer.Info.InvoiceAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.InvoiceAddressID);
+                }
+                invoice.InvoiceAddressLine1 = address.AddressLine1;
+                invoice.InvoiceAddressLine2 = address.AddressLine2;
+                invoice.InvoiceAddressLine3 = address.AddressLine3;
+                invoice.InvoicePostalCode = address.PostalCode;
+                invoice.InvoiceCity = address.City;
+                invoice.InvoiceCountry = address.Country;
+                invoice.InvoiceCountryCode = address.CountryCode;
 
-            if (this.currentCustomer.Info.ShippingAddressID) {
-                address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+                if (this.currentCustomer.Info.ShippingAddressID) {
+                    address = this.currentCustomer.Info.Addresses.find(x => x.ID == this.currentCustomer.Info.ShippingAddressID);
+                }
+                invoice.ShippingAddressLine1 = address.AddressLine1;
+                invoice.ShippingAddressLine2 = address.AddressLine2;
+                invoice.ShippingAddressLine3 = address.AddressLine3;
+                invoice.ShippingPostalCode = address.PostalCode;
+                invoice.ShippingCity = address.City;
+                invoice.ShippingCountry = address.Country;
+                invoice.ShippingCountryCode = address.CountryCode;
             }
-            invoice.ShippingAddressLine1 = address.AddressLine1;
-            invoice.ShippingAddressLine2 = address.AddressLine2;
-            invoice.ShippingAddressLine3 = address.AddressLine3;
-            invoice.ShippingPostalCode = address.PostalCode;
-            invoice.ShippingCity = address.City;
-            invoice.ShippingCountry = address.Country;
-            invoice.ShippingCountryCode = address.CountryCode;
         }
         return invoice;
     }
