@@ -40,11 +40,13 @@ export class UniPhoneModal implements IUniModal {
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public formModel$: BehaviorSubject<Phone> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    public initialState: any;
 
     constructor(private elementRef: ElementRef) {}
 
     public ngOnInit() {
         const phone = this.options.data || {};
+        this.initialState = Object.assign({}, phone);
         const fields = this.getFormFields();
 
         if (phone._initValue && fields[0] && !phone[fields[0].Property]) {
@@ -72,6 +74,8 @@ export class UniPhoneModal implements IUniModal {
         let phone: Phone;
         if (emitValue) {
             phone = this.formModel$.getValue();
+        } else {
+            phone = this.initialState;
         }
 
         this.onClose.emit(phone);
