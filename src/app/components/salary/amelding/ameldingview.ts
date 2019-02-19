@@ -791,8 +791,11 @@ export class AMeldingView implements OnInit {
                     }
                 })
             .onClose
-            .subscribe(something => {
-                console.log('were back');
+            .subscribe(hasChanges => {
+                if (!hasChanges) {
+                    return;
+                }
+                this.gotoPeriod(this.currentPeriod);
             });
     }
 

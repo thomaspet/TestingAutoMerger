@@ -5,13 +5,14 @@
   <article class="application">
     <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
     <section [ngSwitch]="activeTabIndex">
-      <uni-amelding-period-split-view 
-        *ngSwitchCase="0" 
-        [ameldingerInPeriod]="options.data.ameldingerInPeriod" 
+      <uni-amelding-period-split-view
+        *ngSwitchCase="0"
+        (changeEvent)="change()"
+        [ameldingerInPeriod]="options.data.ameldingerInPeriod"
         [companySalary]="options.data.companySalary">
       </uni-amelding-period-split-view>
-      <uni-amelding-payrolls-period-view 
-        *ngSwitchCase="1" 
+      <uni-amelding-payrolls-period-view
+        *ngSwitchCase="1"
         [period]="options.data.period">
       </uni-amelding-payrolls-period-view>
     </section>

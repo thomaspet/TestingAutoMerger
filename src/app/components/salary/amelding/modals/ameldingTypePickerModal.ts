@@ -57,7 +57,6 @@ export class AmeldingTypePickerModal implements OnInit, IUniModal {
             source: [
                 { id: 0, name: 'Full a-melding' },
                 { id: 1, name: 'Bare arbeidsforhold' },
-                { id: 2, name: 'Nullstille a-meldingen' }
             ],
             valueProperty: 'id',
             events: {
