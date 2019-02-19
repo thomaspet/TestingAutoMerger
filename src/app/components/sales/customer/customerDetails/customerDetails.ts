@@ -1505,10 +1505,10 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Standard blankett tilbud',
-                    Property: 'DefaultCustomerQuoteReportID',
+                    Label: 'Standard blankett faktura',
+                    Property: 'DefaultCustomerInvoiceReportID',
                     Options: {
-                        source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
                         valueProperty: 'ID',
                         displayProperty: 'Description',
                         hideDeleteButton: true,
@@ -1533,10 +1533,10 @@ export class CustomerDetails implements OnInit {
                 },
                 {
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Standard blankett faktura',
-                    Property: 'DefaultCustomerInvoiceReportID',
+                    Label: 'Standard blankett tilbud',
+                    Property: 'DefaultCustomerQuoteReportID',
                     Options: {
-                        source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+                        source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
                         valueProperty: 'ID',
                         displayProperty: 'Description',
                         hideDeleteButton: true,
